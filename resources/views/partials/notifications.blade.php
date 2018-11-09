@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="col-2">
-                        <button class="btn btn-notify" data-id="{{ $notification->id }}">k</button>
+                        <button class="btn btn-notify" data-id="{{ $notification->id }}">&#10003</button>
                         {{-- &#10003 --}}
                     </div>
                 </div>
@@ -178,9 +178,9 @@
 
     }
 
-    $('#toast-container .toast').on('click', function(e) {
-      e.stopPropagation();
-      alert('asd');
+    $(document).on('click','.toast-info',function () {
+       $('.toast-info').toggleClass('toast-stack');
+       $('#toast-container').toggleClass('toast-container-stacked');
     });
 
     let notificationQueue = new Queue();

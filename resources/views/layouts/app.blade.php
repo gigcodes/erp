@@ -54,17 +54,30 @@
       #toast-container .toast-info {
         background-color: #eee;
         background-image: none !important;
-        /* position: absolute;
-        right: 0px; */
+        position: absolute;
+        right: 0px;
       }
 
-      /* #toast-container .toast-info:nth-child(n) {
-        top: calc(n + 1px);
-      } */
+      #toast-container .toast-info:nth-child(2) {
+        top: 10px;
+      }
+
+      #toast-container .toast-stack {
+        position: relative;
+      }
+
+
+      #toast-container .toast-stack:nth-child(2) {
+        top: 0;
+      }
 
       #toast-container > div#notification_count {
         top: -10px;
-        left: -10px;
+        left: -310px;
+      }
+
+      .toast-container-stacked > div#notification_count {
+        left: -10px !important;
       }
 
       .toast-message a {
