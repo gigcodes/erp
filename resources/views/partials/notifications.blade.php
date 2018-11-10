@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="col-2">
-                        <button class="btn btn-notify" data-id="{{ $notification->id }}">&#10003</button>
+                        <button class="btn btn-notify" data-id="{{ $notification->id }}"></button>
                         {{-- &#10003 --}}
                     </div>
                 </div>
@@ -41,6 +41,7 @@
     let allUsers = {!! json_encode( \App\Helpers::getUserArray( \App\User::all() ) ) !!};
     let current_userid = '{{ Auth::id() }}';
     let current_username = '{{ Auth::user()->name }}';
+    let is_admin = "{{ Auth::user()->hasRole('Admin') }}";
 
     // Queue class
     class Queue {
@@ -263,7 +264,7 @@
         }
 
         toastr.options = {
-            "closeButton": (notification.type === 'button') ? false : true,
+            "closeButton": (notification.type === 'button') && (is_admin == false) ? false : true,
             "debug": false,
             "newestOnTop": true,
             "progressBar": false,
