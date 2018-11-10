@@ -296,7 +296,7 @@
                                             @endcan
                                         @endcan
 
-                                        <a class="dropdown-item" href="{{ route('task.index') }}">Tasks</a>
+                                        {{-- <a class="dropdown-item" href="{{ route('task.index') }}">Tasks</a> --}}
                                     </div>
 
                                 </li>
