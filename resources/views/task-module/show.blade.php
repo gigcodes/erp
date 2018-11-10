@@ -408,6 +408,7 @@
                     <th>Assigned From</th>
                     <th>Assigned To</th>
                     <th>Recurring Type</th>
+                    <th>Remarks</th>
                     <th>Completed</th>
                     {{--<th>Remark</th>--}}
                     {{--<th>Completed</th>--}}
@@ -426,6 +427,7 @@
                             <td>{{ $task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
                             <td>{{ $task['recurring_type'] }}</td>
                             {{-- <td>{{ $task['recurring_day'] ?? 'nil' }}</td> --}}
+                            <td> @include('task-module.partials.remark',$task) </td>
                             <td>
                               @if( Auth::id() == $task['assign_to'] )
                                 @if ($task['completion_date'])
