@@ -7,6 +7,7 @@ use App\SatutoryTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Helpers;
 use App\User;
 use App\Task;
@@ -43,11 +44,48 @@ class TaskModuleController extends Controller {
 											})
 		                                    ->get()->toArray();
 
+
+
+		$satutory_tasks = SatutoryTask::latest()
+		                                         ->orWhere( 'assign_from', '=', $userid )
+												 ->orWhere( 'assign_to', '=', $userid )->whereNotNull('completion_date')
+		                                         ->get();
+
+		foreach ($satutory_tasks as $task) {
+			switch ($task->recurring_type) {
+				case 'EveryDay':
+					if (Carbon::parse($task->completion_date)->format('Y-m-d') < date('Y-m-d')) {
+						$task->completion_date = null;
+						$task->save();
+					}
+					break;
+				case 'EveryWeek':
+					if (Carbon::parse($task->completion_date)->addWeek()->format('Y-m-d') < date('Y-m-d')) {
+						$task->completion_date = null;
+						$task->save();
+					}
+					break;
+				case 'EveryMonth':
+					if (Carbon::parse($task->completion_date)->addMonth()->format('Y-m-d') < date('Y-m-d')) {
+						$task->completion_date = null;
+						$task->save();
+					}
+					break;
+				case 'EveryYear':
+					if (Carbon::parse($task->completion_date)->addYear()->format('Y-m-d') < date('Y-m-d')) {
+						$task->completion_date = null;
+						$task->save();
+					}
+					break;
+				default:
+
+			}
+		}
+
 		$data['task']['statutory'] = SatutoryTask::latest()
 		                                         ->orWhere( 'assign_from', '=', $userid )
 												 ->orWhere( 'assign_to', '=', $userid )
 		                                         ->get()->toArray();
-
 
 		$data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
 		                                   ->whereNotNull( 'is_completed'  )
