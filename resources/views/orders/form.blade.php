@@ -53,7 +53,7 @@
                     @endif
                 </div>
             </div>
-            
+
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Date of Delivery:</strong>
@@ -109,12 +109,12 @@
                 </div>
             </div>--}}
 
-            @if($modify == 1)
+            {{-- @if($modify == 1) --}}
 
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
                         <strong> Products Attacted:</strong>
-                        <table class="table table-bordered">
+                        <table class="table table-bordered" id="products-table">
                             <tr>
                                 <th>Name</th>
                                 <th>Sku</th>
@@ -177,13 +177,110 @@
                         </table>
                     </div>
                 </div>
-
+                {{-- {{dd($data)}} --}}
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
                         <a href="{{ route('attachProducts',['order',$id]) }}"><button type="button" class="btn btn-primary">Attach From Grid</button></a>
                     </div>
                 </div>
-            @endif
+
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#productModal">Create Product</button>
+                    </div>
+                </div>
+
+                <div id="productModal" class="modal fade" role="dialog">
+                  <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Create Product</h4>
+                      </div>
+                      <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Image:</strong>
+                            <input type="file" class="form-control" name="image"
+                                   value="{{ old('image') }}" id="product-image"/>
+                            @if ($errors->has('image'))
+                                <div class="alert alert-danger">{{$errors->first('image')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Name:</strong>
+                            <input type="text" class="form-control" name="name" placeholder="Name"
+                                   value="{{ old('name') }}"  id="product-name"/>
+                            @if ($errors->has('name'))
+                                <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>SKU:</strong>
+                            <input type="text" class="form-control" name="sku" placeholder="SKU"
+                                   value="{{ old('sku') }}"  id="product-sku"/>
+                            @if ($errors->has('sku'))
+                                <div class="alert alert-danger">{{$errors->first('sku')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Color:</strong>
+                            <input type="text" class="form-control" name="color" placeholder="Color"
+                                   value="{{ old('color') }}"  id="product-color"/>
+                            @if ($errors->has('color'))
+                                <div class="alert alert-danger">{{$errors->first('color')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Brand:</strong>
+                            <input type="text" class="form-control" name="brand" placeholder="Brand"
+                                   value="{{ old('brand') }}"  id="product-brand"/>
+                            @if ($errors->has('brand'))
+                                <div class="alert alert-danger">{{$errors->first('brand')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Price:</strong>
+                            <input type="number" class="form-control" name="price" placeholder="Price"
+                                   value="{{ old('price') }}" step=".01"  id="product-price"/>
+                            @if ($errors->has('price'))
+                                <div class="alert alert-danger">{{$errors->first('price')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Size:</strong>
+                            <input type="text" class="form-control" name="size" placeholder="Size"
+                                   value="{{ old('size') }}"  id="product-size"/>
+                            @if ($errors->has('size'))
+                                <div class="alert alert-danger">{{$errors->first('size')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Quantity:</strong>
+                            <input type="number" class="form-control" name="quantity" placeholder="Quantity"
+                                   value="{{ old('quantity') }}"  id="product-quantity"/>
+                            @if ($errors->has('quantity'))
+                                <div class="alert alert-danger">{{$errors->first('quantity')}}</div>
+                            @endif
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" id="createProduct">Create</button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+            {{-- @endif --}}
 
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
@@ -301,7 +398,7 @@
                     @endif
                 </div>
             </div>
-            
+
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Payment Mode :</strong>
@@ -315,7 +412,7 @@
                     @endif
                 </div>
             </div>
-            
+
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Note if any:</strong>
@@ -333,4 +430,73 @@
 
         </div>
     </form>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#createProduct').on('click', function() {
+          var token = "{{ csrf_token() }}";
+          var url = "{{ route('products.store') }}";
+          var order_id = {{ $id }};
+          var image = $('#product-image').val();
+          var name = $('#product-name').val();
+          var sku = $('#product-sku').val();
+          var color = $('#product-color').val();
+          var brand = $('#product-brand').val();
+          var price = $('#product-price').val();
+          var size = $('#product-size').val();
+          var quantity = $('#product-quantity').val();
+
+          $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+              _token: token,
+              order_id: order_id,
+              image: image,
+              name: name,
+              sku: sku,
+              color: color,
+              brand: brand,
+              price: price,
+              size: size,
+              quantity: quantity
+            },
+            success: function(response) {
+              console.log(response);
+              var show_url = "{{ url('products') }}/" + response.order.id;
+              var delete_url = "{{ url('deleteOrderProduct') }}/" + response.order.id;
+              var product_row = '<tr><th>' + response.product.name + '</th>';
+                  product_row += '<th>' + response.product.sku + '</th>';
+                  product_row += '<th>' + response.product.color + '</th>';
+                  product_row += '<th>' + response.product.brand + '</th>';
+                  product_row += '<th><input class="table-input" type="text" value="' + response.product.price + '" name="order_products[' + response.order.id + '][product_price]"></th>';
+                  // product_row += '<th>' + response.product.size + '</th>';
+
+                  if (response.product.size != null) {
+                    var exploded = response.product.size.split(',');
+
+                    product_row += '<th><select class="form-control" name="order_products[' + response.order.id + '][size]">';
+                    product_row += '<option selected="selected" value="">Select</option>';
+
+                    $(exploded).each(function(index, value) {
+                      product_row += '<option value="' + value + '">' + value + '</option>';
+                    });
+
+                    product_row += '</select></th>';
+
+                  } else {
+                      product_row += '<th><select hidden class="form-control" name="order_products[' + response.order.id + '][size]"><option selected="selected" value=""></option></select>nil</th>';
+                  }
+
+                  product_row += '<th><input class="table-input" type="number" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></th>';
+                  product_row += '<th><a class="btn btn-primary btn-success" href="' + show_url + '">View</a>';
+                  product_row += '<form class="display-inline" method="post" action="' + delete_url + '">@csrf<button type="submit" class="btn btn-primary btn-danger">Remove</button></form></th>';
+                  product_row += '</tr>';
+
+              $('#products-table').append(product_row);
+            }
+          });
+        });
+      });
+    </script>
 @endsection

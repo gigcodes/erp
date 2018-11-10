@@ -64,8 +64,11 @@ class OrderController extends Controller {
 			$data[ $item ] = '';
 		}
 
+		$data['id'] = Order::withTrashed()->latest()->first()->id + 1;
 		$data['sales_persons'] = Helpers::getUsersArrayByRole( 'Sales' );
 		$data['modify']        = 0;
+		$data['order_products'] = $this->getOrderProductsWithProductData($data['id']);
+
 
 		return view( 'orders.form', $data );
 	}

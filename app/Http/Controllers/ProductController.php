@@ -6,12 +6,15 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\Order;
+use App\OrderProduct;
 use App\Product;
 use App\Sale;
 use App\Setting;
 use App\Sizes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 
 class ProductController extends Controller {
@@ -108,7 +111,12 @@ class ProductController extends Controller {
 
 		$doSelection = true;
 
-		$selected_products = self::getSelectedProducts($model_type,$model_id);
+		if (Order::find($model_id)) {
+			$selected_products = self::getSelectedProducts($model_type,$model_id);
+		} else {
+			$selected_products = [];
+		}
+		// dd($selected_products);
 
 
 		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type' ) );
@@ -149,5 +157,43 @@ class ProductController extends Controller {
 		}
 
 		return $selected_products;
+	}
+
+	public function store(Request $request)
+	{
+		$product = new Product;
+		// return response(['ok' => $request->image]);
+		// $media = MediaUploader::fromSource($request->image)
+		// 				->toDestination('uploads')
+		// 				->upload();
+		//
+		// return response(['ok' => $media]);
+
+		$product->name = $request->name;
+		$product->sku = $request->sku;
+		// $product->image = $request->image;
+		$product->size = $request->size;
+		$product->price = $request->price;
+		$product->brand = $request->brand;
+		$product->color = $request->color;
+
+		$product->save();
+
+		// $product->attachMedia($request->image, 'uploads');
+
+		$order_product = new OrderProduct;
+
+		$order_product->order_id = $request->order_id;
+		$order_product->sku = $request->sku;
+		$order_product->product_price = $request->price;
+		$order_product->size = $request->size;
+		$order_product->color = $request->color;
+		$order_product->qty = $request->quantity;
+
+		$order_product->save();
+
+		// return response($product);
+
+		return response(['product' => $product, 'order' => $order_product, 'quantity' => $request->quantity]);
 	}
 }
