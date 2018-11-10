@@ -7,6 +7,9 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
+    {{-- <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" /> --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+
     <div class="row">
         <div class="col-lg-12 text-center">
             <h2> Task & Activity</h2>
@@ -103,13 +106,31 @@
                                  <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
                              @endif
                         </div>
-                        <div id="completion_date" class="form-group">
+                        <div class="form-group">
+                          <strong>Completion Date:</strong>
+                          <div class='input-group date' id='completion-datetime'>
+                            <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                            <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                          </div>
+
+                          @if ($errors->has('completion_date'))
+                              <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                          @endif
+                        </div>
+                        {{-- <div id="completion_date" class="form-group">
                             <strong>Completion Date:</strong>
-                            <input type="datetime-local" name="completion_date" class="form-control" placeholder="Completion Date" value="{{ date('Y-m-d\TH:i') }}">
+                            <input type='text' class="form-control" name="completion_date" id="completion-datetime" />
+                            {{-- <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span> --}}
+                            {{-- <input type="datetime-local" name="completion_date" class="form-control" placeholder="Completion Date" value="{{ date('Y-m-d\TH:i') }}" id="completion-datetime">
                             @if ($errors->has('completion_date'))
                                 <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
                             @endif
-                        </div>
+                        </div> --}}
 
                         <div class="form-group">
                             <select name="is_statutory" class="form-control is_statutory">
@@ -428,9 +449,13 @@
         </div>
     </div>
 
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
     <script>
+
+        $('#completion-datetime').datetimepicker({
+          format: 'YYYY-MM-DD HH:mm'
+        });
 
         let users = {!! json_encode( $data['users'] ) !!};
 
