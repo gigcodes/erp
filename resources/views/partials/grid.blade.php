@@ -82,6 +82,21 @@
 
     </div>
 
+    {!! $products->appends(Request::except('page'))->links() !!}
+
+    <div class="row">
+        <div class="col-2">
+            <div class="form-group">
+                Goto :
+                <select onchange="location.href = this.value;">
+                    @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
+                        <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+                    @endfor
+                </select>
+            </div>
+        </div>
+    </div>
+
 	<?php $stage = new \App\Stage(); ?>
 
     <script>
