@@ -134,7 +134,7 @@
                 'sku': '{{ $product->sku }}',
                 'id': '{{ $product->id }}',
                 'size': '{{ $product->size}}',
-                'price': '{{ $product->price }}',
+                'price': '{{ $product->price_special }}',
                 'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
                 'image': '{{ $product->getMedia(config('constants.media_tags'))->first()
                               ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
