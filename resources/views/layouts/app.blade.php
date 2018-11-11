@@ -98,6 +98,43 @@
         border: 1px solid black;
         margin: 0 !important;
       }
+
+      .dropdown-submenu>.dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -6px;
+        margin-left: -1px;
+        -webkit-border-radius: 0 6px 6px 6px;
+        -moz-border-radius: 0 6px 6px;
+        border-radius: 0 6px 6px 6px;
+      }
+
+      .dropdown-submenu:hover>.dropdown-menu {
+        display: block;
+      }
+
+      .dropdown-submenu>a:after {
+        display: block;
+        content: " ";
+        float: right;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+        border-width: 5px 0 5px 5px;
+        border-left-color: #ccc;
+        margin-top: 5px;
+        margin-right: -10px;
+      }
+
+      .dropdown-submenu:hover>a:after {
+        border-left-color: #fff;
+      }
+
+      .nav-item.dropdown-submenu[data-count]:after {
+        left: 0;
+        right: auto;
+      }
     </style>
 
     <script>
@@ -171,108 +208,191 @@
                                 </div>
                             </li>
 
+                            @can('admin')
+                              <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
+                                <ul class="dropdown-menu multi-level">
+                                  <li class="nav-item dropdown dropdown-submenu">
+                                      <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Selection<span class="caret"></span>
+                                      </a>
 
-                            @can('inventory-list')
-                                <li class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        Inventory<span class="caret"></span>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
-                                    </div>
-                                </li>
-                            @endcan
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Selections Grid</a>
+  {{--                                        <a class="dropdown-item" href="{{route('productselection.list')}}">Selections List</a>--}}
+                                          @can('selection-create')
+                                              <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
+                                          @endcan
+                                      </ul>
+                                  </li>
 
-                            @can('approver-list')
-                                <li class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        Approver<span class="caret"></span>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productapprover.index') }}">Approver Grid</a>
-                                    </div>
-                                </li>
-                            @endcan
+                                  <li class="nav-item dropdown dropdown-submenu">
+                                      <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Searcher<span class="caret"></span>
+                                      </a>
 
-                            @can('lister-list')
-                                <li class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        Lister<span class="caret"></span>
-                                    </a>
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productsearcher.index') }}">Searcher Grid</a>
+                                          {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
+                                      </ul>
+                                  </li>
 
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productlister.index') }}">Lister Grid</a>
-                                    </div>
-                                </li>
-                            @endcan
+                                  <li class="nav-item dropdown dropdown-submenu" data-count="{{
+                                          \App\Http\Controllers\ProductAttributeController::rejectedProductCountByUser()
+                                   }}">
+                                      <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Attribute<span class="caret"></span>
+                                      </a>
 
-                            @can('imagecropper-list')
-                                <li class="nav-item dropdown"  data-count="{{ \App\Http\Controllers\ProductCropperController::rejectedProductCountByUser() }}">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        ImageCropper<span class="caret"></span>
-                                    </a>
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productattribute.index') }}">Attribute Grid</a>
+                                          {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
+                                      </ul>
+                                  </li>
 
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper Grid</a>
-                                    </div>
-                                </li>
-                            @endcan
+                                  <li class="nav-item dropdown dropdown-submenu"  data-count="{{ \App\Http\Controllers\ProductCropperController::rejectedProductCountByUser() }}">
+                                      <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          ImageCropper<span class="caret"></span>
+                                      </a>
 
-                            @can('supervisor-list')
-                                <li class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        Supervisor<span class="caret"></span>
-                                    </a>
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper Grid</a>
+                                      </ul>
+                                  </li>
 
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productsupervisor.index') }}">Supervisor Grid</a>
-                                        {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
-                                    </div>
-                                </li>
-                            @endcan
+                                  <li class="nav-item dropdown dropdown-submenu">
+                                      <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Lister<span class="caret"></span>
+                                      </a>
 
-                            @can('attribute-list')
-                                <li class="nav-item dropdown" data-count="{{
-                                        \App\Http\Controllers\ProductAttributeController::rejectedProductCountByUser()
-                                 }}">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        Attribute<span class="caret"></span>
-                                    </a>
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productlister.index') }}">Lister Grid</a>
+                                      </ul>
+                                  </li>
 
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productattribute.index') }}">Attribute Grid</a>
-                                        {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
-                                    </div>
-                                </li>
-                            @endcan
+                                  <li class="nav-item dropdown dropdown-submenu">
+                                      <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Approver<span class="caret"></span>
+                                      </a>
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productapprover.index') }}">Approver Grid</a>
+                                      </ul>
+                                  </li>
 
-                            @can('searcher-list')
-                                <li class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        Searcher<span class="caret"></span>
-                                    </a>
+                                  <li class="nav-item dropdown dropdown-submenu">
+                                      <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Inventory<span class="caret"></span>
+                                      </a>
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
+                                      </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            @else
 
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productsearcher.index') }}">Searcher Grid</a>
-                                        {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
-                                    </div>
-                                </li>
-                            @endcan
+                              @can('inventory-list')
+                                  <li class="nav-item dropdown">
+                                      <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Inventory<span class="caret"></span>
+                                      </a>
+                                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
+                                      </div>
+                                  </li>
+                              @endcan
 
-                            @can('selection-list')
-                                <li class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        Selection<span class="caret"></span>
-                                    </a>
+                              @can('approver-list')
+                                  <li class="nav-item dropdown">
+                                      <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Approver<span class="caret"></span>
+                                      </a>
+                                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productapprover.index') }}">Approver Grid</a>
+                                      </div>
+                                  </li>
+                              @endcan
 
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Selections Grid</a>
-{{--                                        <a class="dropdown-item" href="{{route('productselection.list')}}">Selections List</a>--}}
-                                        @can('selection-create')
-                                            <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
-                                        @endcan
-                                    </div>
-                                </li>
+                              @can('lister-list')
+                                  <li class="nav-item dropdown">
+                                      <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Lister<span class="caret"></span>
+                                      </a>
+
+                                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productlister.index') }}">Lister Grid</a>
+                                      </div>
+                                  </li>
+                              @endcan
+
+                              @can('imagecropper-list')
+                                  <li class="nav-item dropdown"  data-count="{{ \App\Http\Controllers\ProductCropperController::rejectedProductCountByUser() }}">
+                                      <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          ImageCropper<span class="caret"></span>
+                                      </a>
+
+                                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper Grid</a>
+                                      </div>
+                                  </li>
+                              @endcan
+
+                              {{-- @can('supervisor-list')
+                                  <li class="nav-item dropdown">
+                                      <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Supervisor<span class="caret"></span>
+                                      </a>
+
+                                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productsupervisor.index') }}">Supervisor Grid</a>
+                                          {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>
+                                      </div>
+                                  </li>
+                              @endcan --}}
+
+                              @can('attribute-list')
+                                  <li class="nav-item dropdown" data-count="{{
+                                          \App\Http\Controllers\ProductAttributeController::rejectedProductCountByUser()
+                                   }}">
+                                      <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Attribute<span class="caret"></span>
+                                      </a>
+
+                                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productattribute.index') }}">Attribute Grid</a>
+                                          {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
+                                      </div>
+                                  </li>
+                              @endcan
+
+                              @can('searcher-list')
+                                  <li class="nav-item dropdown">
+                                      <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Searcher<span class="caret"></span>
+                                      </a>
+
+                                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productsearcher.index') }}">Searcher Grid</a>
+                                          {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
+                                      </div>
+                                  </li>
+                              @endcan
+
+                              @can('selection-list')
+                                  <li class="nav-item dropdown">
+                                      <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                          Selection<span class="caret"></span>
+                                      </a>
+
+                                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Selections Grid</a>
+  {{--                                        <a class="dropdown-item" href="{{route('productselection.list')}}">Selections List</a>--}}
+                                          @can('selection-create')
+                                              <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
+                                          @endcan
+                                      </div>
+                                  </li>
+                              @endcan
                             @endcan
 
                             @can('crm')

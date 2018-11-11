@@ -243,14 +243,14 @@
 
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group">
-                        @hasallroles( 'Supervisors|Attribute' )
+                        @hasallroles( 'Attribute' )
                         <a href="{{ route('productattribute.edit',$id) }}">
                             <button type="button" class="btn btn-primary btn-success">
                                 Edit
                             </button>
                         </a>
                         @endhasallroles
-                        @can('supervisor-edit')
+                        {{-- @can('supervisor-edit')
                             <form method="POST" action="{{ route('productsupervisor.approve',$id) }}"
                                   style="display: inline;">
                                 @csrf
@@ -266,7 +266,7 @@
                             <script> jQuery(document).ready(() => {
                                     attachRejectEvent()
                                 }); </script>
-                        @endcan
+                        @endcan --}}
                     </div>
                     <div class="form-group">
                         @can('lister-edit')
@@ -290,7 +290,7 @@
                             </form>
                         @endcan
                     </div>
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         @can('supervisor-edit')
                             <form method="POST" action="{{ route('productsupervisor.reject',$id) }}">
                                 @csrf
@@ -323,14 +323,14 @@
                                             @endif
                                         </div>
                                         <div class="form-group">
-                                            {{--<input type="text" hidden name="stage" value="2">--}}
+                                            {{--<input type="text" hidden name="stage" value="2">
                                             <button type="submit" class="btn btn-primary">Submit</button>
                                         </div>
                                     </div>
                                 </div>
                             </form>
                         @endcan
-                    </div>
+                    </div> --}}
                     <div class="form-group">
                         @can('inventory-edit')
                             <form method="POST" action="{{ route('productinventory.stock',$id) }}"
