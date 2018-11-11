@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Brand;
 use App\Setting;
+use App\Product;
 use Illuminate\Http\Request;
 
 class BrandController extends Controller
@@ -76,6 +77,32 @@ class BrandController extends Controller
 
 		$brand->update();
 
+		$products = Product::where('brand', $brand->id)->get();
+
+		if (count($products) > 0) {
+			foreach ($products as $product) {
+				if(!empty($brand->euro_to_inr))
+					$product->price_inr = $brand->euro_to_inr * $product->price;
+				else
+					$product->price_inr = Setting::get('euro_to_inr') * $product->price;
+
+				$product->price_inr = round($product->price_inr, -3);
+				$product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+
+				$product->price_special = round($product->price_special, -3);
+
+				$product->save();
+			}
+		}
+
+		$uploaded_products = Product::where('brand', $brand->id)->where('isUploaded', 1)->get();
+
+		if (count($uploaded_products) > 0) {
+			foreach ($uploaded_products as $product) {
+				$this->magentoSoapUpdatePrices($product);
+			}
+		}
+
 		return redirect()->route('brand.index')->with('success','Brand updated successfully');
 	}
 
@@ -115,5 +142,28 @@ class BrandController extends Controller
 		$brand_instance = $brand->find($id);
 
 		return $brand_instance ? $brand_instance->deduction_percentage : 0;
+	}
+
+	public function magentoSoapUpdatePrices($product){
+
+		$options = array(
+			'trace' => true,
+			'connection_timeout' => 120,
+			'wsdl_cache' => WSDL_CACHE_NONE,
+		);
+		$proxy = new \SoapClient(config('magentoapi.url'), $options);
+		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+
+		$sku = $product->sku . $product->color;
+//		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
+		$data = [
+			'price'	=> $product->price_inr,
+			'special_price'	=> $product->price_special
+		];
+
+		$result = $proxy->catalogProductUpdate($sessionId, $sku , $data);
+
+
+		return $result;
 	}
 }
