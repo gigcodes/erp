@@ -135,6 +135,11 @@
         left: 0;
         right: auto;
       }
+
+      .new-message {
+        background-color: #007bff;
+        color: white;
+      }
     </style>
 
     <script>

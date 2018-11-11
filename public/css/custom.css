@@ -266,7 +266,7 @@ a.notification-link{
 
 .chat-toggle{position: absolute;right:5px;top:0px;}
 .chat-container table {
-  border-collapse:separate; 
+  border-collapse:separate;
   border-spacing: 0 1em;
 }
 .msg-wgt-footer {margin-left: -15px;background: #ebebeb; }
@@ -278,7 +278,7 @@ a.notification-link{
 }
 #sendid li{border-bottom: 1px solid #c4c4c4;margin: 0;padding: 18px 10px 10px;cursor: pointer;}
 .activeuser{background: #ddd}
-#sendid li span{color: green;font-size: 10px}
+#sendid li span{color: white;font-size: 10px}
 .blink{
     -webkit-animation: blink 700ms infinite alternate;
     -moz-animation: blink 700ms infinite alternate;

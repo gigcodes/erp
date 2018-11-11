@@ -1,7 +1,7 @@
 var channel = pusher.subscribe('solo-chat-channel');
         channel.bind('chat', function(data) {
          // alert(JSON.stringify(data));
-          // we receive the message     
+          // we receive the message
               useriddest =localStorage.getItem("chatusrid");
               if(data.userid == loggedinuser)
               {
@@ -14,13 +14,13 @@ var channel = pusher.subscribe('solo-chat-channel');
 				    }
 				  });
 				  checknewmessages();
-			   }	  
+			   }
         });
 
 function checknewmessages()
 {
-	 
-	 	userid = $(this).attr("data-id"); 
+
+	 	userid = $(this).attr("data-id");
 
         $.ajax({
           url: '/chat/getnew',
@@ -36,13 +36,15 @@ function checknewmessages()
               {
                  //alert(obj[i].new );
                  $("#sendid").find('#user'+ obj[i].userid).html("-- New");
+                 $("#sendid").find('#user'+ obj[i].userid).parent().addClass('new-message');
                  $(".msg-wgt-header").addClass("blink");
               }
               else
               {
                  $("#sendid").find('#user' + obj[i].userid).html("");
-              }  
-            } 
+                 $("#sendid").find('#user'+ obj[i].userid).parent().removeClass('new-message');
+              }
+            }
           }
         });
-	 	 }        
+	 	 }

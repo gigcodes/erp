@@ -23,7 +23,7 @@
                             if(Auth::user()->name != $user) :
                          ?>
 
-						 <li data-id="{{$key}}">{{$user}} <span class="new" id="user{{$key}}"></span> </li>
+						 <li data-id="{{$key}}">{{$user}} <span class="" id="user{{$key}}"></span> </li>
 						 <?php
                         endif;
                         } ?>
