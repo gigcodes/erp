@@ -10,12 +10,14 @@
                 <h2>{{ $roletype }}</h2>
 
                 <!--pending products count-->
-                @if( $roletype != 'Selection' && $roletype != 'Sale' )
-                    <div class="pt-2 pb-3">
-                        <a href="{{ route('pending',$roletype) }}"><strong>Pending
-                                : </strong> {{ \App\Product::getPendingProductsCount($roletype) }}</a>
-                    </div>
-                @endif
+                @can('admin')
+                  @if( $roletype != 'Selection' && $roletype != 'Sale' )
+                      <div class="pt-2 pb-3">
+                          <a href="{{ route('pending',$roletype) }}"><strong>Pending
+                                  : </strong> {{ \App\Product::getPendingProductsCount($roletype) }}</a>
+                      </div>
+                  @endif
+                @endcan
 
                 <!--attach Product-->
                 @if( isset($doSelection) )
