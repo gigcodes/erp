@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\Product;
+use App\Brand;
 use App\Sale;
 use App\Setting;
 use App\Stage;
@@ -38,8 +39,8 @@ class SearchController extends Controller {
 
 		$productQuery = ( new Product() )->newQuery()
 		                                 ->latest()
-		                                 ->orWhere( 'sku', $term )
-		                                 ->orWhere( 'id', $term )//		                                 ->orWhere( 'category', $term )
+		                                 ->orWhere( 'sku', 'LIKE', "%$term%" )
+		                                 ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
 		;
 
 
@@ -47,17 +48,18 @@ class SearchController extends Controller {
 
 			$productQuery = $productQuery->orWhere( 'isApproved', - 1 );
 		}
-
-		if ( BrandController::getBrandIds( $term ) ) {
-
-			$productQuery = $productQuery->orWhere( 'brand', BrandController::getBrandIds( $term ) );
+		// BrandController::getBrandIds( $term )
+		if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+			$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+			$productQuery = $productQuery->orWhere( 'brand', 'LIKE', "%$brand_id%" );
 		}
 
-		if ( CategoryController::getCategoryIdByName( $term ) ) {
-
+		// CategoryController::getCategoryIdByName( $term )
+		if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+			$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
 			$productQuery = $productQuery->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
 		}
-
+		
 		if ( ! empty( $stage->getIDCaseInsensitive( $term ) ) ) {
 
 			$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );

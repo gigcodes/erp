@@ -29,7 +29,7 @@
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-12">
-                                <input name="term" type="text" class="form-control"
+                                <input name="term" type="text" class="form-control" id="product-search"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="sku,brand,category,status,stage">
                                 <input hidden name="roletype" type="text" value="{{ $roletype }}">
@@ -211,6 +211,10 @@
 
                 jQuery('#productGrid').append(html + '</div>');
             });
+
+            // $('#product-search').on('keyup', function() {
+            //   alert('t');
+            // });
 
             {{--@if($roletype == 'Supervisor')
             @can('supervisor-edit')
