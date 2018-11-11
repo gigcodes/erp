@@ -238,11 +238,13 @@
 
                         <div class="form-group">
                             <strong>Brand:</strong>
-                            <input type="text" class="form-control" name="brand" placeholder="Brand"
-                                   value="{{ old('brand') }}"  id="product-brand"/>
-                            @if ($errors->has('brand'))
-                                <div class="alert alert-danger">{{$errors->first('brand')}}</div>
-                            @endif
+                            <?php
+          	                $brands = \App\Brand::getAll();
+          	                echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
+                              {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
+                              @if ($errors->has('brand'))
+                                  <div class="alert alert-danger">{{$errors->first('brand')}}</div>
+                              @endif
                         </div>
 
                         <div class="form-group">
@@ -437,7 +439,7 @@
           var token = "{{ csrf_token() }}";
           var url = "{{ route('products.store') }}";
           var order_id = {{ $id }};
-          var image = $('#product-image').val();
+          var image = $('#product-image').prop('files')[0];
           var name = $('#product-name').val();
           var sku = $('#product-sku').val();
           var color = $('#product-color').val();
@@ -446,23 +448,26 @@
           var size = $('#product-size').val();
           var quantity = $('#product-quantity').val();
 
+          var form_data = new FormData();
+          form_data.append('_token', token);
+          form_data.append('order_id', order_id);
+          form_data.append('image', image);
+          form_data.append('name', name);
+          form_data.append('sku', sku);
+          form_data.append('color', color);
+          form_data.append('brand', brand);
+          form_data.append('price', price);
+          form_data.append('size', size);
+          form_data.append('quantity', quantity);
+
           $.ajax({
             type: 'POST',
             url: url,
-            data: {
-              _token: token,
-              order_id: order_id,
-              image: image,
-              name: name,
-              sku: sku,
-              color: color,
-              brand: brand,
-              price: price,
-              size: size,
-              quantity: quantity
-            },
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            data: form_data,
             success: function(response) {
-              console.log(response);
               var show_url = "{{ url('products') }}/" + response.order.id;
               var delete_url = "{{ url('deleteOrderProduct') }}/" + response.order.id;
               var product_row = '<tr><th>' + response.product.name + '</th>';

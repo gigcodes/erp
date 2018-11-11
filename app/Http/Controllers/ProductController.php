@@ -161,17 +161,16 @@ class ProductController extends Controller {
 
 	public function store(Request $request)
 	{
+		$this->validate($request, [
+			'sku' => 'required|unique:products'
+		]);
+
 		$product = new Product;
-		// return response(['ok' => $request->image]);
-		// $media = MediaUploader::fromSource($request->image)
-		// 				->toDestination('uploads')
-		// 				->upload();
-		//
-		// return response(['ok' => $media]);
+
+		// return response()->json(['ok' => $request->file('image')->getClientOriginalExtension()]);
 
 		$product->name = $request->name;
 		$product->sku = $request->sku;
-		// $product->image = $request->image;
 		$product->size = $request->size;
 		$product->price = $request->price;
 		$product->brand = $request->brand;
@@ -179,7 +178,8 @@ class ProductController extends Controller {
 
 		$product->save();
 
-		// $product->attachMedia($request->image, 'uploads');
+		$media = MediaUploader::fromSource($request->file('image'))->upload();
+		$product->attachMedia($media,config('constants.media_tags'));
 
 		$order_product = new OrderProduct;
 
