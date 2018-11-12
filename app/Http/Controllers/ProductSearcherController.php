@@ -6,6 +6,7 @@ use App\Product;
 use App\Setting;
 use App\Stage;
 use App\Brand;
+use App\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,7 +42,11 @@ class ProductSearcherController extends Controller
 			array_push($search_suggestions, $suggestion);
 		}
 
-		return view('partials.grid',compact('products','roletype', 'search_suggestions'))
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		                                        ->selected(1)->multiple()
+		                                        ->renderAsDropdown();
+
+		return view('partials.grid',compact('products','roletype', 'search_suggestions', 'category_selection'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 
 	}

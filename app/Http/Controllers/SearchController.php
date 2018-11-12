@@ -166,7 +166,11 @@ class SearchController extends Controller {
 		// dd($search_suggestions);
 		$data['search_suggestions'] = $search_suggestions;
 
+		$selected_categories = $request->category ? $request->category : 1;
 
+		$data['category_selection'] = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		                                        ->selected($selected_categories)->multiple()
+		                                        ->renderAsDropdown();
 
 
 		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );

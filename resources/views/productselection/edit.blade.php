@@ -83,14 +83,15 @@
                      <?php $image = $productselection->getMedia(config('constants.media_tags'))->first() ?>
                     <img src="{{ $image ? $image->getUrl() : '' }}"
                          class="img-responsive" style="max-width: 200px;"  alt="">
-                    <input type="text" hidden name="oldImage" value="0">
+
+                         <input type="text" hidden name="oldImage" value="{{ $image ? '0' : '-1' }}">
                     </p>
-                    <button class="btn btn-danger removeOldImage" data-id="" media-id="{{ $image->id }}">Remove</button>
+                    @if ($image)
+                      <button class="btn btn-danger removeOldImage" data-id="" media-id="{{ $image->id }}">Remove</button>
+                    @endif
                 </div>
                 <div class="form-group new-image" style="
-                @if ( !$errors->has('image'))
-                display: none;
-                @endif
+                @if ($image) display: none; @endif
                 ">
                     <strong>Upload Image:</strong>
                     <input  type="file" enctype="multipart/form-data" class="form-control" name="image" />
@@ -98,6 +99,16 @@
                         <div class="alert alert-danger">{{$errors->first('image')}}</div>
                     @endif
                 </div>
+
+                {{-- @if (!$image)
+                  <div class="form-group new-image">
+                      <strong>Upload Image:</strong>
+                      <input  type="file" enctype="multipart/form-data" class="form-control" name="image" />
+                      @if ($errors->has('image'))
+                          <div class="alert alert-danger">{{$errors->first('image')}}</div>
+                      @endif
+                  </div>
+                @endif --}}
             </div>
 
 

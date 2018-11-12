@@ -8,6 +8,7 @@ use App\Product;
 use App\Setting;
 use App\Stage;
 use App\Brand;
+use App\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
@@ -45,7 +46,11 @@ class ProductSelectionController extends Controller
 			array_push($search_suggestions, $suggestion);
 		}
 
-		return view('partials.grid',compact('products','roletype', 'search_suggestions'))
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		                                        ->selected(1)->multiple()
+		                                        ->renderAsDropdown();
+
+		return view('partials.grid',compact('products','roletype', 'search_suggestions', 'category_selection'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 
 	}
@@ -128,7 +133,13 @@ class ProductSelectionController extends Controller
 //		$productselection->description_link = $request->input('description_link');
 		$productselection->last_selector = Auth::id();
 
-		self::replaceImage($request,$productselection);
+		if ($request->oldImage > 0) {
+			self::replaceImage($request,$productselection);
+		} elseif ($request->oldImage == -1) {
+			$media = MediaUploader::fromSource( $request->file( 'image' ) )->upload();
+			$productselection->attachMedia( $media, config( 'constants.media_tags' ) );
+		}
+
 //		$product->update($request->all());
 
 		$productselection->save();

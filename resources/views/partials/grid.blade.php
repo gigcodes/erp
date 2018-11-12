@@ -57,14 +57,7 @@
 
                             <div class="col-md-2">
                               <strong>Category</strong>
-                              @php
-                                $categories = \App\Category::select('id', 'title')->get();
-                                $new_categories = [];
-                                foreach ($categories as $key => $category) {
-                                  $new_categories[$category->id] = $category->title;
-                                }
-                              @endphp
-                              {!! Form::select('category[]',$new_categories, (isset($category) ? $category : ''), ['placeholder' => 'Select a Category','class' => 'form-control', 'multiple' => true]) !!}
+                              {!! $category_selection !!}
                             </div>
 
                             <div class="col-md-2">

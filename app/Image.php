@@ -39,7 +39,7 @@ class Image extends Model
 
 		$path = Storage::disk('uploads')->getDriver()->getAdapter()->getPathPrefix();
 		File::move($path.'/'.$imageName,
-			$path.'/trash/'.$imageName
+			$path.'trash/'.$imageName
 		);
 	}
 
