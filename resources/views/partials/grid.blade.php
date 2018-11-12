@@ -41,7 +41,7 @@
                                     <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
                                     <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
                                 @endif
-                                <button hidden type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary">Filter</button>
                             </div>
                             <div class="col-md-2">
                               <strong>Brands</strong>
