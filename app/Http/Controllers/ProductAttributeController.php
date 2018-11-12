@@ -8,6 +8,7 @@ use App\Product;
 use App\Setting;
 use App\Sizes;
 use App\Stage;
+use App\Brand;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,7 +37,19 @@ class ProductAttributeController extends Controller
 		                   ->paginate(Setting::get('pagination'));
 		$roletype = 'Attribute';
 
-		return view('partials.grid',compact('products','roletype'))
+		$search_suggestions = [];
+		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+		$brand_suggestions = Brand::getAll();
+
+		foreach ($sku_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion['sku']);
+		}
+
+		foreach ($brand_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion);
+		}
+
+		return view('partials.grid',compact('products','roletype', 'search_suggestions'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 	}
 

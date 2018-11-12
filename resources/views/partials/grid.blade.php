@@ -4,7 +4,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
+            <div class="">
 
                 <!--roletype-->
                 <h2>{{ $roletype }}</h2>
@@ -28,7 +28,7 @@
                 <form action="{{ route('search') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-4">
                                 <input name="term" type="text" class="form-control" id="product-search"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="sku,brand,category,status,stage">
@@ -41,13 +41,46 @@
                                     <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
                                     <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
                                 @endif
-                            </div>
-                            <div class="col-md-4">
                                 <button hidden type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                            <div class="col-md-2">
+                              <strong>Brands</strong>
+                              @php $brands = \App\Brand::getAll(); @endphp
+            	                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+
+                            <div class="col-md-2">
+                              <strong>Color</strong>
+                              @php $colors = new \App\Colors(); @endphp
+                              {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+
+                            <div class="col-md-2">
+                              <strong>Category</strong>
+                              @php
+                                $categories = \App\Category::select('id', 'title')->get();
+                                $new_categories = [];
+                                foreach ($categories as $key => $category) {
+                                  $new_categories[$category->id] = $category->title;
+                                }
+                              @endphp
+                              {!! Form::select('category[]',$new_categories, (isset($category) ? $category : ''), ['placeholder' => 'Select a Category','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+
+                            <div class="col-md-2">
+                              <strong>Price</strong>
+                              <select class="form-control" name="price">
+                                <option value>Select Price Range</option>
+                                <option value="1" {{ (isset($price) && $price == 1) ? 'selected' : '' }}>Up to 10K</option>
+                                <option value="2" {{ (isset($price) && $price == 2) ? 'selected' : '' }}>10K - 30K</option>
+                                <option value="3" {{ (isset($price) && $price == 3) ? 'selected' : '' }}>30K - 50K</option>
+                                <option value="4" {{ (isset($price) && $price == 4) ? 'selected' : '' }}>50K - 100K</option>
+                              </select>
                             </div>
                         </div>
                     </div>
                 </form>
+
 
             </div>
         </div>
@@ -102,6 +135,15 @@
 	<?php $stage = new \App\Stage(); ?>
 
     <script>
+      var searchSuggestions = {!! json_encode($search_suggestions) !!};
+
+      $('#product-search').autocomplete({
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+
+          response(results.slice(0, 10));
+        }
+      });
 
         Array.prototype.groupBy = function (prop) {
             return this.reduce(function (groups, item) {

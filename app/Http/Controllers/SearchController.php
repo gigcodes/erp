@@ -36,44 +36,137 @@ class SearchController extends Controller {
 			$data['selected_products'] = ProductController::getSelectedProducts($data['model_type'],$data['model_id']);
 		}
 
+		if ($request->brand[0] != null) {
+			$productQuery = ( new Product() )->newQuery()
+			                                 ->latest()->whereIn('brand', $request->brand);
 
-		$productQuery = ( new Product() )->newQuery()
-		                                 ->latest()
-		                                 ->orWhere( 'sku', 'LIKE', "%$term%" )
-		                                 ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
-		;
-
-
-		if ( $term == - 1 ) {
-
-			$productQuery = $productQuery->orWhere( 'isApproved', - 1 );
-		}
-		// BrandController::getBrandIds( $term )
-		if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
-			$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
-			$productQuery = $productQuery->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+			$data['brand'] = $request->brand[0];
 		}
 
-		// CategoryController::getCategoryIdByName( $term )
-		if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
-			$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
-			$productQuery = $productQuery->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
-		}
-		
-		if ( ! empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+		if ($request->color[0] != null) {
+			if ($request->brand[0] != null) {
+				$productQuery = $productQuery->whereIn('color', $request->color);
+			} else {
+				$productQuery = ( new Product() )->newQuery()
+				                                 ->latest()->whereIn('color', $request->color);
+			}
 
-			$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
-		}
-
-		if ( ! ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
-
-			$productQuery = $productQuery->where( 'stage', '>=', $stage->get( $roletype ) );
+			$data['color'] = $request->color[0];
 		}
 
-		if ( $roletype != 'Selection' && $roletype != 'Searcher' ) {
+		if ($request->category[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null) {
+				$productQuery = $productQuery->whereIn('category', $request->category);
+			} else {
+				$productQuery = ( new Product() )->newQuery()
+				                                 ->latest()->whereIn('category', $request->category);
+			}
 
-			$productQuery = $productQuery->whereNull( 'dnf' );
+			$data['category'] = $request->category[0];
 		}
+
+		if ($request->price != null) {
+			switch ($request->price) {
+				case 1:
+					$min = 0;
+					$max = 10000;
+					break;
+				case 2:
+					$min = 10000;
+					$max = 30000;
+					break;
+				case 3:
+					$min = 30000;
+					$max = 50000;
+					break;
+				case 4:
+					$min = 50000;
+					$max = 100000;
+					break;
+				default:
+					$min = 0;
+					$max = 100000000;
+			}
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != null) {
+				$productQuery = $productQuery->whereBetween('price_inr', [$min, $max]);
+			} else {
+				$productQuery = ( new Product() )->newQuery()
+				                                 ->latest()->whereBetween('price_inr', [$min, $max]);
+			}
+
+			$data['price'] = $request->price[0];
+		}
+
+		if (trim($term) != '') {
+			$productQuery = ( new Product() )->newQuery()
+			                                 ->latest()
+			                                 ->orWhere( 'sku', 'LIKE', "%$term%" )
+			                                 ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+			;
+
+			if ( $term == - 1 ) {
+				$productQuery = $productQuery->orWhere( 'isApproved', - 1 );
+			}
+
+			// BrandController::getBrandIds( $term )
+			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+				$productQuery = $productQuery->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+			}
+
+			// CategoryController::getCategoryIdByName( $term )
+			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+				$productQuery = $productQuery->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
+			}
+
+			if ( ! empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+
+				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+			}
+
+			if ( ! ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
+
+				$productQuery = $productQuery->where( 'stage', '>=', $stage->get( $roletype ) );
+			}
+
+			if ( $roletype != 'Selection' && $roletype != 'Searcher' ) {
+
+				$productQuery = $productQuery->whereNull( 'dnf' );
+			}
+		} else {
+			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == null && $request->price[0] == null) {
+				$productQuery = ( new Product() )->newQuery()
+				                                 ->latest()
+				                                 ->orWhere( 'sku', 'LIKE', "%$term%" )
+				                                 ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+				;
+			}
+		}
+
+		$search_suggestions = [];
+		// $product_suggestions = ( new Product() )->newQuery()
+		// 																 ->latest()->whereNotNull('name')->select('name')->get()->toArray();
+
+		 $sku_suggestions = ( new Product() )->newQuery()
+																			 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+		// foreach ($product_suggestions as $key => $suggestion) {
+		// 	array_push($search_suggestions, $suggestion['name']);
+		// }
+		$brand_suggestions = Brand::getAll();
+		// dd($brand_suggestions);
+		foreach ($sku_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion['sku']);
+		}
+
+		foreach ($brand_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion);
+		}
+
+		// dd($search_suggestions);
+		$data['search_suggestions'] = $search_suggestions;
+
+
 
 
 		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
