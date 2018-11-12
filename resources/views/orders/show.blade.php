@@ -191,7 +191,15 @@
                                         </div>
                                     </div>
 
-                                @else
+                                  @elseif($message['status'] == '4')
+                                      <div class="talk-bubble tri-right round right-in blue" data-messageid="{{$message['id']}}">
+                                        <div class="talktext">
+                                            <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p>
+
+                                          <em>Solo {{ App\Helpers::timeAgo($message['created_at']) }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
+                                        </div>
+                                   </div>
+                                 @else
                                     <div class="talk-bubble tri-right round right-in green"
                                          data-messageid="{{$message['id']}}">
                                         <div class="talktext">
@@ -274,6 +282,29 @@
 
                                 </form>
 
+                                <p><strong>Internal Communications</strong></p>
+                                <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+
+
+                                    <div class="form-group">
+                                        <textarea class="form-control" name="body"
+                                                  placeholder="Message here"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="hidden" name="moduletype" value="order"/>
+                                        <input type="hidden" name="moduleid" value="{{$id}}"/>
+                                        <input type="hidden" name="status" value="4"/>
+                                        <input type="hidden" name="assigned_user" value="{{$sales_person}}" />
+                                        <div class="upload-btn-wrapper">
+                                            <button class="btn"><img src="/images/file-upload.png"/></button>
+                                            <input type="file" name="image"/>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+
+                                </form>
+
                             </div>
 
                         {{--@endif--}}
@@ -313,7 +344,4 @@
     </div>
 
 
-@endsection    
-
-
-
+@endsection

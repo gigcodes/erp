@@ -141,6 +141,17 @@
         background-color: #007bff;
         color: white;
       }
+      .talk-bubble.blue {
+        margin: 40px;
+        position: relative;
+        width: 90%;
+        height: auto;
+        background-color: #33AEFF;
+      }
+
+      .tri-right.right-in.blue:after {
+        border-color: #33AEFF transparent transparent #33AEFF
+      }
     </style>
 
     <script>
