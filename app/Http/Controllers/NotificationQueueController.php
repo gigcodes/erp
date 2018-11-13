@@ -53,10 +53,10 @@ class NotificationQueueController extends Controller
 
 	public static function deQueueNotficationNew(){
 
-		$nArray = NotificationQueue::orderBy('time_to_add', 'ASC')->take(10)->get()->toArray();
+		$nArray = NotificationQueue::orderBy('time_to_add', 'ASC')->take(20)->get()->toArray();
 
 		foreach($nArray  as $item){
-			
+
 			if( time() >= strtotime( $item['time_to_add']) )
 			{
 
