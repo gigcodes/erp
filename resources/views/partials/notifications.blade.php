@@ -221,15 +221,14 @@
                 break;
 
             case 'App\\Task':
-
-                link = '/task';
+                link = `/task#task_${notification.model_id}`;
                 message = `<h4>ID : ${notification.model_id} Task</h4>
                             <span>By :- ${ allUsers[notification.user_id] }</span><br>
                             <a href="${link}">${notification.message}</a>${ getStatusButtons(notification) }`;
                 break;
 
             case  'User':
-                link = '/';
+                link = `/#task_${notification.model_id}`;
                 message = `<h4>ID : ${notification.model_id} Task</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message}</a>`;
                 break;
 

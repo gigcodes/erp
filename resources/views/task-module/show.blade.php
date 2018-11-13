@@ -206,7 +206,7 @@
                         <tbody>
                         <?php $i = 1 ?>
                         @foreach(  $data['task']['statutory_today'] as $task)
-                                <tr>
+                                <tr id="task_{{ $task['id'] }}">
                                     <td>{{$i++}}</td>
                                     <td> {{$task['created_at']}}</td>
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
@@ -251,7 +251,7 @@
                     <tbody>
                         <?php $i = 1 ?>
                       @foreach($data['task']['pending'] as $task)
-                    <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" >
+                    <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
                         <td>{{$i++}}</td>
                          <td>{{$task['created_at']}}</td>
                         <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
@@ -290,7 +290,7 @@
                     <tbody>
                         <?php $i = 1 ?>
                       @foreach( $data['task']['completed'] as $task)
-                    <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed">
+                    <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed" id="task_{{ $task['id'] }}">
                         <td>{{$i++}}</td>
                         <td>{{$task['created_at']}}</td>
                         <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
@@ -379,7 +379,7 @@
                     <tbody>
                         <?php $i = 1 ?>
                       @foreach(  $data['task']['statutory_completed'] as $task)
-                    <tr>
+                    <tr id="task_{{ $task['id'] }}">
                         <td>{{$i++}}</td>
                         <td> {{$task['created_at']}}</td>
                         <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
