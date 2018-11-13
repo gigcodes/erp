@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Activity;
 use App\Benchmark;
 use App\User;
+use App\Leads;
+use App\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -217,6 +219,12 @@ class ActivityConroller extends Controller {
 		$data['results']    = $rows;
 		$data['total_data'] = $total_data;
 		$data['benchmark']  = $benchmark[0];
+
+		$leads = Leads::where('created_at', '>=', date('Y-m-d 00:00:00'))->get();
+		$orders = Order::where('created_at', '>=', date('Y-m-d 00:00:00'))->get();
+
+		$data['leads'] = $leads;
+		$data['orders'] = $orders;
 
 		return view( 'activity.index', $data );
 	}
