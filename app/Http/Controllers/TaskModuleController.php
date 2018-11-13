@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Helpers;
 use App\User;
 use App\Task;
+use App\NotificationQueue;
 
 class TaskModuleController extends Controller {
 
@@ -195,6 +196,8 @@ class TaskModuleController extends Controller {
 			'sent_to'    => $task->assign_from,
 			'role'       => '',
 		] );
+
+		$notification_queues = NotificationQueue::where('model_id', $task->id)->delete();
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task marked as completed.' );

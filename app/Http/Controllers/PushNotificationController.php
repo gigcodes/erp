@@ -85,6 +85,18 @@ class PushNotificationController extends Controller {
 			'model_id' => $push_notification->model_id,
 		]);
 
+		if ($status == 1) {
+			NotificationQueueController::createNewNotification([
+		    'message' => 'Reminder: ' . $push_notification->message,
+		    'timestamps' => ['+10 minutes', '+20 minutes', '+30 minutes', '+40 minutes', '+50 minutes', '+60 minutes', '+70 minutes', '+80 minutes', '+90 minutes', '+100 minutes', '+110 minutes', '+120 minutes'],
+		    'model_type' => $push_notification->model_type,
+		    'model_id' =>  $push_notification->model_id,
+		    'user_id' => Auth::id(),
+		    'sent_to' => $push_notification->user_id,
+		    'role' => '',
+	    ]);
+		}
+
 		$model_instance->save();
 
 		if($status != 2)
