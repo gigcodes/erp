@@ -332,7 +332,7 @@
                   <div class="talktext">
                       <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p>
 
-                    <em>Solo {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
+                    <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
                   </div>
              </div>
            @else
@@ -340,7 +340,7 @@
                <div class="talktext">
                    <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p>
 
-                 <em>Solo {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
+                 <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
                  @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
                      <a href="/message/updatestatus?status=3&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as sent </a>
                  @endif
