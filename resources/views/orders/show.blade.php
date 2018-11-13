@@ -203,8 +203,8 @@
                                     <div class="talk-bubble tri-right round right-in green"
                                          data-messageid="{{$message['id']}}">
                                         <div class="talktext">
-                                          <p id="message-body{{$message['id']}}">
-                                            <span id="message-text{{$message['id']}}">{!! $message['body'] !!}</span>
+                                          <p>
+                                            <span id="message_body_{{$message['id']}}">{!! $message['body'] !!}</span>
                                             <textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea{{$message['id']}}" style="display: none;">{!! $message['body'] !!}</textarea>
                                           </p>
 
@@ -220,6 +220,10 @@
                                                        style="font-size: 9px">Approve</a>
 
                                                     <a href="#" style="font-size: 9px" class="edit-message" data-messageid="{{$message['id']}}">Edit</a>
+                                                @endif
+
+                                                @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
+                                                  <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="leads"> Copy message </button>
                                                 @endif
 
                                             </em>
@@ -351,7 +355,7 @@
         e.preventDefault();
         var message_id = $(this).data('messageid');
 
-        $('#message-text' + message_id).css({'display': 'none'});
+        $('#message_body_' + message_id).css({'display': 'none'});
         $('#edit-message-textarea' + message_id).css({'display': 'block'});
 
         $('#edit-message-textarea' + message_id).keypress(function(e) {
@@ -372,8 +376,8 @@
               },
               success: function(data) {
                 $('#edit-message-textarea' + message_id).css({'display': 'none'});
-                $('#message-text' + message_id).text(message);
-                $('#message-text' + message_id).css({'display': 'block'});
+                $('#message_body_' + message_id).text(message);
+                $('#message_body_' + message_id).css({'display': 'block'});
               }
             });
           }

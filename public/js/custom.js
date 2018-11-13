@@ -188,23 +188,23 @@ $(document).ready(function(){
 
         copyTextToClipboard( jQuery('#message_body_'+id).html() );
 
-        $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            url : '/message/updatestatus',
-            type : 'GET',
-            data : {
-                id : id,
-                moduleid : $(this).attr('moduleid'),
-                moduletype : $(this).attr('moduletype'),
-                status : 3,
-            },
-            success : response => {
-
-                $('#status_img_'+id).attr('src','/images/3.png');
-            }
-        });
+        // $.ajax({
+        //     headers: {
+        //         'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        //     },
+        //     url : '/message/updatestatus',
+        //     type : 'GET',
+        //     data : {
+        //         id : id,
+        //         moduleid : $(this).attr('moduleid'),
+        //         moduletype : $(this).attr('moduletype'),
+        //         status : 3,
+        //     },
+        //     success : response => {
+        //
+        //         $('#status_img_'+id).attr('src','/images/3.png');
+        //     }
+        // });
 
         e.preventDefault();
     });
@@ -302,8 +302,8 @@ $(document).ready(function(){
 
         let remark = jQuery('#remark-text-'+id).val();
 
-        jQuery('#remark-load-'+id).show();  
-        
+        jQuery('#remark-load-'+id).show();
+
 
         jQuery.ajax({
             headers: {
@@ -315,7 +315,7 @@ $(document).ready(function(){
             success: function (data) {
                 jQuery('#remark-load-'+id).hide();
                jQuery('#remarks-'+id ).prepend('<p>'+data['remark']+'<br /> <small>updated now</small></p><hr>');
-               
+
             }
         });
 
@@ -341,7 +341,7 @@ $(document).ready(function(){
             success: function (data) {
                 jQuery('#remark-load-s-'+id).hide();
                jQuery('#remarks-'+id ).prepend('<p>'+data['remark']+'<br /> <small>updated now</small></p><hr>');
-               
+
             }
         });
     });
