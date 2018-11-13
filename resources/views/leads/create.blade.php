@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 	<div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
@@ -7,7 +8,7 @@
             </div>
             <div class="pull-right">
                 <a class="btn btn-primary" href="{{ route('leads.index') }}"> Back</a>
-               
+
             </div>
         </div>
     </div>
@@ -78,7 +79,7 @@
                         <div class="col-xs-12 col-sm-12">
                             <strong>Source:</strong><br>
                         </div>
-                    </div>    
+                    </div>
                     <div class="row">
                          <div class="col-sm-6 ol-xs-12">
 
@@ -87,12 +88,12 @@
                             <option value="instagram">Instagram</option>
                             <option value="facebook">Facebook</option>
                             <option value="new">New Lead</option>
-                            </Select>    
-                         </div> 
-                         <div class="col-sm-6 ol-xs-12">  
+                            </Select>
+                         </div>
+                         <div class="col-sm-6 ol-xs-12">
                              <input type="text" class="form-control" id="leadsourcetxt" name="source" placeholder="Comments" value="{{old('source')}}"/>
                         </div>
-                    </div>    
+                    </div>
                     @if ($errors->has('source'))
                         <div class="alert alert-danger">{{$errors->first('source')}}</div>
                     @endif
@@ -114,7 +115,7 @@
             <div class="col-xs-12 col-sm-8 col-sm-offset-4">
                 <div class="form-group">
                     <strong>Solo phone:</strong>
-                   <Select name="solophone" class="form-control">                           
+                   <Select name="solophone" class="form-control">
                             <option value="01">01</option>
                             <option value="02">02</option>
                             <option value="03">03</option>
@@ -123,18 +124,18 @@
                             <option value="06">06</option>
                             <option value="07">07</option>
                             <option value="08">08</option>
-                            <option value="09">09</option>    
-                    </Select> 
+                            <option value="09">09</option>
+                    </Select>
                     @if ($errors->has('solophone'))
                         <div class="alert alert-danger">{{$errors->first('solophone')}}</div>
                     @endif
                 </div>
             </div>
-       
+
               <div class="col-xs-12 col-sm-8 col-sm-offset-4">
                 <div class="form-group">
                     <strong>Rating:</strong>
-                    <Select name="rating" class="form-control">                           
+                    <Select name="rating" class="form-control">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -143,10 +144,10 @@
                             <option value="6">6</option>
                             <option value="7">7</option>
                             <option value="8">8</option>
-                            <option value="9">9</option> 
-                            <option value="10">10</option>   
-                    </Select>    
-                    
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                    </Select>
+
                     @if ($errors->has('rating'))
                         <div class="alert alert-danger">{{$errors->first('rating')}}</div>
                     @endif
@@ -156,7 +157,7 @@
                 <div class="form-group">
                     <strong>Comments:</strong>
                     <textarea  class="form-control" name="comments" placeholder="comments">{{old('comments')}} </textarea>
-                   
+
                     @if ($errors->has('comments'))
                         <div class="alert alert-danger">{{$errors->first('comments')}}</div>
                     @endif
@@ -167,11 +168,11 @@
                 <div class="form-group">
                     <strong>Brand:</strong>
                     <select id="multi_brand" multiple="" name="multi_brand[]" class="form-control">
-                            @foreach($data['brands'] as $brand)                          
-                              <option value="{{$brand['id']}}">{{$brand['name']}}</option>                           
+                            @foreach($data['brands'] as $brand)
+                              <option value="{{$brand['id']}}">{{$brand['name']}}</option>
                           @endforeach
                     </select>
-                    
+
                     @if ($errors->has('brand'))
                         <div class="alert alert-danger">{{$errors->first('brand')}}</div>
                     @endif
@@ -199,7 +200,7 @@
                         <div class="alert alert-danger">{{$errors->first('selected_product')}}</div>
                     @endif
                 </div>
-                
+
                 <script type="text/javascript">
                     jQuery(document).ready(function() {
 
@@ -297,13 +298,13 @@
             <div class="col-xs-12 col-sm-8 col-sm-offset-4">
                 <div class="form-group">
                     <strong>Assigned To:</strong>
-                    <Select name="assigned_user" class="form-control"> 
-                                   
-                            @foreach($data['users'] as $user)                          
-                              <option value="{{$user['id']}}">{{$user['name']}}</option>                           
+                    <Select name="assigned_user" class="form-control">
+
+                            @foreach($data['users'] as $user)
+                              <option value="{{$user['id']}}">{{$user['name']}}</option>
                           @endforeach
-                    </Select>    
-                    
+                    </Select>
+
                     @if ($errors->has('assigned_user'))
                         <div class="alert alert-danger">{{$errors->first('assigned_user')}}</div>
                     @endif
@@ -316,21 +317,48 @@
                     <strong>Status:</strong>
                     <Select name="status" class="form-control">
                          @foreach($data['status'] as $key => $value)
-                          <option value="{{$value}}">{{$key}}</option>                           
+                          <option value="{{$value}}">{{$key}}</option>
                           @endforeach
-                    </Select>      
-                    
+                    </Select>
+
                     <input type="hidden" class="form-control" name="userid" placeholder="status" value=""/>
                     @if ($errors->has('status'))
                         <div class="alert alert-danger">{{$errors->first('status')}}</div>
                     @endif
                 </div>
             </div>
+
+						<div class="col-xs-12 col-sm-8 col-sm-offset-4">
+							 <div class="form-group">
+								 <strong>Created at:</strong>
+								 <div class='input-group date' id='created_at'>
+									 <input type='text' class="form-control" name="created_at" value="{{ date('Y-m-d H:i') }}" />
+
+									 <span class="input-group-addon">
+										 <span class="glyphicon glyphicon-calendar"></span>
+									 </span>
+								 </div>
+
+								 @if ($errors->has('created_at'))
+										 <div class="alert alert-danger">{{$errors->first('created_at')}}</div>
+								 @endif
+							 </div>
+					 </div>
              <div class="col-xs-12 col-sm-8 col-sm-offset-4 text-center">
-             
+
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>
-        </div>    		
+        </div>
     </form>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script>
+
+        $('#created_at').datetimepicker({
+          format: 'YYYY-MM-DD HH:mm'
+        });
+
+		</script>
 
 @endsection

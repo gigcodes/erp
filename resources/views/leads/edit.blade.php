@@ -2,6 +2,7 @@
 
 
 @section('content')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
@@ -33,14 +34,14 @@
                 <div class="form-group">
                     <strong>Client Name:</strong>
                     <input type="text" class="form-control" name="client_name" placeholder="client_name" value="{{$leads->client_name}}"/>
-                    
+
                 </div>
             </div>
 
             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Address:</strong>
-                    <input type="text" class="form-control" name="address" placeholder="address" value="{{$leads->address}}"/>                   
+                    <input type="text" class="form-control" name="address" placeholder="address" value="{{$leads->address}}"/>
                 </div>
             </div>
 
@@ -48,7 +49,7 @@
                 <div class="form-group">
                     <strong>Contact No:</strong>
                     <input type="text" class="form-control" name="contactno" placeholder="contactno" value="{{$leads->contactno}}"/>
-                   
+
                 </div>
             </div>
 
@@ -56,7 +57,7 @@
                 <div class="form-group">
                     <strong>Email:</strong>
                     <input type="text" class="form-control" name="email" placeholder="email" value="{{$leads->email}}"/>
-                    
+
                 </div>
             </div>
 
@@ -66,7 +67,7 @@
                         <div class="col-xs-12 col-sm-12">
                             <strong>Source:</strong><br>
                         </div>
-                    </div>    
+                    </div>
                     <div class="row">
                          <div class="col-sm-6 ol-xs-12">
 
@@ -75,13 +76,13 @@
                             <option value="instagram" {{'instagram' == $leads->source ? 'Selected=Selected':''}}>Instagram</option>
                             <option value="facebook" {{'facebook' == $leads->source ? 'Selected=Selected':''}}>Facebook</option>
                             <option value="new" {{'new' == $leads->source ? 'Selected=Selected':''}}>New Lead</option>
-                            </Select>    
-                         </div> 
-                         <div class="col-sm-6 ol-xs-12">  
+                            </Select>
+                         </div>
+                         <div class="col-sm-6 ol-xs-12">
                              <input type="text" class="form-control" id="leadsourcetxt" name="source" placeholder="Comments" value="{{$leads->leadsourcetxt}}"/>
                         </div>
-                    </div>    
-                   
+                    </div>
+
                 </div>
             </div>
 
@@ -91,14 +92,14 @@
                 <div class="form-group">
                     <strong>City:</strong>
                     <input type="text" class="form-control" name="city" placeholder="city" value="{{$leads->city}}"/>
-                   
+
                 </div>
             </div>
 
             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Solo Phone:</strong>
-                   <Select name="solophone" class="form-control">                           
+                   <Select name="solophone" class="form-control">
                             <option value="01" {{'01' == $leads->solophone ? 'Selected=Selected':''}}>01</option>
                             <option value="02" {{'02'== $leads->solophone ? 'Selected=Selected':''}}>02</option>
                             <option value="03" {{'03'== $leads->solophone ? 'Selected=Selected':''}}>03</option>
@@ -107,18 +108,18 @@
                             <option value="06" {{'06'== $leads->solophone ? 'Selected=Selected':''}}>06</option>
                             <option value="07" {{'07'== $leads->solophone ? 'Selected=Selected':''}}>07</option>
                             <option value="08" {{'08'== $leads->solophone ? 'Selected=Selected':''}}>08</option>
-                            <option value="09" {{'09'== $leads->solophone ? 'Selected=Selected':''}}>09</option>    
-                    </Select> 
-                   
+                            <option value="09" {{'09'== $leads->solophone ? 'Selected=Selected':''}}>09</option>
+                    </Select>
+
                 </div>
             </div>
 
-            
+
 
               <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Rating:</strong>
-                    <Select name="rating" class="form-control">                           
+                    <Select name="rating" class="form-control">
                             <option value="1" {{1== $leads->rating ? 'Selected=Selected':''}}>1</option>
                             <option value="2" {{2== $leads->rating ? 'Selected=Selected':''}}>2</option>
                             <option value="3" {{3== $leads->rating ? 'Selected=Selected':''}}>3</option>
@@ -127,19 +128,19 @@
                             <option value="6" {{6== $leads->rating ? 'Selected=Selected':''}}>6</option>
                             <option value="7" {{7== $leads->rating ? 'Selected=Selected':''}}>7</option>
                             <option value="8" {{8== $leads->rating ? 'Selected=Selected':''}}>8</option>
-                            <option value="9" {{9== $leads->rating ? 'Selected=Selected':''}}>9</option> 
-                            <option value="10" {{10== $leads->rating ? 'Selected=Selected':''}}>10</option>   
-                    </Select>    
-                    
-                    
+                            <option value="9" {{9== $leads->rating ? 'Selected=Selected':''}}>9</option>
+                            <option value="10" {{10== $leads->rating ? 'Selected=Selected':''}}>10</option>
+                    </Select>
+
+
                 </div>
             </div>
              <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Comments:</strong>
                     <textarea  class="form-control" name="comments" placeholder="comments">{{$leads->comments}} </textarea>
-                   
-                   
+
+
                 </div>
             </div>
 
@@ -152,7 +153,7 @@
                              <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'] ,$leads['multi_brand']) ? 'Selected=Selected':''}}>{{$brand_item['name']}}</option>
                           @endforeach
                     </select>
-                   
+
                 </div>
             </div>
 
@@ -176,7 +177,7 @@
                         <div class="alert alert-danger">{{$errors->first('selected_product')}}</div>
                     @endif
                 </div>
-                
+
                 <script type="text/javascript">
                     jQuery(document).ready(function() {
 
@@ -231,7 +232,7 @@
                                 },
                                 @endforeach
                             ];
-                        @endif    
+                        @endif
                         let productSelect = jQuery('#select2');
                         // create the option and append to Select2
 
@@ -275,14 +276,14 @@
             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Assigned To:</strong>
-                    <Select name="assigned_user" class="form-control"> 
-                                   
+                    <Select name="assigned_user" class="form-control">
+
                             @foreach($leads['users'] as $users)
-                          <option value="{{$users['id']}}" {{$users['id']== $leads->assigned_user ? 'Selected=Selected':''}}>{{$users['name']}}</option>                           
+                          <option value="{{$users['id']}}" {{$users['id']== $leads->assigned_user ? 'Selected=Selected':''}}>{{$users['name']}}</option>
                           @endforeach
-                    </Select>    
-                    
-                   
+                    </Select>
+
+
                 </div>
             </div>
 
@@ -292,20 +293,47 @@
                     <strong>status:</strong>
                     <Select name="status" class="form-control">
                          @foreach($leads['statusid'] as $key => $value)
-                          <option value="{{$value}}" {{$value == $leads->status ? 'Selected=Selected':''}}>{{$key}}</option>                           
+                          <option value="{{$value}}" {{$value == $leads->status ? 'Selected=Selected':''}}>{{$key}}</option>
                           @endforeach
-                    </Select>      
-                    
+                    </Select>
+
                     <input type="hidden" class="form-control" name="userid" placeholder="status" value="{{$leads->userid}}"/>
-                    
+
                 </div>
             </div>
+
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+							 <div class="form-group">
+								 <strong>Created at:</strong>
+								 <div class='input-group date' id='created_at'>
+									 <input type='text' class="form-control" name="created_at" value="{{ $leads->created_at }}" />
+
+									 <span class="input-group-addon">
+										 <span class="glyphicon glyphicon-calendar"></span>
+									 </span>
+								 </div>
+
+								 @if ($errors->has('created_at'))
+										 <div class="alert alert-danger">{{$errors->first('created_at')}}</div>
+								 @endif
+							 </div>
+					 </div>
              <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
-             
+
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>
-        </div>          
- </form>       
+        </div>
+ </form>
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+ <script>
+
+     $('#created_at').datetimepicker({
+       format: 'YYYY-MM-DD HH:mm'
+     });
+
+ </script>
 
 
-@endsection    
+@endsection

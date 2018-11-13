@@ -46,7 +46,7 @@ class LeadsController extends Controller
                 break;
             case 'status':
                  $sortby = 'status';
-                break;    
+                break;
             default :
                  $sortby = 'id';
         }
@@ -85,7 +85,7 @@ class LeadsController extends Controller
 
       return view('leads.index',compact('leads','term'))
                 ->with('i', (request()->input('page', 1) - 1) * 10);
-        
+
     }
 
     /**
@@ -135,10 +135,11 @@ class LeadsController extends Controller
           'email' => '',
           'source'=>'',
           'assigned_user' => '',
-          'selected_product', 
-          'leadsourcetxt',  
-          
+          'selected_product',
+          'leadsourcetxt',
+          'created_at'  => 'required|date_format:"Y-m-d H:i"'
         ]);
+
         $data = $request->except( '_token');
         $data['userid'] = Auth::id();
         $data['selected_product'] = json_encode( $request->input( 'selected_product' ) );
@@ -187,7 +188,7 @@ class LeadsController extends Controller
 		    'sent_to' => Auth::id(),
 		    'role' => '',
 	    ]);
-	    
+
 	    NotificationQueueController::createNewNotification([
 		    'message' => 'Client Name: '.$data['client_name'],
 		    'timestamps' => ['+0 minutes'],
@@ -197,7 +198,7 @@ class LeadsController extends Controller
 		    'sent_to' => '',
 		    'role' => 'Admin',
 	    ]);
-	    
+
 	    NotificationQueueController::createNewNotification([
 		    'message' => 'Client Name: '.$data['client_name'],
 		    'timestamps' => ['+0 minutes'],
@@ -207,11 +208,11 @@ class LeadsController extends Controller
 		    'sent_to' => '',
 		    'role' => 'Supervisors',
 	    ]);
-	    
-	    
+
+
         return redirect()->route('leads.create')
-                         ->with('success','Lead created successfully.');    
-       
+                         ->with('success','Lead created successfully.');
+
     }
 
     /**
@@ -231,7 +232,7 @@ class LeadsController extends Controller
         $leads['users']  = $users;
         $brands = Brand::all()->toArray();
         $leads['brands']  = $brands;
-        $leads['selected_products_array'] = json_decode( $leads['selected_product'] ); 
+        $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
         $leads['products_array'] = [];
 
 	    $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
@@ -247,7 +248,7 @@ class LeadsController extends Controller
         if ( ! empty( $leads['selected_products_array']  ) ) {
             foreach ( $leads['selected_products_array']  as $product_id ) {
                 $skuOrName                             = $this->getProductNameSkuById( $product_id );
-              
+
                $data['products_array'][$product_id] = $skuOrName;
             }
         }
@@ -287,7 +288,7 @@ class LeadsController extends Controller
         if ( ! empty( $leads['selected_products_array']  ) ) {
             foreach ( $leads['selected_products_array']  as $product_id ) {
                 $skuOrName                             = $this->getProductNameSkuById( $product_id );
-              
+
                $data['products_array'][$product_id] = $skuOrName;
             }
         }
@@ -305,7 +306,7 @@ class LeadsController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $leads = Leads::find($id);        
+        $leads = Leads::find($id);
         $this->validate(request(), [
           'client_name' => 'required',
 //          'contactno' => 'required',
@@ -316,8 +317,8 @@ class LeadsController extends Controller
           'solophone' => '',
           'comments' => '',
           'userid'=>'',
-          
-          
+          'created_at'  => 'required|date_format:"Y-m-d H:i"',
+
         ]);
 
 	    if (  $request->input( 'assigned_user' ) != $leads->assigned_user && !empty($request->input( 'assigned_user' ))  ) {
@@ -353,15 +354,16 @@ class LeadsController extends Controller
         $leads->solophone = $request->get('solophone');
         $leads->comments = $request->get('comments');
         $leads->userid = $request->get('userid');
-        $leads->email = $request->get('email'); 
-        $leads->address = $request->get('address'); 
-        $leads->assigned_user = $request->get('assigned_user'); 
+        $leads->email = $request->get('email');
+        $leads->address = $request->get('address');
+        $leads->assigned_user = $request->get('assigned_user');
         $leads->leadsourcetxt = $request->get('leadsourcetxt');
 
         $leads->multi_brand = json_encode($request->get('multi_brand'));
         $leads->multi_category = json_encode($request->get('multi_category'));
 
         $leads->selected_product = json_encode( $request->input( 'selected_product' ) );
+        $leads->created_at = $request->created_at;
         $leads->save();
 
 

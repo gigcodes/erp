@@ -32,5 +32,8 @@ class Leads extends Model {
 		'multi_brand',
 		'multi_category',
 		'remark',
+		'created_at'
 	];
+
+	const CREATED_AT = null;
 }
