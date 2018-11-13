@@ -95,6 +95,16 @@ class MessageController extends Controller
 		            'user_id'    => \Auth::id(),
 		            'sent_to'    => $data['assigned_user'],
 	            ] );
+
+              NotificationQueueController::createNewNotification( [
+		            'message'    => 'Customer Reply : ' . $data['body'],
+		            'timestamps' => [ '+0 minutes' ],
+		            'model_type' => $data['moduletype'],
+		            'model_id'   => $data['moduleid'],
+		            'user_id'    => \Auth::id(),
+		            'sent_to'    => '',
+		            'role'       => 'Admin',
+	            ] );
             } else if($data['status'] == '4'){
 
 	            NotificationQueueController::createNewNotification( [
@@ -143,25 +153,27 @@ class MessageController extends Controller
     public function update(Request $request, $id)
     {
         //
-       $message = Message::find($request->get('messageid'));
-        $this->validate(request(), [
-          'body' => 'required',
-
-        ]);
+        // $message = Message::find($request->get('messageid'));
+       $message = Message::find($id);
+        // $this->validate(request(), [
+        //   'body' => 'required',
+        //
+        // ]);
          $message->body = $request->get('body');
-         $moduleid = $request->get('moduleid');
-         $moduletype = $request->get('moduletype');
-         if ($_FILES["image"]["size"] > 10) {
-                   $target_dir = "uploads/";
-                   $target_file = $target_dir . basename($_FILES["image"]["name"]);
-                   move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
-                   $msgtxt = $request->get('body');
-                    $msgtxt .= ' <a href="/'.$target_file.'" class="message-img" />'.$target_file.'</a>';
-                    $message->body = $msgtxt;
-             }
+         // $moduleid = $request->get('moduleid');
+         // $moduletype = $request->get('moduletype');
+         // if ($_FILES["image"]["size"] > 10) {
+         //           $target_dir = "uploads/";
+         //           $target_file = $target_dir . basename($_FILES["image"]["name"]);
+         //           move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
+         //           $msgtxt = $request->get('body');
+         //            $msgtxt .= ' <a href="/'.$target_file.'" class="message-img" />'.$target_file.'</a>';
+         //            $message->body = $msgtxt;
+         //     }
 
          $message->save();
-         return redirect('/'. $moduletype.'/'.$moduleid);
+         return response(['message' => 'Success']);
+         // return redirect('/'. $moduletype.'/'.$moduleid);
     }
 
     public function updatestatus(Request $request )
