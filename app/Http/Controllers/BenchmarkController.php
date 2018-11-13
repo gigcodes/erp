@@ -10,7 +10,7 @@ class BenchmarkController extends Controller
 	public function create(){
 
 
-		$benchmark = Benchmark::where('for_date', date( 'Y-m-d' ) )->first();
+		$benchmark = Benchmark::orderBy('for_date', 'DESC')->first();
 
 		$data = [];
 

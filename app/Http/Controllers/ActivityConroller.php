@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Activity;
 use App\Benchmark;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -112,9 +113,9 @@ class ActivityConroller extends Controller {
 			$results = DB::select( '
 									SELECT causer_id,subject_type,COUNT(*) AS total FROM
 								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.causer_id
-								  		 FROM activities 
-								  		 WHERE activities.description = "create" 
-								  		 AND activities.causer_id IN (' . $users . ') 
+								  		 FROM activities
+								  		 WHERE activities.description = "create"
+								  		 AND activities.causer_id IN (' . $users . ')
 								  		 AND activities.created_at BETWEEN ? AND ?)
 								    AS SUBQUERY
 								   	GROUP BY subject_type,causer_id;
@@ -123,8 +124,8 @@ class ActivityConroller extends Controller {
 			$results2 = DB::select( '
 									SELECT subject_type,COUNT(*) AS total FROM
 								 		(SELECT DISTINCT activities.subject_id,activities.subject_type
-								  		 FROM activities 
-								  		 WHERE activities.description = "create" 
+								  		 FROM activities
+								  		 WHERE activities.description = "create"
 								  		 AND activities.causer_id IN (' . $users . ')
 								  		 AND activities.created_at BETWEEN ? AND ?)
 								    AS SUBQUERY
@@ -136,8 +137,8 @@ class ActivityConroller extends Controller {
 			$results = DB::select( '
 									SELECT causer_id,subject_type,COUNT(*) AS total FROM
 								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.causer_id
-								  		 FROM activities 
-								  		 WHERE activities.description = "create" 
+								  		 FROM activities
+								  		 WHERE activities.description = "create"
 								  		 AND activities.created_at BETWEEN ? AND ?)
 								    AS SUBQUERY
 								   	GROUP BY subject_type,causer_id;
@@ -147,24 +148,49 @@ class ActivityConroller extends Controller {
 			$results2 = DB::select( '
 									SELECT subject_type,COUNT(*) AS total FROM
 								 		(SELECT DISTINCT activities.subject_id,activities.subject_type
-								  		 FROM activities 
-								  		 WHERE activities.description = "create" 
+								  		 FROM activities
+								  		 WHERE activities.description = "create"
 								  		 AND activities.created_at BETWEEN ? AND ?)
 								    AS SUBQUERY
 								   	GROUP BY subject_type;
 							', [ $start, $end ] );
 		}
 
-		$benchmark = Benchmark::whereBetween( 'for_date', [ $start, $end ] )
-		                      ->selectRaw( 'sum(selections) as selections,
-		                                             sum(searches) as searches,
-		                                             sum(attributes) as attributes,
-		                                             sum(supervisor) as supervisor,
-		                                             sum(imagecropper) as imagecropper,
-		                                             sum(lister) as lister,
-		                                             sum(approver) as approver,
-		                                             sum(inventory) as inventory' )
-		                      ->get()->toArray();
+
+
+		// $benchmark2 = Benchmark::whereBetween('for_date', [$start, $end])->get();
+		//
+		// // dd();
+		//
+		// $day_difference = Carbon::parse($end)->diffInDays(Carbon::parse($start));
+		//
+		// if ($day_difference != $benchmark2->count()) {
+		// 	if ($benchmark2->count() == 0) {
+		// 		$benchmark_last = Benchmark::orderBy('for_date', 'DESC')->first();
+		// 		$benchmark[0]['selections'] = $benchmark_last->selections * $day_difference;
+		// 		$benchmark[0]['searches'] = $benchmark_last->searches * $day_difference;
+		// 		$benchmark[0]['attributes'] = $benchmark_last->attributes * $day_difference;
+		// 		$benchmark[0]['supervisor'] = $benchmark_last->supervisor * $day_difference;
+		// 		$benchmark[0]['imagecropper'] = $benchmark_last->imagecropper * $day_difference;
+		// 		$benchmark[0]['lister'] = $benchmark_last->lister * $day_difference;
+		// 		$benchmark[0]['approver'] = $benchmark_last->approver * $day_difference;
+		// 		$benchmark[0]['inventory'] = $benchmark_last->inventory * $day_difference;
+		// 	} else {
+		//
+		// 	}
+		// } else {
+			$benchmark = Benchmark::whereBetween( 'for_date', [ $start, $end ] )
+			                      ->selectRaw( 'sum(selections) as selections,
+			                                             sum(searches) as searches,
+			                                             sum(attributes) as attributes,
+			                                             sum(supervisor) as supervisor,
+			                                             sum(imagecropper) as imagecropper,
+			                                             sum(lister) as lister,
+			                                             sum(approver) as approver,
+			                                             sum(inventory) as inventory' )
+			                      ->get()->toArray();
+		// }
+		// dd('stap');
 		$rows      = [];
 
 		foreach ( $results as $result ) {
@@ -213,8 +239,8 @@ class ActivityConroller extends Controller {
 			$workDoneResult = DB::select( '
 									SELECT WEEKDAY(created_at) as xaxis ,COUNT(*) AS total FROM
 								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.created_at
-								  		 FROM activities 
-								  		 WHERE activities.description = "create" 
+								  		 FROM activities
+								  		 WHERE activities.description = "create"
 								  		 AND activities.created_at BETWEEN ? AND ?)
 								    AS SUBQUERY
 								   	GROUP BY WEEKDAY(created_at);
@@ -222,8 +248,8 @@ class ActivityConroller extends Controller {
 
 			$benchmarkResult = DB::select( '
 							SELECT WEEKDAY(for_date) as day,
-								sum(selections + searches + attributes + supervisor + imagecropper + lister + approver + inventory) as total 
-							FROM benchmarks 
+								sum(selections + searches + attributes + supervisor + imagecropper + lister + approver + inventory) as total
+							FROM benchmarks
 							WHERE
 							created_at BETWEEN ? AND ?
 							GROUP BY WEEKDAY(for_date);
@@ -251,8 +277,8 @@ class ActivityConroller extends Controller {
 			$workDoneResult = DB::select( '
 									SELECT DAYOFMONTH(created_at) as xaxis ,COUNT(*) AS total FROM
 								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.created_at
-								  		 FROM activities 
-								  		 WHERE activities.description = "create" 
+								  		 FROM activities
+								  		 WHERE activities.description = "create"
 								  		 AND activities.created_at BETWEEN ? AND ?)
 								    AS SUBQUERY
 								   	GROUP BY DAYOFMONTH(created_at);
@@ -260,8 +286,8 @@ class ActivityConroller extends Controller {
 
 			$benchmarkResult = DB::select( '
 							SELECT DAYOFMONTH(for_date) as day,
-								sum(selections + searches + attributes + supervisor + imagecropper + lister + approver + inventory) as total 
-							FROM benchmarks 
+								sum(selections + searches + attributes + supervisor + imagecropper + lister + approver + inventory) as total
+							FROM benchmarks
 							WHERE
 							created_at BETWEEN ? AND ?
 							GROUP BY DAYOFMONTH(for_date);
@@ -307,7 +333,7 @@ class ActivityConroller extends Controller {
 			$workDoneResult = DB::select( '
 									SELECT HOUR(created_at) as xaxis,subject_type ,COUNT(*) AS total FROM
 								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.created_at
-								  		 FROM activities 
+								  		 FROM activities
 								  		 WHERE activities.description = "create"
 								  		 AND activities.causer_id = ?
 								  		 AND activities.created_at BETWEEN ? AND ?)
@@ -339,7 +365,7 @@ class ActivityConroller extends Controller {
 			$workDoneResult = DB::select( '
 									SELECT DAYOFMONTH(created_at) as xaxis,subject_type ,COUNT(*) AS total FROM
 								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.created_at
-								  		 FROM activities 
+								  		 FROM activities
 								  		 WHERE activities.description = "create"
 								  		 AND activities.causer_id = ?
 								  		 AND activities.created_at BETWEEN ? AND ?)
@@ -445,4 +471,3 @@ class ActivityConroller extends Controller {
 		$total_data['approver']     += isset( $results['approver'] ) ? $results['approver'] : 0;
 		$total_data['inventory']    += isset( $results['inventory'] ) ? $results['inventory'] : 0;
 		$total_data['sales']        += isset( $results['sales'] ) ? $results['sales'] : 0;*/
-
