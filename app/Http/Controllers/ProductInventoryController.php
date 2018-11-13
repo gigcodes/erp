@@ -40,7 +40,7 @@ class ProductInventoryController extends Controller
 		}
 
 		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
-		                                        ->selected(1)->multiple()
+		                                        ->selected(1)
 		                                        ->renderAsDropdown();
 
 		return view('partials.grid',compact('products','roletype', 'search_suggestions', 'category_selection'))

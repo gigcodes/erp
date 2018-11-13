@@ -55,11 +55,34 @@ class SearchController extends Controller {
 		}
 
 		if ($request->category[0] != null) {
+			$is_parent = Category::isParent($request->category[0]);
+			$category_children = [];
+
+			if ($is_parent) {
+				$childs = Category::find($request->category[0])->childs()->get();
+
+				foreach ($childs as $child) {
+					$is_parent = Category::isParent($child->id);
+
+					if ($is_parent) {
+						$children = Category::find($child->id)->childs()->get();
+
+						foreach ($children as $chili) {
+							array_push($category_children, $chili->id);
+						}
+					} else {
+						array_push($category_children, $child->id);
+					}
+				}
+			} else {
+				array_push($category_children, $request->category[0]);
+			}
+
 			if ($request->brand[0] != null || $request->color[0] != null) {
-				$productQuery = $productQuery->whereIn('category', $request->category);
+				$productQuery = $productQuery->whereIn('category', $category_children);
 			} else {
 				$productQuery = ( new Product() )->newQuery()
-				                                 ->latest()->whereIn('category', $request->category);
+				                                 ->latest()->whereIn('category', $category_children);
 			}
 
 			$data['category'] = $request->category[0];
@@ -169,7 +192,7 @@ class SearchController extends Controller {
 		$selected_categories = $request->category ? $request->category : 1;
 
 		$data['category_selection'] = Category::attr(['name' => 'category[]','class' => 'form-control'])
-		                                        ->selected($selected_categories)->multiple()
+		                                        ->selected($selected_categories)
 		                                        ->renderAsDropdown();
 
 
