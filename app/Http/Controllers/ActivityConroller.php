@@ -220,8 +220,8 @@ class ActivityConroller extends Controller {
 		$data['total_data'] = $total_data;
 		$data['benchmark']  = $benchmark[0];
 
-		$leads = Leads::where('created_at', '>=', date('Y-m-d 00:00:00'))->get();
-		$orders = Order::where('created_at', '>=', date('Y-m-d 00:00:00'))->get();
+		$leads = Leads::where('created_at', '>=', date('Y-m-d 00:00:00'))->get()->count();
+		$orders = Order::where('created_at', '>=', date('Y-m-d 00:00:00'))->get()->count();
 
 		$data['leads'] = $leads;
 		$data['orders'] = $orders;
