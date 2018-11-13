@@ -44,7 +44,7 @@
             <th>Products</th>
             <th>Communication</th>
             <th><a href="/leads?sortby=status">Status</a></th>
-            <th>Created</th>
+            <th><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created</a></th>
             <th width="280px">Action</th>
         </tr>
         @foreach ($leads as $key => $lead)

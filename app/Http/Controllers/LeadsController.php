@@ -47,6 +47,9 @@ class LeadsController extends Controller
             case 'status':
                  $sortby = 'status';
                 break;
+            case 'created_at':
+                 $sortby = 'created_at';
+                break;
             default :
                  $sortby = 'id';
         }
@@ -83,7 +86,7 @@ class LeadsController extends Controller
 
 	    $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
 
-      return view('leads.index',compact('leads','term'))
+      return view('leads.index',compact('leads','term', 'orderby'))
                 ->with('i', (request()->input('page', 1) - 1) * 10);
 
     }
