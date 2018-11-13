@@ -11,6 +11,7 @@ use App\Sale;
 use App\Task;
 use App\PushNotification;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class NotificationQueueController extends Controller
@@ -52,9 +53,10 @@ class NotificationQueueController extends Controller
 
 	public static function deQueueNotficationNew(){
 
-		$nArray = NotificationQueue::all()->toArray();
+		$nArray = NotificationQueue::orderBy('time_to_add', 'ASC')->take(10)->get()->toArray();
 
 		foreach($nArray  as $item){
+			
 			if( time() >= strtotime( $item['time_to_add']) )
 			{
 
