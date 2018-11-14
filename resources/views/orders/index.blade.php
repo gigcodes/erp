@@ -53,7 +53,7 @@
                 <td>{{ $order->sales_person ? $users[$order->sales_person] : 'nil' }}</td>
                 <td>{{ $order->client_name }}</td>
                 <td>{{ $order->order_status}}</td>
-                <td>{{App\Helpers::getlatestmessage($order->id)}}</td>
+                <td>{{App\Helpers::getlatestmessage($order->id, 'order')}}</td>
                 <td>
                     <a class="btn btn-primary btn-success" href="{{ route('order.show',$order->id) }}">View</a>
                     @can('order-edit')
@@ -76,4 +76,4 @@
 
     {!! $orders->appends(Request::except('page'))->links() !!}
     {{--{!! $orders->links() !!}--}}
-@endsection    
+@endsection

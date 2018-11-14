@@ -47,7 +47,7 @@ class Helpers {
 		return $userArray;
 	}
 
-	public static function getUserNameById($id)	
+	public static function getUserNameById($id)
 	{
 		$user = User::find($id);
 		return $user->name;
@@ -93,29 +93,29 @@ class Helpers {
 	{
 		$user = Auth::user();
         $myrole = json_decode(json_encode($user->getRoleNames()));
-         if(in_array('Supervisors', $myrole) or in_array('Admin', $myrole)) 
+         if(in_array('Supervisors', $myrole) or in_array('Admin', $myrole))
          {
          	return true;
          }
          else
          {
          	return false;
-         }	
+         }
 	}
 
 	public static function getmessagingrole()
 	{
 		$user = Auth::user();
         $myrole = json_decode(json_encode($user->getRoleNames()));
-         if(in_array('message', $myrole)) 
+         if(in_array('message', $myrole))
          {
          	return true;
          }
          else
          {
          	return false;
-         }	
-	}	
+         }
+	}
 
 	public static function getproductsfromarraysofids($productsid)
 	{
@@ -123,14 +123,14 @@ class Helpers {
         $productnamearray = [];
         $product = new Product();
         if ( ! empty( $products ) ) {
-	        foreach ( $products as $productid ) {	                
-	                $product_instance = $product->find( $productid );             
+	        foreach ( $products as $productid ) {
+	                $product_instance = $product->find( $productid );
 	                $productnamearray[] = $product_instance->name;
 	            }
-	        $productsname = implode(",",$productnamearray);  
+	        $productsname = implode(",",$productnamearray);
 	        return $productsname;
 	       }
-	     return "";   
+	     return "";
 	}
 
 	public static function getleadstatus($statusid)
@@ -144,12 +144,12 @@ class Helpers {
         			return $key;
         		}
         	}
-	}	
+	}
 
-	public static function getlatestmessage($moduleid)
+	public static function getlatestmessage($moduleid, $model_type)
 	{
-		
-		$messages = DB::table('messages')->where('moduleid','=',$moduleid)->orderBy('created_at', 'desc')->first();
+
+		$messages = DB::table('messages')->where('moduleid','=',$moduleid)->where('moduletype', $model_type)->orderBy('created_at', 'desc')->first();
 		$messages =  json_decode(json_encode($messages),true);
 		return $messages['body'];
 	}
@@ -198,7 +198,7 @@ class Helpers {
 				$task_status = ' rejected ';
 				break;
 		}
-		
+
 		return $task_status;
 	}
 
