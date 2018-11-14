@@ -319,14 +319,20 @@
     <div class="row">
        <div class="col-xs-12 col-sm-8" id="message-container">
          @foreach($leads['messages'] as $message)
-           @if($message['status'] == '0')
+           @if($message['status'] == '0' || $message['status'] == '5' || $message['status'] == '6')
                 <div class="talk-bubble tri-right round left-in white">
                       <div class="talktext">
                        <p>{!! $message['body'] !!}</p>
                         <em>Customer {{ $message['created_at'] }} </em>
 
-                        {{-- <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
-                        <a href="/message/updatestatus?status=3&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Replied </a> --}}
+                        {{-- <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp; --}}
+                        @if ($message['status'] == '0')
+                          <a href="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Read </a>
+                        @endif
+
+                        @if ($message['status'] == '0' || $message['status'] == '5')
+                          <a href="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Replied </a>
+                        @endif
                       </div>
                 </div>
 
