@@ -324,6 +324,9 @@
                       <div class="talktext">
                        <p>{!! $message['body'] !!}</p>
                         <em>Customer {{ $message['created_at'] }} </em>
+
+                        {{-- <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
+                        <a href="/message/updatestatus?status=3&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Replied </a> --}}
                       </div>
                 </div>
 
