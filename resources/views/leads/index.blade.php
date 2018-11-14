@@ -36,14 +36,14 @@
 
     <table class="table table-bordered" style="margin-top: 25px">
         <tr>
-            <th><a href="/leads?sortby=id">ID</a></th>
-            <th><a href="/leads?sortby=client_name">Client Name</a></th>
-            <th><a href="/leads?sortby=city">City</a></th>
-            <th><a href="/leads?sortby=rating">Rating</a></th>
-            <th><a href="/leads?sortby=assigned_user">Assigned to</a></th>
+            <th><a href="/leads?sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">ID</a></th>
+            <th><a href="/leads?sortby=client_name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Client Name</a></th>
+            <th><a href="/leads?sortby=city{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">City</a></th>
+            <th><a href="/leads?sortby=rating{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Rating</a></th>
+            <th><a href="/leads?sortby=assigned_user{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Assigned to</a></th>
             <th>Products</th>
             <th>Communication</th>
-            <th><a href="/leads?sortby=status">Status</a></th>
+            <th><a href="/leads?sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Status</a></th>
             <th><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created</a></th>
             <th width="280px">Action</th>
         </tr>
