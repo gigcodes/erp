@@ -2,6 +2,8 @@
 
 
 @section('content')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
@@ -312,7 +314,91 @@
  <div class="col-xs-12 col-sm-12">
     <hr>
  </div>
+
+ <div id="taskModal" class="modal fade" role="dialog">
+   <div class="modal-dialog">
+
+     <!-- Modal content-->
+     <div class="modal-content">
+       <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal">&times;</button>
+         <h4 class="modal-title">Create Task</h4>
+       </div>
+
+       <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
+         @csrf
+
+         <div class="modal-body">
+           <div class="form-group">
+               <strong>Task Details:</strong>
+                <textarea class="form-control" name="task_details" placeholder="Task Details" required></textarea>
+                @if ($errors->has('task_details'))
+                    <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
+                @endif
+           </div>
+
+           <div class="form-group" id="completion_form_group">
+             <strong>Completion Date:</strong>
+             <div class='input-group date' id='completion-datetime'>
+               <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+               <span class="input-group-addon">
+                 <span class="glyphicon glyphicon-calendar"></span>
+               </span>
+             </div>
+
+             @if ($errors->has('completion_date'))
+                 <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+             @endif
+           </div>
+
+           <div class="form-group">
+               <select name="is_statutory" class="form-control is_statutory">
+                   <option value="0">Other Task </option>
+                   <option value="1">Statutory Task </option>
+               </select>
+           </div>
+
+           <input type="hidden" name="assign_to" value="{{ Auth::id() }}">
+
+           <div id="recurring-task" style="display: none;">
+               <div class="form-group">
+                   <strong>Recurring Type:</strong>
+                   <select name="recurring_type" class="form-control">
+                       <option value="EveryDay">EveryDay</option>
+                       <option value="EveryWeek">EveryWeek</option>
+                       <option value="EveryMonth">EveryMonth</option>
+                       <option value="EveryYear">EveryYear</option>
+                   </select>
+               </div>
+               <div class="form-group">
+                   <strong>Recurring Day:</strong>
+                   <div id="recurring_day"></div>
+               </div>
+           </div>
+
+           <div class="form-group">
+               <strong>Category:</strong>
+           <?php
+           $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
+
+           echo Form::select('category',$categories, old('category'), ['placeholder' => 'Select a category','class' => 'form-control']);
+
+           ?>
+           </div>
+         </div>
+         <div class="modal-footer">
+           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+           <button type="submit" class="btn btn-success">Create</button>
+         </div>
+       </form>
+     </div>
+
+   </div>
+ </div>
+
   <div class="col-xs-12 col-sm-12">
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskModal">Add Task</button>
     <h3 style="text-center">Messages</h3>
  </div>
  <div class="col-xs-12 col-sm-12">
@@ -558,7 +644,13 @@
 
  </div>
 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
  <script type="text/javascript">
+   $('#completion-datetime').datetimepicker({
+     format: 'YYYY-MM-DD HH:mm'
+   });
+
    $('.edit-message').on('click', function(e) {
      e.preventDefault();
      var message_id = $(this).data('messageid');
@@ -591,6 +683,40 @@
        }
      });
    });
+
+   $(document).on('change', '.is_statutory', function () {
+
+
+       if ($(".is_statutory").val() == 1) {
+
+           // $('input[name="completion_date"]').val("1976-01-01");
+           $("#completion_form_group").hide();
+
+           // if (!isAdmin)
+           //     $('select[name="assign_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
+
+           $('#recurring-task').show();
+       }
+       else {
+
+           $("#completion_form_group").show();
+
+           // let select_html = '';
+           // for (user of users)
+           //     select_html += `<option value="${user['id']}">${ user['name'] }</option>`;
+           // $('select[name="assign_to"]').html(select_html);
+
+           $('#recurring-task').hide();
+
+       }
+
+   });
  </script>
+
+ {{-- <script type="text/javascript">
+   $(document).ready(function() {
+
+   });
+ </script> --}}
 
 @endsection
