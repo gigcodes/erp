@@ -431,7 +431,7 @@
                         @if ($message['status'] == '0')
                           <a href="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Read </a>
                         @endif
-
+                        @if ($message['status'] == '0') | @endif
                         @if ($message['status'] == '0' || $message['status'] == '5')
                           <a href="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Replied </a>
                         @endif
@@ -481,7 +481,12 @@
                          </p>
                        @endif
                      </span>
-                     <textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea{{$message['id']}}" style="display: none;">{!! substr($message['body'], 0, strpos($message['body'], '<img')) !!}</textarea>
+
+                     @if (strpos($message['body'], 'message-img') !== false)
+                       <textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea{{$message['id']}}" style="display: none;">{!! substr($message['body'], 0, strpos($message['body'], '<img')) !!}</textarea>
+                     @else
+                       <textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea{{$message['id']}}" style="display: none;">{!! $message['body'] !!}</textarea>
+                     @endif
 
                  <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
                  @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
@@ -710,6 +715,7 @@
          var token = "{{ csrf_token() }}";
          var url = "{{ url('message') }}/" + message_id;
          var message = $('#edit-message-textarea' + message_id).val();
+         var message_html = '<p class="collapsible-message" data-messageshort="" data-message="" data-expanded="false">' + message + '</p>';
 
          $.ajax({
            type: 'POST',
@@ -720,7 +726,7 @@
            },
            success: function(data) {
              $('#edit-message-textarea' + message_id).css({'display': 'none'});
-             $('#message_body_' + message_id).text(message);
+             $('#message_body_' + message_id).text(html);
              $('#message_body_' + message_id).css({'display': 'block'});
            }
          });

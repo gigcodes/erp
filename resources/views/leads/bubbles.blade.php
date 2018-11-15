@@ -23,7 +23,7 @@
                         @if ($message['status'] == '0')
                           <a href="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Read </a>
                         @endif
-
+                        @if ($message['status'] == '0') | @endif
                         @if ($message['status'] == '0' || $message['status'] == '5')
                           <a href="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Replied </a>
                         @endif
