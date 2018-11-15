@@ -65,6 +65,9 @@
 
       #toast-container .toast-stack {
         position: relative;
+        min-height: 100px;
+        max-height: 135px;
+        overflow: hidden;
       }
 
 

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Message;
+use App\Leads;
+use App\Order;
 use App\NotificationQueue;
 
 class MessageController extends Controller
@@ -63,6 +65,12 @@ class MessageController extends Controller
             $data['userid'] = Auth::id();
             Message::create($data);
 
+            if ($request->moduletype == 'leads') {
+              $customer_name = Leads::find($request->moduleid)->client_name;
+            } else {
+              $customer_name = Order::find($request->moduleid)->client_name;
+            }
+
 
             if( $data['status'] == '1' ) {
 
@@ -99,7 +107,7 @@ class MessageController extends Controller
             else if($data['status'] == '0'){
 
 	            NotificationQueueController::createNewNotification( [
-		            'message'    => 'Customer Reply : ' . $data['body'],
+		            'message'    => $customer_name . "'s Reply : " . $data['body'],
 		            'timestamps' => [ '+0 minutes' ],
 		            'model_type' => $data['moduletype'],
 		            'model_id'   => $data['moduleid'],
@@ -108,7 +116,7 @@ class MessageController extends Controller
 	            ] );
 
               NotificationQueueController::createNewNotification( [
-		            'message'    => 'Customer Reply : ' . $data['body'],
+		            'message'    => $customer_name . "'s Reply : " . $data['body'],
 		            'timestamps' => [ '+0 minutes' ],
 		            'model_type' => $data['moduletype'],
 		            'model_id'   => $data['moduleid'],

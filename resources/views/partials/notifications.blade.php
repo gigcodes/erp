@@ -217,45 +217,45 @@
             case 'App\\Sale' :
 
                 link = '/sales/' + notification.model_id + '/edit';
-                message = `<h4>ID : ${notification.model_id} New Sale</h4><a href="${link}" style="padding-bottom: 10px;">${notification.message}</a>`;
+                message = `<h4>ID : ${notification.model_id} New Sale</h4><a href="${link}" style="padding-bottom: 10px;">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>`;
                 break;
 
             case 'App\\Task':
                 link = `/task#task_${notification.model_id}`;
                 message = `<h4>ID : ${notification.model_id} Task</h4>
                             <span>By :- ${ allUsers[notification.user_id] }</span><br>
-                            <a href="${link}">${notification.message}</a>${ getStatusButtons(notification) }`;
+                            <a href="${link}">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
                 break;
 
             case  'User':
                 link = `/#task_${notification.model_id}`;
-                message = `<h4>ID : ${notification.model_id} Task</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message}</a>`;
+                message = `<h4>ID : ${notification.model_id} Task</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>`;
                 break;
 
             case 'App\\Leads':
 
                 link = '/leads/' + notification.model_id;
-                message = `<h4>ID : ${notification.model_id} New Lead</h4><a href="${link}">${notification.message}</a>${ getStatusButtons(notification) }`;
+                message = `<h4>ID : ${notification.model_id} New Lead</h4><a href="${link}">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
                 break;
 
             case 'App\\Order':
 
                 link = '/order/' + notification.model_id + '/edit';
-                message = `<h4>ID : ${notification.model_id} New Order</h4><a href="${link}">${notification.message}</a>${ getStatusButtons(notification) }`;
+                message = `<h4>ID : ${notification.model_id} New Order</h4><a href="${link}">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
                 break;
 
 
             case 'order':
 
                 link = '/order/' + notification.model_id;
-                message = `<h4>ID : ${notification.model_id} Message on Order</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message}</a>`;
+                message = `<h4>ID : ${notification.model_id} Message on Order</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>`;
                 break;
 
             case 'leads':
                 link = '/leads/' + notification.model_id;
                 message = `
                             <h4>ID : ${notification.model_id} Message on lead</h4>
-                            <a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message}</a>`;
+                            <a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>`;
                 break;
 
             default:
