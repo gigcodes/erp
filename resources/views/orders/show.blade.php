@@ -270,7 +270,22 @@
                                 @if($message['status'] == '0')
                                     <div class="talk-bubble tri-right round left-in white">
                                         <div class="talktext">
-                                            <p>{!! $message['body'] !!}</p>
+                                          @if (strpos($message['body'], 'message-img') !== false)
+                                            <p class="collapsible-message"
+                                                data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                                                data-message="{{ $message['body'] }}"
+                                                data-expanded="false">
+                                              {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . '(Has Image)' !!}
+                                            </p>
+                                          @else
+                                            <p class="collapsible-message"
+                                                data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                                                data-message="{{ $message['body'] }}"
+                                                data-expanded="false">
+                                              {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                                            </p>
+                                          @endif
+
                                             <em>Customer {{ $message['created_at'] }} </em>
                                         </div>
                                     </div>
@@ -278,7 +293,22 @@
                                   @elseif($message['status'] == '4')
                                       <div class="talk-bubble tri-right round right-in blue" data-messageid="{{$message['id']}}">
                                         <div class="talktext">
-                                            <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p>
+                                            {{-- <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p> --}}
+                                            @if (strpos($message['body'], 'message-img') !== false)
+                                              <p class="collapsible-message"
+                                                  data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                                                  data-message="{{ $message['body'] }}"
+                                                  data-expanded="false">
+                                                {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                                              </p>
+                                            @else
+                                              <p class="collapsible-message"
+                                                  data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                                                  data-message="{{ $message['body'] }}"
+                                                  data-expanded="false">
+                                                {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                                              </p>
+                                            @endif
 
                                           <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
                                         </div>
@@ -287,10 +317,25 @@
                                     <div class="talk-bubble tri-right round right-in green"
                                          data-messageid="{{$message['id']}}">
                                         <div class="talktext">
-                                          <p>
-                                            <span id="message_body_{{$message['id']}}">{!! $message['body'] !!}</span>
+                                            {{-- <span id="message_body_{{$message['id']}}">{!! $message['body'] !!}</span> --}}
+                                            <span id="message_body_{{$message['id']}}">
+                                              @if (strpos($message['body'], 'message-img') !== false)
+                                                <p class="collapsible-message"
+                                                    data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                                                    data-message="{{ $message['body'] }}"
+                                                    data-expanded="false">
+                                                  {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                                                </p>
+                                              @else
+                                                <p class="collapsible-message"
+                                                    data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                                                    data-message="{{ $message['body'] }}"
+                                                    data-expanded="false">
+                                                  {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                                                </p>
+                                              @endif
+                                            </span>
                                             <textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea{{$message['id']}}" style="display: none;">{!! $message['body'] !!}</textarea>
-                                          </p>
 
                                             <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }} <img
                                                         src="/images/{{$message['status']}}.png"> &nbsp;
@@ -499,6 +544,23 @@
               $('#recurring-task').hide();
 
           }
+
+      });
+
+      $(document).on('click', ".collapsible-message", function() {
+        var short_message = $(this).data('messageshort');
+        var message = $(this).data('message');
+        var status = $(this).data('expanded');
+
+        if (status == false) {
+          $(this).addClass('expanded');
+          $(this).html(message);
+          $(this).data('expanded', true);
+        } else {
+          $(this).removeClass('expanded');
+          $(this).html(short_message);
+          $(this).data('expanded', false);
+        }
 
       });
     </script>

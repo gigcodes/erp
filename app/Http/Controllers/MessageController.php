@@ -58,7 +58,7 @@ class MessageController extends Controller
                    $target_file = $target_dir . basename($_FILES["image"]["name"]);
                     move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
                     $msgtxt = $request->get('body');
-                    $msgtxt .= ' <a target="_blank" href="/'.$target_file.'" class="message-img" />'.$target_file.'</a>';
+                    $msgtxt .= ' <img src="/'.$target_file.'" class="message-img" />';
                     $data['body'] = $msgtxt;
              }
 

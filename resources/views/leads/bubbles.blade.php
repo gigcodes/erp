@@ -1,18 +1,81 @@
 @foreach($messages as $message)
-           @if($message['status'] == '0')
+           @if($message['status'] == '0' || $message['status'] == '5' || $message['status'] == '6')
                 <div class="talk-bubble tri-right round left-in white">
                       <div class="talktext">
-                       <p>{!! $message['body'] !!}</p>
+                        @if (strpos($message['body'], 'message-img') !== false)
+                          <p class="collapsible-message"
+                              data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                              data-message="{{ $message['body'] }}"
+                              data-expanded="false">
+                            {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                          </p>
+                        @else
+                          <p class="collapsible-message"
+                              data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                              data-message="{{ $message['body'] }}"
+                              data-expanded="false">
+                            {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                          </p>
+                        @endif
+
                         <em>Customer {{ $message['created_at'] }} </em>
+
+                        @if ($message['status'] == '0')
+                          <a href="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Read </a>
+                        @endif
+
+                        @if ($message['status'] == '0' || $message['status'] == '5')
+                          <a href="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Replied </a>
+                        @endif
                       </div>
                 </div>
 
-            @else
+              @elseif($message['status'] == '4')
+                  <div class="talk-bubble tri-right round right-in blue" data-messageid="{{$message['id']}}">
+                    <div class="talktext">
+                      @if (strpos($message['body'], 'message-img') !== false)
+                        <p class="collapsible-message"
+                            data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                            data-message="{{ $message['body'] }}"
+                            data-expanded="false">
+                          {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                        </p>
+                      @else
+                        <p class="collapsible-message"
+                            data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                            data-message="{{ $message['body'] }}"
+                            data-expanded="false">
+                          {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                        </p>
+                      @endif
+
+                      <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
+                    </div>
+               </div>
+             @else
                 <div class="talk-bubble tri-right round right-in green" data-messageid="{{$message['id']}}">
                   <div class="talktext">
-                     <p id="message_body_{{$message['id']}}">{!! $message['body']  !!} </p>
+                     {{-- <p id="message_body_{{$message['id']}}">{!! $message['body']  !!} </p> --}}
+                       <span id="message_body_{{$message['id']}}">
+                         @if (strpos($message['body'], 'message-img') !== false)
+                           <p class="collapsible-message"
+                               data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                               data-message="{{ $message['body'] }}"
+                               data-expanded="false">
+                             {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                           </p>
+                         @else
+                           <p class="collapsible-message"
+                               data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                               data-message="{{ $message['body'] }}"
+                               data-expanded="false">
+                             {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                           </p>
+                         @endif
+                       </span>
+                       <textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea{{$message['id']}}" style="display: none;">{!! $message['body'] !!}</textarea>
 
-                    <em>Solo {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
+                    <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
                     @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
                         <a href="/message/updatestatus?status=3&id={{$message['id']}}&moduleid={{$message['moduleid']}}" style="font-size: 9px">Mark as sent </a>
                     @endif

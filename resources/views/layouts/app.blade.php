@@ -155,6 +155,22 @@
       .tri-right.right-in.blue:after {
         border-color: #33AEFF transparent transparent #33AEFF
       }
+
+      .message-img {
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .talktext p {
+        min-height: 65px;
+        height: 65px;
+        overflow-y: visible;
+
+      }
+
+      .talktext .expanded {
+        height: auto;
+      }
     </style>
 
     <script>
