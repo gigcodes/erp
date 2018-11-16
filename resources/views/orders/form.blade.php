@@ -164,10 +164,7 @@
                                     @if(isset($order_product['product']))
                                         <th>
                                             <a class="btn btn-primary btn-success" href="{{ route('products.show',$order_product['product']['id']) }}">View</a>
-                                            <form class="display-inline" method="post" action="{{ route('deleteOrderProduct',$order_product['id']) }}">
-                                                @csrf
-                                                <button type="submit" class="btn btn-primary btn-danger">Remove</button>
-                                            </form>
+                                            <a class="btn btn-primary btn-danger remove-product" href="#" data-product="{{ $order_product['id'] }}">Remove</a>
                                         </th>
                                     @else
                                         <th></th>
@@ -433,6 +430,10 @@
         </div>
     </form>
 
+    <form action="" method="POST" id="product-remove-form">
+      @csrf
+    </form>
+
     <script type="text/javascript">
       $(document).ready(function() {
         $('#createProduct').on('click', function() {
@@ -501,6 +502,17 @@
               $('#products-table').append(product_row);
             }
           });
+        });
+
+        $(document).on('click', '.remove-product', function(e) {
+          e.preventDefault();
+
+          var product_id = $(this).data('product');
+          var url = "{{ url('deleteOrderProduct') }}/" + product_id;
+          // var token = "{{ csrf_token() }}";
+
+          $('#product-remove-form').attr('action', url);
+          $('#product-remove-form').submit();
         });
       });
     </script>

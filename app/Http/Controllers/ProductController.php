@@ -11,6 +11,7 @@ use App\Product;
 use App\Sale;
 use App\Setting;
 use App\Sizes;
+use App\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
@@ -116,10 +117,25 @@ class ProductController extends Controller {
 		} else {
 			$selected_products = [];
 		}
-		// dd($selected_products);
+
+		$search_suggestions = [];
+		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+		$brand_suggestions = Brand::getAll();
+
+		foreach ($sku_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion['sku']);
+		}
+
+		foreach ($brand_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion);
+		}
+
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		                                        ->selected(1)
+		                                        ->renderAsDropdown();
 
 
-		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type' ) );
+		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'search_suggestions', 'category_selection' ) );
 	}
 
 

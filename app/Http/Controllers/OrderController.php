@@ -285,7 +285,6 @@ class OrderController extends Controller {
 	}
 
 	public function deleteOrderProduct(OrderProduct $order_product){
-
 		$order_product->delete();
 
 		return redirect()->back()->with('message','Product Detached');

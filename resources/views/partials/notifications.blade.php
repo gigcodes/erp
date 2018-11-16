@@ -210,7 +210,7 @@
 
     function toast(notification) {
 
-        let link, message;
+        let link, message, img_position, message_without_img;
 
         switch (notification.model_type) {
 
@@ -246,12 +246,15 @@
 
 
             case 'order':
-
+                img_position = notification.message.indexOf("<img");
+                message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
                 link = '/order/' + notification.model_id;
-                message = `<h4>ID : ${notification.model_id} Message on Order</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>`;
+                message = `<h4>ID : ${notification.model_id} Message on Order</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${message_without_img.length > 70 ? (message_without_img.substring(0, 70 - 3) + '...') : message_without_img}</a>`;
                 break;
 
             case 'leads':
+            img_position = notification.message.indexOf("<img");
+            message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
                 link = '/leads/' + notification.model_id;
                 message = `
                             <h4>ID : ${notification.model_id} Message on lead</h4>
