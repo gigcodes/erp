@@ -53,7 +53,13 @@
                 <td>{{ $order->sales_person ? $users[$order->sales_person] : 'nil' }}</td>
                 <td>{{ $order->client_name }}</td>
                 <td>{{ $order->order_status}}</td>
-                <td>{{App\Helpers::getlatestmessage($order->id, 'order')}}</td>
+                <td>
+                  @if (strpos(App\Helpers::getlatestmessage($order->id, 'order'), 'message-img') !== false)
+                    {{ substr(App\Helpers::getlatestmessage($order->id, 'order'), 0, strpos(App\Helpers::getlatestmessage($order->id, 'order'), '<img')) }}
+                  @else
+                    {{ App\Helpers::getlatestmessage($order->id, 'order') }}
+                  @endif
+                </td>
                 <td>
                     <a class="btn btn-primary btn-success" href="{{ route('order.show',$order->id) }}">View</a>
                     @can('order-edit')

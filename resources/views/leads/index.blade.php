@@ -55,7 +55,13 @@
                 <td>{{ $lead->rating}}</td>
                 <td>{{App\User::find($lead->assigned_user)->name}}</td>
                 <td>{{App\Helpers::getproductsfromarraysofids($lead->selected_product)}}</td>
-                <td>{{App\Helpers::getlatestmessage($lead->id, 'leads')}}</td>
+                <td>
+                  @if (strpos(App\Helpers::getlatestmessage($lead->id, 'leads'), 'message-img') !== false)
+                    {{ substr(App\Helpers::getlatestmessage($lead->id, 'leads'), 0, strpos(App\Helpers::getlatestmessage($lead->id, 'leads'), '<img')) }}
+                  @else
+                    {{ App\Helpers::getlatestmessage($lead->id, 'leads') }}
+                  @endif
+                </td>
                 <td>{{App\Helpers::getleadstatus($lead->status)}}</td>
                 <td>{{ $lead->created_at }}</td>
                 <td>

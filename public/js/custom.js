@@ -184,9 +184,10 @@ $(document).ready(function(){
         // let msg = jQuery('#'+jQuery(this).attr('data-id')).html();
         // location.href = '/message/updatestatus?status=3&id=19&moduleid=13&moduletype=leads';
 
-        let id = $(this).attr('data-id');
+        // let id = $(this).attr('data-id');
 
-        copyTextToClipboard( jQuery('#message_body_'+id).html() );
+        // copyTextToClipboard( jQuery('#message_body_'+id).html() );
+        copyTextToClipboard($(this).data('message'));
 
         // $.ajax({
         //     headers: {

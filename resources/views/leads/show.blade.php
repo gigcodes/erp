@@ -501,7 +501,11 @@
 
                  </em>
                    @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
-                     <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="orders"> Copy message </button>
+                     @if (strpos($message['body'], 'message-img') !== false)
+                       <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="orders" data-message="{{ substr($message['body'], 0, strpos($message['body'], '<img')) }}"> Copy message </button>
+                     @else
+                       <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="orders" data-message="{{ $message['body'] }}"> Copy message </button>
+                     @endif
                    @endif
                </div>
           </div>
