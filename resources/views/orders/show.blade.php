@@ -406,7 +406,7 @@
 
                                     <div class="form-group">
                                         <textarea class="form-control" name="body"
-                                                  placeholder="Message here"></textarea>
+                                                  placeholder="Message here" id="message-body"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <input type="hidden" name="moduletype" value="order"/>
@@ -444,6 +444,19 @@
                                     </div>
 
                                 </form>
+
+                                <p class="pb-4" style="display: block;">
+                                    <strong>Quick Reply</strong>
+                  		          <?php
+                  		          $quickReplies = (new \App\ReadOnly\QuickReplies)->all();
+                  		          ?>
+                                    <select name="quickComment" id="quickComment" class="form-control">
+                                        <option value="">Select a reply</option>
+                                        @foreach($quickReplies as $value )
+                                            <option value="{{$value}}">{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                </p>
 
                             </div>
 
