@@ -13,6 +13,8 @@ class NotificationQueue extends Model {
 		'model_type',
 		'model_id',
 		'user_id',
+		'message_id',
+		'reminder',
 		'sent_to',
 		'role',
 	];

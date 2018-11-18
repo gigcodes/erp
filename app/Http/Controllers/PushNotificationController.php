@@ -4,20 +4,26 @@ namespace App\Http\Controllers;
 
 use App\PushNotification;
 use App\Remark;
+use App\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PushNotificationController extends Controller {
 
 	public function getJson() {
-
-		return PushNotification::where( 'isread', 0 )
+		$push_notifications = PushNotification::where( 'isread', 0 )
 		                       ->where( function ( $query ) {
 			                       return $query->where( 'sent_to', \Auth::id() )
 			                                    ->orWhereIn( 'role', \Auth::user()->getRoleNames() );
 		                       } )/*->limit( 3 )*/
 							   ->orderBy('created_at','DESC')
-		                       ->get()->toArray();
+		                       ->get();
+
+		foreach ($push_notifications as $notification) {
+			$notification->setUserNameAttribute($notification['user_id']);
+		}
+
+		return $push_notifications->toArray();
 
 	}
 
