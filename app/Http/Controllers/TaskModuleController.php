@@ -241,6 +241,7 @@ class TaskModuleController extends Controller {
 	public function getremark( Request $request ) {
 
 		$id   = $request->input( 'id' );
+
 		$task = Task::find( $id );
 
 		echo $task->remark;
@@ -384,4 +385,14 @@ class TaskModuleController extends Controller {
 			'sent_to'    => $statutory_task['assign_to'],
 		]);
 	}
+
+	public function getTaskRemark(Request $request){
+
+		$id   = $request->input( 'id' );
+
+		$remark = \App\Task::getremarks($id);
+
+		return response()->json($remark,200);
+	}
+
 }
