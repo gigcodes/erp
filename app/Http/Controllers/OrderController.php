@@ -91,7 +91,6 @@ class OrderController extends Controller {
 		$data = $request->all();
 
 		if ( $request->input( 'order_type' ) == 'offline' ) {
-
 			$data['order_id'] = $this->generateNextOrderId();
 		}
 
@@ -104,7 +103,7 @@ class OrderController extends Controller {
 
 		NotificationQueueController::createNewNotification([
 			'type' => 'button',
-			'message' => 'Client Name : '. $data['client_name'],
+			'message' => 'Client Name :'. $data['client_name'],
 			'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
 			'model_type' => Order::class,
 			'model_id' =>  $order->id,

@@ -91,7 +91,7 @@
                             </Select>
                          </div>
                          <div class="col-sm-6 ol-xs-12">
-                             <input type="text" class="form-control" id="leadsourcetxt" name="source" placeholder="Comments" value="{{old('source')}}"/>
+                             <input type="text" class="form-control" id="leadsourcetxt" name="leadsourcetxt" placeholder="Comments" value="{{old('leadsourcetxt')}}"/>
                         </div>
                     </div>
                     @if ($errors->has('source'))

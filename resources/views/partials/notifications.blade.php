@@ -217,31 +217,31 @@
             case 'App\\Sale' :
 
                 link = '/sales/' + notification.model_id + '/edit';
-                message = `<h4>ID : ${notification.model_id} New Sale</h4><a href="${link}" style="padding-bottom: 10px;">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>`;
+                message = `<h4>ID : ${notification.model_id} New Sale</h4><a href="${link}" style="padding-bottom: 10px;">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
                 break;
 
             case 'App\\Task':
                 link = `/task#task_${notification.model_id}`;
                 message = `<h4>ID : ${notification.model_id} Task</h4>
                             <span>By :- ${ allUsers[notification.user_id] }</span><br>
-                            <a href="${link}">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
+                            <a href="${link}">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
                 break;
 
             case  'User':
                 link = `/#task_${notification.model_id}`;
-                message = `<h4>ID : ${notification.model_id} Task</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>`;
+                message = `<h4>ID : ${notification.model_id} Task</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
                 break;
 
             case 'App\\Leads':
 
                 link = '/leads/' + notification.model_id;
-                message = `<h4>ID : ${notification.model_id} New Lead</h4><a href="${link}">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
+                message = `<h4>ID : ${notification.model_id} New Lead</h4><a href="${link}">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>${ getStatusButtons(notification) }`;
                 break;
 
             case 'App\\Order':
 
                 link = '/order/' + notification.model_id + '/edit';
-                message = `<h4>ID : ${notification.model_id} New Order</h4><a href="${link}">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
+                message = `<h4>ID : ${notification.model_id} New Order</h4><a href="${link}">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>${ getStatusButtons(notification) }`;
                 break;
 
 
@@ -249,7 +249,7 @@
                 img_position = notification.message.indexOf("<img");
                 message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
                 link = '/order/' + notification.model_id;
-                message = `<h4>ID : ${notification.model_id} Message on Order</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${message_without_img.length > 70 ? (message_without_img.substring(0, 70 - 3) + '...') : message_without_img}</a>`;
+                message = `<h4>New Message on Order from ${notification.user_name}</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${message_without_img.length > 40 ? (message_without_img.substring(0, 40 - 3) + '...') : message_without_img} - ${moment(notification.created_at).format('H:m')}</a>`;
                 break;
 
             case 'leads':
@@ -257,8 +257,8 @@
             message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
                 link = '/leads/' + notification.model_id;
                 message = `
-                            <h4>ID : ${notification.model_id} Message on lead</h4>
-                            <a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 70 ? (notification.message.substring(0, 70 - 3) + '...') : notification.message}</a>`;
+                            <h4>New Message on Lead from ${notification.user_name}</h4>
+                            <a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
                 break;
 
             default:
@@ -266,7 +266,7 @@
         }
 
         toastr.options = {
-            "closeButton": (notification.type === 'button') && (is_admin == false) ? false : true,
+            "closeButton": ((notification.type === 'button') && (is_admin == false)) || (notification.reminder == 1) ? false : true,
             "debug": false,
             "newestOnTop": true,
             "progressBar": false,

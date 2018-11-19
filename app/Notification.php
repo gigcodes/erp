@@ -15,7 +15,9 @@ class Notification extends Model
 		"user_id",
 		'sent_to',
 		"sale_id",
-		'task_id'
+		'task_id',
+		'message_id',
+		'reminder'
 	];
 
 	public static function getUserNotificationByRoles($limit = 10){
