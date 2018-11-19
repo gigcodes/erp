@@ -139,3 +139,6 @@ Route::get('mageOrders/','MagentoController@get_magento_orders');
 
 Route::get('perHourActivityNotification','NotificationQueueController@perHourActivityNotification');
 Route::get('recurringTask','TaskModuleController@recurringTask');
+
+Route::post('twilio/token', 'TwilioController@createToken');
+Route::post('twilio/incoming', 'TwilioController@incomingCall');

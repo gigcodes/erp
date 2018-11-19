@@ -16,7 +16,9 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.5/twilio.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
+    <script src="{{ asset('js/bootstrap-notify.js') }}" ></script>
     <script src="{{ asset('js/custom.js') }}"></script>
 
     @if( str_contains(Route::current()->getName(),['sales','activity','leads','task','home'] ) )
