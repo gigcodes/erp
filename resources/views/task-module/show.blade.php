@@ -213,13 +213,17 @@
                                     <td> {{$task['task_details']}}</td>
                                     <td>{{ $users[$task['assign_from']]}}</td>
                                     <td>{{ $task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
-                                    <td> @include('task-module.partials.remark',$task) </td>
+                                    <td>
+                                      <!-- @include('task-module.partials.remark',$task)  -->
+                                    </td>
                                     <td>
                                         @if( Auth::id() == $task['assign_to'] )
                                             <a href="/task/complete/{{$task['id']}}">Complete</a>
                                         @endif
                                     </td>
                                     <td>
+                                      <button id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark" data-id="{{$task['id']}}">Add Remark</button>
+                                        <button id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View Remark</button>
                                       <!--  <form method="POST" action="task/deleteStatutoryTask" enctype="multipart/form-data">
                                             @csrf
                                             <input hidden name="id" value="{{ $task['id'] }}">
@@ -263,7 +267,9 @@
                         @else
                             <td>Assign to  {{ $task['assign_to'] ? $users[$task['assign_to']] : 'Nil'}}</td>
                         @endif
-                        <td> @include('task-module.partials.remark',$task) </td>
+                        <td>
+                          <!-- @include('task-module.partials.remark',$task)  -->
+                        </td>
                         <td>
                             <button id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark" data-id="{{$task['id']}}">Add Remark</button>
                               <button id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View Remark</button>
