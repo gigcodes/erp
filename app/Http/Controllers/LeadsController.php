@@ -26,6 +26,7 @@ class LeadsController extends Controller
     public function index(Request $request)
     {
         //
+
         if($request->input('orderby') == '')
             $orderby = 'desc';
         else
@@ -44,6 +45,9 @@ class LeadsController extends Controller
             case 'rating':
                  $sortby = 'rating';
                 break;
+            case 'communication':
+                 $sortby = 'created_at';
+                break;
             case 'status':
                  $sortby = 'status';
                 break;
@@ -58,17 +62,39 @@ class LeadsController extends Controller
 
 	    $leads = ((new Leads())->newQuery());
 
-	    if ( helpers::getadminorsupervisor() ) {
+      if ($request->brand[0] != null) {
+        $implode = implode(',', $request->brand);
+        $leads->where('multi_brand', 'LIKE', "%$implode%");
+
+        $brand = $request->brand;
+      }
+
+      if ($request->rating[0] != null) {
+        $leads->whereIn('rating', $request->rating);
+
+        $rating = $request->rating;
+      }
+
+      if ($request->input('sortby') == 'communication') {
+        $leads = Leads::with('messages')->select('messages.body')->orderBy('message:body');
+      } else
+      if ( helpers::getadminorsupervisor() ) {
 		    $leads = $leads->orderBy( $sortby, $orderby );
 	    } else if ( helpers::getmessagingrole() ) {
 		    $leads = $leads->oldest();
 	    } else {
 		    $leads = $leads->oldest()->where( 'assigned_user', '=', Auth::id() );
 	    }
-
+      //
+      // if ($request->brand[0] != null) {
+      //   $leads->whereIn('brand', $request->brand);
+      // }
+      //
+      // if ($request->rating[0] != null) {
+      //   $leads->whereIn('rating', $request->rating);
+      // }
 
 	    if(!empty($term)){
-
 	    	$leads = $leads->where(function ($query) use ($term){
 	    		return $query
 					    ->orWhere('client_name','like','%'.$term.'%')
@@ -86,7 +112,7 @@ class LeadsController extends Controller
 
 	    $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
 
-      return view('leads.index',compact('leads','term', 'orderby'))
+      return view('leads.index',compact('leads','term', 'orderby', 'brand', 'rating'))
                 ->with('i', (request()->input('page', 1) - 1) * 10);
 
     }

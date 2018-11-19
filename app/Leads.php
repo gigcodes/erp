@@ -36,4 +36,9 @@ class Leads extends Model {
 	];
 
 	const CREATED_AT = null;
+
+	public function messages()
+	{
+		return $this->hasMany('App\Message', 'moduleid')->latest();
+	}
 }

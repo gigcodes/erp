@@ -8,18 +8,45 @@
                 <h2>Leads</h2>
 
                 <form action="/leads/" method="GET">
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search">
-                            </div>
-                            <div class="col-md-4">
-                                <button hidden type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                          <div class="row">
+                              <div class="col-md-8 pr-0">
+                                  <input name="term" type="text" class="form-control"
+                                         value="{{ isset($term) ? $term : '' }}"
+                                         placeholder="Search">
+                              </div>
+                              <div class="col-md-4 pl-0">
+                                  <button type="submit" class="btn btn-primary">Filter</button>
+                              </div>
+                          </div>
+                      </div>
                     </div>
+
+                    <div class="col-md-2">
+                      <strong>Brands</strong>
+                      @php $brands = \App\Brand::getAll(); @endphp
+                      {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
+                    </div>
+
+                    <div class="col-md-2">
+                      <strong>Rating</strong>
+                      <select name="rating[]" class="form-control" multiple>
+                              <option value>Select Rating</option>
+                              <option value="1" {{ isset($rating) && in_array(1, $rating) ? 'selected' : '' }}>1</option>
+                              <option value="2" {{ isset($rating) && in_array(2, $rating) ? 'selected' : '' }}>2</option>
+                              <option value="3" {{ isset($rating) && in_array(3, $rating) ? 'selected' : '' }}>3</option>
+                              <option value="4" {{ isset($rating) && in_array(4, $rating) ? 'selected' : '' }}>4</option>
+                              <option value="5" {{ isset($rating) && in_array(5, $rating) ? 'selected' : '' }}>5</option>
+                              <option value="6" {{ isset($rating) && in_array(6, $rating) ? 'selected' : '' }}>6</option>
+                              <option value="7" {{ isset($rating) && in_array(7, $rating) ? 'selected' : '' }}>7</option>
+                              <option value="8" {{ isset($rating) && in_array(8, $rating) ? 'selected' : '' }}>8</option>
+                              <option value="9" {{ isset($rating) && in_array(9, $rating) ? 'selected' : '' }}>9</option>
+                              <option value="10" {{ isset($rating) && in_array(10, $rating) ? 'selected' : '' }}>10</option>
+                      </select>
+                    </div>
+                  </div>
                 </form>
             </div>
             <div class="pull-right">
@@ -42,7 +69,7 @@
             <th><a href="/leads?sortby=rating{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Rating</a></th>
             <th><a href="/leads?sortby=assigned_user{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Assigned to</a></th>
             <th>Products</th>
-            <th>Communication</th>
+            <th><a href="/leads?sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
             <th><a href="/leads?sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Status</a></th>
             <th><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created</a></th>
             <th width="280px">Action</th>
@@ -59,7 +86,7 @@
                   @if (strpos(App\Helpers::getlatestmessage($lead->id, 'leads'), 'message-img') !== false)
                     {{ substr(App\Helpers::getlatestmessage($lead->id, 'leads'), 0, strpos(App\Helpers::getlatestmessage($lead->id, 'leads'), '<img')) }}
                   @else
-                    {{ App\Helpers::getlatestmessage($lead->id, 'leads') }}
+                    {{ App\Helpers::getlatestmessage($lead->id, 'leads', $orderby) }}
                   @endif
                 </td>
                 <td>{{App\Helpers::getleadstatus($lead->status)}}</td>
