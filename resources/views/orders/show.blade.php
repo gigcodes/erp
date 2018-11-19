@@ -220,8 +220,6 @@
                         </select>
                     </div>
 
-                    <input type="hidden" name="assign_to" value="{{ Auth::id() }}">
-
                     <div id="recurring-task" style="display: none;">
                         <div class="form-group">
                             <strong>Recurring Type:</strong>
@@ -236,6 +234,15 @@
                             <strong>Recurring Day:</strong>
                             <div id="recurring_day"></div>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Assigned To:</strong>
+                        <select name="assign_to" class="form-control">
+                          @foreach($users as $users)
+                            <option value="{{$users['id']}}">{{$users['name']}}</option>
+                          @endforeach
+                        </select>
                     </div>
 
                     <div class="form-group">
