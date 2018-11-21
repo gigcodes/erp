@@ -24,6 +24,7 @@ class Leads extends Model {
 		'comments',
 		'assigned_user',
 		'selected_product',
+		'size',
 		'address',
 		'email',
 		'source',

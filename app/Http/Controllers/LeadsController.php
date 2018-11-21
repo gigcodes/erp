@@ -165,6 +165,7 @@ class LeadsController extends Controller
           'source'=>'',
           'assigned_user' => '',
           'selected_product',
+          'size',
           'leadsourcetxt',
           'created_at'  => 'required|date_format:"Y-m-d H:i"'
         ]);

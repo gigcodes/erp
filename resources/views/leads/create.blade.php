@@ -116,6 +116,7 @@
                 <div class="form-group">
                     <strong>Solo phone:</strong>
                    <Select name="solophone" class="form-control">
+													 	<option value>None</option>
                             <option value="01">01</option>
                             <option value="02">02</option>
                             <option value="03">03</option>
@@ -294,6 +295,13 @@
 
                 </script>
             </div>
+
+						<div class="col-xs-12 col-sm-8 col-sm-offset-4">
+							<div class="form-group">
+								<strong>Sizes:</strong>
+								<input type="text" name="size" value="{{ old('size') }}" class="form-control" placeholder="S, M, L">
+							</div>
+						</div>
 
             <div class="col-xs-12 col-sm-8 col-sm-offset-4">
                 <div class="form-group">

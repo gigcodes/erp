@@ -111,7 +111,8 @@
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Solo Phone:</strong>
-                           <Select name="solophone" class="form-control">
+                         <Select name="solophone" class="form-control">
+                                   <option value>None</option>
                                     <option value="01" {{'01' == $leads->solophone ? 'Selected=Selected':''}}>01</option>
                                     <option value="02" {{'02'== $leads->solophone ? 'Selected=Selected':''}}>02</option>
                                     <option value="03" {{'03'== $leads->solophone ? 'Selected=Selected':''}}>03</option>
@@ -287,6 +288,13 @@
 
                         </script>
                     </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        							<div class="form-group">
+        								<strong>Sizes:</strong>
+        								<input type="text" name="size" value="{{ $leads->size }}" class="form-control" placeholder="S, M, L">
+        							</div>
+        						</div>
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
