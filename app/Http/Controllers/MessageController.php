@@ -163,6 +163,16 @@ class MessageController extends Controller
 		            'user_id'    => \Auth::id(),
 		            'sent_to'    => $data['assigned_user'],
 	            ] );
+
+              NotificationQueueController::createNewNotification( [
+		            'message'    => 'New Instructions : ' . $data['body'],
+		            'timestamps' => [ '+0 minutes' ],
+		            'model_type' => $data['moduletype'],
+		            'model_id'   => $data['moduleid'],
+		            'user_id'    => \Auth::id(),
+		            'sent_to'    => '',
+                'role'       => 'Admin'
+	            ] );
             }
 
            return redirect('/'. $moduletype.'/'.$id);
