@@ -27,383 +27,443 @@
     @endif
 
 
-        <div class="row">
-             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Client Name:</strong>
-                    <input type="text" class="form-control" name="client_name" placeholder="client_name" value="{{$leads->client_name}}"/>
+    <div id="exTab2" class="container">
+           <ul class="nav nav-tabs">
+              <li class="active">
+                 <a  href="#1" data-toggle="tab">Lead Info</a>
+              </li>
+              <li><a href="#2" data-toggle="tab">WhatsApp Conversation</a>
+              </li>
+              <li><a href="#3" data-toggle="tab">Call Recordings</a>
+              </li>
+           </ul>
+        </div>
+        <div class="tab-content ">
+            <!-- Pending task div start -->
+            <div class="tab-pane active" id="1">
+                <div class="row">
+                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Client Name:</strong>
+                            <input type="text" class="form-control" name="client_name" placeholder="client_name" value="{{$leads->client_name}}"/>
 
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Address:</strong>
-                    <input type="text" class="form-control" name="address" placeholder="address" value="{{$leads->address}}"/>
-                </div>
-            </div>
-
-             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Contact No:</strong>
-                    <input type="text" class="form-control" name="contactno" placeholder="contactno" value="{{$leads->contactno}}"/>
-
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Email:</strong>
-                    <input type="text" class="form-control" name="email" placeholder="email" value="{{$leads->email}}"/>
-
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12">
-                            <strong>Source:</strong><br>
                         </div>
                     </div>
-                    <div class="row">
-                         <div class="col-sm-6 ol-xs-12">
 
-                         <Select name="source" class="form-control" id="leadsource">
-                            <option value="database" {{'database' == $leads->source ? 'Selected=Selected':''}}>Database</option>
-                            <option value="instagram" {{'instagram' == $leads->source ? 'Selected=Selected':''}}>Instagram</option>
-                            <option value="facebook" {{'facebook' == $leads->source ? 'Selected=Selected':''}}>Facebook</option>
-                            <option value="new" {{'new' == $leads->source ? 'Selected=Selected':''}}>New Lead</option>
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Address:</strong>
+                            <input type="text" class="form-control" name="address" placeholder="address" value="{{$leads->address}}"/>
+                        </div>
+                    </div>
+
+                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Contact No:</strong>
+                            <input type="text" class="form-control" name="contactno" placeholder="contactno" data-twilio-call value="{{$leads->contactno}}"/>
+
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Email:</strong>
+                            <input type="text" class="form-control" name="email" placeholder="email" value="{{$leads->email}}"/>
+
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12">
+                                    <strong>Source:</strong><br>
+                                </div>
+                            </div>
+                            <div class="row">
+                                 <div class="col-sm-6 ol-xs-12">
+
+                                 <Select name="source" class="form-control" id="leadsource">
+                                    <option value="database" {{'database' == $leads->source ? 'Selected=Selected':''}}>Database</option>
+                                    <option value="instagram" {{'instagram' == $leads->source ? 'Selected=Selected':''}}>Instagram</option>
+                                    <option value="facebook" {{'facebook' == $leads->source ? 'Selected=Selected':''}}>Facebook</option>
+                                    <option value="new" {{'new' == $leads->source ? 'Selected=Selected':''}}>New Lead</option>
+                                    </Select>
+                                 </div>
+                                 <div class="col-sm-6 ol-xs-12">
+                                     <input type="text" class="form-control" id="leadsourcetxt" name="source" placeholder="Comments" value="{{$leads->leadsourcetxt}}"/>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+                      <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>City:</strong>
+                            <input type="text" class="form-control" name="city" placeholder="city" value="{{$leads->city}}"/>
+
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Solo Phone:</strong>
+                           <Select name="solophone" class="form-control">
+                                    <option value="01" {{'01' == $leads->solophone ? 'Selected=Selected':''}}>01</option>
+                                    <option value="02" {{'02'== $leads->solophone ? 'Selected=Selected':''}}>02</option>
+                                    <option value="03" {{'03'== $leads->solophone ? 'Selected=Selected':''}}>03</option>
+                                    <option value="04" {{'04'== $leads->solophone ? 'Selected=Selected':''}}>04</option>
+                                    <option value="05" {{'05'== $leads->solophone ? 'Selected=Selected':''}}>05</option>
+                                    <option value="06" {{'06'== $leads->solophone ? 'Selected=Selected':''}}>06</option>
+                                    <option value="07" {{'07'== $leads->solophone ? 'Selected=Selected':''}}>07</option>
+                                    <option value="08" {{'08'== $leads->solophone ? 'Selected=Selected':''}}>08</option>
+                                    <option value="09" {{'09'== $leads->solophone ? 'Selected=Selected':''}}>09</option>
                             </Select>
-                         </div>
-                         <div class="col-sm-6 ol-xs-12">
-                             <input type="text" class="form-control" id="leadsourcetxt" name="source" placeholder="Comments" value="{{$leads->leadsourcetxt}}"/>
+
                         </div>
                     </div>
 
-                </div>
-            </div>
 
 
-
-              <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>City:</strong>
-                    <input type="text" class="form-control" name="city" placeholder="city" value="{{$leads->city}}"/>
-
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Solo Phone:</strong>
-                   <Select name="solophone" class="form-control">
-                            <option value="01" {{'01' == $leads->solophone ? 'Selected=Selected':''}}>01</option>
-                            <option value="02" {{'02'== $leads->solophone ? 'Selected=Selected':''}}>02</option>
-                            <option value="03" {{'03'== $leads->solophone ? 'Selected=Selected':''}}>03</option>
-                            <option value="04" {{'04'== $leads->solophone ? 'Selected=Selected':''}}>04</option>
-                            <option value="05" {{'05'== $leads->solophone ? 'Selected=Selected':''}}>05</option>
-                            <option value="06" {{'06'== $leads->solophone ? 'Selected=Selected':''}}>06</option>
-                            <option value="07" {{'07'== $leads->solophone ? 'Selected=Selected':''}}>07</option>
-                            <option value="08" {{'08'== $leads->solophone ? 'Selected=Selected':''}}>08</option>
-                            <option value="09" {{'09'== $leads->solophone ? 'Selected=Selected':''}}>09</option>
-                    </Select>
-
-                </div>
-            </div>
+                      <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Rating:</strong>
+                            <Select name="rating" class="form-control">
+                                    <option value="1" {{1== $leads->rating ? 'Selected=Selected':''}}>1</option>
+                                    <option value="2" {{2== $leads->rating ? 'Selected=Selected':''}}>2</option>
+                                    <option value="3" {{3== $leads->rating ? 'Selected=Selected':''}}>3</option>
+                                    <option value="4" {{4== $leads->rating ? 'Selected=Selected':''}}>4</option>
+                                    <option value="5" {{5== $leads->rating ? 'Selected=Selected':''}}>5</option>
+                                    <option value="6" {{6== $leads->rating ? 'Selected=Selected':''}}>6</option>
+                                    <option value="7" {{7== $leads->rating ? 'Selected=Selected':''}}>7</option>
+                                    <option value="8" {{8== $leads->rating ? 'Selected=Selected':''}}>8</option>
+                                    <option value="9" {{9== $leads->rating ? 'Selected=Selected':''}}>9</option>
+                                    <option value="10" {{10== $leads->rating ? 'Selected=Selected':''}}>10</option>
+                            </Select>
 
 
+                        </div>
+                    </div>
 
-              <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Rating:</strong>
-                    <Select name="rating" class="form-control">
-                            <option value="1" {{1== $leads->rating ? 'Selected=Selected':''}}>1</option>
-                            <option value="2" {{2== $leads->rating ? 'Selected=Selected':''}}>2</option>
-                            <option value="3" {{3== $leads->rating ? 'Selected=Selected':''}}>3</option>
-                            <option value="4" {{4== $leads->rating ? 'Selected=Selected':''}}>4</option>
-                            <option value="5" {{5== $leads->rating ? 'Selected=Selected':''}}>5</option>
-                            <option value="6" {{6== $leads->rating ? 'Selected=Selected':''}}>6</option>
-                            <option value="7" {{7== $leads->rating ? 'Selected=Selected':''}}>7</option>
-                            <option value="8" {{8== $leads->rating ? 'Selected=Selected':''}}>8</option>
-                            <option value="9" {{9== $leads->rating ? 'Selected=Selected':''}}>9</option>
-                            <option value="10" {{10== $leads->rating ? 'Selected=Selected':''}}>10</option>
-                    </Select>
-
-
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Brand:</strong>
-                    <select disabled id="multi_brand" multiple="" name="multi_brand[]" class="form-control">
-                        @foreach($leads['brands'] as $brand_item)
-                            <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'] ,$leads['multi_brand']) ? 'Selected=Selected':''}}>{{$brand_item['name']}}</option>
-                        @endforeach
-                    </select>
-
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Categories</strong>
-                    {!! $data['category_select']  !!}
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Comments:</strong>
-                    <textarea  class="form-control" name="comments" placeholder="comments">{{$leads->comments}} </textarea>
-
-
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong> Selected Product :</strong>
-                    {{--<input type="text" class="form-control" name="selected_product" placeholder="Selected Product" value="{{ old('selected_product') ? old('selected_product') : $selected_product }}"/>--}}
-                    <?php
-                    //                  echo Form::select('allocated_to',$products_array, ( old('selected_products_array') ? old('selected_products_array') : $selected_products_array ), ['multiple'=>'multiple','name'=>'selected_product[]','class' => 'form-control select2']);?>
-
-                    <select name="selected_product[]" class="select2 form-control" multiple="multiple" id="select2"></select>
-
-                    @if ($errors->has('selected_product'))
-                        <div class="alert alert-danger">{{$errors->first('selected_product')}}</div>
-                    @endif
-                </div>
-
-                <script type="text/javascript">
-                    jQuery(document).ready(function() {
-
-                        jQuery('#multi_brand').select2({
-                            placeholder: 'Brand',
-                        });
-
-
-                        jQuery('#multi_category').select2({
-                            placeholder: 'Categories',
-                        });
-
-
-                        jQuery('#select2').select2({
-                            ajax: {
-                                url: '/productSearch/',
-                                dataType: 'json',
-                                delay: 750,
-                                data: function (params) {
-                                    return {
-                                        q: params.term, // search term
-                                    };
-                                },
-                                processResults: function (data,params) {
-
-                                    params.page = params.page || 1;
-
-                                    return {
-                                        results: data,
-                                        pagination: {
-                                            more: (params.page * 30) < data.total_count
-                                        }
-                                    };
-                                },
-                            },
-                            placeholder: 'Search for Product by id, Name, Sku',
-                            escapeMarkup: function (markup) { return markup; },
-                            minimumInputLength: 5,
-                            templateResult: formatProduct,
-                            templateSelection:function(product) {
-                                 return product.text || product.name;
-                             },
-
-                        });
-
-
-
-                        @if(!empty($data['products_array'] ))
-                            let data = [
-                                    @forEach($data['products_array'] as $key => $value)
-                                {
-                                    'id': '{{ $key }}',
-                                    'text': '{{$value  }}',
-                                },
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Brand:</strong>
+                            <select disabled id="multi_brand" multiple="" name="multi_brand[]" class="form-control">
+                                @foreach($leads['brands'] as $brand_item)
+                                    <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'] ,$leads['multi_brand']) ? 'Selected=Selected':''}}>{{$brand_item['name']}}</option>
                                 @endforeach
-                            ];
-                        @endif
+                            </select>
 
-                        let productSelect = jQuery('#select2');
-                        // create the option and append to Select2
+                        </div>
+                    </div>
 
-                        data.forEach(function (item) {
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Categories</strong>
+                            {!! $data['category_select']  !!}
+                        </div>
+                    </div>
 
-                            var option = new Option(item.text,item.id , true, true);
-                            productSelect.append(option).trigger('change');
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Comments:</strong>
+                            <textarea  class="form-control" name="comments" placeholder="comments">{{$leads->comments}} </textarea>
 
-                            // manually trigger the `select2:select` event
-                            productSelect.trigger({
-                                type: 'select2:select',
-                                params: {
-                                    data: item
+
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong> Selected Product :</strong>
+                            {{--<input type="text" class="form-control" name="selected_product" placeholder="Selected Product" value="{{ old('selected_product') ? old('selected_product') : $selected_product }}"/>--}}
+                            <?php
+                            //                  echo Form::select('allocated_to',$products_array, ( old('selected_products_array') ? old('selected_products_array') : $selected_products_array ), ['multiple'=>'multiple','name'=>'selected_product[]','class' => 'form-control select2']);?>
+
+                            <select name="selected_product[]" class="select2 form-control" multiple="multiple" id="select2"></select>
+
+                            @if ($errors->has('selected_product'))
+                                <div class="alert alert-danger">{{$errors->first('selected_product')}}</div>
+                            @endif
+                        </div>
+
+                        <script type="text/javascript">
+                            jQuery(document).ready(function() {
+
+                                jQuery('#multi_brand').select2({
+                                    placeholder: 'Brand',
+                                });
+
+
+                                jQuery('#multi_category').select2({
+                                    placeholder: 'Categories',
+                                });
+
+
+                                jQuery('#select2').select2({
+                                    ajax: {
+                                        url: '/productSearch/',
+                                        dataType: 'json',
+                                        delay: 750,
+                                        data: function (params) {
+                                            return {
+                                                q: params.term, // search term
+                                            };
+                                        },
+                                        processResults: function (data,params) {
+
+                                            params.page = params.page || 1;
+
+                                            return {
+                                                results: data,
+                                                pagination: {
+                                                    more: (params.page * 30) < data.total_count
+                                                }
+                                            };
+                                        },
+                                    },
+                                    placeholder: 'Search for Product by id, Name, Sku',
+                                    escapeMarkup: function (markup) { return markup; },
+                                    minimumInputLength: 5,
+                                    templateResult: formatProduct,
+                                    templateSelection:function(product) {
+                                         return product.text || product.name;
+                                     },
+
+                                });
+
+
+
+                                @if(!empty($data['products_array'] ))
+                                    let data = [
+                                            @forEach($data['products_array'] as $key => $value)
+                                        {
+                                            'id': '{{ $key }}',
+                                            'text': '{{$value  }}',
+                                        },
+                                        @endforeach
+                                    ];
+                                @endif
+
+                                let productSelect = jQuery('#select2');
+                                // create the option and append to Select2
+
+                                data.forEach(function (item) {
+
+                                    var option = new Option(item.text,item.id , true, true);
+                                    productSelect.append(option).trigger('change');
+
+                                    // manually trigger the `select2:select` event
+                                    productSelect.trigger({
+                                        type: 'select2:select',
+                                        params: {
+                                            data: item
+                                        }
+                                    });
+
+                                });
+
+                                function formatProduct (product) {
+                                    if (product.loading) {
+                                        return product.sku;
+                                    }
+
+                                    return "<p> <b>Id:</b> " +product.id  + (product.name ? " <b>Name:</b> "+product.name : "" ) +  " <b>Sku:</b> "+product.sku+" </p>";
                                 }
+
+                                /*function boilerPlateCode() {
+                                    //boilerplate
+                                    jQuery('ul.select2-selection__rendered li').each(function (item) {
+                                        $( this ).append($( this ).attr('title'));
+                                    });
+                                }
+                                boilerPlateCode();*/
+
                             });
 
-                        });
 
-                        function formatProduct (product) {
-                            if (product.loading) {
-                                return product.sku;
-                            }
+                        </script>
+                    </div>
 
-                            return "<p> <b>Id:</b> " +product.id  + (product.name ? " <b>Name:</b> "+product.name : "" ) +  " <b>Sku:</b> "+product.sku+" </p>";
-                        }
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Assigned To:</strong>
+                            <Select name="assigned_user" class="form-control">
 
-                        /*function boilerPlateCode() {
-                            //boilerplate
-                            jQuery('ul.select2-selection__rendered li').each(function (item) {
-                                $( this ).append($( this ).attr('title'));
-                            });
-                        }
-                        boilerPlateCode();*/
-
-                    });
+                                    @foreach($leads['users'] as $users)
+                                  <option value="{{$users['id']}}" {{$users['id']== $leads->assigned_user ? 'Selected=Selected':''}}>{{$users['name']}}</option>
+                                  @endforeach
+                            </Select>
 
 
-                </script>
-            </div>
-
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Assigned To:</strong>
-                    <Select name="assigned_user" class="form-control">
-
-                            @foreach($leads['users'] as $users)
-                          <option value="{{$users['id']}}" {{$users['id']== $leads->assigned_user ? 'Selected=Selected':''}}>{{$users['name']}}</option>
-                          @endforeach
-                    </Select>
+                        </div>
+                    </div>
 
 
+                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>status:</strong>
+                            <Select name="status" class="form-control">
+                                 @foreach($leads['statusid'] as $key => $value)
+                                  <option value="{{$value}}" {{$value == $leads->status ? 'Selected=Selected':''}}>{{$key}}</option>
+                                  @endforeach
+                            </Select>
+
+                            <input type="hidden" class="form-control" name="userid" placeholder="status" value="{{$leads->userid}}"/>
+
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <strong>Remark:</strong>
+                            {{ $leads['remark'] }}
+                        </div>
+                    </div>
+                </div>
+         </form>
+         <div class="col-xs-12 col-sm-12">
+            <hr>
+         </div>
+
+         <div id="taskModal" class="modal fade" role="dialog">
+           <div class="modal-dialog">
+
+             <!-- Modal content-->
+             <div class="modal-content">
+               <div class="modal-header">
+                 <button type="button" class="close" data-dismiss="modal">&times;</button>
+                 <h4 class="modal-title">Create Task</h4>
+               </div>
+
+               <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
+                 @csrf
+
+                 <div class="modal-body">
+                   <div class="form-group">
+                       <strong>Task Details:</strong>
+                        <textarea class="form-control" name="task_details" placeholder="Task Details" required></textarea>
+                        @if ($errors->has('task_details'))
+                            <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
+                        @endif
+                   </div>
+
+                   <div class="form-group" id="completion_form_group">
+                     <strong>Completion Date:</strong>
+                     <div class='input-group date' id='completion-datetime'>
+                       <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                       <span class="input-group-addon">
+                         <span class="glyphicon glyphicon-calendar"></span>
+                       </span>
+                     </div>
+
+                     @if ($errors->has('completion_date'))
+                         <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                     @endif
+                   </div>
+
+                   <div class="form-group">
+                       <select name="is_statutory" class="form-control is_statutory">
+                           <option value="0">Other Task </option>
+                           <option value="1">Statutory Task </option>
+                       </select>
+                   </div>
+
+                   <div id="recurring-task" style="display: none;">
+                       <div class="form-group">
+                           <strong>Recurring Type:</strong>
+                           <select name="recurring_type" class="form-control">
+                               <option value="EveryDay">EveryDay</option>
+                               <option value="EveryWeek">EveryWeek</option>
+                               <option value="EveryMonth">EveryMonth</option>
+                               <option value="EveryYear">EveryYear</option>
+                           </select>
+                       </div>
+                       <div class="form-group">
+                           <strong>Recurring Day:</strong>
+                           <div id="recurring_day"></div>
+                       </div>
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Assigned To:</strong>
+                       <select name="assign_to" class="form-control">
+                         @foreach($leads['users'] as $users)
+                           <option value="{{$users['id']}}">{{$users['name']}}</option>
+                         @endforeach
+                       </select>
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Category:</strong>
+                   <?php
+                   $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
+
+                   echo Form::select('category',$categories, old('category'), ['placeholder' => 'Select a category','class' => 'form-control']);
+
+                   ?>
+                   </div>
+                 </div>
+                 <div class="modal-footer">
+                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                   <button type="submit" class="btn btn-success">Create</button>
+                 </div>
+               </form>
+             </div>
+
+           </div>
+         </div>
+        </div>
+        <div class="tab-pane" id="2">
+            <div class="col-xs-12 col-sm-12">
+                <h3 style="text-center">WhatsApp Messages</h3>
+             </div>
+            <div class="col-xs-12 col-sm-12">
+                <div class="row">
+                   <div class="col-md-12" id="waMessages">
+                   </div>
                 </div>
             </div>
-
-
-             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>status:</strong>
-                    <Select name="status" class="form-control">
-                         @foreach($leads['statusid'] as $key => $value)
-                          <option value="{{$value}}" {{$value == $leads->status ? 'Selected=Selected':''}}>{{$key}}</option>
-                          @endforeach
-                    </Select>
-
-                    <input type="hidden" class="form-control" name="userid" placeholder="status" value="{{$leads->userid}}"/>
-
-                </div>
+            <div class="col-md-10">
+                    <textarea id="waNewMessage" class="form-control" placeholder="Type new message.."></textarea>
+            </div>
+            <div class="col-md-2">
+                <button id="waMessageSend" class="btn btn-success">Send</button>
             </div>
 
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group">
-                    <strong>Remark:</strong>
-                    {{ $leads['remark'] }}
+        </div>
+        <div class="tab-pane" id="3">
+            <div class="col-xs-12 col-sm-12">
+                <h3 style="text-center">Call Recordings</h3>
+             </div>
+
+            <div class="col-xs-12 col-sm-12">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <td>Recording</td>
+                                <td>Created At</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- @foreach ($leads['recordings'] as $recording)
+                                <tr>
+                                    <td><a href="{{$recording['recording_url']}}" target="_blank">{{$recording['recording_url']}}</a></td>
+                                    <td>{{$recording['created_at']}}</td>
+                                </tr>
+                            @endforeach --}}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
- </form>
- <div class="col-xs-12 col-sm-12">
-    <hr>
- </div>
 
- <div id="taskModal" class="modal fade" role="dialog">
-   <div class="modal-dialog">
-
-     <!-- Modal content-->
-     <div class="modal-content">
-       <div class="modal-header">
-         <button type="button" class="close" data-dismiss="modal">&times;</button>
-         <h4 class="modal-title">Create Task</h4>
-       </div>
-
-       <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
-         @csrf
-
-         <div class="modal-body">
-           <div class="form-group">
-               <strong>Task Details:</strong>
-                <textarea class="form-control" name="task_details" placeholder="Task Details" required></textarea>
-                @if ($errors->has('task_details'))
-                    <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
-                @endif
-           </div>
-
-           <div class="form-group" id="completion_form_group">
-             <strong>Completion Date:</strong>
-             <div class='input-group date' id='completion-datetime'>
-               <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
-
-               <span class="input-group-addon">
-                 <span class="glyphicon glyphicon-calendar"></span>
-               </span>
-             </div>
-
-             @if ($errors->has('completion_date'))
-                 <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-             @endif
-           </div>
-
-           <div class="form-group">
-               <select name="is_statutory" class="form-control is_statutory">
-                   <option value="0">Other Task </option>
-                   <option value="1">Statutory Task </option>
-               </select>
-           </div>
-
-           <div id="recurring-task" style="display: none;">
-               <div class="form-group">
-                   <strong>Recurring Type:</strong>
-                   <select name="recurring_type" class="form-control">
-                       <option value="EveryDay">EveryDay</option>
-                       <option value="EveryWeek">EveryWeek</option>
-                       <option value="EveryMonth">EveryMonth</option>
-                       <option value="EveryYear">EveryYear</option>
-                   </select>
-               </div>
-               <div class="form-group">
-                   <strong>Recurring Day:</strong>
-                   <div id="recurring_day"></div>
-               </div>
-           </div>
-
-           <div class="form-group">
-               <strong>Assigned To:</strong>
-               <select name="assign_to" class="form-control">
-                 @foreach($leads['users'] as $users)
-                   <option value="{{$users['id']}}">{{$users['name']}}</option>
-                 @endforeach
-               </select>
-           </div>
-
-           <div class="form-group">
-               <strong>Category:</strong>
-           <?php
-           $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
-
-           echo Form::select('category',$categories, old('category'), ['placeholder' => 'Select a category','class' => 'form-control']);
-
-           ?>
-           </div>
-         </div>
-         <div class="modal-footer">
-           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-           <button type="submit" class="btn btn-success">Create</button>
-         </div>
-       </form>
-     </div>
-
-   </div>
- </div>
-
+    </div>
   <div class="col-xs-12 col-sm-12">
     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskModal">Add Task</button>
     <h3 style="text-center">Messages</h3>
@@ -589,9 +649,8 @@
                         </div>
                       </div>
                  @endforeach  !-->
-
-
           </div>
+
           {{--@if(App\Helpers::getadminorsupervisor() == false)--}}
           <div class="col-xs-12 col-sm-4">
             <p><strong> Received from Customer</strong> </p>
@@ -789,8 +848,69 @@
      }
 
    });
- </script>
+   $(document).ready(function() {
+		var container = $("div#waMessages");
+		var sendBtn = $("#waMessageSend");
+		var leadId = "{{$leads->id}}";
+		function renderMessage(message) {
+				var domId = "waMessage_" + message.id;
+				var current = $("#" + domId);
+				if ( current.get( 0 ) ) {
+					return;
+				}
+				var domId = "waMessage_" + message.id;
+                if (message.received) {
+				    var row = $("<div class='talk-bubble tri-right round right-in blue'></div>");
+                } else {
+				    var row = $("<div class='talk-bubble tri-right round left-in white'></div>");
+                }
+                var text = $("<div class='talktext'></div>");
+                var p = $("<p class='collapsible-message'></p>");
 
+                row.attr("id", domId);
+
+                p.attr("data-messageshort", message.message);
+                p.attr("data-message", message.message);
+                p.attr("data-expanded", "true");
+                p.html( message.message );
+                p.appendTo( text );
+                text.appendTo( row );
+				row.appendTo( container );
+		}
+		function pollMessages() {
+            var qs = "";
+            qs += "?leadId=" + leadId;
+            qs += "&elapse=3600";
+			var url = $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
+				data.forEach(function( message ) {
+					renderMessage( message );
+				} );
+			});
+		}
+		function startPolling() {
+			setInterval( pollMessages, 1000);
+		}
+		function sendWAMessage() {
+			var text = $("#waNewMessage").val();
+			var data = { "lead_id": leadId, "message": text };
+			$.ajax({
+				url: '/whatsapp/sendMessage',
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify( data )
+			}).done( function(response) {
+				console.log("message was sent");
+			}).fail(function(errObj) {
+				alert("Could not send message");
+			});
+		}
+
+		sendBtn.click(function() {
+			sendWAMessage();
+		} );
+		startPolling();
+	});
+ </script>
  {{-- <script type="text/javascript">
    $(document).ready(function() {
 
