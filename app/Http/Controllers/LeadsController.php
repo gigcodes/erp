@@ -202,34 +202,34 @@ class LeadsController extends Controller
         $lead = Leads::create($data);
 
 
-        if(!empty($request->input('assigned_user'))){
-
-	        NotificationQueueController::createNewNotification([
-		        'type' => 'button',
-		        'message' => 'Client Name: '.$data['client_name'],
-            // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-		        'timestamps' => ['+0 minutes'],
-		        'model_type' => Leads::class,
-		        'model_id' =>  $lead->id,
-		        'user_id' => Auth::id(),
-		        'sent_to' => $request->input('assigned_user'),
-		        'role' => '',
-	        ]);
-        }
-        else{
-
-	        NotificationQueueController::createNewNotification([
-		        'type' => 'button',
-		        'message' => 'Client Name: '.$data['client_name'],
-            // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-		        'timestamps' => ['+0 minutes'],
-		        'model_type' => Leads::class,
-		        'model_id' =>  $lead->id,
-		        'user_id' => Auth::id(),
-		        'sent_to' => '',
-		        'role' => 'crm',
-	        ]);
-        }
+        // if(!empty($request->input('assigned_user'))){
+        //
+	      //   NotificationQueueController::createNewNotification([
+		    //     'type' => 'button',
+		    //     'message' => 'Client Name: '.$data['client_name'],
+        //     // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+		    //     'timestamps' => ['+0 minutes'],
+		    //     'model_type' => Leads::class,
+		    //     'model_id' =>  $lead->id,
+		    //     'user_id' => Auth::id(),
+		    //     'sent_to' => $request->input('assigned_user'),
+		    //     'role' => '',
+	      //   ]);
+        // }
+        // else{
+        //
+	      //   NotificationQueueController::createNewNotification([
+		    //     'type' => 'button',
+		    //     'message' => 'Client Name: '.$data['client_name'],
+        //     // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+		    //     'timestamps' => ['+0 minutes'],
+		    //     'model_type' => Leads::class,
+		    //     'model_id' =>  $lead->id,
+		    //     'user_id' => Auth::id(),
+		    //     'sent_to' => '',
+		    //     'role' => 'crm',
+	      //   ]);
+        // }
 
 
 	    // NotificationQueueController::createNewNotification([
@@ -242,15 +242,15 @@ class LeadsController extends Controller
 		  //   'role' => '',
 	    // ]);
 
-	    NotificationQueueController::createNewNotification([
-		    'message' => 'Client Name: '.$data['client_name'],
-		    'timestamps' => ['+0 minutes'],
-		    'model_type' => Leads::class,
-		    'model_id' =>  $lead->id,
-		    'user_id' => Auth::id(),
-		    'sent_to' => '',
-		    'role' => 'Admin',
-	    ]);
+	    // NotificationQueueController::createNewNotification([
+		  //   'message' => 'Client Name: '.$data['client_name'],
+		  //   'timestamps' => ['+0 minutes'],
+		  //   'model_type' => Leads::class,
+		  //   'model_id' =>  $lead->id,
+		  //   'user_id' => Auth::id(),
+		  //   'sent_to' => '',
+		  //   'role' => 'Admin',
+	    // ]);
 
 	    // NotificationQueueController::createNewNotification([
 		  //   'message' => 'Client Name: '.$data['client_name'],
@@ -374,29 +374,29 @@ class LeadsController extends Controller
 
         ]);
 
-	    if (  $request->input( 'assigned_user' ) != $leads->assigned_user && !empty($request->input( 'assigned_user' ))  ) {
-
-		    NotificationQueueController::createNewNotification([
-			    'type' => 'button',
-			    'message' => 'Client Name: '.$leads->client_name,
-			    'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-			    'model_type' => Leads::class,
-			    'model_id' =>  $id,
-			    'user_id' => Auth::id(),
-			    'sent_to' => $request->input('assigned_user'),
-			    'role' => '',
-		    ]);
-
-		    NotificationQueueController::createNewNotification([
-			    'message' => 'Client Name: '.$leads->client_name,
-			    'timestamps' => ['+45 minutes'],
-			    'model_type' => Leads::class,
-			    'model_id' =>  $id,
-			    'user_id' => Auth::id(),
-			    'sent_to' => Auth::id(),
-			    'role' => '',
-		    ]);
-	    }
+	    // if (  $request->input( 'assigned_user' ) != $leads->assigned_user && !empty($request->input( 'assigned_user' ))  ) {
+      //
+		  //   NotificationQueueController::createNewNotification([
+			//     'type' => 'button',
+			//     'message' => 'Client Name: '.$leads->client_name,
+			//     'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+			//     'model_type' => Leads::class,
+			//     'model_id' =>  $id,
+			//     'user_id' => Auth::id(),
+			//     'sent_to' => $request->input('assigned_user'),
+			//     'role' => '',
+		  //   ]);
+      //
+		  //   NotificationQueueController::createNewNotification([
+			//     'message' => 'Client Name: '.$leads->client_name,
+			//     'timestamps' => ['+45 minutes'],
+			//     'model_type' => Leads::class,
+			//     'model_id' =>  $id,
+			//     'user_id' => Auth::id(),
+			//     'sent_to' => Auth::id(),
+			//     'role' => '',
+		  //   ]);
+	    // }
 
         $leads->client_name = $request->get('client_name');
         $leads->contactno = $request->get('contactno');
