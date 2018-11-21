@@ -75,9 +75,9 @@ class LeadsController extends Controller
         $rating = $request->rating;
       }
 
-      if ($request->input('sortby') == 'communication') {
-        $leads = Leads::with('messages')->select('messages.body')->orderBy('message:body');
-      } else
+      // if ($request->input('sortby') == 'communication') {
+      //   $leads = Leads::with('messages')->select('messages.body')->orderBy('message:body');
+      // } else
       if ( helpers::getadminorsupervisor() ) {
 		    $leads = $leads->orderBy( $sortby, $orderby );
 	    } else if ( helpers::getmessagingrole() ) {
