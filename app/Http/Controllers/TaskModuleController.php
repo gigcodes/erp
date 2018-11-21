@@ -151,6 +151,37 @@ class TaskModuleController extends Controller {
 				'sent_to'    => $request->input( 'assign_to' ),
 				'role'       => '',
 			] );
+
+			PushNotification::create( [
+				'message'    => 'Task Created: ' . $data['task_details'] . 'for' . Helpers::getUserNameById($request->input('assign_to')),
+				'model_type' => Task::class,
+				'model_id'   => $task->id,
+				'user_id'    => Auth::id(),
+				'sent_to'    => '',
+				'role'       => 'Admin',
+			] );
+
+			NotificationQueueController::createNewNotification( [
+				'message'    => 'Reminder for Task : ' . $data['task_details'],
+				'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+				'model_type' => Task::class,
+				'model_id'   => $task->id,
+				'user_id'    => \Auth::id(),
+				'sent_to'    => $request->input( 'assign_to' ),
+				'role'       => '',
+			] );
+
+			$diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
+
+			NotificationQueueController::createNewNotification( [
+				'message'    => 'Reminder for Task : ' . $data['task_details'],
+				'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
+				'model_type' => Task::class,
+				'model_id'   => $task->id,
+				'user_id'    => \Auth::id(),
+				'sent_to'    => $request->input( 'assign_to' ),
+				'role'       => '',
+			] );
 		}
 		else {
 			$task = SatutoryTask::create($data);
@@ -160,6 +191,37 @@ class TaskModuleController extends Controller {
 				'model_type' => Task::class,
 				'model_id'   => $task->id,
 				'user_id'    => Auth::id(),
+				'sent_to'    => $request->input( 'assign_to' ),
+				'role'       => '',
+			] );
+
+			PushNotification::create( [
+				'message'    => 'Recurring Task Created: ' . $data['task_details'] . 'for' . Helpers::getUserNameById($request->input('assign_to')),
+				'model_type' => Task::class,
+				'model_id'   => $task->id,
+				'user_id'    => Auth::id(),
+				'sent_to'    => '',
+				'role'       => 'Admin',
+			] );
+
+			NotificationQueueController::createNewNotification( [
+				'message'    => 'Reminder for Recurring Task : ' . $data['task_details'],
+				'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+				'model_type' => Task::class,
+				'model_id'   => $task->id,
+				'user_id'    => \Auth::id(),
+				'sent_to'    => $request->input( 'assign_to' ),
+				'role'       => '',
+			] );
+
+			$diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
+
+			NotificationQueueController::createNewNotification( [
+				'message'    => 'Reminder for Task : ' . $data['task_details'],
+				'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
+				'model_type' => Task::class,
+				'model_id'   => $task->id,
+				'user_id'    => \Auth::id(),
 				'sent_to'    => $request->input( 'assign_to' ),
 				'role'       => '',
 			] );
@@ -197,7 +259,16 @@ class TaskModuleController extends Controller {
 			'role'       => '',
 		] );
 
-		$notification_queues = NotificationQueue::where('model_id', $task->id)->delete();
+		PushNotification::create( [
+			'message'    => $message,
+			'model_type' => Task::class,
+			'model_id'   => $task->id,
+			'user_id'    => Auth::id(),
+			'sent_to'    => '',
+			'role'       => 'Admin',
+		] );
+
+		$notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\Task')->delete();
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task marked as completed.' );
@@ -214,6 +285,8 @@ class TaskModuleController extends Controller {
 		}
 
 		$message = 'Statutory Task Completed: ' . $task->task_details;
+
+		$notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\StatutoryTask')->delete();
 
 		PushNotification::create( [
 			'message'    => $message,
@@ -234,7 +307,18 @@ class TaskModuleController extends Controller {
 		$id           = $request->input( 'id' );
 		$created_at = date('Y-m-d H:i:s');
 		$update_at = date('Y-m-d H:i:s');
-		DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
+		$remark_entry = DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
+		$task = Task::find($remark->taskid);
+
+		PushNotification::create( [
+			'message'    => 'Remark added: ' . $remark,
+			'model_type' => Task::class,
+			'model_id'   => $task->id,
+			'user_id'    => Auth::id(),
+			'sent_to'    => $task->assign_from,
+			'role'       => '',
+		] );
+
 		return response()->json(['remark' => $remark ],200);
 	}
 

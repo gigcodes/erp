@@ -87,8 +87,8 @@ class MessageController extends Controller
 
               NotificationQueueController::createNewNotification( [
 		            'message'    => 'Reminder : ' . $data['body'],
-                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-		            'timestamps' => [ '+0 minutes'],
+                'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+		            // 'timestamps' => [ '+0 minutes'],
                 'reminder'   => 1,
                 'message_id' => $message->id,
 		            'model_type' => $data['moduletype'],
@@ -131,8 +131,8 @@ class MessageController extends Controller
 
               NotificationQueueController::createNewNotification( [
 		            'message'    => 'Reminder to Reply : ' . $data['body'],
-                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-                'timestamps' => [ '+0 minutes'],
+                'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+                // 'timestamps' => [ '+0 minutes'],
                 'reminder'   => 1,
                 'message_id' => $message->id,
 		            'model_type' => $data['moduletype'],
@@ -143,8 +143,8 @@ class MessageController extends Controller
 
               NotificationQueueController::createNewNotification( [
 		            'message'    => 'Reminder to Reply : ' . $data['body'],
-                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-                'timestamps' => [ '+0 minutes'],
+                'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+                // 'timestamps' => [ '+0 minutes'],
                 'reminder'   => 1,
                 'message_id' => $message->id,
 		            'model_type' => $data['moduletype'],
@@ -255,8 +255,8 @@ class MessageController extends Controller
 
         NotificationQueueController::createNewNotification( [
           'message'    => 'Reminder : ' . $message->body,
-          // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-          'timestamps' => [ '+0 minutes'],
+          'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+          // 'timestamps' => [ '+0 minutes'],
           'reminder'   => 1,
           'message_id' => $message->id,
           'model_type' => $message->moduletype,
@@ -282,7 +282,7 @@ class MessageController extends Controller
 			    'model_type' => $message->moduletype,
 			    'model_id'   => $message->moduleid,
 			    'user_id'    => Auth::id(),
-			    'sent_to'    => '',
+			    'sent_to'    => $message->userid,
 			    'role'       => 'Admin',
 		    ] );
 	    }
@@ -314,7 +314,7 @@ class MessageController extends Controller
 			    'model_type' => $message->moduletype,
 			    'model_id'   => $message->moduleid,
 			    'user_id'    => Auth::id(),
-			    'sent_to'    => '',
+			    'sent_to'    => $message->userid,
 			    'role'       => 'Admin',
 		    ] );
 	    }

@@ -46,6 +46,28 @@ class PushNotificationController extends Controller {
 
 		$model_instance->assign_status = $status;
 
+		if($status == 1) {
+			PushNotification::create( [
+				'message'    => 'Task Accepted by ' . Helpers::getUserNameById($request->input('assign_to')),
+				'model_type' => Task::class,
+				'model_id'   => $push_notification->model_id,
+				'user_id'    => Auth::id(),
+				'sent_to'    => '',
+				'role'       => 'Admin',
+			] );
+		}
+
+		if($status == 3) {
+			PushNotification::create( [
+				'message'    => 'Task Declined by ' . Helpers::getUserNameById($request->input('assign_to')),
+				'model_type' => Task::class,
+				'model_id'   => $push_notification->model_id,
+				'user_id'    => Auth::id(),
+				'sent_to'    => '',
+				'role'       => 'Admin',
+			] );
+		}
+
 		if(!empty($remark))
 		{
 			if($model_type == 'App\\Task') {
@@ -56,6 +78,15 @@ class PushNotificationController extends Controller {
 						'remark' => $remark,
 						'taskid' => $push_notification->model_id
 
+					] );
+
+					PushNotification::create( [
+						'message'    => 'Remark added ' . $remark,
+						'model_type' => Task::class,
+						'model_id'   => $push_notification->model_id,
+						'user_id'    => Auth::id(),
+						'sent_to'    => '',
+						'role'       => 'Admin',
 					] );
 				}
 

@@ -122,6 +122,16 @@ class OrderController extends Controller {
 			'role' => '',
 		]);
 
+		NotificationQueueController::createNewNotification([
+			'message' => 'Client Name : '. $data['client_name'],
+			'timestamps' => ['+0 minutes'],
+			'model_type' => Order::class,
+			'model_id' =>  $order->id,
+			'user_id' => \Auth::id(),
+			'sent_to' => '',
+			'role' => 'Admin',
+		]);
+
 		return redirect()->route( 'order.index' )
 		                 ->with( 'message', 'Order created successfully' );
 	}
