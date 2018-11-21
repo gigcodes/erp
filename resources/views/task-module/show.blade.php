@@ -93,9 +93,14 @@
         </div>
 
 
-
+        <?php
+        if ( \App\Helpers::getadminorsupervisor() && ! empty( $selected_user ) )
+            $isAdmin = true;
+        else
+            $isAdmin = false;
+        ?>
             <div class="row">
-                <div class="col-12">
+                <div class="col-6">
                     <h4>Assign Task</h4>
                     <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -184,9 +189,21 @@
 
                     </form>
                 </div>
-            </div>
+                <div class="col-6">
+                    <h4>Daily Activity</h4>
 
-            <div class="row">
+                    <div class="mt-2 mb-2">
+                        @if(!$isAdmin)
+                            <button id="add-row" class="btn btn-primary">Add Row</button>
+                        @endif
+                        <button id="save-activity" class="btn btn-primary">Save</button>
+                        <img id="loading_activty" style="display: none" src="{{ asset('images/loading.gif') }}"/>
+                    </div>
+
+                    <div id="daily_activity"></div>
+                </div>
+            </div>
+            <!-- <div class="row">
                 <div class="col-12">
                     <h4>Today's Statutory Activity List</h4>
                     <table class="table">
@@ -213,9 +230,9 @@
                                     <td> {{$task['task_details']}}</td>
                                     <td>{{ $users[$task['assign_from']]}}</td>
                                     <td>{{ $task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
-                                    <td>
+                                    <td> -->
                                       <!-- @include('task-module.partials.remark',$task)  -->
-                                    </td>
+                                    <!-- </td>
                                     <td>
                                         @if( Auth::id() == $task['assign_to'] )
                                             <a href="/task/complete/{{$task['id']}}">Complete</a>
@@ -223,147 +240,262 @@
                                     </td>
                                     <td>
                                       <button id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark" data-id="{{$task['id']}}">Add Remark</button>
-                                        <button id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View Remark</button>
+                                        <button id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View Remark</button> -->
                                       <!--  <form method="POST" action="task/deleteStatutoryTask" enctype="multipart/form-data">
                                             @csrf
                                             <input hidden name="id" value="{{ $task['id'] }}">
                                             <button type="submit" class="">Delete</button>
                                         </form> -->
-                                    </td>
+                                    <!-- </td>
                                 </tr>
                         @endforeach
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div class="row">
-                <h4>List Of Pending Tasks</h4>
-                <table class="table">
-                    <thead>
-                      <tr>
-                          <th>Sr No</th>
-                          <th>Date</th>
-                          <th class="category">Category</th>
-                          <th>Task Details</th>
-                          <th>Est Completion Date</th>
-                          <th>Assigned From</th>
-                          <th>&nbsp;</th>
-                          <th>Remarks</th>
-                          <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        <?php $i = 1 ?>
-                      @foreach($data['task']['pending'] as $task)
-                    <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
-                        <td>{{$i++}}</td>
-                         <td>{{$task['created_at']}}</td>
-                        <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                        <td> {{$task['task_details']}}</td>
-                        <td> {{$task['completion_date']  }}</td>
-                        <td>{{ $users[$task['assign_from']] }}</td>
-                        @if( $task['assign_to'] == Auth::user()->id )
-                            <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
-                        @else
-                            <td>Assign to  {{ $task['assign_to'] ? $users[$task['assign_to']] : 'Nil'}}</td>
-                        @endif
-                        <td>
-                          <!-- @include('task-module.partials.remark',$task)  -->
-                        </td>
-                        <td>
-                            <button id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark" data-id="{{$task['id']}}">Add Remark</button>
-                              <button id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View Remark</button>
-                          <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
-                        </td>
-                    </tr>
-                   @endforeach
-                    </tbody>
-                  </table>
+            </div> -->
 
-            </div>
-            <!-- Modal -->
-            <div id="add-new-remark" class="modal fade" role="dialog">
-              <div class="modal-dialog">
+            <br/><br/>
+            <div id="exTab2" class="container">
+               <ul class="nav nav-tabs">
+                  <li class="active">
+                     <a  href="#1" data-toggle="tab">Pending Task</a>
+                  </li>
+                  <li><a href="#2" data-toggle="tab">Statutory Activity</a>
+                  </li>
+                  <li><a href="#3" data-toggle="tab">Completed Task</a>
+                  </li>
+               </ul>
+               <div class="tab-content ">
+                    <!-- Pending task div start -->
+                    <div class="tab-pane active" id="1">
+                        <div class="row">
+                           <!-- <h4>List Of Pending Tasks</h4> -->
+                            <table class="table">
+                                <thead>
+                                  <tr>
+                                      <th>Sr No</th>
+                                      <th>Date</th>
+                                      <th class="category">Category</th>
+                                      <th>Task Details</th>
+                                      <th>Est Completion Date</th>
+                                      <th>Assigned From</th>
+                                      <th>&nbsp;</th>
+                                      <th>Remarks</th>
+                                      <th>Action</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $i = 1 ?>
+                                  @foreach($data['task']['pending'] as $task)
+                                <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
+                                    <td>{{$i++}}</td>
+                                     <td>{{$task['created_at']}}</td>
+                                    <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
+                                    <td> {{$task['task_details']}}</td>
+                                    <td> {{$task['completion_date']  }}</td>
+                                    <td>{{ $users[$task['assign_from']] }}</td>
+                                    @if( $task['assign_to'] == Auth::user()->id )
+                                        <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
+                                    @else
+                                        <td>Assign to  {{ $task['assign_to'] ? $users[$task['assign_to']] : 'Nil'}}</td>
+                                    @endif
+                                    <td>
+                                      <!-- @include('task-module.partials.remark',$task)  -->
+                                    </td>
+                                    <td>
+                                        <button id="add-new-remark-btn" class="add-task btn btn-primary" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add Remark</button>
+                                          <button id="view-remark-list-btn" class="view-remark btn btn-primary" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View Remark</button>
+                                      <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
+                                    </td>
+                                </tr>
 
-                <!-- Modal content-->
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h4 class="modal-title">Add New Remark</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <!-- Modal -->
+                                <div id="add-new-remark_{{$task['id']}}" class="modal fade" role="dialog">
+                                  <div class="modal-dialog">
 
-                  </div>
-                  <div class="modal-body">
-                    <form id="add-remark">
-                      <input type="hidden" name="id" value="">
-                      <textarea id="remark-text" rows="1" name="remark" class="form-control"></textarea>
-                      <button type="button" class="mt-2" onclick="addNewRemark()">Add Remark</button>
-                  </form>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h4 class="modal-title">Add New Remark</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
 
-              </div>
-            </div>
+                                      </div>
+                                      <div class="modal-body">
+                                        <form id="add-remark">
+                                          <input type="hidden" name="id" value="">
+                                          <textarea id="remark-text_{{$task['id']}}" rows="1" name="remark" class="form-control"></textarea>
+                                          <button type="button" class="mt-2 " onclick="addNewRemark({{$task['id']}})">Add Remark</button>
+                                      </form>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                      </div>
+                                    </div>
 
-            <!-- Modal -->
-            <div id="view-remark-list" class="modal fade" role="dialog">
-              <div class="modal-dialog">
+                                  </div>
+                                </div>
 
-                <!-- Modal content-->
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h4 class="modal-title">View Remark</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <!-- Modal -->
+                                <div id="view-remark-list" class="modal fade" role="dialog">
+                                  <div class="modal-dialog">
 
-                  </div>
-                  <div class="modal-body">
-                    <div id="remark-list">
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h4 class="modal-title">View Remark</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
 
+                                      </div>
+                                      <div class="modal-body">
+                                        <div id="remark-list">
+
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                </div>
+                               @endforeach
+                                </tbody>
+                              </table>
+                        </div>
                     </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  </div>
+                    <!-- Pending task div end -->
+                    <!-- Statutory task div start -->
+                    <div class="tab-pane" id="2">
+                        <div class="row">
+                            <div class="col-12">
+                                <!-- <h4>Statutory Activity Completed</h4> -->
+                                <table class="table">
+                                <thead>
+                                  <tr>
+                                      <th>Sr No</th>
+                                      <th>Date</th>
+                                      <th class="category">Category</th>
+                                      <th>Task Details</th>
+                                      <th>Assigned From</th>
+                                      <th>Assigned To</th>
+                                      <th>Remark</th>
+                                      <th>Completed at</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $i = 1 ?>
+                                  @foreach(  $data['task']['statutory_completed'] as $task)
+                                <tr id="task_{{ $task['id'] }}">
+                                    <td>{{$i++}}</td>
+                                    <td> {{$task['created_at']}}</td>
+                                    <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
+                                    <td> {{$task['task_details']}}</td>
+                                    <td>{{$users[$task['assign_from']]}}</td>
+                                    <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
+                                    <td> @include('task-module.partials.remark',$task) </td>
+                                    <td> {{$task['created_at']}}</td>
+                                </tr>
+                               @endforeach
+                                </tbody>
+                              </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <h4>All Statutory Activity List</h4>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sr No</th>
+                                            <th>Date</th>
+                                            <th class="category">Category</th>
+                                            <th>Task Details</th>
+                                            <th>Assigned From</th>
+                                            <th>Assigned To</th>
+                                            <th>Recurring Type</th>
+                                            <th>Remarks</th>
+                                            <th>Completed</th>
+                                            {{--<th>Remark</th>--}}
+                                            {{--<th>Completed</th>--}}
+                                            {{--<th style="width: 80px;">Action</th>--}}
+                                        </tr>
+                                    </thead>
+                                <tbody>
+                                    <?php $i = 1 ?>
+                                    @foreach(  $data['task']['statutory'] as $task)
+                                            <tr>
+                                                <td>{{$i++}}</td>
+                                                <td> {{$task['created_at']}}</td>
+                                                <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
+                                                <td> {{$task['task_details']}}</td>
+                                                <td>{{ $users[$task['assign_from']]}}</td>
+                                                <td>{{ $task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
+                                                <td>{{ $task['recurring_type'] }}</td>
+                                                {{-- <td>{{ $task['recurring_day'] ?? 'nil' }}</td> --}}
+                                                <td> @include('task-module.partials.remark',$task) </td>
+                                                <td>
+                                                  @if( Auth::id() == $task['assign_to'] )
+                                                    @if ($task['completion_date'])
+                                                      {{ $task['completion_date'] }}
+                                                    @else
+                                                      <a href="/statutory-task/complete/{{$task['id']}}">Complete</a>
+                                                    @endif
+                                                  @endif
+                                                </td>
+                                                {{--<td>
+                                                    <form method="POST" action="task/deleteStatutoryTask" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <input hidden name="id" value="{{ $task['id'] }}">
+                                                        <button type="submit" class="">Delete</button>
+                                                    </form>
+                                                </td>--}}
+                                            </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Statutory task div end -->
+                    <!-- Completed task div start -->
+                    <div class="tab-pane" id="3">
+                        <div class="row">
+                           <!-- <h4>List Of Completed Tasks</h4> -->
+                            <table class="table">
+                                <thead>
+                                  <tr>
+                                  <th>Sr No</th>
+                                  <th>Date</th>
+                                  <th class="category">Category</th>
+                                  <th>Task Details</th>
+                                  <th>Est Completion Date</th>
+                                  <th>Assigned From</th>
+                                  <th>Assigned To</th>
+                                  <th>Remark</th>
+                                  <th>Completed On</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $i = 1 ?>
+                                  @foreach( $data['task']['completed'] as $task)
+                                <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed" id="task_{{ $task['id'] }}">
+                                    <td>{{$i++}}</td>
+                                    <td>{{$task['created_at']}}</td>
+                                    <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
+                                    <td> {{$task['task_details']}}</td>
+                                    <td> {{$task['completion_date']  }}</td>
+                                    <td>{{$users[$task['assign_from']]}}</td>
+                                    <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
+                                    <td> @include('task-module.partials.remark',$task) </td>
+                                    <td> {{$task['is_completed']}}</td>
+                                </tr>
+                               @endforeach
+                                </tbody>
+                              </table>
+                        </div>
+                    </div>
+                    <!-- Completed task div end -->
                 </div>
-
-              </div>
-            </div>
-
-            <div class="row">
-                <h4>List Of Completed Tasks</h4>
-                <table class="table">
-                    <thead>
-                      <tr>
-                      <th>Sr No</th>
-                      <th>Date</th>
-                      <th class="category">Category</th>
-                      <th>Task Details</th>
-                      <th>Est Completion Date</th>
-                      <th>Assigned From</th>
-                      <th>Assigned To</th>
-                      <th>Remark</th>
-                      <th>Completed On</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        <?php $i = 1 ?>
-                      @foreach( $data['task']['completed'] as $task)
-                    <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed" id="task_{{ $task['id'] }}">
-                        <td>{{$i++}}</td>
-                        <td>{{$task['created_at']}}</td>
-                        <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                        <td> {{$task['task_details']}}</td>
-                        <td> {{$task['completion_date']  }}</td>
-                        <td>{{$users[$task['assign_from']]}}</td>
-                        <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
-                        <td> @include('task-module.partials.remark',$task) </td>
-                        <td> {{$task['is_completed']}}</td>
-                    </tr>
-                   @endforeach
-                    </tbody>
-                  </table>
             </div>
 
            <!-- <div class="row">
@@ -396,136 +528,28 @@
                     </tbody>
                 </table>
             </div> -->
-
-	        <?php
-	        if ( \App\Helpers::getadminorsupervisor() && ! empty( $selected_user ) )
-		        $isAdmin = true;
-	        else
-		        $isAdmin = false;
-	        ?>
-
-            <div class="row">
-                <div class="col-12">
-                    <h4>Daily Activity</h4>
-
-                    <div class="mt-2 mb-2">
-                        @if(!$isAdmin)
-                            <button id="add-row" class="btn btn-primary">Add Row</button>
-                        @endif
-                        <button id="save-activity" class="btn btn-primary">Save</button>
-                        <img id="loading_activty" style="display: none" src="{{ asset('images/loading.gif') }}"/>
-                    </div>
-
-                    <div id="daily_activity"></div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <h4>Statutory Activity Completed</h4>
-                    <table class="table">
-                    <thead>
-                      <tr>
-                          <th>Sr No</th>
-                          <th>Date</th>
-                          <th class="category">Category</th>
-                          <th>Task Details</th>
-                          <th>Assigned From</th>
-                          <th>Assigned To</th>
-                          <th>Remark</th>
-                          <th>Completed at</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        <?php $i = 1 ?>
-                      @foreach(  $data['task']['statutory_completed'] as $task)
-                    <tr id="task_{{ $task['id'] }}">
-                        <td>{{$i++}}</td>
-                        <td> {{$task['created_at']}}</td>
-                        <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                        <td> {{$task['task_details']}}</td>
-                        <td>{{$users[$task['assign_from']]}}</td>
-                        <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
-                        <td> @include('task-module.partials.remark',$task) </td>
-                        <td> {{$task['created_at']}}</td>
-                    </tr>
-                   @endforeach
-                    </tbody>
-                  </table>
-                </div>
-            </div>
-
-            <div class="row">
-        <div class="col-12">
-            <h4>All Statutory Activity List</h4>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Sr No</th>
-                    <th>Date</th>
-                    <th class="category">Category</th>
-                    <th>Task Details</th>
-                    <th>Assigned From</th>
-                    <th>Assigned To</th>
-                    <th>Recurring Type</th>
-                    <th>Remarks</th>
-                    <th>Completed</th>
-                    {{--<th>Remark</th>--}}
-                    {{--<th>Completed</th>--}}
-                    {{--<th style="width: 80px;">Action</th>--}}
-                </tr>
-                </thead>
-                <tbody>
-			    <?php $i = 1 ?>
-                @foreach(  $data['task']['statutory'] as $task)
-                        <tr>
-                            <td>{{$i++}}</td>
-                            <td> {{$task['created_at']}}</td>
-                            <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                            <td> {{$task['task_details']}}</td>
-                            <td>{{ $users[$task['assign_from']]}}</td>
-                            <td>{{ $task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
-                            <td>{{ $task['recurring_type'] }}</td>
-                            {{-- <td>{{ $task['recurring_day'] ?? 'nil' }}</td> --}}
-                            <td> @include('task-module.partials.remark',$task) </td>
-                            <td>
-                              @if( Auth::id() == $task['assign_to'] )
-                                @if ($task['completion_date'])
-                                  {{ $task['completion_date'] }}
-                                @else
-                                  <a href="/statutory-task/complete/{{$task['id']}}">Complete</a>
-                                @endif
-                              @endif
-                            </td>
-                            {{--<td>
-                                <form method="POST" action="task/deleteStatutoryTask" enctype="multipart/form-data">
-                                    @csrf
-                                    <input hidden name="id" value="{{ $task['id'] }}">
-                                    <button type="submit" class="">Delete</button>
-                                </form>
-                            </td>--}}
-                        </tr>
-                @endforeach
-                </tbody>
-            </table>
         </div>
-    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-
+    <style type="text/css">
+        .nav-tabs > li{
+            width:33.33%;
+        }
+    </style>
     <script>
 
-        function addNewRemark(){
+        function addNewRemark(id){
 
           var formData = $("#add-new-remark").find('#add-remark').serialize();
-
+          // console.log(id);
+          var remark = $('#remark-text_'+id).val();
           $.ajax({
               type: 'POST',
               headers: {
                   'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
               },
               url: '{{ route('task.addRemark') }}',
-              data: formData,
+              data: {id:id,remark:remark},
           }).done(response => {
               alert('Remark Added Success!')
               // $('#add-new-remark').modal('hide');
@@ -592,16 +616,14 @@
             table.addRow({});
         });
 
-        $("#add-new-remark-btn").click(function () {
-
-            var taskId = $("#add-new-remark-btn").attr('data-id');
+        $(".add-task").click(function () {
+            var taskId = $(this).attr('data-id');
             $("#add-new-remark").find('input[name="id"]').val(taskId);
-
         });
 
-        $("#view-remark-list-btn").click(function () {
+        $(".view-remark").click(function () {
 
-          var taskId = $("#view-remark-list-btn").attr('data-id');
+          var taskId = $(this).attr('data-id');
 
             $.ajax({
                 type: 'GET',
@@ -617,7 +639,7 @@
 
                 $.each(response, function( index, value ) {
 
-                  html+=' <p> '+value.remark+' <br> <small>updated on '+value.created_at+' </small></p>';
+                  html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+value.created_at+' </small></p>';
                   html+"<hr>";
                 });
                 $("#view-remark-list").find('#remark-list').html(html);

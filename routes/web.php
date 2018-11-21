@@ -141,5 +141,12 @@ Route::get('mageOrders/','MagentoController@get_magento_orders');
 Route::get('perHourActivityNotification','NotificationQueueController@perHourActivityNotification');
 Route::get('recurringTask','TaskModuleController@recurringTask');
 
-Route::post('twilio/token', 'TwilioController@createToken');
+Route::get('twilio/token', 'TwilioController@createToken');
 Route::post('twilio/incoming', 'TwilioController@incomingCall');
+Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
+Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');
+Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback');
+
+Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
+Route::post('whatsapp/sendMessage', 'WhatsAppController@sendMessage');
+Route::get('whatsapp/pollMessages', 'WhatsAppController@pollMessages');

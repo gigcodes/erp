@@ -9,5 +9,6 @@ class Remark extends Model
     protected $fillable = [
     	'remark',
 	    'taskid',
+      'user_name'
     ];
 }

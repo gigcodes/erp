@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Helpers;
 use App\User;
 use App\Task;
+use App\Remark;
 use App\NotificationQueue;
 
 class TaskModuleController extends Controller {
@@ -307,8 +308,13 @@ class TaskModuleController extends Controller {
 		$id           = $request->input( 'id' );
 		$created_at = date('Y-m-d H:i:s');
 		$update_at = date('Y-m-d H:i:s');
-		$remark_entry = DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
-		$task = Task::find($remark->taskid);
+		$remark_entry = Remark::create([
+			'taskid'	=> $id,
+			'remark'	=> $remark,
+			'user_name'	=> Auth::user()->name
+		]);
+		// $remark_entry = DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
+		$task = Task::find($remark_entry->taskid);
 
 		PushNotification::create( [
 			'message'    => 'Remark added: ' . $remark,
