@@ -46,7 +46,7 @@ class LeadsController extends Controller
                  $sortby = 'rating';
                 break;
             case 'communication':
-                 $sortby = 'created_at';
+                 $sortby = 'communication';
                 break;
             case 'status':
                  $sortby = 'status';
@@ -59,9 +59,9 @@ class LeadsController extends Controller
         }
 
         $term = $request->input('term');
-
 	    $leads = ((new Leads())->newQuery());
-
+      // $leads2 = Leads::find(262)->toArray();
+      // dd($leads2);
       if ($request->brand[0] != null) {
         $implode = implode(',', $request->brand);
         $leads->where('multi_brand', 'LIKE', "%$implode%");
@@ -79,7 +79,9 @@ class LeadsController extends Controller
       //   $leads = Leads::with('messages')->select('messages.body')->orderBy('message:body');
       // } else
       if ( helpers::getadminorsupervisor() ) {
-		    $leads = $leads->orderBy( $sortby, $orderby );
+        if ($sortby != 'communication') {
+          $leads = $leads->orderBy( $sortby, $orderby );
+        }
 	    } else if ( helpers::getmessagingrole() ) {
 		    $leads = $leads->oldest();
 	    } else {
@@ -110,9 +112,28 @@ class LeadsController extends Controller
 		    });
 	    }
 
-	    $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
+      $leads_array = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) )->toArray();
+      // dd($leads_array);
 
-      return view('leads.index',compact('leads','term', 'orderby', 'brand', 'rating'))
+
+      if ($sortby == 'communication') {
+        if ($orderby == 'asc') {
+          $leads_array['data'] = array_values(array_sort($leads_array['data'], function ($value) {
+              return $value['communication']['body'];
+          }));
+
+          $leads_array['data'] = array_reverse($leads_array['data']);
+        } else {
+          $leads_array['data'] = array_values(array_sort($leads_array['data'], function ($value) {
+              return $value['communication']['body'];
+          }));
+        }
+
+      }
+      // dd($leads_array);
+      $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
+      // dd($leads);
+      return view('leads.index',compact('leads', 'leads_array','term', 'orderby', 'brand', 'rating'))
                 ->with('i', (request()->input('page', 1) - 1) * 10);
 
     }

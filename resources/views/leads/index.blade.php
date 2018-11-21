@@ -74,33 +74,33 @@
             <th><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created</a></th>
             <th width="280px">Action</th>
         </tr>
-        @foreach ($leads as $key => $lead)
-            <tr class="{{ \App\Helpers::statusClass($lead->assign_status ) }}">
-                <td>{{ $lead->id }}</td>
-                <td>{{ $lead->client_name }}</td>
-                <td>{{ $lead->city}}</td>
-                <td>{{ $lead->rating}}</td>
-                <td>{{App\User::find($lead->assigned_user)->name}}</td>
-                <td>{{App\Helpers::getproductsfromarraysofids($lead->selected_product)}}</td>
+        @foreach ($leads_array['data'] as $key => $lead)
+            <tr class="{{ \App\Helpers::statusClass($lead['assign_status'] ) }}">
+                <td>{{ $lead['id'] }}</td>
+                <td>{{ $lead['client_name'] }}</td>
+                <td>{{ $lead['city']}}</td>
+                <td>{{ $lead['rating']}}</td>
+                <td>{{App\User::find($lead['assigned_user'])->name}}</td>
+                <td>{{App\Helpers::getproductsfromarraysofids($lead['selected_product'])}}</td>
                 <td>
-                  @if (strpos(App\Helpers::getlatestmessage($lead->id, 'leads'), 'message-img') !== false)
-                    {{ substr(App\Helpers::getlatestmessage($lead->id, 'leads'), 0, strpos(App\Helpers::getlatestmessage($lead->id, 'leads'), '<img')) }}
+                  @if (strpos($lead['communication']['body'], 'message-img') !== false)
+                    {{ substr($lead['communication']['body'], 0, strpos($lead['communication']['body'], '<img')) }}
                   @else
-                    {{ App\Helpers::getlatestmessage($lead->id, 'leads', $orderby) }}
+                    {{ $lead['communication']['body'] }}
                   @endif
                 </td>
-                <td>{{App\Helpers::getleadstatus($lead->status)}}</td>
-                <td>{{ $lead->created_at }}</td>
+                <td>{{App\Helpers::getleadstatus($lead['status'])}}</td>
+                <td>{{ $lead['created_at'] }}</td>
                 <td>
-                    <a class="btn btn-primary" href="{{ route('leads.show',$lead->id) }}">View</a>
-                    <a class="btn btn-primary" href="{{ route('leads.edit',$lead->id) }}">Edit</a>
+                    <a class="btn btn-primary" href="{{ route('leads.show',$lead['id']) }}">View</a>
+                    <a class="btn btn-primary" href="{{ route('leads.edit',$lead['id']) }}">Edit</a>
 
-                    {!! Form::open(['method' => 'DELETE','route' => ['leads.destroy', $lead->id],'style'=>'display:inline']) !!}
+                    {!! Form::open(['method' => 'DELETE','route' => ['leads.destroy', $lead['id']],'style'=>'display:inline']) !!}
                     {!! Form::submit('Archive', ['class' => 'btn btn-info']) !!}
                     {!! Form::close() !!}
 
                     @can('admin')
-                        {!! Form::open(['method' => 'DELETE','route' => ['leads.permanentDelete', $lead->id],'style'=>'display:inline']) !!}
+                        {!! Form::open(['method' => 'DELETE','route' => ['leads.permanentDelete', $lead['id']],'style'=>'display:inline']) !!}
                         {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
                         {!! Form::close() !!}
                     @endcan

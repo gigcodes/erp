@@ -38,8 +38,21 @@ class Leads extends Model {
 
 	const CREATED_AT = null;
 
+	protected $appends = ['communication'];
+	protected $communication = '';
+
 	public function messages()
 	{
-		return $this->hasMany('App\Message', 'moduleid')->latest();
+		return $this->hasMany('App\Message', 'moduleid')->latest()->first();
 	}
+
+	public function getCommunicationAttribute()
+	{
+		return $this->messages();
+	}
+
+	// public function setCommunicationAttribute()
+	// {
+	//
+	// }
 }
