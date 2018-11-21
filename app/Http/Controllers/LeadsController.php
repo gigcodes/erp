@@ -207,7 +207,8 @@ class LeadsController extends Controller
 	        NotificationQueueController::createNewNotification([
 		        'type' => 'button',
 		        'message' => 'Client Name: '.$data['client_name'],
-		        'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+            // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+		        'timestamps' => ['+0 minutes'],
 		        'model_type' => Leads::class,
 		        'model_id' =>  $lead->id,
 		        'user_id' => Auth::id(),
@@ -220,7 +221,8 @@ class LeadsController extends Controller
 	        NotificationQueueController::createNewNotification([
 		        'type' => 'button',
 		        'message' => 'Client Name: '.$data['client_name'],
-		        'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+            // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+		        'timestamps' => ['+0 minutes'],
 		        'model_type' => Leads::class,
 		        'model_id' =>  $lead->id,
 		        'user_id' => Auth::id(),
@@ -230,15 +232,15 @@ class LeadsController extends Controller
         }
 
 
-	    NotificationQueueController::createNewNotification([
-		    'message' => 'Client Name: '.$data['client_name'],
-		    'timestamps' => ['+45 minutes'],
-		    'model_type' => Leads::class,
-		    'model_id' =>  $lead->id,
-		    'user_id' => Auth::id(),
-		    'sent_to' => Auth::id(),
-		    'role' => '',
-	    ]);
+	    // NotificationQueueController::createNewNotification([
+		  //   'message' => 'Client Name: '.$data['client_name'],
+		  //   'timestamps' => ['+45 minutes'],
+		  //   'model_type' => Leads::class,
+		  //   'model_id' =>  $lead->id,
+		  //   'user_id' => Auth::id(),
+		  //   'sent_to' => Auth::id(),
+		  //   'role' => '',
+	    // ]);
 
 	    NotificationQueueController::createNewNotification([
 		    'message' => 'Client Name: '.$data['client_name'],
@@ -250,15 +252,15 @@ class LeadsController extends Controller
 		    'role' => 'Admin',
 	    ]);
 
-	    NotificationQueueController::createNewNotification([
-		    'message' => 'Client Name: '.$data['client_name'],
-		    'timestamps' => ['+0 minutes'],
-		    'model_type' => Leads::class,
-		    'model_id' =>  $lead->id,
-		    'user_id' => Auth::id(),
-		    'sent_to' => '',
-		    'role' => 'Supervisors',
-	    ]);
+	    // NotificationQueueController::createNewNotification([
+		  //   'message' => 'Client Name: '.$data['client_name'],
+		  //   'timestamps' => ['+0 minutes'],
+		  //   'model_type' => Leads::class,
+		  //   'model_id' =>  $lead->id,
+		  //   'user_id' => Auth::id(),
+		  //   'sent_to' => '',
+		  //   'role' => 'Supervisors',
+	    // ]);
 
 
         return redirect()->route('leads.create')
