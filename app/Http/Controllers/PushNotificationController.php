@@ -48,7 +48,7 @@ class PushNotificationController extends Controller {
 
 		if($status == 1) {
 			PushNotification::create( [
-				'message'    => 'Task Accepted by ' . Helpers::getUserNameById($request->input('assign_to')),
+				'message'    => 'Task Accepted by ' . Helpers::getUserNameById(Auth::id()),
 				'model_type' => Task::class,
 				'model_id'   => $push_notification->model_id,
 				'user_id'    => Auth::id(),
@@ -59,7 +59,7 @@ class PushNotificationController extends Controller {
 
 		if($status == 3) {
 			PushNotification::create( [
-				'message'    => 'Task Declined by ' . Helpers::getUserNameById($request->input('assign_to')),
+				'message'    => 'Task Declined by ' . Helpers::getUserNameById(Auth::id()),
 				'model_type' => Task::class,
 				'model_id'   => $push_notification->model_id,
 				'user_id'    => Auth::id(),

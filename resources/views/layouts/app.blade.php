@@ -19,6 +19,7 @@
     <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.5/twilio.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
     <script src="{{ asset('js/bootstrap-notify.js') }}" ></script>
+    <script src="{{ asset('js/calls.js') }}" ></script>
     <script src="{{ asset('js/custom.js') }}"></script>
 
     @if( str_contains(Route::current()->getName(),['sales','activity','leads','task','home'] ) )
@@ -75,6 +76,10 @@
 
       #toast-container .toast-stack:nth-child(2) {
         top: 0;
+      }
+
+      #notification_count {
+        z-index: 100;
       }
 
       #toast-container > div#notification_count {
@@ -173,6 +178,94 @@
       .talktext .expanded {
         height: auto;
       }
+
+      .notifications-container {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 99;
+      }
+
+      .notifications-hide {
+        right: -280px;
+      }
+
+      .stack-container {
+        position: relative;
+        width: 300px;
+        /* height: 135px; */
+        display: none;
+      }
+
+      .notification {
+        background: #eee;
+        width: 300px;
+        min-height: 100px;
+        max-height: 135px;
+        padding: 15px 15px 0 15px;
+        margin-bottom: 6px;
+        position: relative;
+        -moz-box-shadow: 0 0 12px #999999;
+        -webkit-box-shadow: 0 0 12px #999999;
+        box-shadow: 0 0 12px #999999;
+        -moz-border-radius: 3px 3px 3px 3px;
+        -webkit-border-radius: 3px 3px 3px 3px;
+        border-radius: 3px 3px 3px 3px;
+        pointer-events: auto;
+      }
+
+      .notification:hover {
+        -moz-box-shadow: 0 0 12px #000000;
+        -webkit-box-shadow: 0 0 12px #000000;
+        box-shadow: 0 0 12px #000000;
+      }
+
+      .notification a {
+        color: black;
+      }
+
+      .notification a:hover {
+        color: #cccccc;
+        text-decoration: none;
+      }
+
+      /* .notification-stacked {
+        position: absolute;
+      }
+
+      .notification-stacked:nth-child(2) {
+        top: 10px;
+      } */
+
+      .notification .notification-close {
+        border: none;
+        background: transparent;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        top: 5px;
+        position: absolute;
+        right: 10px;
+        padding: 0;
+        /* z-index: 100; */
+      }
+
+      .notification .notification-close:hover {
+        color: black;
+        opacity: 0.4;
+      }
+
+      .stacked {
+        height: 135px;
+      }
+
+      .stacked .notification {
+        position: absolute;
+      }
+
+      .stacked .notification:nth-child(2) {
+        top: 10px;
+      }
     </style>
 
     <script>
@@ -198,11 +291,23 @@
           forceTLS: true
         });
       </script>
+	  @if (Auth::user())
+	  <script>
+		initializeTwilio();
+      </script>
+	  @endif
       <script src="{{ asset('js/pusher.chat.js') }}"></script>
       <script src="{{ asset('js/chat.js') }}"></script>
 
 </head>
 <body>
+  <div class="notifications-container">
+    <div class="stack-container stacked" id="leads-notification"></div>
+    <div class="stack-container stacked" id="orders-notification"></div>
+    {{-- <div class="stack-container stacked" id="messages-notification"></div> --}}
+    <div class="stack-container stacked" id="tasks-notification"></div>
+  </div>
+
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
             <div class="container container-wide">

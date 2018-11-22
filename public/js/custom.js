@@ -442,7 +442,8 @@ $(document).ready(function(){
                 },
                 complete : function () {
 
-                    btn.parent().parent().parent().parent().remove();
+                  // btn.parent().parent().parent().parent().remove();
+                    btn.parent().parent().parent().remove();
                     if(status != '2')
                         nextNotification(id);
 
