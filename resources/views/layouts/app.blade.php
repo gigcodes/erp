@@ -166,7 +166,7 @@
       .talktext p {
         min-height: 65px;
         height: 65px;
-        overflow-y: visible;
+        overflow-y: hidden;
 
       }
 
