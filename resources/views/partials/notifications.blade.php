@@ -36,7 +36,11 @@
 
 <script>
     let interval = 1000 * 30;  // 1000 = 1 second
-    const notificationShowCount = 5;
+    const notificationShowCount = 15;
+    // const TaskShowCount = 5;
+    // const OrderShowCount = 5;
+    // const LeadShowCount = 5;
+    // const MessageShowCount = 5;
 
     let allUsers = {!! json_encode( \App\Helpers::getUserArray( \App\User::all() ) ) !!};
     let current_userid = '{{ Auth::id() }}';
@@ -51,6 +55,10 @@
             this.items = [];
             this.isFirst = true;
             this.count = 0;
+            this.taskcount = 0;
+            this.ordercount = 0;
+            this.leadcount = 0;
+            this.messagecount = 0;
         }
         // Functions to be implemented
         // enqueue function
@@ -105,8 +113,39 @@
 
                 if (this.items[i].id === notificationId) {
 
-                    this.items.splice(i,1);
+                    let item = this.items.splice(i,1);
                     this.count--;
+
+                    switch (item[0].model_type) {
+                      case 'App\\Sale':
+                          this.ordercount--;
+
+                          break;
+                      case 'App\\Task':
+                          this.taskcount--;
+
+                          break;
+                      case 'User':
+                          this.taskcount--;
+
+                          break;
+                      case 'App\\Order':
+                          this.ordercount--;
+
+                          break;
+                      case 'App\\Leads':
+                          this.leadcount--;
+
+                          break;
+                      case 'order':
+                          this.ordercount--;
+
+                          break;
+                      case 'leads':
+                          this.leadcount--;
+
+                          break;
+                    }
                 }
             }
 
@@ -134,25 +173,103 @@
         }
 
         notificationCount(){
-
             if($('#notification_count').length === 0) {
-                $('#toast-container').prepend('<div id="notification_count"></div>');
+                $('.notifications-container').prepend('<div id="notification_count"></div>');
             }
 
             $('#notification_count').html(this.items.length);
         }
 
         showNotification(){
-
             for (let i = 0; i < this.items.length; i++) {
 
                 if( this.count === notificationShowCount)
                     break;
 
                 if( !this.items[i]['isShown'] ) {
+                  switch (this.items[i].model_type) {
+                    case 'App\\Sale':
+                      if (this.ordercount < notificationShowCount / 3) {
+                        this.items[i]['isShown'] = true;
+                        toast(this.items[i]);
+                        this.ordercount++;
 
-                    this.items[i]['isShown'] = true;
-                    toast(this.items[i]);
+                      }
+                      break;
+
+
+                    case 'App\\Task':
+                      if (this.taskcount < notificationShowCount / 3) {
+                        this.items[i]['isShown'] = true;
+                        toast(this.items[i]);
+                        this.taskcount++;
+
+                      }
+                      break;
+
+                    case 'App\\SatutoryTask':
+                      if (this.taskcount < notificationShowCount / 3) {
+                        this.items[i]['isShown'] = true;
+                        toast(this.items[i]);
+                        this.taskcount++;
+
+                      }
+                      break;
+
+                      // break;
+                    case 'User':
+                      if (this.taskcount < notificationShowCount / 3) {
+                        this.items[i]['isShown'] = true;
+                        toast(this.items[i]);
+                        this.taskcount++;
+
+                      }
+                      break;
+
+                      // break;
+                    case 'App\\Order':
+                      if (this.ordercount < notificationShowCount / 3) {
+                        this.items[i]['isShown'] = true;
+                        toast(this.items[i]);
+                        this.ordercount++;
+
+                      }
+                      break;
+
+                      // break;
+                    case 'App\\Leads':
+                      if (this.leadcount < notificationShowCount / 3) {
+                        this.items[i]['isShown'] = true;
+                        toast(this.items[i]);
+                        this.leadcount++;
+
+                      }
+                      break;
+
+                      // break;
+                    case 'order':
+                      if (this.messagecount < notificationShowCount / 3) {
+                        this.items[i]['isShown'] = true;
+                        toast(this.items[i]);
+                        this.ordercount++;
+
+                      }
+                      break;
+
+                      // break;
+                    case 'leads':
+                      if (this.messagecount < notificationShowCount / 3) {
+                        this.items[i]['isShown'] = true;
+                        toast(this.items[i]);
+                        this.leadcount++;
+
+                      }
+                      break;
+
+                      // break;
+                  }
+                    // this.items[i]['isShown'] = true;
+                    // toast(this.items[i]);
                     this.count++;
 
                 }
@@ -169,6 +286,42 @@
 
                     let item = this.items.splice(i,1);
                     this.count--;
+
+                    switch (item[0].model_type) {
+                      case 'App\\Sale':
+                          this.ordercount--;
+
+                          break;
+                      case 'App\\Task':
+                          this.taskcount--;
+
+                          break;
+                      case 'App\\SatutoryTask':
+                          this.taskcount--;
+
+                          break;
+                      case 'User':
+                          this.taskcount--;
+
+                          break;
+                      case 'App\\Order':
+                          this.ordercount--;
+
+                          break;
+                      case 'App\\Leads':
+                          this.leadcount--;
+
+                          break;
+                      case 'order':
+                          this.ordercount--;
+
+                          break;
+                      case 'leads':
+                          this.leadcount--;
+
+                          break;
+                    }
+
                     this.enqueue(item[0]);
                     break;
                 }
@@ -179,9 +332,17 @@
 
     }
 
-    $(document).on('click','.toast-info',function () {
-       $('.toast-info').toggleClass('toast-stack');
-       $('#toast-container').toggleClass('toast-container-stacked');
+    // $(document).on('click','.toast-info',function () {
+    //    $('.toast-info').toggleClass('toast-stack');
+    //    $('#toast-container').toggleClass('toast-container-stacked');
+    // });
+
+    $(document).on('click','.notification',function () {
+      $('.stack-container').not($(this).parent()).addClass('stacked');
+      $(this).parent().toggleClass('stacked');
+
+       // $(this).parent().toggleClass('notification-height');
+       // $('#toast-container').toggleClass('toast-container-stacked');
     });
 
     let notificationQueue = new Queue();
@@ -209,39 +370,78 @@
     getNotificaitons();
 
     function toast(notification) {
+        let link, message, img_position, message_without_img, notification_html, close_button;
 
-        let link, message, img_position, message_without_img;
+        if (notification.type === 'button' && (is_admin == false)) {
+          close_button = '';
+        } else {
+          close_button = '<button type="button" class="notification-close" role="button" data-id="' + notification.id + '">x</button>';
+        }
 
         switch (notification.model_type) {
-
             case 'App\\Sale' :
 
                 link = '/sales/' + notification.model_id + '/edit';
-                message = `<h4>ID : ${notification.model_id} New Sale</h4><a href="${link}" style="padding-bottom: 10px;">${notification.message.length > 33 ? (notification.message.substring(0, 33 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
+                message = `<h4>ID : ${notification.model_id} New Sale</h4><a href="${link}" style="padding-bottom: 10px;">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#orders-notification').append(notification_html);
+                $('#orders-notification').css({'display': 'block'});
+
                 break;
 
             case 'App\\Task':
                 link = `/task#task_${notification.model_id}`;
                 message = `<h4>ID : ${notification.model_id} Task</h4>
                             <span>By :- ${ allUsers[notification.user_id] }</span><br>
-                            <a href="${link}">${notification.message.length > 33 ? (notification.message.substring(0, 33 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
+                            <a href="${link}">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#tasks-notification').append(notification_html);
+                $('#tasks-notification').css({'display': 'block'});
+
+                break;
+
+            case 'App\\SatutoryTask':
+                link = `/task#task_${notification.model_id}`;
+                message = `<h4>ID : ${notification.model_id} Task</h4>
+                            <span>By :- ${ allUsers[notification.user_id] }</span><br>
+                            <a href="${link}">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message}</a>${ getStatusButtons(notification) }`;
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#tasks-notification').append(notification_html);
+                $('#tasks-notification').css({'display': 'block'});
+
                 break;
 
             case  'User':
                 link = `/#task_${notification.model_id}`;
-                message = `<h4>ID : ${notification.model_id} Task</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 33 ? (notification.message.substring(0, 33 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
+                message = `<h4>ID : ${notification.model_id} Task</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#tasks-notification').append(notification_html);
+                $('#tasks-notification').css({'display': 'block'});
+
                 break;
 
             case 'App\\Leads':
 
                 link = '/leads/' + notification.model_id;
-                message = `<h4>ID : ${notification.model_id} New Lead</h4><a href="${link}">${notification.message.length > 33 ? (notification.message.substring(0, 33 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>${ getStatusButtons(notification) }`;
+                message = `<h4>ID : ${notification.model_id} New Lead</h4><a href="${link}">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>${ getStatusButtons(notification) }`;
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#leads-notification').append(notification_html);
+                $('#leads-notification').css({'display': 'block'});
                 break;
 
             case 'App\\Order':
 
                 link = '/order/' + notification.model_id + '/edit';
-                message = `<h4>ID : ${notification.model_id} New Order</h4><a href="${link}">${notification.message.length > 33 ? (notification.message.substring(0, 33 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>${ getStatusButtons(notification) }`;
+                message = `<h4>ID : ${notification.model_id} New Order</h4><a href="${link}">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>${ getStatusButtons(notification) }`;
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#orders-notification').append(notification_html);
+                $('#orders-notification').css({'display': 'block'});
+
                 break;
 
 
@@ -249,7 +449,12 @@
                 img_position = notification.message.indexOf("<img");
                 message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
                 link = '/order/' + notification.model_id;
-                message = `<h4>New Message on Order from ${notification.user_name}</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${message_without_img.length > 33 ? (message_without_img.substring(0, 33 - 3) + '...') : message_without_img} - ${moment(notification.created_at).format('H:m')}</a>`;
+                message = `<h4>New Message on Order from ${notification.user_name}</h4><a href="${link}" style="padding-bottom: 10px; display: block;">${message_without_img.length > 40 ? (message_without_img.substring(0, 40 - 3) + '...') : message_without_img} - ${moment(notification.created_at).format('H:m')}</a>`;
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#orders-notification').append(notification_html);
+                $('#orders-notification').css({'display': 'block'});
+
                 break;
 
             case 'leads':
@@ -258,37 +463,43 @@
                 link = '/leads/' + notification.model_id;
                 message = `
                             <h4>New Message on Lead from ${notification.user_name}</h4>
-                            <a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 33 ? (notification.message.substring(0, 33 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
+                            <a href="${link}" style="padding-bottom: 10px; display: block;">${notification.message.length > 40 ? (notification.message.substring(0, 40 - 3) + '...') : notification.message} - ${moment(notification.created_at).format('H:m')}</a>`;
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#leads-notification').append(notification_html);
+                $('#leads-notification').css({'display': 'block'});
+
                 break;
 
             default:
                 return;
         }
 
-        toastr.options = {
-            "closeButton": ((notification.type === 'button') && (is_admin == false)) || (notification.reminder == 1) ? false : true,
-            "debug": false,
-            "newestOnTop": true,
-            "progressBar": false,
-            "positionClass": "toast-top-right",
-            "preventDuplicates": false,
-            "showDuration": "500",
-            "hideDuration": "400",
-            "timeOut": 0,
-            "extendedTimeOut": 0,
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut",
-            "tapToDismiss" : false,
-        };
-
-        toastr.options.onCloseClick = () => markNotificationRead(notification.id);
-        toastr.options.onHidden = () => nextNotification(notification.id);
-        // toastr.options.onHidden = () => markNotificationRead(notification.id);
-        // toastr.options.onclick = () => { return false; };
-
-        toastr['info'](message);
+        // toastr.options = {
+        //     // "closeButton": ((notification.type === 'button') && (is_admin == false)) || (notification.reminder == 1) ? false : true,
+        //     "closeButton": ((notification.type === 'button') && (is_admin == false))? false : true,
+        //     "debug": false,
+        //     "newestOnTop": true,
+        //     "progressBar": false,
+        //     "positionClass": "toast-top-right",
+        //     "preventDuplicates": false,
+        //     "showDuration": "500",
+        //     "hideDuration": "400",
+        //     "timeOut": 0,
+        //     "extendedTimeOut": 0,
+        //     "showEasing": "swing",
+        //     "hideEasing": "linear",
+        //     "showMethod": "fadeIn",
+        //     "hideMethod": "fadeOut",
+        //     "tapToDismiss" : false,
+        // };
+        //
+        // toastr.options.onCloseClick = () => markNotificationRead(notification.id);
+        // toastr.options.onHidden = () => nextNotification(notification.id);
+        // // toastr.options.onHidden = () => markNotificationRead(notification.id);
+        // // toastr.options.onclick = () => { return false; };
+        //
+        // toastr['info'](message);
     }
 
     function markNotificationRead(id) {
@@ -322,7 +533,19 @@
     }
 
     $(document).on('click','#notification_count',function () {
-       $('#toast-container .toast').toggle();
+       $('.notifications-container').toggleClass('notifications-hide');
     });
+
+    $(document).on('click','.notification-close',function (e) {
+      e.stopPropagation();
+      var notification_id = $(this).data('id');
+
+      markNotificationRead(notification_id);
+      nextNotification(notification_id);
+
+      $(this).parent().fadeOut(400);
+    });
+
+
 
 </script>

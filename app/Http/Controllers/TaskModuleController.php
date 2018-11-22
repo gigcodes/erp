@@ -154,7 +154,7 @@ class TaskModuleController extends Controller {
 			] );
 
 			PushNotification::create( [
-				'message'    => 'Task Created: ' . $data['task_details'] . 'for' . Helpers::getUserNameById($request->input('assign_to')),
+				'message'    => 'Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($request->input('assign_to')),
 				'model_type' => Task::class,
 				'model_id'   => $task->id,
 				'user_id'    => Auth::id(),
@@ -199,7 +199,7 @@ class TaskModuleController extends Controller {
 			] );
 
 			PushNotification::create( [
-				'message'    => 'Recurring Task Created: ' . $data['task_details'] . 'for' . Helpers::getUserNameById($request->input('assign_to')),
+				'message'    => 'Recurring Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($request->input('assign_to')),
 				'model_type' => Task::class,
 				'model_id'   => $task->id,
 				'user_id'    => Auth::id(),
