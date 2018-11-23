@@ -144,6 +144,11 @@ class TaskModuleController extends Controller {
 		$data                = $request->except( '_token' );
 		$data['assign_from'] = Auth::id();
 
+		if ($request->task_type == 'quick_task') {
+			$data['is_statutory'] = 0;
+			$data['category'] = 6;
+		}
+
 		if($data['is_statutory'] == 0) {
 			$task = Task::create( $data );
 

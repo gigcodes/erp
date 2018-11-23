@@ -194,7 +194,16 @@
                 <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
                   @csrf
 
+                  <input type="hidden" name="task_type" value="quick_task">
+
                   <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Task Subject:</strong>
+                         <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" required />
+                         @if ($errors->has('task_subject'))
+                             <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
+                         @endif
+                    </div>
                     <div class="form-group">
                         <strong>Task Details:</strong>
                          <textarea class="form-control" name="task_details" placeholder="Task Details" required></textarea>
@@ -219,45 +228,12 @@
                     </div>
 
                     <div class="form-group">
-                        <select name="is_statutory" class="form-control is_statutory">
-                            <option value="0">Other Task </option>
-                            <option value="1">Statutory Task </option>
-                        </select>
-                    </div>
-
-                    <div id="recurring-task" style="display: none;">
-                        <div class="form-group">
-                            <strong>Recurring Type:</strong>
-                            <select name="recurring_type" class="form-control">
-                                <option value="EveryDay">EveryDay</option>
-                                <option value="EveryWeek">EveryWeek</option>
-                                <option value="EveryMonth">EveryMonth</option>
-                                <option value="EveryYear">EveryYear</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <strong>Recurring Day:</strong>
-                            <div id="recurring_day"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <strong>Assigned To:</strong>
                         <select name="assign_to" class="form-control">
                           @foreach($users as $users)
                             <option value="{{$users['id']}}">{{$users['name']}}</option>
                           @endforeach
                         </select>
-                    </div>
-
-                    <div class="form-group">
-                        <strong>Category:</strong>
-                    <?php
-                    $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
-
-                    echo Form::select('category',$categories, old('category'), ['placeholder' => 'Select a category','class' => 'form-control']);
-
-                    ?>
                     </div>
                   </div>
                   <div class="modal-footer">
