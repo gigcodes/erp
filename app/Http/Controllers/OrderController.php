@@ -10,6 +10,7 @@ use App\Product;
 use App\ReadOnly\OrderStatus;
 use App\User;
 use App\Message;
+use Auth;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller {
@@ -89,6 +90,7 @@ class OrderController extends Controller {
 		] );
 
 		$data = $request->all();
+		$data['user_id'] = Auth::id();
 
 		if ( $request->input( 'order_type' ) == 'offline' ) {
 			$data['order_id'] = $this->generateNextOrderId();

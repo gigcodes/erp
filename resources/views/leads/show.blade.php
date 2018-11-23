@@ -326,6 +326,14 @@
                     </div>
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                       <div class="form-group">
+                           <strong>Created by:</strong>
+
+                           <input type="text" class="form-control" name="userid" placeholder="Created by" value="{{ App\Helpers::getUserNameById($leads->userid) }}"/>
+                       </div>
+                   </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Remark:</strong>
                             {{ $leads['remark'] }}

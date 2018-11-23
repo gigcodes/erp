@@ -78,6 +78,11 @@
                 {{ !empty($sales_person) ? $sales_persons[$sales_person] : 'nil' }}
             </div>
 
+             <div class="form-group">
+                 <strong>Created by:</strong>
+                 {{ $user_id != 0 ? App\Helpers::getUserNameById($user_id) : 'Unknown' }}
+             </div>
+
             <div class="form-group">
                 <strong>Remark</strong>
                 {{ $remark }}
