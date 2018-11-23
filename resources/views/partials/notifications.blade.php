@@ -353,7 +353,7 @@ function toast(notification) {
         case 'App\\Sale':
 
             link = '/sales/' + notification.model_id + '/edit';
-            message = '<h4>ID : ' + notification.model_id + ' New Sale</h4><a href="' + link + '" style="padding-bottom: 10px;">' + (notification.message.length > 40 ? notification.message.substring(0, 40 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            message = '<h4>ID : ' + notification.model_id + ' New Sale</h4><a href="' + link + '" style="padding-bottom: 10px;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#orders-notification').append(notification_html);
@@ -363,7 +363,7 @@ function toast(notification) {
 
         case 'App\\Task':
             link = '/task#task_' + notification.model_id;
-            message = '<h4>ID : ' + notification.model_id + ' Task</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a href="' + link + '">' + (notification.message.length > 40 ? notification.message.substring(0, 40 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+            message = '<h4>ID : ' + notification.model_id + ' Task</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#tasks-notification').append(notification_html);
@@ -373,7 +373,7 @@ function toast(notification) {
 
         case 'App\\SatutoryTask':
             link = '/task#task_' + notification.model_id;
-            message = '<h4>ID : ' + notification.model_id + ' Task</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a href="' + link + '">' + (notification.message.length > 40 ? notification.message.substring(0, 40 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+            message = '<h4>ID : ' + notification.model_id + ' Task</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#tasks-notification').append(notification_html);
@@ -383,7 +383,7 @@ function toast(notification) {
 
         case 'User':
             link = '/#task_' + notification.model_id;
-            message = '<h4>ID : ' + notification.model_id + ' Task</h4><a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 40 ? notification.message.substring(0, 40 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            message = '<h4>ID : ' + notification.model_id + ' Task</h4><a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#tasks-notification').append(notification_html);
@@ -394,7 +394,7 @@ function toast(notification) {
         case 'App\\Leads':
 
             link = '/leads/' + notification.model_id;
-            message = '<h4>ID : ' + notification.model_id + ' New Lead</h4><a href="' + link + '">' + (notification.message.length > 40 ? notification.message.substring(0, 40 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>' + getStatusButtons(notification);
+            message = '<h4>NL - </h4><a href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>' + getStatusButtons(notification);
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#leads-notification').append(notification_html);
             $('#leads-notification').css({ 'display': 'block' });
@@ -403,7 +403,7 @@ function toast(notification) {
         case 'App\\Order':
 
             link = '/order/' + notification.model_id + '/edit';
-            message = '<h4>ID : ' + notification.model_id + ' New Order</h4><a href="' + link + '">' + (notification.message.length > 40 ? notification.message.substring(0, 40 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>' + getStatusButtons(notification);
+            message = '<h4>ID : ' + notification.model_id + ' New Order</h4><a href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>' + getStatusButtons(notification);
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#orders-notification').append(notification_html);
@@ -415,7 +415,7 @@ function toast(notification) {
             img_position = notification.message.indexOf("<img");
             message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
             link = '/order/' + notification.model_id;
-            message = '<h4>New Message on Order from ' + notification.user_name + '</h4><a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (message_without_img.length > 40 ? message_without_img.substring(0, 40 - 3) + '...' : message_without_img) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            message = '<h4>New Message on Order from ' + notification.user_name + '</h4><a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (message_without_img.length > 30 ? message_without_img.substring(0, 30 - 3) + '...' : message_without_img) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#orders-notification').append(notification_html);
@@ -427,7 +427,7 @@ function toast(notification) {
             img_position = notification.message.indexOf("<img");
             message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
             link = '/leads/' + notification.model_id;
-            message = '\n                            <h4>New Message on Lead from ' + notification.user_name + '</h4>\n                            <a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 40 ? notification.message.substring(0, 40 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            message = '\n                            <h4>New Message on Lead from ' + notification.user_name + '</h4>\n                            <a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#leads-notification').append(notification_html);
