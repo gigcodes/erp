@@ -279,7 +279,7 @@
                     <div class="row">
                         <div class="col-xs-12 col-sm-8" id="message-container">
                             @foreach($messages as $message)
-                                @if($message['status'] == '0')
+                                @if($message['status'] == '0' || $message['status'] == '5' || $message['status'] == '6')
                                     <div class="talk-bubble tri-right round left-in white">
                                         <div class="talktext">
                                           @if (strpos($message['body'], 'message-img') !== false)
@@ -299,6 +299,14 @@
                                           @endif
 
                                             <em>Customer {{ $message['created_at'] }} </em>
+
+                                            @if ($message['status'] == '0')
+                                              <a href="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=order" style="font-size: 9px">Mark as Read </a>
+                                            @endif
+                                            @if ($message['status'] == '0') | @endif
+                                            @if ($message['status'] == '0' || $message['status'] == '5')
+                                              <a href="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=order" style="font-size: 9px">Mark as Replied </a>
+                                            @endif
                                         </div>
                                     </div>
 
