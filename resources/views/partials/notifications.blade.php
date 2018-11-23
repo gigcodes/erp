@@ -54,6 +54,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // Queue class
+
 var Queue = function () {
     // Array is used to implement a Queue
     function Queue() {

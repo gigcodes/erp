@@ -279,17 +279,17 @@
                                         <div class="talktext">
                                           @if (strpos($message['body'], 'message-img') !== false)
                                             <p class="collapsible-message"
-                                                data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                                                data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 110 ? (substr($message['body'], 0, 107) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
                                                 data-message="{{ $message['body'] }}"
                                                 data-expanded="false">
-                                              {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . '(Has Image)' !!}
+                                              {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 110 ? (substr($message['body'], 0, 107) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . '(Has Image)' !!}
                                             </p>
                                           @else
                                             <p class="collapsible-message"
-                                                data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                                                data-messageshort="{{ strlen($message['body']) > 110 ? (substr($message['body'], 0, 107) . '...') : $message['body'] }}"
                                                 data-message="{{ $message['body'] }}"
                                                 data-expanded="false">
-                                              {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                                              {!! strlen($message['body']) > 110 ? (substr($message['body'], 0, 107) . '...') : $message['body'] !!}
                                             </p>
                                           @endif
 
@@ -303,17 +303,17 @@
                                             {{-- <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p> --}}
                                             @if (strpos($message['body'], 'message-img') !== false)
                                               <p class="collapsible-message"
-                                                  data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                                                  data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 110 ? (substr($message['body'], 0, 107) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
                                                   data-message="{{ $message['body'] }}"
                                                   data-expanded="false">
-                                                {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                                                {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 110 ? (substr($message['body'], 0, 107) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
                                               </p>
                                             @else
                                               <p class="collapsible-message"
-                                                  data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                                                  data-messageshort="{{ strlen($message['body']) > 110 ? (substr($message['body'], 0, 107) . '...') : $message['body'] }}"
                                                   data-message="{{ $message['body'] }}"
                                                   data-expanded="false">
-                                                {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                                                {!! strlen($message['body']) > 110 ? (substr($message['body'], 0, 107) . '...') : $message['body'] !!}
                                               </p>
                                             @endif
 
@@ -328,17 +328,17 @@
                                             <span id="message_body_{{$message['id']}}">
                                               @if (strpos($message['body'], 'message-img') !== false)
                                                 <p class="collapsible-message"
-                                                    data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                                                    data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 110 ? (substr($message['body'], 0, 107) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
                                                     data-message="{{ $message['body'] }}"
                                                     data-expanded="false">
-                                                  {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                                                  {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 110 ? (substr($message['body'], 0, 107) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
                                                 </p>
                                               @else
                                                 <p class="collapsible-message"
-                                                    data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
+                                                    data-messageshort="{{ strlen($message['body']) > 110 ? (substr($message['body'], 0, 107) . '...') : $message['body'] }}"
                                                     data-message="{{ $message['body'] }}"
                                                     data-expanded="false">
-                                                  {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
+                                                  {!! strlen($message['body']) > 110 ? (substr($message['body'], 0, 107) . '...') : $message['body'] !!}
                                                 </p>
                                               @endif
                                             </span>
