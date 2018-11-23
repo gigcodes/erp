@@ -105,8 +105,15 @@
                     <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
+                            <strong>Task Subject:</strong>
+                             <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" />
+                             @if ($errors->has('task_subject'))
+                                 <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
+                             @endif
+                        </div>
+                        <div class="form-group">
                             <strong>Task Details:</strong>
-                             <textarea class="form-control" name="task_details" placeholder="Task Details"> </textarea>
+                             <textarea class="form-control" name="task_details" placeholder="Task Details"></textarea>
                              @if ($errors->has('task_details'))
                                  <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
                              @endif
@@ -276,7 +283,7 @@
                                       <th>Sr No</th>
                                       <th>Date</th>
                                       <th class="category">Category</th>
-                                      <th>Task Details</th>
+                                      <th>Task Subject</th>
                                       <th>Est Completion Date</th>
                                       <th>Assigned From</th>
                                       <th>&nbsp;</th>
@@ -291,7 +298,7 @@
                                     <td>{{$i++}}</td>
                                      <td>{{$task['created_at']}}</td>
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                                    <td> {{$task['task_details']}}</td>
+                                    <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                     <td> {{$task['completion_date']  }}</td>
                                     <td>{{ $users[$task['assign_from']] }}</td>
                                     @if( $task['assign_to'] == Auth::user()->id )
@@ -389,7 +396,7 @@
                                     <td>{{$i++}}</td>
                                     <td> {{$task['created_at']}}</td>
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                                    <td> {{$task['task_details']}}</td>
+                                    <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                     <td>{{$users[$task['assign_from']]}}</td>
                                     <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
                                     <td> @include('task-module.partials.remark',$task) </td>
@@ -427,7 +434,7 @@
                                                 <td>{{$i++}}</td>
                                                 <td> {{$task['created_at']}}</td>
                                                 <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                                                <td> {{$task['task_details']}}</td>
+                                                <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                                 <td>{{ $users[$task['assign_from']]}}</td>
                                                 <td>{{ $task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
                                                 <td>{{ $task['recurring_type'] }}</td>
@@ -482,7 +489,7 @@
                                     <td>{{$i++}}</td>
                                     <td>{{$task['created_at']}}</td>
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                                    <td> {{$task['task_details']}}</td>
+                                    <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                     <td> {{$task['completion_date']  }}</td>
                                     <td>{{$users[$task['assign_from']]}}</td>
                                     <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
@@ -537,6 +544,16 @@
         }
     </style>
     <script>
+
+      $(document).on('click', '.task-subject', function() {
+        if ($(this).data('switch') == 0) {
+          $(this).text($(this).data('details'));
+          $(this).data('switch', 1);
+        } else {
+          $(this).text($(this).data('subject'));
+          $(this).data('switch', 0);
+        }
+      });
 
         function addNewRemark(id){
 

@@ -267,6 +267,10 @@
       .stacked .notification:first-child {
         top: 10px;
       }
+
+      .task-subject:hover {
+        cursor: pointer;
+      }
     </style>
 
     <script>

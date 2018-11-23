@@ -136,6 +136,10 @@ class TaskModuleController extends Controller {
 	}
 
 	public function store( Request $request ) {
+		$this->validate($request, [
+			'task_subject'	=> 'required',
+			'task_details'	=> 'required'
+		]);
 
 		$data                = $request->except( '_token' );
 		$data['assign_from'] = Auth::id();

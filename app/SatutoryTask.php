@@ -13,6 +13,7 @@ class SatutoryTask extends Model {
 		'assign_from',
 		'assign_to',
 		'task_details',
+		'task_subject',
 		'remark',
 		'recurring_type',
 		'recurring_day',
