@@ -207,7 +207,7 @@ class LeadsController extends Controller
 
 	        NotificationQueueController::createNewNotification([
 		        'type' => 'button',
-		        'message' => 'Client Name: '.$data['client_name'],
+		        'message' => $data['client_name'],
             // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
 		        'timestamps' => ['+0 minutes'],
 		        'model_type' => Leads::class,
@@ -221,7 +221,7 @@ class LeadsController extends Controller
 
 	        NotificationQueueController::createNewNotification([
 		        'type' => 'button',
-		        'message' => 'Client Name: '.$data['client_name'],
+		        'message' => $data['client_name'],
             // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
 		        'timestamps' => ['+0 minutes'],
 		        'model_type' => Leads::class,
@@ -234,7 +234,7 @@ class LeadsController extends Controller
 
 
 	    NotificationQueueController::createNewNotification([
-		    'message' => 'Client Name: '.$data['client_name'],
+		    'message' => $data['client_name'],
 		    'timestamps' => ['+45 minutes'],
 		    'model_type' => Leads::class,
 		    'model_id' =>  $lead->id,
@@ -244,7 +244,7 @@ class LeadsController extends Controller
 	    ]);
 
 	    NotificationQueueController::createNewNotification([
-		    'message' => 'Client Name: '.$data['client_name'],
+		    'message' => $data['client_name'],
 		    'timestamps' => ['+0 minutes'],
 		    'model_type' => Leads::class,
 		    'model_id' =>  $lead->id,
@@ -379,7 +379,7 @@ class LeadsController extends Controller
 
 		    NotificationQueueController::createNewNotification([
 			    'type' => 'button',
-			    'message' => 'Client Name: '.$leads->client_name,
+			    'message' => $leads->client_name,
 			    'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
 			    'model_type' => Leads::class,
 			    'model_id' =>  $id,
@@ -389,7 +389,7 @@ class LeadsController extends Controller
 		    ]);
 
 		    NotificationQueueController::createNewNotification([
-			    'message' => 'Client Name: '.$leads->client_name,
+			    'message' => $leads->client_name,
 			    'timestamps' => ['+45 minutes'],
 			    'model_type' => Leads::class,
 			    'model_id' =>  $id,

@@ -103,7 +103,7 @@ class OrderController extends Controller {
 
 		NotificationQueueController::createNewNotification([
 			'type' => 'button',
-			'message' => 'Client Name :'. $data['client_name'],
+			'message' => $data['client_name'],
 			'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
 			'model_type' => Order::class,
 			'model_id' =>  $order->id,
@@ -113,7 +113,7 @@ class OrderController extends Controller {
 		]);
 
 		NotificationQueueController::createNewNotification([
-			'message' => 'Client Name : '. $data['client_name'],
+			'message' => $data['client_name'],
 			'timestamps' => ['+45 minutes'],
 			'model_type' => Order::class,
 			'model_id' =>  $order->id,
@@ -123,7 +123,7 @@ class OrderController extends Controller {
 		]);
 
 		NotificationQueueController::createNewNotification([
-			'message' => 'Client Name : '. $data['client_name'],
+			'message' => $data['client_name'],
 			'timestamps' => ['+0 minutes'],
 			'model_type' => Order::class,
 			'model_id' =>  $order->id,
@@ -197,7 +197,7 @@ class OrderController extends Controller {
 
 			NotificationQueueController::createNewNotification([
 				'type' => 'button',
-				'message' => 'Client Name : '. $order->client_name,
+				'message' => $order->client_name,
 				'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
 				'model_type' => Order::class,
 				'model_id' =>  $order->id,
@@ -207,7 +207,7 @@ class OrderController extends Controller {
 			]);
 
 			NotificationQueueController::createNewNotification([
-				'message' => 'Client Name : '. $order->client_name,
+				'message' => $order->client_name,
 				'timestamps' => ['+45 minutes'],
 				'model_type' => Order::class,
 				'model_id' =>  $order->id,

@@ -195,6 +195,7 @@
         width: 300px;
         /* height: 135px; */
         display: none;
+        margin-bottom: 10px;
       }
 
       .notification {
@@ -263,7 +264,7 @@
         position: absolute;
       }
 
-      .stacked .notification:nth-child(2) {
+      .stacked .notification:first-child {
         top: 10px;
       }
     </style>
