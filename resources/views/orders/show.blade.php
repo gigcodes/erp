@@ -128,6 +128,7 @@
                         <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</th>
                     @else
                         <th></th>
+                        <th></th>
                         <th>{{$order_product['sku']}}</th>
                         <th></th>
                         <th></th>
