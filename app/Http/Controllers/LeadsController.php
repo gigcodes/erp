@@ -233,15 +233,15 @@ class LeadsController extends Controller
         }
 
 
-	    NotificationQueueController::createNewNotification([
-		    'message' => $data['client_name'],
-		    'timestamps' => ['+45 minutes'],
-		    'model_type' => Leads::class,
-		    'model_id' =>  $lead->id,
-		    'user_id' => Auth::id(),
-		    'sent_to' => Auth::id(),
-		    'role' => '',
-	    ]);
+	    // NotificationQueueController::createNewNotification([
+		  //   'message' => $data['client_name'],
+		  //   'timestamps' => ['+45 minutes'],
+		  //   'model_type' => Leads::class,
+		  //   'model_id' =>  $lead->id,
+		  //   'user_id' => Auth::id(),
+		  //   'sent_to' => Auth::id(),
+		  //   'role' => '',
+	    // ]);
 
 	    NotificationQueueController::createNewNotification([
 		    'message' => $data['client_name'],

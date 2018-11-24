@@ -24,6 +24,7 @@ class NotificationQueueController extends Controller
 		'model_id',
 		'user_id',
 		'sent_to',
+		'message_id',
 		'role',
 	];
 
@@ -35,6 +36,7 @@ class NotificationQueueController extends Controller
 		'sent_to',
 		'model_type',
 		'model_id',
+		'message_id',
 	];
 
 	public static function createNewNotification( $notificationArray ){
