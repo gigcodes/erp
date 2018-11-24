@@ -4,6 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Helpers;
+use App\Leads;
+use App\Order;
 
 class PushNotification extends Model
 {
@@ -20,7 +22,8 @@ class PushNotification extends Model
 	];
 
 	protected $user_name = '';
-	protected $appends = ['user_name'];
+	protected $client_name = '';
+	protected $appends = ['user_name', 'client_name'];
 
 	public function getUserNameAttribute() {
 		return $this->user_name;
@@ -31,6 +34,18 @@ class PushNotification extends Model
 			$this->user_name = '';
 		} else {
 			$this->user_name = Helpers::getUserNameById($id);
+		}
+	}
+
+	public function getClientNameAttribute() {
+		return $this->client_name;
+	}
+
+	public function setClientNameAttribute($model_type, $model_id) {
+		if ($model_type == 'leads') {
+			$this->client_name = Leads::find($model_id)->client_name;
+		} else if ($model_type == 'order') {
+			$this->client_name = Order::find($model_id)->client_name;
 		}
 	}
 }

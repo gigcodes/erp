@@ -168,7 +168,7 @@ var Queue = function () {
                     }
                 }
             }
-            
+
             this.notificationCount();
         }
 
@@ -434,7 +434,7 @@ function toast(notification) {
             img_position = notification.message.indexOf("<img");
             message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
             link = '/order/' + notification.model_id;
-            message = '<h4>NM on Order from ' + (notification.user_name.length > 13 ? notification.user_name.substring(0, 13 - 3) + '...' : notification.user_name) + '</h4><a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (message_without_img.length > 30 ? message_without_img.substring(0, 30 - 3) + '...' : message_without_img) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            message = '<h4>NMO - ' + (notification.client_name.length > 20 ? notification.client_name.substring(0, 20 - 3) + '...' : notification.client_name) + '</h4><a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (message_without_img.length > 30 ? message_without_img.substring(0, 30 - 3) + '...' : message_without_img) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#orders-notification').append(notification_html);
@@ -446,7 +446,7 @@ function toast(notification) {
             img_position = notification.message.indexOf("<img");
             message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
             link = '/leads/' + notification.model_id;
-            message = '<h4>NM on Lead from ' + (notification.user_name.length > 14 ? notification.user_name.substring(0, 14 - 3) + '...' : notification.user_name) + '</h4>\n                            <a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            message = '<h4>NML - ' + (notification.client_name.length > 20 ? notification.client_name.substring(0, 20 - 3) + '...' : notification.client_name) + '</h4>\n                            <a href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#leads-notification').append(notification_html);

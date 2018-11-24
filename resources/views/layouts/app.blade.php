@@ -221,6 +221,28 @@
         box-shadow: 0 0 12px #000000;
       }
 
+      @media (max-width: 414px) {
+        .notifications-container {
+          left: 10px;
+        }
+
+        .stack-container {
+          width: auto;
+        }
+
+        .notification {
+          width: 100%;
+        }
+
+        .notifications-hide {
+          left: auto;
+        }
+
+        .notifications-hide .stack-container, .notifications-hide .notification {
+          width: 300px;
+        }
+      }
+
       .notification a {
         color: black;
       }

@@ -21,6 +21,7 @@ class PushNotificationController extends Controller {
 
 		foreach ($push_notifications as $notification) {
 			$notification->setUserNameAttribute($notification['user_id']);
+			$notification->setClientNameAttribute($notification['model_type'], $notification['model_id']);
 		}
 
 		return $push_notifications->toArray();
