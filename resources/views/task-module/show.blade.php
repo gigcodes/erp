@@ -296,10 +296,10 @@
                                   @foreach($data['task']['pending'] as $task)
                                 <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
                                     <td>{{$i++}}</td>
-                                     <td>{{$task['created_at']}}</td>
+                                    <td>{{ Carbon\Carbon::parse($task['created_at'])->format('m-d H:i') }}</td>
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                     <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
-                                    <td> {{$task['completion_date']  }}</td>
+                                    <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('m-d H:i')  }}</td>
                                     <td>{{ $users[$task['assign_from']] }}</td>
                                     @if( $task['assign_to'] == Auth::user()->id )
                                         <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
@@ -395,13 +395,13 @@
                                   @foreach(  $data['task']['statutory_completed'] as $task)
                                 <tr id="task_{{ $task['id'] }}">
                                     <td>{{$i++}}</td>
-                                    <td> {{$task['created_at']}}</td>
+                                    <td> {{ Carbon\Carbon::parse($task['created_at'])->format('m-d H:i') }}</td>
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                     <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                     <td>{{$users[$task['assign_from']]}}</td>
                                     <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
                                     <td> @include('task-module.partials.remark',$task) </td>
-                                    <td> {{$task['created_at']}}</td>
+                                    <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('m-d H:i') }}</td>
                                 </tr>
                                @endforeach
                                 </tbody>
@@ -433,7 +433,7 @@
                                     @foreach(  $data['task']['statutory'] as $task)
                                             <tr>
                                                 <td>{{$i++}}</td>
-                                                <td> {{$task['created_at']}}</td>
+                                                <td> {{ Carbon\Carbon::parse($task['created_at'])->format('m-d H:i') }}</td>
                                                 <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                                 <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                                 <td>{{ $users[$task['assign_from']]}}</td>
@@ -444,7 +444,7 @@
                                                 <td>
                                                   @if( Auth::id() == $task['assign_to'] )
                                                     @if ($task['completion_date'])
-                                                      {{ $task['completion_date'] }}
+                                                      {{ Carbon\Carbon::parse($task['completion_date'])->format('m-d H:i') }}
                                                     @else
                                                       <a href="/statutory-task/complete/{{$task['id']}}">Complete</a>
                                                     @endif
@@ -488,14 +488,14 @@
                                   @foreach( $data['task']['completed'] as $task)
                                 <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed" id="task_{{ $task['id'] }}">
                                     <td>{{$i++}}</td>
-                                    <td>{{$task['created_at']}}</td>
+                                    <td>{{ Carbon\Carbon::parse($task['created_at'])->format('m-d H:i') }}</td>
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                     <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
-                                    <td> {{$task['completion_date']  }}</td>
+                                    <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('m-d H:i') }}</td>
                                     <td>{{$users[$task['assign_from']]}}</td>
                                     <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
                                     <td> @include('task-module.partials.remark',$task) </td>
-                                    <td> {{$task['is_completed']}}</td>
+                                    <td>{{ Carbon\Carbon::parse($task['is_completed'])->format('m-d H:i') }}</td>
                                 </tr>
                                @endforeach
                                 </tbody>
@@ -657,7 +657,7 @@
 
                 $.each(response, function( index, value ) {
 
-                  html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+value.created_at+' </small></p>';
+                  html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('M-DD H:mm') +' </small></p>';
                   html+"<hr>";
                 });
                 $("#view-remark-list").find('#remark-list').html(html);

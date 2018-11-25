@@ -3,7 +3,7 @@
 <img id="remark-load-{{$task['id']}}" style="display: none" src="{{ asset('images/loading.gif') }}"/>
 <span id="remarks-{{$task['id']}}" >
     @foreach(\App\Task::getremarks($task['id']) as $remark)
-        <p> {{$remark['remark']}} <br> <small>updated on {{$remark['created_at']}}</small></p>
+        <p> {{$remark['remark']}} <br> <small>updated on {{ Carbon\Carbon::parse($remark['created_at'])->format('m-d H:i') }}</small></p>
         <hr>
     @endforeach
 </span>
