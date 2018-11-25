@@ -49,6 +49,9 @@
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
     <style>
+    .row:before, .row:after {
+      display: inline-block;
+    }
       #toast-container > div {
         opacity: 1;
         color: black;
