@@ -80,6 +80,7 @@
 
       #notification_count {
         z-index: 100;
+        cursor: pointer;
       }
 
       #toast-container > div#notification_count {

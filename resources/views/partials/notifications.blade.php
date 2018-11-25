@@ -310,7 +310,7 @@ var Queue = function () {
 //    $('#toast-container').toggleClass('toast-container-stacked');
 // });
 
-$(document).on('click', '.notification', function () {
+$(document).on('click touchstart', '.notification', function () {
     $('.stack-container').not($(this).parent()).addClass('stacked');
     $(this).parent().toggleClass('stacked');
 
@@ -507,11 +507,11 @@ function getStatusButtons(notificaiton) {
     return '<div class="row notification-row">\n                   <div data-id="' + notificaiton.id + '" class="btn-group btn-group-justified">\n                        <button value="1" class="n-status btn btn-notification text-success">Accept</button>\n                        <button value="2" class="n-status btn btn-notification">Postpone</button>\n                        <button value="3" class="n-status btn btn-notification text-danger">Decline</button>\n                    </div>\n                </div>';
 }
 
-$(document).on('click', '#notification_count', function () {
+$(document).on('click touchstart', '#notification_count', function () {
     $('.notifications-container').toggleClass('notifications-hide');
 });
 
-$(document).on('click', '.notification-close', function (e) {
+$(document).on('click touchstart', '.notification-close', function (e) {
     e.stopPropagation();
     var notification_id = $(this).data('id');
 
