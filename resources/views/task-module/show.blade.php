@@ -100,7 +100,7 @@
             $isAdmin = false;
         ?>
             <div class="row">
-                <div class="col-6">
+                <div class="col-sm-6 col-6">
                     <h4>Assign Task</h4>
                     <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -196,7 +196,7 @@
 
                     </form>
                 </div>
-                <div class="col-6">
+                <div class="col-sm-6 col-6">
                     <h4>Daily Activity</h4>
 
                     <div class="mt-2 mb-2">
@@ -287,7 +287,7 @@
                                       <th>Est Completion Date</th>
                                       <th>Assigned From</th>
                                       <th>&nbsp;</th>
-                                      <th>Remarks</th>
+                                      {{-- <th>Remarks</th> --}}
                                       <th>Action</th>
                                   </tr>
                                 </thead>
@@ -306,12 +306,13 @@
                                     @else
                                         <td>Assign to  {{ $task['assign_to'] ? $users[$task['assign_to']] : 'Nil'}}</td>
                                     @endif
-                                    <td>
+                                    {{-- <td> --}}
                                       <!-- @include('task-module.partials.remark',$task)  -->
-                                    </td>
+                                    {{-- </td> --}}
                                     <td>
-                                        <button id="add-new-remark-btn" class="add-task btn btn-primary" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add Remark</button>
-                                          <button id="view-remark-list-btn" class="view-remark btn btn-primary" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View Remark</button>
+                                        <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
+                                        <span> | </span>
+                                        <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
                                       <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
                                     </td>
                                 </tr>
