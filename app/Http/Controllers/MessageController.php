@@ -111,7 +111,7 @@ class MessageController extends Controller
             else if($data['status'] == '0'){
 
 	            NotificationQueueController::createNewNotification( [
-		            'message'    => $customer_name . "'s Reply : " . $data['body'],
+		            'message'    => "Reply : " . $data['body'],
 		            'timestamps' => [ '+0 minutes' ],
 		            'model_type' => $data['moduletype'],
 		            'model_id'   => $data['moduleid'],
@@ -120,7 +120,7 @@ class MessageController extends Controller
 	            ] );
 
               NotificationQueueController::createNewNotification( [
-		            'message'    => $customer_name . "'s Reply : " . $data['body'],
+		            'message'    => "Reply : " . $data['body'],
 		            'timestamps' => [ '+0 minutes' ],
 		            'model_type' => $data['moduletype'],
 		            'model_id'   => $data['moduleid'],
