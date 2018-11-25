@@ -78,15 +78,20 @@ var Queue = function () {
 
             // adding element to the queue
             var i = void 0;
+            var itemsLength = this.items.length;
+
             for (i = 0; i < this.items.length; i++) {
 
                 if (this.items[i].id === element.id) {
                     break;
                 }
+
+                if (this.items[i].message === element.message) {
+                  this.items.splice(i, 1);
+                }
             }
 
-            if (i === this.items.length) {
-
+            if (i === itemsLength) {
                 element['isShown'] = false;
                 this.items.push(element);
             }
