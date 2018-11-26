@@ -25,5 +25,7 @@ class OrderStatus extends ReadOnlyBase {
 		'Product shiped to Client' => 'Product shiped to Client',
 		'Delivered' => 'Delivered',
 		'Refund to be processed' => 'Refund to be processed',
+		'Follow up for advance' => 'Follow up for advance',
+		'VIP'	=> 'VIP'
 	];
 }
