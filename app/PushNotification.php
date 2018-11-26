@@ -43,9 +43,13 @@ class PushNotification extends Model
 
 	public function setClientNameAttribute($model_type, $model_id) {
 		if ($model_type == 'leads') {
-			$this->client_name = Leads::find($model_id)->client_name;
+			if ($lead = Leads::find($model_id)) {
+				$this->client_name = $lead->client_name;
+			}
 		} else if ($model_type == 'order') {
-			$this->client_name = Order::find($model_id)->client_name;
+			if ($order = Order::find($model_id)) {
+				$this->client_name = $order->client_name;
+			}
 		}
 	}
 }
