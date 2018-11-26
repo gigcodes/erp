@@ -386,7 +386,7 @@ class TaskModuleController extends Controller {
 		$from = $request->input( 'range_start' ) . " 00:00:00.000000";
 		$to   = $request->input( 'range_end' ) . " 23:59:59.000000";
 
-		$tasks = (new Task())->newQuery()->whereBetween('created_at',[$from,$to]);
+		$tasks = (new Task())->newQuery()->whereBetween('created_at',[$from,$to])->where('assign_from', '!=', 0)->where('assign_to', '!=', 0);
 
 		if( !empty($users) ){
 			$tasks = $tasks->whereIn('assign_to',$users);
@@ -399,10 +399,12 @@ class TaskModuleController extends Controller {
 		for ($i = 0 ; $i < sizeof($tasks_list) ; $i++){
 
 			$task_csv = [];
+			$task_csv['id'] = $tasks_list[$i]['id'];
 			$task_csv['SrNo'] = $i+1;
 			$task_csv['assign_from'] = $userList[$tasks_list[$i]['assign_from']];
 			$task_csv['assign_to'] = $userList[$tasks_list[$i]['assign_to']];
 			$task_csv['type'] = $tasks_list[$i]['is_statutory'] == 1 ? 'Statutory' : 'Other';
+			$task_csv['task_subject'] = $tasks_list[$i]['task_subject'];
 			$task_csv['task_details'] = $tasks_list[$i]['task_details'];
 			$task_csv['completion_date'] = $tasks_list[$i]['completion_date'];
 			$task_csv['remark'] = $tasks_list[$i]['remark'];
@@ -412,9 +414,8 @@ class TaskModuleController extends Controller {
 			array_push($tasks_csv,$task_csv);
 		}
 
-
-		$this->outputCsv('tasks.csv', $tasks_csv);
-//		return redirect()->back();
+		// $this->outputCsv('tasks.csv', $tasks_csv);
+		return view('task-module.export')->withTasks($tasks_csv);
 	}
 
 	public function outputCsv($fileName, $assocDataArray)
