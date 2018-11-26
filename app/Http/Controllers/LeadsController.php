@@ -425,6 +425,13 @@ class LeadsController extends Controller
         return redirect('leads')->with('success','Lead has been updated');
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+      $lead = Leads::find($id);
+      $lead->status = $request->status;
+      $lead->save();
+    }
+
     /**
      * Remove the specified resource from storage.
      *

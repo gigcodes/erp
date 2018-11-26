@@ -53,11 +53,13 @@ Route::group(['middleware'  => ['auth'] ], function (){
 
 	// addding lead routes
 	Route::resource('leads','LeadsController');
+	Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
 	Route::delete('leads/permanentDelete/{leads}','LeadsController@permanentDelete')->name('leads.permanentDelete');
 	Route::resource('chat','ChatController');
 //	Route::resource('task','TaskController');
 
 	Route::resource('order','OrderController');
+	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
 
 	Route::resource('task','TaskModuleController');

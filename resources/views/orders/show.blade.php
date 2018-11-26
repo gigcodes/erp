@@ -53,13 +53,19 @@
             </div>
 
 
-            <div class="form-group">
-                <strong> Status :</strong>
-				<?php
-				$orderStatus = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status );
-				echo $orderStatus;
-				?>
-            </div>
+
+
+            @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status ); @endphp
+
+             <div class="form-group">
+                 <strong>status:</strong>
+                 <Select name="status" class="form-control" id="change_status">
+                      @foreach($order_statuses as $key => $value)
+                       <option value="{{$value}}" {{$value == $status ? 'Selected=Selected':''}}>{{$key}}</option>
+                       @endforeach
+                 </Select>
+                 <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
+             </div>
 
             <div class="form-group">
                 <strong> Estimated Delivery Date:</strong>
@@ -582,6 +588,28 @@
         var client_name = "{{ $client_name }} ";
 
         $('#task_subject').val(client_name);
+      });
+
+      $('#change_status').on('change', function() {
+        var token = "{{ csrf_token() }}";
+        var status = $(this).val();
+        var id = {{ $id }};
+
+        $.ajax({
+          url: '/order/' + id + '/changestatus',
+          type: 'POST',
+          data: {
+            _token: token,
+            status: status
+          }
+        }).done( function(response) {
+          $('#change_status_message').fadeIn(400);
+          setTimeout(function () {
+            $('#change_status_message').fadeOut(400);
+          }, 2000);
+        }).fail(function(errObj) {
+          alert("Could not change status");
+        });
       });
 
     </script>

@@ -314,11 +314,12 @@
                      <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>status:</strong>
-                            <Select name="status" class="form-control">
+                            <Select name="status" class="form-control" id="change_status">
                                  @foreach($leads['statusid'] as $key => $value)
                                   <option value="{{$value}}" {{$value == $leads->status ? 'Selected=Selected':''}}>{{$key}}</option>
                                   @endforeach
                             </Select>
+                            <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
 
                             <input type="hidden" class="form-control" name="userid" placeholder="status" value="{{$leads->userid}}"/>
 
@@ -907,6 +908,28 @@
     var client_name = "{{ $leads->client_name }} ";
 
     $('#task_subject').val(client_name);
+  });
+
+  $('#change_status').on('change', function() {
+    var token = "{{ csrf_token() }}";
+    var status = $(this).val();
+    var id = {{ $leads['id'] }};
+
+    $.ajax({
+      url: '/leads/' + id + '/changestatus',
+      type: 'POST',
+      data: {
+        _token: token,
+        status: status
+      }
+    }).done( function(response) {
+      $('#change_status_message').fadeIn(400);
+      setTimeout(function () {
+        $('#change_status_message').fadeOut(400);
+      }, 2000);
+    }).fail(function(errObj) {
+      alert("Could not change status");
+    });
   });
  </script>
  {{-- <script type="text/javascript">

@@ -158,6 +158,9 @@ class OrderController extends Controller {
         $data['messages'] = $messages;
         $data['total_price'] = $this->getTotalOrderPrice($order);
 
+		$order_statuses = (new OrderStatus)->all();
+		$data['order_statuses'] = $order_statuses;
+
 		//return $data;
 		return view( 'orders.show', $data );
 	}
@@ -236,6 +239,13 @@ class OrderController extends Controller {
 
 
 		return back()->with( 'message', 'Order updated successfully' );
+	}
+
+	public function updateStatus(Request $request, $id)
+	{
+		$order = Order::find($id);
+		$order->order_status = $request->status;
+		$order->save();
 	}
 
 	public function calculateBalanceAmount(Order $order){
