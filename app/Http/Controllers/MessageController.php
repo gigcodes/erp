@@ -360,7 +360,7 @@ class MessageController extends Controller
 		    ] );
 	    }
 
-	    return redirect('/'. $moduletype.'/'.$moduleid);
+	    // return redirect('/'. $moduletype.'/'.$moduleid);
     }
 
     public function loadmore(Request $request)

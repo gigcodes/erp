@@ -489,11 +489,11 @@
 
                         {{-- <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp; --}}
                         @if ($message['status'] == '0')
-                          <a href="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Read </a>
+                          <a href data-url="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Read </a>
                         @endif
                         @if ($message['status'] == '0') | @endif
                         @if ($message['status'] == '0' || $message['status'] == '5')
-                          <a href="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Replied </a>
+                          <a href data-url="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>
                         @endif
                       </div>
                 </div>
@@ -550,11 +550,11 @@
 
                  <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
                  @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
-                     <a href="/message/updatestatus?status=3&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as sent </a>
+                     <a href data-url="/message/updatestatus?status=3&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as sent </a>
                  @endif
 
                  @if($message['status'] == '1' and App\Helpers::getadminorsupervisor() == true)
-                     <a href="/message/updatestatus?status=2&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Approve</a>
+                     <a href data-url="/message/updatestatus?status=2&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px" class="change_message_status">Approve</a>
 
                      <a href="#" style="font-size: 9px" class="edit-message" data-messageid="{{$message['id']}}">Edit</a>
                  @endif
@@ -789,7 +789,7 @@
            },
            success: function(data) {
              $('#edit-message-textarea' + message_id).css({'display': 'none'});
-             $('#message_body_' + message_id).text(html);
+             $('#message_body_' + message_id).text(message);
              $('#message_body_' + message_id).css({'display': 'block'});
            }
          });
@@ -927,6 +927,24 @@
       setTimeout(function () {
         $('#change_status_message').fadeOut(400);
       }, 2000);
+    }).fail(function(errObj) {
+      alert("Could not change status");
+    });
+  });
+
+  $(document).on('click', '.change_message_status', function(e) {
+    e.preventDefault();
+    var url = $(this).data('url');
+    var thiss = $(this);
+
+    $.ajax({
+      url: url,
+      type: 'GET',
+      beforeSend: function() {
+        $(thiss).text('Loading');
+      }
+    }).done( function(response) {
+      $(thiss).remove();
     }).fail(function(errObj) {
       alert("Could not change status");
     });
