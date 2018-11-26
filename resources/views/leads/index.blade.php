@@ -74,7 +74,7 @@
             <th><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created</a></th>
             <th width="280px">Action</th>
         </tr>
-        @foreach ($leads_array['data'] as $key => $lead)
+        @foreach ($leads_array as $key => $lead)
             <tr class="{{ \App\Helpers::statusClass($lead['assign_status'] ) }}">
                 <td>{{ $lead['id'] }}</td>
                 <td>{{ $lead['client_name'] }}</td>

@@ -43,7 +43,7 @@ class Leads extends Model {
 
 	public function messages()
 	{
-		return $this->hasMany('App\Message', 'moduleid')->latest()->first();
+		return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'leads')->latest()->first();
 	}
 
 	public function getCommunicationAttribute()

@@ -154,7 +154,7 @@ class OrderController extends Controller {
 		$data['comments']        = Comment::with('user')->where( 'subject_id', $order->id )
 		                                 ->where( 'subject_type','=' ,Order::class )->get();
 		$data['users']          = User::all()->toArray();
-		$messages = Message::all()->where('moduleid','=', $data['id'])->where('moduletype','=', 'order')->sortByDesc("created_at")->take(2)->toArray();
+		$messages = Message::all()->where('moduleid','=', $data['id'])->where('moduletype','=', 'order')->sortByDesc("created_at")->take(10)->toArray();
         $data['messages'] = $messages;
         $data['total_price'] = $this->getTotalOrderPrice($order);
 

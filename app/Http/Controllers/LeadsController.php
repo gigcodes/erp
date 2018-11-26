@@ -14,6 +14,7 @@ use App\Message;
 use App\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Helpers;
 
 
@@ -113,25 +114,30 @@ class LeadsController extends Controller
 		    });
 	    }
 
-      $leads_array = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) )->toArray();
+      $leads_array = $leads->whereNull( 'deleted_at' )->get()->toArray();
       // dd($leads_array);
 
 
       if ($sortby == 'communication') {
         if ($orderby == 'asc') {
-          $leads_array['data'] = array_values(array_sort($leads_array['data'], function ($value) {
-              return $value['communication']['body'];
+          $leads_array = array_values(array_sort($leads_array, function ($value) {
+              return $value['communication']['created_at'];
           }));
 
-          $leads_array['data'] = array_reverse($leads_array['data']);
+          $leads_array = array_reverse($leads_array);
         } else {
-          $leads_array['data'] = array_values(array_sort($leads_array['data'], function ($value) {
-              return $value['communication']['body'];
+          $leads_array = array_values(array_sort($leads_array, function ($value) {
+              return $value['communication']['created_at'];
           }));
         }
 
       }
-      // dd($leads_array);
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      $perPage = Setting::get('pagination');
+      $currentItems = array_slice($leads_array, $perPage * ($currentPage - 1), $perPage);
+
+      $leads_array = new LengthAwarePaginator($currentItems, count($leads_array), $perPage, $currentPage);
+      // dd($results);
       $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
       // dd($leads);
       return view('leads.index',compact('leads', 'leads_array','term', 'orderby', 'brand', 'rating'))
@@ -296,7 +302,7 @@ class LeadsController extends Controller
 	                                       ->renderAsMultiple();
 	    $leads['remark'] = $leads->remark;
 
-        $messages = Message::all()->where('moduleid','=', $leads['id'])->where('moduletype','=', 'leads')->sortByDesc("created_at")->take(2)->toArray();
+        $messages = Message::all()->where('moduleid','=', $leads['id'])->where('moduletype','=', 'leads')->sortByDesc("created_at")->take(10)->toArray();
         $leads['messages'] = $messages;
 
         if ( ! empty( $leads['selected_products_array']  ) ) {
