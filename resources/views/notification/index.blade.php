@@ -43,7 +43,7 @@
                 <td>
                     <a class="notification-link" href="{{ $notification->sale_id ? route('sales.show',$notification->sale_id) : route('products.show',$notification->product_id)  }}">
                     {{ $notification->uname }} {{ $notification->message }}
-                    {{$notification->pname ? $notification->pname : $notification->sku }} at {{ $notification->created_at }}
+                    {{$notification->pname ? $notification->pname : $notification->sku }} at {{ Carbon\Carbon::parse($notification->created_at)->format('d-m H:i') }}
                     </a>
                 </td>
                 <td style="width: 20px"><button class="btn btn-notify" data-id="{{ $notification->id }}" >&#10003</button></td>

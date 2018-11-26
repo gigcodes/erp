@@ -99,7 +99,7 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong> Start Time :</strong>
-                {{ $created_at }}
+                {{ Carbon\Carbon::parse($created_at)->format('d-m-Y H:i') }}
             </div>
         </div>
 

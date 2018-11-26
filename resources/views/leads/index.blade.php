@@ -90,7 +90,7 @@
                   @endif
                 </td>
                 <td>{{App\Helpers::getleadstatus($lead['status'])}}</td>
-                <td>{{ $lead['created_at'] }}</td>
+                <td>{{ Carbon\Carbon::parse($lead['created_at'])->format('d-m H:i') }}</td>
                 <td>
                     <a class="btn btn-primary" href="{{ route('leads.show',$lead['id']) }}">View</a>
                     <a class="btn btn-primary" href="{{ route('leads.edit',$lead['id']) }}">Edit</a>

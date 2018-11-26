@@ -49,7 +49,7 @@
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
                 <td>{{ $order->order_id }}</td>
                 <td>{{ $order->order_type }}</td>
-                <td>{{ $order->order_date }}</td>
+                <td>{{ Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</td>
                 <td>{{ $order->sales_person ? $users[$order->sales_person] : 'nil' }}</td>
                 <td>{{ $order->client_name }}</td>
                 <td>{{ $order->order_status}}</td>
