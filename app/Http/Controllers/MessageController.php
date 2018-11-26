@@ -369,7 +369,7 @@ class MessageController extends Controller
          $moduletype = $request->get('moduletype');
          $messageid = $request->get('messageid');
          $messages = Message::all()->where('id','<',$messageid)->where('moduleid','=', $moduleid)->where('moduletype','=', $moduletype)->sortByDesc("created_at")->take(2)->toArray();
-         return view('leads.bubbles',compact('messages'));
+         return view('leads.bubbles',compact(['messages', 'moduletype']));
     }
 
     /**

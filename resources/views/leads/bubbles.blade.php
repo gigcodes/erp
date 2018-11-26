@@ -21,11 +21,11 @@
                         <em>Customer {{ $message['created_at'] }} </em>
 
                         @if ($message['status'] == '0')
-                          <a href="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Read </a>
+                          <a href="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype={{ $moduletype }}" style="font-size: 9px">Mark as Read </a>
                         @endif
                         @if ($message['status'] == '0') | @endif
                         @if ($message['status'] == '0' || $message['status'] == '5')
-                          <a href="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px">Mark as Replied </a>
+                          <a href="/message/updatestatus?status=6&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype={{ $moduletype }}" style="font-size: 9px">Mark as Replied </a>
                         @endif
                       </div>
                 </div>
@@ -89,9 +89,9 @@
                     </em>
                       @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
                         @if (strpos($message['body'], 'message-img') !== false)
-                          <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="leads" data-message="{{ substr($message['body'], 0, strpos($message['body'], '<img')) }}"> Copy message </button>
+                          <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="{{ $moduletype }}" data-message="{{ substr($message['body'], 0, strpos($message['body'], '<img')) }}"> Copy message </button>
                         @else
-                          <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="leads" data-message="{{ $message['body'] }}"> Copy message </button>
+                          <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="{{ $moduletype }}" data-message="{{ $message['body'] }}"> Copy message </button>
                         @endif
                       @endif
                   </div>
@@ -101,7 +101,7 @@
          @endforeach
          @if(!empty($message['id']))
          <div class="show_more_main" id="show_more_main{{$message['id']}}" >
-          <span id="{{$message['id']}}" class="show_more" title="Load more posts" data-moduleid={{$message['moduleid']}} data-moduletype="leads">Show more</span>
+          <span id="{{$message['id']}}" class="show_more" title="Load more posts" data-moduleid={{$message['moduleid']}} data-moduletype="{{ $moduletype }}">Show more</span>
           <span class="loding" style="display: none;"><span class="loding_txt">Loading...</span></span>
          </div>
           @endif
