@@ -363,7 +363,7 @@
                  <div class="modal-body">
                    <div class="form-group">
                        <strong>Task Subject:</strong>
-                        <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" required />
+                        <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" id="task_subject" required />
                         @if ($errors->has('task_subject'))
                             <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
                         @endif
@@ -457,7 +457,7 @@
 
     </div>
   <div class="col-xs-12 col-sm-12">
-    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskModal">Add Task</button>
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
     <h3 style="text-center">Messages</h3>
  </div>
  <div class="col-xs-12 col-sm-12">
@@ -902,6 +902,12 @@
 		} );
 		startPolling();
 	});
+
+  $('#addTaskButton').on('click', function () {
+    var client_name = "{{ $leads->client_name }} ";
+
+    $('#task_subject').val(client_name);
+  });
  </script>
  {{-- <script type="text/javascript">
    $(document).ready(function() {
