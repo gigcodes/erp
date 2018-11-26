@@ -371,6 +371,15 @@ class TaskModuleController extends Controller {
 		$task->delete();
 	}
 
+	public function archiveTask($id)
+	{
+		$task = Task::find($id);
+
+		$task->delete();
+
+		return redirect('/');
+	}
+
 	public function deleteStatutoryTask(Request $request){
 
 		$id   = $request->input( 'id' );
@@ -386,7 +395,7 @@ class TaskModuleController extends Controller {
 		$from = $request->input( 'range_start' ) . " 00:00:00.000000";
 		$to   = $request->input( 'range_end' ) . " 23:59:59.000000";
 
-		$tasks = (new Task())->newQuery()->whereBetween('created_at',[$from,$to])->where('assign_from', '!=', 0)->where('assign_to', '!=', 0);
+		$tasks = (new Task())->newQuery()->withTrashed()->whereBetween('created_at',[$from,$to])->where('assign_from', '!=', 0)->where('assign_to', '!=', 0);
 
 		if( !empty($users) ){
 			$tasks = $tasks->whereIn('assign_to',$users);

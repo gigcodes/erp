@@ -481,6 +481,7 @@
                                   <th>Assigned To</th>
                                   <th>Remark</th>
                                   <th>Completed On</th>
+                                  <th>Action</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -496,6 +497,13 @@
                                     <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
                                     <td> @include('task-module.partials.remark',$task) </td>
                                     <td>{{ Carbon\Carbon::parse($task['is_completed'])->format('d-m H:i') }}</td>
+                                    <td>
+                                      <form action="{{ route('task.archive', $task['id']) }}" method="POST">
+                                        @csrf
+
+                                        <button type="submit" class="btn-link text-danger">Archive</button>
+                                      </form>
+                                    </td>
                                 </tr>
                                @endforeach
                                 </tbody>

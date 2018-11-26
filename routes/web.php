@@ -127,6 +127,7 @@ Route::middleware('auth')->group(function (){
 	Route::get('tasks/gettaskremark','TaskModuleController@getTaskRemark')->name('task.gettaskremark');
 
 	Route::post('tasks/deleteTask','TaskModuleController@deleteTask');
+	Route::post('tasks/{id}/delete','TaskModuleController@archiveTask')->name('task.archive');
 //	Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
 	Route::post('task/deleteStatutoryTask','TaskModuleController@deleteStatutoryTask');
 
