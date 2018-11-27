@@ -687,7 +687,7 @@
 
              </form>
 
-             @can('admin')
+             {{-- @can('admin') --}}
                <p><strong>Internal Communications</strong> </p>
                <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
                   @csrf
@@ -708,7 +708,7 @@
                           </div>
 
                </form>
-             @endcan
+             {{-- @endcan --}}
 
               <p class="pb-4" style="display: block;">
                   <strong>Quick Reply</strong>
