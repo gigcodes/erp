@@ -50,10 +50,18 @@ class MessageController extends Controller
               'moduletype' => 'required',
               'status' => 'required',
             ]);
+
+            if ($request->images) {
+              $msgtxt = $request->body;
+
+              foreach (json_decode($request->images) as $image) {
+                $msgtxt .= ' <img src="'.$image.'" class="message-img" />';
+              }
+            }
             $data = $request->except( '_token');
             $id = $request->get('moduleid');
             $moduletype = $request->get('moduletype');
-            if ($_FILES["image"]["size"] > 10) {
+            if (isset($_FILES["image"]) && $_FILES["image"]["size"] > 10) {
 
                    $target_dir = "uploads/";
                    $target_file = $target_dir . basename($_FILES["image"]["name"]);
@@ -62,6 +70,9 @@ class MessageController extends Controller
                     $msgtxt .= ' <img src="/'.$target_file.'" class="message-img" />';
                     $data['body'] = $msgtxt;
              }
+
+             $data['body'] = $msgtxt;
+             // dd($data['body']);
 
             $data['userid'] = Auth::id();
             $message = Message::create($data);
@@ -187,6 +198,22 @@ class MessageController extends Controller
     public function show($id)
     {
         //
+    }
+
+    public function downloadImages(Request $request)
+    {
+      $new_match = [];
+      preg_match_all('/<img src="(.*?)" class="message-img"/', $request->images, $match);
+
+      foreach ($match[1] as $image) {
+        $exploded = explode('uploads/', $image);
+
+        array_push($new_match, public_path('uploads/' . $exploded[1]));
+      }
+
+      \Zipper::make(public_path('test.zip'))->add($new_match)->close();
+
+      return response()->download(public_path('images.zip'))->deleteFileAfterSend();
     }
 
     /**

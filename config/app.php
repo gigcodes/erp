@@ -166,6 +166,7 @@ return [
 	    Plank\Mediable\MediableServiceProvider::class,
 	    Nestable\NestableServiceProvider::class,
         Pusher\Laravel\PusherServiceProvider::class,
+        Chumper\Zipper\ZipperServiceProvider::class,
 
     ],
 
@@ -220,6 +221,7 @@ return [
         'MediaUploader' => Plank\Mediable\MediaUploaderFacade::class,
         'Nestable' => Nestable\Facades\NestableService::class,
         'Pusher' => Pusher\Laravel\Facades\Pusher::class,
+        'Zipper' => Chumper\Zipper\Zipper::class,
 
     ],
 

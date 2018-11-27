@@ -105,12 +105,18 @@ class ProductController extends Controller {
 		                 ->with( 'success', 'Product deleted successfully' );
 	}
 
-	public function attachProducts( $model_type, $model_id, Request $request ) {
+	public function attachProducts( $model_type, $model_id, $type = null, Request $request ) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
 		$products = Product::latest()->paginate( Setting::get( 'pagination' ) );
 
 		$doSelection = true;
+
+		if ($type == 'images') {
+			$attachImages = true;
+		} else {
+			$attachImages = false;
+		}
 
 		if (Order::find($model_id)) {
 			$selected_products = self::getSelectedProducts($model_type,$model_id);
@@ -135,7 +141,49 @@ class ProductController extends Controller {
 		                                        ->renderAsDropdown();
 
 
-		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'search_suggestions', 'category_selection' ) );
+		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'search_suggestions', 'category_selection', 'attachImages' ) );
+	}
+
+	public function attachImages($model_type, $model_id, $status, $assigned_user, Request $request) {
+
+		$roletype = $request->input( 'roletype' ) ?? 'Sale';
+		$products = Product::latest()->paginate( Setting::get( 'pagination' ) );
+
+		// $doSelection = true;
+		//
+		// if ($type == 'images') {
+		// 	$attachImages = true;
+		// } else {
+		// 	$attachImages = false;
+		// }
+
+		if (Order::find($model_id)) {
+			$selected_products = self::getSelectedProducts($model_type,$model_id);
+		} else {
+			$selected_products = [];
+		}
+
+		$search_suggestions = [];
+		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+		$brand_suggestions = Brand::getAll();
+
+		foreach ($sku_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion['sku']);
+		}
+
+		foreach ($brand_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion);
+		}
+
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		                                        ->selected(1)
+		                                        ->renderAsDropdown();
+
+		if ($request->ajax()) {
+			return view('partials.image-load', ['products' => $products])->render();
+		}
+
+		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'search_suggestions', 'category_selection') );
 	}
 
 

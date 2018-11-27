@@ -105,6 +105,9 @@ Route::middleware('auth')->group(function (){
 	Route::post('attachProductToModel/{model_type}/{model_id}/{product_id}','ProductController@attachProductToModel')->name('attachProductToModel');
 	Route::post('deleteOrderProduct/{order_product}','OrderController@deleteOrderProduct')->name('deleteOrderProduct');
 
+	Route::get('attachImages/{model_type}/{model_id}/{status}/{assigned_user}','ProductController@attachImages')->name('attachImages');
+	Route::post('download', 'MessageController@downloadImages')->name('download.images');
+
 	//Comments
 	Route::post('doComment','CommentController@store')->name('doComment');
 	Route::post('deleteComment/{comment}','CommentController@destroy')->name('deleteComment');

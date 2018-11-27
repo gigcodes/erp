@@ -476,6 +476,14 @@
                               data-expanded="false">
                             {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . '(Has Image)' !!}
                           </p>
+
+                          <form action="{{ route('download.images') }}" method="POST">
+                            @csrf
+
+                            <input type="hidden" name="images" value="{{ $message['body'] }}">
+
+                            <button type="submit" class="btn-link">Download ZIP</button>
+                          </form>
                         @else
                           <p class="collapsible-message"
                               data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
@@ -484,6 +492,7 @@
                             {!! strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] !!}
                           </p>
                         @endif
+
 
                         <em>Customer {{ $message['created_at'] }} </em>
 
@@ -662,6 +671,7 @@
                              <button class="btn"><img src="/images/file-upload.png" /></button>
                                     <input type="file" name="image" />
                             </div>
+                            <a href="{{ route('attachImages', ['leads', $leads['id'], 0, $leads['assigned_user']]) }}" class="btn btn-success">Attach from Grid</a>
                           <button type="submit" class="btn btn-primary">Submit</button>
                         </div>
 

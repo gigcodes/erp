@@ -198,6 +198,10 @@ class SearchController extends Controller {
 
 		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
 
+		if ($request->ajax()) {
+			return view('partials.image-load', ['products' => $data['products']])->render();
+		}
+
 		return view( 'partials.grid', $data );
 	}
 
