@@ -22,6 +22,10 @@ class PushNotificationController extends Controller {
 		foreach ($push_notifications as $notification) {
 			$notification->setUserNameAttribute($notification['user_id']);
 			$notification->setClientNameAttribute($notification['model_type'], $notification['model_id']);
+
+			if ($notification['model_type'] == 'App\Task' || $notification['model_type'] == 'App\SatutoryTask' || $notification['model_type'] == 'App\Http\Controllers\Task' || $notification['model_type'] == 'User') {
+				$notification->setSubjectAttribute($notification['model_type'], $notification['model_id']);
+			}
 		}
 
 		return $push_notifications->toArray();

@@ -381,7 +381,7 @@ function toast(notification) {
 
         case 'App\\Task':
             link = '/task#task_' + notification.model_id;
-            message = '<h4>ID : ' + notification.model_id + ' Task</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+            message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#tasks-notification').append(notification_html);
@@ -391,7 +391,7 @@ function toast(notification) {
 
         case 'App\\SatutoryTask':
             link = '/task#task_' + notification.model_id;
-            message = '<h4>ID : ' + notification.model_id + ' Task</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+            message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#tasks-notification').append(notification_html);
@@ -401,7 +401,7 @@ function toast(notification) {
 
         case 'App\\Http\\Controllers\\Task':
             link = '/task#task_' + notification.model_id;
-            message = '<h4>ID : ' + notification.model_id + ' Task</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+            message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#tasks-notification').append(notification_html);
@@ -411,7 +411,7 @@ function toast(notification) {
 
         case 'User':
             link = '/#task_' + notification.model_id;
-            message = '<h4>ID : ' + notification.model_id + ' Task</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
             notification_html = '<div class="notification">' + close_button + message + '</div>';
             $('#tasks-notification').append(notification_html);

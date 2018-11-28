@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Helpers;
 use App\Leads;
 use App\Order;
+use App\Task;
+use App\StatutoryTask;
 
 class PushNotification extends Model
 {
@@ -23,7 +25,8 @@ class PushNotification extends Model
 
 	protected $user_name = '';
 	protected $client_name = '';
-	protected $appends = ['user_name', 'client_name'];
+	protected $subject = '';
+	protected $appends = ['user_name', 'client_name', 'subject'];
 
 	public function getUserNameAttribute() {
 		return $this->user_name;
@@ -50,6 +53,37 @@ class PushNotification extends Model
 			if ($order = Order::find($model_id)) {
 				$this->client_name = $order->client_name;
 			}
+		}
+	}
+
+	public function getSubjectAttribute() {
+		return $this->subject;
+	}
+
+	public function setSubjectAttribute($model_type, $model_id) {
+		switch($model_type) {
+			case 'App\\Task':
+				if ($task = Task::find($model_id)) {
+					$this->subject = $task->task_subject ? $task->task_subject : 'Task Subject';
+				}
+
+				break;
+			case 'App\\SatutoryTask':
+				if ($task = SatutoryTask::find($model_id)) {
+					$this->subject = $task->task_subject ? $task->task_subject : 'Task Subject';
+				}
+
+				break;
+			case 'App\\Http\\Controllers\\Task':
+				if ($task = Task::find($model_id)) {
+					$this->subject = $task->task_subject ? $task->task_subject : 'Task Subject';
+				}
+
+				break;
+			case 'User':
+				$this->subject = 'Input Activity';
+
+				break;
 		}
 	}
 }
