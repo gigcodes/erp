@@ -692,6 +692,9 @@
                                         @can('admin')
                                     <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
                                         @endcan
+                                    @can('reply-edit')
+                                    <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
+                                    @endcan
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">

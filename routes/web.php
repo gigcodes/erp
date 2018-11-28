@@ -46,6 +46,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('sales','SaleController');
 //	Route::resource('activity','ActivityConroller');
 	Route::resource('brand','BrandController');
+	Route::resource('reply','ReplyController');
 
 	Route::resource('settings','SettingController');
 	Route::resource('category','CategoryController');

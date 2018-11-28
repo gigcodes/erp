@@ -12,6 +12,7 @@ use App\Brand;
 use App\Product;
 use App\Message;
 use App\Task;
+use App\Reply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -295,6 +296,8 @@ class LeadsController extends Controller
         $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
         $leads['products_array'] = [];
         $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->whereNull('is_completed')->get()->toArray();
+        $approval_replies = Reply::where('model', 'Approval Lead')->get();
+        $internal_replies = Reply::where('model', 'Internal Lead')->get();
 
 	    $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
 	    $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
@@ -314,7 +317,7 @@ class LeadsController extends Controller
             }
         }
        // var_dump($role);
-        return view('leads.show',compact('leads','id','data', 'tasks'));
+        return view('leads.show',compact('leads','id','data', 'tasks', 'approval_replies', 'internal_replies'));
     }
 
     /**

@@ -648,13 +648,11 @@
 
                    <p class="pb-4" style="display: block;">
                        {{-- <strong>Quick Reply</strong> --}}
-                   <?php
-                   $quickReplies = (new \App\ReadOnly\QuickReplies)->all();
-                   ?>
+
                        <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
                            <option value="">Quick Reply</option>
-                           @foreach($quickReplies as $value )
-                               <option value="{{$value}}">{{$value}}</option>
+                           @foreach($internal_replies as $reply)
+                               <option value="{{$reply->reply}}">{{$reply->reply}}</option>
                            @endforeach
                        </select>
                    </p>
@@ -680,13 +678,11 @@
         <div class="col-xs-12 col-sm-6">
          <p class="pb-4" style="display: block;">
              {{-- <strong>Quick Reply</strong> --}}
-         <?php
-         $quickReplies = (new \App\ReadOnly\QuickReplies)->all();
-         ?>
+
              <select name="quickComment" id="quickComment" class="form-control">
                  <option value="">Quick Reply</option>
-                 @foreach($quickReplies as $value )
-                     <option value="{{$value}}">{{$value}}</option>
+                 @foreach($approval_replies as $reply )
+                     <option value="{{$reply->reply}}">{{$reply->reply}}</option>
                  @endforeach
              </select>
          </p>
