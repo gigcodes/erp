@@ -147,6 +147,8 @@ class TaskModuleController extends Controller {
 		if ($request->task_type == 'quick_task') {
 			$data['is_statutory'] = 0;
 			$data['category'] = 6;
+			$data['model_type'] = $request->model_type;
+			$data['model_id'] = $request->model_id;
 		}
 
 		if($data['is_statutory'] == 0) {

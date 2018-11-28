@@ -294,6 +294,7 @@ class LeadsController extends Controller
         $leads['brands']  = $brands;
         $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
         $leads['products_array'] = [];
+        $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->whereNull('is_completed')->get()->toArray();
 
 	    $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
 	    $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
@@ -313,7 +314,7 @@ class LeadsController extends Controller
             }
         }
        // var_dump($role);
-        return view('leads.show',compact('leads','id','data'));
+        return view('leads.show',compact('leads','id','data', 'tasks'));
     }
 
     /**

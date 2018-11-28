@@ -200,6 +200,8 @@
                   @csrf
 
                   <input type="hidden" name="task_type" value="quick_task">
+                  <input type="hidden" name="model_type" value="order">
+                  <input type="hidden" name="model_id" value="{{$id}}">
 
                   <div class="modal-body">
                     <div class="form-group">
@@ -253,7 +255,100 @@
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 mb-3">
-                  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
+                  <button type="button" class="btn btn-success mb-3" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
+
+                  <table class="table">
+                      <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Date</th>
+                            <th class="category">Category</th>
+                            <th>Task Subject</th>
+                            <th>Est Completion Date</th>
+                            <th>Assigned From</th>
+                            <th>&nbsp;</th>
+                            {{-- <th>Remarks</th> --}}
+                            <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          <?php $i = 1; $users_array = \App\Helpers::getUserArray(\App\User::all()); ?>
+                        @foreach($tasks as $task)
+                      <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
+                          <td>{{$i++}}</td>
+                          <td>{{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
+                          <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
+                          <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
+                          <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
+                          <td>{{ $users_array[$task['assign_from']] }}</td>
+                          @if( $task['assign_to'] == Auth::user()->id )
+                              <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
+                          @else
+                              <td>Assign to  {{ $task['assign_to'] ? $users[$task['assign_to']] : 'Nil'}}</td>
+                          @endif
+                          {{-- <td> --}}
+                            <!-- @include('task-module.partials.remark',$task)  -->
+                          {{-- </td> --}}
+                          <td>
+                              <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
+                              <span> | </span>
+                              <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
+                            <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
+                          </td>
+                      </tr>
+
+                      <!-- Modal -->
+                      <div id="add-new-remark_{{$task['id']}}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+
+                          <!-- Modal content-->
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title">Add New Remark</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                            </div>
+                            <div class="modal-body">
+                              <form id="add-remark">
+                                <input type="hidden" name="id" value="">
+                                <textarea id="remark-text_{{$task['id']}}" rows="1" name="remark" class="form-control"></textarea>
+                                <button type="button" class="mt-2 " onclick="addNewRemark({{$task['id']}})">Add Remark</button>
+                            </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+
+                      <!-- Modal -->
+                      <div id="view-remark-list" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+
+                          <!-- Modal content-->
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title">View Remark</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                            </div>
+                            <div class="modal-body">
+                              <div id="remark-list">
+
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                     @endforeach
+                      </tbody>
+                    </table>
                 </div>
 
                 <div class="col-xs-12">
@@ -673,6 +768,63 @@
         });
       });
 
+      $(document).on('click', '.task-subject', function() {
+        if ($(this).data('switch') == 0) {
+          $(this).text($(this).data('details'));
+          $(this).data('switch', 1);
+        } else {
+          $(this).text($(this).data('subject'));
+          $(this).data('switch', 0);
+        }
+      });
+
+      function addNewRemark(id){
+
+        var formData = $("#add-new-remark").find('#add-remark').serialize();
+        // console.log(id);
+        var remark = $('#remark-text_'+id).val();
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.addRemark') }}',
+            data: {id:id,remark:remark},
+        }).done(response => {
+            alert('Remark Added Success!')
+            // $('#add-new-remark').modal('hide');
+            // $("#add-new-remark").hide();
+            window.location.reload();
+        });
+      }
+
+      $(".view-remark").click(function () {
+
+        var taskId = $(this).attr('data-id');
+
+          $.ajax({
+              type: 'GET',
+              headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+              },
+              url: '{{ route('task.gettaskremark') }}',
+              data: {id:taskId},
+          }).done(response => {
+              console.log(response);
+
+              var html='';
+
+              $.each(response, function( index, value ) {
+
+                html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+                html+"<hr>";
+              });
+              $("#view-remark-list").find('#remark-list').html(html);
+              // getActivity();
+              //
+              // $('#loading_activty').hide();
+          });
+      });
     </script>
 
 @endsection

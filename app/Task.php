@@ -21,6 +21,8 @@ class Task extends Model {
 		'is_statutory',
 		'is_completed',
 		'statutory_id',
+		'model_type',
+		'model_id',
 	];
 
 	protected $dates = ['deleted_at'];

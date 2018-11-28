@@ -10,6 +10,7 @@ use App\Product;
 use App\ReadOnly\OrderStatus;
 use App\User;
 use App\Message;
+use App\Task;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -160,6 +161,7 @@ class OrderController extends Controller {
 
 		$order_statuses = (new OrderStatus)->all();
 		$data['order_statuses'] = $order_statuses;
+		$data['tasks'] = Task::where('model_type', 'order')->where('model_id', $order->id)->whereNull('is_completed')->get()->toArray();
 
 		//return $data;
 		return view( 'orders.show', $data );
