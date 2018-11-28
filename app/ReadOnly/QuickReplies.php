@@ -35,5 +35,12 @@ class QuickReplies extends ReadOnlyBase {
 		'Book courier or arrange delivery for the same',
 
 		'Send product and update client',
+
+		'Pls. also note that our office land line is 02226263488 - pls. call us on this if you need any assistance',
+
+		'Maam pls note our bank details -Name: SOLO LUXURY
+BANK: AXIS BANK
+A/C NO.: 917020034504252
+IFSC NO.: UTIB0001531',
 	];
 }
