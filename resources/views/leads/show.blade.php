@@ -488,7 +488,6 @@
              </div>
 
              <div class="col-xs-2">
-               <a href="{{ route('attachImages', ['leads', $leads['id'], 0, $leads['assigned_user']]) }}" class="btn btn-success">Attach</a>
                <button type="submit" class="btn btn-primary">Submit</button>
              </div>
            </div>
@@ -521,6 +520,7 @@
              </div>
 
              <div class="col-xs-2">
+               <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) }}" class="btn btn-success">Attach</a>
                <button type="submit" class="btn btn-primary">Submit</button>
              </div>
            </div>
@@ -601,14 +601,6 @@
                               data-expanded="false">
                             {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                           </p>
-
-                          <form action="{{ route('download.images') }}" method="POST">
-                            @csrf
-
-                            <input type="hidden" name="images" value="{{ $message['body'] }}">
-
-                            <button type="submit" class="btn-link">Download ZIP</button>
-                          </form>
                         @else
                           <p class="collapsible-message"
                               data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
@@ -682,6 +674,15 @@
                              data-expanded="false">
                            {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                          </p>
+
+
+                         <form action="{{ route('download.images') }}" method="POST">
+                           @csrf
+
+                           <input type="hidden" name="images" value="{{ $message['body'] }}">
+
+                           <button type="submit" class="btn-link">Download ZIP</button>
+                         </form>
                        @else
                          <p class="collapsible-message"
                              data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"

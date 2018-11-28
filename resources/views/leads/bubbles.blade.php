@@ -88,6 +88,15 @@
                                data-expanded="false">
                              {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                            </p>
+
+
+                           <form action="{{ route('download.images') }}" method="POST">
+                             @csrf
+
+                             <input type="hidden" name="images" value="{{ $message['body'] }}">
+
+                             <button type="submit" class="btn-link">Download ZIP</button>
+                           </form>
                          @else
                            <p class="collapsible-message"
                                data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"

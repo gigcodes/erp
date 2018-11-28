@@ -213,7 +213,7 @@ class MessageController extends Controller
         array_push($new_match, public_path('uploads/' . $exploded[1]));
       }
 
-      \Zipper::make(public_path('test.zip'))->add($new_match)->close();
+      \Zipper::make(public_path('images.zip'))->add($new_match)->close();
 
       return response()->download(public_path('images.zip'))->deleteFileAfterSend();
     }
