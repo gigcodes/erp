@@ -489,7 +489,7 @@
             @if( $task['assign_to'] == Auth::user()->id )
                 <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
             @else
-                <td>Assign to  {{ $task['assign_to'] ? $users[$task['assign_to']] : 'Nil'}}</td>
+                <td>Assign to  {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
             @endif
             {{-- <td> --}}
               <!-- @include('task-module.partials.remark',$task)  -->
