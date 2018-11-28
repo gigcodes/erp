@@ -37,10 +37,35 @@ class ProductController extends Controller {
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function index() {
-		$products = Product::latest()->paginate( Setting::get( 'pagination' ) );
+	public function index(Request $request) {
+		$products = Product::latest();
+		$term = $request->term;
 
-		return view( 'products.index', compact( 'products' ) )
+		if(!empty($term)){
+			$products = $products->where(function ($query) use ($term){
+				return $query
+						->orWhere('id','like','%'.$term.'%')
+						->orWhere('name','like','%'.$term.'%')
+						->orWhere('sku','like','%'.$term.'%')
+				;
+			});
+		}
+
+		$products = $products->paginate( Setting::get( 'pagination' ) );
+
+		$search_suggestions = [];
+		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+		$name_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('name')->select('name')->get()->toArray();
+
+		foreach ($sku_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion['sku']);
+		}
+
+		foreach ($name_suggestions as $key => $suggestion) {
+			array_push($search_suggestions, $suggestion['name']);
+		}
+
+		return view( 'products.index', compact( 'products', 'term', 'search_suggestions' ) )
 			->with( 'i', ( request()->input( 'page', 1 ) - 1 ) * 10 );
 	}
 
