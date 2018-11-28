@@ -94,8 +94,11 @@ jQuery(document).ready(function () {
     });
 
     jQuery('#quickComment').change(function () {
-        // jQuery('textarea[name="content"]').text(jQuery(this).val());
         jQuery('#message-body').text(jQuery(this).val());
+    });
+
+    jQuery('#quickCommentInternal').change(function () {
+        jQuery('#internal-message-body').text(jQuery(this).val());
     });
 
     jQuery('#leadsource').change(function () {

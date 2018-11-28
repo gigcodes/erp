@@ -631,12 +631,13 @@
              <div class="row">
                <div class="col-xs-9">
                  <div class="form-group">
-                   <textarea class="form-control" name="body" placeholder="Internal Communications"></textarea>
+                   <textarea class="form-control" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
 
                    <input type="hidden" name="moduletype" value="leads" />
                    <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
                    {{-- <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" /> --}}
                    <input type="hidden" name="status" value="4" />
+
                    <strong>Assign to</strong>
                    <select name="assigned_user" class="form-control">
                      <option value="{{$leads['assigned_user']}}">Assigned User</option>
@@ -644,6 +645,19 @@
                        <option value="{{$user['id']}}">{{$user['name']}}</option>
                      @endforeach
                    </select>
+
+                   <p class="pb-4" style="display: block;">
+                       {{-- <strong>Quick Reply</strong> --}}
+                   <?php
+                   $quickReplies = (new \App\ReadOnly\QuickReplies)->all();
+                   ?>
+                       <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
+                           <option value="">Quick Reply</option>
+                           @foreach($quickReplies as $value )
+                               <option value="{{$value}}">{{$value}}</option>
+                           @endforeach
+                       </select>
+                   </p>
                  </div>
                </div>
 
