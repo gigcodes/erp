@@ -173,8 +173,8 @@
       }
 
       .talktext p {
-        min-height: 65px;
-        height: 65px;
+        /* min-height: 65px; */
+        height: auto;
         overflow-y: hidden;
 
       }
@@ -296,6 +296,11 @@
 
       .task-subject:hover {
         cursor: pointer;
+      }
+
+      .thumbnail-200 {
+        width: 200px;
+        display: inline-block;
       }
     </style>
 

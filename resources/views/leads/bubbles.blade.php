@@ -3,11 +3,19 @@
                 <div class="talk-bubble tri-right round left-in white">
                       <div class="talktext">
                         @if (strpos($message['body'], 'message-img') !== false)
+                          @php
+                            preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                            $images = '<br>';
+                            foreach ($match[0] as $key => $image) {
+                              $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                            }
+                          @endphp
+
                           <p class="collapsible-message"
-                              data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                              data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
                               data-message="{{ $message['body'] }}"
                               data-expanded="false">
-                            {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                            {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                           </p>
                         @else
                           <p class="collapsible-message"
@@ -34,11 +42,19 @@
                   <div class="talk-bubble tri-right round right-in blue" data-messageid="{{$message['id']}}">
                     <div class="talktext">
                       @if (strpos($message['body'], 'message-img') !== false)
+                        @php
+                          preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                          $images = '<br>';
+                          foreach ($match[0] as $key => $image) {
+                            $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                          }
+                        @endphp
+
                         <p class="collapsible-message"
-                            data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                            data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
                             data-message="{{ $message['body'] }}"
                             data-expanded="false">
-                          {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                          {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                         </p>
                       @else
                         <p class="collapsible-message"
@@ -58,11 +74,19 @@
                      {{-- <p id="message_body_{{$message['id']}}">{!! $message['body']  !!} </p> --}}
                        <span id="message_body_{{$message['id']}}">
                          @if (strpos($message['body'], 'message-img') !== false)
+                           @php
+                             preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                             $images = '<br>';
+                             foreach ($match[0] as $key => $image) {
+                               $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                             }
+                           @endphp
+
                            <p class="collapsible-message"
-                               data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                               data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
                                data-message="{{ $message['body'] }}"
                                data-expanded="false">
-                             {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                             {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                            </p>
                          @else
                            <p class="collapsible-message"

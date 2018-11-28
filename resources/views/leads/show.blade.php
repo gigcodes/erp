@@ -459,22 +459,147 @@
     </div>
   <div class="col-xs-12 col-sm-12">
     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
-    <h3 style="text-center">Messages</h3>
  </div>
- <div class="col-xs-12 col-sm-12">
-    <div class="row">
-       <div class="col-xs-12 col-sm-8" id="message-container">
+
+ <div class="col-xs-12">
+   <div class="row">
+     <div class="col-xs-12 col-sm-6">
+       {{-- <p><strong></strong></p> --}}
+       <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+           @csrf
+
+           <div class="row">
+             <div class="col-xs-9">
+               <div class="form-group">
+                 <textarea  class="form-control" name="body" placeholder="Received from Customer"></textarea>
+
+                 <input type="hidden" name="moduletype" value="leads" />
+                 <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
+                 <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
+                 <input type="hidden" name="status" value="0" />
+               </div>
+             </div>
+
+             <div class="col-xs-1">
+               <div class="upload-btn-wrapper">
+                 <button class="btn"><img src="/images/file-upload.png" /></button>
+                 <input type="file" name="image" />
+               </div>
+             </div>
+
+             <div class="col-xs-2">
+               <a href="{{ route('attachImages', ['leads', $leads['id'], 0, $leads['assigned_user']]) }}" class="btn btn-success">Attach</a>
+               <button type="submit" class="btn btn-primary">Submit</button>
+             </div>
+           </div>
+
+        </form>
+      </div>
+
+      <div class="col-xs-12 col-sm-6">
+        {{-- <p><strong></strong></p> --}}
+        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+           @csrf
+
+           <div class="row">
+             <div class="col-xs-9">
+               <div class="form-group">
+                 <textarea id="message-body" class="form-control" name="body" placeholder="Send for approval"></textarea>
+
+                 <input type="hidden" name="moduletype" value="leads" />
+                 <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
+                 <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
+                 <input type="hidden" name="status" value="1" />
+               </div>
+             </div>
+
+             <div class="col-xs-1">
+               <div class="upload-btn-wrapper">
+                 <button class="btn"><img src="/images/file-upload.png" /></button>
+                 <input type="file" name="image" />
+               </div>
+             </div>
+
+             <div class="col-xs-2">
+               <button type="submit" class="btn btn-primary">Submit</button>
+             </div>
+           </div>
+
+        </form>
+      </div>
+
+      <div class="col-xs-12 col-sm-6">
+          {{-- <p><strong></strong></p> --}}
+          <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+             @csrf
+
+             <div class="row">
+               <div class="col-xs-9">
+                 <div class="form-group">
+                   <textarea class="form-control" name="body" placeholder="Internal Communications"></textarea>
+
+                   <input type="hidden" name="moduletype" value="leads" />
+                   <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
+                   <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
+                   <input type="hidden" name="status" value="4" />
+                 </div>
+               </div>
+
+               <div class="col-xs-1">
+                 <div class="upload-btn-wrapper">
+                    <button class="btn"><img src="/images/file-upload.png" /></button>
+                           <input type="file" name="image" />
+                   </div>
+               </div>
+
+               <div class="col-xs-2">
+                 <button type="submit" class="btn btn-primary">Submit</button>
+               </div>
+             </div>
+
+
+          </form>
+        </div>
+
+        <div class="col-xs-12 col-sm-6">
+         <p class="pb-4" style="display: block;">
+             {{-- <strong>Quick Reply</strong> --}}
+         <?php
+         $quickReplies = (new \App\ReadOnly\QuickReplies)->all();
+         ?>
+             <select name="quickComment" id="quickComment" class="form-control">
+                 <option value="">Quick Reply</option>
+                 @foreach($quickReplies as $value )
+                     <option value="{{$value}}">{{$value}}</option>
+                 @endforeach
+             </select>
+         </p>
+     </div>
+   </div>
+ </div>
+
+ <div class="col-xs-12 col-sm-12" id="message-container">
+   <h3>Messages</h3>
+    {{-- <div class="row">
+       <div class="col-xs-12 col-sm-8" id="message-container"> --}}
          @foreach($leads['messages'] as $message)
            @if($message['status'] == '0' || $message['status'] == '5' || $message['status'] == '6')
                 <div class="talk-bubble tri-right round left-in white">
                       <div class="talktext">
 
                         @if (strpos($message['body'], 'message-img') !== false)
+                          @php
+                            preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                            $images = '<br>';
+                            foreach ($match[0] as $key => $image) {
+                              $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                            }
+                          @endphp
                           <p class="collapsible-message"
-                              data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                              data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
                               data-message="{{ $message['body'] }}"
                               data-expanded="false">
-                            {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . '(Has Image)' !!}
+                            {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                           </p>
 
                           <form action="{{ route('download.images') }}" method="POST">
@@ -511,11 +636,19 @@
                 <div class="talk-bubble tri-right round right-in blue" data-messageid="{{$message['id']}}">
                   <div class="talktext">
                     @if (strpos($message['body'], 'message-img') !== false)
+                      @php
+                        preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                        $images = '<br>';
+                        foreach ($match[0] as $key => $image) {
+                          $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                        }
+                      @endphp
+
                       <p class="collapsible-message"
-                          data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                          data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
                           data-message="{{ $message['body'] }}"
                           data-expanded="false">
-                        {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                        {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                       </p>
                     @else
                       <p class="collapsible-message"
@@ -535,11 +668,19 @@
                    {{-- <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p> --}}
                      <span id="message_body_{{$message['id']}}">
                        @if (strpos($message['body'], 'message-img') !== false)
+                         @php
+                           preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                           $images = '<br>';
+                           foreach ($match[0] as $key => $image) {
+                             $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                           }
+                         @endphp
+
                          <p class="collapsible-message"
-                             data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' }}"
+                             data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
                              data-message="{{ $message['body'] }}"
                              data-expanded="false">
-                           {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '... (Has Image)') : substr($message['body'], 0, strpos($message['body'], '<img')) . ' (Has Image)' !!}
+                           {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
                          </p>
                        @else
                          <p class="collapsible-message"
@@ -587,182 +728,9 @@
          </div>
           @endif
 
-                             <!--< @foreach($leads['messages'] as $message)
-                    <div class="panel-group" id="faqAccordion">
-                        <div class="panel panel-default ">
-                            <div class="panel-heading accordion-toggle question-toggle collapsed" data-toggle="collapse" data-parent="#faqAccordion" data-target="#{{$message['id']}}">
-                                <div class="row">
-                                <div class="col-xs-12 col-sm-9">
-                                 <h4 class="panel-title">
+          {{-- </div> --}}
 
-                                    <a class="ing">Lead #{{$message['id']}} -- {{$message['subject']}}
-                                    @if($message['status'] =='1')
-                                        @if($leads->userid == 3 or $leads->userid == 7)
-                                        <span class="label label-primary" style="background: ">Approval Pending</span>
-                                        @else
-                                        <span class="label label-primary" style="background: red">Pending Reply</span>
-                                         @endif
-                                    @endif
-                                    @if($message['status'] =='3')
-                                        <span class="label label-primary">Approved</span>
-                                    @endif
-                                      @if($message['status'] =='4')
-                                        <span class="label label-primary" style="background: green">Sent</span>
-                                    @endif
-                                    </a>
-                                </h4>
-                                </div>
-                                <div class="col-xs-12 col-sm-3">
-                                <span class="">{{ App\Helpers::timeAgo($message['created_at']) }}</span>
-                                </div>
-                                </div>
-
-                            </div>
-                            <div id="{{$message['id']}}" class="panel-collapse collapse" style="height: 0px;">
-                                <div class="panel-body editablearea">
-                                     <h5><span class="label label-primary">Message</span></h5>
-                                      <form action="{{ route('message.update',$message['id']) }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        @method('PUT')
-                                         @csrf
-                                         @can('supervisor-list')
-                                             <div class="edit">Edit</div>
-                                         @endcan
-                                        <textarea name="body" class="form-control" style="display:none;">{{$message['body']}}</textarea>
-                                         <p class="editable">{{$message['body']}}</p>
-                                        @can('supervisor-list')
-                                          <input type="hidden" name="moduleid" value="{{$message['moduleid']}}" />
-                                          <input type="hidden" name="status" value="3" />
-                                          @if($message['status'] < 3)
-                                              <button type="submit" class="btn btn-primary ">Approve</button>
-                                             <button type="submit" class="btn btn-primary save">Save</button>
-                                          @endif
-                                        @endcan
-                                        @if($message['status'] == '3')
-                                            @can('lead-create')
-                                            <input type="hidden" name="moduleid" value="{{$message['moduleid']}}" />
-                                            <input type="hidden" name="status" value="4" />
-                                            <button type="submit" class="btn btn-primary save">Sent</button>
-                                             @endcan
-                                        @endif
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                      </div>
-                 @endforeach  !-->
-          </div>
-
-          {{--@if(App\Helpers::getadminorsupervisor() == false)--}}
-          <div class="col-xs-12 col-sm-4">
-            <p><strong> Received from Customer</strong> </p>
-            <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-
-                        <div class="form-group">
-                          <textarea  class="form-control" name="body" placeholder="Message here"></textarea>
-                        </div>
-                        <div class="form-group">
-                          <input type="hidden" name="moduletype" value="leads" />
-                          <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
-                          <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
-                          <input type="hidden" name="status" value="0" />
-                          <div class="upload-btn-wrapper">
-                             <button class="btn"><img src="/images/file-upload.png" /></button>
-                                    <input type="file" name="image" />
-                            </div>
-                            <a href="{{ route('attachImages', ['leads', $leads['id'], 0, $leads['assigned_user']]) }}" class="btn btn-success">Attach from Grid</a>
-                          <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-
-             </form>
-             <p><strong>Send for approval</strong> </p>
-             <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-
-                        <div class="form-group">
-                          <textarea id="message-body" class="form-control" name="body" placeholder="Message here"></textarea>
-                        </div>
-                        <div class="form-group">
-                          <input type="hidden" name="moduletype" value="leads" />
-                          <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
-                          <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
-                          <input type="hidden" name="status" value="1" />
-                          <div class="upload-btn-wrapper">
-                             <button class="btn"><img src="/images/file-upload.png" /></button>
-                                    <input type="file" name="image" />
-                            </div>
-                          <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-
-             </form>
-
-             {{-- @can('admin') --}}
-               <p><strong>Internal Communications</strong> </p>
-               <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
-                  @csrf
-
-                          <div class="form-group">
-                            <textarea class="form-control" name="body" placeholder="Message here"></textarea>
-                          </div>
-                          <div class="form-group">
-                            <input type="hidden" name="moduletype" value="leads" />
-                            <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
-                            <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
-                            <input type="hidden" name="status" value="4" />
-                            <div class="upload-btn-wrapper">
-                               <button class="btn"><img src="/images/file-upload.png" /></button>
-                                      <input type="file" name="image" />
-                              </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                          </div>
-
-               </form>
-             {{-- @endcan --}}
-
-              <p class="pb-4" style="display: block;">
-                  <strong>Quick Reply</strong>
-		          <?php
-		          $quickReplies = (new \App\ReadOnly\QuickReplies)->all();
-		          ?>
-                  <select name="quickComment" id="quickComment" class="form-control">
-                      <option value="">Select a reply</option>
-                      @foreach($quickReplies as $value )
-                          <option value="{{$value}}">{{$value}}</option>
-                      @endforeach
-                  </select>
-              </p>
-          </div>
-
-          {{--@endif --}}
-
-          {{--@if(App\Helpers::getadminorsupervisor() == true and !empty($message['id']))
-
-          <div class="col-xs-12 col-sm-4" id="editmessage" style="display: none">
-             <form action="{{ route('message.update',$message['id']) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="form-group">
-                        <textarea name="body" class="form-control">{{$message['body']}}</textarea>
-                    </div>
-                     <div class="form-group">
-                        <input type="hidden" name="moduleid" value="{{$message['moduleid']}}" />
-                        <input type="hidden" name="messageid" value="" />
-                        <input type="hidden" name="moduletype" value="leads" />
-                        <div class="upload-btn-wrapper">
-                             <button class="btn"><img src="/images/file-upload.png" /></button>
-                                    <input type="file" name="image" />
-                            </div>
-                        <button type="submit" class="btn btn-primary save">update</button>
-                     </div>
-
-            </form>
-          </div>
-
-          @endif --}}
-
-     </div>
-
+     {{-- </div> --}}
 
  </div>
 
