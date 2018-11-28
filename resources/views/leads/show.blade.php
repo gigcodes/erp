@@ -395,8 +395,8 @@
                    <div class="form-group">
                        <strong>Assigned To:</strong>
                        <select name="assign_to" class="form-control">
-                         @foreach($leads['users'] as $users)
-                           <option value="{{$users['id']}}">{{$users['name']}}</option>
+                         @foreach($leads['users'] as $user)
+                           <option value="{{$user['id']}}">{{$user['name']}}</option>
                          @endforeach
                        </select>
                    </div>
@@ -540,8 +540,15 @@
 
                    <input type="hidden" name="moduletype" value="leads" />
                    <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
-                   <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
+                   {{-- <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" /> --}}
                    <input type="hidden" name="status" value="4" />
+                   <strong>Assign to</strong>
+                   <select name="assigned_user" class="form-control">
+                     <option value="{{$leads['assigned_user']}}">Assigned User</option>
+                     @foreach($leads['users'] as $user)
+                       <option value="{{$user['id']}}">{{$user['name']}}</option>
+                     @endforeach
+                   </select>
                  </div>
                </div>
 
