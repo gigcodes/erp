@@ -392,20 +392,19 @@ form.display-inline{
 .edit {color: green;font-size: 12px;margin-bottom: 12px }
 #remember{margin: 4px 0px 0 -20px !important}
 /* CSS talk bubble */
-.talk-bubble.green {
-  margin: 40px;
-  position: relative;
-  width: 90%;
-  height: auto;
-  background-color:#dcf8c6;
+.talk-bubble {
+  margin-bottom: 15px;
+  border: 1px solid grey;
 }
-.talk-bubble.white {
-  margin: 40px;
-  position: relative;
-  width: 90%;
-  height: auto;
-  background-color:#eee;
+
+.talk-bubble.dashed-border {
+  border: 1px dashed grey;
 }
+
+.talk-bubble.grey {
+  background-color: #eee;
+}
+
 .border{
   border: 8px solid #666;
 }

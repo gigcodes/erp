@@ -155,7 +155,7 @@
         background-color: #007bff;
         color: white;
       }
-      .talk-bubble.blue {
+      /* .talk-bubble.blue {
         margin: 40px;
         position: relative;
         width: 90%;
@@ -165,7 +165,7 @@
 
       .tri-right.right-in.blue:after {
         border-color: #33AEFF transparent transparent #33AEFF
-      }
+      } */
 
       .message-img {
         width: 100%;
@@ -301,6 +301,16 @@
       .thumbnail-200 {
         width: 200px;
         display: inline-block;
+      }
+
+      .btn-secondary {
+          color: #fff;
+          background-color: #6c757d;
+          border-color: #6c757d;
+      }
+
+      .btn-secondary:hover {
+        color: #fff !important;
       }
     </style>
 

@@ -460,7 +460,7 @@
 
     </div>
   <div class="col-xs-12 col-sm-12 mb-3">
-    <button type="button" class="btn btn-success mb-3" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
+    <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
 
     <table class="table">
         <thead>
@@ -583,7 +583,7 @@
              </div>
 
              <div class="col-xs-2">
-               <button type="submit" class="btn btn-primary">Submit</button>
+               <button type="submit" class="btn btn-secondary">Submit</button>
              </div>
            </div>
 
@@ -615,8 +615,8 @@
              </div>
 
              <div class="col-xs-2">
-               <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) }}" class="btn btn-success">Attach</a>
-               <button type="submit" class="btn btn-primary">Submit</button>
+               <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) }}" class="btn btn-secondary">Attach</a>
+               <button type="submit" class="btn btn-secondary">Submit</button>
              </div>
            </div>
 
@@ -669,7 +669,7 @@
                </div>
 
                <div class="col-xs-2">
-                 <button type="submit" class="btn btn-primary">Submit</button>
+                 <button type="submit" class="btn btn-secondary">Submit</button>
                </div>
              </div>
 
@@ -700,7 +700,7 @@
        <div class="col-xs-12 col-sm-8" id="message-container"> --}}
          @foreach($leads['messages'] as $message)
            @if($message['status'] == '0' || $message['status'] == '5' || $message['status'] == '6')
-                <div class="talk-bubble tri-right round left-in white">
+                <div class="talk-bubble round grey">
                       <div class="talktext">
 
                         @if (strpos($message['body'], 'message-img') !== false)
@@ -741,7 +741,7 @@
                 </div>
 
             @elseif($message['status'] == '4')
-                <div class="talk-bubble tri-right round right-in blue" data-messageid="{{$message['id']}}">
+                <div class="talk-bubble round dashed-border" data-messageid="{{$message['id']}}">
                   <div class="talktext">
                     @if (strpos($message['body'], 'message-img') !== false)
                       @php
@@ -771,7 +771,7 @@
                   </div>
              </div>
            @else
-             <div class="talk-bubble tri-right round right-in green" data-messageid="{{$message['id']}}">
+             <div class="talk-bubble round" data-messageid="{{$message['id']}}">
                <div class="talktext">
                    {{-- <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p> --}}
                      <span id="message_body_{{$message['id']}}">

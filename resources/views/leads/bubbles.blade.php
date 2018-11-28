@@ -1,6 +1,6 @@
 @foreach($messages as $message)
            @if($message['status'] == '0' || $message['status'] == '5' || $message['status'] == '6')
-                <div class="talk-bubble tri-right round left-in white">
+                <div class="talk-bubble round grey">
                       <div class="talktext">
                         @if (strpos($message['body'], 'message-img') !== false)
                           @php
@@ -39,7 +39,7 @@
                 </div>
 
               @elseif($message['status'] == '4')
-                  <div class="talk-bubble tri-right round right-in blue" data-messageid="{{$message['id']}}">
+                  <div class="talk-bubble round dashed-border" data-messageid="{{$message['id']}}">
                     <div class="talktext">
                       @if (strpos($message['body'], 'message-img') !== false)
                         @php
@@ -69,7 +69,7 @@
                     </div>
                </div>
              @else
-                <div class="talk-bubble tri-right round right-in green" data-messageid="{{$message['id']}}">
+                <div class="talk-bubble round" data-messageid="{{$message['id']}}">
                   <div class="talktext">
                      {{-- <p id="message_body_{{$message['id']}}">{!! $message['body']  !!} </p> --}}
                        <span id="message_body_{{$message['id']}}">
