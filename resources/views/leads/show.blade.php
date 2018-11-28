@@ -457,7 +457,7 @@
         </div>
 
     </div>
-  <div class="col-xs-12 col-sm-12">
+  <div class="col-xs-12 col-sm-12 mb-3">
     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
  </div>
 
