@@ -57,8 +57,13 @@ class MessageController extends Controller
               foreach (json_decode($request->images) as $image) {
                 $msgtxt .= ' <img src="'.$image.'" class="message-img" />';
               }
+
+              $data = $request->except( '_token', 'body');
+              $data['body'] = $msgtxt;
+            } else {
+              $data = $request->except( '_token');
             }
-            $data = $request->except( '_token');
+
             $id = $request->get('moduleid');
             $moduletype = $request->get('moduletype');
             if (isset($_FILES["image"]) && $_FILES["image"]["size"] > 10) {
@@ -70,9 +75,6 @@ class MessageController extends Controller
                     $msgtxt .= ' <img src="/'.$target_file.'" class="message-img" />';
                     $data['body'] = $msgtxt;
              }
-
-             $data['body'] = $msgtxt;
-             // dd($data['body']);
 
             $data['userid'] = Auth::id();
             $message = Message::create($data);
