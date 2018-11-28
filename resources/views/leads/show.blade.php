@@ -700,19 +700,33 @@
                       <div class="talktext">
 
                         @if (strpos($message['body'], 'message-img') !== false)
-                          @php
-                            preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
-                            $images = '<br>';
-                            foreach ($match[0] as $key => $image) {
-                              $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
-                            }
-                          @endphp
-                          <p class="collapsible-message"
-                              data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
-                              data-message="{{ $message['body'] }}"
-                              data-expanded="false">
-                            {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
-                          </p>
+                          @if (strpos($message['body'], '<br>') !== false)
+                            @php $exploded = explode('<br>', $message['body']) @endphp
+
+                            <p class="collapsible-message"
+                                data-messageshort="{{ strlen($exploded[0]) > 150 ? (substr($exploded[0], 0, 147) . '...<br>' . $exploded[1]) : $message['body'] }}"
+                                data-message="{{ $message['body'] }}"
+                                data-expanded="false"
+                                data-messageid="{{ $message['id'] }}">
+                              {!! strlen($exploded[0]) > 150 ? (substr($exploded[0], 0, 147) . '...<br>' . $exploded[1]) : $message['body'] !!}
+                            </p>
+                          @else
+                            @php
+                              preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                              $images = '<br>';
+                              foreach ($match[0] as $key => $image) {
+                                $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                              }
+                            @endphp
+
+                            <p class="collapsible-message"
+                                data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
+                                data-message="{{ $message['body'] }}"
+                                data-expanded="false"
+                                data-messageid="{{ $message['id'] }}">
+                              {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
+                            </p>
+                          @endif
                         @else
                           <p class="collapsible-message"
                               data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
@@ -740,20 +754,33 @@
                 <div class="talk-bubble round dashed-border" data-messageid="{{$message['id']}}">
                   <div class="talktext">
                     @if (strpos($message['body'], 'message-img') !== false)
-                      @php
-                        preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
-                        $images = '<br>';
-                        foreach ($match[0] as $key => $image) {
-                          $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
-                        }
-                      @endphp
+                      @if (strpos($message['body'], '<br>') !== false)
+                        @php $exploded = explode('<br>', $message['body']) @endphp
 
-                      <p class="collapsible-message"
-                          data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
-                          data-message="{{ $message['body'] }}"
-                          data-expanded="false">
-                        {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
-                      </p>
+                        <p class="collapsible-message"
+                            data-messageshort="{{ strlen($exploded[0]) > 150 ? (substr($exploded[0], 0, 147) . '...<br>' . $exploded[1]) : $message['body'] }}"
+                            data-message="{{ $message['body'] }}"
+                            data-expanded="false"
+                            data-messageid="{{ $message['id'] }}">
+                          {!! strlen($exploded[0]) > 150 ? (substr($exploded[0], 0, 147) . '...<br>' . $exploded[1]) : $message['body'] !!}
+                        </p>
+                      @else
+                        @php
+                          preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                          $images = '<br>';
+                          foreach ($match[0] as $key => $image) {
+                            $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                          }
+                        @endphp
+
+                        <p class="collapsible-message"
+                            data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
+                            data-message="{{ $message['body'] }}"
+                            data-expanded="false"
+                            data-messageid="{{ $message['id'] }}">
+                          {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
+                        </p>
+                      @endif
                     @else
                       <p class="collapsible-message"
                           data-messageshort="{{ strlen($message['body']) > 150 ? (substr($message['body'], 0, 147) . '...') : $message['body'] }}"
@@ -772,20 +799,42 @@
                    {{-- <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p> --}}
                      <span id="message_body_{{$message['id']}}">
                        @if (strpos($message['body'], 'message-img') !== false)
-                         @php
+                         {{-- @php
                            preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                           $message_body = $message['body'];
+                           $message_id = $message['id'];
                            $images = '<br>';
                            foreach ($match[0] as $key => $image) {
-                             $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                             $images .= '<div class="thumbnail-wrapper">' . str_replace('message-img', 'message-img thumbnail-200', $image) . "<span class='thumbnail-delete' data-image='$image' data-messageid='$message_id'>x</span></div>";
                            }
-                         @endphp
+                         @endphp --}}
+                         @if (strpos($message['body'], '<br>') !== false)
+                           @php $exploded = explode('<br>', $message['body']) @endphp
 
-                         <p class="collapsible-message"
-                             data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
-                             data-message="{{ $message['body'] }}"
-                             data-expanded="false">
-                           {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
-                         </p>
+                           <p class="collapsible-message"
+                               data-messageshort="{{ strlen($exploded[0]) > 150 ? (substr($exploded[0], 0, 147) . '...<br>' . $exploded[1]) : $message['body'] }}"
+                               data-message="{{ $message['body'] }}"
+                               data-expanded="false"
+                               data-messageid="{{ $message['id'] }}">
+                             {!! strlen($exploded[0]) > 150 ? (substr($exploded[0], 0, 147) . '...<br>' . $exploded[1]) : $message['body'] !!}
+                           </p>
+                         @else
+                           @php
+                             preg_match_all('/<img src="(.*?)" class="message-img" \/>/', $message['body'], $match);
+                             $images = '<br>';
+                             foreach ($match[0] as $key => $image) {
+                               $images .= str_replace('message-img', 'message-img thumbnail-200', $image);
+                             }
+                           @endphp
+
+                           <p class="collapsible-message"
+                               data-messageshort="{{ strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images }}"
+                               data-message="{{ $message['body'] }}"
+                               data-expanded="false"
+                               data-messageid="{{ $message['id'] }}">
+                             {!! strlen(substr($message['body'], 0, strpos($message['body'], '<img'))) > 150 ? (substr($message['body'], 0, 147) . '...' . $images) : substr($message['body'], 0, strpos($message['body'], '<img')) . $images !!}
+                           </p>
+                         @endif
 
 
                          <form action="{{ route('download.images') }}" method="POST">
@@ -925,13 +974,19 @@
        $(this).addClass('expanded');
        $(this).html(message);
        $(this).data('expanded', true);
+       $(this).siblings('.thumbnail-wrapper').remove();
+       $(this).parent().find('.message-img').removeClass('thumbnail-200');
+       $(this).parent().find('.message-img').parent().css('width', 'auto');
      } else {
        $(this).removeClass('expanded');
        $(this).html(short_message);
        $(this).data('expanded', false);
+       $(this).parent().find('.message-img').addClass('thumbnail-200');
+       $(this).parent().find('.message-img').parent().css('width', '200px');
      }
 
    });
+
    $(document).ready(function() {
 		var container = $("div#waMessages");
 		var sendBtn = $("#waMessageSend");
@@ -1098,11 +1153,38 @@
           // $('#loading_activty').hide();
       });
   });
- </script>
- {{-- <script type="text/javascript">
-   $(document).ready(function() {
 
-   });
- </script> --}}
+  $(document).on('click', '.thumbnail-delete', function() {
+    var thiss = $(this);
+    var image = $(this).data('image');
+    var message_id = $(this).closest('.talk-bubble').find('.collapsible-message').data('messageid');
+    var message = $(this).closest('.talk-bubble').find('.collapsible-message').data('message');
+    var token = "{{ csrf_token() }}";
+    var url = "{{ url('message') }}/" + message_id;
+
+    var image_container = '<div class="thumbnail-wrapper"><img src="' + image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image + '">x</span></div>';
+    var new_message = message.replace(image_container, '');
+
+    if (new_message.indexOf('message-img') != -1) {
+      var short_new_message = new_message.substr(0, new_message.indexOf('<div class="thumbnail-wrapper">')).length > 150 ? (new_message.substr(0, 147)) : new_message;
+    } else {
+      var short_new_message = new_message.length > 150 ? new_message.substr(0, 147) + '...' : new_message;
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: {
+        _token: token,
+        body: new_message
+      },
+      success: function(data) {
+        $(thiss).parent().remove();
+        $('#message_body_' + message_id).children('.collapsible-message').data('messageshort', short_new_message);
+        $('#message_body_' + message_id).children('.collapsible-message').data('message', new_message);
+      }
+    });
+  });
+ </script>
 
 @endsection

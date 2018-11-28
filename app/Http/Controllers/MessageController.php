@@ -52,10 +52,10 @@ class MessageController extends Controller
             ]);
 
             if ($request->images) {
-              $msgtxt = $request->body;
+              $msgtxt = $request->body . '<br>';
 
               foreach (json_decode($request->images) as $image) {
-                $msgtxt .= ' <img src="'.$image.'" class="message-img" />';
+                $msgtxt .= '<div class="thumbnail-wrapper"><img src="'.$image.'" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' . $image . '">x</span></div>';
               }
 
               $data = $request->except( '_token', 'body');
@@ -72,7 +72,8 @@ class MessageController extends Controller
                    $target_file = $target_dir . basename($_FILES["image"]["name"]);
                     move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
                     $msgtxt = $request->get('body');
-                    $msgtxt .= ' <img src="/'.$target_file.'" class="message-img" />';
+                    $msgtxt .= '<br><div class="thumbnail-wrapper"><img src="/'.$target_file.'" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="/' . $target_file . '">x</span></div>';
+
                     $data['body'] = $msgtxt;
              }
 
@@ -205,7 +206,7 @@ class MessageController extends Controller
     public function downloadImages(Request $request)
     {
       $new_match = [];
-      preg_match_all('/<img src="(.*?)" class="message-img"/', $request->images, $match);
+      preg_match_all('/<img src="(.*?)" class="message-img/', $request->images, $match);
 
       foreach ($match[1] as $image) {
         $exploded = explode('uploads/', $image);

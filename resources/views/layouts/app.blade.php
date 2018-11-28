@@ -298,9 +298,43 @@
         cursor: pointer;
       }
 
-      .thumbnail-200 {
+      .thumbnail-wrapper {
+        position: relative;
         width: 200px;
         display: inline-block;
+      }
+
+      .thumbnail-200 {
+        width: 200px;
+      }
+
+      /* .thumbnail-200:before {
+        background: red;
+        width: 10px;
+        height: 10px;
+      } */
+
+      .thumbnail-delete {
+        position: absolute;
+        padding: 5px 10px;
+        top: 0;
+        right: 0;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      /* .thumbnail-200::after {
+        content: "x";
+        position: absolute;
+        padding: 5px 10px;
+        top: 0;
+        right: 0;
+        font-weight: 800;
+        cursor: pointer;
+      } */
+
+      .thumbnail-delete:hover {
+        color: rgba(0, 0, 0, 0.7);
       }
 
       .btn-secondary {
