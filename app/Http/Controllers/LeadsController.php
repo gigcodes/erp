@@ -12,11 +12,14 @@ use App\Brand;
 use App\Product;
 use App\Message;
 use App\Task;
+use App\Image;
 use App\Reply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Helpers;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 
 class LeadsController extends Controller
@@ -207,7 +210,17 @@ class LeadsController extends Controller
         $data['multi_brand'] = json_encode( $request->input( 'multi_brand' ) );
         $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
 
+
         $lead = Leads::create($data);
+        if ($request->hasfile('image')) {
+          foreach ($request->file('image') as $image) {
+
+            // dd('yra');
+            $media = MediaUploader::fromSource($image)->upload();
+            $lead->attachMedia($media,config('constants.media_tags'));
+          }
+        }
+        // dd('stap');
 
 
         if(!empty($request->input('assigned_user'))){
@@ -430,10 +443,49 @@ class LeadsController extends Controller
         $leads->created_at = $request->created_at;
         $leads->save();
 
+        $count = 0;
+        foreach ($request->oldImage as $old) {
+          if ($old > 0) {
+      			self::removeImage($old);
+      		} elseif ($old == -1) {
+            foreach ($request->file('image') as $image) {
+              $media = MediaUploader::fromSource($image)->upload();
+              $leads->attachMedia($media,config('constants.media_tags'));
+            }
+      		} elseif ($old == 0) {
+            $count++;
+          }
+        }
+
+        if ($count > 0) {
+          if ($request->hasFile('image')) {
+            foreach ($request->file('image') as $image) {
+              $media = MediaUploader::fromSource($image)->upload();
+              $leads->attachMedia($media,config('constants.media_tags'));
+            }
+          }
+
+        }
+
 
 
         return redirect('leads')->with('success','Lead has been updated');
     }
+
+    public function removeImage($old_image){
+
+
+  		if( $old_image != 0) {
+
+  			$results = Media::where('id' , $old_image )->get();
+
+  			$results->each(function($media) {
+  				Image::trashImage($media->basename);
+  				$media->delete();
+  			});
+  		}
+
+  	}
 
     public function updateStatus(Request $request, $id)
     {
@@ -468,5 +520,34 @@ class LeadsController extends Controller
         $product_instance = $product->find( $product_id );
 
         return $product_instance->name ? $product_instance->name : $product_instance->sku;
+    }
+
+    public function imageGrid()
+    {
+      $leads_array = Leads::whereNull('deleted_at')->get()->toArray();
+      $leads = Leads::whereNull('deleted_at')->get();
+      $new_leads = [];
+
+      foreach ($leads_array as $key => $lead) {
+        if ($leads[$key]->getMedia(config('constants.media_tags'))->first() !== null) {
+          $new_leads[$key]['id'] = $lead['id'];
+          $new_leads[$key]['image'] = $leads[$key]->getMedia(config('constants.media_tags'))->first()->getUrl();
+          $new_leads[$key]['status'] = $lead['status'];
+          $new_leads[$key]['rating'] = $lead['rating'];
+        }
+      }
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      $perPage = Setting::get('pagination');
+
+      if (count($new_leads) > $perPage) {
+        $currentItems = array_slice($new_leads, $perPage * ($currentPage - 1), $perPage);
+      } else {
+        $currentItems = $new_leads;
+      }
+
+      $new_leads = new LengthAwarePaginator($currentItems, count($new_leads), $perPage, $currentPage);
+
+      return view('leads.image-grid')->withLeads($new_leads);
     }
 }

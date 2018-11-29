@@ -136,6 +136,39 @@
 
                 </div>
             </div>
+
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+
+               <?php $images = $leads->getMedia(config('constants.media_tags')) ?>
+               @foreach ($images as $key => $image)
+                 <div class="old-image{{ $key }}" style="
+                      @if ($errors->has('image'))
+                         display: none;
+                      @endif
+                 ">
+                   <p>
+                     <img src="{{ $image->getUrl() }}" class="img-responsive" style="max-width: 200px;"  alt="">
+                     <button class="btn btn-image removeOldImage" data-id="{{ $key }}" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
+
+                     <input type="text" hidden name="oldImage[{{ $key }}]" value="{{ $images ? '0' : '-1' }}">
+                  </p>
+               </div>
+               @endforeach
+
+               @if (count($images) == 0)
+                 <input type="text" hidden name="oldImage[0]" value="{{ $images ? '0' : '-1' }}">
+               @endif
+
+                <div class="form-group new-image" style="">
+                    <strong>Upload Image:</strong>
+                    <input  type="file" enctype="multipart/form-data" class="form-control" name="image[]" multiple />
+                    @if ($errors->has('image'))
+                        <div class="alert alert-danger">{{$errors->first('image')}}</div>
+                    @endif
+                </div>
+
+            </div>
+
              <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Comments:</strong>

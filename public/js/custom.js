@@ -45,10 +45,15 @@ jQuery(document).ready(function () {
         e.preventDefault();
         let id = jQuery(this).attr('data-id');
         let image_id = jQuery(this).attr('media-id');
+        // alert(image_id);
 
-       jQuery('input[name="oldImage'+id+'"]').val( image_id);
+        jQuery('input[name="oldImage'+id+'"]').val( image_id);
+       jQuery('input[name="oldImage['+id+']"]').val( image_id);
+       // jQuery(this).siblings('input').val(image_id);
+       // console.log(jQuery('input[name="oldImage['+id+']"]'));
        jQuery('.old-image'+id).hide();
        jQuery('.new-image'+id).show();
+       // $(this).parent().parent().hide();
 
     });
 

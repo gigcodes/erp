@@ -154,6 +154,12 @@
                     @endif
                 </div>
             </div>
+						<div class="col-xs-12 col-sm-8 col-sm-offset-4">
+							<div class="form-group">
+								<strong>Upload Images</strong>
+								<input type="file" name="image[]" class="form-control" multiple>
+							</div>
+						</div>
               <div class="col-xs-12 col-sm-8 col-sm-offset-4">
                 <div class="form-group">
                     <strong>Comments:</strong>

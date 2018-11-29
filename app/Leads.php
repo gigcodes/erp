@@ -11,6 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Leads extends Model {
 	//
+	use Mediable;
 	use SoftDeletes;
 	protected $fillable = [
 		'client_name',

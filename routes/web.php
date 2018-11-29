@@ -53,6 +53,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('benchmark','BenchmarkController');
 
 	// addding lead routes
+	Route::get('leads/imageGrid', 'LeadsController@imageGrid')->name('leads.image.grid');
 	Route::resource('leads','LeadsController');
 	Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
 	Route::delete('leads/permanentDelete/{leads}','LeadsController@permanentDelete')->name('leads.permanentDelete');

@@ -150,6 +150,14 @@
                     </div>
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                      <div class="form-group">
+                        @foreach ($leads->getMedia(config('constants.media_tags')) as $image)
+                          <img src="{{ $image->getUrl() }}" class="img-responsive mb-3" alt="">
+                        @endforeach
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Brand:</strong>
                             <select disabled id="multi_brand" multiple="" name="multi_brand[]" class="form-control">

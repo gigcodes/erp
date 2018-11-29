@@ -633,6 +633,7 @@
                                         @can('lead-create')
                                             <a class="dropdown-item" href="{{ route('leads.create') }}">Add New</a>
                                         @endcan
+                                        <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image Grid</a>
                                         {{--<a class="dropdown-item" href="{{ route('task.index') }}">Task</a>--}}
                                         {{--<a class="dropdown-item" href="{{ route('task.create') }}">Add Task</a>--}}
 
