@@ -560,20 +560,20 @@
    <div class="row">
      <div class="col-xs-12 col-sm-6">
        {{-- <p><strong></strong></p> --}}
-       <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+       <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
            @csrf
 
-           <div class="row">
-             <div class="col-xs-6">
+           {{-- <div class="row"> --}}
+             <div class="form-group">
                <div class="upload-btn-wrapper btn-group">
-                 <button class="btn btn-image"><img src="/images/upload.png" /></button>
+                 <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                  <input type="file" name="image" />
-                 <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
+                 <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
                </div>
              </div>
 
-             <div class="col-xs-6">
-               <div class="form-group">
+             {{-- <div class="col-xs-6"> --}}
+               <div class="form-group flex-fill">
                  <textarea  class="form-control" name="body" placeholder="Received from Customer"></textarea>
 
                  <input type="hidden" name="moduletype" value="leads" />
@@ -581,21 +581,21 @@
                  <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
                  <input type="hidden" name="status" value="0" />
                </div>
-             </div>
+             {{-- </div> --}}
 
-           </div>
+           {{-- </div> --}}
 
         </form>
       </div>
 
       <div class="col-xs-12 col-sm-6">
         {{-- <p><strong></strong></p> --}}
-        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
            @csrf
 
-           <div class="row">
-             <div class="col-xs-6">
-               <div class="upload-btn-wrapper btn-group">
+           {{-- <div class="row"> --}}
+             <div class="form-group">
+               <div class="upload-btn-wrapper btn-group pr-0 d-flex">
                  <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                  <input type="file" name="image" />
                  <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
@@ -603,9 +603,9 @@
                </div>
              </div>
 
-             <div class="col-xs-6">
-               <div class="form-group">
-                 <textarea id="message-body" class="form-control" name="body" placeholder="Send for approval"></textarea>
+             {{-- <div class="col-xs-6"> --}}
+               <div class="form-group flex-fill">
+                 <textarea id="message-body" class="form-control mb-3" name="body" placeholder="Send for approval"></textarea>
 
                  <input type="hidden" name="moduletype" value="leads" />
                  <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
@@ -623,30 +623,30 @@
                      </select>
                  </p>
                </div>
-             </div>
+             {{-- </div> --}}
 
-           </div>
+           {{-- </div> --}}
 
         </form>
       </div>
 
       <div class="col-xs-12 col-sm-6">
           {{-- <p><strong></strong></p> --}}
-          <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+          <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
              @csrf
 
-             <div class="row">
-               <div class="col-xs-6">
+             {{-- <div class="row"> --}}
+               <div class="form-group">
                  <div class="upload-btn-wrapper btn-group">
-                    <button class="btn btn-image"><img src="/images/upload.png" /></button>
+                    <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                      <input type="file" name="image" />
-                     <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
+                     <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
                    </div>
                </div>
 
-               <div class="col-xs-6">
-                 <div class="form-group">
-                   <textarea class="form-control" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
+               {{-- <div class="col-xs-6"> --}}
+                 <div class="form-group flex-fill">
+                   <textarea class="form-control mb-3" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
 
                    <input type="hidden" name="moduletype" value="leads" />
                    <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
@@ -654,7 +654,7 @@
                    <input type="hidden" name="status" value="4" />
 
                    <strong>Assign to</strong>
-                   <select name="assigned_user" class="form-control">
+                   <select name="assigned_user" class="form-control mb-3">
                      <option value="{{$leads['assigned_user']}}">Assigned User</option>
                      @foreach($leads['users'] as $user)
                        <option value="{{$user['id']}}">{{$user['name']}}</option>
@@ -672,10 +672,10 @@
                        </select>
                    </p>
                  </div>
-               </div>
+               {{-- </div> --}}
 
 
-             </div>
+             {{-- </div> --}}
 
 
           </form>

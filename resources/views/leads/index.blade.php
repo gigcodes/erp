@@ -87,8 +87,8 @@
                 <td>{{App\User::find($lead['assigned_user'])->name}}</td>
                 <td>{{App\Helpers::getproductsfromarraysofids($lead['selected_product'])}}</td>
                 <td>
-                  @if (strpos($lead['communication']['body'], 'message-img') !== false)
-                    {{ substr($lead['communication']['body'], 0, strpos($lead['communication']['body'], '<img')) }}
+                  @if (strpos($lead['communication']['body'], '<br>') !== false)
+                    {{ substr($lead['communication']['body'], 0, strpos($lead['communication']['body'], '<br>')) }}
                   @else
                     {{ $lead['communication']['body'] }}
                   @endif

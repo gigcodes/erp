@@ -354,20 +354,20 @@
                 <div class="col-xs-12">
                   <div class="row">
                     <div class="col-xs-12 col-sm-6">
-                        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
                             @csrf
 
-                            <div class="row">
-                              <div class="col-xs-6">
+                            {{-- <div class="row"> --}}
+                              <div class="form-group">
                                 <div class="upload-btn-wrapper btn-group">
-                                  <button class="btn btn-image"><img src="/images/upload.png"/></button>
+                                  <button class="btn btn-image px-1"><img src="/images/upload.png"/></button>
                                   <input type="file" name="image"/>
-                                  <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
+                                  <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
                                 </div>
                               </div>
 
-                              <div class="col-xs-6">
-                                <div class="form-group">
+                              {{-- <div class="col-xs-6"> --}}
+                                <div class="form-group flex-fill">
                                     <textarea class="form-control" name="body"
                                               placeholder="Received from Customer"></textarea>
 
@@ -376,29 +376,29 @@
                                     <input type="hidden" name="assigned_user" value="{{$sales_person}}" />
                                     <input type="hidden" name="status" value="0"/>
                                 </div>
-                              </div>
+                              {{-- </div>
 
-                            </div>
+                            </div> --}}
 
                         </form>
                       </div>
 
                       <div class="col-xs-12 col-sm-6">
-                        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
                             @csrf
 
-                            <div class="row">
-                              <div class="col-xs-6">
+                            {{-- <div class="row"> --}}
+                              <div class="form-group">
                                 <div class="upload-btn-wrapper btn-group">
-                                  <button class="btn btn-image"><img src="/images/upload.png"/></button>
+                                  <button class="btn btn-image px-1"><img src="/images/upload.png"/></button>
                                   <input type="file" name="image"/>
-                                  <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png"/></button>
+                                  <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png"/></button>
                                 </div>
                               </div>
 
-                              <div class="col-xs-6">
-                                <div class="form-group">
-                                    <textarea class="form-control" name="body"
+                              {{-- <div class="col-xs-6"> --}}
+                                <div class="form-group flex-fill">
+                                    <textarea class="form-control mb-3" name="body"
                                               placeholder="Send for Approval" id="message-body"></textarea>
 
                                     <input type="hidden" name="moduletype" value="order"/>
@@ -417,30 +417,30 @@
                                         </select>
                                     </p>
                                 </div>
-                              </div>
+                              {{-- </div>
 
 
-                            </div>
+                            </div> --}}
 
                         </form>
                       </div>
 
                       <div class="col-xs-12 col-sm-6">
-                        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
                             @csrf
 
-                            <div class="row">
-                              <div class="col-xs-6">
+                            {{-- <div class="row"> --}}
+                              <div class="form-group">
                                 <div class="upload-btn-wrapper btn-group">
-                                  <button class="btn btn-image"><img src="/images/upload.png"/></button>
+                                  <button class="btn btn-image px-1"><img src="/images/upload.png"/></button>
                                   <input type="file" name="image"/>
-                                  <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png"/></button>
+                                  <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png"/></button>
                                 </div>
                               </div>
 
-                              <div class="col-xs-6">
-                                <div class="form-group">
-                                    <textarea class="form-control" name="body"
+                              {{-- <div class="col-xs-6"> --}}
+                                <div class="form-group flex-fill">
+                                    <textarea class="form-control mb-3" name="body"
                                               placeholder="Internal Communications" id="internal-message-body"></textarea>
 
                                     <input type="hidden" name="moduletype" value="order"/>
@@ -449,7 +449,7 @@
                                     {{-- <input type="hidden" name="assigned_user" value="{{$sales_person}}" /> --}}
 
                                     <strong>Assign to</strong>
-                                    <select name="assigned_user" class="form-control">
+                                    <select name="assigned_user" class="form-control mb-3">
                                       <option value="{{$sales_person}}">Order Handler</option>
                                       @foreach($users as $user)
                                         <option value="{{$user['id']}}">{{$user['name']}}</option>
@@ -467,10 +467,10 @@
                                         </select>
                                     </p>
                                 </div>
-                              </div>
+                              {{-- </div>
 
 
-                            </div>
+                            </div> --}}
 
 
 

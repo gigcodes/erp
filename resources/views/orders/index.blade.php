@@ -54,8 +54,8 @@
                 <td>{{ $order->client_name }}</td>
                 <td>{{ $order->order_status}}</td>
                 <td>
-                  @if (strpos(App\Helpers::getlatestmessage($order->id, 'order'), 'message-img') !== false)
-                    {{ substr(App\Helpers::getlatestmessage($order->id, 'order'), 0, strpos(App\Helpers::getlatestmessage($order->id, 'order'), '<img')) }}
+                  @if (strpos(App\Helpers::getlatestmessage($order->id, 'order'), '<br>') !== false)
+                    {{ substr(App\Helpers::getlatestmessage($order->id, 'order'), 0, strpos(App\Helpers::getlatestmessage($order->id, 'order'), '<br>')) }}
                   @else
                     {{ App\Helpers::getlatestmessage($order->id, 'order') }}
                   @endif
