@@ -1018,7 +1018,7 @@
 		}
 		function pollMessages() {
             var qs = "";
-            qs += "?leadId=" + leadId;
+            qs += "/leads?leadId=" + leadId;
             qs += "&elapse=3600";
 			var url = $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
 				data.forEach(function( message ) {
@@ -1033,7 +1033,7 @@
 			var text = $("#waNewMessage").val();
 			var data = { "lead_id": leadId, "message": text };
 			$.ajax({
-				url: '/whatsapp/sendMessage',
+				url: '/whatsapp/sendMessage/leads',
 				type: 'POST',
 				contentType: 'application/json; charset=UTF-8',
 				data: JSON.stringify( data )

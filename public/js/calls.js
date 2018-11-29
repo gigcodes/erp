@@ -1,5 +1,4 @@
-
-$(document).ready( function() {
+(function() {
 	var notifs = [];	
 	var applicationSid = "AP3219d6e242854380b4fa67e6cb7e2305";
 	var remotePhoneNumber = "";
@@ -12,14 +11,23 @@ $(document).ready( function() {
  var callerId = null;
  var mainCallerId = null;
  var bMute = false;
- var bHold = false;
- var inDialer = false;
  var currentCallSid = null;
 
+  function cleanup() {
+    bMute = false;
+  }
 
-  function loadTwilioDevice() {
+  function loadTwilioDevice(token) {
     Twilio.Device.setup(token, {debug: true});
     Twilio.Device.ready(function () {
+		$("*[data-twilio-call]").each(function() {
+			var number = $( this ).val();
+			var call = $("<button class='btn btn-primary'>Call</button>");
+			call.click( function() {
+				callNumber( number );
+			} );
+			call.insertAfter( this );
+		} );
     });
     Twilio.Device.error(function (error) {
       console.error("twilio device error ", error);
@@ -34,6 +42,16 @@ $(document).ready( function() {
       cleanup();
     });
     Twilio.Device.incoming(function (conn) {
+		$.getJSON("/twilio/getLeadByNumber?number="+ conn.parameters.From, function( data ) {
+			var name = data.name;
+			var number = data.number;
+			var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + number + " would you like to answer call?");
+			if (confirmed) {
+				conn.accept();
+			} else {
+				conn.reject();
+			}
+		} );
     });
     Twilio.Device.offline(function() {
     });
@@ -41,12 +59,30 @@ $(document).ready( function() {
     });
   }
 
-  function initializeDialer() {
+  function initializeTwilio() {
     $.getJSON("/twilio/token", function( result ) {
       console.log("Received Twilio Token", result);
       var token = result.twilio_token;
       loadTwilioDevice( token );
      });
+  }
+
+  function callerHangup() {
+     showError("Call terminated");
+     Twilio.Device.disconnectAll();
+  }
+  function callerMute(number) {
+      var conn = Twilio.Device.activeConnection();
+      var el = $(".muter");
+      Mute = !bMute;
+
+      if (bMute) {
+        conn.mute( true );
+        el.text("Unmute");
+      } else {
+        conn.mute( false );
+        el.text("Mute");
+      }
   }
   function callNumber(number) {
     var conn = Twilio.Device.activeConnection();
@@ -58,7 +94,7 @@ $(document).ready( function() {
 		remotePhoneNumber=number;
     $.notifyClose();
 		var callingText = "<h5>Calling " + remotePhoneNumber+"</h5>";
-		callingText += "<br/><button class='btn btn-danger' onclick='Dialer_Hangup()'>Hangup</button>";
+		callingText += "<br/><button class='btn btn-danger' onclick='callerHangup()'>Hangup</button>";
 
 		showWarning(callingText, longNotifOpts);
 		var params = {"PhoneNumber": number, "CallerId": mainCallerId, "outgoing": "1" };
@@ -67,9 +103,9 @@ $(document).ready( function() {
   }
   function showNotif(settings, opts, dontClose) {
 		if(notifs.length>0 && !dontClose){
-		 	notifs.forEach( function( notif ) {
-		 	   notif.close();
-		 	} );
+			notifs.forEach( function( notif ) {
+			   notif.close();
+			} );
 		}
 		opts['delay']=opts['delay']||99999999;
 		var notif = $.notify( settings, opts );
@@ -112,44 +148,36 @@ $(document).ready( function() {
 		$("<hr></hr>").appendTo(center);
 		//call control
 		var buttons = $("<ul style='list-style: none !important; ' class='buttons'><h4>Call Control</h4></ul>").appendTo(center);
-		$("<li><button class='btn btn-danger' onclick='Dialer_Hangup()'>Hangup</button></li>").appendTo(buttons);
-		$("<li><button class='btn btn-primary muter' onclick='Dialer_Mute()'></button></li>").appendTo(buttons);
-		$("<li><button class='btn btn-primary holder' onclick='Dialer_Hold()'></button></li>").appendTo(buttons);
+		$("<li><button class='btn btn-danger' onclick='callerHangup()'>Hangup</button></li>").appendTo(buttons);
+		$("<li><button class='btn btn-primary muter' onclick='callerMute()'></button></li>").appendTo(buttons);
 		function calculateTime()
 		{
-		    ++totalSeconds;
-		    return pad(parseInt(totalSeconds/60))+":"+pad(totalSeconds%60);
+			++totalSeconds;
+			return pad(parseInt(totalSeconds/60))+":"+pad(totalSeconds%60);
 		}
 
 		function pad(val)
 		{
-		    var valString = val + "";
-		    if(valString.length < 2)
-		    {
+			var valString = val + "";
+			if(valString.length < 2)
+			{
 			return "0" + valString;
-		    }
-		    else
-		    {
+			}
+			else
+			{
 			return valString;
-		    }
+			}
 		}
 		function onInterval() {
 		 var newTime=calculateTime();
 		 var muteText ="", holdText = "";
 		 if(bMute){
-		    muteText="Unmute";
+			muteText="Unmute";
 		 } else {
-		    muteText="Mute";
+			muteText="Mute";
 		 }
-      if(bHold) {
-		    holdText="Unhold";
-		 } else {
-		    holdText="Hold";
-		 }
-
 		 center.find(".timer").text( newTime );
 		 center.find(".muter").text( muteText );
-		 center.find(".holder").text( holdText );
 		 
 		 myNotif.update({
 			'message':main.html(),
@@ -158,8 +186,7 @@ $(document).ready( function() {
 		callInterval = setInterval( onInterval, 1000 );
 		return myNotif;
 	}
-
-  if ( typeof StartTwilio !== 'undefined' && StartTwilio ) {
-    initializeDialer();
-  }
-});
+	window['initializeTwilio']  =initializeTwilio;
+	window['callerHangup'] = callerHangup;
+	window['callerMute'] = callerMute;
+})();

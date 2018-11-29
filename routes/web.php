@@ -155,5 +155,5 @@ Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');
 Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
-Route::post('whatsapp/sendMessage', 'WhatsAppController@sendMessage');
-Route::get('whatsapp/pollMessages', 'WhatsAppController@pollMessages');
+Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');
+Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages');
