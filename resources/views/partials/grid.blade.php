@@ -25,10 +25,10 @@
                 @endif
 
                 <!--Product Search Input -->
-                <form action="{{ route('search') }}" method="GET">
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-4">
+                <form action="{{ route('search') }}" method="GET" class="form-inline align-items-start">
+                    <div class="form-group mr-3 mb-3">
+                        {{-- <div class="row"> --}}
+                            {{-- <div class="col-md-4"> --}}
                                 <input name="term" type="text" class="form-control" id="product-search"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="sku,brand,category,status,stage">
@@ -41,27 +41,16 @@
                                     <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
                                     <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
                                 @endif
-                                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-                            </div>
-                            <div class="col-md-2">
-                              <strong>Brands</strong>
-                              @php $brands = \App\Brand::getAll(); @endphp
-            	                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
-                            </div>
-
-                            <div class="col-md-2">
-                              <strong>Color</strong>
-                              @php $colors = new \App\Colors(); @endphp
-                              {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
-                            </div>
-
-                            <div class="col-md-2">
-                              <strong>Category</strong>
+                              </div>
+                            {{-- </div> --}}
+                            <div class="form-group mr-3 mb-3">
+                              {{-- <strong>Brands</strong> --}}
                               {!! $category_selection !!}
+
                             </div>
 
-                            <div class="col-md-2">
-                              <strong>Price</strong>
+                            <div class="form-group mr-3 mb-3">
+                              {{-- <strong>Color</strong> --}}
                               <select class="form-control" name="price">
                                 <option value>Select Price Range</option>
                                 <option value="1" {{ (isset($price) && $price == 1) ? 'selected' : '' }}>Up to 10K</option>
@@ -69,9 +58,31 @@
                                 <option value="3" {{ (isset($price) && $price == 3) ? 'selected' : '' }}>30K - 50K</option>
                                 <option value="4" {{ (isset($price) && $price == 4) ? 'selected' : '' }}>50K - 100K</option>
                               </select>
+
                             </div>
-                        </div>
-                    </div>
+
+                            <div class="form-group mr-3">
+
+                              @php $brands = \App\Brand::getAll(); @endphp
+                              {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+                            <div class="form-group">
+
+                              @php $colors = new \App\Colors(); @endphp
+                              {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+                            {{-- <div class="form-group mr-3">
+                              <strong>Category</strong>
+
+                            </div> --}}
+
+                            {{-- <div class="form-group">
+                              <strong>Price</strong>
+
+                            </div> --}}
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                        {{-- </div>
+                    </div> --}}
                 </form>
 
 

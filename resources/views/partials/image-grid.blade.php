@@ -7,7 +7,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2>{{ $roletype }}</h2>
+                <h2>Attach Images to Message</h2>
 
                 <!--pending products count-->
                 @can('admin')
@@ -25,10 +25,10 @@
                 @endif
 
                 <!--Product Search Input -->
-                <form action="{{ route('search') }}" method="GET" id="searchForm">
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-4">
+                <form action="{{ route('search') }}" method="GET" id="searchForm" class="form-inline align-items-start">
+                    {{-- <div class="form-group">
+                        <div class="row"> --}}
+                            <div class="form-group mr-3 mb-3">
                                 <input name="term" type="text" class="form-control" id="product-search"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="sku,brand,category,status,stage">
@@ -40,28 +40,17 @@
                                     <input hidden name="doSelection" type="text" value="true">
                                     <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
                                     <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
+                                    <input hidden name="assigned_user" type="text" value="{{ $assigned_user ?? '' }}">
+                                    <input hidden name="status" type="text" value="{{ $status ?? '' }}">
                                 @endif
-                                <button type="submit" class="btn btn-primary">Filter</button>
                             </div>
-                            <div class="col-md-2">
-                              <strong>Brands</strong>
-                              @php $brands = \App\Brand::getAll(); @endphp
-            	                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
-                            </div>
-
-                            <div class="col-md-2">
-                              <strong>Color</strong>
-                              @php $colors = new \App\Colors(); @endphp
-                              {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
-                            </div>
-
-                            <div class="col-md-2">
-                              <strong>Category</strong>
+                            <div class="form-group mr-3 mb-3">
+                              {{-- <strong>Category</strong> --}}
                               {!! $category_selection !!}
                             </div>
 
-                            <div class="col-md-2">
-                              <strong>Price</strong>
+                            <div class="form-group mr-3 mb-3">
+                              {{-- <strong>Price</strong> --}}
                               <select class="form-control" name="price">
                                 <option value>Select Price Range</option>
                                 <option value="1" {{ (isset($price) && $price == 1) ? 'selected' : '' }}>Up to 10K</option>
@@ -70,8 +59,22 @@
                                 <option value="4" {{ (isset($price) && $price == 4) ? 'selected' : '' }}>50K - 100K</option>
                               </select>
                             </div>
-                        </div>
-                    </div>
+
+                            <div class="form-group mr-3">
+                              {{-- <strong>Brands</strong> --}}
+                              @php $brands = \App\Brand::getAll(); @endphp
+            	                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+
+                            <div class="form-group mr-3">
+                              {{-- <strong>Color</strong> --}}
+                              @php $colors = new \App\Colors(); @endphp
+                              {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                        {{-- </div>
+                    </div> --}}
                 </form>
 
 
@@ -86,32 +89,12 @@
         </div>
     @endif
 
-    {!! $products->appends(Request::except('page'))->links() !!}
 
-	<?php
-	$query = http_build_query( Request::except( 'page' ) );
-	$query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
-	?>
 
-    <div class="row">
-        <div class="col-2">
-            <div class="form-group">
-                Goto :
-                <select onchange="location.href = this.value;">
-                    @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
-                        <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-                    @endfor
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="productGrid row" id="productGrid">
+    <div class="productGrid" id="productGrid">
       @include('partials.image-load')
     </div>
 
-    <div class="row mt-3 text-center">
-      <div class="col">
         <form action="{{ route('message.store') }}" method="POST" id="attachImageForm">
           @csrf
 
@@ -121,25 +104,11 @@
           <input type="hidden" name="moduletype" value="{{ $model_type }}">
           <input type="hidden" name="assigned_user" value="{{ $assigned_user }}" />
           <input type="hidden" name="status" value="{{ $status }}">
-          <button type="submit" class="btn btn-success">Send to Message</button>
         </form>
-      </div>
-    </div>
 
-    {!! $products->appends(Request::except('page'))->links() !!}
 
-    <div class="row">
-        <div class="col-2">
-            <div class="form-group">
-                Goto :
-                <select onchange="location.href = this.value;">
-                    @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
-                        <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-                    @endfor
-                </select>
-            </div>
-        </div>
-    </div>
+
+
 
 	<?php $stage = new \App\Stage(); ?>
 
@@ -166,7 +135,7 @@
         $.ajax({
           url: url
         }).done(function(data) {
-          $('#productGrid').html(data);
+          $('#productGrid').html(data.html);
         }).fail(function() {
           alert('Error loading more products');
         });
@@ -187,6 +156,7 @@
         }
 
         $(this).toggleClass('btn-success');
+        $(this).toggleClass('btn-secondary');
 
         console.log(image_array);
       });
@@ -212,7 +182,10 @@
           url: url,
           data: formData
         }).done(function(data) {
-          $('#productGrid').html(data);
+          $('#productGrid').html(data.html);
+          // $('.pagination-container').empty();
+          // $('.pagination-container').html(data.pagination);
+          console.log(data);
         }).fail(function() {
           alert('Error searching for products');
         });
@@ -254,6 +227,10 @@
                         }
                     }
                 });
+            });
+
+            $(document).on('click', '#sendImageMessage', function() {
+              $('#attachImageForm').submit();
             });
         // });
 
