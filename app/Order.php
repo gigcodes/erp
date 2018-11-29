@@ -32,6 +32,9 @@ class Order extends Model {
 		'user_id',
 	];
 
+	protected $appends = ['communication'];
+	protected $communication = '';
+
 	public function order_product(){
 
 		return $this->hasMany(OrderProduct::class,'order_id','id');
@@ -42,5 +45,15 @@ class Order extends Model {
 
 		return $this->hasMany(Comment::class ,'subject_id','id')
 		            ->where('subject_type','=',Order::class);
+	}
+
+	public function messages()
+	{
+		return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'order')->latest()->first();
+	}
+
+	public function getCommunicationAttribute()
+	{
+		return $this->messages();
 	}
 }

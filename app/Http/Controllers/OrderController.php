@@ -14,6 +14,7 @@ use App\Task;
 use App\Reply;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class OrderController extends Controller {
 
@@ -35,8 +36,21 @@ class OrderController extends Controller {
 
 		$term = $request->input('term');
 
+		if($request->input('orderby') == '')
+				$orderby = 'desc';
+		else
+				$orderby = 'asc';
+
+		switch ($request->input('sortby')) {
+			case 'communication':
+					 $sortby = 'communication';
+					break;
+			default :
+					 $sortby = 'id';
+		}
+
 		if(empty($term))
-			$orders = Order::latest()->paginate( 10 );
+			$orders = Order::latest();
 		else{
 
 			$orders = Order::latest()
@@ -46,13 +60,36 @@ class OrderController extends Controller {
 			               ->orWhere('received_by',Helpers::getUserIdByName($term))
 			               ->orWhere('client_name','like','%'.$term.'%')
 			               ->orWhere('city','like','%'.$term.'%')
-			               ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term))
-			               ->paginate( 10 );
+			               ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
 
 		$users  = Helpers::getUserArray( User::all() );
 
-		return view( 'orders.index', compact( 'orders', 'users','term' ) );
+		$orders_array = $orders->whereNull( 'deleted_at' )->get()->toArray();
+
+		if ($sortby == 'communication') {
+			if ($orderby == 'asc') {
+				$orders_array = array_values(array_sort($orders_array, function ($value) {
+						return $value['communication']['created_at'];
+				}));
+
+				$orders_array = array_reverse($orders_array);
+			} else {
+				$orders_array = array_values(array_sort($orders_array, function ($value) {
+						return $value['communication']['created_at'];
+				}));
+			}
+		}
+
+		$currentPage = LengthAwarePaginator::resolveCurrentPage();
+		$perPage = 10;
+		$currentItems = array_slice($orders_array, $perPage * ($currentPage - 1), $perPage);
+
+		$orders_array = new LengthAwarePaginator($currentItems, count($orders_array), $perPage, $currentPage, [
+			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+		]);
+
+		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby' ) );
 	}
 
 	/**
