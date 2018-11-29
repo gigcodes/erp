@@ -18,7 +18,7 @@
                                          placeholder="Search">
                               </div>
                               <div class="col-md-4 pl-0">
-                                  <button type="submit" class="btn btn-primary">Filter</button>
+                                  <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
                               </div>
                           </div>
                       </div>
@@ -50,7 +50,7 @@
                 </form>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('leads.create') }}"> Create New Leads</a>
+                <a class="btn btn-secondary" href="{{ route('leads.create') }}">+</a>
             </div>
         </div>
     </div>
@@ -92,16 +92,16 @@
                 <td>{{App\Helpers::getleadstatus($lead['status'])}}</td>
                 <td>{{ Carbon\Carbon::parse($lead['created_at'])->format('d-m H:i') }}</td>
                 <td>
-                    <a class="btn btn-primary" href="{{ route('leads.show',$lead['id']) }}">View</a>
-                    <a class="btn btn-primary" href="{{ route('leads.edit',$lead['id']) }}">Edit</a>
+                    <a class="btn btn-image" href="{{ route('leads.show',$lead['id']) }}"><img src="/images/view.png" /></a>
+                    <a class="btn btn-image" href="{{ route('leads.edit',$lead['id']) }}"><img src="/images/edit.png" /></a>
 
                     {!! Form::open(['method' => 'DELETE','route' => ['leads.destroy', $lead['id']],'style'=>'display:inline']) !!}
-                    {!! Form::submit('Archive', ['class' => 'btn btn-info']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
                     {!! Form::close() !!}
 
                     @can('admin')
                         {!! Form::open(['method' => 'DELETE','route' => ['leads.permanentDelete', $lead['id']],'style'=>'display:inline']) !!}
-                        {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                         {!! Form::close() !!}
                     @endcan
                 </td>

@@ -23,7 +23,7 @@
                 </form>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('order.create') }}"> Create New Order</a>
+                <a class="btn btn-secondary" href="{{ route('order.create') }}">+</a>
             </div>
         </div>
     </div>
@@ -61,18 +61,18 @@
                   @endif
                 </td>
                 <td>
-                    <a class="btn btn-primary btn-success" href="{{ route('order.show',$order->id) }}">View</a>
+                    <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img src="/images/view.png" /></a>
                     @can('order-edit')
-                    <a class="btn btn-primary" href="{{ route('order.edit',$order->id) }}">Edit</a>
+                    <a class="btn btn-image" href="{{ route('order.edit',$order->id) }}"><img src="/images/edit.png" /></a>
                     @endcan
 
                     {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline']) !!}
-                    {!! Form::submit('Archive', ['class' => 'btn btn-info']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
                     {!! Form::close() !!}
 
                     @can('order-delete')
                         {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline']) !!}
-                        {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                         {!! Form::close() !!}
                     @endcan
                 </td>

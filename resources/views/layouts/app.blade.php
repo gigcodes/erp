@@ -346,6 +346,10 @@
       .btn-secondary:hover {
         color: #fff !important;
       }
+
+      .btn-image img {
+        width: 25px;
+      }
     </style>
 
     <script>

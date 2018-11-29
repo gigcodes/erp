@@ -9,7 +9,7 @@
                 <h2>Edit Leads</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('leads.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('leads.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -328,7 +328,7 @@
 					 </div>
              <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
 
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-secondary">+</button>
             </div>
         </div>
  </form>

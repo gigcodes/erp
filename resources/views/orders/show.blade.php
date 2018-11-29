@@ -9,7 +9,7 @@
                 <h2> View Order</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('order.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('order.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -358,7 +358,15 @@
                             @csrf
 
                             <div class="row">
-                              <div class="col-xs-9">
+                              <div class="col-xs-6">
+                                <div class="upload-btn-wrapper btn-group">
+                                  <button class="btn btn-image"><img src="/images/upload.png"/></button>
+                                  <input type="file" name="image"/>
+                                  <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
+                                </div>
+                              </div>
+
+                              <div class="col-xs-6">
                                 <div class="form-group">
                                     <textarea class="form-control" name="body"
                                               placeholder="Received from Customer"></textarea>
@@ -370,16 +378,6 @@
                                 </div>
                               </div>
 
-                              <div class="col-xs-1">
-                                <div class="upload-btn-wrapper">
-                                  <button class="btn"><img src="/images/file-upload.png"/></button>
-                                  <input type="file" name="image"/>
-                                </div>
-                              </div>
-
-                              <div class="col-xs-2">
-                                <button type="submit" class="btn btn-secondary">Submit</button>
-                              </div>
                             </div>
 
                         </form>
@@ -390,7 +388,15 @@
                             @csrf
 
                             <div class="row">
-                              <div class="col-xs-9">
+                              <div class="col-xs-6">
+                                <div class="upload-btn-wrapper btn-group">
+                                  <button class="btn btn-image"><img src="/images/upload.png"/></button>
+                                  <input type="file" name="image"/>
+                                  <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png"/></button>
+                                </div>
+                              </div>
+
+                              <div class="col-xs-6">
                                 <div class="form-group">
                                     <textarea class="form-control" name="body"
                                               placeholder="Send for Approval" id="message-body"></textarea>
@@ -402,16 +408,7 @@
                                 </div>
                               </div>
 
-                              <div class="col-xs-1">
-                                <div class="upload-btn-wrapper">
-                                  <button class="btn"><img src="/images/file-upload.png"/></button>
-                                  <input type="file" name="image"/>
-                                </div>
-                              </div>
 
-                              <div class="col-xs-2">
-                                <button type="submit" class="btn btn-secondary">Submit</button>
-                              </div>
                             </div>
 
                         </form>
@@ -422,7 +419,15 @@
                             @csrf
 
                             <div class="row">
-                              <div class="col-xs-9">
+                              <div class="col-xs-6">
+                                <div class="upload-btn-wrapper btn-group">
+                                  <button class="btn btn-image"><img src="/images/upload.png"/></button>
+                                  <input type="file" name="image"/>
+                                  <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png"/></button>
+                                </div>
+                              </div>
+
+                              <div class="col-xs-6">
                                 <div class="form-group">
                                     <textarea class="form-control" name="body"
                                               placeholder="Internal Communications" id="internal-message-body"></textarea>
@@ -453,16 +458,7 @@
                                 </div>
                               </div>
 
-                              <div class="col-xs-1">
-                                <div class="upload-btn-wrapper">
-                                  <button class="btn"><img src="/images/file-upload.png"/></button>
-                                  <input type="file" name="image"/>
-                                </div>
-                              </div>
 
-                              <div class="col-xs-2">
-                                <button type="submit" class="btn btn-secondary">Submit</button>
-                              </div>
                             </div>
 
 

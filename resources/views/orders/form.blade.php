@@ -8,7 +8,7 @@
                 <h2>{{ $modify ? 'Edit Order' : 'Create Create' }}</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('order.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('order.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -163,8 +163,8 @@
                                     </th>
                                     @if(isset($order_product['product']))
                                         <th>
-                                            <a class="btn btn-primary btn-success" href="{{ route('products.show',$order_product['product']['id']) }}">View</a>
-                                            <a class="btn btn-primary btn-danger remove-product" href="#" data-product="{{ $order_product['id'] }}">Remove</a>
+                                            <a class="btn btn-image" href="{{ route('products.show',$order_product['product']['id']) }}"><img src="/images/view.png" /></a>
+                                            <a class="btn btn-image remove-product" href="#" data-product="{{ $order_product['id'] }}"><img src="/images/delete.png" /></a>
                                         </th>
                                     @else
                                         <th></th>
@@ -176,14 +176,9 @@
                 </div>
                 {{-- {{dd($data)}} --}}
                 <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <a href="{{ route('attachProducts',['order',$id]) }}"><button type="button" class="btn btn-primary">Attach From Grid</button></a>
-                    </div>
-                </div>
-
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#productModal">Create Product</button>
+                    <div class="form-group btn-group">
+                        <a href="{{ route('attachProducts',['order',$id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>
                     </div>
                 </div>
 
@@ -424,7 +419,7 @@
             </div>
 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-secondary">+</button>
             </div>
 
         </div>

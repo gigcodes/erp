@@ -7,7 +7,7 @@
                 <h2>Add New Lead</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('leads.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('leads.index') }}"> Back</a>
 
             </div>
         </div>
@@ -354,7 +354,7 @@
 					 </div>
              <div class="col-xs-12 col-sm-8 col-sm-offset-4 text-center">
 
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-secondary">+</button>
             </div>
         </div>
     </form>
