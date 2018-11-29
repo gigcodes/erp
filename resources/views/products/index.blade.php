@@ -14,7 +14,7 @@
               <input name="term" type="text" id="product-search" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search">
             </div>
             <div class="col-md-4 pl-0">
-              <button type="submit" class="btn btn-primary">Search</button>
+              <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
             </div>
           </div>
         </div>
@@ -22,7 +22,7 @@
     </div>
     <div class="pull-right">
       @can('product-create')
-      <a class="btn btn-success" href="{{ route('products.create') }}"> Create New Product</a>
+      <a class="btn btn-secondary" href="{{ route('products.create') }}">+</a>
       @endcan
     </div>
   </div>
@@ -50,11 +50,11 @@
     <td>{{ $product->name }}</td>
     <td>
       <form action="{{ route('products.destroy',$product->id) }}" method="POST">
-        <a class="btn btn-info" href="{{ route('products.show',$product->id) }}">Show</a>
+        <a class="btn btn-image" href="{{ route('products.show',$product->id) }}"><img src="/images/view.png" /></a>
         @csrf
         @method('DELETE')
         @can('product-delete')
-        <button type="submit" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
         @endcan
       </form>
     </td>

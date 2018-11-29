@@ -22,7 +22,7 @@
 					        ] );?>
                         </div>
                         <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                         </div>
                     </div>
                 </form>

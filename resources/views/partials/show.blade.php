@@ -8,7 +8,7 @@
                 <h2>Product Details</h2>
             </div>
             <div class="pull-right">
-                {{--<a class="btn btn-primary" href="{{ route('home') }}"> Back</a>--}}
+                {{--<a class="btn btn-secondary" href="{{ route('home') }}"> Back</a>--}}
             </div>
         </div>
     </div>
@@ -245,8 +245,8 @@
                     <div class="form-group">
                         @hasallroles( 'Attribute' )
                         <a href="{{ route('productattribute.edit',$id) }}">
-                            <button type="button" class="btn btn-primary btn-success">
-                                Edit
+                            <button type="button" class="btn btn-image">
+                                <img src="/images/edit.png" />
                             </button>
                         </a>
                         @endhasallroles
@@ -255,7 +255,7 @@
                                   style="display: inline;">
                                 @csrf
                                 <button data-id="{{ $id }}"
-                                        class="btn btn-approve btn-primary {{ ( $isApproved  ==  '1' ) ? 'btn-success' : ''  }} ">
+                                        class="btn btn-approve btn-secondary {{ ( $isApproved  ==  '1' ) ? 'btn-success' : ''  }} ">
                                     {{ ( $isApproved  ==  '1' ) ? 'Approved' : 'Approve'  }}
                                 </button>
                             </form>
@@ -274,7 +274,7 @@
                                   style="display: inline;">
                                 @csrf
                                 <button type="submit" data-id="{{ $id }}"
-                                        class="btn btn-primary {{ ( $isUploaded  ==  '1' ) ? 'btn-success' : ''  }} ">
+                                        class="btn btn-secondary {{ ( $isUploaded  ==  '1' ) ? 'btn-success' : ''  }} ">
                                     {{ ( $isUploaded  ==  '1' ) ? 'Uploaded' : 'Upload'  }}
                                 </button>
                             </form>
@@ -284,7 +284,7 @@
                                   style="display: inline;">
                                 @csrf
                                 <button type="submit" data-id="{{ $id }}"
-                                        class="btn btn-primary {{ ( $isFinal  ==  '1' ) ? 'btn-success' : ''  }} ">
+                                        class="btn btn-secondary {{ ( $isFinal  ==  '1' ) ? 'btn-success' : ''  }} ">
                                     {{ ( $isFinal  ==  '1' ) ? 'Final Approved' : 'Final Approve'  }}
                                 </button>
                             </form>
@@ -324,7 +324,7 @@
                                         </div>
                                         <div class="form-group">
                                             {{--<input type="text" hidden name="stage" value="2">
-                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                            <button type="submit" class="btn btn-secondary">Submit</button>
                                         </div>
                                     </div>
                                 </div>
@@ -343,7 +343,7 @@
                                 @if($errors->has('stock'))
                                     <div class="alert alert-danger">{{$errors->first('stock')}}</div>
                                 @endif
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-secondary">+</button>
                             </form>
                         @endcan
                     </div>

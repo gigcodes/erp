@@ -8,7 +8,7 @@
                 <h2>Edit New User</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('users.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('users.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-secondary">+</button>
         </div>
     </div>
     {!! Form::close() !!}

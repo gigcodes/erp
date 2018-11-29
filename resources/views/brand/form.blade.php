@@ -8,7 +8,7 @@
                 <h2>{{ $modify ? 'Edit Brand' : 'Create Brand' }}</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('brand.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('brand.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -66,7 +66,7 @@
 
 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-secondary">+</button>
             </div>
 
         </div>

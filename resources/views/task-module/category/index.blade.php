@@ -8,7 +8,7 @@
                 <h2>Task Category</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('task_category.create') }}"> Create New Category</a>
+                <a class="btn btn-secondary" href="{{ route('task_category.create') }}">+</a>
             </div>
         </div>
     </div>
@@ -33,9 +33,9 @@
                         <td>{{ ++$i }}</td>
                         <td>{{ $task_category->name }}</td>
                         <td>
-                            <a class="btn btn-primary" href="{{ route('task_category.edit',$task_category->id) }}">Edit</a>
+                            <a class="btn btn-image" href="{{ route('task_category.edit',$task_category->id) }}"><img src="/images/edit.png" /></a>
                             {!! Form::open(['method' => 'DELETE','route' => ['task_category.destroy', $task_category->id],'style'=>'display:inline']) !!}
-                            {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                            <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                             {!! Form::close() !!}
                         </td>
                     </tr>
@@ -44,4 +44,3 @@
         </div>
     </div>
 @endsection
-

@@ -42,7 +42,7 @@
 
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn-success">Edit</button>
+                        <button type="submit" class="btn btn-secondary">Edit</button>
                     </div>
 
                     {!! Form::close() !!}
@@ -53,4 +53,3 @@
     </div>
     <script src="{{asset('js/treeview.js')}}"></script>
 @endsection
-

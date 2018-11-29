@@ -39,11 +39,10 @@
                     <input id="name" type="text" name="name" value="{{ old('name') ? old('name') : $name }}" class="form-control" placeholder="Name"></div>
 
                 <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                    <button type="submit" class="btn btn-primary">{{ $modify ? 'Update' : 'Create' }}</button>
+                    <button type="submit" class="btn btn-secondary">{{ $modify ? 'Update' : 'Create' }}</button>
                 </div>
             </form>
         </div>
     </div>
 
 @endsection
-

@@ -8,7 +8,7 @@
                 <h2>Quick Replies List</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('reply.create') }}">Create New Quick Reply</a>
+                <a class="btn btn-secondary" href="{{ route('reply.create') }}">+</a>
             </div>
         </div>
     </div>
@@ -32,9 +32,9 @@
                 <td>{{ $reply->reply }}</td>
                 <td>{{ $reply->model }}</td>
                 <td>
-                    <a class="btn btn-primary" href="{{ route('reply.edit',$reply->id) }}">Edit</a>
+                    <a class="btn btn-image" href="{{ route('reply.edit',$reply->id) }}"><img src="/images/edit.png" /></a>
                     {!! Form::open(['method' => 'DELETE','route' => ['reply.destroy',$reply->id],'style'=>'display:inline']) !!}
-                    {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                 </td>
             </tr>

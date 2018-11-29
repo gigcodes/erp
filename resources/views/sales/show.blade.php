@@ -8,7 +8,7 @@
                 <h2> View Sale</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('sales.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('sales.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -76,7 +76,7 @@
                             <th>{{ $key }}</th>
                             <th>{{ $value }}</th>
                             <th>
-                                <a class="btn btn-primary btn-success" href="{{ route('products.show',$key) }}">View</a>
+                                <a class="btn btn-image" href="{{ route('products.show',$key) }}"><img src="/images/view.png" /></a>
                             </th>
                         </tr>
                     @endforeach

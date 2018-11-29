@@ -173,8 +173,8 @@
 
                     @if(isset($order_product['product']))
                         <th>
-                            <a class="btn btn-primary btn-success"
-                               href="{{ route('products.show',$order_product['product']['id']) }}">View</a>
+                            <a class="btn btn-image"
+                               href="{{ route('products.show',$order_product['product']['id']) }}"><img src="/images/view.png" /></a>
                         </th>
                     @else
                         <th></th>
@@ -245,7 +245,7 @@
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Create</button>
+                    <button type="submit" class="btn btn-secondary">Create</button>
                   </div>
                 </form>
               </div>
@@ -648,9 +648,9 @@
 
                                                   @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
                                                     @if (strpos($message['body'], 'message-img') !== false)
-                                                      <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="leads" data-message="{{ substr($message['body'], 0, strpos($message['body'], '<img')) }}"> Copy message </button>
+                                                      <button class="copy-button btn btn-secondary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="leads" data-message="{{ substr($message['body'], 0, strpos($message['body'], '<img')) }}"> Copy message </button>
                                                     @else
-                                                      <button class="copy-button btn btn-primary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="leads" data-message="{{ $message['body'] }}"> Copy message </button>
+                                                      <button class="copy-button btn btn-secondary" data-id="{{$message['id']}}" moduleid="{{$message['moduleid']}}" moduletype="leads" data-message="{{ $message['body'] }}"> Copy message </button>
                                                     @endif
                                                   @endif
 

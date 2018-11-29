@@ -9,7 +9,7 @@
             </div>
             <div class="pull-right">
                 @can('role-create')
-                    <a class="btn btn-success" href="{{ route('roles.create') }}"> Create New Role</a>
+                    <a class="btn btn-secondary" href="{{ route('roles.create') }}">+</a>
                 @endcan
             </div>
         </div>
@@ -34,9 +34,9 @@
                 <td>{{ ++$i }}</td>
                 <td>{{ $role->name }}</td>
                 <td>
-                    <a class="btn btn-info" href="{{ route('roles.show',$role->id) }}">Show</a>
+                    <a class="btn btn-image" href="{{ route('roles.show',$role->id) }}"><img src="/images/view.png" /></a>
                     @can('role-edit')
-                        <a class="btn btn-primary" href="{{ route('roles.edit',$role->id) }}">Edit</a>
+                        <a class="btn btn-image" href="{{ route('roles.edit',$role->id) }}"><img src="/images/edit.png" /></a>
                     @endcan
                     {{--@can('role-delete')
                         {!! Form::open(['method' => 'DELETE','route' => ['roles.destroy', $role->id],'style'=>'display:inline']) !!}

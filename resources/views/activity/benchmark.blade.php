@@ -84,7 +84,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-7 col-md-offset-2">
                                 <div class="form-group">
@@ -96,7 +96,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-7 col-md-offset-2">
                                 <div class="form-group">
@@ -113,7 +113,7 @@
 
                 <div class="row m-b-md">
                     <div class="col-md-12">
-                        <button class="btn-primary btn">
+                        <button class="btn-secondary btn">
                             Save Benchmark
                         </button>
                     </div>

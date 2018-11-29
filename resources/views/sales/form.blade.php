@@ -8,7 +8,7 @@
                 <h2>{{ $modify ? 'Edit Sale' : 'Create Sale' }}</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('sales.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('sales.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -138,7 +138,7 @@
                 </div>
                 @if($modify == 1)
                     <div class="form-group">
-                        <a href="/attachProducts/sale/{{$id}}"><button type="button" class="btn btn-primary">Attach From Grid</button></a>
+                        <a href="/attachProducts/sale/{{$id}}"><button type="button" class="btn btn-image"><img src="/images/attach.png" /></button></a>
                     </div>
                 @endif
                 <script type="text/javascript">
@@ -316,7 +316,7 @@
             </div>
 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-secondary">+</button>
             </div>
 
         </div>

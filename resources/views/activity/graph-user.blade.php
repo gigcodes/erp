@@ -71,7 +71,7 @@
                             </div>
                             <div class="col-md-4">
                                 <strong>&nbsp;</strong>
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-secondary">Submit</button>
                             </div>
                         </div>
                     </form>

@@ -8,7 +8,7 @@
                 <h2>Edit ImageCropper</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('productimagecropper.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('productimagecropper.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -186,8 +186,8 @@
                         <img src="{{$images[$i]->getUrl()}}" class="img-responsive" style="max-width: 200px;"  alt="">
                         <input type="text" hidden name="oldImage{{$i}}" value="0">
                     </p>
-                    <a href="{{$images[$i]->getUrl()}}" download=""><button type="button" class="btn btn-primary" >Download</button></a>
-                    <button class="btn btn-danger removeOldImage" data-id="{{$i}}" media-id="{{ $images[$i]->id }}">Remove</button>
+                    <a href="{{$images[$i]->getUrl()}}" download=""><button type="button" class="btn btn-secondary" >Download</button></a>
+                    <button class="btn btn-image removeOldImage" data-id="{{$i}}" media-id="{{ $images[$i]->id }}"><img src="/images/delete.png" /></button>
                 </div>
                 <div class="form-group new-image{{ $i }}" style="
                 @if ( !$errors->has('image.'.$i))
@@ -220,7 +220,7 @@
 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                 {{--<input type="text" hidden name="stage" value="3">--}}
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-secondary">+</button>
             </div>
 
         </div>

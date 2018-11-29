@@ -37,10 +37,10 @@
                 <td>{{ $sale->allocated_to ? $users[$sale->allocated_to] : 'nil' }}</td>
                 <td>{{ $sale->remark }}</td>
                 <td>
-                    <a class="btn btn-primary btn-success" href="{{ route('sales.show',$sale->id) }}">View</a>
-                    <a class="btn btn-primary" href="{{ route('sales.edit',$sale->id) }}">Edit</a>
+                    <a class="btn btn-image" href="{{ route('sales.show',$sale->id) }}"><img src="/images/view.png" /></a>
+                    <a class="btn btn-image" href="{{ route('sales.edit',$sale->id) }}"><img src="/images/edit.png" /></a>
                     {!! Form::open(['method' => 'DELETE','route' => ['sales.destroy', $sale->id],'style'=>'display:inline']) !!}
-                    {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                 </td>
             </tr>

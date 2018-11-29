@@ -8,7 +8,7 @@
                 <h2>Task</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('task.create') }}"> Create New Task</a>
+                <a class="btn btn-secondary" href="{{ route('task.create') }}">+</a>
             </div>
         </div>
     </div>
@@ -34,10 +34,10 @@
                 <td>{{ $value->details }}</td>
                 <td>{{ $value->related}}</td>
                 <td>
-                    <a class="btn btn-primary" href="{{ route('task.edit',$value->id) }}">Edit</a>
+                    <a class="btn btn-image" href="{{ route('task.edit',$value->id) }}"><img src="/images/edit.png" /></a>
                     @if ($value->userid == Auth::id())
                     {!! Form::open(['method' => 'DELETE','route' => ['task.destroy',$value->id],'style'=>'display:inline']) !!}
-                    {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                      @endif
                 </td>

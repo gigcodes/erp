@@ -7,7 +7,7 @@
                 <h2>Edit Selection</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('productselection.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('productselection.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -87,7 +87,7 @@
                          <input type="text" hidden name="oldImage" value="{{ $image ? '0' : '-1' }}">
                     </p>
                     @if ($image)
-                      <button class="btn btn-danger removeOldImage" data-id="" media-id="{{ $image->id }}">Remove</button>
+                      <button class="btn btn-image removeOldImage" data-id="" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
                     @endif
                 </div>
                 <div class="form-group new-image" style="
@@ -114,7 +114,7 @@
 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                 <input type="text" hidden name="stage" value="1">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-secondary">+</button>
             </div>
         </div>
     </form>

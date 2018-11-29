@@ -77,7 +77,7 @@
 
 
                         <div class="form-group">
-                            <button class="btn btn-success">Add New</button>
+                            <button class="btn btn-secondary">+</button>
                         </div>
 
                         {!! Form::close() !!}
@@ -102,8 +102,8 @@
                             <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                         </div>
                         <div class="form-group">
-                            <button id="btn-edit-cat" class="btn btn-success">Edit</button>
-                            <button id="btn-delete-cat" class="btn btn-danger">Delete</button>
+                            <button id="btn-edit-cat" class="btn btn-image"><img src="/images/edit.png" /></button>
+                            <button id="btn-delete-cat" class="btn btn-image"><img src="/images/delete.png" /></button>
                         </div>
                         {!! Form::close() !!}
                 </div>
@@ -120,4 +120,3 @@
     </div>
     <script src="{{asset('js/treeview.js')}}"></script>
     @endsection
-

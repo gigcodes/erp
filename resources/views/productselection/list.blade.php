@@ -33,7 +33,7 @@
                     <form action="{{ route('productselection.destroy',$product->id) }}" method="POST">
                         {{--<a class="btn btn-info" href="{{ route('products.show',$product->id) }}">Show</a>--}}
                         @can('selection-edit')
-                            <a class="btn btn-primary" href="{{ route('productselection.edit',$product->id) }}">Edit</a>
+                            <a class="btn btn-image" href="{{ route('productselection.edit',$product->id) }}"><img src="/images/edit.png" /></a>
                         @endcan
 
                         @csrf

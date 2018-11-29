@@ -8,7 +8,7 @@
                 <h2>Users Management</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('users.create') }}"> Create New User</a>
+                <a class="btn btn-secondary" href="{{ route('users.create') }}">+</a>
             </div>
         </div>
     </div>
@@ -41,11 +41,11 @@
                     @endif
                 </td>
                 <td>
-                    <a class="btn btn-info" href="{{ route('users.show',$user->id) }}">Show</a>
-                    <a class="btn btn-primary" href="{{ route('users.edit',$user->id) }}">Edit</a>
+                    <a class="btn btn-image" href="{{ route('users.show',$user->id) }}"><img src="/images/view.png" /></a>
+                    <a class="btn btn-image" href="{{ route('users.edit',$user->id) }}"><img src="/images/edit.png" /></a>
 
                     {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
-                    {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                 </td>
             </tr>

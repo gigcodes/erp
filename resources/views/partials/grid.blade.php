@@ -41,7 +41,7 @@
                                     <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
                                     <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
                                 @endif
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                             </div>
                             <div class="col-md-2">
                               <strong>Brands</strong>
@@ -228,7 +228,7 @@
                                                                     'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
                             {{--@can('supervisor-edit')
                                 <button data-id="`+product['id']+`"
-                                        class="btn btn-approve btn-primary `+ ( ( product['isApproved'] ===  '1' ) ? 'btn-success' : '' ) +` ">
+                                        class="btn btn-approve btn-secondary `+ ( ( product['isApproved'] ===  '1' ) ? 'btn-success' : '' ) +` ">
                                         `+ ( ( product['isApproved'] ===  '1' ) ? 'Approved' : 'Approve' ) +`
                                 </button>
                             @endcan--}}
@@ -236,7 +236,7 @@
                                             @if( isset($doSelection))
 
                         <button data-id="` + product['id'] + `" model-type="{{ $model_type }}" model-id="{{ $model_id }}"
-                                                            class="btn-attach btn btn-primary ` + ((product['isAttached'] === '1') ? 'btn-success' : '') + ` ">
+                                                            class="btn-attach btn btn-secondary ` + ((product['isAttached'] === '1') ? 'btn-success' : '') + ` ">
                                                             ` + ((product['isAttached'] === '0') ? 'Attach' : 'Attached') + `
                         </button>
                                             @endif

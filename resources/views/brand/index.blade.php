@@ -8,7 +8,7 @@
                 <h2>Brand List</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('brand.create') }}"> Create New Brands</a>
+                <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
             </div>
         </div>
     </div>
@@ -34,9 +34,9 @@
                 <td>{{ $brand->euro_to_inr }}</td>
                 <td>{{ $brand->deduction_percentage }}</td>
                 <td>
-                    <a class="btn btn-primary" href="{{ route('brand.edit',$brand->id) }}">Edit</a>
+                    <a class="btn btn-image" href="{{ route('brand.edit',$brand->id) }}"><img src="/images/edit.png" /></a>
                     {!! Form::open(['method' => 'DELETE','route' => ['brand.destroy',$brand->id],'style'=>'display:inline']) !!}
-                    {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                 </td>
             </tr>

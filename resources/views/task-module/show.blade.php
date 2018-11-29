@@ -49,7 +49,7 @@
                             </div>
                             <div class="col-md-4 mt-4">
                                 <strong>&nbsp;&nbsp;</strong>
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-secondary">Submit</button>
                             </div>
                         </div>
                     </form>
@@ -84,7 +84,7 @@
                             </div>
                             <div class="col-md-4 mt-4">
                                 <strong>&nbsp;&nbsp;</strong>
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-secondary">Submit</button>
                             </div>
                         </div>
                     </form>
@@ -191,7 +191,7 @@
                         </div>
 
                      <div class="col-sm-12 text-center">
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn btn-secondary">Submit</button>
                     </div>
 
                     </form>
@@ -201,9 +201,9 @@
 
                     <div class="mt-2 mb-2">
                         @if(!$isAdmin)
-                            <button id="add-row" class="btn btn-primary">Add Row</button>
+                            <button id="add-row" class="btn btn-secondary">Add Row</button>
                         @endif
-                        <button id="save-activity" class="btn btn-primary">Save</button>
+                        <button id="save-activity" class="btn btn-secondary">Save</button>
                         <img id="loading_activty" style="display: none" src="{{ asset('images/loading.gif') }}"/>
                     </div>
 
