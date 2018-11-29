@@ -596,10 +596,10 @@
            <div class="row">
              <div class="col-xs-6">
                <div class="upload-btn-wrapper btn-group">
-                 <button class="btn btn-image"><img src="/images/upload.png" /></button>
+                 <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                  <input type="file" name="image" />
-                 <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
-                 <button type="submit" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
+                 <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+                 <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
                </div>
              </div>
 
@@ -611,6 +611,17 @@
                  <input type="hidden" name="moduleid" value="{{$leads['id']}}" />
                  <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" />
                  <input type="hidden" name="status" value="1" />
+
+                 <p class="pb-4" style="display: block;">
+                     {{-- <strong>Quick Reply</strong> --}}
+
+                     <select name="quickComment" id="quickComment" class="form-control">
+                         <option value="">Quick Reply</option>
+                         @foreach($approval_replies as $reply )
+                             <option value="{{$reply->reply}}">{{$reply->reply}}</option>
+                         @endforeach
+                     </select>
+                 </p>
                </div>
              </div>
 
@@ -670,18 +681,9 @@
           </form>
         </div>
 
-        <div class="col-xs-12 col-sm-6">
-         <p class="pb-4" style="display: block;">
-             {{-- <strong>Quick Reply</strong> --}}
+        {{-- <div class="col-xs-12 col-sm-6">
 
-             <select name="quickComment" id="quickComment" class="form-control">
-                 <option value="">Quick Reply</option>
-                 @foreach($approval_replies as $reply )
-                     <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                 @endforeach
-             </select>
-         </p>
-     </div>
+     </div> --}}
    </div>
  </div>
 

@@ -405,6 +405,17 @@
                                     <input type="hidden" name="moduleid" value="{{$id}}"/>
                                     <input type="hidden" name="status" value="1"/>
                                     <input type="hidden" name="assigned_user" value="{{$sales_person}}" />
+
+                                    <p class="pb-4" style="display: block;">
+                                        {{-- <strong>Quick Reply</strong> --}}
+
+                                        <select name="quickComment" id="quickComment" class="form-control">
+                                            <option value="">Quick Reply</option>
+                                            @foreach($approval_replies as $reply )
+                                                <option value="{{$reply->reply}}">{{$reply->reply}}</option>
+                                            @endforeach
+                                        </select>
+                                    </p>
                                 </div>
                               </div>
 
@@ -466,18 +477,9 @@
                         </form>
                       </div>
 
-                      <div class="col-xs-12 col-sm-6">
-                        <p class="pb-4" style="display: block;">
-                            {{-- <strong>Quick Reply</strong> --}}
+                      {{-- <div class="col-xs-12 col-sm-6">
 
-                            <select name="quickComment" id="quickComment" class="form-control">
-                                <option value="">Quick Reply</option>
-                                @foreach($approval_replies as $reply )
-                                    <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                                @endforeach
-                            </select>
-                        </p>
-                      </div>
+                      </div> --}}
                   </div>
                 </div>
 
