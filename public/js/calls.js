@@ -21,7 +21,10 @@
     Twilio.Device.setup(token, {debug: true});
     Twilio.Device.ready(function () {
 		$("*[data-twilio-call]").each(function() {
-			var number = $( this ).val();
+			var number = $( this ).text();
+            if ( $( this ).is(":input") ) {
+                number = $( this ).val();
+            }
 			var call = $("<button class='btn btn-primary'>Call</button>");
 			call.click( function() {
 				callNumber( number );

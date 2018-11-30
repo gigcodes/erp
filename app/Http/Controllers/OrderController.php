@@ -12,6 +12,7 @@ use App\User;
 use App\Message;
 use App\Task;
 use App\Reply;
+use App\CallRecording;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -202,6 +203,7 @@ class OrderController extends Controller {
 		$data['tasks'] = Task::where('model_type', 'order')->where('model_id', $order->id)->whereNull('is_completed')->get()->toArray();
 		$data['approval_replies'] = Reply::where('model', 'Approval Order')->get();
 		$data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
+        $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get();
 
 		//return $data;
 		return view( 'orders.show', $data );

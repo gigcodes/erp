@@ -33,12 +33,8 @@ class TwilioController extends Controller
     public function createToken(Request $request)
     {
       $client = $this->getTwilioClient();
-      $agnet = $request->get("agent");
-      if (!$agent) {
-        return Response::json([
-            'message' => 'please specify "agent" parameter'
-        ], 500); // Status code here
-      }
+      $user = \Auth::user();
+      $agent = $user->name;
       $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
       $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
       $capability->allowClientIncoming($agent);

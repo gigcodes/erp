@@ -29,6 +29,6 @@ class FindByNumberController extends Controller
 	}
     protected function findOrderByNumber($number)
 	{
-		return Order::where('office_phone_number', '=', $number)->first();
+		return Order::where('contact_detail', '=', $number)->first();
 	}
 }

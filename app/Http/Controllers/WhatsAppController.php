@@ -8,6 +8,7 @@ use Twilio\Rest\Client;
 use App\Category;
 use App\Notification;
 use App\Leads;
+use App\Order;
 use App\Status;
 use App\Setting;
 use App\User;
@@ -49,7 +50,6 @@ class WhatsAppController extends FindByNumberController
     public function sendMessage(Request $request, $context)
     {
 	   $data = $request->json()->all();
-	   $lead = Leads::find( $data['lead_id'] );
        try {
            if ($context == "leads") {
              $lead = Leads::findOrFail( $data['lead_id'] );
@@ -60,8 +60,8 @@ class WhatsAppController extends FindByNumberController
                 'message' => $data['message']
                ]);
             } elseif ($context == "orders") {
-             $order = Order::find( $data['order_id'] );
-             $this->sendWithWhatsApp( $order->office_phone_number, $data['message'] );
+             $order = Order::findOrFail( $data['order_id'] );
+             $this->sendWithWhatsApp( $order->contact_detail, $data['message'] );
              ChatMessage::create([
                 'order_id' => $order->id,
                 'number' => NULL,
