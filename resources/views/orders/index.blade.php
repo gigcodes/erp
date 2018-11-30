@@ -36,13 +36,13 @@
 
     <table class="table table-bordered">
         <tr>
-            <th>ID</th>
-            <th>Type</th>
-            <th>Date</th>
-            <th>Order Handler</th>
-            <th>Client Name</th>
-            <th>Order Status</th>
-            <th><a href="/order?sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">ID</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=type{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Type</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Date</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_handler{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Handler</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Client Name</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Status</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
             <th width="280px">Action</th>
         </tr>
         @foreach ($orders_array as $key => $order)

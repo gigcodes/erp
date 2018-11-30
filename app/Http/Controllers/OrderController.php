@@ -43,6 +43,21 @@ class OrderController extends Controller {
 				$orderby = 'asc';
 
 		switch ($request->input('sortby')) {
+			case 'type':
+					 $sortby = 'order_type';
+					break;
+			case 'date':
+					 $sortby = 'order_date';
+					break;
+			case 'order_handler':
+					 $sortby = 'sales_person';
+					break;
+			case 'client_name':
+					 $sortby = 'client_name';
+					break;
+			case 'status':
+					 $sortby = 'order_status';
+					break;
 			case 'communication':
 					 $sortby = 'communication';
 					break;
@@ -50,11 +65,17 @@ class OrderController extends Controller {
 					 $sortby = 'id';
 		}
 
+		$orders = ((new Order())->newQuery());
+
+		if ($sortby != 'communication') {
+			$orders = $orders->orderBy( $sortby, $orderby );
+		}
+
 		if(empty($term))
-			$orders = Order::latest();
+			$orders = $orders->latest();
 		else{
 
-			$orders = Order::latest()
+			$orders = $orders->latest()
 			               ->orWhere('order_id','like','%'.$term.'%')
 			               ->orWhere('order_type',$term)
 			               ->orWhere('sales_person',Helpers::getUserIdByName($term))
@@ -63,6 +84,8 @@ class OrderController extends Controller {
 			               ->orWhere('city','like','%'.$term.'%')
 			               ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
+
+
 
 		$users  = Helpers::getUserArray( User::all() );
 
