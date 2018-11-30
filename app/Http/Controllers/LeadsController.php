@@ -524,14 +524,14 @@ class LeadsController extends Controller
 
     public function imageGrid()
     {
-      $leads_array = Leads::whereNull('deleted_at')->get()->toArray();
-      $leads = Leads::whereNull('deleted_at')->get();
+      $leads_array = Leads::whereNull('deleted_at')->where('status', '!=', 1)->get()->toArray();
+      $leads = Leads::whereNull('deleted_at')->where('status', '!=', 1)->get();
       $new_leads = [];
 
       foreach ($leads_array as $key => $lead) {
         if ($leads[$key]->getMedia(config('constants.media_tags'))->first() !== null) {
           $new_leads[$key]['id'] = $lead['id'];
-          $new_leads[$key]['image'] = $leads[$key]->getMedia(config('constants.media_tags'))->first()->getUrl();
+          $new_leads[$key]['image'] = $leads[$key]->getMedia(config('constants.media_tags'));
           $new_leads[$key]['status'] = $lead['status'];
           $new_leads[$key]['rating'] = $lead['rating'];
         }
@@ -546,7 +546,9 @@ class LeadsController extends Controller
         $currentItems = $new_leads;
       }
 
-      $new_leads = new LengthAwarePaginator($currentItems, count($new_leads), $perPage, $currentPage);
+      $new_leads = new LengthAwarePaginator($currentItems, count($new_leads), $perPage, $currentPage, [
+        'path'  => LengthAwarePaginator::resolveCurrentPath()
+      ]);
 
       return view('leads.image-grid')->withLeads($new_leads);
     }
