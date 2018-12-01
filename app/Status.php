@@ -11,7 +11,8 @@ class Status extends ReadOnlyBase {
 		'Cold / Important Lead' => '2',
 		'Hot Lead' => '3',
 		'Very Hot Lead' => '4',
-		'Advance Follow Up' => '5',		
+		'Advance Follow Up' => '5',
+		'HIGH PRIORITY' => '6',		
 	];
 
 	protected $messagestatus =[
