@@ -21,7 +21,7 @@
 <div class="row">
   @foreach ($products as $product)
     <div class="col-md-3 col-xs-6 text-center">
-      <a href="` + product['link'] + `">
+      <a href="{{ route('products.show', $product->id) }}">
         <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
           ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
           : ''
