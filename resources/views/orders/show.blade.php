@@ -457,7 +457,9 @@
 
                                                 <strong>Assign to</strong>
                                                 <select name="assigned_user" class="form-control mb-3">
-                                                  <option value="{{$sales_person}}">Order Handler</option>
+                                                  @if (isset($sales_person))
+                                                    <option value="{{ $sales_person }}">Order Handler</option>
+                                                  @endif
                                                   @foreach($users as $user)
                                                     <option value="{{$user['id']}}">{{$user['name']}}</option>
                                                   @endforeach
@@ -534,7 +536,7 @@
                                                           </p>
                                                         @endif
 
-                                                          <em>Customer {{ $message['created_at'] }} </em>
+                                                          <em>Customer {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }} </em>
 
                                                           @if ($message['status'] == '0')
                                                             <a href data-url="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=order" style="font-size: 9px" class="change_message_status">Mark as Read </a>
@@ -587,7 +589,7 @@
                                                             </p>
                                                           @endif
 
-                                                        <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
+                                                        <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ ($message['assigned_to'] != 0 && $message['assigned_to'] != $sales_person && $message['userid'] != $message['assigned_to']) ? ' - ' . App\Helpers::getUserNameById($message['assigned_to']) : '' }} {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
                                                       </div>
                                                  </div>
                                                @else
@@ -635,7 +637,7 @@
                                                           </span>
                                                           <textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea{{$message['id']}}" style="display: none;">{!! $message['body'] !!}</textarea>
 
-                                                          <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }} <img
+                                                          <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }} <img
                                                                       src="/images/{{$message['status']}}.png"> &nbsp;
                                                               @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
                                                                   <a href data-url="/message/updatestatus?status=3&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=order"

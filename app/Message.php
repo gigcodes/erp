@@ -10,7 +10,7 @@ class Message extends Model
 {
     //
 
-    protected $fillable = ['body','subject','moduletype','userid','status','moduleid'];
+    protected $fillable = ['body','subject','moduletype','userid', 'assigned_to','status','moduleid'];
     public function user()
 	{
 	   return $this->belongsTo(User::class);

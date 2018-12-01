@@ -742,7 +742,7 @@
                         @endif
 
 
-                        <em>Customer {{ $message['created_at'] }} </em>
+                        <em>Customer {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }} </em>
 
                         {{-- <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp; --}}
                         @if ($message['status'] == '0')
@@ -795,7 +795,7 @@
                       </p>
                     @endif
 
-                    <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
+                    <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ ($message['assigned_to'] != 0 && $message['assigned_to'] != $leads['assigned_user'] && $message['userid'] != $message['assigned_to']) ? ' - ' . App\Helpers::getUserNameById($message['assigned_to']) : '' }} {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
                   </div>
              </div>
            @else
@@ -865,7 +865,7 @@
                        <textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea{{$message['id']}}" style="display: none;">{!! $message['body'] !!}</textarea>
                      @endif
 
-                 <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ $message['created_at'] }}  <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
+                 <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }}  <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
                  @if($message['status'] == '2' and App\Helpers::getadminorsupervisor() == false)
                      <a href data-url="/message/updatestatus?status=3&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as sent </a>
                  @endif
