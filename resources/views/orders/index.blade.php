@@ -42,6 +42,7 @@
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_handler{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Handler</a></th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Client Name</a></th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Status</a></th>
+            <th>Message Status</th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
             <th width="280px">Action</th>
         </tr>
@@ -53,6 +54,21 @@
                 <td>{{ $order['sales_person'] ? $users[$order['sales_person']] : 'nil' }}</td>
                 <td>{{ $order['client_name'] }}</td>
                 <td>{{ $order['order_status']}}</td>
+                <td>
+                  @if ($order['communication']['status'] != null && $order['communication']['status'] == 0)
+                    Unread
+                  @elseif ($order['communication']['status'] == 5)
+                    Read
+                  @elseif ($order['communication']['status'] == 6)
+                    Replied
+                  @elseif ($order['communication']['status'] == 1)
+                    Awaiting Approval
+                  @elseif ($order['communication']['status'] == 2)
+                    Approved
+                  @elseif ($order['communication']['status'] == 4)
+                    Internal Message
+                  @endif
+                </td>
                 <td>
                   {{-- @if (strpos(App\Helpers::getlatestmessage($order->id, 'order'), '<br>') !== false)
                     {{ substr(App\Helpers::getlatestmessage($order->id, 'order'), 0, strpos(App\Helpers::getlatestmessage($order->id, 'order'), '<br>')) }}

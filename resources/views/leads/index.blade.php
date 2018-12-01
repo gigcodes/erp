@@ -73,6 +73,7 @@
             <th><a href="/leads?sortby=rating{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Rating</a></th>
             <th><a href="/leads?sortby=assigned_user{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Assigned to</a></th>
             <th>Products</th>
+            <th>Message Status</th>
             <th><a href="/leads?sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
             <th><a href="/leads?sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Status</a></th>
             <th><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created</a></th>
@@ -86,6 +87,21 @@
                 <td>{{ $lead['rating']}}</td>
                 <td>{{App\User::find($lead['assigned_user'])->name}}</td>
                 <td>{{App\Helpers::getproductsfromarraysofids($lead['selected_product'])}}</td>
+                <td>
+                  @if ($lead['communication']['status'] != null && $lead['communication']['status'] == 0)
+                    Unread
+                  @elseif ($lead['communication']['status'] == 5)
+                    Read
+                  @elseif ($lead['communication']['status'] == 6)
+                    Replied
+                  @elseif ($lead['communication']['status'] == 1)
+                    Awaiting Approval
+                  @elseif ($lead['communication']['status'] == 2)
+                    Approved
+                  @elseif ($lead['communication']['status'] == 4)
+                    Internal Message
+                  @endif
+                </td>
                 <td>
                   @if (strpos($lead['communication']['body'], '<br>') !== false)
                     {{ substr($lead['communication']['body'], 0, strpos($lead['communication']['body'], '<br>')) }}
