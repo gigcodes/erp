@@ -1,1 +1,1 @@
-{"request":"{\"event\":\"INBOX\",\"from\":\"918879948245\",\"to\":\"919004008983\",\"text\":\"good test\"}","response":"","status":200}
+{"request":"{\"event\":\"INBOX\",\"from\":\"918879948245\",\"to\":\"919004008983\",\"text\":\"Hey i got it\"}","response":"","status":200}

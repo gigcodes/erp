@@ -13,6 +13,10 @@ return [
         [
             'number' => '918291920455',
             'key' => 'KIESLHJOQIILRVV8DYPM'
+        ],
+        [
+            'number' => '919152731483',
+            'key' => '1KWDP9M0LDCKY9O6QQW8'
         ]
     ]
 ];

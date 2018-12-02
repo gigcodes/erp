@@ -350,6 +350,12 @@
       .btn-image img {
         width: 25px;
       }
+
+      .supplier-wrapper {
+        padding: 0 0 10px 0;
+        margin: 0 0 10px 0;
+        border-bottom: 1px solid #6f6767;
+      }
     </style>
 
     <script>
@@ -645,6 +651,19 @@
                                         @endcan
 
                                         {{-- <a class="dropdown-item" href="{{ route('task.index') }}">Tasks</a> --}}
+                                    </div>
+
+                                </li>
+                            @endcan
+
+                            @can('purchase')
+                                <li class="nav-item dropdown">
+                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                       Purchase<span class="caret"></span>
+                                    </a>
+
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                      <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
                                     </div>
 
                                 </li>

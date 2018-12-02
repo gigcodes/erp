@@ -110,6 +110,8 @@ Route::middleware('auth')->group(function (){
 	Route::get('attachImages/{model_type}/{model_id}/{status}/{assigned_user}','ProductController@attachImages')->name('attachImages');
 	Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
+	Route::get('purchaseGrid', 'PurchaseController@purchaseGrid')->name('purchase.grid');
+
 	//Comments
 	Route::post('doComment','CommentController@store')->name('doComment');
 	Route::post('deleteComment/{comment}','CommentController@destroy')->name('deleteComment');

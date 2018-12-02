@@ -67,8 +67,8 @@ class TwilioController extends Controller
     {
        $number = $request->get("PhoneNumber");
        $response = new Twiml(); 
-       $response->dial( $number );
-       return Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
+       $response->dial( $number, ['callerId' => \Config::get("twilio.caller_id")]);
+       return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
 
 }
