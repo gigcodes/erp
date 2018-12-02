@@ -10,6 +10,36 @@ use Illuminate\Support\Facades\Auth;
 
 class PushNotificationController extends Controller {
 
+	public function index()
+	{
+		$lead_notifications = PushNotification::where('isread', 0)->where('model_type', 'App\Leads')
+		                       ->where( function ( $query ) {
+			                       return $query->where('sent_to', \Auth::id())
+			                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
+		                       })->orderBy('created_at','DESC')->get();
+
+		 $order_notifications = PushNotification::where('isread', 0)->where('model_type', 'App\Order')
+			                       ->where( function ( $query ) {
+				                       return $query->where('sent_to', \Auth::id())
+				                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
+			                       })->orderBy('created_at','DESC')->get();
+
+		 $message_notifications = PushNotification::where('isread', 0)->whereIn('model_type', ['order', 'leads'])
+			                       ->where( function ( $query ) {
+				                       return $query->where('sent_to', \Auth::id())
+				                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
+			                       })->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
+
+		 $task_notifications = PushNotification::where('isread', 0)->whereIn('model_type', ['App\Task', 'App\SatutoryTask', 'App\Http\Controllers\Task', 'User'])
+			                       ->where( function ( $query ) {
+				                       return $query->where('sent_to', \Auth::id())
+				                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
+			                       })->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
+
+
+		return view('pushnotification.index', compact('lead_notifications', 'order_notifications', 'message_notifications', 'task_notifications'));
+	}
+
 	public function getJson() {
 		$push_notifications = PushNotification::where( 'isread', 0 )
 		                       ->where( function ( $query ) {
@@ -36,6 +66,20 @@ class PushNotificationController extends Controller {
 
 		$push_notification->isread = 1;
 		$push_notification->save();
+
+		return [ 'msg' => 'success' ];
+	}
+
+	public function markReadReminder( PushNotification $push_notification ) {
+		$reminders = PushNotification::where('message', $push_notification->message)
+																	->where('sent_to', $push_notification->sent_to)
+																	->where('model_type', $push_notification->model_type)
+																	->where('model_id', $push_notification->model_id)->get();
+
+		foreach ($reminders as $reminder) {
+			$reminder->isread = 1;
+			$reminder->save();
+		}
 
 		return [ 'msg' => 'success' ];
 	}

@@ -429,6 +429,10 @@
 
                             @include('partials.notifications')
 
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
+                            </li>
+
 
                             <li class="nav-item dropdown" data-count="
                              {{ \App\Http\Controllers\NotificaitonContoller::salesCount() }}">

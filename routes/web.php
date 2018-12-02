@@ -119,8 +119,10 @@ Route::middleware('auth')->group(function (){
 	Route::get('message/loadmore','MessageController@loadmore')->name('message.loadmore');
 
 	//Push Notifications new
+	Route::get('/new-notifications','PushNotificationController@index')->name('pushNotification.index');
 	Route::get('/pushNotifications','PushNotificationController@getJson')->name('pushNotifications');
 	Route::post('/pushNotificationMarkRead/{push_notification}','PushNotificationController@markRead')->name('pushNotificationMarkRead');
+	Route::post('/pushNotificationMarkReadReminder/{push_notification}','PushNotificationController@markReadReminder')->name('pushNotificationMarkReadReminder');
 	Route::post('/pushNotification/status/{push_notification}','PushNotificationController@changeStatus')->name('pushNotificationStatus');
 
 	Route::post('dailyActivity/store','DailyActivityController@store')->name('dailyActivity.store');
