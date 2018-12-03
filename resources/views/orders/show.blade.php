@@ -515,7 +515,8 @@
                                 {{-- <input type="hidden" name="assigned_user" value="{{$sales_person}}" /> --}}
 
                                 <strong>Assign to</strong>
-                                <select name="assigned_user" class="form-control mb-3">
+                                <select name="assigned_user" class="form-control mb-3" required>
+                                  <option value="">Select User</option>
                                   @if (isset($sales_person))
                                     <option value="{{ $sales_person }}">Order Handler</option>
                                   @endif

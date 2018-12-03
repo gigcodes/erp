@@ -300,7 +300,8 @@
             <input type="hidden" name="status" value="4" />
 
             <strong>Assign to</strong>
-            <select name="assigned_user" class="form-control mb-3">
+            <select name="assigned_user" class="form-control mb-3" required>
+              <option value="">Select User</option>
               @if (isset($order->purchase_handler))
               <option value="{{ $order->purchase_handler }}">Purchase Handler</option>
               @endif

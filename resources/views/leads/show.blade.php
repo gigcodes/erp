@@ -662,7 +662,8 @@
                    <input type="hidden" name="status" value="4" />
 
                    <strong>Assign to</strong>
-                   <select name="assigned_user" class="form-control mb-3">
+                   <select name="assigned_user" class="form-control mb-3" required>
+                     <option value="">Select User</option>
                      <option value="{{$leads['assigned_user']}}">Assigned User</option>
                      @foreach($leads['users'] as $user)
                        <option value="{{$user['id']}}">{{$user['name']}}</option>
@@ -1108,7 +1109,7 @@
       }).fail(function(errObj) {
         alert("Could not change status");
       });
-    
+
 
 
   });
