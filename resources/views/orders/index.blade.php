@@ -62,7 +62,8 @@
                   @elseif ($order['communication']['status'] == 6)
                     Replied
                   @elseif ($order['communication']['status'] == 1)
-                    Awaiting Approval
+                    <span>Awaiting Approval</span>
+                    <a href data-url="/message/updatestatus?status=2&id={{ $order['communication']['id'] }}&moduleid={{ $order['communication']['moduleid'] }}&moduletype={{ $order['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a>
                   @elseif ($order['communication']['status'] == 2)
                     Approved
                   @elseif ($order['communication']['status'] == 4)
@@ -103,4 +104,25 @@
 
     {!! $orders_array->appends(Request::except('page'))->links() !!}
     {{--{!! $orders->links() !!}--}}
+
+    <script type="text/javascript">
+      $(document).on('click', '.change_message_status', function(e) {
+        e.preventDefault();
+        var url = $(this).data('url');
+        var thiss = $(this);
+
+        $.ajax({
+          url: url,
+          type: 'GET',
+          beforeSend: function() {
+            $(thiss).text('Loading');
+          }
+        }).done( function(response) {
+          $(thiss).prev('span').text('Approved');
+          $(thiss).remove();
+        }).fail(function(errObj) {
+          alert("Could not change status");
+        });
+      });
+    </script>
 @endsection
