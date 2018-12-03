@@ -356,6 +356,18 @@
         margin: 0 0 10px 0;
         border-bottom: 1px solid #6f6767;
       }
+
+      .user-status {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #eee;
+      }
+
+      .user-status.is-online {
+        background-color: #00FF00;
+      }
     </style>
 
     <script>

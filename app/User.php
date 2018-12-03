@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
+use Cache;
 
 
 class User extends Authenticatable
@@ -38,5 +39,10 @@ class User extends Authenticatable
 	public function messages()
 	{
 	    return $this->hasMany(Message::class);
+	}
+
+	public function isOnline()
+	{
+	    return Cache::has('user-is-online-' . $this->id);
 	}
 }
