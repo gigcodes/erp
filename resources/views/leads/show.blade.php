@@ -871,7 +871,7 @@
                  @endif
 
                  @if($message['status'] == '1' and App\Helpers::getadminorsupervisor() == true)
-                     <a href data-url="/message/updatestatus?status=2&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px" class="change_message_status">Approve</a>
+                     <a href data-url="/message/updatestatus?status=2&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px" class="change_message_status wa_send_message" data-messageid="{{ $message['id'] }}">Approve</a>
 
                      <a href="#" style="font-size: 9px" class="edit-message" data-messageid="{{$message['id']}}">Edit</a>
                  @endif
@@ -1088,17 +1088,29 @@
     var url = $(this).data('url');
     var thiss = $(this);
 
-    $.ajax({
-      url: url,
-      type: 'GET',
-      beforeSend: function() {
-        $(thiss).text('Loading');
-      }
-    }).done( function(response) {
-      $(thiss).remove();
-    }).fail(function(errObj) {
-      alert("Could not change status");
-    });
+    if ($(this).hasClass('wa_send_message')) {
+      var message_id = $(this).data('messageid');
+      var message = $('#message_body_' + message_id).text().trim();
+
+      $('#waNewMessage').val(message);
+      $('#waMessageSend').click();
+      // alert(message);
+      // console.log(message);
+    }
+      $.ajax({
+        url: url,
+        type: 'GET',
+        beforeSend: function() {
+          $(thiss).text('Loading');
+        }
+      }).done( function(response) {
+        $(thiss).remove();
+      }).fail(function(errObj) {
+        alert("Could not change status");
+      });
+    
+
+
   });
 
   $(document).on('click', '.task-subject', function() {
