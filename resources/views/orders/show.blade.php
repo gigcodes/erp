@@ -205,6 +205,7 @@
                     {{-- </div>
                 </div> --}}
         <div class="tab-pane" id="2">
+          <div class="row">
             <div class="col-xs-12 col-sm-12">
                 <h3 style="text-center">WhatsApp Messages</h3>
              </div>
@@ -220,10 +221,13 @@
             <div class="col-md-2">
                 <button id="waMessageSend" class="btn btn-success">Send</button>
             </div>
+          </div>
+
 
         </div>
 
         <div class="tab-pane" id="3">
+          <div class="row">
             <div class="col-xs-12 col-sm-12">
                 <h3 style="text-center">Call Recordings</h3>
              </div>
@@ -248,6 +252,8 @@
                     </table>
                 </div>
             </div>
+          </div>
+
         </div>
 
       </div>
@@ -734,7 +740,7 @@
               </div>
             </div>
 
-    </div>
+    {{-- </div> --}}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
