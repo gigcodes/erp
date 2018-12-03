@@ -59,6 +59,17 @@
                 {!! Form::select('roles[]', $roles,[], array('class' => 'form-control','multiple')) !!}
             </div>
         </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Responsible User:</strong>
+                <select name="responsible_user" class="form-control">
+                  <option value="">Select User</option>
+                  @foreach($users as $user)
+                    <option value="{{$user->id}}">{{$user->name}}</option>
+                  @endforeach
+                </select>
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <button type="submit" class="btn btn-secondary">+</button>
         </div>

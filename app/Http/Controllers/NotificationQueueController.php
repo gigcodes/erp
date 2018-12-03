@@ -44,6 +44,20 @@ class NotificationQueueController extends Controller
 		$startTime = date("Y-m-d H:i:s");
 		$notificationArray['user_id'] = $notificationArray['user_id'] ?? \Auth::id();
 
+		if (!empty($notificationArray['sent_to'])) {
+			$user = User::find($notificationArray['sent_to']);
+
+			if (!$user->isOnline()) {
+				if (!empty($user->responsible_user)) {
+					$responsible_user = User::find($user->responsible_user);
+
+					if ($responsible_user->isOnline()) {
+						$notificationArray['sent_to'] = $responsible_user->id;
+					}
+				}
+			}
+		}
+
 		foreach ($notificationArray['timestamps'] as $time){
 
 			$data = $notificationArray;

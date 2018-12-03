@@ -37,5 +37,14 @@
                 @endif
             </div>
         </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Responsible User:</strong>
+                @php $users_array = \App\Helpers::getUserArray(\App\User::all()); @endphp
+                @if($user->responsible_user)
+                  {{ $users_array[$user->responsible_user] }}
+                @endif
+            </div>
+        </div>
     </div>
 @endsection
