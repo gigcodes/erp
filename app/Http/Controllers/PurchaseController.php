@@ -7,6 +7,13 @@ use App\Order;
 use App\OrderProduct;
 use App\Product;
 use App\Setting;
+use App\Purchase;
+use App\Helpers;
+use App\User;
+use App\Comment;
+use App\Reply;
+use App\Message;
+use App\Task;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PurchaseController extends Controller
@@ -16,75 +23,88 @@ class PurchaseController extends Controller
       $this->middleware( 'permission:purchase');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        //
+      $term = $request->input('term');
+
+  		if($request->input('orderby') == '')
+  				$orderby = 'desc';
+  		else
+  				$orderby = 'asc';
+
+  		switch ($request->input('sortby')) {
+  			case 'date':
+  					 $sortby = 'created_at';
+  					break;
+  			case 'purchase_handler':
+  					 $sortby = 'purchase_handler';
+  					break;
+        case 'supplier':
+  					 $sortby = 'supplier';
+  					break;
+  			case 'status':
+  					 $sortby = 'status';
+  					break;
+  			case 'communication':
+  					 $sortby = 'communication';
+  					break;
+  			default :
+  					 $sortby = 'id';
+  		}
+
+  		$purchases = ((new Purchase())->newQuery());
+
+  		if ($sortby != 'communication') {
+  			$purchases = $purchases->orderBy( $sortby, $orderby );
+  		}
+
+  		if(empty($term))
+  			$purchases = $purchases->latest();
+  		else{
+
+  			$purchases = $purchases->latest()
+  			               ->orWhere('id','like','%'.$term.'%')
+  			               ->orWhere('purchase_handler',Helpers::getUserIdByName($term))
+  			               ->orWhere('supplier','like','%'.$term.'%')
+                       ->orWhere('status','like','%'.$term.'%');
+  		}
+
+
+
+  		$users  = Helpers::getUserArray( User::all() );
+
+  		$purchases_array = $purchases->whereNull( 'deleted_at' )->get()->toArray();
+
+  		if ($sortby == 'communication') {
+  			if ($orderby == 'asc') {
+  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  						return $value['communication']['created_at'];
+  				}));
+
+  				$purchases_array = array_reverse($purchases_array);
+  			} else {
+  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  						return $value['communication']['created_at'];
+  				}));
+  			}
+  		}
+
+  		$currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		$perPage = 10;
+  		$currentItems = array_slice($purchases_array, $perPage * ($currentPage - 1), $perPage);
+
+  		$purchases_array = new LengthAwarePaginator($currentItems, count($purchases_array), $perPage, $currentPage, [
+  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		]);
+
+  		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users' ) );
     }
 
     public function purchaseGrid(Request $request)
     {
       $orders = OrderProduct::select('sku')->get()->toArray();
-      // dd($orders);
-      // dd($orders);
-      $products_array = [];
-      // $products_all = Product::all()->groupBy('supplier_link');
-
-      //gebnegozionline
-      //cuccuini
-      //thedoublef
-      //toryburch
-      //divoboutique
-
-      // foreach($products_all as $index => $product) {
-      //   // dd($product, $index);
-      //   if (strpos($index, 'gebnegozionline') !== false) {
-      //     foreach ($product as $item) {
-      //       $item->supplier = 'G&B, Negozi Online';
-      //       $item->update();
-      //     }
-      //   }
-      //
-      //   if (strpos($index, 'cuccuini') !== false) {
-      //     foreach ($product as $item) {
-      //       $item->supplier = 'Cuccuini';
-      //       $item->update();
-      //     }
-      //   }
-      //
-      //   if (strpos($index, 'thedoublef') !== false) {
-      //     foreach ($product as $item) {
-      //       $item->supplier = 'The DoubleF';
-      //       $item->update();
-      //     }
-      //   }
-      //
-      //   if (strpos($index, 'toryburch') !== false) {
-      //     foreach ($product as $item) {
-      //       $item->supplier = 'Tory Burch';
-      //       $item->update();
-      //     }
-      //   }
-      //
-      //   if (strpos($index, 'divoboutique') !== false) {
-      //     foreach ($product as $item) {
-      //       $item->supplier = 'Divo Boutique';
-      //       $item->update();
-      //     }
-      //   }
-      // }
-      // dd('success');
-
-
-      // foreach ($orders as $key => $order) {
-      //   $products_array[$key] = $this->getOrderProductsWithProductData($order->id);
-      //   // $orderProducts = OrderProduct::where('order_id', '=', $order->id)->get()->toArray();
-      // }
-
-      $term = $request->input('term');
-
-
       $products = Product::whereIn('sku', $orders)->whereNotNull('supplier');
-
+      $term = $request->input('term');
 
      if(!empty($term)){
 	    	$products = $products->where(function ($query) use ($term){
@@ -97,19 +117,14 @@ class PurchaseController extends Controller
 		    });
 	    }
 
-      $products = $products->get()->sortBy('supplier');
-      // dd($products_all);
-      // $products_array = array_filter($products_array);
-      // dd($products[0]->get);
       $new_products = [];
+      $products = $products->get()->sortBy('supplier');
+
       foreach($products as $key => $product) {
         $new_products[$key]['id'] = $product->id;
         $new_products[$key]['supplier'] = $product->supplier;
         $new_products[$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
       }
-
-      // dd($new_products);
-      // $new_products = $new_products->groupBy('supplier');
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination');
@@ -118,12 +133,6 @@ class PurchaseController extends Controller
       $leads_array = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
         'path'  => LengthAwarePaginator::resolveCurrentPath()
       ]);
-      // dd($leads_array);
-      // $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
-
-
-
-      // dd($leads_array);
 
       return view('purchase.purchase-grid')->withProducts($leads_array);
     }
@@ -146,7 +155,22 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+      $this->validate($request, [
+        'purchase_handler'  => 'required',
+        'supplier'          => 'required',
+        'products'          => 'required'
+      ]);
+
+      $purchase = new Purchase;
+
+      $purchase->purchase_handler = $request->purchase_handler;
+      $purchase->supplier = $request->supplier;
+
+      $purchase->save();
+
+      $purchase->products()->attach($request->products);
+
+      return redirect()->route('purchase.index');
     }
 
     /**
@@ -157,7 +181,24 @@ class PurchaseController extends Controller
      */
     public function show($id)
     {
-        //
+      $purchase = Purchase::find($id);
+      // $data                   = $purchase->toArray();
+  		// $data['sales_persons']  = Helpers::getUsersArrayByRole( 'Sales' );
+  		// $data['order_products'] = $this->getOrderProductsWithProductData($purchase->id);
+  		$data['comments']        = Comment::with('user')->where( 'subject_id', $purchase->id )
+  		                                 ->where( 'subject_type','=' ,Order::class )->get();
+  		$data['users']          = User::all()->toArray();
+  		$messages = Message::all()->where('moduleid', $purchase->id)->where('moduletype','=', 'purchase')->sortByDesc("created_at")->take(10)->toArray();
+      $data['messages'] = $messages;
+      // $data['total_price'] = $this->getTotalOrderPrice($purchase);
+
+  		// $purchase_statuses = (new OrderStatus)->all();
+  		// $data['order_statuses'] = $purchase_statuses;
+  		$data['tasks'] = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->whereNull('is_completed')->get()->toArray();
+  		$data['approval_replies'] = Reply::where('model', 'Approval Order')->get();
+  		$data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
+      // dd($purchase);
+  		return view('purchase.show', $data)->withOrder($purchase);
     }
 
     /**
@@ -191,7 +232,21 @@ class PurchaseController extends Controller
      */
     public function destroy($id)
     {
-        //
+      $purchase = Purchase::find($id);
+
+      $purchase->delete();
+
+      return redirect()->route('purchase.index')->with('success','Purchase has been archived');
+    }
+
+    public function permanentDelete($id)
+    {
+      $purchase = Purchase::find($id);
+
+      $purchase->products()->detach();
+      $purchase->forceDelete();
+
+      return redirect()->route('purchase.index')->with('success','Purchase has been deleted');
     }
 
     public function getOrderProductsWithProductData($order_id){

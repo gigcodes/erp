@@ -80,14 +80,14 @@ class MessageController extends Controller
             $data['userid'] = Auth::id();
             if ($data['status'] == '4')
               $data['assigned_to'] = $data['assigned_user'];
-            
+
             $message = Message::create($data);
 
-            if ($request->moduletype == 'leads') {
-              $customer_name = Leads::find($request->moduleid)->client_name;
-            } else {
-              $customer_name = Order::find($request->moduleid)->client_name;
-            }
+            // if ($request->moduletype == 'leads') {
+            //   $customer_name = Leads::find($request->moduleid)->client_name;
+            // } else {
+            //   $customer_name = Order::find($request->moduleid)->client_name;
+            // }
 
             if( $data['status'] == '1' ) {
 

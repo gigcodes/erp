@@ -135,7 +135,8 @@
 
             Object.keys(groupedByTime).forEach(function (key) {
 
-                let html = '<div class="supplier-wrapper"><div class="form-check pull-right"><input type="checkbox" class="select-all" id="' + key + '"><label class="form-check-label" for="' + key + '">Select All</label></div><h4>' + key + '</h4></div><div class="row">';
+                let html = '<form action="{{ route('purchase.store') }}" method="POST"><input type="hidden" name="_token" value="{{ csrf_token() }}" /><input type="hidden" name="purchase_handler" value="{{ Auth::id() }}" /><input type="hidden" name="supplier" value="' + key + '" />';
+                    html += '<div class="supplier-wrapper"><div class="form-check pull-right"><input type="checkbox" class="select-all" id="' + key.replace(/[^a-zA-Z0-9]/g, '-') + '"><label class="form-check-label" for="' + key.replace(/[^a-zA-Z0-9]/g, '-') + '">Select All</label></div><h4>' + key + '</h4></div><div class="row">';
 
                 groupedByTime[key].forEach(function (product) {
 
@@ -143,7 +144,7 @@
                         <div class="col-md-3 col-xs-6 text-center">
 
                             <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" />
-                                            <input type="checkbox" class="` + key + `" name="products[]" value="` + product['id'] + `">
+                                            <input type="checkbox" class="` + key.replace(/[^a-zA-Z0-9]/g, '-') + `" name="products[]" value="` + product['id'] + `">
                                             <a href="` + product['link'] + `" class="btn btn-image"><img src="/images/view.png" /></a>
                                              {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
                                                                     'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
@@ -158,15 +159,19 @@
                     `;
                 });
 
-                jQuery('#purchaseGrid').append(html + '</div><div class="row"><div class="col text-center"><button type="submit" class="btn btn-secondary">Submit</button></div></div>');
+                jQuery('#purchaseGrid').append(html + '</div><div class="row"><div class="col text-center"><button type="submit" class="btn btn-secondary">Submit</button></div></div></form>');
             });
 
         });
 
         $(document).on('click', '.select-all', function() {
           var id = $(this).attr('id');
-          $('.' + id).attr('checked', true);
-          console.log($('.' + id));
+
+          if ($(this).is(':checked')) {
+            $('.' + id).prop('checked', true);
+          } else {
+            $('.' + id).prop('checked', false);
+          }
         });
 
     </script>

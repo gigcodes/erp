@@ -1,0 +1,99 @@
+@extends('layouts.app')
+
+@section('content')
+
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <div class="pull-left">
+                <h2>Purchase List</h2>
+
+                <form action="/purchases/" method="GET">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input name="term" type="text" class="form-control"
+                                       value="{{ isset($term) ? $term : '' }}"
+                                       placeholder="Search">
+                            </div>
+                            <div class="col-md-4">
+                                <button hidden type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="pull-right">
+                <a class="btn btn-secondary" href="{{ route('purchase.grid') }}">+</a>
+            </div>
+        </div>
+    </div>
+
+    @if ($message = Session::get('success'))
+        <div class="alert alert-success">
+            <p>{{ $message }}</p>
+        </div>
+    @endif
+
+    <table class="table table-bordered">
+        <tr>
+            <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">ID</a></th>
+            <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Date</a></th>
+            <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Purchase Handler</a></th>
+            <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Supplier Name</a></th>
+            <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Status</a></th>
+            <th>Message Status</th>
+            <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
+            <th width="280px">Action</th>
+        </tr>
+        @foreach ($purchases_array as $key => $purchase)
+            <tr>
+                <td>{{ $purchase['id'] }}</td>
+                <td>{{ Carbon\Carbon::parse($purchase['created_at'])->format('d-m-Y') }}</td>
+                <td>{{ $purchase['purchase_handler'] ? $users[$purchase['purchase_handler']] : 'nil' }}</td>
+                <td>{{ $purchase['supplier'] }}</td>
+                <td>{{ $purchase['status']}}</td>
+                <td>
+                  {{-- @if ($order['communication']['status'] != null && $order['communication']['status'] == 0)
+                    Unread
+                  @elseif ($order['communication']['status'] == 5)
+                    Read
+                  @elseif ($order['communication']['status'] == 6)
+                    Replied
+                  @elseif ($order['communication']['status'] == 1)
+                    Awaiting Approval
+                  @elseif ($order['communication']['status'] == 2)
+                    Approved
+                  @elseif ($order['communication']['status'] == 4)
+                    Internal Message
+                  @endif --}}
+                </td>
+                <td>
+                  {{-- @if (strpos($order['communication']['body'], '<br>') !== false)
+                    {{ substr($order['communication']['body'], 0, strpos($order['communication']['body'], '<br>')) }}
+                  @else
+                    {{ $order['communication']['body'] }}
+                  @endif --}}
+                </td>
+                <td>
+                    <a class="btn btn-image" href="{{ route('purchase.show',$purchase['id']) }}"><img src="/images/view.png" /></a>
+                    {{-- @can('order-edit') --}}
+                    <a class="btn btn-image" href="{{ route('purchase.edit',$purchase['id']) }}"><img src="/images/edit.png" /></a>
+                    {{-- @endcan --}}
+
+                    {!! Form::open(['method' => 'DELETE','route' => ['purchase.destroy', $purchase['id']],'style'=>'display:inline']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                    {!! Form::close() !!}
+
+                    {{-- @can('order-delete') --}}
+                        {!! Form::open(['method' => 'DELETE','route' => ['purchase.permanentDelete', $purchase['id']],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                        {!! Form::close() !!}
+                    {{-- @endcan --}}
+                </td>
+            </tr>
+        @endforeach
+    </table>
+
+    {!! $purchases_array->appends(Request::except('page'))->links() !!}
+    {{--{!! $orders->links() !!}--}}
+@endsection
