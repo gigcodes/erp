@@ -166,6 +166,12 @@ class OrderController extends Controller {
 
 		$order = Order::create( $data );
 
+		if ($request->convert_order == 'convert_order') {
+			foreach ($request->selected_product as $product) {
+				self::attachProduct( $order->id, $product );
+			}
+		}
+
 		NotificationQueueController::createNewNotification([
 			'type' => 'button',
 			'message' => $data['client_name'],

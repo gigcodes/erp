@@ -329,98 +329,100 @@
             <div class="col-xs-12 col-sm-12 mb-3">
               <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
 
-              <table class="table">
-                  <thead>
-                    <tr>
-                        <th>Sr No</th>
-                        <th>Date</th>
-                        <th class="category">Category</th>
-                        <th>Task Subject</th>
-                        <th>Est Completion Date</th>
-                        <th>Assigned From</th>
-                        <th>&nbsp;</th>
-                        {{-- <th>Remarks</th> --}}
-                        <th>Action</th>
+              @if (count($tasks) > 0)
+                <table class="table">
+                    <thead>
+                      <tr>
+                          <th>Sr No</th>
+                          <th>Date</th>
+                          <th class="category">Category</th>
+                          <th>Task Subject</th>
+                          <th>Est Completion Date</th>
+                          <th>Assigned From</th>
+                          <th>&nbsp;</th>
+                          {{-- <th>Remarks</th> --}}
+                          <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <?php $i = 1; $users_array = \App\Helpers::getUserArray(\App\User::all()); ?>
+                      @foreach($tasks as $task)
+                    <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
+                        <td>{{$i++}}</td>
+                        <td>{{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
+                        <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
+                        <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
+                        <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
+                        <td>{{ $users_array[$task['assign_from']] }}</td>
+                        @if( $task['assign_to'] == Auth::user()->id )
+                            <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
+                        @else
+                            <td>Assign to  {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
+                        @endif
+                        {{-- <td> --}}
+                          <!-- @include('task-module.partials.remark',$task)  -->
+                        {{-- </td> --}}
+                        <td>
+                            <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
+                            <span> | </span>
+                            <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
+                          <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
+                        </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                      <?php $i = 1; $users_array = \App\Helpers::getUserArray(\App\User::all()); ?>
-                    @foreach($tasks as $task)
-                  <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
-                      <td>{{$i++}}</td>
-                      <td>{{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
-                      <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                      <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
-                      <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
-                      <td>{{ $users_array[$task['assign_from']] }}</td>
-                      @if( $task['assign_to'] == Auth::user()->id )
-                          <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
-                      @else
-                          <td>Assign to  {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
-                      @endif
-                      {{-- <td> --}}
-                        <!-- @include('task-module.partials.remark',$task)  -->
-                      {{-- </td> --}}
-                      <td>
-                          <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
-                          <span> | </span>
-                          <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
-                        <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
-                      </td>
-                  </tr>
 
-                  <!-- Modal -->
-                  <div id="add-new-remark_{{$task['id']}}" class="modal fade" role="dialog">
-                    <div class="modal-dialog">
+                    <!-- Modal -->
+                    <div id="add-new-remark_{{$task['id']}}" class="modal fade" role="dialog">
+                      <div class="modal-dialog">
 
-                      <!-- Modal content-->
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h4 class="modal-title">Add New Remark</h4>
-                          <button type="button" class="close" data-dismiss="modal">&times;</button>
-
-                        </div>
-                        <div class="modal-body">
-                          <form id="add-remark">
-                            <input type="hidden" name="id" value="">
-                            <textarea id="remark-text_{{$task['id']}}" rows="1" name="remark" class="form-control"></textarea>
-                            <button type="button" class="mt-2 " onclick="addNewRemark({{$task['id']}})">Add Remark</button>
-                        </form>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-
-                  <!-- Modal -->
-                  <div id="view-remark-list" class="modal fade" role="dialog">
-                    <div class="modal-dialog">
-
-                      <!-- Modal content-->
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h4 class="modal-title">View Remark</h4>
-                          <button type="button" class="close" data-dismiss="modal">&times;</button>
-
-                        </div>
-                        <div class="modal-body">
-                          <div id="remark-list">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h4 class="modal-title">Add New Remark</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
 
                           </div>
+                          <div class="modal-body">
+                            <form id="add-remark">
+                              <input type="hidden" name="id" value="">
+                              <textarea id="remark-text_{{$task['id']}}" rows="1" name="remark" class="form-control"></textarea>
+                              <button type="button" class="mt-2 " onclick="addNewRemark({{$task['id']}})">Add Remark</button>
+                          </form>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          </div>
                         </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-                      </div>
 
+                      </div>
                     </div>
-                  </div>
-                 @endforeach
-                  </tbody>
-                </table>
+
+                    <!-- Modal -->
+                    <div id="view-remark-list" class="modal fade" role="dialog">
+                      <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h4 class="modal-title">View Remark</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                          </div>
+                          <div class="modal-body">
+                            <div id="remark-list">
+
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                   @endforeach
+                    </tbody>
+                  </table>
+                @endif
             </div>
             <div class="col-xs-12">
               <div class="row">

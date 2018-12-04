@@ -301,6 +301,7 @@ class LeadsController extends Controller
         $leads = Leads::find($id);
         $status = New status;
         $data = $status->all();
+        $sales_persons = Helpers::getUsersArrayByRole( 'Sales' );
         $leads['statusid'] = $data;
         $users = User::all()->toArray();
         $leads['users']  = $users;
@@ -329,8 +330,9 @@ class LeadsController extends Controller
                $data['products_array'][$product_id] = $skuOrName;
             }
         }
+        // dd($leads);
        // var_dump($role);
-        return view('leads.show',compact('leads','id','data', 'tasks', 'approval_replies', 'internal_replies'));
+        return view('leads.show',compact('leads','id','data', 'tasks', 'approval_replies', 'internal_replies', 'sales_persons'));
     }
 
     /**

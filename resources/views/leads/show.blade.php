@@ -212,7 +212,7 @@
                                 });
 
 
-                                jQuery('#select2').select2({
+                                jQuery('#select2, #select2Order').select2({
                                     ajax: {
                                         url: '/productSearch/',
                                         dataType: 'json',
@@ -239,6 +239,8 @@
                                     minimumInputLength: 5,
                                     templateResult: formatProduct,
                                     templateSelection:function(product) {
+                                      console.log('YRA');
+                                      console.log(product.id);
                                          return product.text || product.name;
                                      },
 
@@ -257,7 +259,7 @@
                                     ];
                                 @endif
 
-                                let productSelect = jQuery('#select2');
+                                let productSelect = jQuery('#select2, #select2Order');
                                 // create the option and append to Select2
 
                                 data.forEach(function (item) {
@@ -348,67 +350,193 @@
                             {{ $leads['remark'] }}
                         </div>
                     </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#orderModal" id="addOrderButton">Convert to Order</button>
+                        </div>
+                    </div>
                 </div>
          </form>
-         <div class="col-xs-12 col-sm-12">
-            <hr>
-         </div>
 
-         <div id="taskModal" class="modal fade" role="dialog">
+         <div id="orderModal" class="modal fade" role="dialog">
            <div class="modal-dialog">
 
              <!-- Modal content-->
              <div class="modal-content">
                <div class="modal-header">
+                 <h4 class="modal-title">Convert to Order</h4>
                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                 <h4 class="modal-title">Create Task</h4>
                </div>
 
-               <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
+               <form action="{{ route('order.store') }}" method="POST" enctype="multipart/form-data">
                  @csrf
 
-                 <input type="hidden" name="task_type" value="quick_task">
-                 <input type="hidden" name="model_type" value="leads">
-                 <input type="hidden" name="model_id" value="{{ $leads['id'] }}">
+                 <input type="hidden" name="convert_order" value="convert_order">
 
                  <div class="modal-body">
                    <div class="form-group">
-                       <strong>Task Subject:</strong>
-                        <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" id="task_subject" required />
-                        @if ($errors->has('task_subject'))
-                            <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
-                        @endif
-                   </div>
-                   <div class="form-group">
-                       <strong>Task Details:</strong>
-                        <textarea class="form-control" name="task_details" placeholder="Task Details" required></textarea>
-                        @if ($errors->has('task_details'))
-                            <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
-                        @endif
-                   </div>
+                       <strong> Order Type :</strong>
+   			        <?php
 
-                   <div class="form-group" id="completion_form_group">
-                     <strong>Completion Date:</strong>
-                     <div class='input-group date' id='completion-datetime'>
-                       <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+   	                $order_types = [
+   	                	'offline' => 'offline',
+                           'online' => 'online'
+                       ];
 
-                       <span class="input-group-addon">
-                         <span class="glyphicon glyphicon-calendar"></span>
-                       </span>
-                     </div>
-
-                     @if ($errors->has('completion_date'))
-                         <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-                     @endif
+   			        echo Form::select('order_type',$order_types, old('order_type'), ['class' => 'form-control']);?>
+                       @if ($errors->has('order_type'))
+                           <div class="alert alert-danger">{{$errors->first('order_type')}}</div>
+                       @endif
                    </div>
 
                    <div class="form-group">
-                       <strong>Assigned To:</strong>
-                       <select name="assign_to" class="form-control">
-                         @foreach($leads['users'] as $user)
-                           <option value="{{$user['id']}}">{{$user['name']}}</option>
-                         @endforeach
-                       </select>
+                       <strong>Order Date:</strong>
+                       <input type="date" class="form-control" name="order_date" placeholder="Order Date"
+                              value="{{ old('order_date') ? old('order_date') : date('Y-m-d') }}"/>
+                       @if ($errors->has('order_date'))
+                           <div class="alert alert-danger">{{$errors->first('order_date')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Date of Delivery:</strong>
+                       <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
+                              value="{{ old('date_of_delivery') ? old('date_of_delivery') : date('Y-m-d') }}"/>
+                       @if ($errors->has('date_of_delivery'))
+                           <div class="alert alert-danger">{{$errors->first('date_of_delivery')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Client Name:</strong>
+                       <input type="text" class="form-control" name="client_name" placeholder="Client Name"
+                              value="{{ old('client_name') ? old('client_name') : ($leads->client_name ? $leads->client_name : '') }}"/>
+                       @if ($errors->has('client_name'))
+                           <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>City:</strong>
+                       <input type="text" class="form-control" name="city" placeholder="City"
+                              value="{{ old('city') ? old('city') : ($leads->city ? $leads->city : '') }}"/>
+                       @if ($errors->has('city'))
+                           <div class="alert alert-danger">{{$errors->first('city')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Contact Detail:</strong>
+                       <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
+                              value="{{ old('contact_detail') ? old('contact_detail') : ($leads->contactno ? $leads->contactno : '') }}"/>
+                       @if ($errors->has('contact_detail'))
+                           <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                     <strong>Selected Products</strong>
+                     <select name="selected_product[]" class="select2 form-control" multiple="multiple" id="select2Order"></select>
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Advance Amount:</strong>
+                       <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
+                              value="{{ old('advance_detail') }}"/>
+                       @if ($errors->has('advance_detail'))
+                           <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Advance Date:</strong>
+                       <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
+                              value="{{ old('advance_date') }}"/>
+                       @if ($errors->has('advance_date'))
+                           <div class="alert alert-danger">{{$errors->first('advance_date')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Balance Amount:</strong>
+                       <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
+                              value="{{ old('balance_amount') }}"/>
+                       @if ($errors->has('balance_amount'))
+                           <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong> Name of Order Handler :</strong>
+   			        <?php
+   			        echo Form::select('sales_person',$sales_persons, (old('sales_person') ? old('sales_person') : ($leads->assigned_user ? $leads->assigned_user : '')), ['placeholder' => 'Select a name','class' => 'form-control']);?>
+                       @if ($errors->has('sales_person'))
+                           <div class="alert alert-danger">{{$errors->first('sales_person')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Office Phone Number:</strong>
+                       <input type="text" class="form-control" name="office_phone_number" placeholder="Office Phone Number"
+                              value="{{ old('office_phone_number') }}"/>
+                       @if ($errors->has('office_phone_number'))
+                           <div class="alert alert-danger">{{$errors->first('office_phone_number')}}</div>
+                       @endif
+                   </div>
+
+
+
+
+                   <div class="form-group">
+                       <strong> Status :</strong>
+   			        <?php
+   			        $orderStatus = new \App\ReadOnly\OrderStatus;
+
+   			        echo Form::select('order_status',$orderStatus->all(), old('order_status'), ['placeholder' => 'Select a status','class' => 'form-control']);?>
+
+                       @if ($errors->has('order_status'))
+                           <div class="alert alert-danger">{{$errors->first('order_status')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Estimated Delivery Date:</strong>
+                       <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
+                              value="{{ old('estimated_delivery_date') }}"/>
+                       @if ($errors->has('estimated_delivery_date'))
+                           <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Received By:</strong>
+                       <input type="text" class="form-control" name="received_by" placeholder="Received By"
+                              value="{{ old('received_by') }}"/>
+                       @if ($errors->has('received_by'))
+                           <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong> Payment Mode :</strong>
+   			        <?php
+   			        $paymentModes = new \App\ReadOnly\PaymentModes();
+
+   			        echo Form::select('payment_mode',$paymentModes->all(), old('payment_mode'), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
+
+                       @if ($errors->has('payment_mode'))
+                           <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
+                       @endif
+                   </div>
+
+                   <div class="form-group">
+                       <strong>Note if any:</strong>
+                       <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
+                              value="{{ old('note_if_any') }}"/>
+                       @if ($errors->has('note_if_any'))
+                           <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
+                       @endif
                    </div>
                  </div>
                  <div class="modal-footer">
@@ -420,6 +548,11 @@
 
            </div>
          </div>
+
+         <div class="col-xs-12 col-sm-12">
+            <hr>
+         </div>
+
         </div>
         <div class="tab-pane" id="2">
             <div class="col-xs-12 col-sm-12">
@@ -470,101 +603,170 @@
         </div>
 
     </div>
+
+    <div id="taskModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Task</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <input type="hidden" name="task_type" value="quick_task">
+            <input type="hidden" name="model_type" value="leads">
+            <input type="hidden" name="model_id" value="{{ $leads['id'] }}">
+
+            <div class="modal-body">
+              <div class="form-group">
+                  <strong>Task Subject:</strong>
+                   <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" id="task_subject" required />
+                   @if ($errors->has('task_subject'))
+                       <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
+                   @endif
+              </div>
+              <div class="form-group">
+                  <strong>Task Details:</strong>
+                   <textarea class="form-control" name="task_details" placeholder="Task Details" required></textarea>
+                   @if ($errors->has('task_details'))
+                       <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
+                   @endif
+              </div>
+
+              <div class="form-group" id="completion_form_group">
+                <strong>Completion Date:</strong>
+                <div class='input-group date' id='completion-datetime'>
+                  <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+
+                @if ($errors->has('completion_date'))
+                    <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                @endif
+              </div>
+
+              <div class="form-group">
+                  <strong>Assigned To:</strong>
+                  <select name="assign_to" class="form-control">
+                    @foreach($leads['users'] as $user)
+                      <option value="{{$user['id']}}">{{$user['name']}}</option>
+                    @endforeach
+                  </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Create</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
   <div class="col-xs-12 col-sm-12 mb-3">
     <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
 
-    <table class="table">
-        <thead>
-          <tr>
-              <th>Sr No</th>
-              <th>Date</th>
-              <th class="category">Category</th>
-              <th>Task Subject</th>
-              <th>Est Completion Date</th>
-              <th>Assigned From</th>
-              <th>&nbsp;</th>
-              {{-- <th>Remarks</th> --}}
-              <th>Action</th>
+    @if (count($tasks) > 0)
+      <table class="table">
+          <thead>
+            <tr>
+                <th>Sr No</th>
+                <th>Date</th>
+                <th class="category">Category</th>
+                <th>Task Subject</th>
+                <th>Est Completion Date</th>
+                <th>Assigned From</th>
+                <th>&nbsp;</th>
+                {{-- <th>Remarks</th> --}}
+                <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+              <?php $i = 1; $users_array = \App\Helpers::getUserArray(\App\User::all()); ?>
+            @foreach($tasks as $task)
+          <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
+              <td>{{$i++}}</td>
+              <td>{{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
+              <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
+              <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
+              <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
+              <td>{{ $users_array[$task['assign_from']] }}</td>
+              @if( $task['assign_to'] == Auth::user()->id )
+                  <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
+              @else
+                  <td>Assign to  {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
+              @endif
+              {{-- <td> --}}
+                <!-- @include('task-module.partials.remark',$task)  -->
+              {{-- </td> --}}
+              <td>
+                  <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
+                  <span> | </span>
+                  <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
+                <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
+              </td>
           </tr>
-        </thead>
-        <tbody>
-            <?php $i = 1; $users_array = \App\Helpers::getUserArray(\App\User::all()); ?>
-          @foreach($tasks as $task)
-        <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
-            <td>{{$i++}}</td>
-            <td>{{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
-            <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-            <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
-            <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
-            <td>{{ $users_array[$task['assign_from']] }}</td>
-            @if( $task['assign_to'] == Auth::user()->id )
-                <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
-            @else
-                <td>Assign to  {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
-            @endif
-            {{-- <td> --}}
-              <!-- @include('task-module.partials.remark',$task)  -->
-            {{-- </td> --}}
-            <td>
-                <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
-                <span> | </span>
-                <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
-              <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
-            </td>
-        </tr>
 
-        <!-- Modal -->
-        <div id="add-new-remark_{{$task['id']}}" class="modal fade" role="dialog">
-          <div class="modal-dialog">
+          <!-- Modal -->
+          <div id="add-new-remark_{{$task['id']}}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
 
-            <!-- Modal content-->
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title">Add New Remark</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-
-              </div>
-              <div class="modal-body">
-                <form id="add-remark">
-                  <input type="hidden" name="id" value="">
-                  <textarea id="remark-text_{{$task['id']}}" rows="1" name="remark" class="form-control"></textarea>
-                  <button type="button" class="mt-2 " onclick="addNewRemark({{$task['id']}})">Add Remark</button>
-              </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Modal -->
-        <div id="view-remark-list" class="modal fade" role="dialog">
-          <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title">View Remark</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-
-              </div>
-              <div class="modal-body">
-                <div id="remark-list">
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Add New Remark</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
 
                 </div>
+                <div class="modal-body">
+                  <form id="add-remark">
+                    <input type="hidden" name="id" value="">
+                    <textarea id="remark-text_{{$task['id']}}" rows="1" name="remark" class="form-control"></textarea>
+                    <button type="button" class="mt-2 " onclick="addNewRemark({{$task['id']}})">Add Remark</button>
+                </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              </div>
-            </div>
 
+            </div>
           </div>
-        </div>
-       @endforeach
-        </tbody>
-      </table>
+
+          <!-- Modal -->
+          <div id="view-remark-list" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">View Remark</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                </div>
+                <div class="modal-body">
+                  <div id="remark-list">
+
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+         @endforeach
+          </tbody>
+        </table>
+      @endif
  </div>
 
  <div class="col-xs-12">
