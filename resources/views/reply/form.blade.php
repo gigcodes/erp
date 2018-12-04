@@ -40,6 +40,8 @@
                       <option value="Internal Lead" {{ $model == 'Internal Lead' ? 'selected' : '' }}>Internal Lead</option>
                       <option value="Approval Order" {{ $model == 'Approval Order' ? 'selected' : '' }}>Approval Order</option>
                       <option value="Internal Order" {{ $model == 'Internal Order' ? 'selected' : '' }}>Internal Order</option>
+                      <option value="Approval Purchase" {{ $model == 'Approval Purchase' ? 'selected' : '' }}>Approval Purchase</option>
+                      <option value="Internal Purchase" {{ $model == 'Internal Purchase' ? 'selected' : '' }}>Internal Purchase</option>
                     </select>
                     @if ($errors->has('model'))
                         <div class="alert alert-danger">{{$errors->first('model')}}</div>

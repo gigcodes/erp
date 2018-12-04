@@ -53,6 +53,21 @@
             </div>
 
             <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="form-group">
+                <strong>Supplier</strong>
+
+                <select class="form-control" name="supplier">
+                  <option value="">Select Supplier</option>
+                  <option value="G&B, Negozi Online" {{ "G&B, Negozi Online" == $productselection->supplier ? 'selected' : '' }}>G&B, Negozi Online</option>
+                  <option value="Cuccuini" {{ "Cuccuini" == $productselection->supplier ? 'selected' : '' }}>Cuccuini</option>
+                  <option value="The DoubleF" {{ "The DoubleF" == $productselection->supplier ? 'selected' : '' }}>The DoubleF</option>
+                  <option value="Divo Boutique" {{ "Divo Boutique" == $productselection->supplier ? 'selected' : '' }}>Divo Boutique</option>
+                  <option value="Tory Burch" {{ "Tory Burch" == $productselection->supplier ? 'selected' : '' }}>Tory Burch</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Supplier Link :</strong>
                     <input type="text" class="form-control" name="supplier_link" placeholder="Supplier Link" value="{{ old('supplier_link') ? old('supplier_link') : $productselection->supplier_link }}"/>

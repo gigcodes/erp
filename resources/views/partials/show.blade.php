@@ -203,6 +203,13 @@
 
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
+                        <strong> Supplier :</strong>
+                        {{ $supplier }}
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
                         <strong> Supplier Link :</strong>
                         {{ $supplier_link }}
                     </div>

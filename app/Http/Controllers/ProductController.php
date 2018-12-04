@@ -113,6 +113,7 @@ class ProductController extends Controller {
 		$data['reason']        = $product->rejected_note;
 
 		$data['product_link']     = $product->product_link;
+		$data['supplier']    = $product->supplier;
 		$data['supplier_link']    = $product->supplier_link;
 		$data['description_link'] = $product->description_link;
 
@@ -206,7 +207,7 @@ class ProductController extends Controller {
 
 		if ($request->ajax()) {
 			$html = view('partials.image-load', ['products' => $products])->render();
-			
+
 			return response()->json(['html' => $html]);
 		}
 

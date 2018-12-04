@@ -107,6 +107,7 @@ class ProductAttributeController extends Controller
 		                                        ->selected($productattribute->category)
 		                                        ->renderAsDropdown();
 		$data['product_link'] = $productattribute->product_link;
+		$data['supplier'] = $productattribute->supplier;
 		$data['supplier_link'] = $productattribute->supplier_link;
 		$data['description_link'] = $productattribute->description_link;
 
@@ -144,6 +145,7 @@ class ProductAttributeController extends Controller
 		$productattribute->stage = $stage->get('Attribute');
 		$productattribute->category = $request->input('category');
 		$productattribute->product_link = $request->input('product_link');
+		$productattribute->supplier = $request->input('supplier');
 		$productattribute->supplier_link = $request->input('supplier_link');
 		$productattribute->description_link = $request->input('description_link');
 		$productattribute->last_attributer = Auth::id();

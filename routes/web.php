@@ -113,6 +113,7 @@ Route::middleware('auth')->group(function (){
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
 	Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');
 	Route::get('purchase/{id}/edit', 'PurchaseController@edit')->name('purchase.edit');
+	Route::post('purchase/{id}/changestatus', 'PurchaseController@updateStatus');
 	Route::delete('purchase/{id}/delete', 'PurchaseController@destroy')->name('purchase.destroy');
 	Route::delete('purchase/{id}/permanentDelete', 'PurchaseController@permanentDelete')->name('purchase.permanentDelete');
 	Route::get('purchaseGrid', 'PurchaseController@purchaseGrid')->name('purchase.grid');

@@ -14,6 +14,7 @@ use App\Comment;
 use App\Reply;
 use App\Message;
 use App\Task;
+use App\ReadOnly\PurchaseStatus;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PurchaseController extends Controller
@@ -195,8 +196,9 @@ class PurchaseController extends Controller
   		// $purchase_statuses = (new OrderStatus)->all();
   		// $data['order_statuses'] = $purchase_statuses;
   		$data['tasks'] = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->whereNull('is_completed')->get()->toArray();
-  		$data['approval_replies'] = Reply::where('model', 'Approval Order')->get();
-  		$data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
+  		$data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
+  		$data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
+      $data['purchase_status'] = (new PurchaseStatus)->all();
       // dd($purchase);
   		return view('purchase.show', $data)->withOrder($purchase);
     }
@@ -222,6 +224,13 @@ class PurchaseController extends Controller
     public function update(Request $request, $id)
     {
         //
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+      $order = Purchase::find($id);
+      $order->status = $request->status;
+      $order->save();
     }
 
     /**

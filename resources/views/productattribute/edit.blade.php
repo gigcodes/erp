@@ -243,6 +243,21 @@
                 </div>
             </div>
 
+            <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="form-group">
+                <strong>Supplier</strong>
+
+                <select class="form-control" name="supplier">
+                  <option value="">Select Supplier</option>
+                  <option value="G&B, Negozi Online" {{ "G&B, Negozi Online" == $supplier ? 'selected' : '' }}>G&B, Negozi Online</option>
+                  <option value="Cuccuini" {{ "Cuccuini" == $supplier ? 'selected' : '' }}>Cuccuini</option>
+                  <option value="The DoubleF" {{ "The DoubleF" == $supplier ? 'selected' : '' }}>The DoubleF</option>
+                  <option value="Divo Boutique" {{ "Divo Boutique" == $supplier ? 'selected' : '' }}>Divo Boutique</option>
+                  <option value="Tory Burch" {{ "Tory Burch" == $supplier ? 'selected' : '' }}>Tory Burch</option>
+                </select>
+              </div>
+            </div>
+
 
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">

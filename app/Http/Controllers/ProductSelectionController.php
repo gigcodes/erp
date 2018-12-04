@@ -87,6 +87,7 @@ class ProductSelectionController extends Controller
 		$productselection->sku = $request->input('sku');
 		$productselection->size = $request->input('size');
 		$productselection->price = $request->input('price');
+		$productselection->supplier = $request->input('supplier');
 		$productselection->supplier_link = $request->input('supplier_link');
 //		$productselection->description_link = $request->input('description_link');
 //		$productselection->image = Image::newImage();
@@ -129,6 +130,7 @@ class ProductSelectionController extends Controller
 		$productselection->sku = $request->input('sku');
 		$productselection->size = $request->input('size');
 		$productselection->price = $request->input('price');
+		$productselection->supplier = $request->input('supplier');
 		$productselection->supplier_link = $request->input('supplier_link');
 //		$productselection->description_link = $request->input('description_link');
 		$productselection->last_selector = Auth::id();

@@ -76,6 +76,7 @@ class ProductSearcherController extends Controller
 		$productsearcher->size = $request->input('size');
 		$productsearcher->price = $request->input('price');
 		$productsearcher->product_link = $request->input('product_link');
+		$productsearcher->supplier = $request->input('supplier');
 		$productsearcher->supplier_link = $request->input('supplier_link');
 		$productsearcher->description_link = $request->input('description_link');
 		$productsearcher->stage = $stage->get('Searcher');
