@@ -27,7 +27,11 @@
             }
 			var call = $("<button class='btn btn-primary'>Call</button>");
 			call.click( function() {
-				callNumber( number );
+                var numberToCall = number;
+                if (!numberToCall.startsWith("+")) {
+                    numberToCall = "+"+number;
+                }
+				callNumber( numberToCall );
 			} );
 			call.insertAfter( this );
 		} );

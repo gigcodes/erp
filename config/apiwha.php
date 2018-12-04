@@ -18,5 +18,6 @@ return [
             'number' => '919152731483',
             'key' => '1KWDP9M0LDCKY9O6QQW8'
         ]
-    ]
+    ],
+    'media_path' => realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, "..", "public", "apiwha", "media")))
 ];
