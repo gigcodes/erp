@@ -14,9 +14,10 @@ use App\ReadOnlyBase;
 class PurchaseStatus extends ReadOnlyBase {
 
 	protected $data = [
-		'Proceed without Advance' => 'Proceed without Advance',
-		'Advance received' => 'Advance received',
-		'Cancel' => 'Cancel',
-		'TEST' => 'TEST',
+		'Ordered' => 'Ordered',
+		'Shipped' => 'Shipped',
+		'In transit in Italy' => 'In transit in Italy',
+		'In transit in Dubai' => 'In transit in Dubai',
+		'Received in Mumbai' => 'Received in Mumbai',
 	];
 }

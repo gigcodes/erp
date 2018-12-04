@@ -191,6 +191,10 @@ class MessageController extends Controller
 	            ] );
             }
 
+            if ($moduletype == 'product') {
+              $moduletype = 'purchase/product';
+            }
+
            return redirect('/'. $moduletype.'/'.$id);
     }
 

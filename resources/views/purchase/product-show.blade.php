@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-lg-12 margin-tb">
     <div class="pull-left">
-      <h2>Purchase Bulk Order</h2>
+      <h2>Purchase Product</h2>
     </div>
     <div class="pull-right">
       <a class="btn btn-secondary" href="{{ route('purchase.index') }}">Back</a>
@@ -26,18 +26,34 @@
 <div class="row">
   <div class="col-md-6 col-12">
     <div class="form-group">
-      <strong>ID:</strong> {{ $order->id }}
+      <strong>ID:</strong> {{ $product->id }}
     </div>
 
     <div class="form-group">
-      <strong>Date:</strong> {{ Carbon\Carbon::parse($order->created_at)->format('d-m H:i') }}
+      <strong>Name:</strong> {{ $product->name }}
     </div>
 
     <div class="form-group">
-      <strong>Supplier:</strong> {{ $order->supplier }}
+      <strong>Brand:</strong> {{ \App\Http\Controllers\BrandController::getBrandName($product->brand) }}
     </div>
 
     <div class="form-group">
+      <strong>Color:</strong> {{ $product->color }}
+    </div>
+
+    <div class="form-group">
+      <strong>Price (in Euro):</strong> {{ $product->price }}
+    </div>
+
+    <div class="form-group">
+      <strong>Purchase cost:</strong> Not yet
+    </div>
+
+    <div class="form-group">
+      <strong>Supplier Link:</strong> {{ $product->supplier_link }}
+    </div>
+
+    {{-- <div class="form-group">
       <strong>Status:</strong>
       <Select name="status" class="form-control" id="change_status">
            @foreach($purchase_status as $key => $value)
@@ -45,197 +61,21 @@
             @endforeach
       </Select>
       <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
-    </div>
-
-    {{-- @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status );
-    @endphp
-
-    <div class="form-group">
-      <strong>status:</strong>
-      <Select name="status" class="form-control" id="change_status">
-        @foreach($order_statuses as $key => $value)
-        <option value="{{$value}}" {{$value == $status ? 'Selected=Selected':''}}>{{$key}}</option>
-        @endforeach
-      </Select>
-      <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
     </div> --}}
+
   </div>
   <div class="col-md-6 col-12">
     <div class="row">
-      @foreach ($order->products as $product)
+      @foreach ($product->getMedia(config('constants.media_tags')) as $image)
         <div class="col-md-4">
-          <a href="{{ route('purchase.product.show', $product->id) }}">
-            <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive" alt="">
-          </a>
+          <img src="{{ $image->getUrl() }}" class="img-responsive" alt="">
         </div>
       @endforeach
     </div>
   </div>
 </div>
 
-<div id="taskModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Create Task</h4>
-      </div>
-
-      <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-
-        <input type="hidden" name="task_type" value="quick_task">
-        <input type="hidden" name="model_type" value="purchase">
-        <input type="hidden" name="model_id" value="{{ $order->id }}">
-
-        <div class="modal-body">
-          <div class="form-group">
-            <strong>Task Subject:</strong>
-            <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" id="task_subject" required />
-            @if ($errors->has('task_subject'))
-            <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Task Details:</strong>
-            <textarea class="form-control" name="task_details" placeholder="Task Details" required></textarea>
-            @if ($errors->has('task_details'))
-            <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group" id="completion_form_group">
-            <strong>Completion Date:</strong>
-            <div class='input-group date' id='completion-datetime'>
-              <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
-
-              <span class="input-group-addon">
-                <span class="glyphicon glyphicon-calendar"></span>
-              </span>
-            </div>
-
-            @if ($errors->has('completion_date'))
-            <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group">
-            <strong>Assigned To:</strong>
-            <select name="assign_to" class="form-control">
-              @foreach($users as $user)
-              <option value="{{$user['id']}}">{{$user['name']}}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Create</button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-xs-12 col-sm-12 mb-3">
-    <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
-
-    @if (count($tasks) > 0)
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Sr No</th>
-            <th>Date</th>
-            <th class="category">Category</th>
-            <th>Task Subject</th>
-            <th>Est Completion Date</th>
-            <th>Assigned From</th>
-            <th>&nbsp;</th>
-            {{-- <th>Remarks</th> --}}
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php $i = 1; $users_array = \App\Helpers::getUserArray(\App\User::all()); $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory(); ?>
-          @foreach($tasks as $task)
-          <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
-            <td>{{$i++}}</td>
-            <td>{{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
-            <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-            <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
-            <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
-            <td>{{ $users_array[$task['assign_from']] }}</td>
-            @if( $task['assign_to'] == Auth::user()->id )
-            <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
-            @else
-            <td>Assign to {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
-            @endif
-            <td>
-              <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
-              <span> | </span>
-              <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
-              <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
-            </td>
-          </tr>
-
-          <!-- Modal -->
-          <div id="add-new-remark_{{$task['id']}}" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-
-              <!-- Modal content-->
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title">Add New Remark</h4>
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-
-                </div>
-                <div class="modal-body">
-                  <form id="add-remark">
-                    <input type="hidden" name="id" value="">
-                    <textarea id="remark-text_{{$task['id']}}" rows="1" name="remark" class="form-control"></textarea>
-                    <button type="button" class="mt-2 " onclick="addNewRemark({{$task['id']}})">Add Remark</button>
-                  </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Modal -->
-          <div id="view-remark-list" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-
-              <!-- Modal content-->
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title">View Remark</h4>
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-
-                </div>
-                <div class="modal-body">
-                  <div id="remark-list">
-
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          @endforeach
-        </tbody>
-      </table>
-    @endif
-  </div>
+<div class="row mt-5">
   <div class="col-xs-12">
     <div class="row">
       <div class="col-xs-12 col-sm-6">
@@ -253,9 +93,9 @@
           <div class="form-group flex-fill">
             <textarea class="form-control" name="body" placeholder="Received from Customer"></textarea>
 
-            <input type="hidden" name="moduletype" value="purchase" />
-            <input type="hidden" name="moduleid" value="{{ $order->id }}" />
-            <input type="hidden" name="assigned_user" value="{{ $order->purchase_handler }}" />
+            <input type="hidden" name="moduletype" value="product" />
+            <input type="hidden" name="moduleid" value="{{ $product->id }}" />
+            <input type="hidden" name="assigned_user" value="" />
             <input type="hidden" name="status" value="0" />
           </div>
 
@@ -277,10 +117,10 @@
           <div class="form-group flex-fill">
             <textarea class="form-control mb-3" name="body" placeholder="Send for Approval" id="message-body"></textarea>
 
-            <input type="hidden" name="moduletype" value="purchase" />
-            <input type="hidden" name="moduleid" value="{{ $order->id }}" />
+            <input type="hidden" name="moduletype" value="product" />
+            <input type="hidden" name="moduleid" value="{{ $product->id }}" />
             <input type="hidden" name="status" value="1" />
-            <input type="hidden" name="assigned_user" value="{{ $order->purchase_handler }}" />
+            <input type="hidden" name="assigned_user" value="" />
 
             <p class="pb-4" style="display: block;">
               <select name="quickComment" id="quickComment" class="form-control">
@@ -309,16 +149,13 @@
           <div class="form-group flex-fill">
             <textarea class="form-control mb-3" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
 
-            <input type="hidden" name="moduletype" value="purchase" />
-            <input type="hidden" name="moduleid" value="{{ $order->id }}" />
+            <input type="hidden" name="moduletype" value="product" />
+            <input type="hidden" name="moduleid" value="{{ $product->id }}" />
             <input type="hidden" name="status" value="4" />
 
             <strong>Assign to</strong>
             <select name="assigned_user" class="form-control mb-3" required>
               <option value="">Select User</option>
-              @if (isset($order->purchase_handler))
-              <option value="{{ $order->purchase_handler }}">Purchase Handler</option>
-              @endif
               @foreach($users as $user)
               <option value="{{$user['id']}}">{{$user['name']}}</option>
               @endforeach
@@ -420,7 +257,7 @@
             </p>
             @endif
 
-            <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ ($message['assigned_to'] != 0 && $message['assigned_to'] != $order->purchase_handler && $message['userid'] != $message['assigned_to']) ? ' - ' . App\Helpers::getUserNameById($message['assigned_to']) : '' }}
+            <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ ($message['assigned_to'] != 0 && $message['userid'] != $message['assigned_to']) ? ' - ' . App\Helpers::getUserNameById($message['assigned_to']) : '' }}
               {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }} <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
       </div>
     </div>
@@ -540,16 +377,6 @@
     });
   });
 
-  $(document).on('change', '.is_statutory', function() {
-    if ($(".is_statutory").val() == 1) {
-      $("#completion_form_group").hide();
-      $('#recurring-task').show();
-    } else {
-      $("#completion_form_group").show();
-      $('#recurring-task').hide();
-    }
-  });
-
   $(document).on('click', ".collapsible-message", function() {
     var short_message = $(this).data('messageshort');
     var message = $(this).data('message');
@@ -571,19 +398,13 @@
     }
   });
 
-  $('#addTaskButton').on('click', function() {
-    var client_name = "TEST ";
-
-    $('#task_subject').val(client_name);
-  });
-
   $('#change_status').on('change', function() {
     var token = "{{ csrf_token() }}";
     var status = $(this).val();
-    var id = {{ $order->id }};
+    var id = {{ $product->id }};
 
     $.ajax({
-      url: '/purchase/' + id + '/changestatus',
+      url: '/product/' + id + '/changestatus',
       type: 'POST',
       data: {
         _token: token,
@@ -617,63 +438,6 @@
     });
   });
 
-  $(document).on('click', '.task-subject', function() {
-    if ($(this).data('switch') == 0) {
-      $(this).text($(this).data('details'));
-      $(this).data('switch', 1);
-    } else {
-      $(this).text($(this).data('subject'));
-      $(this).data('switch', 0);
-    }
-  });
-
-  function addNewRemark(id) {
-
-    var formData = $("#add-new-remark").find('#add-remark').serialize();
-    var remark = $('#remark-text_' + id).val();
-
-    $.ajax({
-      type: 'POST',
-      headers: {
-        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-      },
-      url: '{{ route('task.addRemark') }}',
-      data: {
-        id: id,
-        remark: remark
-      },
-    }).done(response => {
-      alert('Remark Added Success!');
-      window.location.reload();
-    });
-  }
-
-  $(".view-remark").click(function() {
-    var taskId = $(this).attr('data-id');
-
-    $.ajax({
-      type: 'GET',
-      headers: {
-        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-      },
-      url: '{{ route('task.gettaskremark') }}',
-      data: {
-        id: taskId
-      },
-    }).done(response => {
-      console.log(response);
-
-      var html = '';
-
-      $.each(response, function(index, value) {
-
-        html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
-        html + "<hr>";
-      });
-      $("#view-remark-list").find('#remark-list').html(html);
-    });
-  });
-
   $(document).on('click', '.thumbnail-delete', function() {
     var thiss = $(this);
     var image = $(this).data('image');
@@ -703,28 +467,6 @@
         $('#message_body_' + message_id).children('.collapsible-message').data('messageshort', short_new_message);
         $('#message_body_' + message_id).children('.collapsible-message').data('message', new_message);
       }
-    });
-  });
-
-  $('#change_status').on('change', function() {
-    var token = "{{ csrf_token() }}";
-    var status = $(this).val();
-    var id = {{ $order->id }};
-
-    $.ajax({
-      url: '/purchase/' + id + '/changestatus',
-      type: 'POST',
-      data: {
-        _token: token,
-        status: status
-      }
-    }).done( function(response) {
-      $('#change_status_message').fadeIn(400);
-      setTimeout(function () {
-        $('#change_status_message').fadeOut(400);
-      }, 2000);
-    }).fail(function(errObj) {
-      alert("Could not change status");
     });
   });
 </script>

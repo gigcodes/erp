@@ -203,6 +203,21 @@ class PurchaseController extends Controller
   		return view('purchase.show', $data)->withOrder($purchase);
     }
 
+    public function productShow($id)
+    {
+      $product = Product::find($id);
+
+  		$data['users']          = User::all()->toArray();
+  		$messages = Message::all()->where('moduleid', $product->id)->where('moduletype','=', 'product')->sortByDesc("created_at")->take(10)->toArray();
+      $data['messages'] = $messages;
+
+  		$data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
+  		$data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
+      // $data['purchase_status'] = (new PurchaseStatus)->all();
+
+  		return view('purchase.product-show', $data)->withProduct($product);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

@@ -11,6 +11,6 @@ class Purchase extends Model
 
   public function products()
   {
-    return $this->belongsToMany('App\PurchaseProduct', 'purchase_products', 'purchase_id', 'product_id');
+    return $this->belongsToMany('App\Product', 'purchase_products', 'purchase_id', 'product_id');
   }
 }
