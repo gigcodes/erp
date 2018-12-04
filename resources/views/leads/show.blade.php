@@ -431,14 +431,14 @@
                    </div>
                 </div>
             </div>
-            <div class="col-md-10">
+            <div class="col-xs-10">
                     <textarea id="waNewMessage" class="form-control" placeholder="Type new message.."></textarea>
                     <br/>
                     <label>Attach Media</label>
                     <input id="waMessageMedia" type="file" name="media" />
             </div>
-            <div class="col-md-2">
-                <button id="waMessageSend" class="btn btn-success">Send</button>
+            <div class="col-xs-2">
+                <button id="waMessageSend" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
             </div>
 
         </div>
@@ -1005,10 +1005,11 @@
             console.error("error occured: " , error);
         }
         function approveMessage(message) {
-            $.post( "/whatsapp/leads", { messageId: message.id })
+            $.post( "/whatsapp/approve/leads", { messageId: message.id })
               .done(function( data ) {
                 alert( "Message was approved" );
-              }).fail(function() {
+              }).fail(function(response) {
+                console.log(response);
                 alert( "Technical error. could not approve message");
               });
         }
@@ -1038,19 +1039,20 @@
 					return;
 				}
 				var domId = "waMessage_" + message.id;
+        var row = $("<div class='talk-bubble round'></div>");
                 if (message.received) {
-				    var row = $("<div class='talk-bubble tri-right round right-in blue'><span class='date'>" + message.date + "</span></div>");
+                  var text = $("<div class='talktext'><span class='date'>" + message.date + "</span></div>");
                 } else {
-				    var row = $("<div class='talk-bubble tri-right round left-in white'><span class='date'>" + message.date + "</span></div>");
+      				    var text = $("<div class='talktext'><span class='date'>" + message.date + "</span></div>");
                     if (!message.approved) {
-                        var approveBtn = $("<button class='btn btn-success btn-approve'>Approve</button>");
+                        var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
                         approveBtn.click(function() {
                             approveMessage( message );
                         } );
-                        approveBtn.appendTo( row );
+                        approveBtn.appendTo( text );
                     }
                 }
-                var text = $("<div class='talktext'></div>");
+
                 var p = $("<p class='collapsible-message'></p>");
 
                 row.attr("id", domId);
@@ -1112,6 +1114,7 @@
                 "processData" : false,
                 "data": data
 			}).done( function(response) {
+        console.log(response);
 				console.log("message was sent");
 			}).fail(function(errObj) {
 				alert("Could not send message");

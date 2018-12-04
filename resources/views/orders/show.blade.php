@@ -215,11 +215,11 @@
                    </div>
                 </div>
             </div>
-            <div class="col-md-10">
+            <div class="col-xs-10">
                     <textarea id="waNewMessage" class="form-control" placeholder="Type new message.."></textarea>
             </div>
-            <div class="col-md-2">
-                <button id="waMessageSend" class="btn btn-success">Send</button>
+            <div class="col-xs-2">
+                <button id="waMessageSend" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
             </div>
           </div>
 
@@ -983,19 +983,60 @@
 		var container = $("div#waMessages");
 		var sendBtn = $("#waMessageSend");
 		var orderId = "{{$id}}";
+
+    var addElapse = false;
+    function errorHandler(error) {
+        console.error("error occured: " , error);
+    }
+    function approveMessage(message) {
+        $.post( "/whatsapp/approve/orders", { messageId: message.id })
+          .done(function( data ) {
+            alert( "Message was approved" );
+          }).fail(function(response) {
+            console.log(response);
+            alert( "Technical error. could not approve message");
+          });
+    }
+    function createMessageArgs() {
+         var data = new FormData();
+        var text = $("#waNewMessage").val();
+        var files = $("#waMessageMedia").prop("files");
+        var text = $("#waNewMessage").val();
+  var data = { "order_id": orderId };
+        if (files && files.length>0){
+            for ( var i = 0; i != files.length; i ++ ) {
+              data.append("media[]", files[ i ]);
+            }
+            return data;
+        }
+        if (text !== "") {
+            data.append("text", text);
+            return data;
+        }
+        alert("please enter a message or attach media");
+      }
+
 		function renderMessage(message) {
 				var domId = "waMessage_" + message.id;
 				var current = $("#" + domId);
 				if ( current.get( 0 ) ) {
 					return;
 				}
-				var domId = "waMessage_" + message.id;
+        var domId = "waMessage_" + message.id;
+        var row = $("<div class='talk-bubble round'></div>");
                 if (message.received) {
-				    var row = $("<div class='talk-bubble tri-right round right-in blue'></div>");
+                  var text = $("<div class='talktext'><span class='date'>" + message.date + "</span></div>");
                 } else {
-				    var row = $("<div class='talk-bubble tri-right round left-in white'></div>");
+      				    var text = $("<div class='talktext'><span class='date'>" + message.date + "</span></div>");
+                    if (!message.approved) {
+                        var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
+                        approveBtn.click(function() {
+                            approveMessage( message );
+                        } );
+                        approveBtn.appendTo( text );
+                    }
                 }
-                var text = $("<div class='talktext'></div>");
+
                 var p = $("<p class='collapsible-message'></p>");
 
                 row.attr("id", domId);
@@ -1003,33 +1044,61 @@
                 p.attr("data-messageshort", message.message);
                 p.attr("data-message", message.message);
                 p.attr("data-expanded", "true");
-                p.html( message.message );
+                if ( message.message ) {
+                    p.html( message.message );
+                } else if ( message.media_url ) {
+                    var splitted = "/".split(message.content_type);
+                    if (splitted[0]==="image") {
+                        $("<a target='_blank' href='" + message.media_url+"'><img src='" + message.media_url +"' width='100' height='100'/></a>").appendTo(p);
+                    } else if (splitted[0]==="video") {
+                        $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
+                    }
+                }
+
                 p.appendTo( text );
                 text.appendTo( row );
 				row.appendTo( container );
 		}
 		function pollMessages() {
-            var qs = "";
-            qs += "/orders?orderId=" + orderId;
-            qs += "&elapse=3600";
-			var url = $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
-				data.forEach(function( message ) {
-					renderMessage( message );
-				} );
-			});
+      var qs = "";
+      qs += "/orders?orderId=" + orderId;
+      if (addElapse) {
+          qs += "&elapse=3600";
+      }
+      return new Promise(function(resolve, reject) {
+          $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
+              data.forEach(function( message ) {
+                  renderMessage( message );
+              } );
+              if (!addElapse) {
+                  addElapse = true; // load less messages now
+              }
+              resolve();
+          });
+      });
 		}
 		function startPolling() {
-			setInterval( pollMessages, 1000);
+      setTimeout( function() {
+                pollMessages(addElapse).then(function() {
+                    startPolling();
+                }, errorHandler);
+            }, 1000);
 		}
-		function sendWAMessage() {
-			var text = $("#waNewMessage").val();
-			var data = { "order_id": orderId, "message": text };
+    function sendWAMessage() {
+			//var data = createMessageArgs();
+            var data = new FormData();
+            data.append("message", $("#waNewMessage").val());
+            data.append("order_id", orderId );
 			$.ajax({
 				url: '/whatsapp/sendMessage/orders',
 				type: 'POST',
-				contentType: 'application/json; charset=UTF-8',
-				data: JSON.stringify( data )
+                "dataType"    : 'text',           // what to expect back from the PHP script, if anything
+                "cache"       : false,
+                "contentType" : false,
+                "processData" : false,
+                "data": data
 			}).done( function(response) {
+        console.log(response);
 				console.log("message was sent");
 			}).fail(function(errObj) {
 				alert("Could not send message");

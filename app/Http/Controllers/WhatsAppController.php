@@ -102,10 +102,12 @@ class WhatsAppController extends FindByNumberController
                   }
                 }
             }
+
+            $message = ChatMessage::create($params);
         } catch (\Exception $ex) {
             return response($ex->getMessage(), 500);
         }
-       return response("");
+       return response($message);
     }
 	/**
      * poll messages
@@ -131,7 +133,7 @@ class WhatsAppController extends FindByNumberController
 		];
 		return response()->json($sample);
         */
-		
+
        $params = [];
        if ($context == "leads") {
             $id = $request->get("leadId");
@@ -175,20 +177,20 @@ class WhatsAppController extends FindByNumberController
        return response()->json( $result );
     }
 
-    public function approveMessage($context, $messageId)
+    public function approveMessage($context, Request $request)
 	{
         $user = \Auth::user();
-    
-        $message = ChatMessage::findOrFail($messageId);
+
+        $message = ChatMessage::findOrFail($request->messageId);
         $message->update([
             'approved' => 1
         ]);
         if ($context == "leads") {
-            $lead = Leads::find($message);
-            $this->sendWithWhatsApp( $lead->contactno, $data['message'] );
+            $lead = Leads::find($message->lead_id);
+            $this->sendWithWhatsApp( $lead->contactno, $message->message );
         } elseif ( $context == "orders") {
             $order = Order::find($message->order_id);
-            $this->sendWithWhatsApp( $lead->contact_detail, $data['message'] );
+            $this->sendWithWhatsApp( $order->contact_detail, $message->message );
         }
 
         return response("");
@@ -198,7 +200,7 @@ class WhatsAppController extends FindByNumberController
 	{
         $curl = curl_init();
         $keys = \Config::get("apiwha.api_keys");
-        $key = $keys[0]['key']; 
+        $key = $keys[0]['key'];
         $encodedNumber = urlencode($number);
         $encodedText = urlencode($text);
         //$number = "";
@@ -233,7 +235,7 @@ class WhatsAppController extends FindByNumberController
     }
     private function modifyParamsWithMessage($params, $data)
     {
-        if (filter_var($data['text'], FILTER_VALIDATE_URL)) { 
+        if (filter_var($data['text'], FILTER_VALIDATE_URL)) {
   // you're good
             $paths = explode("/", $data['message']);
             $file = $paths[ count( $paths ) - 1];
