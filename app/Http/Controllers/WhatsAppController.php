@@ -44,7 +44,7 @@ class WhatsAppController extends FindByNumberController
         if ( $lead ) {
             $params['lead_id'] = $lead->id;
             $params = $this->modifyParamsWithMessage($params, $data);
-            ChatMessage::create($params);
+
         }
 
         //save to orders
@@ -57,6 +57,8 @@ class WhatsAppController extends FindByNumberController
             $params['order_id'] = $order->id;
             $params = $this->modifyParamsWithMessage($params, $data);
         }
+
+        ChatMessage::create($params);
 
         return response("");
     }
