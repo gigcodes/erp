@@ -436,8 +436,13 @@
                    </div>
 
                    <div class="form-group">
-                     <strong>Selected Products</strong>
-                     <select name="selected_product[]" class="select2 form-control" multiple="multiple" id="select2Order"></select>
+                       <strong> Selected Product :</strong>
+
+                       <select name="selected_product[]" class="select2 form-control" multiple="multiple" id="select2Order" style="width: 100%;"></select>
+
+                       @if ($errors->has('selected_product'))
+                           <div class="alert alert-danger">{{$errors->first('selected_product')}}</div>
+                       @endif
                    </div>
 
                    <div class="form-group">
