@@ -1,0 +1,72 @@
+#productGrid h4{
+    border-bottom: 1px solid #6f6767;
+    padding: 15px 5px;
+}
+
+#productGrid  p{
+    margin-bottom: 5px;
+    color: black;
+}
+
+#productGrid  a:hover{
+    text-decoration: none;
+}
+
+.dropdown-item .btn-notify, .notification-table .btn-notify{
+    background: #64ec64;
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+.dropdown-item .item-left{
+    float: left;
+}
+
+.dropdown-item .item-right{
+    float: right;
+}
+
+.dropdown-menu .notify-drop-footer {
+    border-top: 1px solid #e2e2e2;
+    bottom: 0;
+    position: relative;
+    padding: 5px 15px 0px 15px;
+    margin-top: 5px;
+}
+
+.notification-dropdown .dropdown-item{
+    cursor: pointer;
+    white-space:normal;
+}
+
+
+.notification-dropdown ul:first-of-type{
+    width: 320px;
+}
+
+@media (max-width: 480px) {
+    .notification-dropdown ul:first-of-type{
+        width: 240px;
+    }
+}
+
+.isread .btn-notify{
+    display: none;
+}
+
+.isread span {
+    color: #8c8080;
+}
+.notification-table tr{
+    background: white;
+}
+
+.notification-table tr.isread{
+    background: #ECF2FB;
+}
+
+.grid-image{
+    max-width: 200px;
+}
