@@ -247,13 +247,12 @@
               <div class="form-group">
                 <strong>Supplier</strong>
 
+                @php $supplier_list = (new \App\ReadOnly\SupplierList)->all(); @endphp
                 <select class="form-control" name="supplier">
                   <option value="">Select Supplier</option>
-                  <option value="G&B, Negozi Online" {{ "G&B, Negozi Online" == $supplier ? 'selected' : '' }}>G&B, Negozi Online</option>
-                  <option value="Cuccuini" {{ "Cuccuini" == $supplier ? 'selected' : '' }}>Cuccuini</option>
-                  <option value="The DoubleF" {{ "The DoubleF" == $supplier ? 'selected' : '' }}>The DoubleF</option>
-                  <option value="Divo Boutique" {{ "Divo Boutique" == $supplier ? 'selected' : '' }}>Divo Boutique</option>
-                  <option value="Tory Burch" {{ "Tory Burch" == $supplier ? 'selected' : '' }}>Tory Burch</option>
+                  @foreach ($supplier_list as $index => $value)
+                    <option value="{{ $index }}" {{ $index == $supplier ? 'selected' : '' }}>{{ $value }}</option>
+                  @endforeach
                 </select>
               </div>
             </div>
