@@ -53,26 +53,26 @@
                 <td>{{ $purchase['supplier'] }}</td>
                 <td>{{ $purchase['status']}}</td>
                 <td>
-                  {{-- @if ($order['communication']['status'] != null && $order['communication']['status'] == 0)
+                  @if ($purchase['communication']['status'] != null && $purchase['communication']['status'] == 0)
                     Unread
-                  @elseif ($order['communication']['status'] == 5)
+                  @elseif ($purchase['communication']['status'] == 5)
                     Read
-                  @elseif ($order['communication']['status'] == 6)
+                  @elseif ($purchase['communication']['status'] == 6)
                     Replied
-                  @elseif ($order['communication']['status'] == 1)
+                  @elseif ($purchase['communication']['status'] == 1)
                     Awaiting Approval
-                  @elseif ($order['communication']['status'] == 2)
+                  @elseif ($purchase['communication']['status'] == 2)
                     Approved
-                  @elseif ($order['communication']['status'] == 4)
+                  @elseif ($purchase['communication']['status'] == 4)
                     Internal Message
-                  @endif --}}
+                  @endif
                 </td>
                 <td>
-                  {{-- @if (strpos($order['communication']['body'], '<br>') !== false)
-                    {{ substr($order['communication']['body'], 0, strpos($order['communication']['body'], '<br>')) }}
+                  @if (strpos($purchase['communication']['body'], '<br>') !== false)
+                    {{ substr($purchase['communication']['body'], 0, strpos($purchase['communication']['body'], '<br>')) }}
                   @else
-                    {{ $order['communication']['body'] }}
-                  @endif --}}
+                    {{ $purchase['communication']['body'] }}
+                  @endif
                 </td>
                 <td>
                     <a class="btn btn-image" href="{{ route('purchase.show',$purchase['id']) }}"><img src="/images/view.png" /></a>
