@@ -151,97 +151,102 @@ class TaskModuleController extends Controller {
 			$data['model_id'] = $request->model_id;
 		}
 
-		if($data['is_statutory'] == 0) {
-			$task = Task::create( $data );
+		foreach ($request->assign_to as $assign_to) {
+			$data['assign_to'] = $assign_to;
 
-			PushNotification::create( [
-				'type'       => 'button',
-				'message'    => 'Task Details: ' . $data['task_details'],
-				'model_type' => Task::class,
-				'model_id'   => $task->id,
-				'user_id'    => Auth::id(),
-				'sent_to'    => $request->input( 'assign_to' ),
-				'role'       => '',
-			] );
+			if($data['is_statutory'] == 0) {
+				$task = Task::create( $data );
 
-			PushNotification::create( [
-				'message'    => 'Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($request->input('assign_to')),
-				'model_type' => Task::class,
-				'model_id'   => $task->id,
-				'user_id'    => Auth::id(),
-				'sent_to'    => '',
-				'role'       => 'Admin',
-			] );
+				PushNotification::create( [
+					'type'       => 'button',
+					'message'    => 'Task Details: ' . $data['task_details'],
+					'model_type' => Task::class,
+					'model_id'   => $task->id,
+					'user_id'    => Auth::id(),
+					'sent_to'    => $assign_to,
+					'role'       => '',
+				] );
 
-			// NotificationQueueController::createNewNotification( [
-			// 	'message'    => 'Reminder for Task : ' . $data['task_details'],
-			// 	'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-			// 	'reminder'	 => 1,
-			// 	'model_type' => Task::class,
-			// 	'model_id'   => $task->id,
-			// 	'user_id'    => \Auth::id(),
-			// 	'sent_to'    => $request->input( 'assign_to' ),
-			// 	'role'       => '',
-			// ] );
+				PushNotification::create( [
+					'message'    => 'Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($assign_to),
+					'model_type' => Task::class,
+					'model_id'   => $task->id,
+					'user_id'    => Auth::id(),
+					'sent_to'    => '',
+					'role'       => 'Admin',
+				] );
 
-			$diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
+				// NotificationQueueController::createNewNotification( [
+				// 	'message'    => 'Reminder for Task : ' . $data['task_details'],
+				// 	'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+				// 	'reminder'	 => 1,
+				// 	'model_type' => Task::class,
+				// 	'model_id'   => $task->id,
+				// 	'user_id'    => \Auth::id(),
+				// 	'sent_to'    => $request->input( 'assign_to' ),
+				// 	'role'       => '',
+				// ] );
 
-			NotificationQueueController::createNewNotification( [
-				'message'    => 'Reminder for Task : ' . $data['task_details'],
-				'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
-				'reminder'	 => 1,
-				'model_type' => Task::class,
-				'model_id'   => $task->id,
-				'user_id'    => \Auth::id(),
-				'sent_to'    => $request->input( 'assign_to' ),
-				'role'       => '',
-			] );
+				$diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
+
+				NotificationQueueController::createNewNotification( [
+					'message'    => 'Reminder for Task : ' . $data['task_details'],
+					'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
+					'reminder'	 => 1,
+					'model_type' => Task::class,
+					'model_id'   => $task->id,
+					'user_id'    => \Auth::id(),
+					'sent_to'    => $assign_to,
+					'role'       => '',
+				] );
+			}
+			else {
+				$task = SatutoryTask::create($data);
+
+				PushNotification::create( [
+					'message'    => 'Recurring Task Assigned: ' . $data['task_details'],
+					'model_type' => Task::class,
+					'model_id'   => $task->id,
+					'user_id'    => Auth::id(),
+					'sent_to'    => $assign_to,
+					'role'       => '',
+				] );
+
+				PushNotification::create( [
+					'message'    => 'Recurring Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($assign_to),
+					'model_type' => Task::class,
+					'model_id'   => $task->id,
+					'user_id'    => Auth::id(),
+					'sent_to'    => '',
+					'role'       => 'Admin',
+				] );
+
+				// NotificationQueueController::createNewNotification( [
+				// 	'message'    => 'Reminder for Recurring Task : ' . $data['task_details'],
+				// 	'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+				// 	'reminder'	 => 1,
+				// 	'model_type' => Task::class,
+				// 	'model_id'   => $task->id,
+				// 	'user_id'    => \Auth::id(),
+				// 	'sent_to'    => $request->input( 'assign_to' ),
+				// 	'role'       => '',
+				// ] );
+
+				$diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
+
+				NotificationQueueController::createNewNotification( [
+					'message'    => 'Reminder for Task : ' . $data['task_details'],
+					'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
+					'reminder'	 => 1,
+					'model_type' => Task::class,
+					'model_id'   => $task->id,
+					'user_id'    => \Auth::id(),
+					'sent_to'    => $assign_to,
+					'role'       => '',
+				] );
+			}
 		}
-		else {
-			$task = SatutoryTask::create($data);
 
-			PushNotification::create( [
-				'message'    => 'Recurring Task Assigned: ' . $data['task_details'],
-				'model_type' => Task::class,
-				'model_id'   => $task->id,
-				'user_id'    => Auth::id(),
-				'sent_to'    => $request->input( 'assign_to' ),
-				'role'       => '',
-			] );
-
-			PushNotification::create( [
-				'message'    => 'Recurring Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($request->input('assign_to')),
-				'model_type' => Task::class,
-				'model_id'   => $task->id,
-				'user_id'    => Auth::id(),
-				'sent_to'    => '',
-				'role'       => 'Admin',
-			] );
-
-			// NotificationQueueController::createNewNotification( [
-			// 	'message'    => 'Reminder for Recurring Task : ' . $data['task_details'],
-			// 	'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-			// 	'reminder'	 => 1,
-			// 	'model_type' => Task::class,
-			// 	'model_id'   => $task->id,
-			// 	'user_id'    => \Auth::id(),
-			// 	'sent_to'    => $request->input( 'assign_to' ),
-			// 	'role'       => '',
-			// ] );
-
-			$diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
-
-			NotificationQueueController::createNewNotification( [
-				'message'    => 'Reminder for Task : ' . $data['task_details'],
-				'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
-				'reminder'	 => 1,
-				'model_type' => Task::class,
-				'model_id'   => $task->id,
-				'user_id'    => \Auth::id(),
-				'sent_to'    => $request->input( 'assign_to' ),
-				'role'       => '',
-			] );
-		}
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task created successfully.' );
@@ -254,11 +259,18 @@ class TaskModuleController extends Controller {
 	public function complete( $taskid ) {
 
 		$task               = Task::find( $taskid );
-		$task->is_completed = date( 'Y-m-d H:i:s' );
+		// $task->is_completed = date( 'Y-m-d H:i:s' );
 //		$task->deleted_at = null;
 
-		if ( $task->assign_to == Auth::id() ) {
-			$task->save();
+		// if ( $task->assign_to == Auth::id() ) {
+		// 	$task->save();
+		// }
+
+		$tasks = Task::where('category', $task->category)->where('assign_from', $task->assign_from)->where('is_statutory', $task->is_statutory)->where('task_details', $task->task_details)->where('task_subject', $task->task_subject)->get();
+
+		foreach ($tasks as $item) {
+			$item->is_completed = date( 'Y-m-d H:i:s' );
+			$item->save();
 		}
 
 		if($task->is_statutory == 0)

@@ -660,7 +660,7 @@
 
               <div class="form-group">
                   <strong>Assigned To:</strong>
-                  <select name="assign_to" class="form-control">
+                  <select name="assign_to[]" class="form-control" multiple>
                     @foreach($leads['users'] as $user)
                       <option value="{{$user['id']}}">{{$user['name']}}</option>
                     @endforeach
