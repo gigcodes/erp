@@ -171,3 +171,44 @@ Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');
 Route::post('whatsapp/approve/{context}', 'WhatsAppController@approveMessage');
 Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages');
+
+/*Routes For Social */
+
+	// post creating routes define's here
+
+Route::get('social/post/page','SocialController@index')->name('social.post.page');
+Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
+
+	// End to Routes creating routes here
+
+
+	// Ad reports routes 
+
+Route::get('social/ad/report','SocialController@report')->name('social.report');
+Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');
+
+	// end to ad reports routes
+
+
+// Creating Ad Campaign Routes defines here
+
+
+Route::get('social/ad/campaign/create','SocialController@createCampaign')->name('social.ad.campaign.create');
+
+Route::post('social/ad/campaign/store','SocialController@storeCampaign')->name('social.ad.campaign.store');
+
+
+
+// Creating Adset Routes define here
+
+Route::get('social/ad/adset/create','SocialController@createAdset')->name('social.ad.adset.create');
+Route::post('social/ad/adset/store','SocialController@storeAdset')->name('social.ad.adset.store');
+
+
+// Creating Ad Routes define here
+
+Route::get('social/ad/create','SocialController@createAd')->name('social.ad.create');
+Route::post('social/ad/store','SocialController@storeAd')->name('social.ad.store');
+
+
+// End of Routes for social 

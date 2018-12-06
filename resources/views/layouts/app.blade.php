@@ -748,6 +748,27 @@
 
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    Social  <span class="caret"></span>
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                    <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page
+                                    </a>
+                                    <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
+                                    </a>
+                                    <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
+                                    </a>
+                                    <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset
+                                    </a>
+                                     <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad
+                                    </a>
+
+                                </div>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} <span class="caret"></span>
                                 </a>
 
