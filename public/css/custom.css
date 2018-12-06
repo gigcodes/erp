@@ -755,3 +755,8 @@ form.display-inline{
     width: 50px;
     padding: 20px 10px;
 }
+.chat-frame {
+    height: 640px;
+    overflow-y: scroll;
+    border: 1px solid #E3E3E3;
+}

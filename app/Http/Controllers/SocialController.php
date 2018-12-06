@@ -14,11 +14,10 @@ class SocialController extends Controller
 	public function __construct(Facebook $fb)
 	{
 		$this->fb=$fb;
-		$this->user_access_token="your-user-access-token";
-
-		$this->page_access_token="your-page-access-token";
-		$this->page_id="your-page-id";
-		$this->ad_acc_id="your-ad-account-id";
+		$this->user_access_token="EAAD7Te0j0B8BAExxNFfONp2JEJBy1l4avTZCPsdVsUaCOrZAoLcof0GoiOZBcScAt2undgxKmeis57h12hAH7LyjX2NPM0gOLm3afb43UAI6k2HUZAwDKFtuN3XZAlaYa4dAZBrv3er3KgAiUjFGE5pdGEcTkU7QPeze4nA5aPvb0X0O15aX0dh4IJYfZC31xcZD";
+		$this->page_access_token="EAAD7Te0j0B8BAI7T10bD2WX5jslOZBxPDsmaTO5zMd5sO9mjX567pIbqy5ZBPPWe7t7qYzOBzy9ZA6rAigCAaAXj3nYDj6N7xZAsJpoy8PZCkBoRZCy0ZCiki58DmZBhuElt75lJ3LSZAvcolnT6Vazy3OZC0Wd4LVrZA4KRuvpueb0MQRJjUBMTodyB0ofo5VcFcAZD";
+		$this->page_id="507935072915757";
+		$this->ad_acc_id="act_128125721296439";
 
 	}
 	public function index()
@@ -158,7 +157,7 @@ class SocialController extends Controller
 
 
 
-		$query="https://graph.facebook.com/v3.1/".$this->ad_acc_id."/campaigns?fields=name,status,insights.level(adset){reach,impressions,cost_per_unique_click,actions,spend},account_id,created_time,adsets{name,id}&limit=10&access_token=".$this->user_access_token."";
+		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=name,status,insights.level(adset){reach,impressions,cost_per_unique_click,actions,spend},account_id,created_time,adsets{name,id}&limit=10&access_token=".$this->user_access_token."";
 
 
 			// Call to Graph api here
@@ -259,7 +258,7 @@ class SocialController extends Controller
 
 
 
-			$url="https://graph.facebook.com/v3.2/".$this->ad_acc_id.'/campaign';
+			$url="https://graph.facebook.com/v3.2/".$this->ad_acc_id.'/campaigns';
 
 
 			// Call to Graph api here

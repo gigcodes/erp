@@ -97,10 +97,10 @@ class WhatsAppController extends FindByNumberController
                     }
                     $extension = $media->guessExtension();
                     $fileName = uniqid(TRUE).".".$extension;
-                    $mms->move(\Config::get("apiwha.media_path"), $fileName);
+                    $media->move(\Config::get("apiwha.media_path"), $fileName);
 
                     $url = implode("/", array( \Config::get("app.url"), "apiwha", "media", $fileName ));
-                    $params['message'] =$url;
+                    $params['media_url'] =$url;
                   }
                 }
             }
@@ -182,17 +182,20 @@ class WhatsAppController extends FindByNumberController
     public function approveMessage($context, Request $request)
 	{
         $user = \Auth::user();
-
-        $message = ChatMessage::findOrFail($request->messageId);
+        $message = ChatMessage::findOrFail($request->get("messageId"));
         $message->update([
             'approved' => 1
         ]);
+        $send = $message->message;
+        if (is_null($send)) {
+            $send = $message->media_url;
+        }
         if ($context == "leads") {
             $lead = Leads::find($message->lead_id);
-            $this->sendWithWhatsApp( $lead->contactno, $message->message );
+            $this->sendWithWhatsApp( $lead->contactno,$send);
         } elseif ( $context == "orders") {
             $order = Order::find($message->order_id);
-            $this->sendWithWhatsApp( $order->contact_detail, $message->message );
+            $this->sendWithWhatsApp( $order->contact_detail,$send);
         }
 
         return response("");

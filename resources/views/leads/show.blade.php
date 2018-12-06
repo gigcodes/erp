@@ -60,7 +60,7 @@
                      <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Contact No:</strong>
-                            <input type="text" class="form-control" name="contactno" placeholder="contactno" data-twilio-call value="{{$leads->contactno}}"/>
+                            <input type="text" class="form-control" name="contactno" placeholder="contactno" data-twilio-call data-context="leads" data-id="{{$leads->id}}" value="{{$leads->contactno}}"/>
 
                         </div>
                     </div>
@@ -560,13 +560,15 @@
 
         </div>
         <div class="tab-pane" id="2">
-            <div class="col-xs-12 col-sm-12">
-                <h3 style="text-center">WhatsApp Messages</h3>
-             </div>
-            <div class="col-xs-12 col-sm-12">
-                <div class="row">
-                   <div class="col-md-12" id="waMessages">
-                   </div>
+            <div class="chat-frame">
+                <div class="col-xs-12 col-sm-12">
+                    <h3 style="text-center">WhatsApp Messages</h3>
+                 </div>
+                <div class="col-xs-12 col-sm-12">
+                    <div class="row">
+                       <div class="col-md-12" id="waMessages">
+                       </div>
+                    </div>
                 </div>
             </div>
             <div class="col-xs-10">
@@ -578,7 +580,6 @@
             <div class="col-xs-2">
                 <button id="waMessageSend" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
             </div>
-
         </div>
         <div class="tab-pane" id="3">
             <div class="col-xs-12 col-sm-12">
@@ -1211,10 +1212,11 @@
         function errorHandler(error) {
             console.error("error occured: " , error);
         }
-        function approveMessage(message) {
+        function approveMessage(element, message) {
             $.post( "/whatsapp/approve/leads", { messageId: message.id })
               .done(function( data ) {
                 alert( "Message was approved" );
+                element.remove();
               }).fail(function(response) {
                 console.log(response);
                 alert( "Technical error. could not approve message");
@@ -1225,7 +1227,8 @@
             var text = $("#waNewMessage").val();
             var files = $("#waMessageMedia").prop("files");
             var text = $("#waNewMessage").val();
-			var data = { "lead_id": leadId };
+			//var data = { "lead_id": leadId };
+            data.append("lead_id", leadId);
             if (files && files.length>0){
                 for ( var i = 0; i != files.length; i ++ ) {
                   data.append("media[]", files[ i ]);
@@ -1233,9 +1236,10 @@
                 return data;
             }
             if (text !== "") {
-                data.append("text", text);
+                data.append("message", text);
                 return data;
             }
+
             alert("please enter a message or attach media");
           }
 
@@ -1243,7 +1247,7 @@
 				var domId = "waMessage_" + message.id;
 				var current = $("#" + domId);
 				if ( current.get( 0 ) ) {
-					return;
+					return false;
 				}
 				var domId = "waMessage_" + message.id;
         var row = $("<div class='talk-bubble round'></div>");
@@ -1254,7 +1258,7 @@
                     if (!message.approved) {
                         var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
                         approveBtn.click(function() {
-                            approveMessage( message );
+                            approveMessage( this, message );
                         } );
                         approveBtn.appendTo( text );
                     }
@@ -1267,12 +1271,22 @@
                 p.attr("data-messageshort", message.message);
                 p.attr("data-message", message.message);
                 p.attr("data-expanded", "true");
+                console.log("renderMessage message is ", message);
                 if ( message.message ) {
                     p.html( message.message );
                 } else if ( message.media_url ) {
-                    var splitted = "/".split(message.content_type);
+                    var splitted = message.content_type.split("/");
                     if (splitted[0]==="image") {
-                        $("<a target='_blank' href='" + message.media_url+"'><img src='" + message.media_url +"' width='100' height='100'/></a>").appendTo(p);
+                        var a = $("<a></a>");
+                        a.attr("target", "_blank");
+                        a.attr("href", message.media_url);
+                        var img = $("<img></img>");
+                        img.attr("src", message.media_url);
+                        img.attr("width", "100");
+                        img.attr("height", "100");
+                        img.appendTo( a );
+                        a.appendTo( p );
+                        console.log("rendered image message ", a);
                     } else if (splitted[0]==="video") {
                         $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
                     }
@@ -1281,6 +1295,7 @@
                 p.appendTo( text );
                 text.appendTo( row );
 				row.appendTo( container );
+                return true;
 		}
 		function pollMessages() {
             var qs = "";
@@ -1288,11 +1303,19 @@
             if (addElapse) {
                 qs += "&elapse=3600";
             }
+            var anyNewMessages = false;
             return new Promise(function(resolve, reject) {
                 $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
                     data.forEach(function( message ) {
-                        renderMessage( message );
+                        var rendered = renderMessage( message );
+                        if ( !anyNewMessages && rendered ) {
+                            anyNewMessages = true;
+                        }
                     } );
+                    if ( anyNewMessages ) {
+                        scrollChatTop();
+                        anyNewMessages = false;
+                    }
                     if (!addElapse) {
                         addElapse = true; // load less messages now
                     }
@@ -1300,6 +1323,11 @@
                 });
             });
 		}
+        function scrollChatTop() {
+            console.log("scrollChatTop called");
+            var el = $(".chat-frame");
+            el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
+        }
 		function startPolling() {
 			setTimeout( function() {
                 pollMessages(addElapse).then(function() {
@@ -1308,10 +1336,10 @@
             }, 1000);
 		}
 		function sendWAMessage() {
-			//var data = createMessageArgs();
-            var data = new FormData();
-            data.append("message", $("#waNewMessage").val());
-            data.append("lead_id", leadId );
+			var data = createMessageArgs();
+            //var data = new FormData();
+            //data.append("message", $("#waNewMessage").val());
+            //data.append("lead_id", leadId );
 			$.ajax({
 				url: '/whatsapp/sendMessage/leads',
 				type: 'POST',

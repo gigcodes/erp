@@ -25,13 +25,15 @@
             if ( $( this ).is(":input") ) {
                 number = $( this ).val();
             }
+            var context = $(this).attr("data-context");
+            var id= $(this).attr("data-id");
 			var call = $("<button class='btn btn-primary'>Call</button>");
 			call.click( function() {
                 var numberToCall = number;
                 if (!numberToCall.startsWith("+")) {
                     numberToCall = "+"+number;
                 }
-				callNumber( numberToCall );
+				callNumber( numberToCall, context, id  );
 			} );
 			call.insertAfter( this );
 		} );
@@ -91,7 +93,7 @@
         el.text("Mute");
       }
   }
-  function callNumber(number) {
+  function callNumber(number, context, id) {
     var conn = Twilio.Device.activeConnection();
     if (conn) {
       alert("Please hangup current call before dialing new number..");
@@ -104,7 +106,7 @@
 		callingText += "<br/><button class='btn btn-danger' onclick='callerHangup()'>Hangup</button>";
 
 		showWarning(callingText, longNotifOpts);
-		var params = {"PhoneNumber": number, "CallerId": mainCallerId, "outgoing": "1" };
+		var params = {"PhoneNumber": number, "context": context, "internalId": id};
     console.log("Dialer_StartCall call params", params);
 		Twilio.Device.connect(params);
   }

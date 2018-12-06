@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'http://erp.sololuxury.co.in'),
 
     /*
     |--------------------------------------------------------------------------
@@ -222,7 +222,7 @@ return [
         'Nestable' => Nestable\Facades\NestableService::class,
         'Pusher' => Pusher\Laravel\Facades\Pusher::class,
         'Zipper' => Chumper\Zipper\Zipper::class,
-
+        'Input' => Illuminate\Support\Facades\Input::class,
     ],
 
 ];
