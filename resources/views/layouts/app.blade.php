@@ -368,6 +368,10 @@
       .user-status.is-online {
         background-color: #00FF00;
       }
+
+      .row-highlight {
+        background-color: #eee;
+      }
     </style>
 
     <script>

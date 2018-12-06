@@ -80,7 +80,7 @@
             <th width="280px">Action</th>
         </tr>
         @foreach ($leads_array as $key => $lead)
-            <tr class="{{ \App\Helpers::statusClass($lead['assign_status'] ) }}">
+            <tr class="{{ \App\Helpers::statusClass($lead['assign_status'] ) }} {{ ((!empty($lead['communication']['body']) && $lead['communication']['status'] == 0) || $lead['communication']['status'] == 1 || $lead['communication']['status'] == 5) ? 'row-highlight' : '' }}">
                 <td>{{ $lead['id'] }}</td>
                 <td>{{ $lead['client_name'] }}</td>
                 <td>{{ $lead['city']}}</td>
@@ -88,19 +88,21 @@
                 <td>{{App\User::find($lead['assigned_user'])->name}}</td>
                 <td>{{App\Helpers::getproductsfromarraysofids($lead['selected_product'])}}</td>
                 <td>
-                  @if ($lead['communication']['status'] != null && $lead['communication']['status'] == 0)
-                    Unread
-                  @elseif ($lead['communication']['status'] == 5)
-                    Read
-                  @elseif ($lead['communication']['status'] == 6)
-                    Replied
-                  @elseif ($lead['communication']['status'] == 1)
-                    <span>Awaiting Approval</span>
-                    <a href data-url="/message/updatestatus?status=2&id={{ $lead['communication']['id'] }}&moduleid={{ $lead['communication']['moduleid'] }}&moduletype={{ $lead['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a>
-                  @elseif ($lead['communication']['status'] == 2)
-                    Approved
-                  @elseif ($lead['communication']['status'] == 4)
-                    Internal Message
+                  @if (!empty($lead['communication']['body']))
+                    @if ($lead['communication']['status'] == 5 || $lead['communication']['status'] == 3)
+                      Read
+                    @elseif ($lead['communication']['status'] == 6)
+                      Replied
+                    @elseif ($lead['communication']['status'] == 1)
+                      <span>Awaiting Approval</span>
+                      <a href data-url="/message/updatestatus?status=2&id={{ $lead['communication']['id'] }}&moduleid={{ $lead['communication']['moduleid'] }}&moduletype={{ $lead['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a>
+                    @elseif ($lead['communication']['status'] == 2)
+                      Approved
+                    @elseif ($lead['communication']['status'] == 4)
+                      Internal Message
+                    @elseif ($lead['communication']['status'] == 0)
+                      Unread
+                    @endif
                   @endif
                 </td>
                 <td>
@@ -146,6 +148,7 @@
             $(thiss).text('Loading');
           }
         }).done( function(response) {
+          $(thiss).closest('tr').removeClass('row-highlight');
           $(thiss).prev('span').text('Approved');
           $(thiss).remove();
         }).fail(function(errObj) {

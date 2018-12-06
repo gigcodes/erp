@@ -47,7 +47,7 @@
             <th width="280px">Action</th>
         </tr>
         @foreach ($orders_array as $key => $order)
-            <tr class="{{ \App\Helpers::statusClass($order['assign_status'] ) }}">
+            <tr class="{{ \App\Helpers::statusClass($order['assign_status'] ) }} {{ ((!empty($order['communication']['body']) && $order['communication']['status'] == 0) || $order['communication']['status'] == 1 || $order['communication']['status'] == 5) ? 'row-highlight' : '' }}">
                 <td>{{ $order['order_id'] }}</td>
                 <td>{{ $order['order_type'] }}</td>
                 <td>{{ Carbon\Carbon::parse($order['order_date'])->format('d-m-Y') }}</td>
@@ -55,19 +55,21 @@
                 <td>{{ $order['client_name'] }}</td>
                 <td>{{ $order['order_status']}}</td>
                 <td>
-                  @if ($order['communication']['status'] != null && $order['communication']['status'] == 0)
-                    Unread
-                  @elseif ($order['communication']['status'] == 5)
-                    Read
-                  @elseif ($order['communication']['status'] == 6)
-                    Replied
-                  @elseif ($order['communication']['status'] == 1)
-                    <span>Awaiting Approval</span>
-                    <a href data-url="/message/updatestatus?status=2&id={{ $order['communication']['id'] }}&moduleid={{ $order['communication']['moduleid'] }}&moduletype={{ $order['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a>
-                  @elseif ($order['communication']['status'] == 2)
-                    Approved
-                  @elseif ($order['communication']['status'] == 4)
-                    Internal Message
+                  @if (!empty($order['communication']['body']))
+                    @if ($order['communication']['status'] == 5 || $order['communication']['status'] == 3)
+                      Read
+                    @elseif ($order['communication']['status'] == 6)
+                      Replied
+                    @elseif ($order['communication']['status'] == 1)
+                      <span>Awaiting Approval</span>
+                      <a href data-url="/message/updatestatus?status=2&id={{ $order['communication']['id'] }}&moduleid={{ $order['communication']['moduleid'] }}&moduletype={{ $order['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a>
+                    @elseif ($order['communication']['status'] == 2)
+                      Approved
+                    @elseif ($order['communication']['status'] == 4)
+                      Internal Message
+                    @elseif ($order['communication']['status'] == 0)
+                      Unread
+                    @endif
                   @endif
                 </td>
                 <td>
@@ -118,6 +120,7 @@
             $(thiss).text('Loading');
           }
         }).done( function(response) {
+          $(thiss).closest('tr').removeClass('row-highlight');
           $(thiss).prev('span').text('Approved');
           $(thiss).remove();
         }).fail(function(errObj) {
