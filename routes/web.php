@@ -82,6 +82,7 @@ Route::middleware('auth')->group(function (){
 	Route::post('/productlister/isUploaded/{product}','ProductListerController@isUploaded')->name('productlister.isuploaded');
 	Route::post('/productapprover/isFinal/{product}','ProductApproverController@isFinal')->name('productapprover.isfinal');
 
+	Route::get('/productinventory/in/stock','ProductInventoryController@instock')->name('productinventory.instock');
 	Route::post('/productinventory/stock/{product}','ProductInventoryController@stock')->name('productinventory.stock');
 
 	Route::get('category','CategoryController@manageCategory')->name('category');

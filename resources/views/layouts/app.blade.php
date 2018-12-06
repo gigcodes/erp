@@ -534,6 +534,7 @@
                                       </a>
                                       <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                           <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
+                                          <a class="dropdown-item" href="{{ route('productinventory.instock') }}">In stock</a>
                                       </ul>
                                   </li>
                                 </ul>
@@ -547,6 +548,7 @@
                                       </a>
                                       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                           <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
+                                          <a class="dropdown-item" href="{{ route('productinventory.instock') }}">In stock</a>
                                       </div>
                                   </li>
                               @endcan
