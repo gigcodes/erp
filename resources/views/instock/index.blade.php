@@ -107,7 +107,7 @@
             <p>Size : {{ $product->size}}</p>
             <p>Price : {{ $product->price_special }}</p>
           </a>
-          <a href="#" class="btn btn-secondary">Something</a>
+          {{-- <a href="#" class="btn btn-secondary">Something</a> --}}
         </div>
       @endforeach
     </div>
