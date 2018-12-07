@@ -44,6 +44,7 @@ class WhatsAppController extends FindByNumberController
         if ( $lead ) {
             $params['lead_id'] = $lead->id;
             $params = $this->modifyParamsWithMessage($params, $data);
+            ChatMessage::create($params);
 
         }
 
@@ -56,9 +57,8 @@ class WhatsAppController extends FindByNumberController
         if ( $order ) {
             $params['order_id'] = $order->id;
             $params = $this->modifyParamsWithMessage($params, $data);
+            ChatMessage::create($params);
         }
-
-        ChatMessage::create($params);
 
         return response("");
     }
@@ -96,6 +96,9 @@ class WhatsAppController extends FindByNumberController
                       continue;
                     }
                     $extension = $media->guessExtension();
+                    if ( $extension == "jpeg" ) {
+                        $extension = "jpg";
+                    }
                     $fileName = uniqid(TRUE).".".$extension;
                     $media->move(\Config::get("apiwha.media_path"), $fileName);
 
@@ -242,11 +245,13 @@ class WhatsAppController extends FindByNumberController
     {
         if (filter_var($data['text'], FILTER_VALIDATE_URL)) {
   // you're good
-            $paths = explode("/", $data['message']);
+            $path = $data['text'];
+            $paths = explode("/", $path);
             $file = $paths[ count( $paths ) - 1];
             $extension = explode(".", $file)[1];
             $fileName = uniqid(TRUE).".".$extension;
-            if ( file_put_contents(implode(DIRECTORY_SEPARATOR, array(\Config::get("apiwha.media_path"), $fileName)) ) ==  FALSE) {
+            $contents = file_get_contents($path);
+            if ( file_put_contents(implode(DIRECTORY_SEPARATOR, array(\Config::get("apiwha.media_path"), $fileName)), $contents ) ==  FALSE) {
                 return FALSE;
             }
             $url = implode("/", array( \Config::get("app.url"), "apiwha", "media", $fileName ));

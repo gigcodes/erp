@@ -31,4 +31,16 @@ class FindByNumberController extends Controller
 	{
 		return Order::where('contact_detail', '=', $number)->first();
 	}
+    protected function findLeadOrOrderByNumber($number)
+    {
+        $lead = $this->findLeadByNumber($number);
+        if($lead) {
+            return array("leads", $lead);
+        }
+        $order = $this->findOrderByNumber($number);
+        if ($order) {
+            return array("orders", $order);
+        }
+        return array(FALSE, FALSE);
+    }
 }

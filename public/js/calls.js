@@ -51,10 +51,16 @@
       cleanup();
     });
     Twilio.Device.incoming(function (conn) {
-		$.getJSON("/twilio/getLeadByNumber?number="+ conn.parameters.From, function( data ) {
-			var name = data.name;
-			var number = data.number;
-			var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + number + " would you like to answer call?");
+        console.log("incoming call with number: " + conn.parameters.From);
+		$.getJSON("/twilio/getLeadByNumber?number="+ encodeURIComponent(conn.parameters.From), function( data ) {
+            if (data.found) { 
+                var name = data.name;
+                var number = data.number;
+                var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + number + " would you like to answer call?");
+            } else {
+                var confirmed = window.confirm("Incoming call from: " + number + " would you like to answer call?");
+            }
+
 			if (confirmed) {
 				conn.accept();
 			} else {

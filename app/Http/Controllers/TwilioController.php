@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers;
 
 
-class TwilioController extends Controller
+class TwilioController extends FindByNumberController
 {
     private function getTwilioClient()
     {
@@ -51,15 +51,23 @@ class TwilioController extends Controller
     {
        $number = $request->get("From");
        $response = new Twiml(); 
+       list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number)); 
+       if (!$context) { 
+        $reject = $response->reject([
+            'reason' => 'Busy'
+         ]);
+         return Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
+       }
+
        $dial = $response->dial([
             'record' => 'true',
-            'recordStatusCallback' => \Config::get("app.url")."/twilio/recordingStatusCallback"
+            'recordingStatusCallback' => \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&amp;internalId=". $object->id
        ]);
        $clients = $this->getConnectedClients();
        foreach ($clients as $client) {
         $dial->client( $client );
        }
-       return Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
+       return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
     /**
      * Outgoing call URL
@@ -75,10 +83,30 @@ class TwilioController extends Controller
        $response->dial( $number, [
             'callerId' => \Config::get("twilio.caller_id"),
             'record' => 'true',
-            'recordStatusCallback' => \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&amp;internalId=" .  $id
+            'recordingStatusCallback' => \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&amp;internalId=" .  $id
         ]);
        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
+    /**
+     * Outgoing call URL
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getLeadByNumber(Request $request)
+    {
+        $number = $request->get("number");
+        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number)); 
+        if (!$context) {
+           return response()->json(['found' => FALSE,  'number' => $number]);
+        }
+        if ($context == "leads") {
+            $result = ['found' => TRUE, 'name' => $object->client_name];
+        } elseif ($context == "orders") {
+            $result = ['found' => TRUE, 'name' => $object->client_name];
+        }
+        return response()->json( $result );
+    }
+
     /**
      * Recording status callback
      *
@@ -100,5 +128,14 @@ class TwilioController extends Controller
             $params['order_id'] =$internalId;
         }
         CallRecording::create($params);
+    }
+    private function getConnectedClients()
+    {
+        $users = User::get();
+        $clients = [];
+        foreach ($users as $user) {
+            $clients[] = $user->name;
+        }
+        return $clients;
     }
 }

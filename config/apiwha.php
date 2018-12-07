@@ -8,7 +8,7 @@ return [
         ],
         [
             'number' => '918291920452',
-            'key' => 'HM2G5FTNH85O30FQIBQ9',
+            'key' => 'HM2G5FTNH85O30FQIBQ9'
         ],
         [
             'number' => '919004008983',

@@ -1,6 +1,7 @@
 <?php
 $url = "http://erp.sololuxury.co.in/whatsapp/incoming";
 $content = $_POST['data'];
+//$content = '{"request":"{"event":"INBOX","from":"918879948245","to":"918291920455","text":"Let me know if u get this"}","response":"","status":200}';
 
 $curl = curl_init($url);
 curl_setopt($curl, CURLOPT_HEADER, false);
