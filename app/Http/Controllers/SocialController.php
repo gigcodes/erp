@@ -157,7 +157,7 @@ class SocialController extends Controller
 
 
 
-		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=name,status,insights.level(adset){reach,impressions,cost_per_unique_click,actions,spend},account_id,created_time,adsets{name,id}&limit=10&access_token=".$this->user_access_token."";
+		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=name,status,insights.level(adset){reach,impressions,cost_per_unique_click,actions,spend},account_id,created_time,adsets{name,id}&limit=30&access_token=".$this->user_access_token."";
 
 
 			// Call to Graph api here
@@ -174,8 +174,50 @@ class SocialController extends Controller
 		$resp = curl_exec($ch);
 		$resp = json_decode($resp);
 		curl_close($ch);
-		if(isset($resp->error->message))
+		if(isset($resp->error->error_user_msg))
+			Session::flash('message',$resp->error->error_user_msg); 
+		elseif(isset($resp->error->message))
 			Session::flash('message',$resp->error->message); 
+
+
+		return view('social.reports',['resp'=>$resp]);
+	}
+
+	// Get pagination Report()
+
+	public function paginateReport(Request $request) 
+	{
+		if($request->has('next'))
+			$query=$request->input('next');
+		elseif($request->has('previous'))
+			$query=$request->input('previous');
+		else 
+			return redirect()->route('social.report');
+
+
+
+		
+
+
+			// Call to Graph api here
+		$ch = curl_init();
+		curl_setopt($ch,CURLOPT_URL,$query);
+		curl_setopt($ch, CURLOPT_VERBOSE, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+		curl_setopt($ch, CURLOPT_POST, 0);
+
+
+		$resp = curl_exec($ch);
+		$resp = json_decode($resp);
+		curl_close($ch);
+		if(isset($resp->error->error_user_msg))
+			Session::flash('message',$resp->error->error_user_msg); 
+		elseif(isset($resp->error->message))
+			Session::flash('message',$resp->error->message); 
+
 
 		return view('social.reports',['resp'=>$resp]);
 	}
@@ -246,8 +288,7 @@ class SocialController extends Controller
 		if($request->has('daily_budget'))
 			$data['daily_budget']=$request->input('daily_budget');
 
-		if($request->has('lifetime_budget'))
-			$data['lifetime_budget']=$request->input('lifetime_budget');
+		
 
 
 
@@ -314,8 +355,10 @@ class SocialController extends Controller
 		$resp = json_decode($resp);
 		
 		curl_close($ch);
-		if(isset($resp->error->message))
-			Session::flash('message',$resp->error->message); 
+		if(isset($resp->error->error_user_msg))
+			Session::flash('message',$resp->error->error_user_msg); 
+		elseif(isset($resp->error->message))
+			Session::flash('message',$resp->error->message);
 
 		return view('social.adset',['campaigns'=>$resp->data]);
 	}
@@ -332,7 +375,8 @@ class SocialController extends Controller
 			'campaign_id'=>'required',
 			'start_time'=>'required',
 			'end_time'=>'required',
-			'billing_event'=>'required'
+			'billing_event'=>'required',
+			'bid_amount'=>'required',
 		]);
 
 		$data['name']=$request->input('name');
@@ -340,16 +384,19 @@ class SocialController extends Controller
 		$data['campaign_id']=$request->input('campaign_id');
 		$data['billing_event']=$request->input('billing_event');
 		$data['start_time']=strtotime($request->input('start_time'));
+		// $data['OPTIMIZATION_GOAL'] ='REACH';
 		$data['end_time']=strtotime($request->input('end_time'));
 		$data['targeting']=json_encode(array('geo_locations'=>array('countries' => array('US'))));
-		$data['status']=$request->input('status');
-
-
 		if($request->has('daily_budget'))
 			$data['daily_budget']=$request->input('daily_budget');
 
-		if($request->has('lifetime_budget'))
-			$data['lifetime_budget']=$request->input('lifetime_budget');
+		$data['status']=$request->input('status');
+
+
+		
+
+		if($request->has('bid_amount'))
+			$data['bid_amount']=$request->input('bid_amount');
 
 
 
@@ -374,9 +421,12 @@ class SocialController extends Controller
 
 			$resp = curl_exec($curl);
 			$resp = json_decode($resp);
+			
 
 			curl_close($curl);
-			if(isset($resp->error->message))
+			if(isset($resp->error->error_user_msg))
+				Session::flash('message',$resp->error->error_user_msg); 
+			elseif(isset($resp->error->message))
 				Session::flash('message',$resp->error->message); 
 			else
 				Session::flash('message',"Adset created  successfully"); 
@@ -467,18 +517,21 @@ class SocialController extends Controller
 
 
 			curl_close($curl);
-			if(isset($resp->error->message))
-				Session::flash('message',$resp->error->message); 
+			
+			if(isset($resp->error->error_user_msg))
+				Session::flash('message',$resp->error->error_user_msg); 
+			elseif(isset($resp->error->message))
+				Session::flash('message',$resp->error->error_user_msg); 
 			else
 				Session::flash('message',"Adset created  successfully"); 
 
 
-			return redirect()->route('social.ad.adset.create');
+			return redirect()->route('social.ad.create');
 		}
 		catch(Exception $e)
 		{
 			Session::flash('message',$e); 
-			return redirect()->route('social.ad.adset.create');
+			return redirect()->route('social.ad.create');
 		}
 
 	}

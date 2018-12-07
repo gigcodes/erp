@@ -73,13 +73,7 @@
                     <p class="text-danger">{{$errors->first('daily_budget')}}</p>
                     @endif
                 </div>
-                <div class="form-group">
-                    <label for="">Lifetime Budget</label>
-                    <input type="number" class="form-control" name="lifetime_budget">
-                    @if ($errors->has('lifetime_budget'))
-                    <p class="text-danger">{{$errors->first('lifetime_budget')}}</p>
-                    @endif
-                </div>
+               
                 <div class="form-group">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="status" id="inlineRadio1" value="ACTIVE">

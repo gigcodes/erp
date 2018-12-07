@@ -407,6 +407,8 @@
 
 </head>
 <body>
+  <div id="fb-root"></div>
+
   <div class="notifications-container">
     <div class="stack-container stacked" id="leads-notification"></div>
     <div class="stack-container stacked" id="orders-notification"></div>
@@ -816,10 +818,27 @@
         </nav>
 
         <main class="py-4 container">
+          <!-- Showing fb like page div to all pages  -->
+          @if(Auth::check())
+           <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
+           @endif
+
+           <!-- End of fb page like  -->
+
             @yield('content')
         </main>
     </div>
         <!-- Scripts -->
 @include('partials.chat')
+
+<!-- Like page plugin script  -->
+
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v3.2&appId=2045896142387545&autoLogAppEvents=1';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 </body>
 </html>

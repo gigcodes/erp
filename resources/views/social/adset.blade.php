@@ -31,15 +31,15 @@
                         <?php endforeach; ?>
                     </select>
 
-                    @if ($errors->has('destination_type'))
-                    <p class="text-danger">{{$errors->first('destination_type')}}</p>
+                    @if ($errors->has('campaign_id'))
+                    <p class="text-danger">{{$errors->first('campaign_id')}}</p>
                     @endif
                 </div>
 
 
                 <div class="form-group">
                     <label for="">Adset Name</label>
-                    <input type="text" name="name" class="form-control" placeholder="Type your campaign name">
+                    <input type="text" name="name" class="form-control" placeholder="Type your Adset name">
                     @if ($errors->has('name'))
                     <p class="text-danger">{{$errors->first('name')}}</p>
                     @endif
@@ -72,8 +72,8 @@
                         <option value="THRUPLAY">THRUPLAY</option>
                     </select>
 
-                    @if ($errors->has('destination_type'))
-                    <p class="text-danger">{{$errors->first('destination_type')}}</p>
+                    @if ($errors->has('billing_event'))
+                    <p class="text-danger">{{$errors->first('billing_event')}}</p>
                     @endif
                 </div>
                 
@@ -101,10 +101,10 @@
                     @endif
                 </div>
                 <div class="form-group">
-                    <label for="">Lifetime Budget</label>
-                    <input type="number" class="form-control" name="lifetime_budget">
-                    @if ($errors->has('lifetime_budget'))
-                    <p class="text-danger">{{$errors->first('lifetime_budget')}}</p>
+                    <label for="">Bid Amount</label>
+                    <input type="number" class="form-control" name="bid_amount">
+                    @if ($errors->has('bid_amount'))
+                    <p class="text-danger">{{$errors->first('bid_amount')}}</p>
                     @endif
                 </div>
                 <div class="form-group">

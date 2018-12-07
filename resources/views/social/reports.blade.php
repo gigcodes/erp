@@ -93,9 +93,32 @@
 							</tr>
 							@endforeach
 							@endif
-
 						</tbody>
 					</table>
+
+					<div class="container pull-left" style="overflow: hidden;">
+						<div class="row">
+							<div class="col-md-2 pr-0">
+								@if(isset($resp->paging->previous))
+								<form method="post" action="{{route('social.report.paginate')}}">
+									@csrf
+									<input type="hidden" value="{{$resp->paging->previous}}" name="previous">
+									<input type="submit" value="Previous" name="submit" class="btn btn-info">
+								</form>
+								@endif
+							</div>
+							<div class="col-md-2 pl-0">
+								@if(isset($resp->paging->next))
+								<form method="post" action="{{route('social.report.paginate')}}">
+									@csrf
+									<input type="hidden" value="{{$resp->paging->next}}" name="next">
+									<input type="submit" value="Next" name="submit" class="btn btn-info">
+								</form>
+								@endif
+							</div>
+							
+						</div>
+					</div>
 				</div>
 			</div>
 			

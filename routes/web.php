@@ -183,9 +183,10 @@ Route::post('social/post/page/create','SocialController@createPost')->name('soci
 	// End to Routes creating routes here
 
 
-	// Ad reports routes 
+	// Ad reports routes
 
 Route::get('social/ad/report','SocialController@report')->name('social.report');
+Route::post('social/ad/report/paginate','SocialController@paginateReport')->name('social.report.paginate');
 Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');
 
 	// end to ad reports routes
@@ -212,4 +213,4 @@ Route::get('social/ad/create','SocialController@createAd')->name('social.ad.crea
 Route::post('social/ad/store','SocialController@storeAd')->name('social.ad.store');
 
 
-// End of Routes for social 
+// End of Routes for social
