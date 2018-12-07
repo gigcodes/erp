@@ -10,34 +10,76 @@ use Illuminate\Support\Facades\Auth;
 
 class PushNotificationController extends Controller {
 
-	public function index()
+	public function index(Request $request)
 	{
-		$lead_notifications = PushNotification::where('isread', 0)->where('model_type', 'App\Leads')
-		                       ->where( function ( $query ) {
-			                       return $query->where('sent_to', \Auth::id())
-			                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
-		                       })->orderBy('created_at','DESC')->get();
+		$data     = [];
+		$term = $request->input('term');
+		$data['term'] = $term;
 
-		 $order_notifications = PushNotification::where('isread', 0)->where('model_type', 'App\Order')
-			                       ->where( function ( $query ) {
-				                       return $query->where('sent_to', \Auth::id())
+		$lead_notifications = PushNotification::where('isread', 0)->where('model_type', 'App\Leads');
+		$order_notifications = PushNotification::where('isread', 0)->where('model_type', 'App\Order');
+		$message_notifications = PushNotification::where('isread', 0)->whereIn('model_type', ['order', 'leads']);
+		$task_notifications = PushNotification::where('isread', 0)->whereIn('model_type', ['App\Task', 'App\SatutoryTask', 'App\Http\Controllers\Task', 'User']);
+
+		if ($request->user[0] != null) {
+			$lead_notifications = $lead_notifications->where( function ( $query ) use ($request) {
+				                       return $query->whereIn('sent_to', $request->user)
 				                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
-			                       })->orderBy('created_at','DESC')->get();
+			                       });
 
-		 $message_notifications = PushNotification::where('isread', 0)->whereIn('model_type', ['order', 'leads'])
-			                       ->where( function ( $query ) {
-				                       return $query->where('sent_to', \Auth::id())
-				                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
-			                       })->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
+			 $order_notifications = $order_notifications->where( function ( $query ) use ($request) {
+					                       return $query->whereIn('sent_to', $request->user)
+					                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
+				                       });
 
-		 $task_notifications = PushNotification::where('isread', 0)->whereIn('model_type', ['App\Task', 'App\SatutoryTask', 'App\Http\Controllers\Task', 'User'])
-			                       ->where( function ( $query ) {
-				                       return $query->where('sent_to', \Auth::id())
-				                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
-			                       })->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
+			 $message_notifications = $message_notifications->where( function ( $query ) use ($request) {
+					                       return $query->whereIn('sent_to', $request->user)
+					                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
+				                       });
 
+			 $task_notifications = $task_notifications->where( function ( $query ) use ($request) {
+					                       return $query->whereIn('sent_to', $request->user)
+					                                    ->orWhereIn('role', \Auth::user()->getRoleNames());
+				                       });
 
-		return view('pushnotification.index', compact('lead_notifications', 'order_notifications', 'message_notifications', 'task_notifications'));
+			$user = $request->user;
+		}
+
+		if (trim($term) != '') {
+			$lead_notifications = $lead_notifications->where('message', 'LIKE', "%$term%");
+			$order_notifications = $order_notifications->where('message', 'LIKE', "%$term%");
+			$message_notifications = $message_notifications->where('message', 'LIKE', "%$term%");
+			$task_notifications = $task_notifications->where('message', 'LIKE', "%$term%");
+		} else {
+			if ($request->user[0] == null) {
+				$lead_notifications = $lead_notifications->where( function ( $query ) {
+																 return $query->where('sent_to', \Auth::id())
+																							->orWhereIn('role', \Auth::user()->getRoleNames());
+															 });
+
+				 $order_notifications = $lead_notifications->where( function ( $query ) {
+																	 return $query->where('sent_to', \Auth::id())
+																								->orWhereIn('role', \Auth::user()->getRoleNames());
+																 });
+
+				 $message_notifications = $message_notifications->where( function ( $query ) {
+																	 return $query->where('sent_to', \Auth::id())
+																								->orWhereIn('role', \Auth::user()->getRoleNames());
+																 });
+
+				 $task_notifications = $task_notifications->where( function ( $query ) {
+																	 return $query->where('sent_to', \Auth::id())
+																								->orWhereIn('role', \Auth::user()->getRoleNames());
+																 });
+			}
+		}
+
+		$lead_notifications = $lead_notifications->orderBy('created_at','DESC')->get();
+		$order_notifications = $order_notifications->orderBy('created_at','DESC')->get();
+		$message_notifications = $message_notifications->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
+		$task_notifications = $task_notifications->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
+
+		return view('pushnotification.index', compact('lead_notifications', 'order_notifications', 'message_notifications', 'task_notifications', 'term', 'user'));
 	}
 
 	public function getJson() {

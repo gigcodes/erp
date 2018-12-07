@@ -11,6 +11,25 @@
   </div>
 </div>
 
+<div class="row">
+  <div class="col-lg-12 margin-tb">
+    <form action="{{ route('pushNotification.index') }}" method="GET" class="form-inline align-items-start">
+        <div class="form-group mr-3 mb-3">
+          <input name="term" type="text" class="form-control" id="product-search"
+                 value="{{ isset($term) ? $term : '' }}"
+                 placeholder="name">
+        </div>
+
+        <div class="form-group mr-3 mb-3">
+          @php $users = \App\Helpers::getUserArray(\App\User::all()); @endphp
+          {!! Form::select('user[]',$users, (isset($user) ? $user : ''), ['placeholder' => 'Select a User','class' => 'form-control', 'multiple' => true]) !!}
+        </div>
+
+      <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+    </form>
+  </div>
+</div>
+
 
 @if ($message = Session::get('success'))
 <div class="alert alert-success">
@@ -81,8 +100,20 @@
               @if ($loop->first)
                 <tr>
                   <td>
-                    <a class="notification-link" href="{{ route('order.show', $item['model_id']) }}">
-                      {{ $item['message'] }} at {{ Carbon\Carbon::parse($item['created_at'])->format('d-m H:i') }}
+                    @php
+                      if ($item['model_type'] == 'leads') {
+                        $link = route('leads.show', $item['model_id']);
+                      } else {
+                        $link = route('order.show', $item['model_id']);
+                      }
+                    @endphp
+                    <a class="notification-link" href="{{ $link }}">
+                      @if (strpos($item['message'], '<br>') !== false)
+                        {{ substr($item['message'], 0, strpos($item['message'], '<br>')) }}
+                      @else
+                        {{ $item['message'] }}
+                      @endif
+                       at {{ Carbon\Carbon::parse($item['created_at'])->format('d-m H:i') }}
                     </a>
                   </td>
                   <td style="width: 20px"><button class="btn btn-link markReadPushReminder" data-id="{{ $item['id'] }}">Complete</button></td>
@@ -104,7 +135,7 @@
               @if ($loop->first)
                 <tr>
                   <td>
-                    <a class="notification-link" href="{{ route('order.show', $item['model_id']) }}">
+                    <a class="notification-link" href="{{ url('/#task_') . $item['model_id'] }}">
                       {{ $item['message'] }} at {{ Carbon\Carbon::parse($item['created_at'])->format('d-m H:i') }}
                     </a>
                   </td>
