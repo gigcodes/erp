@@ -187,8 +187,10 @@ class OrderController extends Controller {
 		Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
 
 		if ($request->convert_order == 'convert_order') {
-			foreach ($request->selected_product as $product) {
-				self::attachProduct( $order->id, $product );
+			if (!empty($request->selected_product)) {
+				foreach ($request->selected_product as $product) {
+					self::attachProduct( $order->id, $product );
+				}
 			}
 		}
 
