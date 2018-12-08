@@ -66,10 +66,15 @@
                               @php $brands = \App\Brand::getAll(); @endphp
                               {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
                             </div>
-                            <div class="form-group">
 
+                            <div class="form-group mr-3">
                               @php $colors = new \App\Colors(); @endphp
                               {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+
+                            <div class="form-group">
+                              @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp
+                              {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control', 'multiple' => true]) !!}
                             </div>
                             {{-- <div class="form-group mr-3">
                               <strong>Category</strong>

@@ -54,7 +54,7 @@ class SearchController extends Controller {
 			$data['color'] = $request->color[0];
 		}
 
-		if ($request->category[0] != null) {
+		if ($request->category[0] != 1) {
 			$is_parent = Category::isParent($request->category[0]);
 			$category_children = [];
 
@@ -110,7 +110,7 @@ class SearchController extends Controller {
 					$min = 0;
 					$max = 100000000;
 			}
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
 				$productQuery = $productQuery->whereBetween('price_inr', [$min, $max]);
 			} else {
 				$productQuery = ( new Product() )->newQuery()
@@ -118,6 +118,17 @@ class SearchController extends Controller {
 			}
 
 			$data['price'] = $request->price[0];
+		}
+
+		if ($request->supplier[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price[0] != null) {
+				$productQuery = $productQuery->whereIn('supplier', $request->supplier);
+			} else {
+				$productQuery = ( new Product() )->newQuery()
+				                                 ->latest()->whereIn('supplier', $request->supplier);
+			}
+
+			$data['supplier'] = $request->supplier;
 		}
 
 		if (trim($term) != '') {
