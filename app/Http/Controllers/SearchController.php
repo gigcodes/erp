@@ -89,35 +89,40 @@ class SearchController extends Controller {
 		}
 
 		if ($request->price != null) {
-			switch ($request->price) {
-				case 1:
-					$min = 0;
-					$max = 10000;
-					break;
-				case 2:
-					$min = 10000;
-					$max = 30000;
-					break;
-				case 3:
-					$min = 30000;
-					$max = 50000;
-					break;
-				case 4:
-					$min = 50000;
-					$max = 100000;
-					break;
-				default:
-					$min = 0;
-					$max = 100000000;
-			}
+			// switch ($request->price) {
+			// 	case 1:
+			// 		$min = 0;
+			// 		$max = 10000;
+			// 		break;
+			// 	case 2:
+			// 		$min = 10000;
+			// 		$max = 30000;
+			// 		break;
+			// 	case 3:
+			// 		$min = 30000;
+			// 		$max = 50000;
+			// 		break;
+			// 	case 4:
+			// 		$min = 50000;
+			// 		$max = 100000;
+			// 		break;
+			// 	default:
+			// 		$min = 0;
+			// 		$max = 100000000;
+			// }
+			$exploded = explode(',', $request->price);
+			$min = $exploded[0];
+			$max = $exploded[1];
+
 			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
-				$productQuery = $productQuery->whereBetween('price_inr', [$min, $max]);
+				$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
 			} else {
 				$productQuery = ( new Product() )->newQuery()
-				                                 ->latest()->whereBetween('price_inr', [$min, $max]);
+				                                 ->latest()->whereBetween('price_special', [$min, $max]);
 			}
 
-			$data['price'] = $request->price[0];
+			$data['price'][0] = $min;
+			$data['price'][1] = $max;
 		}
 
 		if ($request->supplier[0] != null) {
