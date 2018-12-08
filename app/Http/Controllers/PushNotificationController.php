@@ -74,10 +74,10 @@ class PushNotificationController extends Controller {
 			}
 		}
 
-		$lead_notifications = $lead_notifications->orderBy('created_at','DESC')->get();
-		$order_notifications = $order_notifications->orderBy('created_at','DESC')->get();
-		$message_notifications = $message_notifications->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
-		$task_notifications = $task_notifications->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
+		$lead_notifications = $lead_notifications->orderBy('created_at','DESC')->get()->take(100);
+		$order_notifications = $order_notifications->orderBy('created_at','DESC')->get()->take(100);
+		$message_notifications = $message_notifications->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->take(100)->toArray();
+		$task_notifications = $task_notifications->orderBy('created_at','DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->take(100)->toArray();
 
 		return view('pushnotification.index', compact('lead_notifications', 'order_notifications', 'message_notifications', 'task_notifications', 'term', 'user'));
 	}
