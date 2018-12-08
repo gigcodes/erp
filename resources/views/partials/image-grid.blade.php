@@ -50,14 +50,15 @@
                             </div>
 
                             <div class="form-group mr-3 mb-3">
-                              {{-- <strong>Price</strong> --}}
-                              <select class="form-control" name="price">
+                              <strong class="mr-3">Price</strong>
+                              {{-- <select class="form-control" name="price">
                                 <option value>Select Price Range</option>
                                 <option value="1" {{ (isset($price) && $price == 1) ? 'selected' : '' }}>Up to 10K</option>
                                 <option value="2" {{ (isset($price) && $price == 2) ? 'selected' : '' }}>10K - 30K</option>
                                 <option value="3" {{ (isset($price) && $price == 3) ? 'selected' : '' }}>30K - 50K</option>
                                 <option value="4" {{ (isset($price) && $price == 4) ? 'selected' : '' }}>50K - 100K</option>
-                              </select>
+                              </select> --}}
+                              <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
                             </div>
 
                             <div class="form-group mr-3">
@@ -70,6 +71,11 @@
                               {{-- <strong>Color</strong> --}}
                               @php $colors = new \App\Colors(); @endphp
                               {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
+                            </div>
+
+                            <div class="form-group">
+                              @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp
+                              {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control', 'multiple' => true]) !!}
                             </div>
 
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>

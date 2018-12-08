@@ -175,14 +175,6 @@ class ProductController extends Controller {
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
 		$products = Product::latest()->paginate( Setting::get( 'pagination' ) );
 
-		// $doSelection = true;
-		//
-		// if ($type == 'images') {
-		// 	$attachImages = true;
-		// } else {
-		// 	$attachImages = false;
-		// }
-
 		if (Order::find($model_id)) {
 			$selected_products = self::getSelectedProducts($model_type,$model_id);
 		} else {
