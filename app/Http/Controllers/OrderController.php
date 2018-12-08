@@ -14,6 +14,8 @@ use App\Task;
 use App\Reply;
 use App\CallRecording;
 use Auth;
+use Cache;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -128,7 +130,21 @@ class OrderController extends Controller {
 			$data[ $item ] = '';
 		}
 
-		$data['id'] = Order::withTrashed()->latest()->first()->id + 1;
+		$expiresAt = Carbon::now()->addMinutes(10);
+
+		if (Cache::has('last-order')) {
+			if (!Cache::has('user-order-' . Auth::id())) {
+				$last_order = Cache::get('last-order') + 1;
+				Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
+				Cache::put('last-order', $last_order, $expiresAt);
+			}
+		} else {
+			$last_order = Order::withTrashed()->latest()->first()->id + 1;
+			Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
+			Cache::put('last-order', $last_order, $expiresAt);
+		}
+
+		$data['id'] = Cache::get('user-order-' . Auth::id());
 		$data['sales_persons'] = Helpers::getUsersArrayByRole( 'Sales' );
 		$data['modify']        = 0;
 		$data['order_products'] = $this->getOrderProductsWithProductData($data['id']);
@@ -165,6 +181,10 @@ class OrderController extends Controller {
 		}
 
 		$order = Order::create( $data );
+
+		$expiresAt = Carbon::now()->addMinutes(10);
+		$last_order = $order->id + 1;
+		Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
 
 		if ($request->convert_order == 'convert_order') {
 			foreach ($request->selected_product as $product) {
