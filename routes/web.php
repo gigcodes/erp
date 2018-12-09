@@ -64,6 +64,9 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
 
+	Route::post('order/status/store','OrderReportController@statusStore')->name('status.store');
+	Route::post('order/report/store','OrderReportController@store')->name('status.report.store');
+
 	Route::resource('task','TaskModuleController');
 	Route::resource('task_category','TaskCategoryController');
 	Route::get('/', 'TaskModuleController@index')->name('home');

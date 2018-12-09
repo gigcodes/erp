@@ -37,11 +37,12 @@
     <table class="table table-bordered">
         <tr>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">ID</a></th>
-            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=type{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Type</a></th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Date</a></th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_handler{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Handler</a></th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Client Name</a></th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Status</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Action Status</a></th>
+            <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Due</a></th>
             <th>Message Status</th>
             <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
             <th width="280px">Action</th>
@@ -49,11 +50,12 @@
         @foreach ($orders_array as $key => $order)
             <tr class="{{ \App\Helpers::statusClass($order['assign_status'] ) }} {{ ((!empty($order['communication']['body']) && $order['communication']['status'] == 0) || $order['communication']['status'] == 1 || $order['communication']['status'] == 5) ? 'row-highlight' : '' }}">
                 <td>{{ $order['order_id'] }}</td>
-                <td>{{ $order['order_type'] }}</td>
-                <td>{{ Carbon\Carbon::parse($order['order_date'])->format('d-m-Y') }}</td>
+                <td>{{ Carbon\Carbon::parse($order['order_date'])->format('d-m') }}</td>
                 <td>{{ $order['sales_person'] ? $users[$order['sales_person']] : 'nil' }}</td>
                 <td>{{ $order['client_name'] }}</td>
                 <td>{{ $order['order_status']}}</td>
+                <td>{{ $order['action']['status'] }}</td>
+                <td>{{ $order['action']['completion_date'] ? Carbon\Carbon::parse($order['action']['completion_date'])->format('d-m') : '' }}</td>
                 <td>
                   @if (!empty($order['communication']['body']))
                     @if ($order['communication']['status'] == 5 || $order['communication']['status'] == 3)

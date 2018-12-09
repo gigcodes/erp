@@ -7,12 +7,14 @@ use App\Helpers;
 use App\Order;
 use App\OrderProduct;
 use App\Product;
-use App\ReadOnly\OrderStatus;
+use App\ReadOnly\OrderStatus as OrderStatus;
 use App\User;
 use App\Message;
 use App\Task;
 use App\Reply;
 use App\CallRecording;
+use App\OrderStatus as OrderStatuses;
+use App\OrderReport;
 use Auth;
 use Cache;
 use Carbon\Carbon;
@@ -60,6 +62,12 @@ class OrderController extends Controller {
 			case 'status':
 					 $sortby = 'order_status';
 					break;
+			case 'action':
+					 $sortby = 'action';
+					break;
+			case 'due':
+					 $sortby = 'due';
+					break;
 			case 'communication':
 					 $sortby = 'communication';
 					break;
@@ -69,7 +77,7 @@ class OrderController extends Controller {
 
 		$orders = ((new Order())->newQuery());
 
-		if ($sortby != 'communication') {
+		if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
 			$orders = $orders->orderBy( $sortby, $orderby );
 		}
 
@@ -103,6 +111,34 @@ class OrderController extends Controller {
 			} else {
 				$orders_array = array_values(array_sort($orders_array, function ($value) {
 						return $value['communication']['created_at'];
+				}));
+			}
+		}
+
+		if ($sortby == 'action') {
+			if ($orderby == 'asc') {
+				$orders_array = array_values(array_sort($orders_array, function ($value) {
+						return $value['action']['status'];
+				}));
+
+				$orders_array = array_reverse($orders_array);
+			} else {
+				$orders_array = array_values(array_sort($orders_array, function ($value) {
+						return $value['action']['status'];
+				}));
+			}
+		}
+
+		if ($sortby == 'due') {
+			if ($orderby == 'asc') {
+				$orders_array = array_values(array_sort($orders_array, function ($value) {
+						return $value['action']['completion_date'];
+				}));
+
+				$orders_array = array_reverse($orders_array);
+			} else {
+				$orders_array = array_values(array_sort($orders_array, function ($value) {
+						return $value['action']['completion_date'];
 				}));
 			}
 		}
@@ -254,7 +290,9 @@ class OrderController extends Controller {
 		$data['tasks'] = Task::where('model_type', 'order')->where('model_id', $order->id)->whereNull('is_completed')->get()->toArray();
 		$data['approval_replies'] = Reply::where('model', 'Approval Order')->get();
 		$data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
-        $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get();
+    $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get();
+		$data['order_status_report'] = OrderStatuses::all();
+		$data['order_reports'] = OrderReport::where('order_id', $order->id)->get();
 
 		//return $data;
 		return view( 'orders.show', $data );
