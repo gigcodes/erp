@@ -173,13 +173,52 @@ class ProductController extends Controller {
 	public function attachImages($model_type, $model_id, $status, $assigned_user, Request $request) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
-		$products = Product::latest()->paginate( Setting::get( 'pagination' ) );
+		$products = Product::latest();
+		$filtered_category = '';
+		$brand = '';
 
 		if (Order::find($model_id)) {
 			$selected_products = self::getSelectedProducts($model_type,$model_id);
 		} else {
 			$selected_products = [];
 		}
+
+		if ($request->brand != '') {
+			$products = $products->where('brand', $request->brand);
+
+			$brand = $request->brand;
+		}
+
+		$filtered_category = json_decode($request->category, true);
+
+		if ($filtered_category[0] != null) {
+			$is_parent = Category::isParent($filtered_category[0]);
+			$category_children = [];
+
+			if ($is_parent) {
+				$childs = Category::find($filtered_category[0])->childs()->get();
+
+				foreach ($childs as $child) {
+					$is_parent = Category::isParent($child->id);
+
+					if ($is_parent) {
+						$children = Category::find($child->id)->childs()->get();
+
+						foreach ($children as $chili) {
+							array_push($category_children, $chili->id);
+						}
+					} else {
+						array_push($category_children, $child->id);
+					}
+				}
+			} else {
+				array_push($category_children, $filtered_category);
+			}
+
+			$products = $products->whereIn('category', $category_children);
+		}
+
+		$products = $products->paginate(Setting::get('pagination'));
 
 		$search_suggestions = [];
 		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
@@ -194,7 +233,7 @@ class ProductController extends Controller {
 		}
 
 		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
-		                                        ->selected(1)
+		                                        ->selected($filtered_category)
 		                                        ->renderAsDropdown();
 
 		if ($request->ajax()) {
@@ -203,7 +242,7 @@ class ProductController extends Controller {
 			return response()->json(['html' => $html]);
 		}
 
-		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'search_suggestions', 'category_selection') );
+		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'search_suggestions', 'category_selection', 'brand') );
 	}
 
 

@@ -817,7 +817,17 @@
                <div class="upload-btn-wrapper btn-group pr-0 d-flex">
                  <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                  <input type="file" name="image" />
-                 <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+
+                 @php
+                 $brand = '';
+                   foreach($leads['brands'] as $brand_item) {
+                     if (in_array($brand_item['id'], $leads['multi_brand'])) {
+                       $brand = $brand_item['id'];
+                     }
+                   }
+                 @endphp
+                 
+                 <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) . ($brand != '' ? "?brand=$brand" : '') . (($brand != '' && $selected_categories != 'null') ? "&category=$selected_categories" : (($selected_categories != 'null') ? "?category=$selected_categories" : '')) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
                  <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
                </div>
              </div>

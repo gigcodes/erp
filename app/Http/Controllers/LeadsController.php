@@ -332,7 +332,8 @@ class LeadsController extends Controller
         }
         // dd($leads);
        // var_dump($role);
-        return view('leads.show',compact('leads','id','data', 'tasks', 'approval_replies', 'internal_replies', 'sales_persons'));
+        $selected_categories = $leads['multi_category'];
+        return view('leads.show',compact('leads','id','data', 'tasks', 'approval_replies', 'internal_replies', 'sales_persons', 'selected_categories'));
     }
 
     /**
