@@ -315,7 +315,7 @@ class LeadsController extends Controller
 
 	    $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
 	    $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
-	    $data['category_select'] = Category::attr(['name' => 'multi_category[]','class' => 'form-control','id' => 'multi_category', 'disabled' => ''])
+	    $data['category_select'] = Category::attr(['name' => 'multi_category[]','class' => 'form-control','id' => 'multi_category'])
 	                                       ->selected($selected_categories)
 	                                       ->renderAsMultiple();
 	    $leads['remark'] = $leads->remark;
@@ -345,35 +345,35 @@ class LeadsController extends Controller
     public function edit($id)
     {
         //
-        $leads = Leads::find($id);
-        $status = New status;
-        $data = $status->all();
-        $leads['statusid'] = $data;
-        $users = User::all()->toArray();
-        $leads['users']  = $users;
-        $brands = Brand::all()->toArray();
-        $leads['brands']  = $brands;
-        $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
-        $leads['products_array']          = [];
-
-
-	    $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
-
-
-	    $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
-	    $data['category_select'] = Category::attr(['name' => 'multi_category[]','class' => 'form-control','id' => 'multi_category'])
-	                                ->selected($selected_categories)
-	                                ->renderAsMultiple();
-
-        if ( ! empty( $leads['selected_products_array']  ) ) {
-            foreach ( $leads['selected_products_array']  as $product_id ) {
-                $skuOrName                             = $this->getProductNameSkuById( $product_id );
-
-               $data['products_array'][$product_id] = $skuOrName;
-            }
-        }
-       // var_dump($leads['products_array']);
-      return view('leads.edit',compact('leads','id','data'));
+      //   $leads = Leads::find($id);
+      //   $status = New status;
+      //   $data = $status->all();
+      //   $leads['statusid'] = $data;
+      //   $users = User::all()->toArray();
+      //   $leads['users']  = $users;
+      //   $brands = Brand::all()->toArray();
+      //   $leads['brands']  = $brands;
+      //   $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
+      //   $leads['products_array']          = [];
+      //
+      //
+	    // $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
+      //
+      //
+	    // $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
+	    // $data['category_select'] = Category::attr(['name' => 'multi_category[]','class' => 'form-control','id' => 'multi_category'])
+	    //                             ->selected($selected_categories)
+	    //                             ->renderAsMultiple();
+      //
+      //   if ( ! empty( $leads['selected_products_array']  ) ) {
+      //       foreach ( $leads['selected_products_array']  as $product_id ) {
+      //           $skuOrName                             = $this->getProductNameSkuById( $product_id );
+      //
+      //          $data['products_array'][$product_id] = $skuOrName;
+      //       }
+      //   }
+      //  // var_dump($leads['products_array']);
+      // return view('leads.edit',compact('leads','id','data'));
     }
 
     /**
@@ -472,7 +472,7 @@ class LeadsController extends Controller
 
 
 
-        return redirect('leads')->with('success','Lead has been updated');
+        return redirect()->route('leads.show', $leads->id)->with('success','Lead has been updated');
     }
 
     public function removeImage($old_image){

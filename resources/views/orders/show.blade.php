@@ -38,32 +38,62 @@
             <!-- Pending task div start -->
             <div class="tab-pane active" id="1">
 
+              <form action="{{ route('order.update',$id) }}" method="POST" enctype="multipart/form-data">
+                  @csrf
+                  @method('PUT')
+
                 <div class="row">
                     <div class="col-md-6 col-12">
-                        <div class="form-group">
-                            <strong>Order Type:</strong> {{ $order_type }}
-                        </div>
+                      <div class="form-group">
+                          <strong> Order Type :</strong>
+                    <?php
+
+                        $order_types = [
+                          'offline' => 'offline',
+                              'online' => 'online'
+                          ];
+
+                    echo Form::select('order_type',$order_types, ( old('order_type') ? old('order_type') : $order_type ), ['class' => 'form-control']);?>
+                          @if ($errors->has('order_type'))
+                              <div class="alert alert-danger">{{$errors->first('order_type')}}</div>
+                          @endif
+                      </div>
 
                         <div class="form-group">
                             <strong>Sale Order No. </strong> {{ $order_id }}
                         </div>
+
                         <div class="form-group">
-                            <strong>Date of Order : </strong> {{ $order_date }}
+                            <strong>Order Date:</strong>
+                            <input type="date" class="form-control" name="order_date" placeholder="Order Date"
+                                   value="{{ old('order_date') ? old('order_date') : $order_date }}"/>
+                            @if ($errors->has('order_date'))
+                                <div class="alert alert-danger">{{$errors->first('order_date')}}</div>
+                            @endif
                         </div>
 
                         <div class="form-group">
                             <strong> Price :</strong>
                             {{ $total_price }}
                         </div>
+
                         <div class="form-group">
-                            <strong> Date of delivery :</strong>
-                            {{ $date_of_delivery }}
+                            <strong>Date of Delivery:</strong>
+                            <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
+                                   value="{{ old('date_of_delivery') ? old('date_of_delivery') : $date_of_delivery }}"/>
+                            @if ($errors->has('date_of_delivery'))
+                                <div class="alert alert-danger">{{$errors->first('date_of_delivery')}}</div>
+                            @endif
                         </div>
 
 
                         <div class="form-group">
-                            <strong> Office Phone Number :</strong>
-                            {{ $office_phone_number }}
+                            <strong>Office Phone Number:</strong>
+                            <input type="text" class="form-control" name="office_phone_number" placeholder="Office Phone Number"
+                                   value="{{ old('office_phone_number') ? old('office_phone_number') : $office_phone_number }}"/>
+                            @if ($errors->has('office_phone_number'))
+                                <div class="alert alert-danger">{{$errors->first('office_phone_number')}}</div>
+                            @endif
                         </div>
 
 
@@ -81,21 +111,33 @@
                              <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
                          </div>
 
-                        <div class="form-group">
-                            <strong> Estimated Delivery Date:</strong>
-                            {{ $estimated_delivery_date }}
-                        </div>
+                         <div class="form-group">
+                             <strong>Estimated Delivery Date:</strong>
+                             <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
+                                    value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $estimated_delivery_date }}"/>
+                             @if ($errors->has('estimated_delivery_date'))
+                                 <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
+                             @endif
+                         </div>
 
 
-                        <div class="form-group">
-                            <strong> Note if any:</strong>
-                            {{ $note_if_any }}
-                        </div>
+                         <div class="form-group">
+                             <strong>Note if any:</strong>
+                             <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
+                                    value="{{ old('note_if_any') ? old('note_if_any') : $note_if_any }}"/>
+                             @if ($errors->has('note_if_any'))
+                                 <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
+                             @endif
+                         </div>
 
 
                         <div class="form-group">
                             <strong> Name of Order Handler :</strong>
-                            {{ !empty($sales_person) ? $sales_persons[$sales_person] : 'nil' }}
+        			        <?php
+        			        echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
+                            @if ($errors->has('sales_person'))
+                                <div class="alert alert-danger">{{$errors->first('sales_person')}}</div>
+                            @endif
                         </div>
 
                          <div class="form-group">
@@ -107,142 +149,359 @@
                             {{ $remark }}
                         </div>
 
-                        <div id="statusModal" class="modal fade" role="dialog">
-                          <div class="modal-dialog">
-
-                            <!-- Modal content-->
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h4 class="modal-title">Create Action</h4>
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                              </div>
-
-                              <form action="{{ route('status.store') }}" method="POST" enctype="multipart/form-data">
-                                @csrf
-
-                                <div class="modal-body">
-                                  <div class="form-group">
-                                      <strong>Order Status:</strong>
-                                       <input type="text" class="form-control" name="status" placeholder="Order Status" id="status" required />
-                                       @if ($errors->has('status'))
-                                           <div class="alert alert-danger">{{$errors->first('status')}}</div>
-                                       @endif
-                                  </div>
-
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                  <button type="submit" class="btn btn-secondary">Create</button>
-                                </div>
-                              </form>
-                            </div>
-
-                          </div>
-                        </div>
-
-                        <form action="{{ route('status.report.store') }}" method="POST">
-                          @csrf
-
-                          <input type="hidden" name="order_id" value="{{ $id }}">
-
-                          <div class="form-group">
-                            <strong>Next action due</strong>
-                            <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
-
-                            <select class="form-control" name="status_id" required>
-                              <option value="">Select action</option>
-                              @foreach ($order_status_report as $status)
-                                <option value="{{ $status->id }}">{{ $status->status }}</option>
-                              @endforeach
-                            </select>
-                          </div>
-
-                          <div class="form-group" id="completion_form_group">
-                            <strong>Completion Date:</strong>
-                            <div class='input-group date' id='completion-datetime'>
-                              <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
-
-                              <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                              </span>
-                            </div>
-
-                            @if ($errors->has('completion_date'))
-                                <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-                            @endif
-                          </div>
-
-                          <button type="submit" class="btn btn-secondary">Add Report</button>
-                        </form>
-
-                        @if (count($order_reports) > 0)
-                          <h4>Order Reports</h4>
-
-                          <table class="table table-bordered mt-4">
-                            <thead>
-                              <tr>
-                                <th>Status</th>
-                                <th>Created at</th>
-                                <th>Creator</th>
-                                <th>Due date</th>
-                              </tr>
-                            </thead>
-
-                            <tbody>
-                              @php $users_array = \App\Helpers::getUserArray(\App\User::all()); @endphp
-                              @foreach ($order_reports as $report)
-                                <tr>
-                                  <td>{{ $report->status }}</td>
-                                  <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
-                                  <td>{{ $users_array[$report->user_id] }}</td>
-                                  <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
-                                </tr>
-                              @endforeach
-                            </tbody>
-                          </table>
-                        @endif
-
-
                     </div>
                     <div class="col-md-6 col-12">
-                        <div class="form-group">
-                            <strong>Client Name:</strong> {{ $client_name }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Client City:</strong> {{ $city }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Contact Details:</strong> <span data-twilio-call data-context="orders" data-id="{{$order_id}}">{{ $contact_detail }}</span>
-                        </div>
+                      <div class="form-group">
+                          <strong>Client Name:</strong>
+                          <input type="text" class="form-control" name="client_name" placeholder="Client Name"
+                                 value="{{ old('client_name') ? old('client_name') : $client_name }}"/>
+                          @if ($errors->has('client_name'))
+                              <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
+                          @endif
+                      </div>
+
+                      <div class="form-group">
+                          <strong>City:</strong>
+                          <input type="text" class="form-control" name="city" placeholder="City"
+                                 value="{{ old('city') ? old('city') : $city }}"/>
+                          @if ($errors->has('city'))
+                              <div class="alert alert-danger">{{$errors->first('city')}}</div>
+                          @endif
+                      </div>
+
+                      <div class="form-group">
+                          <strong>Contact Detail:</strong>
+                          <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
+                                 value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
+                          @if ($errors->has('contact_detail'))
+                              <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
+                          @endif
+                      </div>
 
                         <h3>Payment Details</h3>
 
                         <div class="form-group">
-                            <strong> Balance Amount :</strong>
-                            {{ $balance_amount }}
+                            <strong>Balance Amount:</strong>
+                            <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
+                                   value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
+                            @if ($errors->has('balance_amount'))
+                                <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
+                            @endif
                         </div>
 
                         <div class="form-group">
                             <strong> Payment Mode :</strong>
-                            {{ $payment_mode }}
+        			        <?php
+        			        $paymentModes = new \App\ReadOnly\PaymentModes();
+
+        			        echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
+
+                            @if ($errors->has('payment_mode'))
+                                <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
+                            @endif
                         </div>
 
                         <div class="form-group">
-                            <strong> Advance Detail :</strong>
-                            {{ $advance_detail }}
+                            <strong>Advance Amount:</strong>
+                            <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
+                                   value="{{ old('advance_detail') ? old('advance_detail') : $advance_detail }}"/>
+                            @if ($errors->has('advance_detail'))
+                                <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
+                            @endif
                         </div>
 
                         <div class="form-group">
-                            <strong> Received By :</strong>
-                            {{ $received_by }}
+                            <strong>Received By:</strong>
+                            <input type="text" class="form-control" name="received_by" placeholder="Received By"
+                                   value="{{ old('received_by') ? old('received_by') : $received_by }}"/>
+                            @if ($errors->has('received_by'))
+                                <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
+                            @endif
                         </div>
 
                         <div class="form-group">
-                            <strong> Advance Date :</strong>
-                            {{ $advance_date }}
+                            <strong>Advance Date:</strong>
+                            <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
+                                   value="{{ old('advance_date') ? old('advance_date') : $advance_date }}"/>
+                            @if ($errors->has('advance_date'))
+                                <div class="alert alert-danger">{{$errors->first('advance_date')}}</div>
+                            @endif
                         </div>
+
+
+                    </div>
+
+                    <div class="col-xs-12">
+                      <div class="col-xs-12 col-sm-12 col-md-12">
+                          <div class="form-group">
+                              <strong> Products Attacted:</strong>
+                              <table class="table table-bordered" id="products-table">
+                                  <tr>
+                                      <th>Name</th>
+                                      <th>Sku</th>
+                                      <th>Color</th>
+                                      <th>Brand</th>
+                                      <th>Price</th>
+                                      <th>Size</th>
+                                      <th style="width: 30px">Qty</th>
+                                      <th style="width: 160px">Action</th>
+                                  </tr>
+                                  @foreach($order_products  as $order_product)
+                                      <tr>
+                                          @if(isset($order_product['product']))
+                                              <th>{{ $order_product['product']['name'] }}</th>
+                                              <th>{{ $order_product['product']['sku'] }}</th>
+                                              <th>{{ $order_product['product']['color'] }}</th>
+                                              <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</th>
+                                          @else
+                                              <th></th>
+                                              <th>{{$order_product['sku']}}</th>
+                                              <th></th>
+                                              <th></th>
+                                          @endif
+
+                                          <th>
+                                              <input class="table-input" type="text" value="{{ $order_product['product_price'] }}" name="order_products[{{ $order_product['id'] }}][product_price]">
+                                          </th>
+                                          <th>
+                                              @if(!empty($order_product['product']['size']))
+      					                        <?php
+
+      					                        $sizes = \App\Helpers::explodeToArray($order_product['product']['size']);
+      					                        $size_name = 'order_products['.$order_product['id'].'][size]';
+
+      					                        echo Form::select($size_name,$sizes,( $order_product['size'] ), ['placeholder' => 'Select a size'])
+      					                        ?>
+                                              @else
+                                                  <select hidden class="form-control" name="order_products[{{ $order_product['id'] }}][size]">
+                                                      <option selected="selected" value=""></option>
+                                                  </select>
+                                                  nil
+                                              @endif
+                                          </th>
+                                          <th>
+                                              <input class="table-input" type="number" value="{{ $order_product['qty'] }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                          </th>
+                                          @if(isset($order_product['product']))
+                                              <th>
+                                                  <a class="btn btn-image" href="{{ route('products.show',$order_product['product']['id']) }}"><img src="/images/view.png" /></a>
+                                                  <a class="btn btn-image remove-product" href="#" data-product="{{ $order_product['id'] }}"><img src="/images/delete.png" /></a>
+                                              </th>
+                                          @else
+                                              <th></th>
+                                          @endif
+                                      </tr>
+                                  @endforeach
+                              </table>
+                          </div>
+                      </div>
+                      {{-- {{dd($data)}} --}}
+                      <div class="col-xs-12 col-sm-12 col-md-12">
+                          <div class="form-group btn-group">
+                              <a href="{{ route('attachProducts',['order',$id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
+                              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>
+                          </div>
+                      </div>
+
+                      <div id="productModal" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+
+                          <!-- Modal content-->
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title">Create Product</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                              <div class="form-group">
+                                  <strong>Image:</strong>
+                                  <input type="file" class="form-control" name="image"
+                                         value="{{ old('image') }}" id="product-image"/>
+                                  @if ($errors->has('image'))
+                                      <div class="alert alert-danger">{{$errors->first('image')}}</div>
+                                  @endif
+                              </div>
+
+                              <div class="form-group">
+                                  <strong>Name:</strong>
+                                  <input type="text" class="form-control" name="name" placeholder="Name"
+                                         value="{{ old('name') }}"  id="product-name"/>
+                                  @if ($errors->has('name'))
+                                      <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                                  @endif
+                              </div>
+
+                              <div class="form-group">
+                                  <strong>SKU:</strong>
+                                  <input type="text" class="form-control" name="sku" placeholder="SKU"
+                                         value="{{ old('sku') }}"  id="product-sku"/>
+                                  @if ($errors->has('sku'))
+                                      <div class="alert alert-danger">{{$errors->first('sku')}}</div>
+                                  @endif
+                              </div>
+
+                              <div class="form-group">
+                                  <strong>Color:</strong>
+                                  <input type="text" class="form-control" name="color" placeholder="Color"
+                                         value="{{ old('color') }}"  id="product-color"/>
+                                  @if ($errors->has('color'))
+                                      <div class="alert alert-danger">{{$errors->first('color')}}</div>
+                                  @endif
+                              </div>
+
+                              <div class="form-group">
+                                  <strong>Brand:</strong>
+                                  <?php
+                	                $brands = \App\Brand::getAll();
+                	                echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
+                                    {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
+                                    @if ($errors->has('brand'))
+                                        <div class="alert alert-danger">{{$errors->first('brand')}}</div>
+                                    @endif
+                              </div>
+
+                              <div class="form-group">
+                                  <strong>Price:</strong>
+                                  <input type="number" class="form-control" name="price" placeholder="Price"
+                                         value="{{ old('price') }}" step=".01"  id="product-price"/>
+                                  @if ($errors->has('price'))
+                                      <div class="alert alert-danger">{{$errors->first('price')}}</div>
+                                  @endif
+                              </div>
+
+                              <div class="form-group">
+                                  <strong>Size:</strong>
+                                  <input type="text" class="form-control" name="size" placeholder="Size"
+                                         value="{{ old('size') }}"  id="product-size"/>
+                                  @if ($errors->has('size'))
+                                      <div class="alert alert-danger">{{$errors->first('size')}}</div>
+                                  @endif
+                              </div>
+
+                              <div class="form-group">
+                                  <strong>Quantity:</strong>
+                                  <input type="number" class="form-control" name="quantity" placeholder="Quantity"
+                                         value="{{ old('quantity') }}"  id="product-quantity"/>
+                                  @if ($errors->has('quantity'))
+                                      <div class="alert alert-danger">{{$errors->first('quantity')}}</div>
+                                  @endif
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                              <button type="button" class="btn btn-success" id="createProduct">Create</button>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 text-center">
+                      <button type="submit" class="btn btn-secondary">Update</button>
                     </div>
                 </div>
+              </form>
+
+              <div id="statusModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Create Action</h4>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <form action="{{ route('status.store') }}" method="POST" enctype="multipart/form-data">
+                      @csrf
+
+                      <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Order Status:</strong>
+                             <input type="text" class="form-control" name="status" placeholder="Order Status" id="status" required />
+                             @if ($errors->has('status'))
+                                 <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                             @endif
+                        </div>
+
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Create</button>
+                      </div>
+                    </form>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 col-12">
+                  <form action="{{ route('status.report.store') }}" method="POST">
+                    @csrf
+
+                    <input type="hidden" name="order_id" value="{{ $id }}">
+
+                    <div class="form-group">
+                      <strong>Next action due</strong>
+                      <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
+
+                      <select class="form-control" name="status_id" required>
+                        <option value="">Select action</option>
+                        @foreach ($order_status_report as $status)
+                          <option value="{{ $status->id }}">{{ $status->status }}</option>
+                        @endforeach
+                      </select>
+                    </div>
+
+                    <div class="form-group" id="completion_form_group">
+                      <strong>Completion Date:</strong>
+                      <div class='input-group date' id='completion-datetime'>
+                        <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                        <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                      </div>
+
+                      @if ($errors->has('completion_date'))
+                          <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                      @endif
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary">Add Report</button>
+                  </form>
+
+                  @if (count($order_reports) > 0)
+                    <h4>Order Reports</h4>
+
+                    <table class="table table-bordered mt-4">
+                      <thead>
+                        <tr>
+                          <th>Status</th>
+                          <th>Created at</th>
+                          <th>Creator</th>
+                          <th>Due date</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        @php $users_array = \App\Helpers::getUserArray(\App\User::all()); @endphp
+                        @foreach ($order_reports as $report)
+                          <tr>
+                            <td>{{ $report->status }}</td>
+                            <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
+                            <td>{{ $users_array[$report->user_id] }}</td>
+                            <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
+                          </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  @endif
+                </div>
+              </div>
+
 
                 <div class="form-group">
                     <div class="text-center">
@@ -312,15 +571,19 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-10">
-                    <textarea id="waNewMessage" class="form-control" placeholder="Type new message.."></textarea>
-                    <br/>
-                    <label>Attach Media</label>
-                    <input id="waMessageMedia" type="file" name="media" />
+
+            <div class="row">
+              <div class="col-xs-10">
+                      <textarea id="waNewMessage" class="form-control" placeholder="Type new message.."></textarea>
+                      <br/>
+                      <label>Attach Media</label>
+                      <input id="waMessageMedia" type="file" name="media" />
+              </div>
+              <div class="col-xs-2">
+                  <button id="waMessageSend" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
+              </div>
             </div>
-            <div class="col-xs-2">
-                <button id="waMessageSend" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
-            </div>
+
 
         </div>
 
@@ -843,11 +1106,94 @@
 
     {{-- </div> --}}
 
+    <form action="" method="POST" id="product-remove-form">
+      @csrf
+    </form>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
     <script type="text/javascript">
       $('#completion-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
+      });
+
+      $(document).on('click', '.remove-product', function(e) {
+        e.preventDefault();
+
+        var product_id = $(this).data('product');
+        var url = "{{ url('deleteOrderProduct') }}/" + product_id;
+        // var token = "{{ csrf_token() }}";
+
+        $('#product-remove-form').attr('action', url);
+        $('#product-remove-form').submit();
+      });
+
+      $('#createProduct').on('click', function() {
+        var token = "{{ csrf_token() }}";
+        var url = "{{ route('products.store') }}";
+        var order_id = {{ $id }};
+        var image = $('#product-image').prop('files')[0];
+        var name = $('#product-name').val();
+        var sku = $('#product-sku').val();
+        var color = $('#product-color').val();
+        var brand = $('#product-brand').val();
+        var price = $('#product-price').val();
+        var size = $('#product-size').val();
+        var quantity = $('#product-quantity').val();
+
+        var form_data = new FormData();
+        form_data.append('_token', token);
+        form_data.append('order_id', order_id);
+        form_data.append('image', image);
+        form_data.append('name', name);
+        form_data.append('sku', sku);
+        form_data.append('color', color);
+        form_data.append('brand', brand);
+        form_data.append('price', price);
+        form_data.append('size', size);
+        form_data.append('quantity', quantity);
+
+        $.ajax({
+          type: 'POST',
+          url: url,
+          processData: false,
+          contentType: false,
+          enctype: 'multipart/form-data',
+          data: form_data,
+          success: function(response) {
+            var show_url = "{{ url('products') }}/" + response.order.id;
+            var delete_url = "{{ url('deleteOrderProduct') }}/" + response.order.id;
+            var product_row = '<tr><th>' + response.product.name + '</th>';
+                product_row += '<th>' + response.product.sku + '</th>';
+                product_row += '<th>' + response.product.color + '</th>';
+                product_row += '<th>' + response.product.brand + '</th>';
+                product_row += '<th><input class="table-input" type="text" value="' + response.product.price + '" name="order_products[' + response.order.id + '][product_price]"></th>';
+                // product_row += '<th>' + response.product.size + '</th>';
+
+                if (response.product.size != null) {
+                  var exploded = response.product.size.split(',');
+
+                  product_row += '<th><select class="form-control" name="order_products[' + response.order.id + '][size]">';
+                  product_row += '<option selected="selected" value="">Select</option>';
+
+                  $(exploded).each(function(index, value) {
+                    product_row += '<option value="' + value + '">' + value + '</option>';
+                  });
+
+                  product_row += '</select></th>';
+
+                } else {
+                    product_row += '<th><select hidden class="form-control" name="order_products[' + response.order.id + '][size]"><option selected="selected" value=""></option></select>nil</th>';
+                }
+
+                product_row += '<th><input class="table-input" type="number" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></th>';
+                product_row += '<th><a class="btn btn-secondary" href="' + show_url + '">View</a>';
+                product_row += '<form class="display-inline" method="post" action="' + delete_url + '">@csrf<button type="submit" class="btn btn-secondary">Remove</button></form></th>';
+                product_row += '</tr>';
+
+            $('#products-table').append(product_row);
+          }
+        });
       });
 
       $('.edit-message').on('click', function(e) {

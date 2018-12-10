@@ -116,7 +116,7 @@
                 <td>{{ Carbon\Carbon::parse($lead['created_at'])->format('d-m H:i') }}</td>
                 <td>
                     <a class="btn btn-image" href="{{ route('leads.show',$lead['id']) }}"><img src="/images/view.png" /></a>
-                    <a class="btn btn-image" href="{{ route('leads.edit',$lead['id']) }}"><img src="/images/edit.png" /></a>
+                    {{-- <a class="btn btn-image" href="{{ route('leads.edit',$lead['id']) }}"><img src="/images/edit.png" /></a> --}}
 
                     {!! Form::open(['method' => 'DELETE','route' => ['leads.destroy', $lead['id']],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>

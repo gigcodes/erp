@@ -88,9 +88,9 @@
                 </td>
                 <td>
                     <a class="btn btn-image" href="{{ route('order.show',$order['id']) }}"><img src="/images/view.png" /></a>
-                    @can('order-edit')
+                    {{-- @can('order-edit')
                     <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="/images/edit.png" /></a>
-                    @endcan
+                    @endcan --}}
 
                     {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order['id']],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>

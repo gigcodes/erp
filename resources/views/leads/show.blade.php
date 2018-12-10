@@ -41,6 +41,9 @@
         <div class="tab-content ">
             <!-- Pending task div start -->
             <div class="tab-pane active" id="1">
+              <form action="{{ route('leads.update',$leads['id']) }}" method="POST" enctype="multipart/form-data">
+                  @csrf
+                  @method('PUT')
                 <div class="row">
                      <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
@@ -150,17 +153,39 @@
                     </div>
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                      <div class="form-group">
-                        @foreach ($leads->getMedia(config('constants.media_tags')) as $image)
-                          <img src="{{ $image->getUrl() }}" class="img-responsive mb-3" alt="">
-                        @endforeach
+                      <?php $images = $leads->getMedia(config('constants.media_tags')) ?>
+                      @foreach ($images as $key => $image)
+                        <div class="old-image{{ $key }}" style="
+                             @if ($errors->has('image'))
+                                display: none;
+                             @endif
+                        ">
+                          <p>
+                            <img src="{{ $image->getUrl() }}" class="img-responsive" style="max-width: 200px;"  alt="">
+                            <button class="btn btn-image removeOldImage" data-id="{{ $key }}" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
+
+                            <input type="text" hidden name="oldImage[{{ $key }}]" value="{{ $images ? '0' : '-1' }}">
+                         </p>
                       </div>
+                      @endforeach
+
+                      @if (count($images) == 0)
+                        <input type="text" hidden name="oldImage[0]" value="{{ $images ? '0' : '-1' }}">
+                      @endif
+
+                       <div class="form-group new-image" style="">
+                           <strong>Upload Image:</strong>
+                           <input  type="file" enctype="multipart/form-data" class="form-control" name="image[]" multiple />
+                           @if ($errors->has('image'))
+                               <div class="alert alert-danger">{{$errors->first('image')}}</div>
+                           @endif
+                       </div>
                     </div>
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Brand:</strong>
-                            <select disabled id="multi_brand" multiple="" name="multi_brand[]" class="form-control">
+                            <select id="multi_brand" multiple="" name="multi_brand[]" class="form-control">
                                 @foreach($leads['brands'] as $brand_item)
                                     <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'] ,$leads['multi_brand']) ? 'Selected=Selected':''}}>{{$brand_item['name']}}</option>
                                 @endforeach
@@ -340,9 +365,26 @@
                        <div class="form-group">
                            <strong>Created by:</strong>
 
-                           <input type="text" class="form-control" name="userid" placeholder="Created by" value="{{ App\Helpers::getUserNameById($leads->userid) }}"/>
+                           <input type="text" class="form-control" name="" placeholder="Created by" value="{{ App\Helpers::getUserNameById($leads->userid) }}" readonly/>
                        </div>
                    </div>
+
+                   <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+       							 <div class="form-group">
+       								 <strong>Created at:</strong>
+       								 <div class='input-group date' id='created_at'>
+       									 <input type='text' class="form-control" name="created_at" value="{{ $leads->created_at }}" />
+
+       									 <span class="input-group-addon">
+       										 <span class="glyphicon glyphicon-calendar"></span>
+       									 </span>
+       								 </div>
+
+       								 @if ($errors->has('created_at'))
+       										 <div class="alert alert-danger">{{$errors->first('created_at')}}</div>
+       								 @endif
+       							 </div>
+       					 </div>
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
@@ -356,6 +398,13 @@
                             <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#orderModal" id="addOrderButton">Convert to Order</button>
                         </div>
                     </div>
+
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-secondary">Update</button>
+                        </div>
+                    </div>
+
                 </div>
          </form>
 
@@ -826,7 +875,7 @@
                      }
                    }
                  @endphp
-                 
+
                  <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) . ($brand != '' ? "?brand=$brand" : '') . (($brand != '' && $selected_categories != 'null') ? "&category=$selected_categories" : (($selected_categories != 'null') ? "?category=$selected_categories" : '')) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
                  <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
                </div>
@@ -1126,7 +1175,7 @@
  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
  <script type="text/javascript">
-   $('#completion-datetime').datetimepicker({
+   $('#completion-datetime, #created_at').datetimepicker({
      format: 'YYYY-MM-DD HH:mm'
    });
 
