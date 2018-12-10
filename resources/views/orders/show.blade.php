@@ -1173,7 +1173,7 @@
 		}
 		function pollMessages() {
             var qs = "";
-            qs += "/leads?orderId=" + orderId;
+            qs += "/orders?orderId=" + orderId;
             if (addElapse) {
                 qs += "&elapse=3600";
             }
