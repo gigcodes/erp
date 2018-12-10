@@ -44,7 +44,9 @@ class WhatsAppController extends FindByNumberController
         if ( $lead ) {
             $params['lead_id'] = $lead->id;
             $params = $this->modifyParamsWithMessage($params, $data);
-            ChatMessage::create($params);
+            $message = ChatMessage::create($params);
+            $model_type = 'leads';
+            $model_id = $lead->id;
 
         }
 
@@ -57,8 +59,30 @@ class WhatsAppController extends FindByNumberController
         if ( $order ) {
             $params['order_id'] = $order->id;
             $params = $this->modifyParamsWithMessage($params, $data);
-            ChatMessage::create($params);
+            $message = ChatMessage::create($params);
+            $model_type = 'order';
+            $model_id = $order->id;
         }
+
+        NotificationQueueController::createNewNotification([
+          'message' => 'NWA - ' . $message->message,
+          'timestamps' => ['+0 minutes'],
+          'model_type' => $model_type,
+          'model_id' =>  $model_id,
+          'user_id' => Auth::id(),
+          'sent_to' => '',
+          'role' => 'message',
+        ]);
+
+        NotificationQueueController::createNewNotification([
+          'message' => 'NWA - ' . $message->message,
+          'timestamps' => ['+0 minutes'],
+          'model_type' => $model_type,
+          'model_id' =>  $model_id,
+          'user_id' => Auth::id(),
+          'sent_to' => '',
+          'role' => 'Admin',
+        ]);
 
         return response("");
     }
@@ -74,12 +98,16 @@ class WhatsAppController extends FindByNumberController
             $params = [];
            if ($context == "leads") {
              $lead = Leads::findOrFail( $data['lead_id'] );
+             $model_type = 'leads';
+             $model_id = $lead->id;
              $params = [
                 'lead_id' => $lead->id,
                 'number' => NULL
                ];
             } elseif ($context == "orders") {
              $order = Order::findOrFail( $data['order_id'] );
+             $model_type = 'order';
+             $model_id = $order->id;
              $params = [
                 'order_id' => $order->id,
                 'number' => NULL
@@ -109,9 +137,31 @@ class WhatsAppController extends FindByNumberController
             }
 
             $message = ChatMessage::create($params);
+
+            NotificationQueueController::createNewNotification([
+  		        'message' => 'WAA - ' . $message->message,
+  		        'timestamps' => ['+0 minutes'],
+  		        'model_type' => $model_type,
+  		        'model_id' =>  $model_id,
+  		        'user_id' => Auth::id(),
+  		        'sent_to' => '',
+  		        'role' => 'message',
+  	        ]);
+
+            NotificationQueueController::createNewNotification([
+      		    'message' => 'WAA - ' . $message->message,
+      		    'timestamps' => ['+0 minutes'],
+              'model_type' => $model_type,
+  		        'model_id' =>  $model_id,
+      		    'user_id' => Auth::id(),
+      		    'sent_to' => '',
+      		    'role' => 'Admin',
+      	    ]);
         } catch (\Exception $ex) {
             return response($ex->getMessage(), 500);
         }
+
+
        return response($message);
     }
 	/**
