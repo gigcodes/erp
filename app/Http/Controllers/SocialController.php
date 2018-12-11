@@ -18,12 +18,64 @@ class SocialController extends Controller
 		$this->page_access_token="EAAD7Te0j0B8BAI7T10bD2WX5jslOZBxPDsmaTO5zMd5sO9mjX567pIbqy5ZBPPWe7t7qYzOBzy9ZA6rAigCAaAXj3nYDj6N7xZAsJpoy8PZCkBoRZCy0ZCiki58DmZBhuElt75lJ3LSZAvcolnT6Vazy3OZC0Wd4LVrZA4KRuvpueb0MQRJjUBMTodyB0ofo5VcFcAZD";
 		$this->page_id="507935072915757";
 		$this->ad_acc_id="act_128125721296439";
-
+		
 	}
 	public function index()
 	{
 		return view('social.post');
 	}
+
+
+	// public function for getting Social Page posts
+
+	public function pagePost(Request $request)
+	{
+		if($request->input('next') && !empty($request->input('next')))
+		{
+
+			$data['posts']=substr($request->input('next'),32);
+			$data['posts']=$this->fb->get($data['posts'])->getGraphEdge();
+
+
+
+
+			
+		}
+		elseif($request->input('previous') && !empty($request->input('previous')))
+		{
+			$data['posts']=substr($request->input('previous'),32);
+			$data['posts']=$this->fb->get($data['posts'])->getGraphEdge();
+		}
+		else
+		{
+			$data['posts']=$this->fb->get(''.$this->page_id.'/feed?fields=id,full_picture,permalink_url,name,description,created_time,from,story,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=10&access_token='.$this->page_access_token.'')->getGraphEdge();
+			
+		}
+
+
+		// Making Pagination
+
+
+		if(isset($data['posts']->getMetaData()['paging']['next']) && !empty($data['posts']->getMetaData()['paging']['next']))
+			$data['next']=$data['posts']->getMetaData()['paging']['next'];
+
+		if(isset($data['posts']->getMetaData()['paging']['previous']) && !empty($data['posts']->getMetaData()['paging']['previous']))
+			$data['previous']=$data['posts']->getMetaData()['paging']['previous'];
+
+
+		// Getting Final Result as Array
+		$data['posts']=$data['posts']->asArray();
+
+
+
+
+
+
+		return view('social.get-posts',$data);
+	}
+
+
+
 
 	// Creating posts to page via sdk
 
@@ -33,13 +85,13 @@ class SocialController extends Controller
 			'message' => 'required',
 			'source.*' => 'mimes:jpeg,bmp,png,gif,tiff',
 			'video' =>'mimes:3g2,3gp,3gpp,asf,avi,dat,divx,dv,f4v,flv,gif,m2ts,m4v,mkv,mod,mov,mp4,mpe, mpeg,mpeg4,mpg,mts,nsv,ogm,ogv,qt,tod,tsvob,wmv',
-			
+
 		]);
-		
 
 
 
-		
+
+
 
 		// Message
 		$message=$request->input('message');
@@ -81,7 +133,7 @@ class SocialController extends Controller
 
 			return redirect()->route('social.post.page');
 		}
-		
+
 
 
 
@@ -89,7 +141,7 @@ class SocialController extends Controller
 		// Video Case
 		elseif($request->hasFile('video'))
 		{
-			
+
 			$data['title'] ="". trim($message)."";
 
 
@@ -196,7 +248,7 @@ class SocialController extends Controller
 
 
 
-		
+
 
 
 			// Call to Graph api here
@@ -288,7 +340,7 @@ class SocialController extends Controller
 		if($request->has('daily_budget'))
 			$data['daily_budget']=$request->input('daily_budget');
 
-		
+
 
 
 
@@ -337,7 +389,7 @@ class SocialController extends Controller
 	{
 
 		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=name,id&limit=100&access_token=".$this->user_access_token."";
-		
+
 
 
 			// Call to Graph api here
@@ -353,7 +405,7 @@ class SocialController extends Controller
 
 		$resp = curl_exec($ch);
 		$resp = json_decode($resp);
-		
+
 		curl_close($ch);
 		if(isset($resp->error->error_user_msg))
 			Session::flash('message',$resp->error->error_user_msg); 
@@ -393,7 +445,7 @@ class SocialController extends Controller
 		$data['status']=$request->input('status');
 
 
-		
+
 
 		if($request->has('bid_amount'))
 			$data['bid_amount']=$request->input('bid_amount');
@@ -421,7 +473,7 @@ class SocialController extends Controller
 
 			$resp = curl_exec($curl);
 			$resp = json_decode($resp);
-			
+
 
 			curl_close($curl);
 			if(isset($resp->error->error_user_msg))
@@ -446,9 +498,9 @@ class SocialController extends Controller
 	// for creating Ad
 	public function createAd()
 	{
-		
 
-		
+
+
 		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=".$this->user_access_token."";
 
 
@@ -465,8 +517,8 @@ class SocialController extends Controller
 
 		$resp = curl_exec($ch);
 		$resp = json_decode($resp);
-		
-		
+
+
 		curl_close($ch);
 		if(isset($resp->error->message))
 			Session::flash('message',$resp->error->message); 
@@ -490,7 +542,7 @@ class SocialController extends Controller
 		$data['name']=$request->input('name');
 		$data['adset_id']=$request->input('adset_id');
 		$data['creative']=json_encode(['creative_id'=>$request->input('adcreative_id')]);
-		
+
 		$data['status']=$request->input('status');
 
 		// Storing to fb via curl
@@ -517,7 +569,7 @@ class SocialController extends Controller
 
 
 			curl_close($curl);
-			
+
 			if(isset($resp->error->error_user_msg))
 				Session::flash('message',$resp->error->error_user_msg); 
 			elseif(isset($resp->error->message))

@@ -178,6 +178,8 @@ Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages')
 
 /*Routes For Social */
 
+Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
+
 	// post creating routes define's here
 
 Route::get('social/post/page','SocialController@index')->name('social.post.page');
