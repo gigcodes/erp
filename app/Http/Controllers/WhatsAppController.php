@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers;
 use App\ChatMessage;
+use App\PushNotification;
 
 
 class WhatsAppController extends FindByNumberController
@@ -51,6 +52,8 @@ class WhatsAppController extends FindByNumberController
             $lead->update([
                 'whatsapp_number' => $to
             ]);
+
+
         }
 
         //save to orders
@@ -76,7 +79,7 @@ class WhatsAppController extends FindByNumberController
           'timestamps' => ['+0 minutes'],
           'model_type' => $model_type,
           'model_id' =>  $model_id,
-          'user_id' => Auth::id(),
+          'user_id' => '3',
           'sent_to' => '',
           'role' => 'message',
         ]);
@@ -86,7 +89,7 @@ class WhatsAppController extends FindByNumberController
           'timestamps' => ['+0 minutes'],
           'model_type' => $model_type,
           'model_id' =>  $model_id,
-          'user_id' => Auth::id(),
+          'user_id' => '3',
           'sent_to' => '',
           'role' => 'Admin',
         ]);
