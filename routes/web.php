@@ -175,6 +175,7 @@ Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusC
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');
+Route::post('whatsapp/sendMultipleMessages', 'WhatsAppController@sendMultipleMessages');
 Route::post('whatsapp/approve/{context}', 'WhatsAppController@approveMessage');
 Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages');
 

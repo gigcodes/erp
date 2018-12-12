@@ -174,6 +174,53 @@ class WhatsAppController extends FindByNumberController
 
        return response($message);
     }
+
+    public function sendMultipleMessages(Request $request)
+    {
+      $selected_leads = json_decode($request->selected_leads, true);
+      $leads = Leads::whereIn('id', $selected_leads)->whereNotNull('contactno')->get();
+
+      if (count($leads) > 0) {
+        foreach ($leads as $lead) {
+          try {
+            $params = [];
+            $model_type = 'leads';
+            $model_id = $lead->id;
+            $params = [
+              'lead_id' => $lead->id,
+              'number'  => NULL,
+              'message' => $request->message
+            ];
+
+            $message = ChatMessage::create($params);
+
+            NotificationQueueController::createNewNotification([
+              'message' => 'WAA - ' . $message->message,
+              'timestamps' => ['+0 minutes'],
+              'model_type' => $model_type,
+              'model_id' =>  $model_id,
+              'user_id' => Auth::id(),
+              'sent_to' => '',
+              'role' => 'message',
+            ]);
+
+            NotificationQueueController::createNewNotification([
+              'message' => 'WAA - ' . $message->message,
+              'timestamps' => ['+0 minutes'],
+             'model_type' => $model_type,
+              'model_id' =>  $model_id,
+              'user_id' => Auth::id(),
+              'sent_to' => '',
+              'role' => 'Admin',
+            ]);
+           } catch (\Exception $ex) {
+               return response($ex->getMessage(), 500);
+           }
+        }
+      }
+
+       return redirect()->route('leads.index');
+    }
 	/**
      * poll messages
      *

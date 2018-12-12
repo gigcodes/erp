@@ -7,12 +7,13 @@
             <div class="pull-left">
                 <h2>Leads</h2>
 
-                <form action="/leads/" method="GET" class="form-inline align-items-start">
+                <form action="/leads/" method="GET" class="form-inline align-items-start" id="searchForm">
                   {{-- <div class="row"> --}}
                     {{-- <div class="col-md-6"> --}}
                       <div class="form-group mr-3">
                           {{-- <div class="row"> --}}
                               {{-- <div class="col-md-8 pr-0"> --}}
+                              <input type="hidden" name="type" value="{{ $type ? 'multiple' : '' }}">
                                   <input name="term" type="text" class="form-control"
                                          value="{{ isset($term) ? $term : '' }}"
                                          placeholder="Search">
@@ -65,74 +66,51 @@
         </div>
     @endif
 
-    <table class="table table-bordered" style="margin-top: 25px">
-        <tr>
-            <th><a href="/leads?sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">ID</a></th>
-            <th><a href="/leads?sortby=client_name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Client Name</a></th>
-            <th><a href="/leads?sortby=city{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">City</a></th>
-            <th><a href="/leads?sortby=rating{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Rating</a></th>
-            <th><a href="/leads?sortby=assigned_user{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Assigned to</a></th>
-            <th>Products</th>
-            <th>Message Status</th>
-            <th><a href="/leads?sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
-            <th><a href="/leads?sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Status</a></th>
-            <th><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created</a></th>
-            <th width="280px">Action</th>
-        </tr>
-        @foreach ($leads_array as $key => $lead)
-            <tr class="{{ \App\Helpers::statusClass($lead['assign_status'] ) }} {{ ((!empty($lead['communication']['body']) && $lead['communication']['status'] == 0) || $lead['communication']['status'] == 1 || $lead['communication']['status'] == 5) ? 'row-highlight' : '' }}">
-                <td>{{ $lead['id'] }}</td>
-                <td>{{ $lead['client_name'] }}</td>
-                <td>{{ $lead['city']}}</td>
-                <td>{{ $lead['rating']}}</td>
-                <td>{{App\User::find($lead['assigned_user'])->name}}</td>
-                <td>{{App\Helpers::getproductsfromarraysofids($lead['selected_product'])}}</td>
-                <td>
-                  @if (!empty($lead['communication']['body']))
-                    @if ($lead['communication']['status'] == 5 || $lead['communication']['status'] == 3)
-                      Read
-                    @elseif ($lead['communication']['status'] == 6)
-                      Replied
-                    @elseif ($lead['communication']['status'] == 1)
-                      <span>Awaiting Approval</span>
-                      <a href data-url="/message/updatestatus?status=2&id={{ $lead['communication']['id'] }}&moduleid={{ $lead['communication']['moduleid'] }}&moduletype={{ $lead['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a>
-                    @elseif ($lead['communication']['status'] == 2)
-                      Approved
-                    @elseif ($lead['communication']['status'] == 4)
-                      Internal Message
-                    @elseif ($lead['communication']['status'] == 0)
-                      Unread
-                    @endif
-                  @endif
-                </td>
-                <td>
-                  @if (strpos($lead['communication']['body'], '<br>') !== false)
-                    {{ substr($lead['communication']['body'], 0, strpos($lead['communication']['body'], '<br>')) }}
-                  @else
-                    {{ $lead['communication']['body'] }}
-                  @endif
-                </td>
-                <td>{{App\Helpers::getleadstatus($lead['status'])}}</td>
-                <td>{{ Carbon\Carbon::parse($lead['created_at'])->format('d-m H:i') }}</td>
-                <td>
-                    <a class="btn btn-image" href="{{ route('leads.show',$lead['id']) }}"><img src="/images/view.png" /></a>
-                    {{-- <a class="btn btn-image" href="{{ route('leads.edit',$lead['id']) }}"><img src="/images/edit.png" /></a> --}}
+    <div class="productGrid" id="productGrid">
+      @include('leads.lead-item')
+    </div>
 
-                    {!! Form::open(['method' => 'DELETE','route' => ['leads.destroy', $lead['id']],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-                    {!! Form::close() !!}
+    @if ($type)
+      <div class="row">
+        <div class="col-xs-12 text-center">
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#messageModal">Send Messages</button>
 
-                    @can('admin')
-                        {!! Form::open(['method' => 'DELETE','route' => ['leads.permanentDelete', $lead['id']],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                        {!! Form::close() !!}
-                    @endcan
-                </td>
-            </tr>
-        @endforeach
-    </table>
+          <div id="messageModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
 
-    {!! $leads->appends(Request::except('page'))->links() !!}
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Create Messages</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <form action="{{ url('whatsapp/sendMultipleMessages') }}" method="POST" enctype="multipart/form-data" id="messageForm">
+                  @csrf
+
+                  <input type="hidden" name="selected_leads" value="" id="leads-array">
+                  <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Message:</strong>
+                         <textarea class="form-control" name="message" placeholder="Task Subject" required></textarea>
+                         @if ($errors->has('message'))
+                             <div class="alert alert-danger">{{$errors->first('message')}}</div>
+                         @endif
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Create</button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    @endif
+
     {{--{!! $leads->links() !!}--}}
 
     <script type="text/javascript">
@@ -154,6 +132,73 @@
         }).fail(function(errObj) {
           alert("Could not change status");
         });
+      });
+
+      $(document).on('click', '.pagination a, th a', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+
+        getProducts(url);
+      });
+
+      function getProducts(url) {
+        $.ajax({
+          url: url
+        }).done(function(data) {
+          $('#productGrid').html(data.html);
+        }).fail(function(response) {
+          console.log(response);
+          alert('Error loading more products');
+        });
+      }
+
+      $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+
+        var url = "{{ route('leads.index') }}";
+        var formData = $('#searchForm').serialize();
+
+        $.ajax({
+          url: url,
+          data: formData
+        }).done(function(data) {
+          $('#productGrid').html(data.html);
+          // $('.pagination-container').empty();
+          // $('.pagination-container').html(data.pagination);
+          console.log(data);
+        }).fail(function(data) {
+          console.log(data);
+          alert('Error searching for products');
+        });
+      });
+
+      var attached_leads = [];
+
+      $(document).on('click', '.check-lead', function() {
+        var id = $(this).data('leadid');
+
+        if ($(this).prop('checked') == true) {
+          // $(this).data('attached', 1);
+          attached_leads.push(id);
+        } else {
+          var index = attached_leads.indexOf(id);
+
+          // $(this).data('attached', 0);
+          attached_leads.splice(index, 1);
+        }
+
+        console.log(attached_leads);
+      });
+
+      $('#messageForm').on('submit', function(e) {
+        e.preventDefault();
+
+        if (attached_leads.length == 0) {
+          alert('Please select some leads');
+        } else {
+          $('#leads-array').val(JSON.stringify(attached_leads));
+          $('#messageForm')[0].submit();
+        }
       });
     </script>
 

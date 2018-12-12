@@ -64,8 +64,18 @@ class LeadsController extends Controller
                  $sortby = 'id';
         }
 
-        $term = $request->input('term');
+
+
+      $term = $request->input('term');
+      $brand = $request->input('brand');
+      $rating = $request->input('rating');
+      $type = false;
 	    $leads = ((new Leads())->newQuery());
+
+      if ($request->type == 'multiple') {
+        $type = true;
+      }
+
       // $leads2 = Leads::find(262)->toArray();
       // dd($leads2);
       if ($request->brand[0] != null) {
@@ -143,8 +153,14 @@ class LeadsController extends Controller
       $leads_array = new LengthAwarePaginator($currentItems, count($leads_array), $perPage, $currentPage);
       // dd($results);
       $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
+
+      if ($request->ajax()) {
+  			$html = view('leads.lead-item', ['leads_array' => $leads_array, 'leads' => $leads, 'orderby' => $orderby, 'term' => $term, 'brand' => urlencode(json_encode($brand)), 'rating' => urlencode(json_encode($rating)), 'type' => $type])->render();
+
+  			return response()->json(['html' => $html]);
+  		}
       // dd($leads);
-      return view('leads.index',compact('leads', 'leads_array','term', 'orderby', 'brand', 'rating'))
+      return view('leads.index',compact('leads', 'leads_array','term', 'orderby', 'brand', 'rating', 'type'))
                 ->with('i', (request()->input('page', 1) - 1) * 10);
 
     }

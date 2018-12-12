@@ -628,6 +628,7 @@
             </div>
             <div class="col-xs-2">
                 <button id="waMessageSend" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
+                <a href="/leads?type=multiple" class="btn btn-secondary">Send Multiple</a>
             </div>
         </div>
         <div class="tab-pane" id="3">
