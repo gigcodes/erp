@@ -42,6 +42,7 @@ class TwilioController extends FindByNumberController
       $token = $capability->generateToken($expiresIn);
       return response()->json(['twilio_token' => $token]);
     }
+
     /**
      * Incoming call URL for Twilio programmable voice
      *
@@ -69,6 +70,42 @@ class TwilioController extends FindByNumberController
        }
        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
+    /**
+     * Incoming IVR
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function ivr(Request $request)
+    {
+       $response = new Twiml(); 
+       $gather = $response->gather([
+            'action' => url("/twilio/gatherAction")
+        ]);
+        $gather->say("thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
+        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
+    }
+
+    /**
+     * Gather action
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function gatherAction(Request $request)
+    {
+        $response = new Twiml();
+        $digits = trim($request->get("Digits"));
+        $clients = [];
+        if ($digits === "1") {  
+            $this->dialAllClients($response, "sales");
+        } else if ($digits == "2") {
+            $this->dialAllClients($response, "support");
+        } else if ($digits == "3") {
+            $this->dialAllClients($response, "queries");
+        }
+    }
+
+
+        
     /**
      * Outgoing call URL
      *
@@ -129,7 +166,7 @@ class TwilioController extends FindByNumberController
         }
         CallRecording::create($params);
     }
-    private function getConnectedClients()
+    private function getConnectedClients($role="")
     {
         $users = User::get();
         $clients = [];
@@ -137,5 +174,13 @@ class TwilioController extends FindByNumberController
             $clients[] = $user->name;
         }
         return $clients;
+    }
+    private function dialAllClients($response, $role="sales")
+    {
+        $dial = $response->dial();
+        $clients = $this->getConnectedClients($role);
+        foreach ($clients as $client) {
+            $dial->client( $client );
+        }
     }
 }

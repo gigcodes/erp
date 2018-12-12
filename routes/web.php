@@ -166,6 +166,8 @@ Route::get('perHourActivityNotification','NotificationQueueController@perHourAct
 Route::get('recurringTask','TaskModuleController@recurringTask');
 
 Route::get('twilio/token', 'TwilioController@createToken');
+Route::post('twilio/ivr', 'TwilioController@ivr');
+Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
 Route::post('twilio/incoming', 'TwilioController@incomingCall');
 Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
 Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');

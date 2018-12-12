@@ -29,6 +29,7 @@ class Order extends Model {
 		'received_by',
 		'payment_mode',
 		'remark',
+        'whatsapp_number',
 		'user_id',
 	];
 

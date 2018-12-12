@@ -32,6 +32,7 @@ class WhatsAppController extends FindByNumberController
     {
 		//$data = json_decode($request->get("data"), TRUE);
 		$data = $request->json()->all();
+		$to = $data['to'];
 		$from = $data['from'];
 		$text = $data['text'];
 		$lead = $this->findLeadByNumber( $from );
@@ -47,7 +48,9 @@ class WhatsAppController extends FindByNumberController
             $message = ChatMessage::create($params);
             $model_type = 'leads';
             $model_id = $lead->id;
-
+            $lead->update([
+                'whatsapp_number' => $to
+            ]);
         }
 
         //save to orders
@@ -62,6 +65,10 @@ class WhatsAppController extends FindByNumberController
             $message = ChatMessage::create($params);
             $model_type = 'order';
             $model_id = $order->id;
+            $order->update([
+                'whatsapp_number' => $to
+            ]);
+
         }
 
         NotificationQueueController::createNewNotification([
@@ -245,20 +252,25 @@ class WhatsAppController extends FindByNumberController
         }
         if ($context == "leads") {
             $lead = Leads::find($message->lead_id);
-            $this->sendWithWhatsApp( $lead->contactno,$send);
+            $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send);
         } elseif ( $context == "orders") {
             $order = Order::find($message->order_id);
-            $this->sendWithWhatsApp( $order->contact_detail,$send);
+            $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send);
         }
 
         return response("");
     }
 
-	private function sendWithWhatsApp($number, $text)
+	private function sendWithWhatsApp($number, $sendNumber, $text)
 	{
         $curl = curl_init();
-        $keys = \Config::get("apiwha.api_keys");
-        $key = $keys[0]['key'];
+        if (is_null($sendNumber)) {
+            $keys = \Config::get("apiwha.api_keys");
+            $key = $keys[0]['key'];
+        } else {
+            $config = $this->getWhatsAppNumberConfig($sendNumber);
+            $key = $config['key'];
+        }
         $encodedNumber = urlencode($number);
         $encodedText = urlencode($text);
         //$number = "";
@@ -287,6 +299,15 @@ class WhatsAppController extends FindByNumberController
            }
         }
 	}
+    private function getWhatsAppNumberConfig($target)
+    {
+        $numbers = \Config::get("apiwha.api_keys");
+        foreach ($numbers as $number) {
+            if ($number['number'] == $target) {
+                return $number;
+            }
+        }
+    }
     private function formatChatDate($date)
     {
         return $date->format("Y-m-d h:iA");

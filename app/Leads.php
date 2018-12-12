@@ -34,6 +34,7 @@ class Leads extends Model {
 		'multi_brand',
 		'multi_category',
 		'remark',
+        'whatsapp_number',
 		'created_at'
 	];
 
