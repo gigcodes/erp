@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
+use App\NotificationQueue;
+use App\PushNotification;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -172,7 +174,13 @@ class UserController extends Controller
 	 */
 	public function destroy($id)
 	{
-		User::find($id)->delete();
+		$user = User::find($id);
+
+		NotificationQueue::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
+		PushNotification::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
+
+		$user->delete();
+
 		return redirect()->route('users.index')
 		                 ->with('success','User deleted successfully');
 	}
