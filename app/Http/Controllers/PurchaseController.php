@@ -247,6 +247,8 @@ class PurchaseController extends Controller
       $order = Purchase::find($id);
       $order->status = $request->status;
       $order->save();
+
+      return response($order->status);
     }
 
     public function updatePercentage(Request $request, $id)
@@ -255,6 +257,13 @@ class PurchaseController extends Controller
       $product->percentage = $request->percentage;
       $product->factor = $request->factor;
       $product->save();
+    }
+
+    public function saveBill(Request $request, $id)
+    {
+      $purchase = Purchase::find($id);
+      $purchase->bill_number = $request->bill_number;
+      $purchase->save();
     }
 
     /**

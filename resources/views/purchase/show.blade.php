@@ -47,6 +47,14 @@
       <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
     </div>
 
+    {{-- @if (isset($order->status) && $order->status != 'Ordered') --}}
+      <div class="form-group" id="bill-wrapper" style="display: {{ (isset($order->status) && $order->status != 'Ordered') ? 'block' : 'none' }}">
+        <strong>Bill number:</strong>
+        <input type="text" name="bill_number" class="form-control" value="{{ $order->bill_number }}">
+        <a href="#" class="btn-link save-bill">Save</a>
+      </div>
+    {{-- @endif --}}
+
     {{-- @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status );
     @endphp
 
@@ -591,6 +599,13 @@
       }
     }).done(function(response) {
       $('#change_status_message').fadeIn(400);
+
+      if (response == 'Ordered') {
+        $('#bill-wrapper').hide();
+      } else {
+        $('#bill-wrapper').show();
+      }
+
       setTimeout(function() {
         $('#change_status_message').fadeOut(400);
       }, 2000);
@@ -725,6 +740,31 @@
       }, 2000);
     }).fail(function(errObj) {
       alert("Could not change status");
+    });
+  });
+
+  $(document).on('click', '.save-bill', function(e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+    var token = "{{ csrf_token() }}";
+    var bill_number = $('input[name="bill_number"]').val();
+    var id = {{ $order->id }};
+
+    $.ajax({
+      url: '/purchase/' + id + '/saveBill',
+      type: 'POST',
+      data: {
+        _token: token,
+        bill_number: bill_number
+      },
+      beforeSend: function() {
+        $(thiss).text('Saving');
+      }
+    }).done( function() {
+      $(thiss).text('Save');
+    }).fail(function(errObj) {
+      alert("Could not save Bill number");
     });
   });
 </script>
