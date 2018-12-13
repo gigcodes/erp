@@ -58,13 +58,19 @@ class NotificationQueueController extends Controller
 			}
 		}
 
-		foreach ($notificationArray['timestamps'] as $time){
+		if ($notificationArray['sent_to'] == 6 || $notificationArray['role'] == 'Admin') {
+			// TEMP SOLUTION TO TURN OFF NOTIFICATIONS FOR ADMINS
+		} else {
+			foreach ($notificationArray['timestamps'] as $time){
 
-			$data = $notificationArray;
-			$data['time_to_add'] = date('Y-m-d H:i:s',strtotime($time,strtotime($startTime)));
+				$data = $notificationArray;
+				$data['time_to_add'] = date('Y-m-d H:i:s',strtotime($time,strtotime($startTime)));
 
-			NotificationQueue::create($data);
+				NotificationQueue::create($data);
+			}
 		}
+
+
 	}
 
 	public static function deQueueNotficationNew(){
