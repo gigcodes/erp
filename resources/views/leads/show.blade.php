@@ -696,7 +696,7 @@
               <div class="form-group" id="completion_form_group">
                 <strong>Completion Date:</strong>
                 <div class='input-group date' id='completion-datetime'>
-                  <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+                  <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" required />
 
                   <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
@@ -710,7 +710,7 @@
 
               <div class="form-group">
                   <strong>Assigned To:</strong>
-                  <select name="assign_to[]" class="form-control" multiple>
+                  <select name="assign_to[]" class="form-control" multiple required>
                     @foreach($leads['users'] as $user)
                       <option value="{{$user['id']}}">{{$user['name']}}</option>
                     @endforeach
