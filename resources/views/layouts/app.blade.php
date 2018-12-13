@@ -822,9 +822,9 @@
 
         <main class="py-4 container">
           <!-- Showing fb like page div to all pages  -->
-          @if(Auth::check())
+          {{-- @if(Auth::check())
            <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
-           @endif
+           @endif --}}
 
            <!-- End of fb page like  -->
 
