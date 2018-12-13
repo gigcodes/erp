@@ -77,7 +77,7 @@
                 <td>
                     <a class="btn btn-image" href="{{ route('purchase.show',$purchase['id']) }}"><img src="/images/view.png" /></a>
                     {{-- @can('order-edit') --}}
-                    <a class="btn btn-image" href="{{ route('purchase.edit',$purchase['id']) }}"><img src="/images/edit.png" /></a>
+                    {{-- <a class="btn btn-image" href="{{ route('purchase.edit',$purchase['id']) }}"><img src="/images/edit.png" /></a> --}}
                     {{-- @endcan --}}
 
                     {!! Form::open(['method' => 'DELETE','route' => ['purchase.destroy', $purchase['id']],'style'=>'display:inline']) !!}

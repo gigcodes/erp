@@ -214,6 +214,7 @@ class PurchaseController extends Controller
   		$data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
   		$data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
       // $data['purchase_status'] = (new PurchaseStatus)->all();
+      $data['order_details'] = OrderProduct::where('sku', $product->sku)->get(['order_id', 'size']);
 
   		return view('purchase.product-show', $data)->withProduct($product);
     }
@@ -246,6 +247,14 @@ class PurchaseController extends Controller
       $order = Purchase::find($id);
       $order->status = $request->status;
       $order->save();
+    }
+
+    public function updatePercentage(Request $request, $id)
+    {
+      $product = Product::find($id);
+      $product->percentage = $request->percentage;
+      $product->factor = $request->factor;
+      $product->save();
     }
 
     /**

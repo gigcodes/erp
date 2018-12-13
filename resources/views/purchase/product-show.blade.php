@@ -46,11 +46,48 @@
     </div>
 
     <div class="form-group">
-      <strong>Purchase cost:</strong> Not yet
+      <strong>Purchase price:</strong> <span id="purchase-price">{{ isset($product->percentage) || isset($product->factor) ? ($product->price - ($product->price * $product->percentage / 100) - $product->factor) : ($product->price) }}</span>
+    </div>
+
+    <div class="form-group">
+      <strong>Percentage %:</strong>
+      <input type="number" name="percentage" class="form-control" placeholder="10%" value="{{ $product->percentage }}" min="0" max="100">
+    </div>
+
+    <div class="form-group">
+      <strong>Amount:</strong>
+      <input type="number" name="factor" class="form-control" placeholder="1.22" value="{{ $product->factor }}" min="0" step="0.01">
+      <a href="#" class="btn-link save-purchase-price">Save</a>
+    </div>
+
+    <div class="form-group">
+      <strong>Order price:</strong> {{ $product->price_special }}
     </div>
 
     <div class="form-group">
       <strong>Supplier Link:</strong> {{ $product->supplier_link }}
+    </div>
+
+    <div class="form-group">
+      <strong>Size Details:</strong>
+      @if (count($order_details) > 0)
+        <ul>
+          @foreach ($order_details as $value)
+            <li>{{ $value->size }}</li>
+          @endforeach
+        </ul>
+      @endif
+    </div>
+
+    <div class="form-group">
+      <strong>Order Details:</strong>
+      @if (count($order_details) > 0)
+        <ul>
+          @foreach ($order_details as $value)
+            <li><a href="{{ route('order.show', $value->order_id) }}">{{ $value->order_id }}</a></li>
+          @endforeach
+        </ul>
+      @endif
     </div>
 
     {{-- <div class="form-group">
@@ -466,6 +503,45 @@
         $(thiss).parent().remove();
         $('#message_body_' + message_id).children('.collapsible-message').data('messageshort', short_new_message);
         $('#message_body_' + message_id).children('.collapsible-message').data('message', new_message);
+      }
+    });
+  });
+
+  $('input[name="percentage"], input[name="factor"]').on('keyup', function() {
+    if ($('input[name="percentage"]').val() < 0) {
+      $('input[name="percentage"]').val(0);
+    } else if ($('input[name="percentage"]').val() > 100) {
+      $('input[name="percentage"]').val(100);
+    }
+    var price = {{ $product->price }};
+    var percentage = $('input[name="percentage"]').val();
+    var factor = $('input[name="factor"]').val();
+
+    $('#purchase-price').text(price - (price * percentage / 100) - factor);
+  });
+
+  $('.save-purchase-price').on('click', function(e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+    var url = "{{ route('purchase.product.percentage', $product->id) }}";
+    var token = "{{ csrf_token() }}";
+    var percentage = $('input[name="percentage"]').val();
+    var factor = $('input[name="factor"]').val();
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: {
+        _token: token,
+        percentage: percentage,
+        factor: factor
+      },
+      beforeSend: function() {
+        $(thiss).text('Saving');
+      },
+      success: function() {
+        $(thiss).text('Save');
       }
     });
   });

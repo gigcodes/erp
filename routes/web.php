@@ -123,6 +123,7 @@ Route::middleware('auth')->group(function (){
 	Route::get('purchaseGrid', 'PurchaseController@purchaseGrid')->name('purchase.grid');
 	Route::post('purchaseGrid', 'PurchaseController@store')->name('purchase.store');
 	Route::get('purchase/product/{id}', 'PurchaseController@productShow')->name('purchase.product.show');
+	Route::post('purchase/product/{id}', 'PurchaseController@updatePercentage')->name('purchase.product.percentage');
 
 	//Comments
 	Route::post('doComment','CommentController@store')->name('doComment');
