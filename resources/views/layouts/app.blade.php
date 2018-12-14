@@ -692,9 +692,19 @@
                                       <a class="dropdown-item" href="{{ route('purchase.index') }}">Purchases</a>
                                       <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
                                     </div>
-
                                 </li>
                             @endcan
+
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                   Images<span class="caret"></span>
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                  <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
+                                  {{-- <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a> --}}
+                                </div>
+                            </li>
 
                            {{-- @can('product-list')
                                 <li class="nav-item dropdown">

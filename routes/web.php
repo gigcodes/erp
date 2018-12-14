@@ -157,6 +157,15 @@ Route::middleware('auth')->group(function (){
 	Route::post('task/export','TaskModuleController@exportTask')->name('task.export');
 	Route::post('/task/addRemarkStatutory','TaskModuleController@addRemark')->name('task.addRemarkStatutory');
 
+	// Social Media Image Module
+	Route::get('images/grid', 'ImageController@index')->name('image.grid');
+	Route::post('images/grid', 'ImageController@store')->name('image.grid.store');
+	Route::get('images/grid/{id}', 'ImageController@show')->name('image.grid.show');
+	Route::get('images/grid/{id}/edit', 'ImageController@edit')->name('image.grid.edit');
+	Route::post('images/grid/{id}/edit', 'ImageController@update')->name('image.grid.update');
+	Route::delete('images/grid/{id}/delete', 'ImageController@destroy')->name('image.grid.delete');
+	Route::post('images/grid/{id}/approveImage', 'ImageController@approveImage')->name('image.grid.approveImage');
+
 });
 
 

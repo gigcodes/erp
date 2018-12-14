@@ -167,6 +167,7 @@ return [
 	    Nestable\NestableServiceProvider::class,
         Pusher\Laravel\PusherServiceProvider::class,
         Chumper\Zipper\ZipperServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
 
     ],
 
@@ -223,6 +224,7 @@ return [
         'Pusher' => Pusher\Laravel\Facades\Pusher::class,
         'Zipper' => Chumper\Zipper\Zipper::class,
         'Input' => Illuminate\Support\Facades\Input::class,
+        'Image' => Intervention\Image\Facades\Image::class,
     ],
 
 ];

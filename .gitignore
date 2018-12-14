@@ -13,7 +13,6 @@ yarn-error.log
 .env
 /config/magentoapi.php
 vendor.zip
-/public/uploads
 cronjob.php
 cronjob-magecontroller.php
 trash.php
