@@ -68,8 +68,8 @@ class ProductAttributeController extends Controller
 	public function edit(Sizes $sizes,Product $productattribute)
 	{
 
-		if( $productattribute->isApproved == 1)
-			return redirect(route('products.show',$productattribute->id));
+		// if( $productattribute->isApproved == 1)
+		// 	return redirect(route('products.show',$productattribute->id));
 
 		$data = [];
 
@@ -195,9 +195,9 @@ class ProductAttributeController extends Controller
 
 		$productattribute->save();
 
-		if ($productattribute->isFinal == 1) {
-			$result = $this->magentoProductUpdate($productattribute);
-		}
+		// if ($productattribute->isFinal == 1) {
+		// 	$result = $this->magentoProductUpdate($productattribute);
+		// }
 
 
 		NotificaitonContoller::store( 'has added attribute', ['Supervisors'], $productattribute->id );

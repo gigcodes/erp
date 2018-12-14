@@ -250,13 +250,13 @@
 
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group">
-                        @hasallroles( 'Attribute' )
+
                         <a href="{{ route('productattribute.edit',$id) }}">
                             <button type="button" class="btn btn-image">
                                 <img src="/images/edit.png" />
                             </button>
                         </a>
-                        @endhasallroles
+                        
                         {{-- @can('supervisor-edit')
                             <form method="POST" action="{{ route('productsupervisor.approve',$id) }}"
                                   style="display: inline;">
