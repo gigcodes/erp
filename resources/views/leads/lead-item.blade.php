@@ -1,6 +1,6 @@
 <table class="table table-bordered" style="margin-top: 25px">
     <tr>
-      @php $search_query = (isset($term) ? "&term=$term" : '') . (isset($brand) ? "&brand=$brand" : '') . (isset($rating) ? "&rating=$rating" : ''); @endphp
+      @php $search_query = (isset($term) ? "&term=$term" : '') . (isset($brand) ? "&$brand" : '') . (isset($rating) ? "&$rating" : ''); @endphp
         @if ($type)
           <th></th>
         @endif

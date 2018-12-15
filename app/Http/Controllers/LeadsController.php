@@ -14,6 +14,7 @@ use App\Message;
 use App\Task;
 use App\Image;
 use App\Reply;
+use App\CallRecording;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -69,6 +70,7 @@ class LeadsController extends Controller
       $term = $request->input('term');
       $brand = $request->input('brand');
       $rating = $request->input('rating');
+
       $type = false;
 	    $leads = ((new Leads())->newQuery());
 
@@ -155,8 +157,8 @@ class LeadsController extends Controller
       $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
 
       if ($request->ajax()) {
-  			$html = view('leads.lead-item', ['leads_array' => $leads_array, 'leads' => $leads, 'orderby' => $orderby, 'term' => $term, 'brand' => urlencode(json_encode($brand)), 'rating' => urlencode(json_encode($rating)), 'type' => $type])->render();
-
+  			$html = view('leads.lead-item', ['leads_array' => $leads_array, 'leads' => $leads, 'orderby' => $orderby, 'term' => $term, 'brand' => http_build_query(['brand' => $brand]), 'rating' => http_build_query(['rating' => $rating]), 'type' => $type])->render();
+        // dd($brand, $rating);
   			return response()->json(['html' => $html]);
   		}
       // dd($leads);
@@ -325,6 +327,7 @@ class LeadsController extends Controller
         $leads['brands']  = $brands;
         $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
         $leads['products_array'] = [];
+        $leads['recordings'] = CallRecording::where('lead_id', '=', $leads->id)->get()->toArray();
         $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->whereNull('is_completed')->get()->toArray();
         $approval_replies = Reply::where('model', 'Approval Lead')->get();
         $internal_replies = Reply::where('model', 'Internal Lead')->get();
