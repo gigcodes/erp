@@ -290,7 +290,7 @@ class OrderController extends Controller {
 		$data['tasks'] = Task::where('model_type', 'order')->where('model_id', $order->id)->whereNull('is_completed')->get()->toArray();
 		$data['approval_replies'] = Reply::where('model', 'Approval Order')->get();
 		$data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
-    $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get();
+        $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get()->toArray();
 		$data['order_status_report'] = OrderStatuses::all();
 		$data['order_reports'] = OrderReport::where('order_id', $order->id)->get();
 

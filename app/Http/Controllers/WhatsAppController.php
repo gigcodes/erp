@@ -57,10 +57,6 @@ class WhatsAppController extends FindByNumberController
         }
 
         //save to orders
-        $params = [
-            'number' => $from
-        ];
-
 		$order= $this->findOrderByNumber( $from );
         if ( $order ) {
             $params['order_id'] = $order->id;
@@ -72,6 +68,26 @@ class WhatsAppController extends FindByNumberController
                 'whatsapp_number' => $to
             ]);
 
+        }
+
+        if (!$order && !$lead) {
+            $modal_type = 'leads';
+            $new_name = "whatsapp lead " . uniqid( TRUE );
+            $user = User::get()[0];
+            $lead = Leads::create([
+                'client_name' => $new_name,
+                'contactno' => $from,
+                'rating' => 2,
+                'status' => 1,
+                'assigned_user' => $user->id,
+                'userid' => $user->id,
+                'whatsapp_number' => $to
+            ]);
+            $params['lead_id' => $lead->id;
+            $params = $this->modifyParamsWithMessage($params, $data);
+            $message = ChatMessage::create($params);
+            $modal_type = 'leads';
+            $modal_id = $lead->id;
         }
 
         NotificationQueueController::createNewNotification([

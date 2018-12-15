@@ -14,6 +14,7 @@ use App\User;
 use App\Brand;
 use App\Product;
 use App\Message;
+use App\CallRecording;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers;
@@ -78,11 +79,8 @@ class TwilioController extends FindByNumberController
     public function ivr(Request $request)
     {
        $response = new Twiml(); 
-       $gather = $response->gather([
-            'action' => url("/twilio/gatherAction")
-        ]);
-        $gather->say("thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
-        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
+       $this->createIncomingGather($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
+       return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
 
     /**
@@ -95,13 +93,18 @@ class TwilioController extends FindByNumberController
         $response = new Twiml();
         $digits = trim($request->get("Digits"));
         $clients = [];
+        $number = $request->get("From");
+        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number)); 
         if ($digits === "1") {  
-            $this->dialAllClients($response, "sales");
+            $this->dialAllClients($response, "sales", $context, $object);
         } else if ($digits == "2") {
-            $this->dialAllClients($response, "support");
+            $this->dialAllClients($response, "support", $context, $object);
         } else if ($digits == "3") {
-            $this->dialAllClients($response, "queries");
+            $this->dialAllClients($response, "queries", $context, $object);
+        } else {
+            $this->createIncomingGather($response, "We did not understand that input. Please dial 1 for sales 2 for support 3 for other queries");
         }
+        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
 
 
@@ -159,10 +162,13 @@ class TwilioController extends FindByNumberController
         ];
         $context = $request->get("context");
         $internalId = $request->get("internalId");
-        if ($context == "leads") {
-            $params['lead_id'] =$internalId;
-        } elseif ($context == "orders") {
-            $params['order_id'] =$internalId;
+
+        if ($context && $internalId) {
+            if ($context == "leads") {
+                $params['lead_id'] =$internalId;
+            } elseif ($context == "orders") {
+                $params['order_id'] =$internalId;
+            }
         }
         CallRecording::create($params);
     }
@@ -171,16 +177,33 @@ class TwilioController extends FindByNumberController
         $users = User::get();
         $clients = [];
         foreach ($users as $user) {
-            $clients[] = $user->name;
+            if ($user->agent_role == $role) {
+                $clients[] = $user->name;
+            }
         }
         return $clients;
     }
-    private function dialAllClients($response, $role="sales")
+    private function dialAllClients($response, $role="sales", $context=NULL, $object=NULL)
     {
-        $dial = $response->dial();
+        $url =  \Config::get("app.url")."/twilio/recordingStatusCallback";
+        if ($context) {
+            $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id;
+        }
+
+        $dial = $response->dial([
+            'record' => 'true',
+            'recordingStatusCallback' =>$url
+        ]);
         $clients = $this->getConnectedClients($role);
         foreach ($clients as $client) {
             $dial->client( $client );
         }
+    }
+   private function createIncomingGather($response, $speech)
+    {
+        $gather = $response->gather([
+            'action' => url("/twilio/gatherAction")
+        ]);
+        $gather->say($speech);
     }
 }
