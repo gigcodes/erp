@@ -43,7 +43,6 @@ class MessageController extends Controller
      */
     public function store(Request $request)
     {
-        //
         $message = $this->validate(request(), [
               'body' => 'required',
               'moduleid' => 'required',
@@ -83,12 +82,6 @@ class MessageController extends Controller
 
             $message = Message::create($data);
 
-            // if ($request->moduletype == 'leads') {
-            //   $customer_name = Leads::find($request->moduleid)->client_name;
-            // } else {
-            //   $customer_name = Order::find($request->moduleid)->client_name;
-            // }
-
             if( $data['status'] == '1' ) {
 
 	            NotificationQueueController::createNewNotification( [
@@ -114,15 +107,6 @@ class MessageController extends Controller
 		            'role'       => 'Admin',
 	            ] );
 
-	            // NotificationQueueController::createNewNotification( [
-		          //   'message'    => 'New : ' . $data['body'],
-		          //   'timestamps' => [ '+0 minutes' ],
-		          //   'model_type' => $data['moduletype'],
-		          //   'model_id'   => $data['moduleid'],
-		          //   'user_id'    => \Auth::id(),
-		          //   'sent_to'    => '',
-		          //   'role'       => 'Supervisors',
-	            // ] );
             }
             else if($data['status'] == '0'){
 
@@ -193,6 +177,10 @@ class MessageController extends Controller
 
             if ($moduletype == 'product') {
               $moduletype = 'purchase/product';
+            }
+
+            if ($request->ajax()) {
+              return '';
             }
 
            return redirect('/'. $moduletype.'/'.$id);

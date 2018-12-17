@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers;
 use App\ChatMessage;
 use App\PushNotification;
+use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 
 class WhatsAppController extends FindByNumberController
@@ -83,7 +85,7 @@ class WhatsAppController extends FindByNumberController
                 'userid' => $user->id,
                 'whatsapp_number' => $to
             ]);
-            $params['lead_id' => $lead->id;
+            $params['lead_id'] = $lead->id;
             $params = $this->modifyParamsWithMessage($params, $data);
             $message = ChatMessage::create($params);
             $modal_type = 'leads';
@@ -244,31 +246,15 @@ class WhatsAppController extends FindByNumberController
      */
     public function pollMessages(Request $request, $context)
     {
-        /*
-	   $sample = [
-			[
-				'id' => 1,
-				'message' => 'Hello 123',
-				'received' => TRUE,
-				'lead_id' => $leadId
-			],
-			[
-				'id' => 2,
-				'message' => 'Response 123',
-				'received' => FALSE,
-				'lead_id' => $leadId
-			]
-		];
-		return response()->json($sample);
-        */
-
        $params = [];
        if ($context == "leads") {
             $id = $request->get("leadId");
+            $model_type = 'leads';
             $params['lead_id'] = $id;
 	        $messages = ChatMessage::where('lead_id', '=', $id);
        } elseif ($context == "orders") {
             $id = $request->get("orderId");
+            $model_type = 'order';
             $params['order_id'] = $id;
 	        $messages = ChatMessage::where('order_id', '=', $id);
         }
@@ -288,7 +274,8 @@ class WhatsAppController extends FindByNumberController
                 'id' => $message['id'],
                 'received' =>$received,
                 'number' => $message['number'],
-                'date' => $this->formatChatDate( $message['created_at'] ),
+                'created_at' => Carbon::parse($message['created_at'])->format('Y-m-d H:i:s'),
+                // 'date' => $this->formatChatDate( $message['created_at'] ),
                 'approved' => $message['approved']
          ];
          if ($message['media_url']) {
@@ -302,6 +289,21 @@ class WhatsAppController extends FindByNumberController
 
 	     $result[] = array_merge($params, $messageParams);
 	   }
+
+     $messages = Message::where('moduleid','=', $id)->where('moduletype','=', $model_type)->orderBy("created_at", 'desc')->get()->toArray();
+     foreach ($messages as $message) {
+       array_push($result, $message);
+     }
+
+     $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
+
+     $currentPage = LengthAwarePaginator::resolveCurrentPage();
+     $perPage = 10;
+     $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+
+     $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
+       'path'	=> LengthAwarePaginator::resolveCurrentPath()
+     ]);
        return response()->json( $result );
     }
 

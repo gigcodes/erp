@@ -32,8 +32,8 @@
               <li class="active">
                  <a  href="#1" data-toggle="tab">Lead Info</a>
               </li>
-              <li><a href="#2" data-toggle="tab">WhatsApp Conversation</a>
-              </li>
+              {{-- <li><a href="#2" data-toggle="tab">WhatsApp Conversation</a>
+              </li> --}}
               <li><a href="#3" data-toggle="tab">Call Recordings</a>
               </li>
            </ul>
@@ -608,19 +608,19 @@
          </div>
 
         </div>
-        <div class="tab-pane" id="2">
+        {{-- <div class="tab-pane" id="2">
             <div class="chat-frame">
                 <div class="col-xs-12 col-sm-12">
                     <h3 style="text-center">WhatsApp Messages</h3>
                  </div>
                 <div class="col-xs-12 col-sm-12">
                     <div class="row">
-                       <div class="col-md-12" id="waMessages">
+                       {{-- <div class="col-md-12" id="waMessages">
                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-10">
+            {{-- <div class="col-xs-10">
                     <textarea id="waNewMessage" class="form-control" placeholder="Type new message.."></textarea>
                     <br/>
                     <label>Attach Media</label>
@@ -630,7 +630,7 @@
                 <button id="waMessageSend" class="btn btn-image"><img src="/images/filled-sent.png" /></button>
                 <a href="/leads?type=multiple" class="btn btn-secondary">Send Multiple</a>
             </div>
-        </div>
+        </div> --}}
         <div class="tab-pane" id="3">
             <div class="col-xs-12 col-sm-12">
                 <h3 style="text-center">Call Recordings</h3>
@@ -837,7 +837,7 @@
                <div class="upload-btn-wrapper btn-group">
                  <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                  <input type="file" name="image" />
-                 <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
+                 <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
                </div>
              </div>
 
@@ -878,7 +878,7 @@
                  @endphp
 
                  <a href="{{ route('attachImages', ['leads', $leads['id'], 1, $leads['assigned_user']]) . ($brand != '' ? "?brand=$brand" : '') . (($brand != '' && $selected_categories != 'null') ? "&category=$selected_categories" : (($selected_categories != 'null') ? "?category=$selected_categories" : '')) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
-                 <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
+                 <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
                </div>
              </div>
 
@@ -919,7 +919,7 @@
                  <div class="upload-btn-wrapper btn-group">
                     <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                      <input type="file" name="image" />
-                     <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
+                     <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
                    </div>
                </div>
 
@@ -961,17 +961,29 @@
           </form>
         </div>
 
-        {{-- <div class="col-xs-12 col-sm-6">
+        <div class="col-xs-12 col-sm-6">
+          <div class="d-flex">
+            <div class="form-group">
+              <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a>
+              <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
+            </div>
 
-     </div> --}}
+            <div class="form-group flex-fill">
+              <textarea id="waNewMessage" class="form-control" placeholder="Whatsapp message"></textarea>
+            </div>
+          </div>
+
+          <label>Attach Media</label>
+          <input id="waMessageMedia" type="file" name="media" />
+        </div>
    </div>
  </div>
 
+ <h3>Messages</h3>
  <div class="col-xs-12 col-sm-12" id="message-container">
-   <h3>Messages</h3>
     {{-- <div class="row">
        <div class="col-xs-12 col-sm-8" id="message-container"> --}}
-         @foreach($leads['messages'] as $message)
+         {{-- @foreach($leads['messages'] as $message)
            @if($message['status'] == '0' || $message['status'] == '5' || $message['status'] == '6')
                 <div class="talk-bubble round grey">
                       <div class="talktext">
@@ -1016,7 +1028,7 @@
 
                         <em>Customer {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }} </em>
 
-                        {{-- <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp; --}}
+                        {{-- <img id="status_img_{{$message['id']}}" src="/images/{{$message['status']}}.png"> &nbsp;
                         @if ($message['status'] == '0')
                           <a href data-url="/message/updatestatus?status=5&id={{$message['id']}}&moduleid={{$message['moduleid']}}&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Read </a>
                         @endif
@@ -1070,10 +1082,10 @@
                     <em>{{ App\Helpers::getUserNameById($message['userid']) }} {{ ($message['assigned_to'] != 0 && $message['assigned_to'] != $leads['assigned_user'] && $message['userid'] != $message['assigned_to']) ? ' - ' . App\Helpers::getUserNameById($message['assigned_to']) : '' }} {{ Carbon\Carbon::parse($message['created_at'])->format('d-m H:i') }}  <img id="status_img_{{$message['id']}}" src="/images/1.png"> &nbsp;</em>
                   </div>
              </div>
-           @else
-             <div class="talk-bubble round" data-messageid="{{$message['id']}}">
+           @else --}}
+             {{-- <div class="talk-bubble round" data-messageid="{{$message['id']}}">
                <div class="talktext">
-                   {{-- <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p> --}}
+                   {{-- <p id="message_body_{{$message['id']}}">{!! $message['body'] !!}</p>
                      <span id="message_body_{{$message['id']}}">
                        @if (strpos($message['body'], 'message-img') !== false)
                          {{-- @php
@@ -1084,7 +1096,7 @@
                            foreach ($match[0] as $key => $image) {
                              $images .= '<div class="thumbnail-wrapper">' . str_replace('message-img', 'message-img thumbnail-200', $image) . "<span class='thumbnail-delete' data-image='$image' data-messageid='$message_id'>x</span></div>";
                            }
-                         @endphp --}}
+                         @endphp
                          @if (strpos($message['body'], '<br>') !== false)
                            @php $exploded = explode('<br>', $message['body']) @endphp
 
@@ -1158,20 +1170,24 @@
                    @endif
                </div>
           </div>
-            @endif
-         @endforeach
-         @if(!empty($message['id']))
+            @endif --}}
+         {{-- @endforeach --}}
+         {{-- @if(!empty($message['id']))
          <div class="show_more_main" id="show_more_main{{$message['id']}}" >
              <span id="{{$message['id']}}" class="show_more" title="Load more posts" data-moduleid={{$message['moduleid']}} data-moduletype="leads">Show more</span>
              <span class="loding" style="display: none;"><span class="loding_txt">Loading...</span></span>
          </div>
-          @endif
+          @endif --}}
 
           {{-- </div> --}}
 
      {{-- </div> --}}
 
  </div>
+
+   <div class="col-xs-12 text-center">
+     <button type="button" id="load-more-messages" data-nextpage="2" class="btn btn-secondary">Load More</button>
+   </div>
 
  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
@@ -1180,7 +1196,7 @@
      format: 'YYYY-MM-DD HH:mm'
    });
 
-   $('.edit-message').on('click', function(e) {
+   $(document).on('click', '.edit-message', function(e) {
      e.preventDefault();
      var message_id = $(this).data('messageid');
 
@@ -1215,29 +1231,13 @@
    });
 
    $(document).on('change', '.is_statutory', function () {
-
-
        if ($(".is_statutory").val() == 1) {
-
-           // $('input[name="completion_date"]').val("1976-01-01");
            $("#completion_form_group").hide();
-
-           // if (!isAdmin)
-           //     $('select[name="assign_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
-
            $('#recurring-task').show();
        }
        else {
-
            $("#completion_form_group").show();
-
-           // let select_html = '';
-           // for (user of users)
-           //     select_html += `<option value="${user['id']}">${ user['name'] }</option>`;
-           // $('select[name="assign_to"]').html(select_html);
-
            $('#recurring-task').hide();
-
        }
 
    });
@@ -1265,7 +1265,7 @@
    });
 
    $(document).ready(function() {
-		var container = $("div#waMessages");
+		var container = $("div#message-container");
 		var sendBtn = $("#waMessageSend");
 		var leadId = "{{$leads->id}}";
         var addElapse = false;
@@ -1287,7 +1287,7 @@
             var text = $("#waNewMessage").val();
             var files = $("#waMessageMedia").prop("files");
             var text = $("#waNewMessage").val();
-			//var data = { "lead_id": leadId };
+
             data.append("lead_id", leadId);
             if (files && files.length>0){
                 for ( var i = 0; i != files.length; i ++ ) {
@@ -1303,75 +1303,191 @@
             alert("please enter a message or attach media");
           }
 
-		function renderMessage(message) {
+		function renderMessage(message, ontop = null) {
 				var domId = "waMessage_" + message.id;
 				var current = $("#" + domId);
 				if ( current.get( 0 ) ) {
 					return false;
 				}
-				var domId = "waMessage_" + message.id;
-        var row = $("<div class='talk-bubble round'></div>");
-                if (message.received) {
-                  var text = $("<div class='talktext'><span class='date'>" + message.date + "</span></div>");
-                } else {
-      				    var text = $("<div class='talktext'><span class='date'>" + message.date + "</span></div>");
-                    if (!message.approved) {
-                        var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
-                        approveBtn.click(function() {
-                            approveMessage( this, message );
-                        } );
-                        approveBtn.appendTo( text );
-                    }
-                }
 
-                var p = $("<p class='collapsible-message'></p>");
+        if (message.body) {
+          var users_array = {!! json_encode($users_array) !!};
+          var leads_assigned_user = {{ $leads['assigned_user'] }};
+          var is_admin = {{ Auth::user()->hasRole('Admin') }};
 
-                row.attr("id", domId);
+          var text = $("<div class='talktext'></div>");
+          var p = $("<p class='collapsible-message'></p>");
 
-                p.attr("data-messageshort", message.message);
-                p.attr("data-message", message.message);
-                p.attr("data-expanded", "true");
-                console.log("renderMessage message is ", message);
-                if ( message.message ) {
-                    p.html( message.message );
-                } else if ( message.media_url ) {
-                    var splitted = message.content_type.split("/");
-                    if (splitted[0]==="image") {
-                        var a = $("<a></a>");
-                        a.attr("target", "_blank");
-                        a.attr("href", message.media_url);
-                        var img = $("<img></img>");
-                        img.attr("src", message.media_url);
-                        img.attr("width", "100");
-                        img.attr("height", "100");
-                        img.appendTo( a );
-                        a.appendTo( p );
-                        console.log("rendered image message ", a);
-                    } else if (splitted[0]==="video") {
-                        $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
-                    }
-                }
+          if ((message.body).indexOf('<br>') !== -1) {
+            var splitted = message.body.split('<br>');
+            var short_message = splitted[0].length > 150 ? (splitted[0].substring(0, 147) + '...<br>' + splitted[1]) : message.body;
+            var long_message = message.body;
+          } else {
+            var short_message = message.body.length > 150 ? (message.body.substring(0, 147) + '...') : message.body;
+            var long_message = message.body;
+          }
 
-                p.appendTo( text );
-                text.appendTo( row );
-				row.appendTo( container );
+          p.attr("data-messageshort", short_message);
+          p.attr("data-message", long_message);
+          p.attr("data-expanded", "false");
+          p.attr("data-messageid", message.id);
+          p.html(short_message);
+
+          if (message.status == 0 || message.status == 5 || message.status == 6) {
+            var row = $("<div class='talk-bubble round grey'></div>");
+
+            var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+            var mark_read = $("<a href data-url='/message/updatestatus?status=5&id=" + message.id + "&moduleid=" + message.moduleid + "&moduletype=leads' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
+            var mark_replied = $('<a href data-url="/message/updatestatus?status=6&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
+
+            row.attr("id", domId);
+
+            p.appendTo(text);
+            meta.appendTo(text);
+
+            if (message.status == 0) {
+              mark_read.appendTo(text);
+            }
+            if (message.status == 0 || message.status == 5) {
+              mark_replied.appendTo(text);
+            }
+
+            text.appendTo(row);
+
+            if (ontop) {
+              row.prependTo(container);
+            } else {
+              row.appendTo(container);
+            }
+
+          } else if (message.status == 4) {
+            var row = $("<div class='talk-bubble round dashed-border' data-messageid='" + message.id + "'></div>");
+            var chat_friend =  (message.assigned_to != 0 && message.assigned_to != leads_assigned_user && message.userid != message.assigned_to) ? ' - ' + users_array[message.assigned_to] : '';
+            var meta = $("<em>" + users_array[message.userid] + " " + chat_friend + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/1.png' /> &nbsp;</em>");
+
+            row.attr("id", domId);
+
+            p.appendTo(text);
+            meta.appendTo(text);
+
+            text.appendTo(row);
+            if (ontop) {
+              row.prependTo(container);
+            } else {
+              row.appendTo(container);
+            }
+          } else {
+            var row = $("<div class='talk-bubble round' data-messageid='" + message.id + "'></div>");
+            var body = $("<span id='message_body_" + message.id + "'></span>");
+            var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.body + '</textarea>');
+            var meta = "<em>" + users_array[message.userid] + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/" + message.status + ".png' /> &nbsp;";
+
+            if (message.status == 2 && is_admin == false) {
+              meta += '<a href data-url="/message/updatestatus?status=3&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as sent </a>';
+            }
+
+            if (message.status == 1 && is_admin == true) {
+              meta += '<a href data-url="/message/updatestatus?status=2&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status wa_send_message" data-messageid="' + message.id + '">Approve</a>';
+              meta += ' <a href="#" style="font-size: 9px" class="edit-message" data-messageid="' + message.id + '">Edit</a>';
+            }
+
+            meta += "</em>";
+            var meta_content = $(meta);
+
+            if (message.status == 2 && is_admin == false) {
+              var copy_button = $('<button class="copy-button btn btn-secondary" data-id="' + message.id + '" moduleid="' + message.moduleid + '" moduletype="orders" data-message="' + message.body + '"> Copy message </button>');
+            }
+
+            row.attr("id", domId);
+
+            p.appendTo(body);
+            body.appendTo(text);
+            edit_field.appendTo(text);
+            meta_content.appendTo(text);
+
+            text.appendTo(row);
+            if (ontop) {
+              row.prependTo(container);
+            } else {
+              row.appendTo(container);
+            }
+          }
+        } else {
+          var row = $("<div class='talk-bubble round'></div>");
+                  if (message.received) {
+                    var text = $("<div class='talktext'><span class='date'>" + moment(message.created_at).format('DD-MM H:m') + "</span></div>");
+                  } else {
+        				    var text = $("<div class='talktext'><span class='date'>" + moment(message.created_at).format('DD-MM H:m') + "</span></div>");
+                      if (!message.approved) {
+                          var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
+                          approveBtn.click(function() {
+                              approveMessage( this, message );
+                          } );
+                          approveBtn.appendTo( text );
+                      }
+                  }
+
+                  var p = $("<p class='collapsible-message'></p>");
+
+                  row.attr("id", domId);
+
+                  p.attr("data-messageshort", message.message);
+                  p.attr("data-message", message.message);
+                  p.attr("data-expanded", "true");
+                  console.log("renderMessage message is ", message);
+                  if ( message.message ) {
+                      p.html( message.message );
+                  } else if ( message.media_url ) {
+                      var splitted = message.content_type.split("/");
+                      if (splitted[0]==="image") {
+                          var a = $("<a></a>");
+                          a.attr("target", "_blank");
+                          a.attr("href", message.media_url);
+                          var img = $("<img></img>");
+                          img.attr("src", message.media_url);
+                          img.attr("width", "100");
+                          img.attr("height", "100");
+                          img.appendTo( a );
+                          a.appendTo( p );
+                          console.log("rendered image message ", a);
+                      } else if (splitted[0]==="video") {
+                          $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
+                      }
+                  }
+
+                  p.appendTo( text );
+                  text.appendTo( row );
+                  if (ontop) {
+                    row.prependTo(container);
+                  } else {
+                    row.appendTo(container);
+                  }
+        }
+
                 return true;
 		}
-		function pollMessages() {
+		function pollMessages(page = null, ontop = null) {
             var qs = "";
             qs += "/leads?leadId=" + leadId;
+            if (page) {
+              qs += "&page=" + page;
+            }
             if (addElapse) {
                 qs += "&elapse=3600";
             }
             var anyNewMessages = false;
             return new Promise(function(resolve, reject) {
                 $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
-                    data.forEach(function( message ) {
-                        var rendered = renderMessage( message );
+                  $('#load-more-messages').data('nextpage', data.current_page + 1);
+                  $('#load-more-messages').text('Loading...');
+
+                    data.data.forEach(function( message ) {
+                        var rendered = renderMessage( message, ontop );
                         if ( !anyNewMessages && rendered ) {
                             anyNewMessages = true;
                         }
                     } );
+                    $('#load-more-messages').text('Load More');
                     if ( anyNewMessages ) {
                         scrollChatTop();
                         anyNewMessages = false;
@@ -1379,6 +1495,8 @@
                     if (!addElapse) {
                         addElapse = true; // load less messages now
                     }
+
+
                     resolve();
                 });
             });
@@ -1409,7 +1527,8 @@
                 "processData" : false,
                 "data": data
 			}).done( function(response) {
-        console.log(response);
+        $('#waNewMessage').val('');
+        pollMessages(null, true);
 				console.log("message was sent");
 			}).fail(function(errObj) {
 				alert("Could not send message");
@@ -1420,7 +1539,55 @@
 			sendWAMessage();
 		} );
 		startPolling();
+
+    $(document).on('click', '.send-communication', function(e) {
+      e.preventDefault();
+
+      var thiss = $(this);
+      var url = $(this).closest('form').attr('action');
+      var token = "{{ csrf_token() }}";
+      var file = $($(this).closest('form').find('input[type="file"]'))[0].files[0];
+      var status = $(this).closest('form').find('input[name="status"]').val();
+      var formData = new FormData();
+
+      formData.append("_token", token);
+      formData.append("image", file);
+      formData.append("body", $(this).closest('form').find('textarea').val());
+      formData.append("moduletype", $(this).closest('form').find('input[name="moduletype"]').val());
+      formData.append("moduleid", $(this).closest('form').find('input[name="moduleid"]').val());
+      formData.append("assigned_user", $(this).closest('form').find('input[name="assigned_user"]').val());
+      formData.append("status", status);
+
+      if (status == 4) {
+        formData.append("assigned_user", $(this).closest('form').find('select[name="assigned_user"]').val());
+      }
+
+      if ($(this).closest('form')[0].checkValidity()) {
+        $.ajax({
+          type: 'POST',
+          url: url,
+          data: formData,
+          processData: false,
+          contentType: false
+        }).done(function() {
+          pollMessages(null, true);
+          $(thiss).closest('form').find('textarea').val('');
+        }).fail(function() {
+          alert('Error sending a message');
+        });
+      } else {
+        $(this).closest('form')[0].reportValidity();
+      }
+
+    });
+
+    $(document).on('click', '#load-more-messages', function() {
+      var next_page = $(this).data('nextpage');
+      pollMessages(next_page);
+    });
 	});
+
+
 
   $('#addTaskButton').on('click', function () {
     var client_name = "{{ $leads->client_name }} ";
@@ -1461,8 +1628,6 @@
 
       $('#waNewMessage').val(message);
       $('#waMessageSend').click();
-      // alert(message);
-      // console.log(message);
     }
       $.ajax({
         url: url,
@@ -1493,7 +1658,6 @@
   function addNewRemark(id){
 
     var formData = $("#add-new-remark").find('#add-remark').serialize();
-    // console.log(id);
     var remark = $('#remark-text_'+id).val();
     $.ajax({
         type: 'POST',
@@ -1504,8 +1668,6 @@
         data: {id:id,remark:remark},
     }).done(response => {
         alert('Remark Added Success!')
-        // $('#add-new-remark').modal('hide');
-        // $("#add-new-remark").hide();
         window.location.reload();
     });
   }

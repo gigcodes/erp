@@ -293,7 +293,9 @@ class OrderController extends Controller {
         $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get()->toArray();
 		$data['order_status_report'] = OrderStatuses::all();
 		$data['order_reports'] = OrderReport::where('order_id', $order->id)->get();
+		$data['users_array'] = Helpers::getUserArray(User::all());
 
+		// dd($data);
 		//return $data;
 		return view( 'orders.show', $data );
 	}
