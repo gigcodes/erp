@@ -17,19 +17,23 @@
 	</div>
 	@endif
 
+	
+
 	<div class="container-fluid mt-3">
 		<div class="row">
 			
-			<div class="col-md-12" style="overflow-x:auto;">
+			<div class="col-md-12" >
 				<h2 class="text-info">Results</h2>
 				<div class="content-section">
 					<table class="table table-responsive table-hover table-bordered">
 						<thead>
 							<tr>
 								<th>#</th>
+								<th>Thumbnail</th>
 								<th>ACC ID</th>
-								<th>Campaign Name</th>
+								<th>Ad Name</th>
 								<th>Delivery</th>
+								<th>Campaign</th>
 								<th>Adset</th>
 								<th>Type</th>
 								<th>Reach</th>
@@ -47,10 +51,14 @@
 							@foreach($resp->data as $data)
 							<tr>
 								<td>{{$i++}}</td>
+								<td>
+									<img class="img-responsive " width="80" height="80" src="{{isset($data->creative->image_url)?$data->creative->image_url:''}}" alt="Not found...">
+								</td>
 								<td>{{isset($data->account_id)?$data->account_id:''}}</td>
 								<td>{{isset($data->name)?$data->name:''}}</td>
 								<td>{{isset($data->status)?$data->status:''}}</td>
-								<td>{{isset($data->adsets->data[0]->name)?$data->adsets->data[0]->name:''}}</td>
+								<td>{{isset($data->campaign->name)?$data->campaign->name:''}}</td>
+								<td>{{isset($data->adset->name)?$data->adset->name:''}}</td>
 								<td>{{isset($data->insights->data[0]->actions[0]->action_type)?$data->insights->data[0]->actions[0]->action_type:''}}</td>
 								<td>
 									{{isset($data->insights->data[0]->reach)?number_format($data->insights->data[0]->reach, 2):''}}
@@ -98,25 +106,35 @@
 
 					<div class="container pull-left" style="overflow: hidden;">
 						<div class="row">
-							<div class="col-md-2 pr-0">
-								@if(isset($resp->paging->previous))
-								<form method="post" action="{{route('social.report.paginate')}}">
-									@csrf
-									<input type="hidden" value="{{$resp->paging->previous}}" name="previous">
-									<input type="submit" value="Previous" name="submit" class="btn btn-info">
-								</form>
-								@endif
+							<div class="col-md-6 ml-aut mr-auto">
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+										<li class="page-item">
+											<div class="col-md-4">
+												@if(isset($resp->paging->previous))
+												<form method="post" action="{{route('social.report.paginate')}}">
+													@csrf
+													<input type="hidden" value="{{$resp->paging->previous}}" name="previous">
+													<input type="submit" value="Previous" name="submit" class="btn btn-info">
+												</form>
+												@endif
+											</div>
+										</li>
+										<li class="page-item">
+											<div class="col-md-4 ml-3">
+												@if(isset($resp->paging->next))
+												<form method="post" action="{{route('social.report.paginate')}}">
+													@csrf
+													<input type="hidden" value="{{$resp->paging->next}}" name="next">
+													<input type="submit" value="Next" name="submit" class="btn btn-info">
+												</form>
+												@endif
+											</div>
+										</li>
+										
+									</ul>
+								</nav>
 							</div>
-							<div class="col-md-2 pl-0">
-								@if(isset($resp->paging->next))
-								<form method="post" action="{{route('social.report.paginate')}}">
-									@csrf
-									<input type="hidden" value="{{$resp->paging->next}}" name="next">
-									<input type="submit" value="Next" name="submit" class="btn btn-info">
-								</form>
-								@endif
-							</div>
-							
 						</div>
 					</div>
 				</div>

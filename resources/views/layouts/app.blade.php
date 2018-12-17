@@ -409,7 +409,7 @@
 
 </head>
 <body>
-  <div id="fb-root"></div>
+  {{-- <div id="fb-root"></div> --}}
 
   <div class="notifications-container">
     <div class="stack-container stacked" id="leads-notification"></div>
@@ -846,12 +846,12 @@
 
 <!-- Like page plugin script  -->
 
-<script>(function(d, s, id) {
+{{-- <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
   js = d.createElement(s); js.id = id;
   js.src = 'https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v3.2&appId=2045896142387545&autoLogAppEvents=1';
   fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
+}(document, 'script', 'facebook-jssdk'));</script> --}}
 </body>
 </html>

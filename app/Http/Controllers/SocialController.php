@@ -18,6 +18,9 @@ class SocialController extends Controller
 		$this->page_access_token="EAAD7Te0j0B8BAI7T10bD2WX5jslOZBxPDsmaTO5zMd5sO9mjX567pIbqy5ZBPPWe7t7qYzOBzy9ZA6rAigCAaAXj3nYDj6N7xZAsJpoy8PZCkBoRZCy0ZCiki58DmZBhuElt75lJ3LSZAvcolnT6Vazy3OZC0Wd4LVrZA4KRuvpueb0MQRJjUBMTodyB0ofo5VcFcAZD";
 		$this->page_id="507935072915757";
 		$this->ad_acc_id="act_128125721296439";
+
+		
+		
 		
 	}
 	public function index()
@@ -48,7 +51,7 @@ class SocialController extends Controller
 		}
 		else
 		{
-			$data['posts']=$this->fb->get(''.$this->page_id.'/feed?fields=id,full_picture,permalink_url,name,description,created_time,from,story,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=10&access_token='.$this->page_access_token.'')->getGraphEdge();
+			$data['posts']=$this->fb->get(''.$this->page_id.'/feed?fields=id,full_picture,permalink_url,name,description,message,created_time,from,story,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=10&access_token='.$this->page_access_token.'')->getGraphEdge();
 			
 		}
 
@@ -209,7 +212,7 @@ class SocialController extends Controller
 
 
 
-		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=name,status,insights.level(adset){reach,impressions,cost_per_unique_click,actions,spend},account_id,created_time,adsets{name,id}&limit=30&access_token=".$this->user_access_token."";
+		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/ads?fields=name,status,creative{image_url},insights.level(adset){reach,impressions,cost_per_unique_click,actions,spend},adset{name},campaign{name},account_id,created_time&limit=30&access_token=".$this->user_access_token."";
 
 
 			// Call to Graph api here
