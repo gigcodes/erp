@@ -27,7 +27,7 @@
             }
             var context = $(this).attr("data-context");
             var id= $(this).attr("data-id");
-			var call = $("<button class='btn btn-primary'>Call</button>");
+			var call = $("<button class='btn btn-primary' type='button'>Call</button>");
 			call.click( function() {
                 var numberToCall = number;
                 if (!numberToCall.startsWith("+")) {
@@ -116,12 +116,17 @@
     console.log("Dialer_StartCall call params", params);
 		Twilio.Device.connect(params);
   }
+
+  function closeNotifs(dontClose) {
+    if(notifs.length>0 && !dontClose){
+        notifs.forEach( function( notif ) {
+           notif.close();
+        } );
+    }
+
+  }
   function showNotif(settings, opts, dontClose) {
-		if(notifs.length>0 && !dontClose){
-			notifs.forEach( function( notif ) {
-			   notif.close();
-			} );
-		}
+        closeNotifs(dontClose);
 		opts['delay']=opts['delay']||99999999;
 		var notif = $.notify( settings, opts );
 		notifs.push( notif );
@@ -163,7 +168,7 @@
 		$("<hr></hr>").appendTo(center);
 		//call control
 		var buttons = $("<ul style='list-style: none !important; ' class='buttons'><h4>Call Control</h4></ul>").appendTo(center);
-		$("<li><button class='btn btn-danger' onclick='callerHangup()'>Hangup</button></li>").appendTo(buttons);
+		$("<li><button class='btn btn-danger hangup' onclick='callerHangup()'>Hangup</button></li>").appendTo(buttons);
 		$("<li><button class='btn btn-primary muter' onclick='callerMute()'></button></li>").appendTo(buttons);
 		function calculateTime()
 		{
@@ -193,6 +198,8 @@
 		 }
 		 center.find(".timer").text( newTime );
 		 center.find(".muter").text( muteText );
+		 center.find(".muter").click( callerMute );
+		 center.find(".hangup").click( callerHangup );
 		 
 		 myNotif.update({
 			'message':main.html(),
@@ -204,4 +211,5 @@
 	window['initializeTwilio']  =initializeTwilio;
 	window['callerHangup'] = callerHangup;
 	window['callerMute'] = callerMute;
+	window['showNotifTimer'] = showNotifTimer;
 })();
