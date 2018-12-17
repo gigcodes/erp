@@ -16,6 +16,7 @@ class Order extends Model {
 		'client_name',
 		'city',
 		'contact_detail',
+		'solophone',
 		'advance_detail',
 		'advance_date',
 		'balance_amount',

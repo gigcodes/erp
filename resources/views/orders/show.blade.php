@@ -96,6 +96,24 @@
                             @endif
                         </div>
 
+                        <div class="form-group">
+                            <strong>Solo Phone:</strong>
+                            <Select name="solophone" class="form-control">
+                                      <option value>None</option>
+                                       <option value="919167152579" {{'919167152579' == $solophone ? 'Selected=Selected':''}}>00</option>
+                                       <option value="918291920452" {{'918291920452'== $solophone ? 'Selected=Selected':''}}>02</option>
+                                       <option value="918291920455" {{'918291920455'== $solophone ? 'Selected=Selected':''}}>03</option>
+                                       <option value="919152731483" {{'919152731483'== $solophone ? 'Selected=Selected':''}}>04</option>
+                                       <option value="919152731484" {{'919152731484'== $solophone ? 'Selected=Selected':''}}>05</option>
+                                       <option value="919152731486" {{'919152731486'== $solophone ? 'Selected=Selected':''}}>06</option>
+                                       <option value="918291352520" {{'918291352520'== $solophone ? 'Selected=Selected':''}}>08</option>
+                                       <option value="919004008983" {{'919004008983'== $solophone ? 'Selected=Selected':''}}>09</option>
+                               </Select>
+                            @if ($errors->has('solophone'))
+                                <div class="alert alert-danger">{{$errors->first('solophone')}}</div>
+                            @endif
+                        </div>
+
 
 
 
@@ -1437,7 +1455,6 @@
         function approveMessage(element, message) {
             $.post( "/whatsapp/approve/orders", { messageId: message.id })
               .done(function( data ) {
-                alert( "Message was approved" );
                 element.remove();
               }).fail(function(response) {
                 console.log(response);
@@ -1465,9 +1482,10 @@
             alert("please enter a message or attach media");
           }
 
-		function renderMessage(message, ontop = null) {
+		function renderMessage(message, ontop = null, checking = null) {
 				var domId = "waMessage_" + message.id;
 				var current = $("#" + domId);
+        var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
 				if ( current.get( 0 ) ) {
 					return false;
 				}
@@ -1475,7 +1493,6 @@
         if (message.body) {
           var users_array = {!! json_encode($users_array) !!};
           var orders_assigned_user = "{{ $sales_person }}";
-          var is_admin = {{ Auth::user()->hasRole('Admin') }};
 
           var text = $("<div class='talktext'></div>");
           var p = $("<p class='collapsible-message'></p>");
@@ -1556,9 +1573,7 @@
             meta += "</em>";
             var meta_content = $(meta);
 
-            if (message.status == 2 && is_admin == false) {
-              var copy_button = $('<button class="copy-button btn btn-secondary" data-id="' + message.id + '" moduleid="' + message.moduleid + '" moduletype="orders" data-message="' + message.body + '"> Copy message </button>');
-            }
+
 
             row.attr("id", domId);
 
@@ -1566,6 +1581,13 @@
             body.appendTo(text);
             edit_field.appendTo(text);
             meta_content.appendTo(text);
+
+            if (message.status == 2 && is_admin == false) {
+              var copy_button = $('<button class="copy-button btn btn-secondary" data-id="' + message.id + '" moduleid="' + message.moduleid + '" moduletype="orders" data-message="' + message.body + '"> Copy message </button>');
+              copy_button.appendTo(text);
+            }
+
+
 
             text.appendTo(row);
             if (ontop) {
@@ -1576,58 +1598,77 @@
           }
         } else {
           var row = $("<div class='talk-bubble round'></div>");
-                  if (message.received) {
-                    var text = $("<div class='talktext'><span class='date'>" + moment(message.created_at).format('DD-MM H:m') + "</span></div>");
-                  } else {
-                    var text = $("<div class='talktext'><span class='date'>" + moment(message.created_at).format('DD-MM H:m') + "</span></div>");
-                      if (!message.approved) {
-                          var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
-                          approveBtn.click(function() {
-                              approveMessage( this, message );
-                          } );
-                          approveBtn.appendTo( text );
-                      }
-                  }
+          var text = $("<div class='talktext'></div>");
+          var p = $("<p class='collapsible-message'></p>");
+          var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
 
-                  var p = $("<p class='collapsible-message'></p>");
+          row.attr("id", domId);
 
-                  row.attr("id", domId);
+          p.attr("data-messageshort", message.message);
+          p.attr("data-message", message.message);
+          p.attr("data-expanded", "true");
+          console.log("renderMessage message is ", message);
+          if ( message.message ) {
+              p.html( message.message );
+          } else if ( message.media_url ) {
+              var splitted = message.content_type.split("/");
+              if (splitted[0]==="image") {
+                  var a = $("<a></a>");
+                  a.attr("target", "_blank");
+                  a.attr("href", message.media_url);
+                  var img = $("<img></img>");
+                  img.attr("src", message.media_url);
+                  img.attr("width", "100");
+                  img.attr("height", "100");
+                  img.appendTo( a );
+                  a.appendTo( p );
+                  console.log("rendered image message ", a);
+              } else if (splitted[0]==="video") {
+                  $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
+              }
+          }
 
-                  p.attr("data-messageshort", message.message);
-                  p.attr("data-message", message.message);
-                  p.attr("data-expanded", "true");
-                  console.log("renderMessage message is ", message);
-                  if ( message.message ) {
-                      p.html( message.message );
-                  } else if ( message.media_url ) {
-                      var splitted = message.content_type.split("/");
-                      if (splitted[0]==="image") {
-                          var a = $("<a></a>");
-                          a.attr("target", "_blank");
-                          a.attr("href", message.media_url);
-                          var img = $("<img></img>");
-                          img.attr("src", message.media_url);
-                          img.attr("width", "100");
-                          img.attr("height", "100");
-                          img.appendTo( a );
-                          a.appendTo( p );
-                          console.log("rendered image message ", a);
-                      } else if (splitted[0]==="video") {
-                          $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
-                      }
-                  }
+          p.appendTo( text );
+          meta.appendTo(text);
+          if (!message.received) {
+            if (!message.approved) {
+                var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
+                approveBtn.click(function() {
+                    approveMessage( this, message );
+                } );
 
-                  p.appendTo( text );
-                  text.appendTo( row );
-                  if (ontop) {
-                    row.prependTo(container);
-                  } else {
-                    row.appendTo(container);
-                  }
+                if (is_admin) {
+                  approveBtn.appendTo( text );
+                }
+            }
+          } else {
+            var moduleid = "{{ $id }}";
+            var mark_read = $("<a href data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "&moduleid=" + moduleid+ "&moduletype=order' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
+            var mark_replied = $('<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '&moduleid=' + moduleid + '&moduletype=order" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
+
+            if (message.status == 0) {
+              mark_read.appendTo(text);
+            }
+            if (message.status == 0 || message.status == 5) {
+              mark_replied.appendTo(text);
+            }
+          }
+
+          text.appendTo( row );
+          if (ontop) {
+            row.prependTo(container);
+          } else {
+            if (checking) {
+              row.prependTo(container);
+            } else {
+              row.appendTo(container);
+            }
+
+          }
         }
                 return true;
 		}
-		function pollMessages(page = null, ontop = null) {
+		function pollMessages(page = null, ontop = null, addElapse = null, checking = null) {
             var qs = "";
             qs += "/orders?orderId=" + orderId;
             if (page) {
@@ -1643,7 +1684,7 @@
                   $('#load-more-messages').text('Loading...');
 
                     data.data.forEach(function( message ) {
-                        var rendered = renderMessage( message, ontop );
+                        var rendered = renderMessage( message, ontop, checking );
                         if ( !anyNewMessages && rendered ) {
                             anyNewMessages = true;
                         }
@@ -1662,13 +1703,13 @@
 		}
         function scrollChatTop() {
             console.log("scrollChatTop called");
-            var el = $(".chat-frame");
-            el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
+            // var el = $(".chat-frame");
+            // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
         }
-		function startPolling() {
+		function startPolling(checking = null) {
 			setTimeout( function() {
-                pollMessages(addElapse).then(function() {
-                    startPolling();
+                pollMessages(null, null, addElapse, checking).then(function() {
+                    startPolling(true);
                 }, errorHandler);
             }, 1000);
 		}

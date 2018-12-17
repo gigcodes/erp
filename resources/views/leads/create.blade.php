@@ -117,15 +117,14 @@
                     <strong>Solo phone:</strong>
                    <Select name="solophone" class="form-control">
 													 	<option value>None</option>
-                            <option value="01">01</option>
-                            <option value="02">02</option>
-                            <option value="03">03</option>
-                            <option value="04">04</option>
-                            <option value="05">05</option>
-                            <option value="06">06</option>
-                            <option value="07">07</option>
-                            <option value="08">08</option>
-                            <option value="09">09</option>
+														<option value="919167152579">00</option>
+                            <option value="918291920452">02</option>
+                            <option value="918291920455">03</option>
+                            <option value="919152731483">04</option>
+                            <option value="919152731484">05</option>
+                            <option value="919152731486">06</option>
+                            <option value="918291352520">08</option>
+                            <option value="919004008983">09</option>
                     </Select>
                     @if ($errors->has('solophone'))
                         <div class="alert alert-danger">{{$errors->first('solophone')}}</div>

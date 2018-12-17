@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers;
 use App\ChatMessage;
 use App\PushNotification;
+use App\NotificationQueue;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -61,6 +62,7 @@ class WhatsAppController extends FindByNumberController
         //save to orders
 		$order= $this->findOrderByNumber( $from );
         if ( $order ) {
+            $params['lead_id'] = null;
             $params['order_id'] = $order->id;
             $params = $this->modifyParamsWithMessage($params, $data);
             $message = ChatMessage::create($params);
@@ -97,7 +99,7 @@ class WhatsAppController extends FindByNumberController
           'timestamps' => ['+0 minutes'],
           'model_type' => $model_type,
           'model_id' =>  $model_id,
-          'user_id' => '3',
+          'user_id' => '6',
           'sent_to' => '',
           'role' => 'message',
         ]);
@@ -107,7 +109,7 @@ class WhatsAppController extends FindByNumberController
           'timestamps' => ['+0 minutes'],
           'model_type' => $model_type,
           'model_id' =>  $model_id,
-          'user_id' => '3',
+          'user_id' => '6',
           'sent_to' => '',
           'role' => 'Admin',
         ]);
@@ -276,12 +278,13 @@ class WhatsAppController extends FindByNumberController
                 'number' => $message['number'],
                 'created_at' => Carbon::parse($message['created_at'])->format('Y-m-d H:i:s'),
                 // 'date' => $this->formatChatDate( $message['created_at'] ),
-                'approved' => $message['approved']
+                'approved' => $message['approved'],
+                'status'  => $message['status']
          ];
          if ($message['media_url']) {
             $messageParams['media_url'] = $message['media_url'];
             $headers = get_headers($message['media_url'], 1);
-            $messageParams['content_type'] = $headers["Content-Type"];
+            // $messageParams['content_type'] = $headers["Content-Type"];
          }
          if ($message['message']) {
             $messageParams['message'] = $message['message'];
@@ -399,5 +402,53 @@ class WhatsAppController extends FindByNumberController
         }
         $params['message']=$data['text'];
         return $params;
+    }
+
+    public function updatestatus(Request $request)
+    {
+        $message = ChatMessage::find($request->get('id'));
+        $message->status = $request->get('status');
+        $moduleid = $request->get('moduleid');
+        $moduletype = $request->get('moduletype');
+        $message->save();
+
+      if( $message->status == '5' ) {
+		    NotificationQueueController::createNewNotification( [
+			    'message'    => 'Message was read : ' . $message->message,
+			    'timestamps' => [ '+0 minutes' ],
+			    'model_type' => $moduletype,
+			    'model_id'   => $moduleid,
+			    'user_id'    => Auth::id(),
+			    'sent_to'    => '',
+			    'role'       => 'Admin',
+		    ] );
+	    }
+
+      if( $message->status == '6' ) {
+        if ($notifications = PushNotification::where('model_id', $moduleid)->where('model_type', $moduletype)->get()) {
+          foreach ($notifications as $notification) {
+            $notification->isread = 1;
+            $notification->save();
+          }
+        }
+
+        if ($notifications_queue = NotificationQueue::where('model_id', $moduleid)->where('model_type', $moduletype)->get()) {
+          foreach ($notifications_queue as $notification) {
+            $notification->delete();
+          }
+        }
+
+		    NotificationQueueController::createNewNotification( [
+			    'message'    => 'Message Sent : ' . $message->message,
+			    'timestamps' => [ '+0 minutes' ],
+			    'model_type' => $moduletype,
+			    'model_id'   => $moduleid,
+			    'user_id'    => Auth::id(),
+			    'sent_to'    => '6',
+			    'role'       => 'Admin',
+		    ] );
+	    }
+
+	    // return redirect('/'. $moduletype.'/'.$moduleid);
     }
 }

@@ -189,6 +189,7 @@ Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');
 Route::post('whatsapp/sendMultipleMessages', 'WhatsAppController@sendMultipleMessages');
 Route::post('whatsapp/approve/{context}', 'WhatsAppController@approveMessage');
 Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages');
+Route::get('whatsapp/updatestatus/', 'WhatsAppController@updateStatus');
 
 /*Routes For Social */
 

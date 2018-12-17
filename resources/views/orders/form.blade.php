@@ -98,6 +98,26 @@
                 </div>
             </div>
 
+            <div class="col-xs-12">
+              <div class="form-group">
+                  <strong>Solo Phone:</strong>
+                  <Select name="solophone" class="form-control">
+                            <option value>None</option>
+                             <option value="919167152579" {{old('solophone') ? (old('solophone') == '919167152579' ? 'Selected=Selected':'') : ('919167152579'== $solophone ? 'Selected=Selected':'')}}>00</option>
+                             <option value="918291920452" {{old('solophone') ? (old('solophone') == '918291920452' ? 'Selected=Selected':'') : ('918291920452'== $solophone ? 'Selected=Selected':'')}}>02</option>
+                             <option value="918291920455" {{old('solophone') ? (old('solophone') == '918291920455' ? 'Selected=Selected':'') : ('918291920455'== $solophone ? 'Selected=Selected':'')}}>03</option>
+                             <option value="919152731483" {{old('solophone') ? (old('solophone') == '919152731483' ? 'Selected=Selected':'') : ('919152731483'== $solophone ? 'Selected=Selected':'')}}>04</option>
+                             <option value="919152731484" {{old('solophone') ? (old('solophone') == '919152731484' ? 'Selected=Selected':'') : ('919152731484'== $solophone ? 'Selected=Selected':'')}}>05</option>
+                             <option value="919152731486" {{old('solophone') ? (old('solophone') == '919152731486' ? 'Selected=Selected':'') : ('919152731486'== $solophone ? 'Selected=Selected':'')}}>06</option>
+                             <option value="918291352520" {{old('solophone') ? (old('solophone') == '918291352520' ? 'Selected=Selected':'') : ('918291352520'== $solophone ? 'Selected=Selected':'')}}>08</option>
+                             <option value="919004008983" {{old('solophone') ? (old('solophone') == '919004008983' ? 'Selected=Selected':'') : ('919004008983'== $solophone ? 'Selected=Selected':'')}}>09</option>
+                     </Select>
+                  @if ($errors->has('solophone'))
+                      <div class="alert alert-danger">{{$errors->first('solophone')}}</div>
+                  @endif
+              </div>
+            </div>
+
             {{--<div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Product Price:</strong>
