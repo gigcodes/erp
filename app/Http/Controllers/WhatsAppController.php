@@ -174,6 +174,7 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
+            $params['status'] = 1;
             $message = ChatMessage::create($params);
 
             NotificationQueueController::createNewNotification([
@@ -327,9 +328,7 @@ class WhatsAppController extends FindByNumberController
 	{
         $user = \Auth::user();
         $message = ChatMessage::findOrFail($request->get("messageId"));
-        $message->update([
-            'approved' => 1
-        ]);
+
         $send = $message->message;
         if (is_null($send)) {
             $send = $message->media_url;
@@ -341,6 +340,11 @@ class WhatsAppController extends FindByNumberController
             $order = Order::find($message->order_id);
             $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send);
         }
+
+        $message->update([
+            'approved' => 1,
+            'status'   => 2
+        ]);
 
         return response("");
     }

@@ -17,7 +17,7 @@
         <th width="280px">Action</th>
     </tr>
     @foreach ($leads_array as $key => $lead)
-        <tr class="{{ \App\Helpers::statusClass($lead['assign_status'] ) }} {{ ((!empty($lead['communication']['body']) && $lead['communication']['status'] == 0) || $lead['communication']['status'] == 1 || $lead['communication']['status'] == 5) ? 'row-highlight' : '' }}">
+        <tr class="{{ \App\Helpers::statusClass($lead['assign_status'] ) }} {{ ((!empty($lead['communication']['body']) && $lead['communication']['status'] == 0) || $lead['communication']['status'] == 1 || $lead['communication']['status'] == 5) ? 'row-highlight' : '' }} {{ ((!empty($lead['communication']['message']) && $lead['communication']['status'] == 0) || $lead['communication']['status'] == 1 || $lead['communication']['status'] == 5) ? 'row-highlight' : '' }}">
             @if ($type)
               <td><input type="checkbox" class="check-lead" data-leadid="{{ $lead['id'] }}" /></td>
             @endif
@@ -44,12 +44,31 @@
                   Unread
                 @endif
               @endif
+
+              @if (!empty($lead['communication']['message']))
+                @if ($lead['communication']['status'] == 5)
+                  Read
+                @elseif ($lead['communication']['status'] == 6)
+                  Replied
+                @elseif ($lead['communication']['status'] == 1)
+                  <span>Awaiting Approval</span>
+                  <a href data-url="/whatsapp/approve/leads?messageId={{ $lead['communication']['id'] }}" style="font-size: 9px" class="change_message_status approve-whatsapp" data-messageid="{{ $lead['communication']['id'] }}">Approve</a>
+                @elseif ($lead['communication']['status'] == 2)
+                  Approved
+                @elseif ($lead['communication']['status'] == 0)
+                  Unread
+                @endif
+              @endif
             </td>
             <td>
-              @if (strpos($lead['communication']['body'], '<br>') !== false)
-                {{ substr($lead['communication']['body'], 0, strpos($lead['communication']['body'], '<br>')) }}
+              @if (isset($lead['communication']['body']))
+                @if (strpos($lead['communication']['body'], '<br>') !== false)
+                  {{ substr($lead['communication']['body'], 0, strpos($lead['communication']['body'], '<br>')) }}
+                @else
+                  {{ $lead['communication']['body'] }}
+                @endif
               @else
-                {{ $lead['communication']['body'] }}
+                {{ $lead['communication']['message'] }}
               @endif
             </td>
             <td>{{App\Helpers::getleadstatus($lead['status'])}}</td>

@@ -118,20 +118,25 @@
         e.preventDefault();
         var url = $(this).data('url');
         var thiss = $(this);
+        var type = 'GET';
 
-        $.ajax({
-          url: url,
-          type: 'GET',
-          beforeSend: function() {
-            $(thiss).text('Loading');
-          }
-        }).done( function(response) {
-          $(thiss).closest('tr').removeClass('row-highlight');
-          $(thiss).prev('span').text('Approved');
-          $(thiss).remove();
-        }).fail(function(errObj) {
-          alert("Could not change status");
-        });
+        if ($(this).hasClass('approve-whatsapp')) {
+          type = 'POST';
+        }
+
+          $.ajax({
+            url: url,
+            type: type,
+            beforeSend: function() {
+              $(thiss).text('Loading');
+            }
+          }).done( function(response) {
+            $(thiss).closest('tr').removeClass('row-highlight');
+            $(thiss).prev('span').text('Approved');
+            $(thiss).remove();
+          }).fail(function(errObj) {
+            alert("Could not change status");
+          });
       });
 
       $(document).on('click', '.pagination a, th a', function(e) {

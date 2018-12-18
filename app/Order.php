@@ -60,9 +60,29 @@ class Order extends Model {
 		return $this->hasMany('App\OrderReport', 'order_id')->latest()->first();
 	}
 
+	public function whatsapps()
+	{
+		return $this->hasMany('App\ChatMessage', 'order_id')->latest()->first();
+	}
+
 	public function getCommunicationAttribute()
 	{
-		return $this->messages();
+		$message = $this->messages();
+		$whatsapp = $this->whatsapps();
+
+		if ($message && $whatsapp) {
+			if ($message->created_at > $whatsapp->created_at) {
+				return $message;
+			}
+
+			return $whatsapp;
+		}
+
+		if ($message) {
+			return $message;
+		}
+
+		return $whatsapp;
 	}
 
 	public function getActionAttribute()

@@ -48,7 +48,7 @@
             <th width="280px">Action</th>
         </tr>
         @foreach ($orders_array as $key => $order)
-            <tr class="{{ \App\Helpers::statusClass($order['assign_status'] ) }} {{ ((!empty($order['communication']['body']) && $order['communication']['status'] == 0) || $order['communication']['status'] == 1 || $order['communication']['status'] == 5) ? 'row-highlight' : '' }}">
+            <tr class="{{ \App\Helpers::statusClass($order['assign_status'] ) }} {{ ((!empty($order['communication']['body']) && $order['communication']['status'] == 0) || $order['communication']['status'] == 1 || $order['communication']['status'] == 5) ? 'row-highlight' : '' }} {{ ((!empty($order['communication']['message']) && $order['communication']['status'] == 0) || $order['communication']['status'] == 1 || $order['communication']['status'] == 5) ? 'row-highlight' : '' }}">
                 <td>{{ $order['order_id'] }}</td>
                 <td>{{ Carbon\Carbon::parse($order['order_date'])->format('d-m') }}</td>
                 <td>{{ $order['sales_person'] ? $users[$order['sales_person']] : 'nil' }}</td>
@@ -73,6 +73,21 @@
                       Unread
                     @endif
                   @endif
+
+                  @if (!empty($order['communication']['message']))
+                    @if ($order['communication']['status'] == 5)
+                      Read
+                    @elseif ($order['communication']['status'] == 6)
+                      Replied
+                    @elseif ($order['communication']['status'] == 1)
+                      <span>Awaiting Approval</span>
+                      <a href data-url="/whatsapp/approve/orders?messageId={{ $order['communication']['id'] }}" style="font-size: 9px" class="change_message_status approve-whatsapp" data-messageid="{{ $order['communication']['id'] }}">Approve</a>
+                    @elseif ($order['communication']['status'] == 2)
+                      Approved
+                    @elseif ($order['communication']['status'] == 0)
+                      Unread
+                    @endif
+                  @endif
                 </td>
                 <td>
                   {{-- @if (strpos(App\Helpers::getlatestmessage($order->id, 'order'), '<br>') !== false)
@@ -80,10 +95,14 @@
                   @else
                     {{ App\Helpers::getlatestmessage($order->id, 'order') }}
                   @endif --}}
-                  @if (strpos($order['communication']['body'], '<br>') !== false)
-                    {{ substr($order['communication']['body'], 0, strpos($order['communication']['body'], '<br>')) }}
+                  @if (isset($order['communication']['body']))
+                    @if (strpos($order['communication']['body'], '<br>') !== false)
+                      {{ substr($order['communication']['body'], 0, strpos($order['communication']['body'], '<br>')) }}
+                    @else
+                      {{ $order['communication']['body'] }}
+                    @endif
                   @else
-                    {{ $order['communication']['body'] }}
+                    {{ $order['communication']['message'] }}
                   @endif
                 </td>
                 <td>
@@ -110,14 +129,19 @@
     {{--{!! $orders->links() !!}--}}
 
     <script type="text/javascript">
-      $(document).on('click', '.change_message_status', function(e) {
-        e.preventDefault();
-        var url = $(this).data('url');
-        var thiss = $(this);
+    $(document).on('click', '.change_message_status', function(e) {
+      e.preventDefault();
+      var url = $(this).data('url');
+      var thiss = $(this);
+      var type = 'GET';
+
+      if ($(this).hasClass('approve-whatsapp')) {
+        type = 'POST';
+      }
 
         $.ajax({
           url: url,
-          type: 'GET',
+          type: type,
           beforeSend: function() {
             $(thiss).text('Loading');
           }
@@ -128,6 +152,6 @@
         }).fail(function(errObj) {
           alert("Could not change status");
         });
-      });
+    });
     </script>
 @endsection
