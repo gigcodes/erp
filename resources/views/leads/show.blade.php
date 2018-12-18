@@ -1203,7 +1203,7 @@
  </div>
 
    <div class="col-xs-12 text-center">
-     <button type="button" id="load-more-messages" data-nextpage="2" class="btn btn-secondary">Load More</button>
+     <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
    </div>
 
  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -1319,7 +1319,7 @@
             alert("please enter a message or attach media");
           }
 
-		function renderMessage(message, ontop = null, checking = null) {
+		function renderMessage(message, tobottom = null) {
 				var domId = "waMessage_" + message.id;
 				var current = $("#" + domId);
         var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
@@ -1370,10 +1370,10 @@
 
             text.appendTo(row);
 
-            if (ontop) {
-              row.prependTo(container);
-            } else {
+            if (tobottom) {
               row.appendTo(container);
+            } else {
+              row.prependTo(container);
             }
 
           } else if (message.status == 4) {
@@ -1387,10 +1387,10 @@
             meta.appendTo(text);
 
             text.appendTo(row);
-            if (ontop) {
-              row.prependTo(container);
-            } else {
+            if (tobottom) {
               row.appendTo(container);
+            } else {
+              row.prependTo(container);
             }
           } else {
             var row = $("<div class='talk-bubble round' data-messageid='" + message.id + "'></div>");
@@ -1426,10 +1426,11 @@
 
 
             text.appendTo(row);
-            if (ontop) {
-              row.prependTo(container);
-            } else {
+
+            if (tobottom) {
               row.appendTo(container);
+            } else {
+              row.prependTo(container);
             }
           }
         } else {
@@ -1490,22 +1491,18 @@
           }
 
           text.appendTo( row );
-          if (ontop) {
-            row.prependTo(container);
-          } else {
-            if (checking) {
-              row.prependTo(container);
-            } else {
-              row.appendTo(container);
-            }
 
+
+          if (tobottom) {
+            row.appendTo(container);
+          } else {
+            row.prependTo(container);
           }
         }
 
                 return true;
 		}
-		function pollMessages(page = null, ontop = null, addElapse = null, checking = null) {
-      // alert('call');
+		function pollMessages(page = null, tobottom = null, addElapse = null) {
             var qs = "";
             qs += "/leads?leadId=" + leadId;
             if (page) {
@@ -1517,16 +1514,14 @@
             var anyNewMessages = false;
             return new Promise(function(resolve, reject) {
                 $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
-                  $('#load-more-messages').data('nextpage', data.current_page + 1);
-                  $('#load-more-messages').text('Loading...');
 
                     data.data.forEach(function( message ) {
-                        var rendered = renderMessage( message, ontop, checking );
+                        var rendered = renderMessage( message, tobottom );
                         if ( !anyNewMessages && rendered ) {
                             anyNewMessages = true;
                         }
                     } );
-                    $('#load-more-messages').text('Load More');
+
                     if ( anyNewMessages ) {
                         scrollChatTop();
                         anyNewMessages = false;
@@ -1545,10 +1540,10 @@
             // var el = $(".chat-frame");
             // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
         }
-		function startPolling(checking = null) {
+		function startPolling() {
 			setTimeout( function() {
-                pollMessages(null, null, addElapse, checking).then(function() {
-                    startPolling(true);
+                pollMessages(null, null, addElapse).then(function() {
+                    startPolling();
                 }, errorHandler);
             }, 1000);
 		}
@@ -1567,7 +1562,7 @@
                 "data": data
 			}).done( function(response) {
         $('#waNewMessage').val('');
-        pollMessages(null, true);
+        pollMessages();
 				console.log("message was sent");
 			}).fail(function(errObj) {
 				alert("Could not send message");
@@ -1609,7 +1604,7 @@
           processData: false,
           contentType: false
         }).done(function() {
-          pollMessages(null, true);
+          pollMessages();
           $(thiss).closest('form').find('textarea').val('');
         }).fail(function() {
           alert('Error sending a message');
@@ -1621,8 +1616,12 @@
     });
 
     $(document).on('click', '#load-more-messages', function() {
+      var current_page = $(this).data('nextpage');
+      $(this).data('nextpage', current_page + 1);
       var next_page = $(this).data('nextpage');
-      pollMessages(next_page);
+      $('#load-more-messages').text('Loading...');
+      pollMessages(next_page, true);
+      $('#load-more-messages').text('Load More');
     });
 	});
 

@@ -299,10 +299,15 @@ class WhatsAppController extends FindByNumberController
      }
 
      $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
-
+     // dd($result);
      $currentPage = LengthAwarePaginator::resolveCurrentPage();
      $perPage = 10;
-     $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+
+     if ($request->page) {
+       $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+     } else {
+       $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+     }
 
      $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
        'path'	=> LengthAwarePaginator::resolveCurrentPath()
