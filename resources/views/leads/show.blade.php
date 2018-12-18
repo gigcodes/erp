@@ -114,16 +114,16 @@
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Solo Phone:</strong>
-                         <Select name="solophone" class="form-control">
+                         <Select name="whatsapp_number" class="form-control">
                                    <option value>None</option>
-                                    <option value="919167152579" {{'919167152579' == $leads->solophone ? 'Selected=Selected':''}}>00</option>
-                                    <option value="918291920452" {{'918291920452'== $leads->solophone ? 'Selected=Selected':''}}>02</option>
-                                    <option value="918291920455" {{'918291920455'== $leads->solophone ? 'Selected=Selected':''}}>03</option>
-                                    <option value="919152731483" {{'919152731483'== $leads->solophone ? 'Selected=Selected':''}}>04</option>
-                                    <option value="919152731484" {{'919152731484'== $leads->solophone ? 'Selected=Selected':''}}>05</option>
-                                    <option value="919152731486" {{'919152731486'== $leads->solophone ? 'Selected=Selected':''}}>06</option>
-                                    <option value="918291352520" {{'918291352520'== $leads->solophone ? 'Selected=Selected':''}}>08</option>
-                                    <option value="919004008983" {{'919004008983'== $leads->solophone ? 'Selected=Selected':''}}>09</option>
+                                    <option value="919167152579" {{'919167152579' == $leads->whatsapp_number ? 'Selected=Selected':''}}>00</option>
+                                    <option value="918291920452" {{'918291920452'== $leads->whatsapp_number ? 'Selected=Selected':''}}>02</option>
+                                    <option value="918291920455" {{'918291920455'== $leads->whatsapp_number ? 'Selected=Selected':''}}>03</option>
+                                    <option value="919152731483" {{'919152731483'== $leads->whatsapp_number ? 'Selected=Selected':''}}>04</option>
+                                    <option value="919152731484" {{'919152731484'== $leads->whatsapp_number ? 'Selected=Selected':''}}>05</option>
+                                    <option value="919152731486" {{'919152731486'== $leads->whatsapp_number ? 'Selected=Selected':''}}>06</option>
+                                    <option value="918291352520" {{'918291352520'== $leads->whatsapp_number ? 'Selected=Selected':''}}>08</option>
+                                    <option value="919004008983" {{'919004008983'== $leads->whatsapp_number ? 'Selected=Selected':''}}>09</option>
                             </Select>
 
                         </div>
@@ -485,19 +485,19 @@
 
                    <div class="form-group">
                        <strong>Solo Phone:</strong>
-                       <Select name="solophone" class="form-control">
+                       <Select name="whatsapp_number" class="form-control">
                                  <option value>None</option>
-                                  <option value="919167152579" {{'919167152579' == $leads->solophone ? 'Selected=Selected':''}}>00</option>
-                                  <option value="918291920452" {{'918291920452'== $leads->solophone ? 'Selected=Selected':''}}>02</option>
-                                  <option value="918291920455" {{'918291920455'== $leads->solophone ? 'Selected=Selected':''}}>03</option>
-                                  <option value="919152731483" {{'919152731483'== $leads->solophone ? 'Selected=Selected':''}}>04</option>
-                                  <option value="919152731484" {{'919152731484'== $leads->solophone ? 'Selected=Selected':''}}>05</option>
-                                  <option value="919152731486" {{'919152731486'== $leads->solophone ? 'Selected=Selected':''}}>06</option>
-                                  <option value="918291352520" {{'918291352520'== $leads->solophone ? 'Selected=Selected':''}}>08</option>
-                                  <option value="919004008983" {{'919004008983'== $leads->solophone ? 'Selected=Selected':''}}>09</option>
+                                  <option value="919167152579" {{'919167152579' == $leads->whatsapp_number ? 'Selected=Selected':''}}>00</option>
+                                  <option value="918291920452" {{'918291920452'== $leads->whatsapp_number ? 'Selected=Selected':''}}>02</option>
+                                  <option value="918291920455" {{'918291920455'== $leads->whatsapp_number ? 'Selected=Selected':''}}>03</option>
+                                  <option value="919152731483" {{'919152731483'== $leads->whatsapp_number ? 'Selected=Selected':''}}>04</option>
+                                  <option value="919152731484" {{'919152731484'== $leads->whatsapp_number ? 'Selected=Selected':''}}>05</option>
+                                  <option value="919152731486" {{'919152731486'== $leads->whatsapp_number ? 'Selected=Selected':''}}>06</option>
+                                  <option value="918291352520" {{'918291352520'== $leads->whatsapp_number ? 'Selected=Selected':''}}>08</option>
+                                  <option value="919004008983" {{'919004008983'== $leads->whatsapp_number ? 'Selected=Selected':''}}>09</option>
                           </Select>
-                       @if ($errors->has('solophone'))
-                           <div class="alert alert-danger">{{$errors->first('solophone')}}</div>
+                       @if ($errors->has('whatsapp_number'))
+                           <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
                        @endif
                    </div>
 

@@ -217,7 +217,8 @@ class LeadsController extends Controller
           'selected_product',
           'size',
           'leadsourcetxt',
-          'created_at'  => 'required|date_format:"Y-m-d H:i"'
+          'created_at'  => 'required|date_format:"Y-m-d H:i"',
+          'whatsapp_number'
         ]);
 
         $data = $request->except( '_token');
@@ -464,6 +465,7 @@ class LeadsController extends Controller
 
         $leads->selected_product = json_encode( $request->input( 'selected_product' ) );
         $leads->created_at = $request->created_at;
+        $leads->whatsapp_number = $request->whatsapp_number;
         $leads->save();
 
         $count = 0;

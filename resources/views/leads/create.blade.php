@@ -115,7 +115,7 @@
             <div class="col-xs-12 col-sm-8 col-sm-offset-4">
                 <div class="form-group">
                     <strong>Solo phone:</strong>
-                   <Select name="solophone" class="form-control">
+                   <Select name="whatsapp_number" class="form-control">
 													 	<option value>None</option>
 														<option value="919167152579">00</option>
                             <option value="918291920452">02</option>
@@ -126,8 +126,8 @@
                             <option value="918291352520">08</option>
                             <option value="919004008983">09</option>
                     </Select>
-                    @if ($errors->has('solophone'))
-                        <div class="alert alert-danger">{{$errors->first('solophone')}}</div>
+                    @if ($errors->has('whatsapp_number'))
+                        <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
                     @endif
                 </div>
             </div>
