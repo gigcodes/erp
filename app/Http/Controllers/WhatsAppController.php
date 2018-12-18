@@ -293,7 +293,7 @@ class WhatsAppController extends FindByNumberController
          if ($message['media_url']) {
             $messageParams['media_url'] = $message['media_url'];
             $headers = get_headers($message['media_url'], 1);
-            // $messageParams['content_type'] = $headers["Content-Type"];
+            $messageParams['content_type'] = $headers["Content-Type"];
          }
          if ($message['message']) {
             $messageParams['message'] = $message['message'];
