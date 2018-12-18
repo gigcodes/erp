@@ -101,6 +101,124 @@ class PurchaseController extends Controller
   		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users' ) );
     }
 
+    public function products(Request $request)
+    {
+      $term = $request->input('term');
+
+  		if($request->input('orderby') == '')
+  				$orderby = 'desc';
+  		else
+  				$orderby = 'asc';
+
+  		switch ($request->input('sortby')) {
+  			case 'supplier':
+  					 $sortby = 'supplier';
+  					break;
+  			case 'customer':
+  					 $sortby = 'client_name';
+  					break;
+        case 'customer_price':
+  					 $sortby = 'price';
+  					break;
+  			case 'date':
+  					 $sortby = 'created_at';
+  					break;
+  			case 'delivery_date':
+  					 $sortby = 'date_of_delivery';
+  					break;
+        case 'updated_date':
+  					 $sortby = 'estimated_delivery_date';
+  					break;
+        case 'status':
+  					 $sortby = 'status';
+  					break;
+        case 'communication':
+  					 $sortby = 'communication';
+  					break;
+  			default :
+  					 $sortby = 'id';
+  		}
+
+  		$purchases = ((new Purchase())->newQuery());
+
+  		// if ($sortby != 'communication') {
+  		// 	$purchases = $purchases->orderBy( $sortby, $orderby );
+  		// }
+
+  		// if(empty($term))
+  		// 	$purchases = $purchases->latest();
+  		// else{
+      //
+  		// 	$purchases = $purchases->latest()
+  		// 	               ->orWhere('id','like','%'.$term.'%')
+  		// 	               ->orWhere('purchase_handler',Helpers::getUserIdByName($term))
+  		// 	               ->orWhere('supplier','like','%'.$term.'%')
+      //                  ->orWhere('status','like','%'.$term.'%');
+  		// }
+
+
+
+  		// $users  = Helpers::getUserArray( User::all() );
+
+  		$purchases_array = $purchases->get()->toArray();
+      $purchases = $purchases->get();
+
+      foreach ($purchases as $index => $purchase) {
+        $purchases_array[$index]['products'] = [];
+        foreach ($purchase->products as $key => $product) {
+          $order = [];
+          array_push($purchases_array[$index]['products'], $product->toArray());
+          $purchases_array[$index]['products'][$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+
+          if (OrderProduct::where('sku', $product->sku)->first()) {
+            $order = Order::find(OrderProduct::where('sku', $product->sku)->first()->order_id)->toArray();
+          }
+
+          $purchases_array[$index]['products'][$key]['order'] = $order;
+        }
+      }
+
+      // dd($purchases_array);
+
+      if ($sortby == 'supplier') {
+  			if ($orderby == 'asc') {
+  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  						return $value['supplier'];
+  				}));
+
+  				$purchases_array = array_reverse($purchases_array);
+  			} else {
+          $purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  						return $value['supplier'];
+  				}));
+  			}
+  		}
+
+  		if ($sortby == 'communication') {
+  			if ($orderby == 'asc') {
+  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  						return $value['communication']['created_at'];
+  				}));
+
+  				$purchases_array = array_reverse($purchases_array);
+  			} else {
+  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  						return $value['communication']['created_at'];
+  				}));
+  			}
+  		}
+
+  		$currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		$perPage = 10;
+  		$currentItems = array_slice($purchases_array, $perPage * ($currentPage - 1), $perPage);
+
+  		$purchases_array = new LengthAwarePaginator($currentItems, count($purchases_array), $perPage, $currentPage, [
+  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		]);
+
+  		return view('purchase.products', compact('purchases_array','term', 'orderby'));
+    }
+
     public function purchaseGrid(Request $request)
     {
       $orders = OrderProduct::select('sku')->get()->toArray();

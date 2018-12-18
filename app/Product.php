@@ -23,6 +23,18 @@ class Product extends Model
 		'sku'
 	];
 	protected $dates = ['deleted_at'];
+	protected $appends = ['communication'];
+	protected $communication = '';
+
+	public function messages()
+	{
+		return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'product')->latest()->first();
+	}
+
+	public function getCommunicationAttribute()
+	{
+		return $this->messages();
+	}
 
 //	protected static $logName = 'Product';
 //	protected static $logAttributes = ['sku'];
@@ -48,4 +60,9 @@ class Product extends Model
 		         ->whereNull('deleted_at')
 		         ->count();
 	}
+
+	public function purchases()
+  {
+    return $this->belongsToMany('App\Product', 'purchase_products', 'product_id', 'purchase_id');
+  }
 }
