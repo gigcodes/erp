@@ -39,14 +39,16 @@ class WhatsAppController extends FindByNumberController
 		$to = $data['to'];
 		$from = $data['from'];
 		$text = $data['text'];
-		$lead = $this->findLeadByNumber( $from );
+		// $lead = $this->findLeadByNumber( $from );
+    $leads = Leads::where('contactno', '=', $from)->get();
 
         //save to leads
         $params = [
             'number' => $from
         ];
 
-        if ( $lead ) {
+        if ( count($leads) > 0 ) {
+          foreach ($leads as $lead) {
             $params['lead_id'] = $lead->id;
             $params = $this->modifyParamsWithMessage($params, $data);
             $message = ChatMessage::create($params);
@@ -55,13 +57,14 @@ class WhatsAppController extends FindByNumberController
             $lead->update([
                 'whatsapp_number' => $to
             ]);
-
-
+          }
         }
 
         //save to orders
-		$order= $this->findOrderByNumber( $from );
-        if ( $order ) {
+        $orders = Order::where('contact_detail', '=', $from)->get();
+
+        if (count($orders) > 0) {
+          foreach ($orders as $order) {
             $params['lead_id'] = null;
             $params['order_id'] = $order->id;
             $params = $this->modifyParamsWithMessage($params, $data);
@@ -71,10 +74,15 @@ class WhatsAppController extends FindByNumberController
             $order->update([
                 'whatsapp_number' => $to
             ]);
-
+          }
         }
+		// $order= $this->findOrderByNumber( $from );
+        // if ( $order ) {
 
-        if (!$order && !$lead) {
+
+        // }
+
+        if (count($orders) == 0 && count($leads) == 0) {
             $modal_type = 'leads';
             $new_name = "whatsapp lead " . uniqid( TRUE );
             $user = User::get()[0];
