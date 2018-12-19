@@ -762,7 +762,10 @@
             </tr>
           </thead>
           <tbody>
-              <?php $i = 1; $users_array = \App\Helpers::getUserArray(\App\User::all()); ?>
+              <?php
+                $i = 1; $users_array = \App\Helpers::getUserArray(\App\User::all());
+                $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
+              ?>
             @foreach($tasks as $task)
           <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
               <td>{{$i++}}</td>
@@ -772,9 +775,17 @@
               <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
               <td>{{ $users_array[$task['assign_from']] }}</td>
               @if( $task['assign_to'] == Auth::user()->id )
+                @if ($task['is_completed'])
+                  <td>{{ Carbon\Carbon::parse($task['is_completed'])->format('d-m H:i') }}</td>
+                @else
                   <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
+                @endif
               @else
-                  <td>Assign to  {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
+                @if ($task['is_completed'])
+                  <td>{{ Carbon\Carbon::parse($task['is_completed'])->format('d-m H:i') }}</td>
+                @else
+                  <td>Assigned to  {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
+                @endif
               @endif
               {{-- <td> --}}
                 <!-- @include('task-module.partials.remark',$task)  -->

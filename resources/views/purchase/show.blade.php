@@ -87,8 +87,8 @@
     <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title">Create Task</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
 
       <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
@@ -178,9 +178,17 @@
             <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
             <td>{{ $users_array[$task['assign_from']] }}</td>
             @if( $task['assign_to'] == Auth::user()->id )
-            <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
+              @if ($task['is_completed'])
+                <td>{{ Carbon\Carbon::parse($task['is_completed'])->format('d-m H:i') }}</td>
+              @else
+                <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
+              @endif
             @else
-            <td>Assign to {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
+              @if ($task['is_completed'])
+                <td>{{ Carbon\Carbon::parse($task['is_completed'])->format('d-m H:i') }}</td>
+              @else
+                <td>Assigned to  {{ $task['assign_to'] ? $users_array[$task['assign_to']] : 'Nil'}}</td>
+              @endif
             @endif
             <td>
               <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>

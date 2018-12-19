@@ -428,7 +428,7 @@ class PurchaseController extends Controller
 
   		// $purchase_statuses = (new OrderStatus)->all();
   		// $data['order_statuses'] = $purchase_statuses;
-  		$data['tasks'] = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->whereNull('is_completed')->get()->toArray();
+  		$data['tasks'] = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->get()->toArray();
   		$data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
   		$data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
       $data['purchase_status'] = (new PurchaseStatus)->all();

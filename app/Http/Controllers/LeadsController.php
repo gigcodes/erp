@@ -329,7 +329,7 @@ class LeadsController extends Controller
         $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
         $leads['products_array'] = [];
         $leads['recordings'] = CallRecording::where('lead_id', '=', $leads->id)->get()->toArray();
-        $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->whereNull('is_completed')->get()->toArray();
+        $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->get()->toArray();
         $approval_replies = Reply::where('model', 'Approval Lead')->get();
         $internal_replies = Reply::where('model', 'Internal Lead')->get();
 
