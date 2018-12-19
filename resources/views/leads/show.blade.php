@@ -484,7 +484,7 @@
                    </div>
 
                    <div class="form-group">
-                       <strong>Solo Phone:</strong>
+                       <strong>Office Phone Number:</strong>
                        <Select name="whatsapp_number" class="form-control">
                                  <option value>None</option>
                                   <option value="919167152579" {{'919167152579' == $leads->whatsapp_number ? 'Selected=Selected':''}}>00</option>
