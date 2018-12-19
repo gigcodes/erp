@@ -52,7 +52,7 @@
             <td>{{ $product['supplier'] }}</td>
             <td>{{ isset($product['percentage']) || isset($product['factor']) ? ($product['price'] - ($product['price'] * $product['percentage'] / 100) - $product['factor']) : ($product['price']) }}</td>
             <td>{{ $product['order'] ? $product['order']['client_name'] : '' }}</td>
-            <td>{{ $product['price'] }}</td>
+            <td>{{ $product['customer_price'] }}</td>
             <td>{{ Carbon\Carbon::parse($product['purchase']['created_at'])->format('d-m-Y') }}</td>
             <td>{{ $product['order'] ? Carbon\Carbon::parse($product['order']['date_of_delivery'])->format('d-m-Y') : '' }}</td>
             <td>{{ $product['order'] ? Carbon\Carbon::parse($product['order']['estimated_delivery_date'])->format('d-m-Y') : '' }}</td>

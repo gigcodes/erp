@@ -169,14 +169,17 @@ class PurchaseController extends Controller
         // $purchases_array[$index]['products'] = [];
         foreach ($purchase->products as $key => $product) {
           $order = [];
+          $customer_price = '';
           array_push($product_array, $product->toArray());
           $product_array[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
 
           if (OrderProduct::where('sku', $product->sku)->first()) {
             $order = Order::find(OrderProduct::where('sku', $product->sku)->first()->order_id)->toArray();
+            $customer_price = OrderProduct::where('sku', $product->sku)->first()->product_price;
           }
 
           $product_array[$count]['order'] = $order;
+          $product_array[$count]['customer_price'] = $customer_price;
           $product_array[$count]['purchase'] = $purchase->toArray();
           $count++;
         }
@@ -223,13 +226,13 @@ class PurchaseController extends Controller
       if ($sortby == 'price') {
   			if ($orderby == 'asc') {
   				$product_array = array_values(array_sort($product_array, function ($value) {
-  						return $value['price'];
+  						return $value['customer_price'];
   				}));
 
   				$product_array = array_reverse($product_array);
   			} else {
           $product_array = array_values(array_sort($product_array, function ($value) {
-  						return $value['price'];
+  						return $value['customer_price'];
   				}));
   			}
   		}
