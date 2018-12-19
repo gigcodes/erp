@@ -162,47 +162,159 @@ class PurchaseController extends Controller
 
   		$purchases_array = $purchases->get()->toArray();
       $purchases = $purchases->get();
+      $product_array = [];
+      $count = 0;
 
       foreach ($purchases as $index => $purchase) {
-        $purchases_array[$index]['products'] = [];
+        // $purchases_array[$index]['products'] = [];
         foreach ($purchase->products as $key => $product) {
           $order = [];
-          array_push($purchases_array[$index]['products'], $product->toArray());
-          $purchases_array[$index]['products'][$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+          array_push($product_array, $product->toArray());
+          $product_array[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
 
           if (OrderProduct::where('sku', $product->sku)->first()) {
             $order = Order::find(OrderProduct::where('sku', $product->sku)->first()->order_id)->toArray();
           }
 
-          $purchases_array[$index]['products'][$key]['order'] = $order;
+          $product_array[$count]['order'] = $order;
+          $product_array[$count]['purchase'] = $purchase->toArray();
+          $count++;
         }
       }
 
-      // dd($purchases_array);
+      // dd($product_array);
 
       if ($sortby == 'supplier') {
   			if ($orderby == 'asc') {
-  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
   						return $value['supplier'];
   				}));
 
-  				$purchases_array = array_reverse($purchases_array);
+  				$product_array = array_reverse($product_array);
   			} else {
-          $purchases_array = array_values(array_sort($purchases_array, function ($value) {
+          $product_array = array_values(array_sort($product_array, function ($value) {
   						return $value['supplier'];
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'client_name') {
+  			if ($orderby == 'asc') {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
+            if ($value['order']) {
+              return $value['order']['client_name'];
+            }
+
+            return '';
+  				}));
+
+  				$product_array = array_reverse($product_array);
+  			} else {
+          $product_array = array_values(array_sort($product_array, function ($value) {
+            if ($value['order']) {
+              return $value['order']['client_name'];
+            }
+
+            return '';
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'price') {
+  			if ($orderby == 'asc') {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
+  						return $value['price'];
+  				}));
+
+  				$product_array = array_reverse($product_array);
+  			} else {
+          $product_array = array_values(array_sort($product_array, function ($value) {
+  						return $value['price'];
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'created_at') {
+  			if ($orderby == 'asc') {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
+  						return $value['purchase']['created_at'];
+  				}));
+
+  				$product_array = array_reverse($product_array);
+  			} else {
+          $product_array = array_values(array_sort($product_array, function ($value) {
+  						return $value['purchase']['created_at'];
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'date_of_delivery') {
+  			if ($orderby == 'asc') {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
+            if ($value['order']) {
+              return $value['order']['date_of_delivery'];
+            }
+
+            return '1999-01-01 00:00:00';
+  				}));
+
+  				$product_array = array_reverse($product_array);
+  			} else {
+          $product_array = array_values(array_sort($product_array, function ($value) {
+            if ($value['order']) {
+              return $value['order']['date_of_delivery'];
+            }
+
+            return '1999-01-01 00:00:00';
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'estimated_delivery_date') {
+  			if ($orderby == 'asc') {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
+            if ($value['order']) {
+              return $value['order']['estimated_delivery_date'];
+            }
+
+            return '1999-01-01 00:00:00';
+  				}));
+
+  				$product_array = array_reverse($product_array);
+  			} else {
+          $product_array = array_values(array_sort($product_array, function ($value) {
+            if ($value['order']) {
+              return $value['order']['estimated_delivery_date'];
+            }
+
+            return '1999-01-01 00:00:00';
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'status') {
+  			if ($orderby == 'asc') {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
+  						return $value['purchase']['status'];
+  				}));
+
+  				$product_array = array_reverse($product_array);
+  			} else {
+          $product_array = array_values(array_sort($product_array, function ($value) {
+  						return $value['purchase']['status'];
   				}));
   			}
   		}
 
   		if ($sortby == 'communication') {
   			if ($orderby == 'asc') {
-  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
   						return $value['communication']['created_at'];
   				}));
 
-  				$purchases_array = array_reverse($purchases_array);
+  				$product_array = array_reverse($product_array);
   			} else {
-  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  				$product_array = array_values(array_sort($product_array, function ($value) {
   						return $value['communication']['created_at'];
   				}));
   			}
@@ -210,13 +322,13 @@ class PurchaseController extends Controller
 
   		$currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = 10;
-  		$currentItems = array_slice($purchases_array, $perPage * ($currentPage - 1), $perPage);
+  		$currentItems = array_slice($product_array, $perPage * ($currentPage - 1), $perPage);
 
-  		$purchases_array = new LengthAwarePaginator($currentItems, count($purchases_array), $perPage, $currentPage, [
+  		$product_array = new LengthAwarePaginator($currentItems, count($product_array), $perPage, $currentPage, [
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
-  		return view('purchase.products', compact('purchases_array','term', 'orderby'));
+  		return view('purchase.products', compact('product_array','term', 'orderby'));
     }
 
     public function purchaseGrid(Request $request)
