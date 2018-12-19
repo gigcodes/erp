@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\PushNotification;
+use App\NotificationQueue;
 use App\Remark;
 use App\Helpers;
 use Illuminate\Http\Request;
@@ -109,18 +110,21 @@ class PushNotificationController extends Controller {
 		$push_notification->isread = 1;
 		$push_notification->save();
 
+		NotificationQueue::where('role', $push_notification->role)->where('message', $push_notification->message)->where('user_id', $push_notification->user_id)->where('sent_to', $push_notification->sent_to)->where('model_type', $push_notification->model_type)->where('model_id', $push_notification->model_id)->delete();
+
 		return [ 'msg' => 'success' ];
 	}
 
 	public function markReadReminder( PushNotification $push_notification ) {
 		$reminders = PushNotification::where('message', $push_notification->message)
-																	->where('sent_to', $push_notification->sent_to)
+																	// ->where('sent_to', $push_notification->sent_to)
 																	->where('model_type', $push_notification->model_type)
 																	->where('model_id', $push_notification->model_id)->get();
 
 		foreach ($reminders as $reminder) {
 			$reminder->isread = 1;
 			$reminder->save();
+			NotificationQueue::where('role', $reminder->role)->where('message', $reminder->message)->where('user_id', $reminder->user_id)->where('sent_to', $reminder->sent_to)->where('model_type', $reminder->model_type)->where('model_id', $reminder->model_id)->delete();
 		}
 
 		return [ 'msg' => 'success' ];
