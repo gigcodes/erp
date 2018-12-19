@@ -1337,7 +1337,7 @@
 
         if ($(this).hasClass('wa_send_message')) {
           var message_id = $(this).data('messageid');
-          var message = $('#message_body_' + message_id).text().trim();
+          var message = $('#message_body_' + message_id).find('p').data('message').trim();
 
           $('#waNewMessage').val(message);
           $('#waMessageSend').click();
