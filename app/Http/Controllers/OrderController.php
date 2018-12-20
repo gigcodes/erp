@@ -184,7 +184,7 @@ class OrderController extends Controller {
 					 $sortby = 'estimated_delivery_date';
 					break;
 			case 'status':
-					 $sortby = 'status';
+					 $sortby = 'order_status';
 					break;
 			case 'communication':
 					 $sortby = 'communication';
@@ -193,98 +193,43 @@ class OrderController extends Controller {
 					 $sortby = 'id';
 		}
 
-		$products = ((new OrderProduct())->newQuery());
+		if(empty($term))
+			$products = OrderProduct::with(['Product' => function($query) {
+				$query->with('Purchases');
+			}, 'Order'])->get()->toArray();
+		else{
 
-		// if ($sortby != 'communication') {
-		// 	$purchases = $purchases->orderBy( $sortby, $orderby );
-		// }
-
-		// if(empty($term))
-		// 	$purchases = $purchases->latest();
-		// else{
-		//
-		// 	$purchases = $purchases->latest()
-		// 	               ->orWhere('id','like','%'.$term.'%')
-		// 	               ->orWhere('purchase_handler',Helpers::getUserIdByName($term))
-		// 	               ->orWhere('supplier','like','%'.$term.'%')
-		//                  ->orWhere('status','like','%'.$term.'%');
-		// }
-
-
-
-		// $users  = Helpers::getUserArray( User::all() );
-
-		// $purchases_array = $products->get()->toArray();
-		$products = $products->get();
-		$product_array = [];
-		$count = 0;
-
-		foreach ($products as $index => $product) {
-			// $purchases_array[$index]['products'] = [];
-			// foreach ($purchase->products as $key => $product) {
-				$order = [];
-				$purchase = [];
-				// $customer_price = '';
-				$image = '';
-				$supplier = '';
-				$percentage = '';
-				$factor = '';
-				$price = '';
-				array_push($product_array, $product->toArray());
-
-				if ($product_image = Product::where('sku', $product_array[$count]['sku'])->first()) {
-					$image = $product_image->getMedia(config('constants.media_tags'))->first() ? $product_image->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
-					$supplier = $product_image->supplier;
-					$percentage = $product_image->percentage;
-					$factor = $product_image->factor;
-					$price = $product_image->price;
-					$product_array[$count]['purchase'] = [];
-
-					if ($product_image->purchases->first()) {
-						// dd($product_image->purchases);
-						$purchase = $product_image->purchases->first()->toArray();
-					}
-				}
-				// $product_array[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
-
-				if (Order::find($product->order_id)) {
-					$order = Order::find($product->order_id)->toArray();
-					// $customer_price = OrderProduct::where('sku', $product->sku)->first()->product_price;
-				}
-
-				$product_array[$count]['image'] = $image;
-				$product_array[$count]['supplier'] = $supplier;
-				$product_array[$count]['percentage'] = $percentage;
-				$product_array[$count]['factor'] = $factor;
-				$product_array[$count]['price'] = $price;
-				$product_array[$count]['order'] = $order;
-				$product_array[$count]['purchase'] = $purchase;
-				// $product_array[$count]['customer_price'] = $customer_price;
-
-				$count++;
-				// dd($product_array);
-			// }
+			$products = OrderProduct::whereHas('Product', function ($query) use ($term){
+	        $query->where('supplier', 'like', '%'.$term.'%');
+	    })
+	    ->with(['Product', 'Order'])->orWhere('product_price', 'LIKE', "%$term%")
+					->orWhereHas('Order', function ($query) use ($term){
+			        $query->where('date_of_delivery', 'LIKE', "%$term%")
+										->orWhere('estimated_delivery_date', 'LIKE', "%$term%")
+										->orWhere('order_status', 'LIKE', "%$term%");
+			    })->get()->toArray();
 		}
 
-		// dd($product_array);
+		$brand = $request->input('brand');
+		$supplier = $request->input('supplier');
 
 		if ($sortby == 'supplier') {
 			if ($orderby == 'asc') {
-				$product_array = array_values(array_sort($product_array, function ($value) {
-						return $value['supplier'];
+				$products = array_values(array_sort($products, function ($value) {
+						return $value['product']['supplier'];
 				}));
 
-				$product_array = array_reverse($product_array);
+				$products = array_reverse($products);
 			} else {
-				$product_array = array_values(array_sort($product_array, function ($value) {
-						return $value['supplier'];
+				$products = array_values(array_sort($products, function ($value) {
+						return $value['product']['supplier'];
 				}));
 			}
 		}
 
 		if ($sortby == 'client_name') {
 			if ($orderby == 'asc') {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 					if ($value['order']) {
 						return $value['order']['client_name'];
 					}
@@ -292,9 +237,9 @@ class OrderController extends Controller {
 					return '';
 				}));
 
-				$product_array = array_reverse($product_array);
+				$products = array_reverse($products);
 			} else {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 					if ($value['order']) {
 						return $value['order']['client_name'];
 					}
@@ -306,33 +251,33 @@ class OrderController extends Controller {
 
 		if ($sortby == 'price') {
 			if ($orderby == 'asc') {
-				$product_array = array_values(array_sort($product_array, function ($value) {
-						return $value['price'];
+				$products = array_values(array_sort($products, function ($value) {
+						return $value['product_price'];
 				}));
 
-				$product_array = array_reverse($product_array);
+				$products = array_reverse($products);
 			} else {
-				$product_array = array_values(array_sort($product_array, function ($value) {
-						return $value['price'];
+				$products = array_values(array_sort($products, function ($value) {
+						return $value['product_price'];
 				}));
 			}
 		}
 
 		if ($sortby == 'created_at') {
 			if ($orderby == 'asc') {
-				$product_array = array_values(array_sort($product_array, function ($value) {
-					if ($value['purchase']) {
-						return $value['purchase']['created_at'];
+				$products = array_values(array_sort($products, function ($value) {
+					if ($value['order']) {
+						return $value['order']['created_at'];
 					}
 
 					return '1999-01-01 00:00:00';
 				}));
 
-				$product_array = array_reverse($product_array);
+				$products = array_reverse($products);
 			} else {
-				$product_array = array_values(array_sort($product_array, function ($value) {
-					if ($value['purchase']) {
-						return $value['purchase']['created_at'];
+				$products = array_values(array_sort($products, function ($value) {
+					if ($value['order']) {
+						return $value['order']['created_at'];
 					}
 
 					return '1999-01-01 00:00:00';
@@ -342,7 +287,7 @@ class OrderController extends Controller {
 
 		if ($sortby == 'date_of_delivery') {
 			if ($orderby == 'asc') {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 					if ($value['order']) {
 						return $value['order']['date_of_delivery'];
 					}
@@ -350,9 +295,9 @@ class OrderController extends Controller {
 					return '1999-01-01 00:00:00';
 				}));
 
-				$product_array = array_reverse($product_array);
+				$products = array_reverse($products);
 			} else {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 					if ($value['order']) {
 						return $value['order']['date_of_delivery'];
 					}
@@ -364,7 +309,7 @@ class OrderController extends Controller {
 
 		if ($sortby == 'estimated_delivery_date') {
 			if ($orderby == 'asc') {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 					if ($value['order']) {
 						return $value['order']['estimated_delivery_date'];
 					}
@@ -372,9 +317,9 @@ class OrderController extends Controller {
 					return '1999-01-01 00:00:00';
 				}));
 
-				$product_array = array_reverse($product_array);
+				$products = array_reverse($products);
 			} else {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 					if ($value['order']) {
 						return $value['order']['estimated_delivery_date'];
 					}
@@ -384,9 +329,9 @@ class OrderController extends Controller {
 			}
 		}
 
-		if ($sortby == 'status') {
+		if ($sortby == 'order_status') {
 			if ($orderby == 'asc') {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 					if ($value['order']) {
 						return $value['order']['order_status'];
 					}
@@ -394,9 +339,9 @@ class OrderController extends Controller {
 					return '';
 				}));
 
-				$product_array = array_reverse($product_array);
+				$products = array_reverse($products);
 			} else {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 					if ($value['order']) {
 						return $value['order']['order_status'];
 					}
@@ -408,13 +353,13 @@ class OrderController extends Controller {
 
 		if ($sortby == 'communication') {
 			if ($orderby == 'asc') {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 						return $value['communication']['created_at'];
 				}));
 
-				$product_array = array_reverse($product_array);
+				$products = array_reverse($products);
 			} else {
-				$product_array = array_values(array_sort($product_array, function ($value) {
+				$products = array_values(array_sort($products, function ($value) {
 						return $value['communication']['created_at'];
 				}));
 			}
@@ -422,13 +367,13 @@ class OrderController extends Controller {
 
 		$currentPage = LengthAwarePaginator::resolveCurrentPage();
 		$perPage = 10;
-		$currentItems = array_slice($product_array, $perPage * ($currentPage - 1), $perPage);
+		$currentItems = array_slice($products, $perPage * ($currentPage - 1), $perPage);
 
-		$product_array = new LengthAwarePaginator($currentItems, count($product_array), $perPage, $currentPage, [
+		$products = new LengthAwarePaginator($currentItems, count($products), $perPage, $currentPage, [
 			'path'	=> LengthAwarePaginator::resolveCurrentPath()
 		]);
 
-		return view('orders.products', compact('product_array','term', 'orderby'));
+		return view('orders.products', compact('products','term', 'orderby', 'brand', 'supplier'));
 	}
 
 	/**

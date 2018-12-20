@@ -23,8 +23,9 @@ class Product extends Model
 		'sku'
 	];
 	protected $dates = ['deleted_at'];
-	protected $appends = ['communication'];
+	protected $appends = ['communication', 'imageurl'];
 	protected $communication = '';
+	protected $image_url = '';
 
 	public function messages()
 	{
@@ -34,6 +35,11 @@ class Product extends Model
 	public function getCommunicationAttribute()
 	{
 		return $this->messages();
+	}
+
+	public function getImageurlAttribute()
+	{
+		return $this->getMedia(config('constants.media_tags'))->first() ? $this->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
 	}
 
 //	protected static $logName = 'Product';
@@ -63,6 +69,6 @@ class Product extends Model
 
 	public function purchases()
   {
-    return $this->belongsToMany('App\Product', 'purchase_products', 'product_id', 'purchase_id');
+    return $this->belongsToMany('App\Purchase', 'purchase_products', 'purchase_id', 'product_id');
   }
 }
