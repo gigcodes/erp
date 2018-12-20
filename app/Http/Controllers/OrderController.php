@@ -387,8 +387,8 @@ class OrderController extends Controller {
 		if ($sortby == 'status') {
 			if ($orderby == 'asc') {
 				$product_array = array_values(array_sort($product_array, function ($value) {
-					if ($value['purchase']) {
-						return $value['purchase']['status'];
+					if ($value['order']) {
+						return $value['order']['order_status'];
 					}
 
 					return '';
@@ -397,8 +397,8 @@ class OrderController extends Controller {
 				$product_array = array_reverse($product_array);
 			} else {
 				$product_array = array_values(array_sort($product_array, function ($value) {
-					if ($value['purchase']) {
-						return $value['purchase']['status'];
+					if ($value['order']) {
+						return $value['order']['order_status'];
 					}
 
 					return '';

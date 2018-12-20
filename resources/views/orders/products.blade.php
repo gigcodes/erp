@@ -57,7 +57,7 @@
             <td>{{ $product['order'] ? Carbon\Carbon::parse($product['order']['date_of_delivery'])->format('d-m-Y') : '' }}</td>
             <td>{{ $product['order'] ? Carbon\Carbon::parse($product['order']['estimated_delivery_date'])->format('d-m-Y') : '' }}</td>
             <td>
-              <a href="{{ $product['order'] ? route('order.show', $product['order']['id']) : '#' }}">{{ $product['purchase'] ? $product['purchase']['status'] : '' }}</a>
+              <a href="{{ $product['order'] ? route('order.show', $product['order_id']) : '#' }}">{{ $product['order'] ? $product['order']['order_status'] : '' }}</a>
             </td>
             <td>
               @if (isset($product['communication']['body']))
