@@ -674,6 +674,7 @@
                                             @can('order-create')
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                             @endcan
+                                            <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                         @endcan
 
                                         {{-- <a class="dropdown-item" href="{{ route('task.index') }}">Tasks</a> --}}
@@ -691,7 +692,6 @@
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                       <a class="dropdown-item" href="{{ route('purchase.index') }}">Purchases</a>
                                       <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
-                                      <a class="dropdown-item" href="{{ route('purchase.products') }}">Product List</a>
                                     </div>
                                 </li>
                             @endcan

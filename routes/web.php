@@ -63,6 +63,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('order','OrderController');
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
+	Route::get('order/products/list', 'OrderController@products')->name('order.products');
 
 	Route::post('order/status/store','OrderReportController@statusStore')->name('status.store');
 	Route::post('order/report/store','OrderReportController@store')->name('status.report.store');
@@ -123,7 +124,6 @@ Route::middleware('auth')->group(function (){
 	Route::delete('purchase/{id}/permanentDelete', 'PurchaseController@permanentDelete')->name('purchase.permanentDelete');
 	Route::get('purchaseGrid', 'PurchaseController@purchaseGrid')->name('purchase.grid');
 	Route::post('purchaseGrid', 'PurchaseController@store')->name('purchase.store');
-	Route::get('purchase/products/list', 'PurchaseController@products')->name('purchase.products');
 	Route::get('purchase/product/{id}', 'PurchaseController@productShow')->name('purchase.product.show');
 	Route::post('purchase/product/{id}', 'PurchaseController@updatePercentage')->name('purchase.product.percentage');
 

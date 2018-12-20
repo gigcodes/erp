@@ -15,6 +15,7 @@ use App\Reply;
 use App\CallRecording;
 use App\OrderStatus as OrderStatuses;
 use App\OrderReport;
+use App\Purchase;
 use Auth;
 use Cache;
 use Carbon\Carbon;
@@ -152,6 +153,282 @@ class OrderController extends Controller {
 		]);
 
 		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby' ) );
+	}
+
+	public function products(Request $request)
+	{
+		$term = $request->input('term');
+
+		if($request->input('orderby') == '')
+				$orderby = 'desc';
+		else
+				$orderby = 'asc';
+
+		switch ($request->input('sortby')) {
+			case 'supplier':
+					 $sortby = 'supplier';
+					break;
+			case 'customer':
+					 $sortby = 'client_name';
+					break;
+			case 'customer_price':
+					 $sortby = 'price';
+					break;
+			case 'date':
+					 $sortby = 'created_at';
+					break;
+			case 'delivery_date':
+					 $sortby = 'date_of_delivery';
+					break;
+			case 'updated_date':
+					 $sortby = 'estimated_delivery_date';
+					break;
+			case 'status':
+					 $sortby = 'status';
+					break;
+			case 'communication':
+					 $sortby = 'communication';
+					break;
+			default :
+					 $sortby = 'id';
+		}
+
+		$products = ((new OrderProduct())->newQuery());
+
+		// if ($sortby != 'communication') {
+		// 	$purchases = $purchases->orderBy( $sortby, $orderby );
+		// }
+
+		// if(empty($term))
+		// 	$purchases = $purchases->latest();
+		// else{
+		//
+		// 	$purchases = $purchases->latest()
+		// 	               ->orWhere('id','like','%'.$term.'%')
+		// 	               ->orWhere('purchase_handler',Helpers::getUserIdByName($term))
+		// 	               ->orWhere('supplier','like','%'.$term.'%')
+		//                  ->orWhere('status','like','%'.$term.'%');
+		// }
+
+
+
+		// $users  = Helpers::getUserArray( User::all() );
+
+		// $purchases_array = $products->get()->toArray();
+		$products = $products->get();
+		$product_array = [];
+		$count = 0;
+
+		foreach ($products as $index => $product) {
+			// $purchases_array[$index]['products'] = [];
+			// foreach ($purchase->products as $key => $product) {
+				$order = [];
+				$purchase = [];
+				// $customer_price = '';
+				$image = '';
+				$supplier = '';
+				$percentage = '';
+				$factor = '';
+				$price = '';
+				array_push($product_array, $product->toArray());
+
+				if ($product_image = Product::where('sku', $product_array[$count]['sku'])->first()) {
+					$image = $product_image->getMedia(config('constants.media_tags'))->first() ? $product_image->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+					$supplier = $product_image->supplier;
+					$percentage = $product_image->percentage;
+					$factor = $product_image->factor;
+					$price = $product_image->price;
+					$product_array[$count]['purchase'] = [];
+
+					if ($product_image->purchases->first()) {
+						// dd($product_image->purchases);
+						$purchase = $product_image->purchases->first()->toArray();
+					}
+				}
+				// $product_array[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+
+				if (Order::find($product->order_id)) {
+					$order = Order::find($product->order_id)->toArray();
+					// $customer_price = OrderProduct::where('sku', $product->sku)->first()->product_price;
+				}
+
+				$product_array[$count]['image'] = $image;
+				$product_array[$count]['supplier'] = $supplier;
+				$product_array[$count]['percentage'] = $percentage;
+				$product_array[$count]['factor'] = $factor;
+				$product_array[$count]['price'] = $price;
+				$product_array[$count]['order'] = $order;
+				$product_array[$count]['purchase'] = $purchase;
+				// $product_array[$count]['customer_price'] = $customer_price;
+
+				$count++;
+				// dd($product_array);
+			// }
+		}
+
+		// dd($product_array);
+
+		if ($sortby == 'supplier') {
+			if ($orderby == 'asc') {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+						return $value['supplier'];
+				}));
+
+				$product_array = array_reverse($product_array);
+			} else {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+						return $value['supplier'];
+				}));
+			}
+		}
+
+		if ($sortby == 'client_name') {
+			if ($orderby == 'asc') {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['order']) {
+						return $value['order']['client_name'];
+					}
+
+					return '';
+				}));
+
+				$product_array = array_reverse($product_array);
+			} else {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['order']) {
+						return $value['order']['client_name'];
+					}
+
+					return '';
+				}));
+			}
+		}
+
+		if ($sortby == 'price') {
+			if ($orderby == 'asc') {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+						return $value['price'];
+				}));
+
+				$product_array = array_reverse($product_array);
+			} else {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+						return $value['price'];
+				}));
+			}
+		}
+
+		if ($sortby == 'created_at') {
+			if ($orderby == 'asc') {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['purchase']) {
+						return $value['purchase']['created_at'];
+					}
+
+					return '1999-01-01 00:00:00';
+				}));
+
+				$product_array = array_reverse($product_array);
+			} else {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['purchase']) {
+						return $value['purchase']['created_at'];
+					}
+
+					return '1999-01-01 00:00:00';
+				}));
+			}
+		}
+
+		if ($sortby == 'date_of_delivery') {
+			if ($orderby == 'asc') {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['order']) {
+						return $value['order']['date_of_delivery'];
+					}
+
+					return '1999-01-01 00:00:00';
+				}));
+
+				$product_array = array_reverse($product_array);
+			} else {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['order']) {
+						return $value['order']['date_of_delivery'];
+					}
+
+					return '1999-01-01 00:00:00';
+				}));
+			}
+		}
+
+		if ($sortby == 'estimated_delivery_date') {
+			if ($orderby == 'asc') {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['order']) {
+						return $value['order']['estimated_delivery_date'];
+					}
+
+					return '1999-01-01 00:00:00';
+				}));
+
+				$product_array = array_reverse($product_array);
+			} else {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['order']) {
+						return $value['order']['estimated_delivery_date'];
+					}
+
+					return '1999-01-01 00:00:00';
+				}));
+			}
+		}
+
+		if ($sortby == 'status') {
+			if ($orderby == 'asc') {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['purchase']) {
+						return $value['purchase']['status'];
+					}
+
+					return '';
+				}));
+
+				$product_array = array_reverse($product_array);
+			} else {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+					if ($value['purchase']) {
+						return $value['purchase']['status'];
+					}
+
+					return '';
+				}));
+			}
+		}
+
+		if ($sortby == 'communication') {
+			if ($orderby == 'asc') {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+						return $value['communication']['created_at'];
+				}));
+
+				$product_array = array_reverse($product_array);
+			} else {
+				$product_array = array_values(array_sort($product_array, function ($value) {
+						return $value['communication']['created_at'];
+				}));
+			}
+		}
+
+		$currentPage = LengthAwarePaginator::resolveCurrentPage();
+		$perPage = 10;
+		$currentItems = array_slice($product_array, $perPage * ($currentPage - 1), $perPage);
+
+		$product_array = new LengthAwarePaginator($currentItems, count($product_array), $perPage, $currentPage, [
+			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+		]);
+
+		return view('orders.products', compact('product_array','term', 'orderby'));
 	}
 
 	/**
