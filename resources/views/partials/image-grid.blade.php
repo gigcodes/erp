@@ -83,6 +83,11 @@
                     </div> --}}
                 </form>
 
+                <form action="{{ route('search') }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
+                  <input type="hidden" name="quick_product" value="true">
+                  <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
+                </form>
+
 
             </div>
         </div>
@@ -196,6 +201,25 @@
           alert('Error searching for products');
         });
       });
+
+      $('#quickProducts').on('submit', function(e) {
+        e.preventDefault();
+
+        var url = "{{ route('search') }}";
+        var formData = $('#quickProducts').serialize();
+
+        $.ajax({
+          url: url,
+          data: formData
+        }).done(function(data) {
+          $('#productGrid').html(data.html);
+          console.log(data);
+        }).fail(function() {
+          alert('Error searching for products');
+        });
+      });
+
+
 
 
             // $('#product-search').on('keyup', function() {

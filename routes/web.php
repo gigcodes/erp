@@ -115,6 +115,11 @@ Route::middleware('auth')->group(function (){
 	Route::get('attachImages/{model_type}/{model_id}/{status}/{assigned_user}','ProductController@attachImages')->name('attachImages');
 	Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
+	Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
+	Route::post('quickSell', 'QuickSellController@store')->name('quicksell.store');
+	Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
+
+
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
 	Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');
 	Route::get('purchase/{id}/edit', 'PurchaseController@edit')->name('purchase.edit');

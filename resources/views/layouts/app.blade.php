@@ -545,10 +545,20 @@
                                           <a class="dropdown-item" href="{{ route('productinventory.instock') }}">In stock</a>
                                       </ul>
                                   </li>
+                                  <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+                                  </li>
                                 </ul>
                               </li>
                             @else
-
+                              <li class="nav-item dropdown">
+                                  <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                      Product<span class="caret"></span>
+                                  </a>
+                                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                      <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+                                  </div>
+                              </li>
                               @can('inventory-list')
                                   <li class="nav-item dropdown">
                                       <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>

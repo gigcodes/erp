@@ -89,27 +89,6 @@ class SearchController extends Controller {
 		}
 
 		if ($request->price != null) {
-			// switch ($request->price) {
-			// 	case 1:
-			// 		$min = 0;
-			// 		$max = 10000;
-			// 		break;
-			// 	case 2:
-			// 		$min = 10000;
-			// 		$max = 30000;
-			// 		break;
-			// 	case 3:
-			// 		$min = 30000;
-			// 		$max = 50000;
-			// 		break;
-			// 	case 4:
-			// 		$min = 50000;
-			// 		$max = 100000;
-			// 		break;
-			// 	default:
-			// 		$min = 0;
-			// 		$max = 100000000;
-			// }
 			$exploded = explode(',', $request->price);
 			$min = $exploded[0];
 			$max = $exploded[1];
@@ -134,6 +113,11 @@ class SearchController extends Controller {
 			}
 
 			$data['supplier'] = $request->supplier;
+		}
+
+		if ($request->quick_product === 'true') {
+				$productQuery = ( new Product() )->newQuery()
+				                                 ->latest()->where('quick_product', 1);
 		}
 
 		if (trim($term) != '') {
@@ -174,7 +158,7 @@ class SearchController extends Controller {
 				$productQuery = $productQuery->whereNull( 'dnf' );
 			}
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == null && $request->price[0] == null) {
+			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == null && $request->price[0] == null && $request->quick_product !== 'true') {
 				$productQuery = ( new Product() )->newQuery()
 				                                 ->latest()
 				                                 ->orWhere( 'sku', 'LIKE', "%$term%" )
