@@ -239,10 +239,13 @@
 
                     <div class="col-xs-12">
                       <div class="col-xs-12 col-sm-12 col-md-12">
+                          <div class="text-center">
+                            <h3>Product Details</h3>
+                          </div>
                           <div class="form-group">
-                              <strong> Products Attacted:</strong>
                               <table class="table table-bordered" id="products-table">
                                   <tr>
+                                      <th>Image</th>
                                       <th>Name</th>
                                       <th>Sku</th>
                                       <th>Color</th>
@@ -255,15 +258,17 @@
                                   @foreach($order_products  as $order_product)
                                       <tr>
                                           @if(isset($order_product['product']))
-                                              <th>{{ $order_product['product']['name'] }}</th>
-                                              <th>{{ $order_product['product']['sku'] }}</th>
-                                              <th>{{ $order_product['product']['color'] }}</th>
-                                              <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</th>
+                                            <th><img width="200" src="{{ $order_product['product']['image'] }}" /></th>
+                                            <th>{{ $order_product['product']['name'] }}</th>
+                                            <th>{{ $order_product['product']['sku'] }}</th>
+                                            <th>{{ $order_product['product']['color'] }}</th>
+                                            <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</th>
                                           @else
-                                              <th></th>
-                                              <th>{{$order_product['sku']}}</th>
-                                              <th></th>
-                                              <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th>{{$order_product['sku']}}</th>
+                                            <th></th>
+                                            <th></th>
                                           @endif
 
                                           <th>
@@ -443,7 +448,7 @@
               </div>
 
               <div class="row">
-                <div class="col-md-6 col-12">
+                <div class="col-md-6 col-12 mb-3">
                   <form action="{{ route('status.report.store') }}" method="POST">
                     @csrf
 
@@ -509,7 +514,7 @@
               </div>
 
 
-                <div class="form-group">
+                {{-- <div class="form-group">
                     <div class="text-center">
                         <h3> Products Details:</h3>
                     </div>
@@ -556,7 +561,7 @@
                             </tr>
                         @endforeach
                     </table>
-                </div>
+                </div> --}}
 
                 {{-- <div class="row">
                     <div class="col-md-6 col-12"> --}}
