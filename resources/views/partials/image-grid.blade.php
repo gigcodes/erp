@@ -110,7 +110,7 @@
           @csrf
 
           <input type="hidden" name="images" id="images" value="">
-          <input type="hidden" name="body" value="Images attached to grid">
+          <input type="hidden" name="body" value="Images attached from grid">
           <input type="hidden" name="moduleid" value="{{ $model_id }}">
           <input type="hidden" name="moduletype" value="{{ $model_type }}">
           <input type="hidden" name="assigned_user" value="{{ $assigned_user }}" />

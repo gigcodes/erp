@@ -302,13 +302,33 @@ class WhatsAppController extends FindByNumberController
 	     $result[] = array_merge($params, $messageParams);
 	   }
 
-     $messages = Message::where('moduleid','=', $id)->where('moduletype','=', $model_type)->orderBy("created_at", 'desc')->get()->toArray();
-     foreach ($messages as $message) {
+     $messages = Message::where('moduleid','=', $id)->where('moduletype','=', $model_type)->orderBy("created_at", 'desc')->get();
+     foreach ($messages->toArray() as $key => $message) {
+       $images_array = [];
+       if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
+         foreach ($images as $image) {
+           $temp_image = [
+             'key'          => $image->getKey(),
+             'image'        => $image->getUrl(),
+             'product_id'   => ''
+           ];
+
+           $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
+                               $q->where('media.id', $image->getKey());
+                             })->first();
+           if ($product_image) {
+             $temp_image['product_id'] = $product_image->id;
+           }
+
+           array_push($images_array, $temp_image);
+         }
+       }
+
+       $message['images'] = $images_array;
        array_push($result, $message);
      }
 
      $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
-     // dd($result);
      $currentPage = LengthAwarePaginator::resolveCurrentPage();
      $perPage = 10;
 

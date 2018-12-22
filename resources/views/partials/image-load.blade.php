@@ -31,10 +31,7 @@
         <p>Size : {{ $product->size}}</p>
         <p>Price : {{ $product->price_special }}</p>
       </a>
-      <a href="#" class="btn btn-secondary attach-photo" data-image="{{ $product->getMedia(config('constants.media_tags'))->first()
-        ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
-        : ''
-      }}" data-attached="0">Attach</a>
+      <a href="#" class="btn btn-secondary attach-photo" data-image="{{ $product->id }}" data-attached="0">Attach</a>
     </div>
   @endforeach
 </div>

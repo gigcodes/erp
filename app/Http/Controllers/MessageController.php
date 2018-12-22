@@ -7,8 +7,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Message;
 use App\Leads;
 use App\Order;
+use App\Product;
 use App\PushNotification;
 use App\NotificationQueue;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class MessageController extends Controller
 {
@@ -50,37 +53,53 @@ class MessageController extends Controller
               'status' => 'required',
             ]);
 
-            if ($request->images) {
-              $msgtxt = $request->body . '<br>';
+            // if ($request->images) {
+            //   $msgtxt = $request->body . '<br>';
+            //
+            //   foreach (json_decode($request->images) as $image) {
+            //     $msgtxt .= '<div class="thumbnail-wrapper"><img src="'.$image.'" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' . $image . '">x</span></div>';
+            //   }
+            //
+            //   $data = $request->except( '_token', 'body');
+            //   $data['body'] = $msgtxt;
+            // } else {
+            //   $data = $request->except( '_token');
+            // }
 
-              foreach (json_decode($request->images) as $image) {
-                $msgtxt .= '<div class="thumbnail-wrapper"><img src="'.$image.'" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' . $image . '">x</span></div>';
-              }
-
-              $data = $request->except( '_token', 'body');
-              $data['body'] = $msgtxt;
-            } else {
-              $data = $request->except( '_token');
-            }
-
+            $data = $request->except( '_token');
             $id = $request->get('moduleid');
             $moduletype = $request->get('moduletype');
-            if (isset($_FILES["image"]) && $_FILES["image"]["size"] > 10) {
+            // if (isset($_FILES["image"]) && $_FILES["image"]["size"] > 10) {
+            //
+            //        $target_dir = "uploads/";
+            //        $target_file = $target_dir . basename($_FILES["image"]["name"]);
+            //         move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
+            //         $msgtxt = $request->get('body');
+            //         $msgtxt .= '<br><div class="thumbnail-wrapper"><img src="/'.$target_file.'" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="/' . $target_file . '">x</span></div>';
+            //
+            //         $data['body'] = $msgtxt;
+            //  }
 
-                   $target_dir = "uploads/";
-                   $target_file = $target_dir . basename($_FILES["image"]["name"]);
-                    move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
-                    $msgtxt = $request->get('body');
-                    $msgtxt .= '<br><div class="thumbnail-wrapper"><img src="/'.$target_file.'" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="/' . $target_file . '">x</span></div>';
 
-                    $data['body'] = $msgtxt;
-             }
 
             $data['userid'] = Auth::id();
             if ($data['status'] == '4')
               $data['assigned_to'] = $data['assigned_user'];
 
             $message = Message::create($data);
+
+            if ($request->hasFile('image')) {
+              $media = MediaUploader::fromSource($request->file('image'))->upload();
+              $message->attachMedia($media,config('constants.media_tags'));
+            }
+
+            if ($request->images) {
+              foreach (json_decode($request->images) as $product_id) {
+                $product = Product::find($product_id);
+                $media = $product->getMedia(config('constants.media_tags'))->first();
+                $message->attachMedia($media,config('constants.media_tags'));
+              }
+            }
 
             if( $data['status'] == '1' ) {
 
@@ -427,5 +446,14 @@ class MessageController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function removeImage(Request $request, $id)
+    {
+      $message = Message::find($id);
+
+      $message->detachMedia($request->image_id, config('constants.media_tags'));
+
+      return response('');
     }
 }

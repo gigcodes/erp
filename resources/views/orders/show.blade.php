@@ -1293,15 +1293,15 @@
           $(this).addClass('expanded');
           $(this).html(message);
           $(this).data('expanded', true);
-          $(this).siblings('.thumbnail-wrapper').remove();
-          $(this).parent().find('.message-img').removeClass('thumbnail-200');
-          $(this).parent().find('.message-img').parent().css('width', 'auto');
+          // $(this).siblings('.thumbnail-wrapper').remove();
+          $(this).closest('.talktext').find('.message-img').removeClass('thumbnail-200');
+          $(this).closest('.talktext').find('.message-img').parent().css('width', 'auto');
         } else {
           $(this).removeClass('expanded');
           $(this).html(short_message);
           $(this).data('expanded', false);
-          $(this).parent().find('.message-img').addClass('thumbnail-200');
-          $(this).parent().find('.message-img').parent().css('width', '200px');
+          $(this).closest('.talktext').find('.message-img').addClass('thumbnail-200');
+          $(this).closest('.talktext').find('.message-img').parent().css('width', '200px');
         }
 
       });
@@ -1415,34 +1415,24 @@
           });
       });
 
-      $(document).on('click', '.thumbnail-delete', function() {
+      $(document).on('click', '.thumbnail-delete', function(event) {
+        event.preventDefault();
         var thiss = $(this);
-        var image = $(this).data('image');
+        var image_id = $(this).data('image');
         var message_id = $(this).closest('.talk-bubble').find('.collapsible-message').data('messageid');
-        var message = $(this).closest('.talk-bubble').find('.collapsible-message').data('message');
         var token = "{{ csrf_token() }}";
-        var url = "{{ url('message') }}/" + message_id;
-
-        var image_container = '<div class="thumbnail-wrapper"><img src="' + image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image + '">x</span></div>';
-        var new_message = message.replace(image_container, '');
-
-        if (new_message.indexOf('message-img') != -1) {
-          var short_new_message = new_message.substr(0, new_message.indexOf('<div class="thumbnail-wrapper">')).length > 150 ? (new_message.substr(0, 147)) : new_message;
-        } else {
-          var short_new_message = new_message.length > 150 ? new_message.substr(0, 147) + '...' : new_message;
-        }
+        var url = "{{ url('message') }}/" + message_id + '/removeImage';
 
         $.ajax({
           type: 'POST',
           url: url,
           data: {
             _token: token,
-            body: new_message
+            image_id: image_id,
+            message_id: message_id
           },
           success: function(data) {
             $(thiss).parent().remove();
-            $('#message_body_' + message_id).children('.collapsible-message').data('messageshort', short_new_message);
-            $('#message_body_' + message_id).children('.collapsible-message').data('message', new_message);
           }
         });
       });
@@ -1510,6 +1500,14 @@
             var long_message = message.body;
           }
 
+          var images = '';
+          if (message.images !== null) {
+            message.images.forEach(function (image) {
+              images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image.key + '">x</span></div>';
+            });
+            images += '<br>';
+          }
+
           p.attr("data-messageshort", short_message);
           p.attr("data-message", long_message);
           p.attr("data-expanded", "false");
@@ -1526,6 +1524,7 @@
             row.attr("id", domId);
 
             p.appendTo(text);
+            $(images).appendTo(text);
             meta.appendTo(text);
 
             if (message.status == 0) {
@@ -1551,6 +1550,7 @@
             row.attr("id", domId);
 
             p.appendTo(text);
+            $(images).appendTo(text);
             meta.appendTo(text);
 
             text.appendTo(row);
@@ -1584,6 +1584,7 @@
             p.appendTo(body);
             body.appendTo(text);
             edit_field.appendTo(text);
+            $(images).appendTo(text);
             meta_content.appendTo(text);
 
             if (message.status == 2 && is_admin == false) {

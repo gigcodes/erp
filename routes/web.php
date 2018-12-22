@@ -26,6 +26,7 @@ Route::get('/productsearcher/list','ProductSearcherController@sList')->name('pro
 	Route::get('/message', 'MessageController@index')->name('message');
 	Route::post('/message', 'MessageController@store')->name('message.store');
 	Route::post('/message/{message}', 'MessageController@update')->name('message.update');
+	Route::post('/message/{id}/removeImage', 'MessageController@removeImage')->name('message.removeImage');
 	Route::get('/chat/getnew', 'ChatController@checkfornew')->name('checkfornew');
 	Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew');
 	//Route::resource('/chat','ChatController@getmessages');
