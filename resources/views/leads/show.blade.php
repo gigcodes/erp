@@ -1683,21 +1683,40 @@
   $(document).on('click', '.change_message_status', function(e) {
     e.preventDefault();
     var url = $(this).data('url');
+    var token = "{{ csrf_token() }}";
     var thiss = $(this);
 
     if ($(this).hasClass('wa_send_message')) {
       var message_id = $(this).data('messageid');
       var message = $('#message_body_' + message_id).find('p').data('message').trim();
 
-      $('#waNewMessage').val(message);
-      $('#waMessageSend').click();
-    }
       $.ajax({
-        url: url,
-        type: 'GET',
+        url: "{{ url('whatsapp/updateAndCreate') }}",
+        type: 'POST',
+        data: {
+          _token: token,
+          model_type: "leads",
+          message_id: message_id
+        },
         beforeSend: function() {
           $(thiss).text('Loading');
         }
+      }).done( function(response) {
+        // $(thiss).remove();
+        console.log(response);
+      }).fail(function(errObj) {
+        console.log(errObj);
+        alert("Could not create whatsapp message");
+      });
+      // $('#waNewMessage').val(message);
+      // $('#waMessageSend').click();
+    }
+      $.ajax({
+        url: url,
+        type: 'GET'
+        // beforeSend: function() {
+        //   $(thiss).text('Loading');
+        // }
       }).done( function(response) {
         $(thiss).remove();
       }).fail(function(errObj) {
