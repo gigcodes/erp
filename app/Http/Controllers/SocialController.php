@@ -14,10 +14,12 @@ class SocialController extends Controller
 	public function __construct(Facebook $fb)
 	{
 		$this->fb=$fb;
-		$this->user_access_token="EAADs6RGquU8BADWE6sHMvt8zsZBR6aR9dtehGDr0Tye0EXEZBlAmFWOuYnnlwLPkjZBFEyOFKNdXE93VfHZAh4qVSxLTd86wUK0XS41ovRAEj3EjKW8rNIK0eYUORHRnY7ZBm9nJPGQjBscUXduc9GdzQMM6DVB7NroPQ3kuWxAZDZD";
-		$this->page_access_token="EAAD7Te0j0B8BAI7T10bD2WX5jslOZBxPDsmaTO5zMd5sO9mjX567pIbqy5ZBPPWe7t7qYzOBzy9ZA6rAigCAaAXj3nYDj6N7xZAsJpoy8PZCkBoRZCy0ZCiki58DmZBhuElt75lJ3LSZAvcolnT6Vazy3OZC0Wd4LVrZA4KRuvpueb0MQRJjUBMTodyB0ofo5VcFcAZD";
+		$this->user_access_token="EAAD7Te0j0B8BALlNg4kgCX0d4n4EDjK36IlIfAs1rDmEyw9QyVkyoVWWb76QGdZBno3udtap2TZA7XWBmXuZAZBGOJJKBPky5VoQccoUOewqWB8mVwr0ZC6nyHsmZAQyYZCrKPQStP41mtWioDfmBEfndwtuK8ZCcjSwbEpUNyRNhqPSw3UZACZCAOHTfzWKXittUZD";
+
+
+		$this->page_access_token="EAAD7Te0j0B8BALZAk0kYeVovJtMZCuGYFGpbAfsF8bwYCgR7EUh71mng1Qozat4Gykq1ZCZCT3Uov2p8HzqAVjcfueBeB5mmx1fNvGjp2oo8NqUY93avDxpeCX2xYCwkoZBIxAKX2wbEVnTkSnDZCbCEUCIf7Q8TvQXuqWMAu2ELSk2ab2NQjbkjhkRp7Dm6sZD";
 		$this->page_id="507935072915757";
-		$this->ad_acc_id="act_37340834";
+		$this->ad_acc_id="act_128125721296439";
 
 		
 		
@@ -290,7 +292,7 @@ class SocialController extends Controller
 
 
 
-		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=insights.level(ad).metrics(ctr){cost_per_unique_click,spend,impressions,frequency,reach,unique_clicks,clicks,ctr,ad_name,adset_name,cpc,cpm,cpp,campaign_name,ad_id,adset_id,account_id,account_name}&access_token=".$this->user_access_token."";
+		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{adcreatives{id,name,thumbnail_url},insights.level(ad).metrics(ctr){cost_per_unique_click,spend,impressions,frequency,reach,unique_clicks,clicks,ctr,ad_name,adset_name,cpc,cpm,cpp,campaign_name,ad_id,adset_id,account_id,account_name}}&access_token=".$this->user_access_token."";
 
 
 			// Call to Graph api here

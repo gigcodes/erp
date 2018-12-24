@@ -18,7 +18,7 @@
 	@endif
 
 	
-
+	
 	<div class="container-fluid mt-3">
 		<div class="row">
 			
@@ -31,7 +31,8 @@
 								<th>#</th>
 								<th>ACC ID</th>
 								<th>ACC Name</th>
-								<th>Ad ID</th>
+								<th>Adcreative Name</th>
+								<th>Thumbnail</th>
 								<th>Ad Name</th>
 								<th>Campaign</th>
 								<th>Adset ID</th>
@@ -56,31 +57,33 @@
 							@php $i=1; @endphp
 							@foreach($resp->data as $data)
 							
-							@if(isset($data->insights->data) && !empty($data->insights->data))
+							@if(isset($data->ads->data) && !empty($data->ads->data))
 							
-							@foreach($data->insights->data as $insight)
+							@foreach($data->ads->data as $ads)
 							<tr>
 								<td>{{$i++}}</td>
-								<td>{{(isset($insight->account_id))?$insight->account_id:''}}</td>
-								<td>{{(isset($insight->account_name))?$insight->account_name:''}}</td>
-								<td>{{(isset($insight->ad_id))?$insight->ad_id:''}}</td>
-								<td>{{(isset($insight->ad_name))?$insight->ad_name:''}}</td>
-								<td>{{(isset($insight->campaign_name))?$insight->campaign_name:''}}</td>
-								<td>{{(isset($insight->adset_id))?$insight->adset_id:''}}</td>
-								<td>{{(isset($insight->adset_name))?$insight->adset_name:''}}</td>
-								<td>{{(isset($insight->cpp))?$insight->cpp:''}}</td>
-								<td>{{(isset($insight->cpm))?$insight->cpm:''}}</td>
-								<td>{{(isset($insight->cpc))?$insight->cpc:''}}</td>
-								<td>{{(isset($insight->ctr))?$insight->ctr:''}}</td>
-								<td>{{(isset($insight->clicks))?$insight->clicks:''}}</td>
-								<td>{{(isset($insight->unique_clicks))?$insight->unique_clicks:''}}</td>
-								<td>{{(isset($insight->spend))?$insight->spend:''}}</td>
-								<td>{{(isset($insight->reach))?$insight->reach:''}}</td>
-								<td>{{(isset($insight->impressions))?$insight->impressions:''}}</td>
-								<td>{{(isset($insight->frequency))?$insight->frequency:''}}</td>
-								<td>{{(isset($insight->cost_per_unique_click))?$insight->cost_per_unique_click:''}}</td>
-								<td>{{(isset($insight->date_stop))?$insight->date_stop:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->account_id))?$ads->insights->data[0]->account_id:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->account_name))?$ads->insights->data[0]->account_name:''}}</td>
 								
+								<td>{{(isset($ads->adcreatives->data[0]->name))?$ads->adcreatives->data[0]->name:''}}</td>
+								<td><img src="{{(isset($ads->adcreatives->data[0]->thumbnail_url))?$ads->adcreatives->data[0]->thumbnail_url:''}}" alt="not-found"></td>
+								
+								<td>{{(isset($ads->insights->data[0]->ad_name))?$ads->insights->data[0]->ad_name:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->campaign_name))?$ads->insights->data[0]->campaign_name:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->adset_id))?$ads->insights->data[0]->adset_id:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->adset_name))?$ads->insights->data[0]->adset_name:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->cpp))?$ads->insights->data[0]->cpp:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->cpm))?$ads->insights->data[0]->cpm:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->cpc))?$ads->insights->data[0]->cpc:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->ctr))?$ads->insights->data[0]->ctr:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->clicks))?$ads->insights->data[0]->clicks:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->unique_clicks))?$ads->insights->data[0]->unique_clicks:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->spend))?$ads->insights->data[0]->spend:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->reach))?$ads->insights->data[0]->reach:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->impressions))?$ads->insights->data[0]->impressions:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->frequency))?$ads->insights->data[0]->frequency:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->cost_per_unique_click))?$ads->insights->data[0]->cost_per_unique_click:''}}</td>
+								<td>{{(isset($ads->insights->data[0]->date_stop))?$ads->insights->data[0]->date_stop:''}}</td>
 							</tr>
 							@endforeach
 							@endif
