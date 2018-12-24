@@ -218,6 +218,14 @@ Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus
 
 	// end to ad reports routes
 
+	// AdCreative reports routes
+
+Route::get('social/adcreative/report','SocialController@adCreativereport')->name('social.adCreative.report');
+Route::post('social/adcreative/report/paginate','SocialController@adCreativepaginateReport')->name('social.adCreative.paginate');
+
+
+	// end to ad reports routes
+
 
 // Creating Ad Campaign Routes defines here
 

@@ -789,6 +789,7 @@
                                     </a>
                                     <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
                                     </a>
+                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports 
                                     <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
                                     </a>
                                     <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset
