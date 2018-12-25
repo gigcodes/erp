@@ -4,8 +4,8 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Quick Replies List</h2>
             <div class="pull-left">
-                <h2>Quick Replies List</h2>
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('reply.create') }}">+</a>
@@ -19,7 +19,8 @@
         </div>
     @endif
 
-    <table class="table table-bordered">
+    <div class="table-responsive">
+        <table class="table table-bordered">
         <tr>
             <th>ID</th>
             <th>Name</th>
@@ -40,6 +41,7 @@
             </tr>
         @endforeach
     </table>
+    </div>
 
     {!! $replies->links() !!}
 

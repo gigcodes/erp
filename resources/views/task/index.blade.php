@@ -4,8 +4,8 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Task</h2>
             <div class="pull-left">
-                <h2>Task</h2>
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('task.create') }}">+</a>
@@ -19,7 +19,8 @@
         </div>
     @endif
 
-    <table class="table table-bordered" style="margin-top: 25px">
+    <div class="table-responsive">
+        <table class="table table-bordered" style="margin-top: 25px">
         <tr>
             <th>ID</th>
             <th>Task Name</th>
@@ -44,6 +45,7 @@
             </tr>
         @endforeach
     </table>
+    </div>
 
     {!! $task->links() !!}
 

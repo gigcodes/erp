@@ -12,7 +12,7 @@
 
     <div class="row">
         <div class="col-lg-12 text-center">
-            <h2> Task & Activity</h2>
+            <h2 class="page-heading">Task & Activity</h2>
         </div>
     </div>
     @if ($message = Session::get('success'))
@@ -55,39 +55,42 @@
                     </form>
                 </div>
                 <div class="col-md-7 col-12">
-                    <h4>Export Task</h4>
-                    <form action="{{ route('task.export') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <strong>User</strong>
-                                    <?php
-                                    echo Form::select( 'selected_user', $users, '' , [
-                                        'class'       => 'form-control',
-                                        'multiple' => 'multiple',
-                                        'id' => 'userList',
-                                        'name' => 'selected_user[]',
-                                    ] );?>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <strong>Date Range</strong>
-                                    <input type="text" value="" name="range_start" hidden/>
-                                    <input type="text" value="" name="range_end" hidden/>
-                                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                        <i class="fa fa-calendar"></i>&nbsp;
-                                        <span></span> <i class="fa fa-caret-down"></i>
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><h4>Export Task</h4></div>
+                        <div class="panel-body">
+                            <form action="{{ route('task.export') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <strong>User</strong>
+                                            <?php
+                                            echo Form::select( 'selected_user', $users, '' , [
+                                                'class'       => 'form-control',
+                                                'multiple' => 'multiple',
+                                                'id' => 'userList',
+                                                'name' => 'selected_user[]',
+                                            ] );?>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <strong>Date Range</strong>
+                                            <input type="text" value="" name="range_start" hidden/>
+                                            <input type="text" value="" name="range_end" hidden/>
+                                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                                <i class="fa fa-calendar"></i>&nbsp;
+                                                <span></span> <i class="fa fa-caret-down"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 mt-4">
+                                        <button type="submit" class="btn btn-secondary">Submit</button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-4 mt-4">
-                                <strong>&nbsp;&nbsp;</strong>
-                                <button type="submit" class="btn btn-secondary">Submit</button>
-                            </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             @endcan
         </div>
@@ -100,114 +103,123 @@
             $isAdmin = false;
         ?>
             <div class="row">
-                <div class="col-sm-6 col-6">
-                    <h4>Assign Task</h4>
-                    <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group">
-                            <strong>Task Subject:</strong>
-                             <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" />
-                             @if ($errors->has('task_subject'))
-                                 <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
-                             @endif
-                        </div>
-                        <div class="form-group">
-                            <strong>Task Details:</strong>
-                             <textarea class="form-control" name="task_details" placeholder="Task Details"></textarea>
-                             @if ($errors->has('task_details'))
-                                 <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
-                             @endif
-                        </div>
-                        <div class="form-group">
-                          <strong>Completion Date:</strong>
-                          <div class='input-group date' id='completion-datetime'>
-                            <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+                <div class="col-sm-5 col-12">
 
-                            <span class="input-group-addon">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><h4>Assign Task</h4></div>
+                        <div class="panel-body">
+                            <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="form-group">
+                                <strong>Task Subject:</strong>
+                                <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" />
+                                @if ($errors->has('task_subject'))
+                                    <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
+                                @endif
+                            </div>
+                            <div class="form-group">
+                                <strong>Task Details:</strong>
+                                <textarea class="form-control" name="task_details" placeholder="Task Details"></textarea>
+                                @if ($errors->has('task_details'))
+                                    <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
+                                @endif
+                            </div>
+                            <div class="form-group">
+                                <strong>Completion Date:</strong>
+                                <div class='input-group date' id='completion-datetime'>
+                                    <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                                    <span class="input-group-addon">
                               <span class="glyphicon glyphicon-calendar"></span>
                             </span>
-                          </div>
+                                </div>
 
-                          @if ($errors->has('completion_date'))
-                              <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-                          @endif
-                        </div>
-                        {{-- <div id="completion_date" class="form-group">
-                            <strong>Completion Date:</strong>
-                            <input type='text' class="form-control" name="completion_date" id="completion-datetime" />
-                            {{-- <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span> --}}
+                                @if ($errors->has('completion_date'))
+                                    <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                                @endif
+                            </div>
+                            {{-- <div id="completion_date" class="form-group">
+                                <strong>Completion Date:</strong>
+                                <input type='text' class="form-control" name="completion_date" id="completion-datetime" />
+                                {{-- <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span> --}}
                             {{-- <input type="datetime-local" name="completion_date" class="form-control" placeholder="Completion Date" value="{{ date('Y-m-d\TH:i') }}" id="completion-datetime">
                             @if ($errors->has('completion_date'))
                                 <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
                             @endif
                         </div> --}}
 
-                        <div class="form-group">
-                            <select name="is_statutory" class="form-control is_statutory">
-                                <option value="0">Other Task </option>
-                                <option value="1">Statutory Task </option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <strong>Assigned To:</strong>
-                            <select name="assign_to[]" class="form-control" multiple>
-
-                                @foreach($data['users'] as $user)
-                                    <option value="{{$user['id']}}">{{$user['name']}}</option>
-                                @endforeach
-                            </select>
-
-                            @if ($errors->has('assign_to'))
-                                <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
-                            @endif
-                        </div>
-
-                        <div id="recurring-task" style="display: none;">
                             <div class="form-group">
-                                <strong>Recurring Type:</strong>
-                                <select name="recurring_type" class="form-control">
-                                    <option value="EveryDay">EveryDay</option>
-                                    <option value="EveryWeek">EveryWeek</option>
-                                    <option value="EveryMonth">EveryMonth</option>
-                                    <option value="EveryYear">EveryYear</option>
+                                <select name="is_statutory" class="form-control is_statutory">
+                                    <option value="0">Other Task </option>
+                                    <option value="1">Statutory Task </option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <strong>Recurring Day:</strong>
-                                <div id="recurring_day"></div>
+                                <strong>Assigned To:</strong>
+                                <select name="assign_to[]" class="form-control" multiple>
+
+                                    @foreach($data['users'] as $user)
+                                        <option value="{{$user['id']}}">{{$user['name']}}</option>
+                                    @endforeach
+                                </select>
+
+                                @if ($errors->has('assign_to'))
+                                    <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                                @endif
                             </div>
+
+                            <div id="recurring-task" style="display: none;">
+                                <div class="form-group">
+                                    <strong>Recurring Type:</strong>
+                                    <select name="recurring_type" class="form-control">
+                                        <option value="EveryDay">EveryDay</option>
+                                        <option value="EveryWeek">EveryWeek</option>
+                                        <option value="EveryMonth">EveryMonth</option>
+                                        <option value="EveryYear">EveryYear</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <strong>Recurring Day:</strong>
+                                    <div id="recurring_day"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <strong>Category:</strong>
+                                <?php
+                                $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
+
+                                echo Form::select('category',$categories, ( old('category') ? old('category') : $category ), ['placeholder' => 'Select a category','class' => 'form-control']);
+
+                                ?>
+                            </div>
+
+                            <div class="col-sm-12 text-center">
+                                <button type="submit" class="btn btn-secondary">Submit</button>
+                            </div>
+
+                        </form>
                         </div>
-
-                        <div class="form-group">
-                            <strong>Category:</strong>
-		                    <?php
-		                    $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
-
-		                    echo Form::select('category',$categories, ( old('category') ? old('category') : $category ), ['placeholder' => 'Select a category','class' => 'form-control']);
-
-		                    ?>
-                        </div>
-
-                     <div class="col-sm-12 text-center">
-                        <button type="submit" class="btn btn-secondary">Submit</button>
                     </div>
 
-                    </form>
                 </div>
-                <div class="col-sm-6 col-6">
-                    <h4>Daily Activity</h4>
+                <div class="col-sm-7 col-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><h4>Daily Activity</h4></div>
+                        <div class="panel-body">
+                            <div class="mt-2 mb-2 text-right">
+                                @if(!$isAdmin)
+                                    <button id="add-row" class="btn btn-secondary">Add Row</button>
+                                @endif
+                                <button id="save-activity" class="btn btn-secondary">Save</button>
+                                <img id="loading_activty" style="display: none" src="{{ asset('images/loading.gif') }}"/>
+                            </div>
 
-                    <div class="mt-2 mb-2">
-                        @if(!$isAdmin)
-                            <button id="add-row" class="btn btn-secondary">Add Row</button>
-                        @endif
-                        <button id="save-activity" class="btn btn-secondary">Save</button>
-                        <img id="loading_activty" style="display: none" src="{{ asset('images/loading.gif') }}"/>
+                            <div id="daily_activity"></div>
+                        </div>
                     </div>
-
-                    <div id="daily_activity"></div>
                 </div>
             </div>
             <!-- <div class="row">
@@ -262,7 +274,7 @@
             </div> -->
 
             <br/><br/>
-            <div id="exTab2" class="container">
+            <div id="exTab2" class="container" style="overflow: auto">
                <ul class="nav nav-tabs">
                   <li class="active">
                      <a  href="#1" data-toggle="tab">Pending Task</a>

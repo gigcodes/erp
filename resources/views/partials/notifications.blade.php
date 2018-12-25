@@ -5,6 +5,13 @@
     </a>
     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
+
+        <li class="nav-item" style="display: block">
+            <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
+        </li>
+        <li>
+            <hr>
+        </li>
         @foreach($notifications as $notification)
 
             <li class="dropdown-item {{ $notification->isread ? 'isread' : '' }}">
@@ -49,487 +56,506 @@
 
     'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+    var _createClass = function () {
+        function defineProperties(target, props) {
+            for (var i = 0; i < props.length; i++) {
+                var descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;
+                descriptor.configurable = true;
+                if ("value" in descriptor) descriptor.writable = true;
+                Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+        return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);
+            if (staticProps) defineProperties(Constructor, staticProps);
+            return Constructor;
+        };
+    }();
 
-// Queue class
-
-var Queue = function () {
-    // Array is used to implement a Queue
-    function Queue() {
-        _classCallCheck(this, Queue);
-
-        this.items = [];
-        this.isFirst = true;
-        this.count = 0;
-        this.taskcount = 0;
-        this.ordercount = 0;
-        this.leadcount = 0;
-        this.messagecount = 0;
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
     }
-    // Functions to be implemented
-    // enqueue function
 
+    // Queue class
 
-    _createClass(Queue, [{
-        key: 'enqueue',
-        value: function enqueue(element) {
+    var Queue = function () {
+        // Array is used to implement a Queue
+        function Queue() {
+            _classCallCheck(this, Queue);
 
-            // adding element to the queue
-            var i = void 0;
-            var itemsLength = this.items.length;
-
-            for (i = 0; i < this.items.length; i++) {
-
-                if (this.items[i].id === element.id) {
-                    break;
-                }
-
-                if (this.items[i].message === element.message) {
-                  this.items.splice(i, 1);
-                }
-            }
-
-            if (i === itemsLength) {
-                element['isShown'] = false;
-                this.items.push(element);
-            }
-
-            /*if(this.isFirst){
-                toast(this.front());
-                this.isFirst = false;
-                this.count++;
-            }*/
-
-            this.notificationCount();
+            this.items = [];
+            this.isFirst = true;
+            this.count = 0;
+            this.taskcount = 0;
+            this.ordercount = 0;
+            this.leadcount = 0;
+            this.messagecount = 0;
         }
 
-        // dequeue function
+        // Functions to be implemented
+        // enqueue function
 
-    }, {
-        key: 'dequeue',
-        value: function dequeue() {
-            // removing element from the queue
-            // returns underflow when called
-            // on empty queue
-            if (this.isEmpty()) return false;
-            // return "Underflow";
-            var result = this.items.shift();
 
-            this.notificationCount();
-            return result;
-        }
-    }, {
-        key: 'dequeueWithId',
-        value: function dequeueWithId(notificationId) {
+        _createClass(Queue, [{
+            key: 'enqueue',
+            value: function enqueue(element) {
 
-            if (this.isEmpty()) return false;
+                // adding element to the queue
+                var i = void 0;
+                var itemsLength = this.items.length;
 
-            for (var i = 0; i < this.items.length; i++) {
+                for (i = 0; i < this.items.length; i++) {
 
-                if (this.items[i].id === notificationId) {
+                    if (this.items[i].id === element.id) {
+                        break;
+                    }
 
-                    var item = this.items.splice(i, 1);
-                    this.count--;
-
-                    switch (item[0].model_type) {
-                        case 'App\\Sale':
-                            this.ordercount--;
-
-                            break;
-                        case 'App\\Task':
-                            this.taskcount--;
-
-                            break;
-                        case 'App\\SatutoryTask':
-                            this.taskcount--;
-
-                            break;
-                        case 'App\\Http\\Controllers\\Task':
-                            this.taskcount--;
-
-                            break;
-                        case 'User':
-                            this.taskcount--;
-
-                            break;
-                        case 'App\\Order':
-                            this.ordercount--;
-
-                            break;
-                        case 'App\\Leads':
-                            this.leadcount--;
-
-                            break;
-                        case 'order':
-                            this.ordercount--;
-
-                            break;
-                        case 'leads':
-                            this.leadcount--;
-
-                            break;
+                    if (this.items[i].message === element.message) {
+                        this.items.splice(i, 1);
                     }
                 }
+
+                if (i === itemsLength) {
+                    element['isShown'] = false;
+                    this.items.push(element);
+                }
+
+                /*if(this.isFirst){
+                 toast(this.front());
+                 this.isFirst = false;
+                 this.count++;
+                 }*/
+
+                this.notificationCount();
             }
 
-            this.notificationCount();
-        }
+            // dequeue function
 
-        // front function
+        }, {
+            key: 'dequeue',
+            value: function dequeue() {
+                // removing element from the queue
+                // returns underflow when called
+                // on empty queue
+                if (this.isEmpty()) return false;
+                // return "Underflow";
+                var result = this.items.shift();
 
-    }, {
-        key: 'front',
-        value: function front() {
-            // returns the Front element of
-            // the queue without removing it.
-            if (this.isEmpty()) return false;
-            // return "No elements in Queue";
-            return this.items[0];
-        }
-
-        // isEmpty function
-
-    }, {
-        key: 'isEmpty',
-        value: function isEmpty() {
-            // return true if the queue is empty.
-            return this.items.length === 0;
-        }
-    }, {
-        key: 'getQueue',
-        value: function getQueue() {
-            return this.items;
-        }
-    }, {
-        key: 'notificationCount',
-        value: function notificationCount() {
-            if ($('#notification_count').length === 0) {
-                $('.notifications-container').prepend('<div id="notification_count"></div>');
+                this.notificationCount();
+                return result;
             }
+        }, {
+            key: 'dequeueWithId',
+            value: function dequeueWithId(notificationId) {
 
-            $('#notification_count').html(this.items.length);
-        }
-    }, {
-        key: 'showNotification',
-        value: function showNotification() {
-            for (var i = 0; i < this.items.length; i++) {
+                if (this.isEmpty()) return false;
 
-                if (this.count === notificationShowCount) break;
+                for (var i = 0; i < this.items.length; i++) {
 
-                if (!this.items[i]['isShown']) {
-                    if (this.items[i].model_type == 'App\\Sale' || this.items[i].model_type == 'App\\Order' || this.items[i].model_type == 'order') {
-                        if (this.ordercount !== 5) {
-                            this.items[i]['isShown'] = true;
-                            toast(this.items[i]);
-                            this.ordercount++;
+                    if (this.items[i].id === notificationId) {
+
+                        var item = this.items.splice(i, 1);
+                        this.count--;
+
+                        switch (item[0].model_type) {
+                            case 'App\\Sale':
+                                this.ordercount--;
+
+                                break;
+                            case 'App\\Task':
+                                this.taskcount--;
+
+                                break;
+                            case 'App\\SatutoryTask':
+                                this.taskcount--;
+
+                                break;
+                            case 'App\\Http\\Controllers\\Task':
+                                this.taskcount--;
+
+                                break;
+                            case 'User':
+                                this.taskcount--;
+
+                                break;
+                            case 'App\\Order':
+                                this.ordercount--;
+
+                                break;
+                            case 'App\\Leads':
+                                this.leadcount--;
+
+                                break;
+                            case 'order':
+                                this.ordercount--;
+
+                                break;
+                            case 'leads':
+                                this.leadcount--;
+
+                                break;
                         }
                     }
+                }
 
-                    if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task') {
-                        if (this.taskcount !== 5) {
-                            this.items[i]['isShown'] = true;
-                            toast(this.items[i]);
-                            this.taskcount++;
+                this.notificationCount();
+            }
+
+            // front function
+
+        }, {
+            key: 'front',
+            value: function front() {
+                // returns the Front element of
+                // the queue without removing it.
+                if (this.isEmpty()) return false;
+                // return "No elements in Queue";
+                return this.items[0];
+            }
+
+            // isEmpty function
+
+        }, {
+            key: 'isEmpty',
+            value: function isEmpty() {
+                // return true if the queue is empty.
+                return this.items.length === 0;
+            }
+        }, {
+            key: 'getQueue',
+            value: function getQueue() {
+                return this.items;
+            }
+        }, {
+            key: 'notificationCount',
+            value: function notificationCount() {
+                if ($('#notification_count').length === 0) {
+                    $('.notifications-container').prepend('<div id="notification_count"></div>');
+                }
+
+                $('#notification_count').html(this.items.length);
+            }
+        }, {
+            key: 'showNotification',
+            value: function showNotification() {
+                for (var i = 0; i < this.items.length; i++) {
+
+                    if (this.count === notificationShowCount) break;
+
+                    if (!this.items[i]['isShown']) {
+                        if (this.items[i].model_type == 'App\\Sale' || this.items[i].model_type == 'App\\Order' || this.items[i].model_type == 'order') {
+                            if (this.ordercount !== 5) {
+                                this.items[i]['isShown'] = true;
+                                toast(this.items[i]);
+                                this.ordercount++;
+                            }
                         }
-                    }
 
-                    if (this.items[i].model_type == 'App\\Leads' || this.items[i].model_type == 'leads') {
-                        if (this.leadcount !== 5) {
-                            this.items[i]['isShown'] = true;
-                            toast(this.items[i]);
-                            this.leadcount++;
+                        if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task') {
+                            if (this.taskcount !== 5) {
+                                this.items[i]['isShown'] = true;
+                                toast(this.items[i]);
+                                this.taskcount++;
+                            }
                         }
-                    }
 
-                    this.count++;
+                        if (this.items[i].model_type == 'App\\Leads' || this.items[i].model_type == 'leads') {
+                            if (this.leadcount !== 5) {
+                                this.items[i]['isShown'] = true;
+                                toast(this.items[i]);
+                                this.leadcount++;
+                            }
+                        }
+
+                        this.count++;
+                    }
                 }
             }
-        }
-    }, {
-        key: 'postPoneNotification',
-        value: function postPoneNotification(notificationId) {
-            if (this.isEmpty()) return false;
+        }, {
+            key: 'postPoneNotification',
+            value: function postPoneNotification(notificationId) {
+                if (this.isEmpty()) return false;
 
-            for (var i = 0; i < this.items.length; i++) {
+                for (var i = 0; i < this.items.length; i++) {
 
-                if (this.items[i].id === notificationId) {
+                    if (this.items[i].id === notificationId) {
 
-                    var item = this.items.splice(i, 1);
-                    this.count--;
+                        var item = this.items.splice(i, 1);
+                        this.count--;
 
-                    switch (item[0].model_type) {
-                        case 'App\\Sale':
-                            this.ordercount--;
+                        switch (item[0].model_type) {
+                            case 'App\\Sale':
+                                this.ordercount--;
 
-                            break;
-                        case 'App\\Task':
-                            this.taskcount--;
+                                break;
+                            case 'App\\Task':
+                                this.taskcount--;
 
-                            break;
-                        case 'App\\SatutoryTask':
-                            this.taskcount--;
+                                break;
+                            case 'App\\SatutoryTask':
+                                this.taskcount--;
 
-                            break;
-                        case 'App\\Http\\Controllers\\Task':
-                            this.taskcount--;
+                                break;
+                            case 'App\\Http\\Controllers\\Task':
+                                this.taskcount--;
 
-                            break;
-                        case 'User':
-                            this.taskcount--;
+                                break;
+                            case 'User':
+                                this.taskcount--;
 
-                            break;
-                        case 'App\\Order':
-                            this.ordercount--;
+                                break;
+                            case 'App\\Order':
+                                this.ordercount--;
 
-                            break;
-                        case 'App\\Leads':
-                            this.leadcount--;
+                                break;
+                            case 'App\\Leads':
+                                this.leadcount--;
 
-                            break;
-                        case 'order':
-                            this.ordercount--;
+                                break;
+                            case 'order':
+                                this.ordercount--;
 
-                            break;
-                        case 'leads':
-                            this.leadcount--;
+                                break;
+                            case 'leads':
+                                this.leadcount--;
 
-                            break;
+                                break;
+                        }
+
+                        this.enqueue(item[0]);
+                        break;
                     }
-
-                    this.enqueue(item[0]);
-                    break;
                 }
+                this.notificationCount();
+                this.showNotification();
             }
-            this.notificationCount();
-            this.showNotification();
+        }]);
+
+        return Queue;
+    }();
+
+    // $(document).on('click','.toast-info',function () {
+    //    $('.toast-info').toggleClass('toast-stack');
+    //    $('#toast-container').toggleClass('toast-container-stacked');
+    // });
+
+    $(document).on('click touchstart', '.notification', function (e) {
+        if ($(e.target).hasClass('notification-link') != true) {
+            $('.stack-container').not($(this).parent()).addClass('stacked');
+            $(this).parent().toggleClass('stacked');
         }
-    }]);
-
-    return Queue;
-}();
-
-// $(document).on('click','.toast-info',function () {
-//    $('.toast-info').toggleClass('toast-stack');
-//    $('#toast-container').toggleClass('toast-container-stacked');
-// });
-
-$(document).on('click touchstart', '.notification', function (e) {
-  if ($(e.target).hasClass('notification-link') != true) {
-    $('.stack-container').not($(this).parent()).addClass('stacked');
-    $(this).parent().toggleClass('stacked');
-  }
 
 
-
-    // $(this).parent().toggleClass('notification-height');
-    // $('#toast-container').toggleClass('toast-container-stacked');
-});
-
-var notificationQueue = new Queue();
-
-function getNotificaitons() {
-
-    jQuery.ajax({
-        type: 'GET',
-        url: '{{ Route('pushNotifications') }}',
-        dataType: 'json',
-        success: function success(data) {
-
-            data.forEach(function (notification) {
-                notificationQueue.enqueue(notification);
-            });
-
-            notificationQueue.showNotification();
-            notificationQueue.notificationCount();
-        },
-        complete: function complete(data) {
-            return setTimeout(getNotificaitons, interval);
-        } // Schedule the next
+        // $(this).parent().toggleClass('notification-height');
+        // $('#toast-container').toggleClass('toast-container-stacked');
     });
-}
 
-//Instantly get notifications on page load.
-getNotificaitons();
+    var notificationQueue = new Queue();
 
-function toast(notification) {
-    var link = void 0,
-        message = void 0,
-        img_position = void 0,
-        message_without_img = void 0,
-        notification_html = void 0,
-        close_button = void 0;
+    function getNotificaitons() {
 
-    if (notification.type === 'button' && is_admin == false) {
-        close_button = '';
-    } else {
-        close_button = '<button type="button" class="notification-close" role="button" data-id="' + notification.id + '">x</button>';
+        jQuery.ajax({
+            type: 'GET',
+            url: '{{ Route('pushNotifications') }}',
+            dataType: 'json',
+            success: function success(data) {
+
+                data.forEach(function (notification) {
+                    notificationQueue.enqueue(notification);
+                });
+
+                notificationQueue.showNotification();
+                notificationQueue.notificationCount();
+            },
+            complete: function complete(data) {
+                return setTimeout(getNotificaitons, interval);
+            } // Schedule the next
+        });
     }
 
-    switch (notification.model_type) {
-        case 'App\\Sale':
+    //Instantly get notifications on page load.
+    getNotificaitons();
 
-            link = '/sales/' + notification.model_id + '/edit';
-            message = '<h4>ID : ' + notification.model_id + ' New Sale</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+    function toast(notification) {
+        var link = void 0,
+            message = void 0,
+            img_position = void 0,
+            message_without_img = void 0,
+            notification_html = void 0,
+            close_button = void 0;
 
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#orders-notification').append(notification_html);
-            $('#orders-notification').css({ 'display': 'block' });
+        if (notification.type === 'button' && is_admin == false) {
+            close_button = '';
+        } else {
+            close_button = '<button type="button" class="notification-close" role="button" data-id="' + notification.id + '">x</button>';
+        }
 
-            break;
+        switch (notification.model_type) {
+            case 'App\\Sale':
 
-        case 'App\\Task':
-            link = '/task#task_' + notification.model_id;
-            message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+                link = '/sales/' + notification.model_id + '/edit';
+                message = '<h4>ID : ' + notification.model_id + ' New Sale</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#tasks-notification').append(notification_html);
-            $('#tasks-notification').css({ 'display': 'block' });
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#orders-notification').append(notification_html);
+                $('#orders-notification').css({'display': 'block'});
 
-            break;
+                break;
 
-        case 'App\\SatutoryTask':
-            link = '/task#task_' + notification.model_id;
-            message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+            case 'App\\Task':
+                link = '/task#task_' + notification.model_id;
+                message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#tasks-notification').append(notification_html);
-            $('#tasks-notification').css({ 'display': 'block' });
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#tasks-notification').append(notification_html);
+                $('#tasks-notification').css({'display': 'block'});
 
-            break;
+                break;
 
-        case 'App\\Http\\Controllers\\Task':
-            link = '/task#task_' + notification.model_id;
-            message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+            case 'App\\SatutoryTask':
+                link = '/task#task_' + notification.model_id;
+                message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#tasks-notification').append(notification_html);
-            $('#tasks-notification').css({ 'display': 'block' });
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#tasks-notification').append(notification_html);
+                $('#tasks-notification').css({'display': 'block'});
 
-            break;
+                break;
 
-        case 'User':
-            link = '/#task_' + notification.model_id;
-            message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            case 'App\\Http\\Controllers\\Task':
+                link = '/task#task_' + notification.model_id;
+                message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#tasks-notification').append(notification_html);
-            $('#tasks-notification').css({ 'display': 'block' });
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#tasks-notification').append(notification_html);
+                $('#tasks-notification').css({'display': 'block'});
 
-            break;
+                break;
 
-        case 'App\\Leads':
+            case 'User':
+                link = '/#task_' + notification.model_id;
+                message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
-            link = '/leads/' + notification.model_id;
-            message = '<h4>NL - ' + (notification.message.length > 25 ? notification.message.substring(0, 25 - 3) + '...' : notification.message) + '</h4><a class="notification-link" href="' + link + '">By ' + allUsers[notification.user_id] + ' - ' + moment(notification.created_at).format('H:m') + '</a>' + getStatusButtons(notification);
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#leads-notification').append(notification_html);
-            $('#leads-notification').css({ 'display': 'block' });
-            break;
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#tasks-notification').append(notification_html);
+                $('#tasks-notification').css({'display': 'block'});
 
-        case 'App\\Order':
+                break;
 
-            link = '/order/' + notification.model_id + '/edit';
-            message = '<h4>NO - ' + (notification.message.length > 25 ? notification.message.substring(0, 25 - 3) + '...' : notification.message) + '</h4><a class="notification-link" href="' + link + '">By ' + allUsers[notification.user_id] + ' - ' + moment(notification.created_at).format('H:m') + '</a>' + getStatusButtons(notification);
+            case 'App\\Leads':
 
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#orders-notification').append(notification_html);
-            $('#orders-notification').css({ 'display': 'block' });
+                link = '/leads/' + notification.model_id;
+                message = '<h4>NL - ' + (notification.message.length > 25 ? notification.message.substring(0, 25 - 3) + '...' : notification.message) + '</h4><a class="notification-link" href="' + link + '">By ' + allUsers[notification.user_id] + ' - ' + moment(notification.created_at).format('H:m') + '</a>' + getStatusButtons(notification);
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#leads-notification').append(notification_html);
+                $('#leads-notification').css({'display': 'block'});
+                break;
 
-            break;
+            case 'App\\Order':
 
-        case 'order':
-            img_position = notification.message.indexOf("<img");
-            message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
-            link = '/order/' + notification.model_id;
-            message = '<h4>NMO - ' + (notification.client_name.length > 20 ? notification.client_name.substring(0, 20 - 3) + '...' : notification.client_name) + '</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (message_without_img.length > 30 ? message_without_img.substring(0, 30 - 3) + '...' : message_without_img) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+                link = '/order/' + notification.model_id + '/edit';
+                message = '<h4>NO - ' + (notification.message.length > 25 ? notification.message.substring(0, 25 - 3) + '...' : notification.message) + '</h4><a class="notification-link" href="' + link + '">By ' + allUsers[notification.user_id] + ' - ' + moment(notification.created_at).format('H:m') + '</a>' + getStatusButtons(notification);
 
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#orders-notification').append(notification_html);
-            $('#orders-notification').css({ 'display': 'block' });
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#orders-notification').append(notification_html);
+                $('#orders-notification').css({'display': 'block'});
 
-            break;
+                break;
 
-        case 'leads':
-            img_position = notification.message.indexOf("<img");
-            message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
-            link = '/leads/' + notification.model_id;
-            message = '<h4>NML - ' + (notification.client_name.length > 20 ? notification.client_name.substring(0, 20 - 3) + '...' : notification.client_name) + '</h4>\n                            <a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+            case 'order':
+                img_position = notification.message.indexOf("<img");
+                message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
+                link = '/order/' + notification.model_id;
+                message = '<h4>NMO - ' + (notification.client_name.length > 20 ? notification.client_name.substring(0, 20 - 3) + '...' : notification.client_name) + '</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (message_without_img.length > 30 ? message_without_img.substring(0, 30 - 3) + '...' : message_without_img) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
 
-            notification_html = '<div class="notification">' + close_button + message + '</div>';
-            $('#leads-notification').append(notification_html);
-            $('#leads-notification').css({ 'display': 'block' });
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#orders-notification').append(notification_html);
+                $('#orders-notification').css({'display': 'block'});
 
-            break;
+                break;
 
-        default:
-            return;
+            case 'leads':
+                img_position = notification.message.indexOf("<img");
+                message_without_img = img_position != -1 ? notification.message.substring(0, img_position) : notification.message;
+                link = '/leads/' + notification.model_id;
+                message = '<h4>NML - ' + (notification.client_name.length > 20 ? notification.client_name.substring(0, 20 - 3) + '...' : notification.client_name) + '</h4>\n                            <a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#leads-notification').append(notification_html);
+                $('#leads-notification').css({'display': 'block'});
+
+                break;
+
+            default:
+                return;
+        }
+
+        // toastr.options = {
+        //     // "closeButton": ((notification.type === 'button') && (is_admin == false)) || (notification.reminder == 1) ? false : true,
+        //     "closeButton": ((notification.type === 'button') && (is_admin == false))? false : true,
+        //     "debug": false,
+        //     "newestOnTop": true,
+        //     "progressBar": false,
+        //     "positionClass": "toast-top-right",
+        //     "preventDuplicates": false,
+        //     "showDuration": "500",
+        //     "hideDuration": "400",
+        //     "timeOut": 0,
+        //     "extendedTimeOut": 0,
+        //     "showEasing": "swing",
+        //     "hideEasing": "linear",
+        //     "showMethod": "fadeIn",
+        //     "hideMethod": "fadeOut",
+        //     "tapToDismiss" : false,
+        // };
+        //
+        // toastr.options.onCloseClick = () => markNotificationRead(notification.id);
+        // toastr.options.onHidden = () => nextNotification(notification.id);
+        // // toastr.options.onHidden = () => markNotificationRead(notification.id);
+        // // toastr.options.onclick = () => { return false; };
+        //
+        // toastr['info'](message);
     }
 
-    // toastr.options = {
-    //     // "closeButton": ((notification.type === 'button') && (is_admin == false)) || (notification.reminder == 1) ? false : true,
-    //     "closeButton": ((notification.type === 'button') && (is_admin == false))? false : true,
-    //     "debug": false,
-    //     "newestOnTop": true,
-    //     "progressBar": false,
-    //     "positionClass": "toast-top-right",
-    //     "preventDuplicates": false,
-    //     "showDuration": "500",
-    //     "hideDuration": "400",
-    //     "timeOut": 0,
-    //     "extendedTimeOut": 0,
-    //     "showEasing": "swing",
-    //     "hideEasing": "linear",
-    //     "showMethod": "fadeIn",
-    //     "hideMethod": "fadeOut",
-    //     "tapToDismiss" : false,
-    // };
-    //
-    // toastr.options.onCloseClick = () => markNotificationRead(notification.id);
-    // toastr.options.onHidden = () => nextNotification(notification.id);
-    // // toastr.options.onHidden = () => markNotificationRead(notification.id);
-    // // toastr.options.onclick = () => { return false; };
-    //
-    // toastr['info'](message);
-}
+    function markNotificationRead(id) {
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: 'POST',
+            url: '/pushNotificationMarkRead/' + id
+        });
+    }
 
-function markNotificationRead(id) {
-    jQuery.ajax({
-        headers: {
-            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-        },
-        type: 'POST',
-        url: '/pushNotificationMarkRead/' + id
+    function nextNotification(id) {
+        notificationQueue.dequeueWithId(parseInt(id));
+        notificationQueue.showNotification();
+    }
+
+    function getStatusButtons(notificaiton) {
+
+        if (notificaiton.type !== 'button') return '';
+
+        return '<div class="row notification-row">\n                   <div data-id="' + notificaiton.id + '" class="btn-group btn-group-justified">\n                        <button value="1" class="n-status btn btn-notification text-success">Accept</button>\n                        <button value="2" class="n-status btn btn-notification">Postpone</button>\n                        <button value="3" class="n-status btn btn-notification text-danger">Decline</button>\n                    </div>\n                </div>';
+    }
+
+    $(document).on('click touchstart', '#notification_count', function () {
+        $('.notifications-container').toggleClass('notifications-hide');
     });
-}
 
-function nextNotification(id) {
-    notificationQueue.dequeueWithId(parseInt(id));
-    notificationQueue.showNotification();
-}
+    $(document).on('click touchstart', '.notification-close', function (e) {
+        e.stopPropagation();
+        var notification_id = $(this).data('id');
 
-function getStatusButtons(notificaiton) {
+        markNotificationRead(notification_id);
+        nextNotification(notification_id);
 
-    if (notificaiton.type !== 'button') return '';
-
-    return '<div class="row notification-row">\n                   <div data-id="' + notificaiton.id + '" class="btn-group btn-group-justified">\n                        <button value="1" class="n-status btn btn-notification text-success">Accept</button>\n                        <button value="2" class="n-status btn btn-notification">Postpone</button>\n                        <button value="3" class="n-status btn btn-notification text-danger">Decline</button>\n                    </div>\n                </div>';
-}
-
-$(document).on('click touchstart', '#notification_count', function () {
-    $('.notifications-container').toggleClass('notifications-hide');
-});
-
-$(document).on('click touchstart', '.notification-close', function (e) {
-    e.stopPropagation();
-    var notification_id = $(this).data('id');
-
-    markNotificationRead(notification_id);
-    nextNotification(notification_id);
-
-    $(this).parent().fadeOut(400);
-});
-
+        $(this).parent().fadeOut(400);
+    });
 
 
 </script>

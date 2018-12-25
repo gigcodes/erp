@@ -4,8 +4,8 @@
 @section('content')
 <div class="row">
   <div class="col-lg-12 margin-tb">
+    <h2 class="page-heading">Products</h2>
     <div class="pull-left">
-      <h2>Products</h2>
 
       <form action="/products/" method="GET">
         <div class="form-group">
@@ -35,8 +35,8 @@
 </div>
 @endif
 
-
-<table class="table table-bordered">
+<div class="table-responsive">
+  <table class="table table-bordered">
   <tr>
     <th>No</th>
     <th>Sku</th>
@@ -61,6 +61,7 @@
   </tr>
   @endforeach
 </table>
+</div>
 
 
 {!! $products->appends(Request::except('page'))->links() !!}

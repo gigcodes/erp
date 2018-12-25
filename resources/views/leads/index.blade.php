@@ -1,61 +1,61 @@
 @extends('layouts.app')
 
-
+@section("styles")
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+@endsection
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h2>Leads</h2>
+            <h2 class="page-heading">Leads</h2>
+            <div class="row">
+                <div class="col-md-10 col-sm-12">
 
                 <form action="/leads/" method="GET" class="form-inline align-items-start" id="searchForm">
-                  {{-- <div class="row"> --}}
-                    {{-- <div class="col-md-6"> --}}
-                      <div class="form-group mr-3">
-                          {{-- <div class="row"> --}}
-                              {{-- <div class="col-md-8 pr-0"> --}}
-                              <input type="hidden" name="type" value="{{ $type ? 'multiple' : '' }}">
-                                  <input name="term" type="text" class="form-control"
-                                         value="{{ isset($term) ? $term : '' }}"
-                                         placeholder="Search">
-                              {{-- </div>
-                              <div class="col-md-4 pl-0"> --}}
-                              {{-- </div> --}}
-                          {{-- </div> --}}
-                      </div>
-                    {{-- </div> --}}
-
-                    {{-- <div class="col-md-2"> --}}
-                      {{-- <strong>Brands</strong> --}}
-                      <div class="form-group mr-3">
-                        @php $brands = \App\Brand::getAll(); @endphp
-                        {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
-                      </div>
-                    {{-- </div> --}}
-
-                    {{-- <div class="col-md-2"> --}}
-                      {{-- <strong>Rating</strong> --}}
-                      <div class="form-group">
-                        <select name="rating[]" class="form-control" multiple>
-                          <option value>Select Rating</option>
-                          <option value="1" {{ isset($rating) && in_array(1, $rating) ? 'selected' : '' }}>1</option>
-                          <option value="2" {{ isset($rating) && in_array(2, $rating) ? 'selected' : '' }}>2</option>
-                          <option value="3" {{ isset($rating) && in_array(3, $rating) ? 'selected' : '' }}>3</option>
-                          <option value="4" {{ isset($rating) && in_array(4, $rating) ? 'selected' : '' }}>4</option>
-                          <option value="5" {{ isset($rating) && in_array(5, $rating) ? 'selected' : '' }}>5</option>
-                          <option value="6" {{ isset($rating) && in_array(6, $rating) ? 'selected' : '' }}>6</option>
-                          <option value="7" {{ isset($rating) && in_array(7, $rating) ? 'selected' : '' }}>7</option>
-                          <option value="8" {{ isset($rating) && in_array(8, $rating) ? 'selected' : '' }}>8</option>
-                          <option value="9" {{ isset($rating) && in_array(9, $rating) ? 'selected' : '' }}>9</option>
-                          <option value="10" {{ isset($rating) && in_array(10, $rating) ? 'selected' : '' }}>10</option>
-                        </select>
-                      </div>
-                      <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
-                    {{-- </div> --}}
-                  {{-- </div> --}}
+                    <div class="row full-width" style="width: 100%;">
+                        <div class="col-md-3 col-sm-12">
+                            <div class="form-group mr-3">
+                                {{-- <div class="row"> --}}
+                                {{-- <div class="col-md-8 pr-0"> --}}
+                                <input type="hidden" name="type" value="{{ $type ? 'multiple' : '' }}">
+                                <input name="term" type="text" class="form-control"
+                                       value="{{ isset($term) ? $term : '' }}"
+                                       placeholder="Search">
+                                {{-- </div>
+                                <div class="col-md-4 pl-0"> --}}
+                                {{-- </div> --}}
+                                {{-- </div> --}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <div class="form-group mr-3">
+                                @php $brands = \App\Brand::getAll(); @endphp
+                                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                          <div class="form-group">
+                            <select name="rating[]" class="form-control select-multiple" multiple>
+                              <option value>Select Rating</option>
+                              <option value="1" {{ isset($rating) && in_array(1, $rating) ? 'selected' : '' }}>1</option>
+                              <option value="2" {{ isset($rating) && in_array(2, $rating) ? 'selected' : '' }}>2</option>
+                              <option value="3" {{ isset($rating) && in_array(3, $rating) ? 'selected' : '' }}>3</option>
+                              <option value="4" {{ isset($rating) && in_array(4, $rating) ? 'selected' : '' }}>4</option>
+                              <option value="5" {{ isset($rating) && in_array(5, $rating) ? 'selected' : '' }}>5</option>
+                              <option value="6" {{ isset($rating) && in_array(6, $rating) ? 'selected' : '' }}>6</option>
+                              <option value="7" {{ isset($rating) && in_array(7, $rating) ? 'selected' : '' }}>7</option>
+                              <option value="8" {{ isset($rating) && in_array(8, $rating) ? 'selected' : '' }}>8</option>
+                              <option value="9" {{ isset($rating) && in_array(9, $rating) ? 'selected' : '' }}>9</option>
+                              <option value="10" {{ isset($rating) && in_array(10, $rating) ? 'selected' : '' }}>10</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
+                    </div>
                 </form>
             </div>
-            <div class="pull-right">
+                <div class="col-md-2 col-sm-12 text-right">
                 <a class="btn btn-secondary" href="{{ route('leads.create') }}">+</a>
+            </div>
             </div>
         </div>
     </div>
@@ -113,6 +113,7 @@
 
     {{--{!! $leads->links() !!}--}}
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">
       $(document).on('click', '.change_message_status', function(e) {
         e.preventDefault();
@@ -204,6 +205,11 @@
           $('#leads-array').val(JSON.stringify(attached_leads));
           $('#messageForm')[0].submit();
         }
+      });
+
+      $(document).ready(function() {
+
+         $(".select-multiple").multiselect();
       });
     </script>
 

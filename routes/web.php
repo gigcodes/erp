@@ -53,7 +53,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('category','CategoryController');
 	Route::resource('benchmark','BenchmarkController');
 
-	// addding lead routes
+	// adding lead routes
 	Route::get('leads/imageGrid', 'LeadsController@imageGrid')->name('leads.image.grid');
 	Route::resource('leads','LeadsController');
 	Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
@@ -61,10 +61,12 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('chat','ChatController');
 //	Route::resource('task','TaskController');
 
-	Route::resource('order','OrderController');
+
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
 	Route::get('order/products/list', 'OrderController@products')->name('order.products');
+	Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
+    Route::resource('order','OrderController');
 
 	Route::post('order/status/store','OrderReportController@statusStore')->name('status.store');
 	Route::post('order/report/store','OrderReportController@store')->name('status.report.store');
@@ -172,6 +174,8 @@ Route::middleware('auth')->group(function (){
 	Route::post('images/grid/{id}/edit', 'ImageController@update')->name('image.grid.update');
 	Route::delete('images/grid/{id}/delete', 'ImageController@destroy')->name('image.grid.delete');
 	Route::post('images/grid/{id}/approveImage', 'ImageController@approveImage')->name('image.grid.approveImage');
+
+    Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
 
 });
 
