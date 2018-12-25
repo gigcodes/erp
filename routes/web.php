@@ -120,6 +120,13 @@ Route::middleware('auth')->group(function (){
 	Route::post('quickSell', 'QuickSellController@store')->name('quicksell.store');
 	Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
 
+	// Customers
+	Route::get('customers', 'CustomerController@index')->name('customer.index');
+	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
+	Route::post('customer/create', 'CustomerController@store')->name('customer.store');
+	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
+	Route::delete('customer/{id}/destroy', 'CustomerController@destroy')->name('customer.destroy');
+
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
 	Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');

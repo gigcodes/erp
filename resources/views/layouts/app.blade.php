@@ -453,6 +453,10 @@
                                 <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
                             </li>
 
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('customer.index') }}">Customers</a>
+                            </li>
+
 
                             <li class="nav-item dropdown" data-count="
                              {{ \App\Http\Controllers\NotificaitonContoller::salesCount() }}">
@@ -789,7 +793,7 @@
                                     </a>
                                     <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
                                     </a>
-                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports 
+                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports
                                     <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
                                     </a>
                                     <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset
