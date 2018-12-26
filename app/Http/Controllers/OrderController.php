@@ -19,6 +19,7 @@ use App\Purchase;
 use App\Customer;
 use Auth;
 use Cache;
+use Validator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -455,6 +456,15 @@ class OrderController extends Controller {
 		} else {
 			$customer = new Customer;
 			$customer->name = $data['client_name'];
+
+			$validator = Validator::make($data, [
+				'contact_detail' => 'unique:customers,phone'
+			]);
+
+			if ($validator->fails()) {
+				return back()->with('phone_error', 'The phone already exists')->withInput();
+			}
+
 			$customer->phone = $data['contact_detail'];
 			$customer->save();
 

@@ -59,6 +59,9 @@
                     @if ($errors->has('contactno'))
                         <div class="alert alert-danger">{{$errors->first('contactno')}}</div>
                     @endif
+										@if ($message = Session::get('phone_error'))
+                        <div class="alert alert-danger">{{$message}}</div>
+                    @endif
                 </div>
             </div>
 

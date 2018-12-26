@@ -95,6 +95,9 @@
                     @if ($errors->has('contact_detail'))
                         <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
                     @endif
+                    @if ($message = Session::get('phone_error'))
+                        <div class="alert alert-danger">{{$message}}</div>
+                    @endif
                 </div>
             </div>
 

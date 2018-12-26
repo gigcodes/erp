@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Helpers;
+use Validator;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -241,6 +242,14 @@ class LeadsController extends Controller
         } else {
           $customer = new Customer;
           $customer->name = $data['client_name'];
+
+          $validator = Validator::make($data, [
+            'contactno' => 'unique:customers,phone'
+          ]);
+
+          if ($validator->fails()) {
+            return back()->with('phone_error', 'The phone already exists')->withInput();
+          }
           $customer->phone = $data['contactno'];
 
           if ($data['source'] == 'instagram') {
