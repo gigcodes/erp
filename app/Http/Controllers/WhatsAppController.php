@@ -341,7 +341,9 @@ class WhatsAppController extends FindByNumberController
            $temp_image = [
              'key'          => $image->getKey(),
              'image'        => $image->getUrl(),
-             'product_id'   => ''
+             'product_id'   => '',
+             'special_price'=> '',
+             'size'         => ''
            ];
 
            $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
@@ -349,6 +351,13 @@ class WhatsAppController extends FindByNumberController
                              })->first();
            if ($product_image) {
              $temp_image['product_id'] = $product_image->id;
+             $temp_image['special_price'] = $product_image->price_special;
+
+             if ($product_image->size != NULL) {
+               $temp_image['size'] = $product_image->size;
+             } else {
+               $temp_image['size'] = $product_image->lmeasurment . ', ' . $product_image->hmeasurment . ', ' . $product_image->dmeasurment;
+             }
            }
 
            array_push($images_array, $temp_image);
