@@ -1791,7 +1791,190 @@
             //
             // $('#loading_activty').hide();
         });
-        });
+
+      } else {
+        $(this).closest('form')[0].reportValidity();
+      }
+
+    });
+
+    $(document).on('click', '#load-more-messages', function() {
+      var current_page = $(this).data('nextpage');
+      $(this).data('nextpage', current_page + 1);
+      var next_page = $(this).data('nextpage');
+      $('#load-more-messages').text('Loading...');
+      pollMessages(next_page, true);
+      $('#load-more-messages').text('Load More');
+    });
+	});
+
+
+
+  $('#addTaskButton').on('click', function () {
+    var client_name = "{{ $leads->client_name }} ";
+
+    $('#task_subject').val(client_name);
+  });
+
+  $('#change_status').on('change', function() {
+    var token = "{{ csrf_token() }}";
+    var status = $(this).val();
+    var id = {{ $leads['id'] }};
+
+    $.ajax({
+      url: '/leads/' + id + '/changestatus',
+      type: 'POST',
+      data: {
+        _token: token,
+        status: status
+      }
+    }).done( function(response) {
+      $('#change_status_message').fadeIn(400);
+      setTimeout(function () {
+        $('#change_status_message').fadeOut(400);
+      }, 2000);
+    }).fail(function(errObj) {
+      alert("Could not change status");
+    });
+  });
+
+  $(document).on('click', '.change_message_status', function(e) {
+    e.preventDefault();
+    var url = $(this).data('url');
+    var token = "{{ csrf_token() }}";
+    var thiss = $(this);
+
+    if ($(this).hasClass('wa_send_message')) {
+      var message_id = $(this).data('messageid');
+      var message = $('#message_body_' + message_id).find('p').data('message').trim();
+
+      $.ajax({
+        url: "{{ url('whatsapp/updateAndCreate') }}",
+        type: 'POST',
+        data: {
+          _token: token,
+          model_type: "leads",
+          message_id: message_id
+        },
+        beforeSend: function() {
+          $(thiss).text('Loading');
+        }
+      }).done( function(response) {
+        // $(thiss).remove();
+        console.log(response);
+      }).fail(function(errObj) {
+        console.log(errObj);
+        alert("Could not create whatsapp message");
+      });
+      // $('#waNewMessage').val(message);
+      // $('#waMessageSend').click();
+    }
+      $.ajax({
+        url: url,
+        type: 'GET'
+        // beforeSend: function() {
+        //   $(thiss).text('Loading');
+        // }
+      }).done( function(response) {
+        $(thiss).remove();
+      }).fail(function(errObj) {
+        alert("Could not change status");
+      });
+
+
+
+  });
+
+  $(document).on('click', '.task-subject', function() {
+    if ($(this).data('switch') == 0) {
+      $(this).text($(this).data('details'));
+      $(this).data('switch', 1);
+    } else {
+      $(this).text($(this).data('subject'));
+      $(this).data('switch', 0);
+    }
+  });
+
+  function addNewRemark(id){
+
+    var formData = $("#add-new-remark").find('#add-remark').serialize();
+    var remark = $('#remark-text_'+id).val();
+    $.ajax({
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        },
+        url: '{{ route('task.addRemark') }}',
+        data: {id:id,remark:remark},
+    }).done(response => {
+        alert('Remark Added Success!')
+        window.location.reload();
+    });
+  }
+
+  $(".view-remark").click(function () {
+
+    var taskId = $(this).attr('data-id');
+
+      $.ajax({
+          type: 'GET',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.gettaskremark') }}',
+          data: {id:taskId},
+      }).done(response => {
+          console.log(response);
+
+          var html='';
+
+          $.each(response, function( index, value ) {
+
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
+          });
+          $("#view-remark-list").find('#remark-list').html(html);
+          // getActivity();
+          //
+          // $('#loading_activty').hide();
+      });
+  });
+
+  $(document).on('click', '.thumbnail-delete', function(event) {
+    event.preventDefault();
+    var thiss = $(this);
+    var image_id = $(this).data('image');
+    var message_id = $(this).closest('.talk-bubble').find('.collapsible-message').data('messageid');
+    // var message = $(this).closest('.talk-bubble').find('.collapsible-message').data('message');
+    var token = "{{ csrf_token() }}";
+    var url = "{{ url('message') }}/" + message_id + '/removeImage';
+
+    // var image_container = '<div class="thumbnail-wrapper"><img src="' + image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image + '">x</span></div>';
+    // var new_message = message.replace(image_container, '');
+
+    // if (new_message.indexOf('message-img') != -1) {
+    //   var short_new_message = new_message.substr(0, new_message.indexOf('<div class="thumbnail-wrapper">')).length > 150 ? (new_message.substr(0, 147)) : new_message;
+    // } else {
+    //   var short_new_message = new_message.length > 150 ? new_message.substr(0, 147) + '...' : new_message;
+    // }
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: {
+        _token: token,
+        image_id: image_id,
+        message_id: message_id
+      },
+      success: function(data) {
+        $(thiss).parent().remove();
+        // $('#message_body_' + message_id).children('.collapsible-message').data('messageshort', short_new_message);
+        // $('#message_body_' + message_id).children('.collapsible-message').data('message', new_message);
+      }
+    });
+  });
+ </script>
+
 
         $(document).on('click', '.thumbnail-delete', function(event) {
             event.preventDefault();

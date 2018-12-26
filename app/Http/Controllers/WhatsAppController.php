@@ -250,6 +250,37 @@ class WhatsAppController extends FindByNumberController
 
        return redirect()->route('leads.index');
     }
+
+    public function updateAndCreate(Request $request)
+    {
+      $message = Message::find($request->message_id);
+      $images = $message->getMedia(config('constants.media_tags'));
+      $params = [
+        'number'  => NULL,
+        'status'  => 1
+      ];
+
+      if ($request->model_type == 'leads') {
+        $params['lead_id'] = $message->moduleid;
+      } else {
+        $params['order_id'] = $message->moduleid;
+      }
+
+      if ($images->first()) {
+        $params['message'] = NULL;
+
+        foreach ($images as $img) {
+          $params['media_url'] = $img->getUrl();
+          ChatMessage::create($params);
+        }
+      } else {
+        $params['message'] = $message->body;
+
+        ChatMessage::create($params);
+      }
+
+      return response('success');
+    }
 	/**
      * poll messages
      *

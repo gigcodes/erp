@@ -14,8 +14,10 @@ class SocialController extends Controller
 	public function __construct(Facebook $fb)
 	{
 		$this->fb=$fb;
-		$this->user_access_token="EAAD7Te0j0B8BAExxNFfONp2JEJBy1l4avTZCPsdVsUaCOrZAoLcof0GoiOZBcScAt2undgxKmeis57h12hAH7LyjX2NPM0gOLm3afb43UAI6k2HUZAwDKFtuN3XZAlaYa4dAZBrv3er3KgAiUjFGE5pdGEcTkU7QPeze4nA5aPvb0X0O15aX0dh4IJYfZC31xcZD";
-		$this->page_access_token="EAAD7Te0j0B8BAI7T10bD2WX5jslOZBxPDsmaTO5zMd5sO9mjX567pIbqy5ZBPPWe7t7qYzOBzy9ZA6rAigCAaAXj3nYDj6N7xZAsJpoy8PZCkBoRZCy0ZCiki58DmZBhuElt75lJ3LSZAvcolnT6Vazy3OZC0Wd4LVrZA4KRuvpueb0MQRJjUBMTodyB0ofo5VcFcAZD";
+		$this->user_access_token="EAAD7Te0j0B8BALlNg4kgCX0d4n4EDjK36IlIfAs1rDmEyw9QyVkyoVWWb76QGdZBno3udtap2TZA7XWBmXuZAZBGOJJKBPky5VoQccoUOewqWB8mVwr0ZC6nyHsmZAQyYZCrKPQStP41mtWioDfmBEfndwtuK8ZCcjSwbEpUNyRNhqPSw3UZACZCAOHTfzWKXittUZD";
+
+
+		$this->page_access_token="EAAD7Te0j0B8BALZAk0kYeVovJtMZCuGYFGpbAfsF8bwYCgR7EUh71mng1Qozat4Gykq1ZCZCT3Uov2p8HzqAVjcfueBeB5mmx1fNvGjp2oo8NqUY93avDxpeCX2xYCwkoZBIxAKX2wbEVnTkSnDZCbCEUCIf7Q8TvQXuqWMAu2ELSk2ab2NQjbkjhkRp7Dm6sZD";
 		$this->page_id="507935072915757";
 		$this->ad_acc_id="act_128125721296439";
 
@@ -238,6 +240,9 @@ class SocialController extends Controller
 		return view('social.reports',['resp'=>$resp]);
 	}
 
+
+
+
 	// Get pagination Report()
 
 	public function paginateReport(Request $request) 
@@ -276,6 +281,87 @@ class SocialController extends Controller
 
 		return view('social.reports',['resp'=>$resp]);
 	}
+
+
+
+	// Getting reports for adCreative
+
+	// Function for Getting Reports via curl
+	public function adCreativereport()
+	{
+
+
+
+		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{adcreatives{id,name,thumbnail_url},insights.level(ad).metrics(ctr){cost_per_unique_click,spend,impressions,frequency,reach,unique_clicks,clicks,ctr,ad_name,adset_name,cpc,cpm,cpp,campaign_name,ad_id,adset_id,account_id,account_name}}&access_token=".$this->user_access_token."";
+
+
+			// Call to Graph api here
+		$ch = curl_init();
+		curl_setopt($ch,CURLOPT_URL,$query);
+		curl_setopt($ch, CURLOPT_VERBOSE, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+		curl_setopt($ch, CURLOPT_POST, 0);
+
+
+		$resp = curl_exec($ch);
+		$resp = json_decode($resp);
+		curl_close($ch);
+		if(isset($resp->error->error_user_msg))
+			Session::flash('message',$resp->error->error_user_msg); 
+		elseif(isset($resp->error->message))
+			Session::flash('message',$resp->error->message); 
+
+
+		return view('social.adcreative-reports',['resp'=>$resp]);
+	}
+	// end of getting reports via ad creatvie
+
+
+	// paginate ad creative report
+	public function adCreativepaginateReport(Request $request) 
+	{
+		if($request->has('next'))
+			$query=$request->input('next');
+		elseif($request->has('previous'))
+			$query=$request->input('previous');
+		else 
+			return redirect()->route('social.report');
+
+
+
+
+
+
+			// Call to Graph api here
+		$ch = curl_init();
+		curl_setopt($ch,CURLOPT_URL,$query);
+		curl_setopt($ch, CURLOPT_VERBOSE, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+		curl_setopt($ch, CURLOPT_POST, 0);
+
+
+		$resp = curl_exec($ch);
+		$resp = json_decode($resp);
+		curl_close($ch);
+		if(isset($resp->error->error_user_msg))
+			Session::flash('message',$resp->error->error_user_msg); 
+		elseif(isset($resp->error->message))
+			Session::flash('message',$resp->error->message); 
+
+
+		return view('social.adcreative-reports',['resp'=>$resp]);
+	}
+
+	// end of paginate ad  creative report
+	
+
+
 
 
 	// Changing Ad status via curl

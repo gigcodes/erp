@@ -79,8 +79,13 @@ class TwilioController extends FindByNumberController
      */
     public function ivr(Request $request)
     {
+
        $response = new Twiml();
        $this->createIncomingGather($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
+
+       $response = new Twiml(); 
+       $this->createIncomingGather($response, "Thank you for calling solo luxury. Please dial 1 for sales, 2 for support or 3 for other queries");
+
        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
 

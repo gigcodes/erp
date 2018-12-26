@@ -201,6 +201,7 @@ Route::post('whatsapp/sendMultipleMessages', 'WhatsAppController@sendMultipleMes
 Route::post('whatsapp/approve/{context}', 'WhatsAppController@approveMessage');
 Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages');
 Route::get('whatsapp/updatestatus/', 'WhatsAppController@updateStatus');
+Route::post('whatsapp/updateAndCreate/', 'WhatsAppController@updateAndCreate');
 
 /*Routes For Social */
 
@@ -219,6 +220,14 @@ Route::post('social/post/page/create','SocialController@createPost')->name('soci
 Route::get('social/ad/report','SocialController@report')->name('social.report');
 Route::post('social/ad/report/paginate','SocialController@paginateReport')->name('social.report.paginate');
 Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');
+
+	// end to ad reports routes
+
+	// AdCreative reports routes
+
+Route::get('social/adcreative/report','SocialController@adCreativereport')->name('social.adCreative.report');
+Route::post('social/adcreative/report/paginate','SocialController@adCreativepaginateReport')->name('social.adCreative.paginate');
+
 
 	// end to ad reports routes
 

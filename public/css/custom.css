@@ -788,9 +788,11 @@ form.display-inline{
     margin-bottom: 15px;
     text-align: center;
 }
-.notifications-container {
+
+/*========================================== */
+/*.notifications-container {
     display: none;
-}
+}*/
 
 #productGrid table tr > td .btn-image {
     padding: 6px 6px !important;
