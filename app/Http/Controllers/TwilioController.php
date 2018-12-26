@@ -52,9 +52,10 @@ class TwilioController extends FindByNumberController
     public function incomingCall(Request $request)
     {
        $number = $request->get("From");
-       $response = new Twiml(); 
-       list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number)); 
-       if (!$context) { 
+        //$number = '919748940238';
+       $response = new Twiml();
+       list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
+       if (!$context) {
         $reject = $response->reject([
             'reason' => 'Busy'
          ]);
@@ -78,8 +79,13 @@ class TwilioController extends FindByNumberController
      */
     public function ivr(Request $request)
     {
+
+       $response = new Twiml();
+       $this->createIncomingGather($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
+
        $response = new Twiml(); 
        $this->createIncomingGather($response, "Thank you for calling solo luxury. Please dial 1 for sales, 2 for support or 3 for other queries");
+
        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
 
@@ -94,8 +100,8 @@ class TwilioController extends FindByNumberController
         $digits = trim($request->get("Digits"));
         $clients = [];
         $number = $request->get("From");
-        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number)); 
-        if ($digits === "1") {  
+        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
+        if ($digits === "1") {
             $this->dialAllClients($response, "sales", $context, $object);
         } else if ($digits == "2") {
             $this->dialAllClients($response, "support", $context, $object);
@@ -108,7 +114,7 @@ class TwilioController extends FindByNumberController
     }
 
 
-        
+
     /**
      * Outgoing call URL
      *
@@ -117,9 +123,10 @@ class TwilioController extends FindByNumberController
     public function outgoingCall(Request $request)
     {
        $number = $request->get("PhoneNumber");
+        //$number = '919748940238';
        $context = $request->get("context");
        $id = $request->get("internalId");
-       $response = new Twiml(); 
+       $response = new Twiml();
        $response->dial( $number, [
             'callerId' => \Config::get("twilio.caller_id"),
             'record' => 'true',
@@ -135,7 +142,7 @@ class TwilioController extends FindByNumberController
     public function getLeadByNumber(Request $request)
     {
         $number = $request->get("number");
-        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number)); 
+        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
         if (!$context) {
            return response()->json(['found' => FALSE,  'number' => $number]);
         }

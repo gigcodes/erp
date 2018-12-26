@@ -21,6 +21,7 @@ use Cache;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\CallBusyMessage;
 
 class OrderController extends Controller {
 
@@ -740,4 +741,14 @@ class OrderController extends Controller {
 
 //		return OrderProduct::with( 'product' )->where( 'order_id', '=', $order_id )->get()->toArray();
 	}
+
+	public function missedCalls() {
+
+        $callBusyMessages = CallBusyMessage::select('leads.id', 'lead_id', 'message', 'client_name')
+        ->join("leads", "leads.id", "call_busy_messages.lead_id")
+        ->orderBy('id', 'DESC')->paginate(20);
+        //print_r($callBusyMessages); die;
+
+        return view( 'orders.missed_call', compact('callBusyMessages' ) );
+    }
 }

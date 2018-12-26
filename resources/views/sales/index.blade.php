@@ -17,8 +17,8 @@
         </div>
     @endif
 
-
-    <table class="table table-bordered">
+    <div class="table-responsive">
+        <table class="table table-bordered">
         <tr>
             <th>ID</th>
             <th>Date</th>
@@ -46,7 +46,7 @@
             </tr>
         @endforeach
     </table>
-
+    </div>
 
     {!! $sales->links() !!}
 

@@ -1,20 +1,21 @@
-<table class="table table-bordered" style="margin-top: 25px">
+<div class="table-responsive">
+    <table class="table table-bordered" style="margin-top: 25px">
     <tr>
       @php $search_query = (isset($term) ? "&term=$term" : '') . (isset($brand) ? "&$brand" : '') . (isset($rating) ? "&$rating" : ''); @endphp
         @if ($type)
           <th></th>
         @endif
-        <th><a href="/leads?sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">ID</a></th>
-        <th><a href="/leads?sortby=client_name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Client Name</a></th>
-        <th><a href="/leads?sortby=city{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">City</a></th>
-        <th><a href="/leads?sortby=rating{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Rating</a></th>
-        <th><a href="/leads?sortby=assigned_user{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Assigned to</a></th>
-        <th>Products</th>
-        <th>Message Status</th>
-        <th><a href="/leads?sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Communication</a></th>
-        <th><a href="/leads?sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Status</a></th>
-        <th><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Created</a></th>
-        <th width="280px">Action</th>
+        <th style="width: 2%"><a href="/leads?sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">ID</a></th>
+        <th style="width: 15%"><a href="/leads?sortby=client_name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Client Name</a></th>
+        <th style="width: 8%"><a href="/leads?sortby=city{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">City</a></th>
+        <th style="width: 2%"><a href="/leads?sortby=rating{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Rating</a></th>
+        <th style="width: 8%"><a href="/leads?sortby=assigned_user{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Assigned to</a></th>
+        <th style="width: 10%">Products</th>
+        <th style="width: 5%">Message Status</th>
+        <th style="width: 20%"><a href="/leads?sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Communication</a></th>
+        <th style="width: 8%"><a href="/leads?sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Status</a></th>
+        <th style="width: 10%"><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Created</a></th>
+        <th style="width: 15%">Action</th>
     </tr>
     @foreach ($leads_array as $key => $lead)
         <tr class="{{ \App\Helpers::statusClass($lead['assign_status'] ) }} {{ ((!empty($lead['communication']['body']) && $lead['communication']['status'] == 0) || $lead['communication']['status'] == 1 || $lead['communication']['status'] == 5) ? 'row-highlight' : '' }} {{ ((!empty($lead['communication']['message']) && $lead['communication']['status'] == 0) || $lead['communication']['status'] == 1 || $lead['communication']['status'] == 5) ? 'row-highlight' : '' }}">
@@ -90,5 +91,5 @@
         </tr>
     @endforeach
 </table>
-
+</div>
 {!! $leads->appends(Request::except('page'))->links() !!}

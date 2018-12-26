@@ -4,8 +4,8 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Purchase List</h2>
             <div class="pull-left">
-                <h2>Purchase List</h2>
 
                 <form action="/purchases/" method="GET">
                     <div class="form-group">
@@ -33,8 +33,8 @@
             <p>{{ $message }}</p>
         </div>
     @endif
-
-    <table class="table table-bordered">
+    <div class="table-responsive">
+        <table class="table table-bordered">
         <tr>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">ID</a></th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Date</a></th>
@@ -93,6 +93,7 @@
             </tr>
         @endforeach
     </table>
+    </div>
 
     {!! $purchases_array->appends(Request::except('page'))->links() !!}
     {{--{!! $orders->links() !!}--}}

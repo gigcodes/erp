@@ -22,6 +22,8 @@ use App\Helpers;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
+use App\CallBusyMessage;
+
 
 class LeadsController extends Controller
 {
@@ -328,7 +330,7 @@ class LeadsController extends Controller
         $leads['brands']  = $brands;
         $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
         $leads['products_array'] = [];
-        $leads['recordings'] = CallRecording::where('lead_id', '=', $leads->id)->get()->toArray();
+        $leads['recordings'] = CallRecording::where('lead_id', $leads->id)->get()->toArray();
         $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->get()->toArray();
         $approval_replies = Reply::where('model', 'Approval Lead')->get();
         $internal_replies = Reply::where('model', 'Internal Lead')->get();
@@ -576,5 +578,16 @@ class LeadsController extends Controller
       ]);
 
       return view('leads.image-grid')->withLeads($new_leads);
+    }
+
+
+    public function saveLeaveMessage(Request $request) {
+
+        //print_r($request->all());
+
+        $callBusyMessage = new CallBusyMessage();
+        $callBusyMessage->lead_id = $request->input('lead_id');
+        $callBusyMessage->message = $request->input('message');
+        $callBusyMessage->save();
     }
 }

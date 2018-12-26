@@ -85,6 +85,25 @@
   function callerHangup() {
      showError("Call terminated");
      Twilio.Device.disconnectAll();
+
+      /*$.ajaxSetup({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+      });
+
+      $.ajax({
+          type: 'post',
+          url: $("#hid_call_recording_save_action").val(),
+          data: 'lead_id=' + $("input[name='moduleid']").val(),
+          success: function(response) {
+              console.log(response);
+          },
+          error: function(a, b) {
+              console.log(a.responseText);
+          }
+      });*/
+
   }
   function callerMute(number) {
       var conn = Twilio.Device.activeConnection();
@@ -99,6 +118,8 @@
         el.text("Mute");
       }
   }
+
+  var tConnection;
   function callNumber(number, context, id) {
     var conn = Twilio.Device.activeConnection();
     if (conn) {
@@ -114,7 +135,11 @@
 		showWarning(callingText, longNotifOpts);
 		var params = {"PhoneNumber": number, "context": context, "internalId": id};
     console.log("Dialer_StartCall call params", params);
-		Twilio.Device.connect(params);
+		//Twilio.Device.connect(params);
+
+      tConnection = Twilio.Device.connect(params);
+      //connection.on
+      //console.log("STATUS:" + connection.status());
   }
 
   function closeNotifs(dontClose) {
@@ -204,6 +229,79 @@
 		 myNotif.update({
 			'message':main.html(),
 			'type': 'info' });
+
+            console.log("STATUS:" + Twilio.Device.status());
+            console.log("STATUS:" + tConnection.status());
+            /*tConnection.on('ringing', function(conns) {
+                console.log("CONS: " + conns);
+            });*/
+            /*Twilio.Device.on('connect', function(cns) {
+                console.log(cns);
+            });*/
+
+            if ( tConnection.status() == 'closed' ) {
+            	clearInterval(callInterval);
+
+            	//alert("Leave Message");
+				//$("#modalLeaveMessage").modal('show');
+
+                /*var text = Swal({
+                    input: 'textarea',
+                    inputPlaceholder: 'Type your message here...',
+                    showCancelButton: true
+                });
+
+                if (text) {
+
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+
+                	$.ajax({
+						type: 'post',
+						url: $("#modalLeaveMessage").attr('data-action'),
+						data: "message=" + $(text).val(),
+						success: function(response) {
+							console.log(response);
+						},
+						error: function(a, b) {
+                            console.log(a.responseText);
+						}
+					});
+				}*/
+
+                (async function getText () {
+                    const {value: text} = await Swal({
+                        input: 'textarea',
+                        inputPlaceholder: 'Type your message here...',
+                        showCancelButton: true
+                    })
+
+                    if (text) {
+                        //Swal(text)
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            }
+                        });
+
+                        $.ajax({
+                            type: 'post',
+                            url: $("#modalLeaveMessage").attr('data-action'),
+                            data: "message=" + text + '&lead_id=' + $("input[name='moduleid']").val(),
+                            success: function(response) {
+                                console.log(response);
+                            },
+                            error: function(a, b) {
+                                console.log(a.responseText);
+                            }
+                        });
+                    }
+
+                })()
+			}
 		 }
 		callInterval = setInterval( onInterval, 1000 );
 		return myNotif;
