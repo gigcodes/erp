@@ -107,6 +107,7 @@ class QuickSellController extends Controller
 
       $product->supplier = $request->supplier;
       $product->price = $request->price;
+      $product->size = $request->size;
       $product->save();
 
       if ($request->hasfile('images')) {

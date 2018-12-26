@@ -66,6 +66,7 @@
               : '' }}" class="img-responsive grid-image" alt="" />
             <p>Supplier : {{ $product->supplier }}</p>
             <p>Price : {{ $product->price }}</p>
+            <p>Size : {{ $product->size }}</p>
             <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
           {{-- </a> --}}
         </div>
@@ -116,6 +117,14 @@
                  @endif
               </div>
 
+              <div class="form-group">
+                <strong>Size:</strong>
+                 <input type="text" name="size" class="form-control" id="size_field" />
+                 @if ($errors->has('size'))
+                     <div class="alert alert-danger">{{$errors->first('size')}}</div>
+                 @endif
+              </div>
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -135,6 +144,7 @@
         $('#updateForm').attr('action', url);
         $('#supplier_select').val(product.supplier);
         $('#price_field').val(product.price);
+        $('#size_field').val(product.size);
       });
     </script>
 
