@@ -39,6 +39,7 @@
           <th>Name</th>
           <th>Email</th>
           <th>Phone</th>
+          <th>Instagram</th>
           <th width="280px">Action</th>
         </tr>
         @foreach ($customers as $key => $customer)
@@ -46,6 +47,7 @@
               <td>{{ $customer->name }}</td>
               <td>{{ $customer->email }}</td>
               <td>{{ $customer->phone }}</td>
+              <td>{{ $customer->instahandler }}</td>
               <td>
                 <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
 

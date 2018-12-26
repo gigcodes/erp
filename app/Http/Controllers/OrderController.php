@@ -16,6 +16,7 @@ use App\CallRecording;
 use App\OrderStatus as OrderStatuses;
 use App\OrderReport;
 use App\Purchase;
+use App\Customer;
 use Auth;
 use Cache;
 use Carbon\Carbon;
@@ -408,6 +409,16 @@ class OrderController extends Controller {
 		$data['modify']        = 0;
 		$data['order_products'] = $this->getOrderProductsWithProductData($data['id']);
 
+		$customer_suggestions = [];
+		$customers = ( new Customer() )->newQuery()
+																			->latest()->select('name')->get()->toArray();
+
+		foreach ($customers as $customer) {
+			array_push($customer_suggestions, $customer['name']);
+		}
+
+		$data['customer_suggestions'] = $customer_suggestions;
+
 
 		return view( 'orders.form', $data );
 	}
@@ -437,6 +448,17 @@ class OrderController extends Controller {
 		if ( empty( $request->input( 'order_date' ) ) ) {
 
 			$data['order_date'] = date( 'Y-m-d' );
+		}
+
+		if ($customer = Customer::where('name', $data['client_name'])->first()) {
+			$data['customer_id'] = $customer->id;
+		} else {
+			$customer = new Customer;
+			$customer->name = $data['client_name'];
+			$customer->phone = $data['contact_detail'];
+			$customer->save();
+
+			$data['customer_id'] = $customer->id;
 		}
 
 		$order = Order::create( $data );

@@ -69,7 +69,7 @@
                 <div class="form-group">
                     <strong>Client Name:</strong>
                     <input type="text" class="form-control" name="client_name" placeholder="Client Name"
-                           value="{{ old('client_name') ? old('client_name') : $client_name }}"/>
+                           value="{{ old('client_name') ? old('client_name') : $client_name }}" id="customer_suggestions" required/>
                     @if ($errors->has('client_name'))
                         <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
                     @endif
@@ -518,6 +518,16 @@
           $('#product-remove-form').attr('action', url);
           $('#product-remove-form').submit();
         });
+
+        var searchSuggestions = {!! json_encode($customer_suggestions) !!};
+
+	      $('#customer_suggestions').autocomplete({
+	        source: function(request, response) {
+	          var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+
+	          response(results.slice(0, 10));
+	        }
+	      });
       });
     </script>
 @endsection

@@ -34,7 +34,7 @@
              <div class="col-xs-12 col-sm-8 col-sm-offset-4">
                 <div class="form-group">
                     <strong>Client Name:</strong>
-                    <input type="text" class="form-control" name="client_name" placeholder="Client Name" value="{{old('client_name')}}"/>
+                    <input type="text" class="form-control" name="client_name" placeholder="Client Name" value="{{old('client_name')}}" id="customer_suggestions"/>
                     @if ($errors->has('client_name'))
                         <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
                     @endif
@@ -371,6 +371,16 @@
         $('#created_at').datetimepicker({
           format: 'YYYY-MM-DD HH:mm'
         });
+
+				var searchSuggestions = {!! json_encode($data['customer_suggestions']) !!};
+
+	      $('#customer_suggestions').autocomplete({
+	        source: function(request, response) {
+	          var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+
+	          response(results.slice(0, 10));
+	        }
+	      });
 
 		</script>
 

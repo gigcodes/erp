@@ -14,6 +14,7 @@ use App\Message;
 use App\Task;
 use App\Image;
 use App\Reply;
+use App\Customer;
 use App\CallRecording;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -189,6 +190,16 @@ class LeadsController extends Controller
 	                                       ->selected()
 	                                       ->renderAsMultiple();
 
+         $customer_suggestions = [];
+         $customers = ( new Customer() )->newQuery()
+    																			 ->latest()->select('name')->get()->toArray();
+
+         foreach ($customers as $customer) {
+           array_push($customer_suggestions, $customer['name']);
+         }
+
+         $data['customer_suggestions'] = $customer_suggestions;
+
         return view('leads.create',compact('data'));
     }
 
@@ -224,6 +235,23 @@ class LeadsController extends Controller
         ]);
 
         $data = $request->except( '_token');
+
+        if ($customer = Customer::where('name', $data['client_name'])->first()) {
+          $data['customer_id'] = $customer->id;
+        } else {
+          $customer = new Customer;
+          $customer->name = $data['client_name'];
+          $customer->phone = $data['contactno'];
+
+          if ($data['source'] == 'instagram') {
+            $customer->instahandler = $data['leadsourcetxt'];
+          }
+
+          $customer->save();
+
+          $data['customer_id'] = $customer->id;
+        }
+
         $data['userid'] = Auth::id();
         $data['selected_product'] = json_encode( $request->input( 'selected_product' ) );
 

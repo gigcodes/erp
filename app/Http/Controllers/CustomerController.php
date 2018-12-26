@@ -39,9 +39,10 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
       $this->validate($request, [
-        'name'  => 'required|min:3|max:255',
-        'email' => 'sometimes|email',
-        'phone' => 'required|unique:customers|numeric'
+        'name'          => 'required|min:3|max:255',
+        'email'         => 'sometimes|email',
+        'phone'         => 'required|unique:customers|numeric',
+        'instahandler'  => 'sometimes|min:3|max:255'
       ]);
 
       $customer = new Customer;
@@ -49,6 +50,7 @@ class CustomerController extends Controller
       $customer->name = $request->name;
       $customer->email = $request->email;
       $customer->phone = $request->phone;
+      $customer->instahandler = $request->instahandler;
 
       $customer->save();
 

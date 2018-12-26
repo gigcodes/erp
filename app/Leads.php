@@ -14,6 +14,7 @@ class Leads extends Model {
 	use Mediable;
 	use SoftDeletes;
 	protected $fillable = [
+		'customer_id',
 		'client_name',
 		'city',
 		'contactno',

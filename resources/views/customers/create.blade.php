@@ -61,6 +61,16 @@
 							</div>
 					</div>
 
+					<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+						<div class="form-group">
+								<strong>Instagram Handle:</strong>
+								<input type="text" class="form-control" name="instahandler" placeholder="instahandle" value="{{old('instahandler')}}"/>
+								@if ($errors->has('instahandler'))
+										<div class="alert alert-danger">{{$errors->first('instahandler')}}</div>
+								@endif
+						</div>
+				</div>
+
 
 
              <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">

@@ -711,6 +711,7 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('customer.index') }}">Customers</a>
                                     <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
                                     @can('lead-create')
                                         <a class="dropdown-item" href="{{ route('leads.create') }}">Add New</a>
@@ -735,7 +736,7 @@
                                     </a>
                                     <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
                                     </a>
-                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports 
+                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports
                                     <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
                                     </a>
                                     <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset
