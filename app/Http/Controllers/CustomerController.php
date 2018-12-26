@@ -102,6 +102,11 @@ class CustomerController extends Controller
     public function destroy($id)
     {
       $customer = Customer::find($id);
+
+      if (count($customer->leads) > 0 || count($customer->orders) > 0) {
+        return redirect()->route('customer.index')->with('warning', 'You have related leads or orders to this customer');
+      }
+
       $customer->delete();
 
       return redirect()->route('customer.index')->with('success', 'You have successfully deleted a customer');
