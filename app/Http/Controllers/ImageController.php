@@ -13,6 +13,12 @@ use App\Tag;
 
 class ImageController extends Controller
 {
+
+  public function __construct() {
+
+		$this->middleware('permission:social-create', ['except' => ['approveImage']]);
+		// $this->middleware( 'permission:social-manage', [ 'only' => [ 'create', 'store' ] ] );
+	}
     /**
      * Display a listing of the resource.
      *

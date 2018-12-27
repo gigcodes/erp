@@ -857,8 +857,11 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{{route('social.get-post.page')}}">
-                                    <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a></a>
+                              @can('social-create')
+                                <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
+                              @endcan
+                              @can('social-manage')
+                              @endcan
                                 <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts
                                 </a>
                                 <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page
