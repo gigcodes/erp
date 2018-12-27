@@ -7,6 +7,9 @@ use App\Customer;
 use App\Setting;
 use App\Leads;
 use App\Order;
+use App\Status;
+use App\Brand;
+use App\User;
 
 class CustomerController extends Controller
 {
@@ -106,7 +109,47 @@ class CustomerController extends Controller
     {
       $customer = Customer::find($id);
 
-      return view('customers.show')->withCustomer($customer);
+      // $leads = Leads::find($id);
+      $status = (New status)->all();
+      // $data = $status->all();
+      // $sales_persons = Helpers::getUsersArrayByRole( 'Sales' );
+      // $leads['statusid'] = $data;
+      $users = User::all()->toArray();
+      // $leads['users']  = $users;
+      $brands = Brand::all()->toArray();
+      // $leads['brands']  = $brands;
+      // $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
+      // $leads['products_array'] = [];
+      // $leads['recordings'] = CallRecording::where('lead_id', $leads->id)->get()->toArray();
+      // $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->get()->toArray();
+      // $approval_replies = Reply::where('model', 'Approval Lead')->get();
+      // $internal_replies = Reply::where('model', 'Internal Lead')->get();
+
+    // $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
+
+    // $leads['remark'] = $leads->remark;
+
+      // $messages = Message::all()->where('moduleid','=', $leads['id'])->where('moduletype','=', 'leads')->sortByDesc("created_at")->take(10)->toArray();
+      // $leads['messages'] = $messages;
+
+      // if ( ! empty( $leads['selected_products_array']  ) ) {
+      //     foreach ( $leads['selected_products_array']  as $product_id ) {
+      //         $skuOrName                             = $this->getProductNameSkuById( $product_id );
+      //
+      //        $data['products_array'][$product_id] = $skuOrName;
+      //     }
+      // }
+
+      // $users_array = Helpers::getUserArray(User::all());
+
+      // $selected_categories = $leads['multi_category'];
+
+      return view('customers.show', [
+        'customer'  => $customer,
+        'status'    => $status,
+        'brands'    => $brands,
+        'users'     => $users
+      ]);
     }
 
     /**

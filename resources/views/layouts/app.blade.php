@@ -23,7 +23,7 @@
     <script src="{{ asset('js/custom.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.3/bootstrap-slider.min.js"></script>
 
-    @if( str_contains(Route::current()->getName(),['sales','activity','leads','task','home'] ) )
+    @if( str_contains(Route::current()->getName(),['sales','activity','leads','task','home', 'customer'] ) )
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet"/>
         <script type="text/javascript"
                 src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
@@ -377,6 +377,10 @@
         .row-highlight {
             background-color: #eee;
         }
+
+        .btn.btn-image {
+          background-color: transparent;
+        }
     </style>
 
     <script>

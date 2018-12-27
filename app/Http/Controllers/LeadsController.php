@@ -447,19 +447,23 @@ class LeadsController extends Controller
     {
         //
         $leads = Leads::find($id);
-        $this->validate(request(), [
-          'client_name' => 'required',
-//          'contactno' => 'required',
-//          'city' => 'required',
-          'instahandler' => '',
-          'rating' => 'required',
-          'status' => 'required',
-          'solophone' => '',
-          'comments' => '',
-          'userid'=>'',
-          'created_at'  => 'required|date_format:"Y-m-d H:i"',
 
-        ]);
+        if ($request->type != 'customer') {
+          $this->validate(request(), [
+            'client_name' => 'required',
+  //          'contactno' => 'required',
+  //          'city' => 'required',
+            'instahandler' => '',
+            'rating' => 'required',
+            'status' => 'required',
+            'solophone' => '',
+            'comments' => '',
+            'userid'=>'',
+            'created_at'  => 'required|date_format:"Y-m-d H:i"',
+
+          ]);
+        }
+
 
 	    if (  $request->input( 'assigned_user' ) != $leads->assigned_user && !empty($request->input( 'assigned_user' ))  ) {
 
@@ -485,26 +489,31 @@ class LeadsController extends Controller
 		    ]);
 	    }
 
-        $leads->client_name = $request->get('client_name');
-        $leads->contactno = $request->get('contactno');
-        $leads->city= $request->get('city');
-        $leads->source = $request->get('source');
-        $leads->rating = $request->get('rating');
+        if ($request->type != 'customer') {
+          $leads->client_name = $request->get('client_name');
+          $leads->contactno = $request->get('contactno');
+          $leads->city= $request->get('city');
+          $leads->source = $request->get('source');
+          $leads->rating = $request->get('rating');
+          $leads->solophone = $request->get('solophone');
+          $leads->userid = $request->get('userid');
+          $leads->email = $request->get('email');
+          $leads->address = $request->get('address');
+          $leads->leadsourcetxt = $request->get('leadsourcetxt');
+          $leads->created_at = $request->created_at;
+          $leads->whatsapp_number = $request->whatsapp_number;
+        }
+
+
         $leads->status = $request->get('status');
-        $leads->solophone = $request->get('solophone');
         $leads->comments = $request->get('comments');
-        $leads->userid = $request->get('userid');
-        $leads->email = $request->get('email');
-        $leads->address = $request->get('address');
         $leads->assigned_user = $request->get('assigned_user');
-        $leads->leadsourcetxt = $request->get('leadsourcetxt');
 
         $leads->multi_brand = json_encode($request->get('multi_brand'));
         $leads->multi_category = json_encode($request->get('multi_category'));
 
         $leads->selected_product = json_encode( $request->input( 'selected_product' ) );
-        $leads->created_at = $request->created_at;
-        $leads->whatsapp_number = $request->whatsapp_number;
+
         $leads->save();
 
         $count = 0;
@@ -533,7 +542,7 @@ class LeadsController extends Controller
 
 
 
-        return redirect()->route('leads.show', $leads->id)->with('success','Lead has been updated');
+        return redirect()->back()->with('success','Lead has been updated');
     }
 
     public function removeImage($old_image){
