@@ -14,6 +14,7 @@ class Leads extends Model {
 	use Mediable;
 	use SoftDeletes;
 	protected $fillable = [
+		'customer_id',
 		'client_name',
 		'city',
 		'contactno',
@@ -71,7 +72,7 @@ class Leads extends Model {
 				return $whatsapp;
 			} elseif ($instagram->created_at > $message->created_at && $instagram->created_at > $whatsapp->created_at) {
 				return $whatsapp;
-			} 
+			}
 		} elseif(!empty($message) && !empty($whatsapp)) {
 			if($message->created_at > $whatsapp->created_at) {
 				return $message;
