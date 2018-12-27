@@ -58,7 +58,7 @@ class NotificationQueueController extends Controller
 			}
 		}
 
-		if ($notificationArray['sent_to'] == 6 || $notificationArray['role'] == 'Admin') {
+		if ($notificationArray['sent_to'] == 6 || (array_key_exists('role', $notificationArray) && $notificationArray['role'] == 'Admin')) {
 			// TEMP SOLUTION TO TURN OFF NOTIFICATIONS FOR ADMINS
 		} else {
 			foreach ($notificationArray['timestamps'] as $time){

@@ -1635,7 +1635,8 @@
         }).done(function() {
           pollMessages();
           $(thiss).closest('form').find('textarea').val('');
-        }).fail(function() {
+        }).fail(function(response) {
+          console.log(response);
           alert('Error sending a message');
         });
       } else {
