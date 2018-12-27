@@ -256,6 +256,10 @@ class LeadsController extends Controller
             $customer->instahandler = $data['leadsourcetxt'];
           }
 
+          $customer->rating = $data['rating'];
+          $customer->address = $data['address'];
+          $customer->city = $data['city'];
+
           $customer->save();
 
           $data['customer_id'] = $customer->id;

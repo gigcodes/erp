@@ -466,6 +466,7 @@ class OrderController extends Controller {
 			}
 
 			$customer->phone = $data['contact_detail'];
+			$customer->city = $data['city'];
 			$customer->save();
 
 			$data['customer_id'] = $customer->id;

@@ -20,7 +20,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-      $customers = Customer::paginate(Setting::get('pagination'));
+      $customers = Customer::latest()->paginate(Setting::get('pagination'));
 
       // $leads = Leads::whereNotNull('contactno')->get()->groupBy('contactno');
       //
@@ -84,7 +84,11 @@ class CustomerController extends Controller
         'name'          => 'required|min:3|max:255',
         'email'         => 'sometimes|email',
         'phone'         => 'required|unique:customers|numeric',
-        'instahandler'  => 'sometimes|min:3|max:255'
+        'instahandler'  => 'sometimes|min:3|max:255',
+        'rating'        => 'required|numeric',
+        'address'       => 'sometimes|min:3|max:255',
+        'city'          => 'sometimes|min:3|max:255',
+        'country'       => 'sometimes|min:3|max:255'
       ]);
 
       $customer = new Customer;
@@ -93,6 +97,10 @@ class CustomerController extends Controller
       $customer->email = $request->email;
       $customer->phone = $request->phone;
       $customer->instahandler = $request->instahandler;
+      $customer->rating = $request->rating;
+      $customer->address = $request->address;
+      $customer->city = $request->city;
+      $customer->country = $request->country;
 
       $customer->save();
 
