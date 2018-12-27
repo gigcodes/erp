@@ -22,11 +22,11 @@
             @if ($type)
               <td><input type="checkbox" class="check-lead" data-leadid="{{ $lead['id'] }}" /></td>
             @endif
-            <td>{{ $lead['id'] }}</td>
-            <td>{{ $lead['client_name'] }}</td>
-            <td>{{ $lead['city']}}</td>
-            <td>{{ $lead['rating']}}</td>
-            <td>{{App\User::find($lead['assigned_user'])->name}}</td>
+            <td>{{ isset($lead['id'])? $lead['id'] : '' }}</td>
+            <td>{{ isset($lead['client_name']) ? $lead['client_name'] : '' }}</td>
+            <td>{{ isset($lead['city']) ?  $lead['city'] : ''}}</td>
+            <td>{{ isset($lead['rating']) ? $lead['rating'] : ''}}</td>
+            <td>{{isset(App\User::find($lead['assigned_user'])->name) ? App\User::find($lead['assigned_user'])->name : ''}}</td>
             <td>{{App\Helpers::getproductsfromarraysofids($lead['selected_product'])}}</td>
             <td>
               @if (!empty($lead['communication']['body']))
