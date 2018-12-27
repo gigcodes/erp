@@ -53,6 +53,22 @@
         <div class="form-group">
           <strong>Instagram Handle:</strong> {{ $customer->instahandler }}
         </div>
+
+        <div class="form-group">
+          <strong>Rating:</strong> {{ $customer->rating }}
+        </div>
+
+        <div class="form-group">
+          <strong>Address:</strong> {{ $customer->address }}
+        </div>
+
+        <div class="form-group">
+          <strong>City:</strong> {{ $customer->city }}
+        </div>
+
+        <div class="form-group">
+          <strong>Country:</strong> {{ $customer->country }}
+        </div>
       </div>
     </div>
   </div>
