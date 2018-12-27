@@ -108,6 +108,15 @@
             <p>Id : {{ $product->id }}</p>
             <p>Size : {{ $product->size}}</p>
             <p>Price : {{ $product->price_special }}</p>
+            {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
+            <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+            {!! Form::close() !!}
+
+            @can('admin')
+              {!! Form::open(['method' => 'DELETE','route' => ['products.destroy', $product->id],'style'=>'display:inline']) !!}
+              <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+              {!! Form::close() !!}
+            @endcan
           </a>
           {{-- <a href="#" class="btn btn-secondary">Something</a> --}}
         </div>

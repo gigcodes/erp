@@ -38,8 +38,13 @@ class ProductController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index(Request $request) {
-		$products = Product::latest();
+		if ($request->archived == 'true') {
+			$products = Product::onlyTrashed()->latest();
+		} else {
+			$products = Product::latest();
+		}
 		$term = $request->term;
+		$archived = $request->archived;
 
 		if(!empty($term)){
 			$products = $products->where(function ($query) use ($term){
@@ -65,7 +70,7 @@ class ProductController extends Controller {
 			array_push($search_suggestions, $suggestion['name']);
 		}
 
-		return view( 'products.index', compact( 'products', 'term', 'search_suggestions' ) )
+		return view( 'products.index', compact( 'products', 'term', 'search_suggestions', 'archived' ) )
 			->with( 'i', ( request()->input( 'page', 1 ) - 1 ) * 10 );
 	}
 
@@ -124,10 +129,27 @@ class ProductController extends Controller {
 		return view( 'partials.show', $data );
 	}
 
-	public function destroy( Product $product ) {
+	public function archive($id) {
+		$product = Product::find($id);
 		$product->delete();
 
-		return redirect()->route( 'products.index' )
+		return redirect()->back()
+		                 ->with( 'success', 'Product archived successfully' );
+	}
+
+	public function restore($id) {
+		$product = Product::withTrashed()->find($id);
+		$product->restore();
+
+		return redirect()->back()
+		                 ->with( 'success', 'Product restored successfully' );
+	}
+
+	public function destroy($id) {
+		$product = Product::find($id);
+		$product->forceDelete();
+
+		return redirect()->back()
 		                 ->with( 'success', 'Product deleted successfully' );
 	}
 

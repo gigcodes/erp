@@ -36,6 +36,8 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('roles','RoleController');
 	Route::resource('users','UserController');
 	Route::resource('products','ProductController');
+	Route::post('products/{id}/archive','ProductController@archive')->name('products.archive');
+	Route::post('products/{id}/restore','ProductController@restore')->name('products.restore');
 	Route::resource('productselection','ProductSelectionController');
 	Route::resource('productattribute','ProductAttributeController');
 	Route::resource('productsearcher','ProductSearcherController');

@@ -67,7 +67,17 @@
             <p>Supplier : {{ $product->supplier }}</p>
             <p>Price : {{ $product->price }}</p>
             <p>Size : {{ $product->size }}</p>
+
             <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
+            {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
+            <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+            {!! Form::close() !!}
+
+            @can('admin')
+              {!! Form::open(['method' => 'DELETE','route' => ['products.destroy', $product->id],'style'=>'display:inline']) !!}
+              <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+              {!! Form::close() !!}
+            @endcan
           {{-- </a> --}}
         </div>
       @endforeach

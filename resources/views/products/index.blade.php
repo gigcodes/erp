@@ -7,7 +7,7 @@
     <h2 class="page-heading">Products</h2>
     <div class="pull-left">
 
-      <form action="/products/" method="GET">
+      <form action="/products{{ (isset($archived) && $archived == 'true') ? '?archived=false' : '?archived=true' }}" method="GET">
         <div class="form-group">
           <div class="row">
             <div class="col-md-8 pr-0">
@@ -15,6 +15,12 @@
             </div>
             <div class="col-md-4 pl-0">
               <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
+
+              @if (isset($archived) && $archived == 'true')
+                <a href="/products?archived=false" class="btn-link">Active</a>
+              @else
+                <a href="/products?archived=true" class="btn-link">Archived</a>
+              @endif
             </div>
           </div>
         </div>
@@ -49,8 +55,20 @@
     <td>{{ $product->sku }}</td>
     <td>{{ $product->name }}</td>
     <td>
-      <form action="{{ route('products.destroy',$product->id) }}" method="POST">
-        <a class="btn btn-image" href="{{ route('products.show',$product->id) }}"><img src="/images/view.png" /></a>
+      <a class="btn btn-image" href="{{ route('products.show',$product->id) }}"><img src="/images/view.png" /></a>
+      <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
+
+      @if (isset($archived) && $archived == 'true')
+        {!! Form::open(['method' => 'POST','route' => ['products.restore', $product->id],'style'=>'display:inline']) !!}
+        <button type="submit" class="btn btn-xs btn-secondary">Restore</button>
+        {!! Form::close() !!}
+      @else
+        {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
+        <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+        {!! Form::close() !!}
+      @endif
+
+      <form action="{{ route('products.destroy',$product->id) }}" method="POST" style="display:inline">
         @csrf
         @method('DELETE')
         @can('product-delete')
