@@ -30,9 +30,9 @@
 							<tr>
 								<th>#</th>
 								<th>Thumbnail</th>
-								<th>ACC ID</th>
 								<th>Ad Name</th>
 								<th>Delivery</th>
+								<th>ACC ID</th>
 								<th>Campaign</th>
 								<th>Adset</th>
 								<th>Type</th>
@@ -45,33 +45,43 @@
 							</tr>
 						</thead>
 						<tbody>
-
+							
 							@if(isset($resp->data))
 							@php $i=1; @endphp
 							@foreach($resp->data as $data)
+							@if(isset($data->ads) && !empty($data->ads))
+							@foreach($data->ads->data as $ads) 
+							
 							<tr>
 								<td>{{$i++}}</td>
 								<td>
-									<img class="img-responsive " width="80" height="80" src="{{isset($data->creative->image_url)?$data->creative->image_url:''}}" alt="Not found...">
+									<img class="img-responsive " width="80" height="80" src="{{isset($ads->adcreatives->data[0]->thumbnail_url)?$ads->adcreatives->data[0]->thumbnail_url:''}}" alt="Not found...">
 								</td>
-								<td>{{isset($data->account_id)?$data->account_id:''}}</td>
-								<td>{{isset($data->name)?$data->name:''}}</td>
-								<td>{{isset($data->status)?$data->status:''}}</td>
-								<td>{{isset($data->campaign->name)?$data->campaign->name:''}}</td>
-								<td>{{isset($data->adset->name)?$data->adset->name:''}}</td>
-								<td>{{isset($data->insights->data[0]->actions[0]->action_type)?$data->insights->data[0]->actions[0]->action_type:''}}</td>
+								<td>{{isset($ads->name)?$ads->name:''}}</td>
+								<td>{{isset($ads->status)?$ads->status:''}}</td>
+								<td>{{isset($ads->insights->data[0]->account_id)?$ads->insights->data[0]->account_id:''}}</td>
+								<td>{{isset($ads->insights->data[0]->campaign_name)?$ads->insights->data[0]->campaign_name:''}}</td>
+
+
+								<td>{{isset($ads->adset->name)?$ads->adset->name:''}}</td>
+								<td>{{isset($ads->insights->data[0]->actions[0]->action_type)?$ads->insights->data[0]->actions[0]->action_type:''}}</td>
 								<td>
-									{{isset($data->insights->data[0]->reach)?number_format($data->insights->data[0]->reach, 2):''}}
+									{{isset($ads->insights->data[0]->reach)?number_format($ads->insights->data[0]->reach, 2):''}}
 
 								</td>
 								<td>
-									{{isset($data->insights->data[0]->impressions)?number_format($data->insights->data[0]->impressions, 2):''}}
+									{{isset($ads->insights->data[0]->impressions)?number_format($ads->insights->data[0]->impressions, 2):''}}
+
 								</td>
 								<td>
-									{{isset($data->insights->data[0]->spend)?number_format($data->insights->data[0]->spend, 2):''}}
+									{{isset($ads->insights->data[0]->spend)?number_format($ads->insights->data[0]->spend, 2):''}}
+
 								</td>
-								<td>{{isset($data->insights->data[0]->cost_per_unique_click)?number_format($data->insights->data[0]->cost_per_unique_click,2, '.', ''):''}}</td>
-								<td>{{isset($data->insights->data[0]->date_stop)?$data->insights->data[0]->date_stop:''}}</td>
+								<td>
+									{{isset($ads->insights->data[0]->cost_per_unique_click)?number_format($ads->insights->data[0]->cost_per_unique_click, 2):''}}
+
+								</td>
+								<td>{{isset($ads->insights->data[0]->date_stop)?$ads->insights->data[0]->date_stop:''}}</td>
 
 								<!-- Changing status of ad's -->
 
@@ -81,16 +91,16 @@
 											Status....
 										</a>
 										<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-											<a class="dropdown-item" href="{{route('social.report.ad.status',['ad_id'=>$data->id,'status'=>'ACTIVE'])}}">
+											<a class="dropdown-item" href="{{route('social.report.ad.status',['ad_id'=>$ads->id,'status'=>'ACTIVE'])}}">
 												ACTIVE
 											</a>
-											<a class="dropdown-item" href="{{route('social.report.ad.status',['ad_id'=>$data->id,'status'=>'PAUSED'])}}">
+											<a class="dropdown-item" href="{{route('social.report.ad.status',['ad_id'=>$ads->id,'status'=>'PAUSED'])}}">
 												PAUSED
 											</a>
-											<a class="dropdown-item" href="{{route('social.report.ad.status',['ad_id'=>$data->id,'status'=>'ARCHIVED'])}}">
+											<a class="dropdown-item" href="{{route('social.report.ad.status',['ad_id'=>$ads->id,'status'=>'ARCHIVED'])}}">
 												ARCHIVED
 											</a>
-											<a class="dropdown-item" href="{{route('social.report.ad.status',['ad_id'=>$data->id,'status'=>'DELETED'])}}">
+											<a class="dropdown-item" href="{{route('social.report.ad.status',['ad_id'=>$ads->id,'status'=>'DELETED'])}}">
 												DELETED
 											</a>
 										</div>
@@ -99,6 +109,8 @@
 								<!-- End of changing status of ad's -->
 
 							</tr>
+							@endforeach
+							@endif
 							@endforeach
 							@endif
 						</tbody>

@@ -214,7 +214,7 @@ class SocialController extends Controller
 
 
 
-		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/ads?fields=name,status,creative{image_url},insights.level(adset){reach,impressions,cost_per_unique_click,actions,spend},adset{name},campaign{name},account_id,created_time&limit=30&access_token=".$this->user_access_token."";
+		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=30&access_token=".$this->user_access_token."";
 
 
 			// Call to Graph api here
@@ -230,6 +230,7 @@ class SocialController extends Controller
 
 		$resp = curl_exec($ch);
 		$resp = json_decode($resp);
+
 		curl_close($ch);
 		if(isset($resp->error->error_user_msg))
 			Session::flash('message',$resp->error->error_user_msg); 
@@ -372,7 +373,7 @@ class SocialController extends Controller
 		$data['status']=$status;
 
 
-		$url="https://graph.facebook.com/v3.2/".$this->ad_id;
+		$url="https://graph.facebook.com/v3.2/".$ad_id;
 
 
 			// Call to Graph api here
