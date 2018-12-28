@@ -98,13 +98,16 @@ jQuery(document).ready(function () {
         }
     });
 
-    jQuery('#quickComment').change(function () {
-        jQuery('#message-body').text(jQuery(this).val());
+    $(document).ready(function() {
+      $('#quickComment').on('change', function () {
+          $('#message-body').html($(this).val());
+      });
+
+      $('#quickCommentInternal').on('change', function () {
+          $('#internal-message-body').html($(this).val());
+      });
     });
 
-    jQuery('#quickCommentInternal').change(function () {
-        jQuery('#internal-message-body').text(jQuery(this).val());
-    });
 
     jQuery('#leadsource').change(function () {
         if(jQuery('#leadsource').val() == 'database')

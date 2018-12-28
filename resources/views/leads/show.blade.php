@@ -1639,7 +1639,7 @@
           contentType: false
         }).done(function() {
           pollMessages();
-          $(thiss).closest('form').find('textarea').val('');
+          $(thiss).closest('form').find('textarea').text('');
         }).fail(function(response) {
           console.log(response);
           alert('Error sending a message');
