@@ -1500,12 +1500,13 @@
 				var domId = "waMessage_" + message.id;
 				var current = $("#" + domId);
         var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
+        var is_hod_crm = "{{ Auth::user()->hasRole('HOD of CRM') }}";
+        var users_array = {!! json_encode($users_array) !!};
 				if ( current.get( 0 ) ) {
 					return false;
 				}
 
         if (message.body) {
-          var users_array = {!! json_encode($users_array) !!};
           var orders_assigned_user = "{{ $sales_person }}";
 
           var text = $("<div class='talktext'></div>");
@@ -1589,7 +1590,7 @@
               meta += '<a href data-url="/message/updatestatus?status=3&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=order" style="font-size: 9px" class="change_message_status">Mark as sent </a>';
             }
 
-            if (message.status == 1 && is_admin == true) {
+            if (message.status == 1 && (is_admin == true || is_hod_crm)) {
               meta += '<a href data-url="/message/updatestatus?status=2&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=order" style="font-size: 9px" class="change_message_status wa_send_message" data-messageid="' + message.id + '">Approve</a>';
               meta += ' <a href="#" style="font-size: 9px" class="edit-message" data-messageid="' + message.id + '">Edit</a>';
             }
@@ -1625,7 +1626,12 @@
           var row = $("<div class='talk-bubble round'></div>");
           var text = $("<div class='talktext'></div>");
           var p = $("<p class='collapsible-message'></p>");
-          var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+
+          if (!message.received) {
+            var meta = $("<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+          } else {
+            var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+          }
 
           row.attr("id", domId);
 
@@ -1662,7 +1668,7 @@
                     approveMessage( this, message );
                 } );
 
-                if (is_admin) {
+                if (is_admin || is_hod_crm) {
                   approveBtn.appendTo( text );
                 }
             }

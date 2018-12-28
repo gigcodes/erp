@@ -140,7 +140,8 @@ class WhatsAppController extends FindByNumberController
              $model_id = $lead->id;
              $params = [
                 'lead_id' => $lead->id,
-                'number' => NULL
+                'number' => NULL,
+                'user_id' => Auth::id()
                ];
             } elseif ($context == "orders") {
              $order = Order::findOrFail( $data['order_id'] );
@@ -148,7 +149,8 @@ class WhatsAppController extends FindByNumberController
              $model_id = $order->id;
              $params = [
                 'order_id' => $order->id,
-                'number' => NULL
+                'number' => NULL,
+                'user_id' => Auth::id()
               ];
             }
             if (isset($data['message'])) {
@@ -218,7 +220,8 @@ class WhatsAppController extends FindByNumberController
             $params = [
               'lead_id' => $lead->id,
               'number'  => NULL,
-              'message' => $request->message
+              'message' => $request->message,
+              'user_id' => Auth::id()
             ];
 
             $message = ChatMessage::create($params);
@@ -257,7 +260,8 @@ class WhatsAppController extends FindByNumberController
       $images = $message->getMedia(config('constants.media_tags'));
       $params = [
         'number'  => NULL,
-        'status'  => 1
+        'status'  => 1,
+        'user_id' => Auth::id()
       ];
 
       if ($request->model_type == 'leads') {
@@ -319,7 +323,8 @@ class WhatsAppController extends FindByNumberController
                 'created_at' => Carbon::parse($message['created_at'])->format('Y-m-d H:i:s'),
                 // 'date' => $this->formatChatDate( $message['created_at'] ),
                 'approved' => $message['approved'],
-                'status'  => $message['status']
+                'status'  => $message['status'],
+                'user_id' => $message['user_id']
          ];
          if ($message['media_url']) {
             $messageParams['media_url'] = $message['media_url'];
