@@ -6,6 +6,8 @@ use App\Colors;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Setting;
+use App\Customer;
+use Validator;
 
 class MagentoController extends Controller {
 	/**
@@ -114,8 +116,26 @@ class MagentoController extends Controller {
 				$paid = 0;
 			}
 			$balance_amount = $results['base_grand_total'] - $paid;
+
+			$customer = Customer::where('name', 'LIKE', "%" . $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'] . "%")->first();
+
+			if ($customer) {
+				$customer_id = $customer->id;
+			} else {
+				$customer = new Customer;
+				$customer->name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
+				$temp_number = [];
+				$temp_number['phone'] = $this->generateRandomString();
+
+				$customer->phone = $this->validatePhone($temp_number);
+				$customer->save();
+
+				$customer_id = $customer->id;
+			}
+
 			$id             = DB::table( 'orders' )->insertGetId(
 				array(
+					'customer_id'    => $customer_id,
 					'order_id'       => $results['increment_id'],
 					'order_type'     => 'online',
 					'order_date'     => $results['created_at'],
@@ -159,6 +179,30 @@ class MagentoController extends Controller {
 			Setting::add( 'lastid', $orderlist[ $j ]->order_id, 'int' );
 		}
 
+	}
+
+	public function generateRandomString($length = 10) {
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
+	}
+
+	public function validatePhone($phone) {
+		$validator = Validator::make($phone, [
+			'phone' => 'unique:customers,phone'
+		]);
+
+		if ($validator->fails()) {
+			$temp_number['phone'] = $this->generateRandomString();
+
+			$this->validatePhone($temp_number);
+		}
+
+		return $phone;
 	}
 
 
