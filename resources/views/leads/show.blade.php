@@ -1243,7 +1243,6 @@
          var token = "{{ csrf_token() }}";
          var url = "{{ url('message') }}/" + message_id;
          var message = $('#edit-message-textarea' + message_id).val();
-         var message_html = '<p class="collapsible-message" data-messageshort="" data-message="" data-expanded="false">' + message + '</p>';
 
          $.ajax({
            type: 'POST',

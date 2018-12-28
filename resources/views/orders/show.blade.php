@@ -1238,7 +1238,7 @@
         });
       });
 
-      $('.edit-message').on('click', function(e) {
+      $(document).on('click', '.edit-message', function(e) {
         e.preventDefault();
         var message_id = $(this).data('messageid');
 
