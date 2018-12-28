@@ -100,11 +100,11 @@ jQuery(document).ready(function () {
 
     $(document).ready(function() {
       $('#quickComment').on('change', function () {
-          $('#message-body').html($(this).val());
+          $('#message-body').val($(this).val());
       });
 
       $('#quickCommentInternal').on('change', function () {
-          $('#internal-message-body').html($(this).val());
+          $('#internal-message-body').val($(this).val());
       });
     });
 

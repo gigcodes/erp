@@ -1808,7 +1808,7 @@
           contentType: false
         }).done(function() {
           pollMessages();
-          $(thiss).closest('form').find('textarea').text('');
+          $(thiss).closest('form').find('textarea').val('');
         }).fail(function() {
           alert('Error sending a message');
         });
