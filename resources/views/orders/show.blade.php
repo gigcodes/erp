@@ -848,6 +848,19 @@
                             <div class="upload-btn-wrapper btn-group">
                               <button class="btn btn-image px-1"><img src="/images/upload.png"/></button>
                               <input type="file" name="image"/>
+
+                              {{-- @php
+                              $brand = '';
+                              $order_brands = \App\Brand::all()->toArray();
+                                foreach($order_brands as $brand_item) {
+                                  if (in_array($brand_item['id'], $leads['multi_brand'])) {
+                                    $brand = $brand_item['id'];
+                                  }
+                                }
+                              @endphp --}}
+
+                              <a href="{{ route('attachImages', ['order', $id, 1, $sales_person ? $sales_person : 6]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+
                               <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png"/></button>
                             </div>
                           </div>
