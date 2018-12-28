@@ -68,7 +68,8 @@
 }
 
 .grid-image{
-    max-width: 200px;
+  height: 200px !important;
+  margin: 0 auto;
 }
 
 @media (min-width: 1400px) {

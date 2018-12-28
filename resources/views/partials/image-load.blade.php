@@ -26,9 +26,9 @@
           ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
           : ''
         }}" class="img-responsive grid-image" alt="" />
-        <p>Sku : {{ $product->sku }}</p>
+        <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
         <p>Id : {{ $product->id }}</p>
-        <p>Size : {{ $product->size}}</p>
+        <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
         <p>Price : {{ $product->price_special }}</p>
       </a>
       <a href="#" class="btn btn-secondary attach-photo" data-image="{{ $product->id }}" data-attached="0">Attach</a>
