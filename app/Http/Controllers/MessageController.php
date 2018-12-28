@@ -138,6 +138,7 @@ class MessageController extends Controller
 		            'model_id'   => $data['moduleid'],
 		            'user_id'    => \Auth::id(),
 		            'sent_to'    => $data['assigned_user'],
+                'role'       => ''
 	            ] );
 
               NotificationQueueController::createNewNotification( [
@@ -161,6 +162,7 @@ class MessageController extends Controller
 		            'model_id'   => $data['moduleid'],
 		            'user_id'    => \Auth::id(),
 		            'sent_to'    => $data['assigned_user'],
+                'role'       => ''
 	            ] );
 
               NotificationQueueController::createNewNotification( [
@@ -185,6 +187,7 @@ class MessageController extends Controller
                 'message_id' => $message->id,
 		            'user_id'    => \Auth::id(),
 		            'sent_to'    => $data['assigned_user'],
+                'role'       => ''
 	            ] );
 
               NotificationQueueController::createNewNotification( [
