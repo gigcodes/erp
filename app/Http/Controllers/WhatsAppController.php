@@ -21,6 +21,7 @@ use App\Helpers;
 use App\ChatMessage;
 use App\PushNotification;
 use App\NotificationQueue;
+use App\Customer;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -84,10 +85,18 @@ class WhatsAppController extends FindByNumberController
 
         if (count($orders) == 0 && count($leads) == 0) {
             $modal_type = 'leads';
-            $new_name = "whatsapp lead " . uniqid( TRUE );
+            // $new_name = "whatsapp lead " . uniqid( TRUE );
             $user = User::get()[0];
+
+            $customer = new Customer;
+            $customer->name = $from;
+            $customer->phone = $from;
+            $customer->rating = 2;
+            $customer->save();
+
             $lead = Leads::create([
-                'client_name' => $new_name,
+                'customer_id' => $customer->id,
+                'client_name' => $from,
                 'contactno' => $from,
                 'rating' => 2,
                 'status' => 1,
