@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Product;
 use App\Setting;
+use App\Category;
+use App\Brand;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-
-use App\QuickSell;
 
 class QuickSellController extends Controller
 {
@@ -17,11 +17,85 @@ class QuickSellController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-      $products = Product::where('quick_product', 1)->paginate(Setting::get('pagination'));
+      if ($request->brand[0] != null) {
+  			$products = (new Product())->newQuery()
+  			                                 ->latest()->where('quick_product', 1)->whereIn('brand', $request->brand);
 
-      return view('quicksell.index')->withProducts($products);
+  			$brand = $request->brand;
+  		}
+
+      if ($request->category != 1) {
+  			$is_parent = Category::isParent($request->category);
+  			$category_children = [];
+
+  			if ($is_parent) {
+  				$childs = Category::find($request->category)->childs()->get();
+
+  				foreach ($childs as $child) {
+  					$is_parent = Category::isParent($child->id);
+
+  					if ($is_parent) {
+  						$children = Category::find($child->id)->childs()->get();
+
+  						foreach ($children as $chili) {
+  							array_push($category_children, $chili->id);
+  						}
+  					} else {
+  						array_push($category_children, $child->id);
+  					}
+  				}
+  			} else {
+  				array_push($category_children, $request->category);
+  			}
+
+  			if ($request->brand[0] != null) {
+  				$products = $products->whereIn('category', $category_children);
+  			} else {
+  				$products = (new Product())->newQuery()
+  				                                 ->latest()->where('quick_product', 1)->whereIn('category', $category_children);
+  			}
+
+  			$category = $request->category;
+  		}
+      if ($request->brand[0] == null && ($request->category == null || $request->category == 1)) {
+        $products = (new Product())->newQuery()
+                                         ->latest()->where('quick_product', 1);
+      }
+
+      $products = $products->paginate(Setting::get('pagination'));
+      $brands_all = Brand::all();
+      $categories_all = Category::all();
+      $brands = [];
+      $categories = [];
+
+      foreach ($brands_all as $brand) {
+        $brands[$brand->id] = $brand->name;
+      }
+
+      foreach ($categories_all as $category) {
+        $categories[$category->id] = $category->title;
+      }
+
+      $category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id'  => 'category_selection'])
+  		                                        ->renderAsDropdown();
+
+      $selected_categories = $request->category ? $request->category : 1;
+
+  		$filter_categories_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'filter_categories_selection'])
+  		                                        ->selected($selected_categories)
+  		                                        ->renderAsDropdown();
+
+      return view('quicksell.index', [
+        'products'  => $products,
+        'brands'  => $brands,
+        'categories'  => $categories,
+        'category_selection'  => $category_selection,
+        'brand'         => $brand,
+        'category'      => $category,
+        'filter_categories_selection'  => $filter_categories_selection
+      ]);
     }
 
     /**
@@ -108,6 +182,8 @@ class QuickSellController extends Controller
       $product->supplier = $request->supplier;
       $product->price = $request->price;
       $product->size = $request->size;
+      $product->brand = $request->brand;
+      $product->category = $request->category;
       $product->save();
 
       if ($request->hasfile('images')) {
