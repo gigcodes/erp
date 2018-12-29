@@ -117,17 +117,24 @@ class MagentoController extends Controller {
 			}
 			$balance_amount = $results['base_grand_total'] - $paid;
 
-			$customer = Customer::where('name', 'LIKE', "%" . $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'] . "%")->first();
+			$full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
+			$customer = Customer::where('name', 'LIKE', "%$full_name%")->first();
 
 			if ($customer) {
 				$customer_id = $customer->id;
 			} else {
 				$customer = new Customer;
-				$customer->name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
-				$temp_number = [];
-				$temp_number['phone'] = $this->generateRandomString();
+				$customer->name = $full_name;
 
-				$customer->phone = $this->validatePhone($temp_number);
+				if ($results['billing_address']['telephone'] != null) {
+					$customer->phone = $results['billing_address']['telephone'];
+				} else {
+					$temp_number = [];
+					$temp_number['phone'] = $this->generateRandomString();
+
+					$customer->phone = $this->validatePhone($temp_number);
+				}
+
 				$customer->save();
 
 				$customer_id = $customer->id;
