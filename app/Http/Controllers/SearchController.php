@@ -93,19 +93,22 @@ class SearchController extends Controller {
 			$min = $exploded[0];
 			$max = $exploded[1];
 
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
-				$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
-			} else {
-				$productQuery = ( new Product() )->newQuery()
-				                                 ->latest()->whereBetween('price_special', [$min, $max]);
+			if ($min != 0 && $max != 10000000) {
+				if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
+					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+				} else {
+					$productQuery = ( new Product() )->newQuery()
+					                                 ->latest()->whereBetween('price_special', [$min, $max]);
+				}
 			}
+
 
 			$data['price'][0] = $min;
 			$data['price'][1] = $max;
 		}
 
 		if ($request->supplier[0] != null) {
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
 				$productQuery = $productQuery->whereIn('supplier', $request->supplier);
 			} else {
 				$productQuery = ( new Product() )->newQuery()
@@ -119,7 +122,7 @@ class SearchController extends Controller {
 				$productQuery = ( new Product() )->newQuery()
 				                                 ->latest()->where('quick_product', 1);
 		}
-
+		// return response()->json($request->all());
 		if (trim($term) != '') {
 			$productQuery = ( new Product() )->newQuery()
 			                                 ->latest()
