@@ -118,22 +118,27 @@ class MagentoController extends Controller {
 			$balance_amount = $results['base_grand_total'] - $paid;
 
 			$full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
-			$customer = Customer::where('name', 'LIKE', "%$full_name%")->first();
+
+			if ($results['billing_address']['telephone'] != null) {
+				$customer = Customer::where('phone', $results['billing_address']['telephone'])->first();
+			} else {
+				$customer = Customer::where('name', 'LIKE', "%$full_name%")->first();
+			}
 
 			if ($customer) {
 				$customer_id = $customer->id;
 			} else {
 				$customer = new Customer;
 				$customer->name = $full_name;
+				$temp_number = [];
 
 				if ($results['billing_address']['telephone'] != null) {
-					$customer->phone = $results['billing_address']['telephone'];
+					$temp_number['phone'] = $results['billing_address']['telephone'];
 				} else {
-					$temp_number = [];
-					$temp_number['phone'] = $this->generateRandomString();
-
-					$customer->phone = $this->validatePhone($temp_number);
+					$temp_number['phone'] = self::generateRandomString();
 				}
+
+				$customer->phone = self::validatePhone($temp_number);
 
 				$customer->save();
 
@@ -188,7 +193,7 @@ class MagentoController extends Controller {
 
 	}
 
-	public function generateRandomString($length = 10) {
+	public static function generateRandomString($length = 10) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $charactersLength = strlen($characters);
     $randomString = '';
@@ -198,18 +203,18 @@ class MagentoController extends Controller {
     return $randomString;
 	}
 
-	public function validatePhone($phone) {
+	public static function validatePhone($phone) {
 		$validator = Validator::make($phone, [
 			'phone' => 'unique:customers,phone'
 		]);
 
 		if ($validator->fails()) {
-			$temp_number['phone'] = $this->generateRandomString();
+			$phone['phone'] = self::generateRandomString();
 
-			$this->validatePhone($temp_number);
+			self::validatePhone($phone);
 		}
 
-		return $phone;
+		return $phone['phone'];
 	}
 
 
