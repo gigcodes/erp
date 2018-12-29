@@ -326,6 +326,8 @@ class ProductController extends Controller {
 		$media = MediaUploader::fromSource($request->file('image'))->upload();
 		$product->attachMedia($media,config('constants.media_tags'));
 
+		$product_image = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+
 		$order_product = new OrderProduct;
 
 		$order_product->order_id = $request->order_id;
@@ -339,6 +341,6 @@ class ProductController extends Controller {
 
 		// return response($product);
 
-		return response(['product' => $product, 'order' => $order_product, 'quantity' => $request->quantity]);
+		return response(['product' => $product, 'order' => $order_product, 'quantity' => $request->quantity, 'product_image' => $product_image]);
 	}
 }

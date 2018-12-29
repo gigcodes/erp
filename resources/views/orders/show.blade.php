@@ -1217,12 +1217,14 @@
           enctype: 'multipart/form-data',
           data: form_data,
           success: function(response) {
-            var show_url = "{{ url('products') }}/" + response.order.id;
+            var brands_array = {!! json_encode(\App\Helpers::getUserArray(\App\Brand::all())) !!};
+            var show_url = "{{ url('products') }}/" + response.product.id;
             var delete_url = "{{ url('deleteOrderProduct') }}/" + response.order.id;
-            var product_row = '<tr><th>' + response.product.name + '</th>';
+            var product_row = '<tr><th><img width="200" src="' + response.product_image + '" /></th>';
+                product_row += '<th>' + response.product.name + '</th>';
                 product_row += '<th>' + response.product.sku + '</th>';
                 product_row += '<th>' + response.product.color + '</th>';
-                product_row += '<th>' + response.product.brand + '</th>';
+                product_row += '<th>' + brands_array[response.product.brand] + '</th>';
                 product_row += '<th><input class="table-input" type="text" value="' + response.product.price + '" name="order_products[' + response.order.id + '][product_price]"></th>';
                 // product_row += '<th>' + response.product.size + '</th>';
 
@@ -1243,8 +1245,8 @@
                 }
 
                 product_row += '<th><input class="table-input" type="number" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></th>';
-                product_row += '<th><a class="btn btn-secondary" href="' + show_url + '">View</a>';
-                product_row += '<form class="display-inline" method="post" action="' + delete_url + '">@csrf<button type="submit" class="btn btn-secondary">Remove</button></form></th>';
+                product_row += '<th><a class="btn btn-image" href="' + show_url + '"><img src="/images/view.png" /></a>';
+                product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></th>';
                 product_row += '</tr>';
 
             $('#products-table').append(product_row);

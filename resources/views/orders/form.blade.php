@@ -119,6 +119,7 @@
                         <strong> Products Attacted:</strong>
                         <table class="table table-bordered" id="products-table">
                             <tr>
+                                <th>Image</th>
                                 <th>Name</th>
                                 <th>Sku</th>
                                 <th>Color</th>
@@ -131,11 +132,13 @@
                             @foreach($order_products  as $order_product)
                                 <tr>
                                     @if(isset($order_product['product']))
+                                        <th><img width="200" src="{{ $order_product['product']['image'] }}" /></th>
                                         <th>{{ $order_product['product']['name'] }}</th>
                                         <th>{{ $order_product['product']['sku'] }}</th>
                                         <th>{{ $order_product['product']['color'] }}</th>
                                         <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</th>
                                     @else
+                                        <th></th>
                                         <th></th>
                                         <th>{{$order_product['sku']}}</th>
                                         <th></th>
@@ -191,8 +194,8 @@
                     <!-- Modal content-->
                     <div class="modal-content">
                       <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h4 class="modal-title">Create Product</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                       </div>
                       <div class="modal-body">
                         <div class="form-group">
@@ -476,12 +479,14 @@
             enctype: 'multipart/form-data',
             data: form_data,
             success: function(response) {
-              var show_url = "{{ url('products') }}/" + response.order.id;
+              var brands_array = {!! json_encode(\App\Helpers::getUserArray(\App\Brand::all())) !!};
+              var show_url = "{{ url('products') }}/" + response.product.id;
               var delete_url = "{{ url('deleteOrderProduct') }}/" + response.order.id;
-              var product_row = '<tr><th>' + response.product.name + '</th>';
+              var product_row = '<tr><th><img width="200" src="' + response.product_image + '" /></th>';
+                  product_row += '<th>' + response.product.name + '</th>';
                   product_row += '<th>' + response.product.sku + '</th>';
                   product_row += '<th>' + response.product.color + '</th>';
-                  product_row += '<th>' + response.product.brand + '</th>';
+                  product_row += '<th>' + brands_array[response.product.brand] + '</th>';
                   product_row += '<th><input class="table-input" type="text" value="' + response.product.price + '" name="order_products[' + response.order.id + '][product_price]"></th>';
                   // product_row += '<th>' + response.product.size + '</th>';
 
@@ -502,8 +507,8 @@
                   }
 
                   product_row += '<th><input class="table-input" type="number" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></th>';
-                  product_row += '<th><a class="btn btn-primary btn-success" href="' + show_url + '">View</a>';
-                  product_row += '<form class="display-inline" method="post" action="' + delete_url + '">@csrf<button type="submit" class="btn btn-primary btn-danger">Remove</button></form></th>';
+                  product_row += '<th><a class="btn btn-image" href="' + show_url + '"><img src="/images/view.png" /></a>';
+                  product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></th>';
                   product_row += '</tr>';
 
               $('#products-table').append(product_row);
