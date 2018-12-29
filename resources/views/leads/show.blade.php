@@ -263,8 +263,6 @@
                                     minimumInputLength: 5,
                                     templateResult: formatProduct,
                                     templateSelection:function(product) {
-                                      console.log('YRA');
-                                      console.log(product.id);
                                          return product.text || product.name;
                                      },
 
@@ -663,12 +661,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- @foreach ($leads['recordings'] as $recording)
+                            @foreach ($leads['recordings'] as $recording)
                                 <tr>
-                                    <td><a href="{{$recording['recording_url']}}" target="_blank">{{$recording['recording_url']}}</a></td>
+                                  {{-- <td><a href="{{$recording['recording_url']}}" target="_blank">{{$recording['recording_url']}}</a></td> --}}
+                                    <td><button type="button" class="btn btn-xs btn-secondary play-recording" data-url="{{$recording['recording_url']}}" data-id="{{ $recording['id'] }}">Play Recording</button></td>
                                     <td>{{$recording['created_at']}}</td>
                                 </tr>
-                            @endforeach --}}
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -1361,7 +1360,6 @@
           var images = '';
           if (message.images !== null) {
             message.images.forEach(function (image) {
-              console.log(image);
               images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '">' : '';
               images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image.key + '">x</span></div>';
               images += image.product_id !== '' ? '</a>' : '';
@@ -1477,7 +1475,7 @@
           p.attr("data-messageshort", message.message);
           p.attr("data-message", message.message);
           p.attr("data-expanded", "true");
-          console.log("renderMessage message is ", message);
+          // console.log("renderMessage message is ", message);
           if ( message.message ) {
               p.html( message.message );
           } else if ( message.media_url ) {
@@ -1492,7 +1490,7 @@
                   img.attr("height", "100");
                   img.appendTo( a );
                   a.appendTo( p );
-                  console.log("rendered image message ", a);
+                  // console.log("rendered image message ", a);
               } else if (splitted[0]==="video") {
                   $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
               }
@@ -1569,7 +1567,7 @@
             });
 		}
         function scrollChatTop() {
-            console.log("scrollChatTop called");
+            // console.log("scrollChatTop called");
             // var el = $(".chat-frame");
             // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
         }
@@ -1596,7 +1594,7 @@
 			}).done( function(response) {
         $('#waNewMessage').val('');
         pollMessages();
-				console.log("message was sent");
+				// console.log("message was sent");
 			}).fail(function(errObj) {
 				alert("Could not send message");
 			});
@@ -1712,7 +1710,7 @@
         }
       }).done( function(response) {
         // $(thiss).remove();
-        console.log(response);
+        // console.log(response);
       }).fail(function(errObj) {
         console.log(errObj);
         alert("Could not create whatsapp message");
@@ -1775,7 +1773,7 @@
           url: '{{ route('task.gettaskremark') }}',
           data: {id:taskId},
       }).done(response => {
-          console.log(response);
+          // console.log(response);
 
           var html='';
 
@@ -1828,6 +1826,31 @@
   $(document).ready(function() {
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
   });
+
+  $('.play-recording').on('click', function() {
+    var url = $(this).data('url');
+    var key = $(this).data('id');
+    var recording = new Audio(url);
+    // $(recording).attr('id', 'recording_' + key);
+    // console.log(recording);
+
+    // var pause_button = '<button type="button" class="btn btn-xs btn-secondary ml-3 stop-recording" data-id="' + key + '" data-button="' + recording + '">Stop Recording</button>';
+    // $(this).parent().append(pause_button);
+
+    recording.play();
+  });
+
+  // $(document).on('click', '.stop-recording', function() {
+  //   var key = $(this).data('id');
+  //   // var recording = $('#recording_' + key);
+  //   var recording = $(this).data('button');
+  //
+  //   console.log(recording);
+  //   $(recording).pause();
+  //   $(recording).currentTime = 0;
+  //
+  //   $(this).remove();
+  // });
 
  </script>
 

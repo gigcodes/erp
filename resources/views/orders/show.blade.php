@@ -614,12 +614,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- @foreach ($order_recordings as $recording)
+                            @foreach ($order_recordings as $recording)
                                 <tr>
-                                    <td><a href="{{$recording['recording_url']}}" target="_blank">{{$recording['recording_url']}}</a></td>
+                                    {{-- <td><a href="{{$recording['recording_url']}}" target="_blank">{{$recording['recording_url']}}</a></td> --}}
+                                    <td><button type="button" class="btn btn-xs btn-secondary play-recording" data-url="{{$recording['recording_url']}}" data-id="{{ $recording['id'] }}">Play Recording</button></td>
                                     <td>{{$recording['created_at']}}</td>
                                 </tr>
-                            @endforeach --}}
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -1828,6 +1829,19 @@
     });
 
 	});
+
+  $('.play-recording').on('click', function() {
+    var url = $(this).data('url');
+    var key = $(this).data('id');
+    var recording = new Audio(url);
+    // $(recording).attr('id', 'recording_' + key);
+    // console.log(recording);
+
+    // var pause_button = '<button type="button" class="btn btn-xs btn-secondary ml-3 stop-recording" data-id="' + key + '" data-button="' + recording + '">Stop Recording</button>';
+    // $(this).parent().append(pause_button);
+
+    recording.play();
+  });
 
     </script>
 
