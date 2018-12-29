@@ -36,7 +36,7 @@
                   Replied
                 @elseif ($lead['communication']['status'] == 1)
                   <span>Awaiting Approval</span>
-                  <a href data-url="/message/updatestatus?status=2&id={{ $lead['communication']['id'] }}&moduleid={{ $lead['communication']['moduleid'] }}&moduletype={{ $lead['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a>
+                  {{-- <a href data-url="/message/updatestatus?status=2&id={{ $lead['communication']['id'] }}&moduleid={{ $lead['communication']['moduleid'] }}&moduletype={{ $lead['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a> --}}
                 @elseif ($lead['communication']['status'] == 2)
                   Approved
                 @elseif ($lead['communication']['status'] == 4)
@@ -53,7 +53,7 @@
                   Replied
                 @elseif ($lead['communication']['status'] == 1)
                   <span>Awaiting Approval</span>
-                  <a href data-url="/whatsapp/approve/leads?messageId={{ $lead['communication']['id'] }}" style="font-size: 9px" class="change_message_status approve-whatsapp" data-messageid="{{ $lead['communication']['id'] }}">Approve</a>
+                  {{-- <a href data-url="/whatsapp/approve/leads?messageId={{ $lead['communication']['id'] }}" style="font-size: 9px" class="change_message_status approve-whatsapp" data-messageid="{{ $lead['communication']['id'] }}">Approve</a> --}}
                 @elseif ($lead['communication']['status'] == 2)
                   Approved
                 @elseif ($lead['communication']['status'] == 0)
