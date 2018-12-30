@@ -7,7 +7,7 @@
             <div class="pull-left">
                 <h2>Customers List</h2>
 
-                {{-- <form action="/order/" method="GET">
+                <form action="/customers/" method="GET">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-12">
@@ -20,7 +20,7 @@
                             </div>
                         </div>
                     </div>
-                </form> --}}
+                </form>
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
@@ -42,11 +42,11 @@
 
     <table class="table table-bordered">
         <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Instagram</th>
-          <th width="280px">Action</th>
+          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Name</a></th>
+          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=email{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Email</a></th>
+          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=phone{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Phone</a></th>
+          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=instagram{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Instagram</a></th>
+          <th width="150px">Action</th>
         </tr>
         @foreach ($customers as $key => $customer)
             <tr>

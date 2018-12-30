@@ -20,10 +20,45 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-      $customers = Customer::latest()->paginate(Setting::get('pagination'));
+      $term = $request->input('term');
+      $customers = (new Customer())->newQuery();
 
+      if($request->input('orderby') == '')
+  				$orderby = 'desc';
+  		else
+  				$orderby = 'asc';
+
+  		switch ($request->input('sortby')) {
+  			case 'name':
+  					 $sortby = 'name';
+  					break;
+  			case 'email':
+  					 $sortby = 'email';
+  					break;
+  			case 'phone':
+  					 $sortby = 'phone';
+  					break;
+  			case 'instagram':
+  					 $sortby = 'instahandler';
+  					break;
+  			default :
+  					 $sortby = 'created_at';
+  		}
+
+			$customers = $customers->orderBy($sortby, $orderby);
+
+      if(empty($term))
+  			$customers = $customers->latest();
+  		else{
+  			$customers = $customers->latest()
+  			               ->orWhere('name', 'LIKE', "%$term%")
+  			               ->orWhere('phone', 'LIKE', "%$term%")
+  			               ->orWhere('instahandler', 'LIKE', "%$term%");
+  		}
+
+      $customers = $customers->paginate(Setting::get('pagination'));
       // $leads = Leads::whereNotNull('contactno')->get()->groupBy('contactno');
       //
       // foreach ($leads as $number => $lead) {
@@ -61,42 +96,46 @@ class CustomerController extends Controller
       //   }
       // }
 
-      $chat_messages_leads = ChatMessage::whereNotNull('lead_id')->get();
-      $chat_messages_orders = ChatMessage::whereNotNull('order_id')->get();
+      // $chat_messages_leads = ChatMessage::whereNotNull('lead_id')->get();
+      // $chat_messages_orders = ChatMessage::whereNotNull('order_id')->get();
+      //
+      // foreach ($chat_messages_leads as $chat) {
+      //   $lead = Leads::withTrashed()->whereNotNull('contactno')->where('id', $chat->lead_id)->first();
+      //   if ($lead) {
+      //     if ($customer = Customer::where('phone', $lead->contactno)->first()) {
+      //       $chat->customer_id = $customer->id;
+      //       $chat->save();
+      //     } else {
+      //       // dd($lead->contactno, 'no lead customer');
+      //     }
+      //
+      //
+      //   } else {
+      //     // dd('no lead');
+      //   }
+      // }
+      //
+      // foreach ($chat_messages_orders as $chat) {
+      //   $order = Order::withTrashed()->whereNotNull('contact_detail')->where('id', $chat->order_id)->first();
+      //   if ($order) {
+      //     if ($customer = Customer::where('phone', $order->contact_detail)->first()) {
+      //       $chat->customer_id = $customer->id;
+      //       $chat->save();
+      //     } else {
+      //       // dd($order->contact_detail, 'no order customer');
+      //     }
+      //
+      //
+      //   } else {
+      //     // dd('no lead');
+      //   }
+      // }
 
-      foreach ($chat_messages_leads as $chat) {
-        $lead = Leads::withTrashed()->whereNotNull('contactno')->where('id', $chat->lead_id)->first();
-        if ($lead) {
-          if ($customer = Customer::where('phone', $lead->contactno)->first()) {
-            $chat->customer_id = $customer->id;
-            $chat->save();
-          } else {
-            // dd($lead->contactno, 'no lead customer');
-          }
-
-
-        } else {
-          // dd('no lead');
-        }
-      }
-
-      foreach ($chat_messages_orders as $chat) {
-        $order = Order::withTrashed()->whereNotNull('contact_detail')->where('id', $chat->order_id)->first();
-        if ($order) {
-          if ($customer = Customer::where('phone', $order->contact_detail)->first()) {
-            $chat->customer_id = $customer->id;
-            $chat->save();
-          } else {
-            // dd($order->contact_detail, 'no order customer');
-          }
-
-
-        } else {
-          // dd('no lead');
-        }
-      }
-
-      return view('customers.index')->withCustomers($customers);
+      return view('customers.index', [
+        'customers' => $customers,
+        'term' => $term,
+        'orderby' => $orderby,
+      ]);
     }
 
     /**
