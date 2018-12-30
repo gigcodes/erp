@@ -26,13 +26,13 @@
     <li class="active">
       <a href="#1" data-toggle="tab">Customer Info</a>
     </li>
-    <li>
-      <a href="#2" data-toggle="tab">Leads</a>
-    </li>
-    <li><a href="#3" data-toggle="tab">Orders</a>
-    </li>
-    <li><a href="#4" data-toggle="tab">Communication</a>
-    </li>
+    @if (count($customer->leads) > 0)
+    <li><a href="#2" data-toggle="tab">Leads</a></li>
+    @endif
+    @if (count($customer->orders) > 0)
+      <li><a href="#3" data-toggle="tab">Orders</a></li>
+    @endif
+    <li><a href="#4" data-toggle="tab">Communication</a></li>
   </ul>
 </div>
 
@@ -75,8 +75,8 @@
     </div>
   </div>
 
-  <div class="tab-pane mt-3" id="2">
-    @if (count($customer->leads) > 0)
+  @if (count($customer->leads) > 0)
+    <div class="tab-pane mt-3" id="2">
       @foreach ($customer->leads as $key => $lead)
         <h2><a href="{{ route('leads.show', $lead->id) }}" target="_blank">Lead {{ $key + 1 }}</a></h2>
         <form action="{{ route('leads.update', $lead->id) }}" method="POST" enctype="multipart/form-data">
@@ -288,13 +288,11 @@
           </div>
    </form>
       @endforeach
-    @else
-      There are no leads for this customer
-    @endif
-  </div>
+    </div>
+  @endif
 
-  <div class="tab-pane mt-3" id="3">
-    @if (count($customer->orders) > 0)
+  @if (count($customer->orders) > 0)
+    <div class="tab-pane mt-3" id="3">
       @foreach ($customer->orders as $key => $order)
         <h2><a href="{{ route('order.show', $order->id) }}" target="_blank">Order {{ $key + 1 }}</a></h2>
         <form action="{{ route('order.update',$order->id) }}" method="POST" enctype="multipart/form-data">
@@ -590,10 +588,8 @@
           </div>
         </form>
       @endforeach
-    @else
-      There are no orders for this customer
-    @endif
-  </div>
+    </div>
+  @endif
 
   <div class="tab-pane mt-3" id="4">
     <h2>Whatsapp</h2>
