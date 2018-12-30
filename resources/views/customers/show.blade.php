@@ -32,7 +32,6 @@
     @if (count($customer->orders) > 0)
       <li><a href="#3" data-toggle="tab">Orders</a></li>
     @endif
-    <li><a href="#4" data-toggle="tab">Communication</a></li>
   </ul>
 </div>
 
@@ -590,16 +589,14 @@
       @endforeach
     </div>
   @endif
+</div>
 
-  <div class="tab-pane mt-3" id="4">
-    <h2>Whatsapp</h2>
-    <div class="row">
-      <div class="col-12" id="message-container"></div>
+<h2>Messages</h2>
+<div class="row">
+  <div class="col-12" id="message-container"></div>
 
-      <div class="col-xs-12 text-center">
-        <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
-      </div>
-    </div>
+  <div class="col-xs-12 text-center">
+    <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
   </div>
 </div>
 
