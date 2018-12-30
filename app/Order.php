@@ -45,6 +45,11 @@ class Order extends Model {
 
 	}
 
+	public function customer()
+	{
+		return $this->belongsTo('App\Customer');
+	}
+
 	public function Comment(){
 
 		return $this->hasMany(Comment::class ,'subject_id','id')

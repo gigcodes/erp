@@ -44,6 +44,11 @@ class Leads extends Model {
 	protected $appends = ['communication'];
 	protected $communication = '';
 
+	public function customer()
+	{
+		return $this->belongsTo('App\Customer');
+	}
+
 	public function messages()
 	{
 		return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'leads')->latest()->first();

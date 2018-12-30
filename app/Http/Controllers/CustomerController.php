@@ -10,6 +10,8 @@ use App\Order;
 use App\Status;
 use App\Brand;
 use App\User;
+use App\ChatMessage;
+use App\Helpers;
 
 class CustomerController extends Controller
 {
@@ -58,6 +60,41 @@ class CustomerController extends Controller
       //     }
       //   }
       // }
+
+      $chat_messages_leads = ChatMessage::whereNotNull('lead_id')->get();
+      $chat_messages_orders = ChatMessage::whereNotNull('order_id')->get();
+
+      foreach ($chat_messages_leads as $chat) {
+        $lead = Leads::withTrashed()->whereNotNull('contactno')->where('id', $chat->lead_id)->first();
+        if ($lead) {
+          if ($customer = Customer::where('phone', $lead->contactno)->first()) {
+            $chat->customer_id = $customer->id;
+            $chat->save();
+          } else {
+            // dd($lead->contactno, 'no lead customer');
+          }
+
+
+        } else {
+          // dd('no lead');
+        }
+      }
+
+      foreach ($chat_messages_orders as $chat) {
+        $order = Order::withTrashed()->whereNotNull('contact_detail')->where('id', $chat->order_id)->first();
+        if ($order) {
+          if ($customer = Customer::where('phone', $order->contact_detail)->first()) {
+            $chat->customer_id = $customer->id;
+            $chat->save();
+          } else {
+            // dd($order->contact_detail, 'no order customer');
+          }
+
+
+        } else {
+          // dd('no lead');
+        }
+      }
 
       return view('customers.index')->withCustomers($customers);
     }
@@ -123,6 +160,7 @@ class CustomerController extends Controller
       // $sales_persons = Helpers::getUsersArrayByRole( 'Sales' );
       // $leads['statusid'] = $data;
       $users = User::all()->toArray();
+      $users_array = Helpers::getUserArray(User::all());
       // $leads['users']  = $users;
       $brands = Brand::all()->toArray();
       // $leads['brands']  = $brands;
@@ -156,7 +194,8 @@ class CustomerController extends Controller
         'customer'  => $customer,
         'status'    => $status,
         'brands'    => $brands,
-        'users'     => $users
+        'users'     => $users,
+        'users_array'     => $users_array
       ]);
     }
 

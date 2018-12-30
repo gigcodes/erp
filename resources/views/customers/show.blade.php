@@ -31,6 +31,8 @@
     </li>
     <li><a href="#3" data-toggle="tab">Orders</a>
     </li>
+    <li><a href="#4" data-toggle="tab">Communication</a>
+    </li>
   </ul>
 </div>
 
@@ -592,6 +594,17 @@
       There are no orders for this customer
     @endif
   </div>
+
+  <div class="tab-pane mt-3" id="4">
+    <h2>Whatsapp</h2>
+    <div class="row">
+      <div class="col-12" id="message-container"></div>
+
+      <div class="col-xs-12 text-center">
+        <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <form action="" method="POST" id="product-remove-form">
@@ -732,7 +745,391 @@
             $('#product-remove-form').submit();
           });
 
+          $(document).on('click', ".collapsible-message", function() {
+            var short_message = $(this).data('messageshort');
+            var message = $(this).data('message');
+            var status = $(this).data('expanded');
 
+            if (status == false) {
+              $(this).addClass('expanded');
+              $(this).html(message);
+              $(this).data('expanded', true);
+              // $(this).siblings('.thumbnail-wrapper').remove();
+              $(this).closest('.talktext').find('.message-img').removeClass('thumbnail-200');
+              $(this).closest('.talktext').find('.message-img').parent().css('width', 'auto');
+            } else {
+              $(this).removeClass('expanded');
+              $(this).html(short_message);
+              $(this).data('expanded', false);
+              $(this).closest('.talktext').find('.message-img').addClass('thumbnail-200');
+              $(this).closest('.talktext').find('.message-img').parent().css('width', '200px');
+            }
+
+          });
+
+          $(document).ready(function() {
+       		var container = $("div#message-container");
+       		var sendBtn = $("#waMessageSend");
+       		var customerId = "{{$customer->id}}";
+               var addElapse = false;
+               function errorHandler(error) {
+                   console.error("error occured: " , error);
+               }
+               function approveMessage(element, message) {
+                   $.post( "/whatsapp/approve/customer", { messageId: message.id })
+                     .done(function( data ) {
+                       console.log(data);
+                       element.remove();
+                     }).fail(function(response) {
+                       console.log(response);
+                       alert( "Technical error. could not approve message");
+                     });
+               }
+               function createMessageArgs() {
+                    var data = new FormData();
+                   var text = $("#waNewMessage").val();
+                   var files = $("#waMessageMedia").prop("files");
+                   var text = $("#waNewMessage").val();
+
+                   data.append("lead_id", customerId);
+                   if (files && files.length>0){
+                       for ( var i = 0; i != files.length; i ++ ) {
+                         data.append("media[]", files[ i ]);
+                       }
+                       return data;
+                   }
+                   if (text !== "") {
+                       data.append("message", text);
+                       return data;
+                   }
+
+                   alert("please enter a message or attach media");
+                 }
+
+       		function renderMessage(message, tobottom = null) {
+       				var domId = "waMessage_" + message.id;
+       				var current = $("#" + domId);
+               var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
+               var is_hod_crm = "{{ Auth::user()->hasRole('HOD of CRM') }}";
+               var users_array = {!! json_encode($users_array) !!};
+       				if ( current.get( 0 ) ) {
+       					return false;
+       				}
+
+               if (message.body) {
+                 var leads_assigned_user = "";
+
+                 var text = $("<div class='talktext'></div>");
+                 var p = $("<p class='collapsible-message'></p>");
+
+                 if ((message.body).indexOf('<br>') !== -1) {
+                   var splitted = message.body.split('<br>');
+                   var short_message = splitted[0].length > 150 ? (splitted[0].substring(0, 147) + '...<br>' + splitted[1]) : message.body;
+                   var long_message = message.body;
+                 } else {
+                   var short_message = message.body.length > 150 ? (message.body.substring(0, 147) + '...') : message.body;
+                   var long_message = message.body;
+                 }
+
+                 var images = '';
+                 if (message.images !== null) {
+                   message.images.forEach(function (image) {
+                     images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '">' : '';
+                     images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image.key + '">x</span></div>';
+                     images += image.product_id !== '' ? '</a>' : '';
+                   });
+                   images += '<br>';
+                 }
+
+                 p.attr("data-messageshort", short_message);
+                 p.attr("data-message", long_message);
+                 p.attr("data-expanded", "false");
+                 p.attr("data-messageid", message.id);
+                 p.html(short_message);
+
+                 if (message.status == 0 || message.status == 5 || message.status == 6) {
+                   var row = $("<div class='talk-bubble round grey'></div>");
+
+                   var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+                   var mark_read = $("<a href data-url='/message/updatestatus?status=5&id=" + message.id + "&moduleid=" + message.moduleid + "&moduletype=leads' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
+                   var mark_replied = $('<a href data-url="/message/updatestatus?status=6&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
+
+                   row.attr("id", domId);
+
+                   p.appendTo(text);
+                   $(images).appendTo(text);
+                   meta.appendTo(text);
+
+                   if (message.status == 0) {
+                     mark_read.appendTo(text);
+                   }
+                   if (message.status == 0 || message.status == 5) {
+                     mark_replied.appendTo(text);
+                   }
+
+                   text.appendTo(row);
+
+                   if (tobottom) {
+                     row.appendTo(container);
+                   } else {
+                     row.prependTo(container);
+                   }
+
+                 } else if (message.status == 4) {
+                   var row = $("<div class='talk-bubble round dashed-border' data-messageid='" + message.id + "'></div>");
+                   var chat_friend =  (message.assigned_to != 0 && message.assigned_to != leads_assigned_user && message.userid != message.assigned_to) ? ' - ' + users_array[message.assigned_to] : '';
+                   var meta = $("<em>" + users_array[message.userid] + " " + chat_friend + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/1.png' /> &nbsp;</em>");
+
+                   row.attr("id", domId);
+
+                   p.appendTo(text);
+                   $(images).appendTo(text);
+                   meta.appendTo(text);
+
+                   text.appendTo(row);
+                   if (tobottom) {
+                     row.appendTo(container);
+                   } else {
+                     row.prependTo(container);
+                   }
+                 } else {
+                   var row = $("<div class='talk-bubble round' data-messageid='" + message.id + "'></div>");
+                   var body = $("<span id='message_body_" + message.id + "'></span>");
+                   var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.body + '</textarea>');
+                   var meta = "<em>" + users_array[message.userid] + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/" + message.status + ".png' /> &nbsp;";
+
+                   if (message.status == 2 && is_admin == false) {
+                     meta += '<a href data-url="/message/updatestatus?status=3&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as sent </a>';
+                   }
+
+                   if (message.status == 1 && (is_admin == true || is_hod_crm == true)) {
+                     meta += '<a href data-url="/message/updatestatus?status=2&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status wa_send_message" data-messageid="' + message.id + '">Approve</a>';
+                     meta += ' <a href="#" style="font-size: 9px" class="edit-message" data-messageid="' + message.id + '">Edit</a>';
+                   }
+
+                   meta += "</em>";
+                   var meta_content = $(meta);
+
+
+
+                   row.attr("id", domId);
+
+                   p.appendTo(body);
+                   body.appendTo(text);
+                   edit_field.appendTo(text);
+                   $(images).appendTo(text);
+                   meta_content.appendTo(text);
+
+                   if (message.status == 2 && is_admin == false) {
+                     var copy_button = $('<button class="copy-button btn btn-secondary" data-id="' + message.id + '" moduleid="' + message.moduleid + '" moduletype="orders" data-message="' + message.body + '"> Copy message </button>');
+                     copy_button.appendTo(text);
+                   }
+
+
+                   text.appendTo(row);
+
+                   if (tobottom) {
+                     row.appendTo(container);
+                   } else {
+                     row.prependTo(container);
+                   }
+                 }
+               } else {
+                 var row = $("<div class='talk-bubble round'></div>");
+                 var text = $("<div class='talktext'></div>");
+                 var p = $("<p class='collapsible-message'></p>");
+                 if (!message.received) {
+                   var meta = $("<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+                 } else {
+                   var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+                 }
+
+                 row.attr("id", domId);
+
+                 p.attr("data-messageshort", message.message);
+                 p.attr("data-message", message.message);
+                 p.attr("data-expanded", "true");
+                 // console.log("renderMessage message is ", message);
+                 if ( message.message ) {
+                     p.html( message.message );
+                 } else if ( message.media_url ) {
+                     var splitted = message.content_type.split("/");
+                     if (splitted[0]==="image") {
+                         var a = $("<a></a>");
+                         a.attr("target", "_blank");
+                         a.attr("href", message.media_url);
+                         var img = $("<img></img>");
+                         img.attr("src", message.media_url);
+                         img.attr("width", "100");
+                         img.attr("height", "100");
+                         img.appendTo( a );
+                         a.appendTo( p );
+                         // console.log("rendered image message ", a);
+                     } else if (splitted[0]==="video") {
+                         $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
+                     }
+                 }
+
+                 p.appendTo( text );
+                 meta.appendTo(text);
+                 if (!message.received) {
+                   if (!message.approved) {
+                       var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
+                       approveBtn.click(function() {
+                           approveMessage( this, message );
+                       } );
+                       if (is_admin || is_hod_crm) {
+                         approveBtn.appendTo( text );
+                       }
+                   }
+                 } else {
+                   var moduleid = 0;
+                   var mark_read = $("<a href data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "&moduleid=" + moduleid+ "&moduletype=leads' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
+                   var mark_replied = $('<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '&moduleid=' + moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
+
+                   if (message.status == 0) {
+                     mark_read.appendTo(text);
+                   }
+                   if (message.status == 0 || message.status == 5) {
+                     mark_replied.appendTo(text);
+                   }
+                 }
+
+                 text.appendTo( row );
+
+
+                 if (tobottom) {
+                   row.appendTo(container);
+                 } else {
+                   row.prependTo(container);
+                 }
+               }
+
+                       return true;
+       		}
+       		function pollMessages(page = null, tobottom = null, addElapse = null) {
+                   var qs = "";
+                   qs += "?customerId=" + customerId;
+                   if (page) {
+                     qs += "&page=" + page;
+                   }
+                   if (addElapse) {
+                       qs += "&elapse=3600";
+                   }
+                   var anyNewMessages = false;
+                   return new Promise(function(resolve, reject) {
+                       $.getJSON("/whatsapp/pollMessagesCustomer" + qs, function( data ) {
+
+                           data.data.forEach(function( message ) {
+                               var rendered = renderMessage( message, tobottom );
+                               if ( !anyNewMessages && rendered ) {
+                                   anyNewMessages = true;
+                               }
+                           } );
+
+                           if ( anyNewMessages ) {
+                               scrollChatTop();
+                               anyNewMessages = false;
+                           }
+                           if (!addElapse) {
+                               addElapse = true; // load less messages now
+                           }
+
+
+                           resolve();
+                       });
+                   });
+       		}
+               function scrollChatTop() {
+                   // console.log("scrollChatTop called");
+                   // var el = $(".chat-frame");
+                   // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
+               }
+       		function startPolling() {
+       			setTimeout( function() {
+                       pollMessages(null, null, addElapse).then(function() {
+                           startPolling();
+                       }, errorHandler);
+                   }, 1000);
+       		}
+       		function sendWAMessage() {
+       			var data = createMessageArgs();
+                   //var data = new FormData();
+                   //data.append("message", $("#waNewMessage").val());
+                   //data.append("lead_id", leadId );
+       			$.ajax({
+       				url: '/whatsapp/sendMessage/leads',
+       				type: 'POST',
+                       "dataType"    : 'text',           // what to expect back from the PHP script, if anything
+                       "cache"       : false,
+                       "contentType" : false,
+                       "processData" : false,
+                       "data": data
+       			}).done( function(response) {
+               $('#waNewMessage').val('');
+               pollMessages();
+       				// console.log("message was sent");
+       			}).fail(function(errObj) {
+       				alert("Could not send message");
+       			});
+       		}
+
+       		sendBtn.click(function() {
+       			sendWAMessage();
+       		} );
+       		startPolling();
+
+           $(document).on('click', '.send-communication', function(e) {
+             e.preventDefault();
+
+             var thiss = $(this);
+             var url = $(this).closest('form').attr('action');
+             var token = "{{ csrf_token() }}";
+             var file = $($(this).closest('form').find('input[type="file"]'))[0].files[0];
+             var status = $(this).closest('form').find('input[name="status"]').val();
+             var formData = new FormData();
+
+             formData.append("_token", token);
+             formData.append("image", file);
+             formData.append("body", $(this).closest('form').find('textarea').val());
+             formData.append("moduletype", $(this).closest('form').find('input[name="moduletype"]').val());
+             formData.append("moduleid", $(this).closest('form').find('input[name="moduleid"]').val());
+             formData.append("assigned_user", $(this).closest('form').find('input[name="assigned_user"]').val());
+             formData.append("status", status);
+
+             if (status == 4) {
+               formData.append("assigned_user", $(this).closest('form').find('select[name="assigned_user"]').val());
+             }
+
+             if ($(this).closest('form')[0].checkValidity()) {
+               $.ajax({
+                 type: 'POST',
+                 url: url,
+                 data: formData,
+                 processData: false,
+                 contentType: false
+               }).done(function() {
+                 pollMessages();
+                 $(thiss).closest('form').find('textarea').val('');
+               }).fail(function(response) {
+                 console.log(response);
+                 alert('Error sending a message');
+               });
+             } else {
+               $(this).closest('form')[0].reportValidity();
+             }
+
+           });
+
+           $(document).on('click', '#load-more-messages', function() {
+             var current_page = $(this).data('nextpage');
+             $(this).data('nextpage', current_page + 1);
+             var next_page = $(this).data('nextpage');
+             $('#load-more-messages').text('Loading...');
+             pollMessages(next_page, true);
+             $('#load-more-messages').text('Load More');
+           });
+       	});
     </script>
 
     @endsection
