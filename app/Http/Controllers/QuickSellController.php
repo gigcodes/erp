@@ -134,7 +134,8 @@ class QuickSellController extends Controller
       		$product->quick_product = 1;
       		$product->save();
 
-      		$media = MediaUploader::fromSource($image)->upload();
+          $filename = str_slug($image->getClientOriginalName());
+      		$media = MediaUploader::fromSource($image)->useFilename($filename)->upload();
       		$product->attachMedia($media,config('constants.media_tags'));
         }
       }
@@ -188,7 +189,8 @@ class QuickSellController extends Controller
 
       if ($request->hasfile('images')) {
         foreach ($request->file('images') as $image) {
-      		$media = MediaUploader::fromSource($image)->upload();
+          $filename = str_slug($image->getClientOriginalName());
+      		$media = MediaUploader::fromSource($image)->useFilename($filename)->upload();
       		$product->attachMedia($media,config('constants.media_tags'));
         }
       }
