@@ -44,6 +44,9 @@ class CustomerController extends Controller
   			case 'instagram':
   					 $sortby = 'instahandler';
   					break;
+        case 'rating':
+  					 $sortby = 'rating';
+  					break;
         case 'communication':
   					 $sortby = 'communication';
   					break;
@@ -51,7 +54,7 @@ class CustomerController extends Controller
   					 $sortby = 'created_at';
   		}
 
-      if ($sortby != 'communication') {
+      if ($sortby != 'communication' || $sortby != 'rating') {
   			$customers = $customers->orderBy($sortby, $orderby);
       }
 
@@ -76,6 +79,20 @@ class CustomerController extends Controller
   			} else {
   				$customers = array_values(array_sort($customers, function ($value) {
   						return $value['communication']['created_at'];
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'rating') {
+  			if ($orderby == 'asc') {
+  				$customers = array_values(array_sort($customers, function ($value) {
+  						return $value['lead']['rating'];
+  				}));
+
+  				$customers = array_reverse($customers);
+  			} else {
+  				$customers = array_values(array_sort($customers, function ($value) {
+  						return $value['lead']['rating'];
   				}));
   			}
   		}

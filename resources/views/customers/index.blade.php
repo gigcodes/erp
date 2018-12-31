@@ -46,6 +46,8 @@
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=email{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Email</a></th>
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=phone{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Phone</a></th>
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=instagram{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Instagram</a></th>
+          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=rating{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Lead Rating</a></th>
+          <th>Lead/Order Status</th>
           <th>Message Status</th>
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
           <th width="150px">Action</th>
@@ -56,6 +58,21 @@
               <td>{{ $customer['email'] }}</td>
               <td>{{ $customer['phone'] }}</td>
               <td>{{ $customer['instahandler'] }}</td>
+              <td>
+                @if ($customer['lead'])
+                  {{ $customer['lead']['rating'] }}
+                @endif
+              </td>
+              <td>
+                @if ($customer['lead'])
+                  @php $status = array_flip((new \App\Status)->all()); @endphp
+                  {{ $status[$customer['lead']['status']] }}
+                @endif
+                {{ $customer['lead'] && $customer['order'] ? ' / ' : '' }}
+                @if ($customer['order'])
+                  {{ $customer['order']['order_status'] }}
+                @endif
+              </td>
               <td>
                 @if (!empty($customer['communication']['body']))
                   @if ($customer['communication']['status'] == 5 || $customer['communication']['status'] == 3)

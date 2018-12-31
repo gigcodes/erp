@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-  protected $appends = ['communication'];
+  protected $appends = ['communication', 'lead', 'order'];
 
   public function leads()
   {
@@ -16,6 +16,11 @@ class Customer extends Model
   public function orders()
   {
     return $this->hasMany('App\Order');
+  }
+
+  public function latest_order()
+  {
+    return $this->hasMany('App\Order')->latest()->first();
   }
 
   public function messages()
@@ -46,5 +51,15 @@ class Customer extends Model
 		// }
 
 		return $whatsapp;
+	}
+
+  public function getLeadAttribute()
+	{
+		return $this->leads()->latest()->first();
+	}
+
+  public function getOrderAttribute()
+	{
+		return $this->orders()->latest()->first();
 	}
 }
