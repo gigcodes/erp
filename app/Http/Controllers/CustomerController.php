@@ -12,6 +12,7 @@ use App\Brand;
 use App\User;
 use App\ChatMessage;
 use App\Helpers;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
 {
@@ -43,11 +44,16 @@ class CustomerController extends Controller
   			case 'instagram':
   					 $sortby = 'instahandler';
   					break;
+        case 'communication':
+  					 $sortby = 'communication';
+  					break;
   			default :
   					 $sortby = 'created_at';
   		}
 
-			$customers = $customers->orderBy($sortby, $orderby);
+      if ($sortby != 'communication') {
+  			$customers = $customers->orderBy($sortby, $orderby);
+      }
 
       if(empty($term))
   			$customers = $customers->latest();
@@ -58,7 +64,21 @@ class CustomerController extends Controller
   			               ->orWhere('instahandler', 'LIKE', "%$term%");
   		}
 
-      $customers = $customers->paginate(Setting::get('pagination'));
+      $customers = $customers->get()->toArray();
+
+      if ($sortby == 'communication') {
+  			if ($orderby == 'asc') {
+  				$customers = array_values(array_sort($customers, function ($value) {
+  						return $value['communication']['created_at'];
+  				}));
+
+  				$customers = array_reverse($customers);
+  			} else {
+  				$customers = array_values(array_sort($customers, function ($value) {
+  						return $value['communication']['created_at'];
+  				}));
+  			}
+  		}
       // $leads = Leads::whereNotNull('contactno')->get()->groupBy('contactno');
       //
       // foreach ($leads as $number => $lead) {
@@ -130,6 +150,14 @@ class CustomerController extends Controller
       //     // dd('no lead');
       //   }
       // }
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		$perPage = Setting::get('pagination');
+  		$currentItems = array_slice($customers, $perPage * ($currentPage - 1), $perPage);
+
+  		$customers = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [
+  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		]);
 
       return view('customers.index', [
         'customers' => $customers,

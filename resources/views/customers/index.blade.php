@@ -46,18 +46,64 @@
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=email{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Email</a></th>
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=phone{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Phone</a></th>
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=instagram{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Instagram</a></th>
+          <th>Message Status</th>
+          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Communication</a></th>
           <th width="150px">Action</th>
         </tr>
         @foreach ($customers as $key => $customer)
-            <tr>
-              <td>{{ $customer->name }}</td>
-              <td>{{ $customer->email }}</td>
-              <td>{{ $customer->phone }}</td>
-              <td>{{ $customer->instahandler }}</td>
+            <tr class="{{ ((!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }} {{ ((!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }}">
+              <td>{{ $customer['name'] }}</td>
+              <td>{{ $customer['email'] }}</td>
+              <td>{{ $customer['phone'] }}</td>
+              <td>{{ $customer['instahandler'] }}</td>
               <td>
-                <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
+                @if (!empty($customer['communication']['body']))
+                  @if ($customer['communication']['status'] == 5 || $customer['communication']['status'] == 3)
+                    Read
+                  @elseif ($customer['communication']['status'] == 6)
+                    Replied
+                  @elseif ($customer['communication']['status'] == 1)
+                    <span>Awaiting Approval</span>
+                    {{-- <a href data-url="/message/updatestatus?status=2&id={{ $customer['communication']['id'] }}&moduleid={{ $customer['communication']['moduleid'] }}&moduletype={{ $customer['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a> --}}
+                  @elseif ($customer['communication']['status'] == 2)
+                    Approved
+                  @elseif ($customer['communication']['status'] == 4)
+                    Internal Message
+                  @elseif ($customer['communication']['status'] == 0)
+                    Unread
+                  @endif
+                @endif
 
-                {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
+                @if (!empty($customer['communication']['message']))
+                  @if ($customer['communication']['status'] == 5)
+                    Read
+                  @elseif ($customer['communication']['status'] == 6)
+                    Replied
+                  @elseif ($customer['communication']['status'] == 1)
+                    <span>Awaiting Approval</span>
+                    {{-- <a href data-url="/whatsapp/approve/orders?messageId={{ $customer['communication']['id'] }}" style="font-size: 9px" class="change_message_status approve-whatsapp" data-messageid="{{ $customer['communication']['id'] }}">Approve</a> --}}
+                  @elseif ($customer['communication']['status'] == 2)
+                    Approved
+                  @elseif ($customer['communication']['status'] == 0)
+                    Unread
+                  @endif
+                @endif
+              </td>
+              <td>
+                @if (isset($customer['communication']['body']))
+                  @if (strpos($customer['communication']['body'], '<br>') !== false)
+                    {{ substr($customer['communication']['body'], 0, strpos($customer['communication']['body'], '<br>')) }}
+                  @else
+                    {{ $customer['communication']['body'] }}
+                  @endif
+                @else
+                  {{ $customer['communication']['message'] }}
+                @endif
+              </td>
+              <td>
+                <a class="btn btn-image" href="{{ route('customer.show', $customer['id']) }}"><img src="/images/view.png" /></a>
+
+                {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer['id']],'style'=>'display:inline']) !!}
                 <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                 {!! Form::close() !!}
               </td>
