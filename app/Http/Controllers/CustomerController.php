@@ -54,7 +54,7 @@ class CustomerController extends Controller
   					 $sortby = 'created_at';
   		}
 
-      if ($sortby != 'communication' || $sortby != 'rating') {
+      if ($sortby != 'communication' && $sortby != 'rating') {
   			$customers = $customers->orderBy($sortby, $orderby);
       }
 
