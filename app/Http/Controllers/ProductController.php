@@ -12,6 +12,7 @@ use App\Sale;
 use App\Setting;
 use App\Sizes;
 use App\Brand;
+use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
@@ -205,13 +206,30 @@ class ProductController extends Controller {
 			$selected_products = [];
 		}
 
+
 		if ($request->brand != '') {
 			$products = $products->where('brand', $request->brand);
 
 			$brand = $request->brand;
+			Cache::put('filter-brand', $brand, 120);
+		} else {
+			if (Cache::has('filter-brand')) {
+				$products = $products->where('brand', Cache::get('filter-brand'));
+
+				$brand = Cache::get('filter-brand');
+			}
 		}
 
 		$filtered_category = json_decode($request->category, true);
+
+		if ($filtered_category[0] != null) {
+			Cache::put('filter-category', $filtered_category, 120);
+		} else {
+			if (Cache::has('filter-category')) {
+				$filtered_category = Cache::get('filter-category');
+			}
+		}
+
 
 		if ($filtered_category[0] != null) {
 			$is_parent = Category::isParent($filtered_category[0]);
@@ -254,7 +272,7 @@ class ProductController extends Controller {
 			array_push($search_suggestions, $suggestion);
 		}
 
-		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
 		                                        ->selected($filtered_category)
 		                                        ->renderAsDropdown();
 

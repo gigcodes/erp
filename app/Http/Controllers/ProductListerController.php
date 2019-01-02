@@ -39,7 +39,7 @@ class ProductListerController extends Controller
 			array_push($search_suggestions, $suggestion);
 		}
 
-		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
 		                                        ->selected(1)
 		                                        ->renderAsDropdown();
 

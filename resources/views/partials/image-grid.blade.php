@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section("styles")
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+@endsection
 
 @section('content')
     <div class="row">
@@ -7,7 +10,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2>Attach Images to Message</h2>
+                <h2 class="page-heading">Attach Images to Message</h2>
 
                 <!--pending products count-->
                 @can('admin')
@@ -45,37 +48,28 @@
                                 @endif
                             </div>
                             <div class="form-group mr-3 mb-3">
-                              {{-- <strong>Category</strong> --}}
                               {!! $category_selection !!}
                             </div>
 
-                            <div class="form-group mr-3 mb-3">
-                              <strong class="mr-3">Price</strong>
-                              {{-- <select class="form-control" name="price">
-                                <option value>Select Price Range</option>
-                                <option value="1" {{ (isset($price) && $price == 1) ? 'selected' : '' }}>Up to 10K</option>
-                                <option value="2" {{ (isset($price) && $price == 2) ? 'selected' : '' }}>10K - 30K</option>
-                                <option value="3" {{ (isset($price) && $price == 3) ? 'selected' : '' }}>30K - 50K</option>
-                                <option value="4" {{ (isset($price) && $price == 4) ? 'selected' : '' }}>50K - 100K</option>
-                              </select> --}}
-                              <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
-                            </div>
-
                             <div class="form-group mr-3">
-                              {{-- <strong>Brands</strong> --}}
-                              @php $brands = \App\Brand::getAll(); @endphp
-            	                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
+                                @php $brands = \App\Brand::getAll(); @endphp
+                                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!}
                             </div>
 
                             <div class="form-group mr-3">
                               {{-- <strong>Color</strong> --}}
                               @php $colors = new \App\Colors(); @endphp
-                              {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
+                              {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!}
                             </div>
 
-                            <div class="form-group">
+                            <div class="form-group mr-3">
                               @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp
-                              {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control', 'multiple' => true]) !!}
+                              {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                            </div>
+
+                            <div class="form-group mr-3">
+                              <strong class="mr-3">Price</strong>
+                              <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
                             </div>
 
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
@@ -122,8 +116,12 @@
 
 
 	<?php $stage = new \App\Stage(); ?>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
+    $(document).ready(function() {
+
+       $(".select-multiple").multiselect();
+    });
       var searchSuggestions = {!! json_encode($search_suggestions) !!};
       var image_array = [];
 

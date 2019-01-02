@@ -8,6 +8,7 @@ use App\Brand;
 use App\Sale;
 use App\Setting;
 use App\Stage;
+use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -41,6 +42,14 @@ class SearchController extends Controller {
 			                                 ->latest()->whereIn('brand', $request->brand);
 
 			$data['brand'] = $request->brand[0];
+			Cache::put('filter-brand', $data['brand'], 120);
+		} else {
+			// if (Cache::has('filter-brand')) {
+			// 	$productQuery = ( new Product() )->newQuery()
+			// 	                                 ->latest()->whereIn('brand', Cache::get('filter-brand'));
+			//
+			// 	$data['brand'] = Cache::get('filter-brand');
+			// }
 		}
 
 		if ($request->color[0] != null) {
@@ -52,7 +61,25 @@ class SearchController extends Controller {
 			}
 
 			$data['color'] = $request->color[0];
+			Cache::put('filter-color', $data['color'], 120);
+		} else {
+			// if (Cache::has('filter-color')) {
+			// 	if ($request->brand[0] != null) {
+			// 		$productQuery = $productQuery->whereIn('color', Cache::get('filter-color'));
+			// 	} else {
+			// 		$productQuery = ( new Product() )->newQuery()
+			// 		                                 ->latest()->whereIn('color', Cache::get('filter-color'));
+			// 	}
+			//
+			// 	$data['color'] = Cache::get('filter-color');
+			// }
 		}
+
+		// if ($request->category[0] == 1) {
+		// 	if (Cache::has('filter-category')) {
+		// 		$request->category[0] = Cache::get('filter-category');
+		// 	}
+		// }
 
 		if ($request->category[0] != 1) {
 			$is_parent = Category::isParent($request->category[0]);
@@ -86,6 +113,7 @@ class SearchController extends Controller {
 			}
 
 			$data['category'] = $request->category[0];
+			Cache::put('filter-color', $data['category'], 120);
 		}
 
 		if ($request->price != null) {
@@ -105,6 +133,26 @@ class SearchController extends Controller {
 
 			$data['price'][0] = $min;
 			$data['price'][1] = $max;
+			Cache::put('filter-price', $request->price, 120);
+		} else {
+			// if (Cache::has('filter-price')) {
+			// 	$exploded = explode(',', Cache::get('filter-price'));
+			// 	$min = $exploded[0];
+			// 	$max = $exploded[1];
+			//
+			// 	if ($min != 0 && $max != 10000000) {
+			// 		if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
+			// 			$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+			// 		} else {
+			// 			$productQuery = ( new Product() )->newQuery()
+			// 			                                 ->latest()->whereBetween('price_special', [$min, $max]);
+			// 		}
+			// 	}
+			//
+			//
+			// 	$data['price'][0] = $min;
+			// 	$data['price'][1] = $max;
+			// }
 		}
 
 		if ($request->supplier[0] != null) {
@@ -116,6 +164,18 @@ class SearchController extends Controller {
 			}
 
 			$data['supplier'] = $request->supplier;
+			Cache::put('filter-supplier', $data['supplier'], 120);
+		} else {
+			// if (Cache::has('filter-supplier')) {
+			// 	if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
+			// 		$productQuery = $productQuery->whereIn('supplier', Cache::get('filter-supplier'));
+			// 	} else {
+			// 		$productQuery = ( new Product() )->newQuery()
+			// 		                                 ->latest()->whereIn('supplier', Cache::get('filter-supplier'));
+			// 	}
+			//
+			// 	$data['supplier'] = Cache::get('filter-supplier');
+			// }
 		}
 
 		if ($request->quick_product === 'true') {
@@ -202,7 +262,7 @@ class SearchController extends Controller {
 		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
 
 		if ($request->ajax()) {
-			$html = view('partials.image-load', ['products' => $data['products']])->render();
+			$html = view('partials.image-load', ['products' => $data['products'], 'data'	=> $data])->render();
 			// $pagination = $data['products']->appends($request->except('page'))->links();
 			return response()->json(['html' => $html]);
 		}
