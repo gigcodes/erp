@@ -9,6 +9,7 @@ use App\Sale;
 use App\Setting;
 use App\Stage;
 use Cache;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -42,7 +43,7 @@ class SearchController extends Controller {
 			                                 ->latest()->whereIn('brand', $request->brand);
 
 			$data['brand'] = $request->brand[0];
-			Cache::put('filter-brand', $data['brand'], 120);
+			Cache::put('filter-brand-' . Auth::id(), $data['brand'], 120);
 		} else {
 			// if (Cache::has('filter-brand')) {
 			// 	$productQuery = ( new Product() )->newQuery()
@@ -50,6 +51,7 @@ class SearchController extends Controller {
 			//
 			// 	$data['brand'] = Cache::get('filter-brand');
 			// }
+			Cache::forget('filter-brand-' . Auth::id());
 		}
 
 		if ($request->color[0] != null) {
@@ -61,7 +63,7 @@ class SearchController extends Controller {
 			}
 
 			$data['color'] = $request->color[0];
-			Cache::put('filter-color', $data['color'], 120);
+			Cache::put('filter-color-' . Auth::id(), $data['color'], 120);
 		} else {
 			// if (Cache::has('filter-color')) {
 			// 	if ($request->brand[0] != null) {
@@ -73,6 +75,7 @@ class SearchController extends Controller {
 			//
 			// 	$data['color'] = Cache::get('filter-color');
 			// }
+			Cache::forget('filter-color-' . Auth::id());
 		}
 
 		// if ($request->category[0] == 1) {
@@ -113,7 +116,9 @@ class SearchController extends Controller {
 			}
 
 			$data['category'] = $request->category[0];
-			Cache::put('filter-color', $data['category'], 120);
+			Cache::put('filter-category-' . Auth::id(), $data['category'], 120);
+		} else {
+			Cache::forget('filter-category-' . Auth::id());
 		}
 
 		if ($request->price != null) {
@@ -133,7 +138,7 @@ class SearchController extends Controller {
 
 			$data['price'][0] = $min;
 			$data['price'][1] = $max;
-			Cache::put('filter-price', $request->price, 120);
+			Cache::put('filter-price-' . Auth::id(), $request->price, 120);
 		} else {
 			// if (Cache::has('filter-price')) {
 			// 	$exploded = explode(',', Cache::get('filter-price'));
@@ -153,6 +158,7 @@ class SearchController extends Controller {
 			// 	$data['price'][0] = $min;
 			// 	$data['price'][1] = $max;
 			// }
+			Cache::forget('filter-price-' . Auth::id());
 		}
 
 		if ($request->supplier[0] != null) {
@@ -164,7 +170,7 @@ class SearchController extends Controller {
 			}
 
 			$data['supplier'] = $request->supplier;
-			Cache::put('filter-supplier', $data['supplier'], 120);
+			Cache::put('filter-supplier-' . Auth::id(), $data['supplier'], 120);
 		} else {
 			// if (Cache::has('filter-supplier')) {
 			// 	if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
@@ -176,6 +182,7 @@ class SearchController extends Controller {
 			//
 			// 	$data['supplier'] = Cache::get('filter-supplier');
 			// }
+			Cache::forget('filter-supplier-' . Auth::id());
 		}
 
 		if ($request->quick_product === 'true') {

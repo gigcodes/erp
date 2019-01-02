@@ -13,6 +13,7 @@ use App\Setting;
 use App\Sizes;
 use App\Brand;
 use Cache;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
@@ -211,22 +212,21 @@ class ProductController extends Controller {
 			$products = $products->where('brand', $request->brand);
 
 			$brand = $request->brand;
-			Cache::put('filter-brand', $brand, 120);
 		} else {
-			if (Cache::has('filter-brand')) {
-				$products = $products->where('brand', Cache::get('filter-brand'));
+			if (Cache::has('filter-brand-' . Auth::id())) {
+				$products = $products->where('brand', Cache::get('filter-brand-' . Auth::id()));
 
-				$brand = Cache::get('filter-brand');
+				$brand = Cache::get('filter-brand-' . Auth::id());
 			}
 		}
 
 		$filtered_category = json_decode($request->category, true);
 
 		if ($filtered_category[0] != null) {
-			Cache::put('filter-category', $filtered_category, 120);
+			// Cache::put('filter-category', $filtered_category, 120);
 		} else {
-			if (Cache::has('filter-category')) {
-				$filtered_category = Cache::get('filter-category');
+			if (Cache::has('filter-category-' . Auth::id())) {
+				$filtered_category[0] = Cache::get('filter-category-' . Auth::id());
 			}
 		}
 
@@ -258,6 +258,26 @@ class ProductController extends Controller {
 			$products = $products->whereIn('category', $category_children);
 		}
 
+		if (Cache::has('filter-color-' . Auth::id())) {
+			$color = Cache::get('filter-color-' . Auth::id());
+			$products = $products->where('color', $color);
+		}
+
+		if (Cache::has('filter-supplier-' . Auth::id())) {
+			$supplier = Cache::get('filter-supplier-' . Auth::id());
+			$products = $products->where('supplier', $supplier);
+		}
+		
+		if ($request->page) {
+			Cache::put('filter-page-' . Auth::id(), $request->page, 120);
+		} else {
+			if (Cache::has('filter-page-' . Auth::id())) {
+				$page = Cache::get('filter-page-' . Auth::id());
+				$request->request->add(['page' => $page]);
+			}
+		}
+
+
 		$products = $products->paginate(Setting::get('pagination'));
 
 		$search_suggestions = [];
@@ -282,7 +302,7 @@ class ProductController extends Controller {
 			return response()->json(['html' => $html]);
 		}
 
-		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'search_suggestions', 'category_selection', 'brand') );
+		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'search_suggestions', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier') );
 	}
 
 
