@@ -182,9 +182,9 @@
 				}
 				?>
             {
-                'sku': '{{ $product->sku }}',
+                'sku': '{{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}',
                 'id': '{{ $product->id }}',
-                'size': '{{ $product->size}}',
+                'size': '{{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}',
                 'price': '{{ $product->price_special }}',
                 'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
                 'image': '{{ $product->getMedia(config('constants.media_tags'))->first()
@@ -214,7 +214,7 @@
                 groupedByTime[key].forEach(function (product) {
 
                     html += `
-                        <div class="col-md-3 col-xs-6 text-center">
+                        <div class="col-md-3 col-xs-6 text-center mb-5">
                         <a href="` + product['link'] + `">
                             <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" />
                                             <p>Sku : ` + product['sku'] + `</p>

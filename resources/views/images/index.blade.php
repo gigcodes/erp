@@ -60,8 +60,8 @@
 
 <div class="row">
   @foreach ($images as $image)
-  <div class="col-md-3 col-xs-6 text-center">
-    <img src="{{ asset('uploads/social-media') . '/' . $image->filename }}" class="img-responsive" alt="" />
+  <div class="col-md-3 col-xs-6 text-center mb-5">
+    <img src="{{ asset('uploads/social-media') . '/' . $image->filename }}" class="img-responsive grid-image" alt="" />
 
     <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
     <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
