@@ -175,6 +175,14 @@ class WhatsAppController extends FindByNumberController
               if ($order->customer) {
                 $params['customer_id'] = $order->customer->id;
               }
+            } elseif ($context == "customer") {
+              $model_type = 'customer';
+              $model_id = $data['customer_id'];
+              $params = [
+                 'number' => NULL,
+                 'user_id' => Auth::id(),
+                 'customer_id'  => $data['customer_id']
+               ];
             }
             if (isset($data['message'])) {
                 $params['message']  = $data['message'];
@@ -542,12 +550,22 @@ class WhatsAppController extends FindByNumberController
             $order = Order::find($message->order_id);
             $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send);
         } elseif ($context == "customer") {
-            if ($lead = Leads::find($message->lead_id)) {
-              $whatsapp_number = $lead->whatsapp_number;
-            } else {
-              $whatsapp_number = Order::find($message->order_id)->whatsapp_number;
+            $customer = Customer::find($message->customer_id);
+
+            if ($leads = $customer->leads) {
+              foreach ($leads as $lead) {
+                if ($lead->whatsapp_number) {
+                  $whatsapp_number = $lead->whatsapp_number;
+                }
+              }
+            } elseif ($orders = $customer->orders) {
+              foreach ($orders as $order) {
+                if ($order->whatsapp_number) {
+                  $whatsapp_number = $order->whatsapp_number;
+                }
+              }
             }
-            
+
             $this->sendWithWhatsApp( $message->customer->phone,$whatsapp_number, $send);
         }
 

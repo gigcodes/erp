@@ -591,6 +591,24 @@
   @endif
 </div>
 
+<div class="row">
+  <div class="col-xs-12 col-sm-6">
+    <div class="d-flex">
+      <div class="form-group">
+        {{-- <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a> --}}
+        <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
+      </div>
+
+      <div class="form-group flex-fill">
+        <textarea id="waNewMessage" class="form-control" placeholder="Whatsapp message"></textarea>
+      </div>
+    </div>
+
+    <label>Attach Media</label>
+    <input id="waMessageMedia" type="file" name="media" />
+  </div>
+</div>
+
 <h2>Messages</h2>
 <div class="row">
   <div class="col-12" id="message-container"></div>
@@ -784,7 +802,7 @@
                    var files = $("#waMessageMedia").prop("files");
                    var text = $("#waNewMessage").val();
 
-                   data.append("lead_id", customerId);
+                   data.append("customer_id", customerId);
                    if (files && files.length>0){
                        for ( var i = 0; i != files.length; i ++ ) {
                          data.append("media[]", files[ i ]);
@@ -1051,7 +1069,7 @@
                    //data.append("message", $("#waNewMessage").val());
                    //data.append("lead_id", leadId );
        			$.ajax({
-       				url: '/whatsapp/sendMessage/leads',
+       				url: '/whatsapp/sendMessage/customer',
        				type: 'POST',
                        "dataType"    : 'text',           // what to expect back from the PHP script, if anything
                        "cache"       : false,
@@ -1123,6 +1141,46 @@
              $('#load-more-messages').text('Load More');
            });
        	});
+
+        $(document).on('click', '.change_message_status', function(e) {
+          e.preventDefault();
+          var url = $(this).data('url');
+          var token = "{{ csrf_token() }}";
+          var thiss = $(this);
+
+          if ($(this).hasClass('wa_send_message')) {
+            var message_id = $(this).data('messageid');
+            var message = $('#message_body_' + message_id).find('p').data('message').trim();
+
+            $.ajax({
+              url: "{{ url('whatsapp/updateAndCreate') }}",
+              type: 'POST',
+              data: {
+                _token: token,
+                model_type: "leads",
+                message_id: message_id
+              },
+              beforeSend: function() {
+                $(thiss).text('Loading');
+              }
+            }).done( function(response) {
+            }).fail(function(errObj) {
+              console.log(errObj);
+              alert("Could not create whatsapp message");
+            });
+          }
+            $.ajax({
+              url: url,
+              type: 'GET'
+            }).done( function(response) {
+              $(thiss).remove();
+            }).fail(function(errObj) {
+              alert("Could not change status");
+            });
+
+
+
+        });
     </script>
 
     @endsection
