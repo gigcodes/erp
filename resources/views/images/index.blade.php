@@ -7,10 +7,10 @@
     <div class="mb-3">
       <h2>Image Grid</h2>
 
-      <strong>Sort By</strong>
+      {{-- <strong>Sort By</strong>
       <a href="{{ route('image.grid') . '?sortby=asc' }}" class="btn-link">ASC</a>
-       | 
-      <a href="{{ route('image.grid') . '?sortby=desc' }}" class="btn-link">DESC</a>
+       |
+      <a href="{{ route('image.grid') . '?sortby=desc' }}" class="btn-link">DESC</a> --}}
     </div>
 
   </div>
