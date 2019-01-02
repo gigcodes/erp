@@ -308,13 +308,16 @@ class WhatsAppController extends FindByNumberController
               $params['customer_id'] = $lead->customer->id;
             }
           }
-        } else {
+        } elseif ($request->moduletype == 'order') {
           $params['order_id'] = $message->moduleid;
           if ($order = Order::find($message->moduleid)) {
             if ($order->customer) {
               $params['customer_id'] = $order->customer->id;
             }
           }
+        } else {
+          $customer = Customer::find($message->customer_id);
+          $params['customer_id'] = $customer->id;
         }
 
         $images = $message->getMedia(config('constants.media_tags'));
@@ -521,40 +524,40 @@ class WhatsAppController extends FindByNumberController
 	     $result[] = array_merge($params, $messageParams);
 	   }
 
-     // $messages = Message::where('moduleid','=', $id)->where('moduletype','=', $model_type)->orderBy("created_at", 'desc')->get();
-     // foreach ($messages->toArray() as $key => $message) {
-     //   $images_array = [];
-     //   if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
-     //     foreach ($images as $image) {
-     //       $temp_image = [
-     //         'key'          => $image->getKey(),
-     //         'image'        => $image->getUrl(),
-     //         'product_id'   => '',
-     //         'special_price'=> '',
-     //         'size'         => ''
-     //       ];
-     //
-     //       $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-     //                           $q->where('media.id', $image->getKey());
-     //                         })->first();
-     //       if ($product_image) {
-     //         $temp_image['product_id'] = $product_image->id;
-     //         $temp_image['special_price'] = $product_image->price_special;
-     //
-     //         if ($product_image->size != NULL) {
-     //           $temp_image['size'] = $product_image->size;
-     //         } else {
-     //           $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
-     //         }
-     //       }
-     //
-     //       array_push($images_array, $temp_image);
-     //     }
-     //   }
-     //
-     //   $message['images'] = $images_array;
-     //   array_push($result, $message);
-     // }
+     $messages = Message::where('customer_id', $request->customerId)->orderBy("created_at", 'desc')->get();
+     foreach ($messages->toArray() as $key => $message) {
+       $images_array = [];
+       if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
+         foreach ($images as $image) {
+           $temp_image = [
+             'key'          => $image->getKey(),
+             'image'        => $image->getUrl(),
+             'product_id'   => '',
+             'special_price'=> '',
+             'size'         => ''
+           ];
+
+           $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
+                               $q->where('media.id', $image->getKey());
+                             })->first();
+           if ($product_image) {
+             $temp_image['product_id'] = $product_image->id;
+             $temp_image['special_price'] = $product_image->price_special;
+
+             if ($product_image->size != NULL) {
+               $temp_image['size'] = $product_image->size;
+             } else {
+               $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
+             }
+           }
+
+           array_push($images_array, $temp_image);
+         }
+       }
+
+       $message['images'] = $images_array;
+       array_push($result, $message);
+     }
 
      $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
      $currentPage = LengthAwarePaginator::resolveCurrentPage();

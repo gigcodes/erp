@@ -11,7 +11,9 @@ use App\Status;
 use App\Brand;
 use App\User;
 use App\ChatMessage;
+use App\Message;
 use App\Helpers;
+use App\Reply;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
@@ -133,11 +135,11 @@ class CustomerController extends Controller
       //   }
       // }
 
-      // $chat_messages_leads = ChatMessage::whereNotNull('lead_id')->get();
-      // $chat_messages_orders = ChatMessage::whereNotNull('order_id')->get();
+      // $chat_messages_leads = Message::where('moduletype', 'leads')->get();
+      // $chat_messages_orders = Message::where('moduletype', 'order')->get();
       //
       // foreach ($chat_messages_leads as $chat) {
-      //   $lead = Leads::withTrashed()->whereNotNull('contactno')->where('id', $chat->lead_id)->first();
+      //   $lead = Leads::withTrashed()->whereNotNull('contactno')->where('id', $chat->moduleid)->first();
       //   if ($lead) {
       //     if ($customer = Customer::where('phone', $lead->contactno)->first()) {
       //       $chat->customer_id = $customer->id;
@@ -153,7 +155,7 @@ class CustomerController extends Controller
       // }
       //
       // foreach ($chat_messages_orders as $chat) {
-      //   $order = Order::withTrashed()->whereNotNull('contact_detail')->where('id', $chat->order_id)->first();
+      //   $order = Order::withTrashed()->whereNotNull('contact_detail')->where('id', $chat->moduleid)->first();
       //   if ($order) {
       //     if ($customer = Customer::where('phone', $order->contact_detail)->first()) {
       //       $chat->customer_id = $customer->id;
@@ -247,6 +249,8 @@ class CustomerController extends Controller
       $users_array = Helpers::getUserArray(User::all());
       // $leads['users']  = $users;
       $brands = Brand::all()->toArray();
+      $approval_replies = Reply::where('model', 'Approval Lead')->get();
+      $internal_replies = Reply::where('model', 'Internal Lead')->get();
       // $leads['brands']  = $brands;
       // $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
       // $leads['products_array'] = [];
@@ -279,7 +283,9 @@ class CustomerController extends Controller
         'status'    => $status,
         'brands'    => $brands,
         'users'     => $users,
-        'users_array'     => $users_array
+        'users_array'     => $users_array,
+        'approval_replies'     => $approval_replies,
+        'internal_replies'     => $internal_replies,
       ]);
     }
 

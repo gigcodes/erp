@@ -8,6 +8,7 @@ use App\Message;
 use App\Leads;
 use App\Order;
 use App\Product;
+use App\Customer;
 use App\PushNotification;
 use App\NotificationQueue;
 use Plank\Mediable\Media;
@@ -79,7 +80,22 @@ class MessageController extends Controller
             //
             //         $data['body'] = $msgtxt;
             //  }
+            if ($moduletype == 'leads') {
+              $lead = Leads::find($id);
 
+              if ($lead->customer) {
+                $data['customer_id'] = $lead->customer->id;
+              }
+            } elseif ($moduletype == 'order') {
+              $order = Order::find($id);
+
+              if ($order->customer) {
+                $data['customer_id'] = $order->customer->id;
+              }
+            } else {
+              $customer = Customer::find($id);
+              $data['customer_id'] = $customer->id;
+            }
 
 
             $data['userid'] = Auth::id();

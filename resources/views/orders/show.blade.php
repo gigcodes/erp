@@ -6,7 +6,8 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-                <h2> View Order</h2>
+                <h2>View Order</h2>
+                <label class="badge {{ $has_customer ? 'badge-secondary' : 'text-warning' }}">{{ $has_customer ? 'Has Customer' : 'No Customer' }}</label>
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('order.index') }}"> Back</a>

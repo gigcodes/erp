@@ -593,6 +593,106 @@
 
 <div class="row">
   <div class="col-xs-12 col-sm-6">
+    <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
+        @csrf
+
+        <div class="form-group">
+          <div class="upload-btn-wrapper btn-group">
+            <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+            <input type="file" name="image" />
+            <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+          </div>
+        </div>
+
+        <div class="form-group flex-fill">
+          <textarea  class="form-control" name="body" placeholder="Received from Customer"></textarea>
+
+          <input type="hidden" name="moduletype" value="customer" />
+          <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
+          <input type="hidden" name="assigned_user" value="{{ Auth::id() }}" />
+          <input type="hidden" name="status" value="0" />
+        </div>
+
+     </form>
+   </div>
+
+   <div class="col-xs-12 col-sm-6">
+     <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
+        @csrf
+
+          <div class="form-group">
+            <div class="upload-btn-wrapper btn-group pr-0 d-flex">
+              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+              <input type="file" name="image" />
+
+              <a href="{{ route('attachImages', ['customer', $customer->id, 1, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+              <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+            </div>
+          </div>
+
+            <div class="form-group flex-fill">
+              <textarea id="message-body" class="form-control mb-3" name="body" placeholder="Send for approval"></textarea>
+
+              <input type="hidden" name="moduletype" value="customer" />
+              <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
+              <input type="hidden" name="assigned_user" value="{{ Auth::id() }}" />
+              <input type="hidden" name="status" value="1" />
+
+              <p class="pb-4" style="display: block;">
+
+                  <select name="quickComment" id="quickComment" class="form-control">
+                      <option value="">Quick Reply</option>
+                      @foreach($approval_replies as $reply )
+                          <option value="{{$reply->reply}}">{{$reply->reply}}</option>
+                      @endforeach
+                  </select>
+              </p>
+            </div>
+
+     </form>
+   </div>
+
+   <div class="col-xs-12 col-sm-6">
+       <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
+          @csrf
+
+            <div class="form-group">
+              <div class="upload-btn-wrapper btn-group">
+                 <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                  <input type="file" name="image" />
+                  <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+                </div>
+            </div>
+
+            <div class="form-group flex-fill">
+              <textarea class="form-control mb-3" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
+
+              <input type="hidden" name="moduletype" value="customer" />
+              <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
+              <input type="hidden" name="status" value="4" />
+
+              <strong>Assign to</strong>
+              <select name="assigned_user" class="form-control mb-3" required>
+                <option value="">Select User</option>
+                @foreach($users as $user)
+                  <option value="{{$user['id']}}">{{$user['name']}}</option>
+                @endforeach
+              </select>
+
+              <p class="pb-4" style="display: block;">
+                  <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
+                      <option value="">Quick Reply</option>
+                      @foreach($internal_replies as $reply)
+                          <option value="{{$reply->reply}}">{{$reply->reply}}</option>
+                      @endforeach
+                  </select>
+              </p>
+            </div>
+
+       </form>
+     </div>
+
+  <div class="col-xs-12 col-sm-6">
     <div class="d-flex">
       <div class="form-group">
         {{-- <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a> --}}
@@ -624,6 +724,7 @@
 </form>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
 
     <script type="text/javascript">
       $('#completion-datetime').datetimepicker({
@@ -1158,7 +1259,7 @@
               type: 'POST',
               data: {
                 _token: token,
-                model_type: "leads",
+                model_type: "customer",
                 message_id: message_id
               },
               beforeSend: function() {
@@ -1181,6 +1282,77 @@
 
 
 
+        });
+
+        $(document).on('click', '.edit-message', function(e) {
+          e.preventDefault();
+          var message_id = $(this).data('messageid');
+
+          $('#message_body_' + message_id).css({'display': 'none'});
+          $('#edit-message-textarea' + message_id).css({'display': 'block'});
+
+          $('#edit-message-textarea' + message_id).keypress(function(e) {
+            var key = e.which;
+
+            if (key == 13) {
+              e.preventDefault();
+              var token = "{{ csrf_token() }}";
+              var url = "{{ url('message') }}/" + message_id;
+              var message = $('#edit-message-textarea' + message_id).val();
+
+              $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                  _token: token,
+                  body: message
+                },
+                success: function(data) {
+                  $('#edit-message-textarea' + message_id).css({'display': 'none'});
+                  $('#message_body_' + message_id).text(message);
+                  $('#message_body_' + message_id).css({'display': 'block'});
+                }
+              });
+            }
+          });
+        });
+
+        $(document).on('click', '.thumbnail-delete', function(event) {
+          event.preventDefault();
+          var thiss = $(this);
+          var image_id = $(this).data('image');
+          var message_id = $(this).closest('.talk-bubble').find('.collapsible-message').data('messageid');
+          // var message = $(this).closest('.talk-bubble').find('.collapsible-message').data('message');
+          var token = "{{ csrf_token() }}";
+          var url = "{{ url('message') }}/" + message_id + '/removeImage';
+
+          // var image_container = '<div class="thumbnail-wrapper"><img src="' + image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image + '">x</span></div>';
+          // var new_message = message.replace(image_container, '');
+
+          // if (new_message.indexOf('message-img') != -1) {
+          //   var short_new_message = new_message.substr(0, new_message.indexOf('<div class="thumbnail-wrapper">')).length > 150 ? (new_message.substr(0, 147)) : new_message;
+          // } else {
+          //   var short_new_message = new_message.length > 150 ? new_message.substr(0, 147) + '...' : new_message;
+          // }
+
+          $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+              _token: token,
+              image_id: image_id,
+              message_id: message_id
+            },
+            success: function(data) {
+              $(thiss).parent().remove();
+              // $('#message_body_' + message_id).children('.collapsible-message').data('messageshort', short_new_message);
+              // $('#message_body_' + message_id).children('.collapsible-message').data('message', new_message);
+            }
+          });
+        });
+
+        $(document).ready(function() {
+          $("body").tooltip({ selector: '[data-toggle=tooltip]' });
         });
     </script>
 
