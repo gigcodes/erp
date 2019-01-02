@@ -100,7 +100,7 @@
       @include('partials.image-load')
     </div>
 
-        <form action="{{ route('message.store') }}" method="POST" id="attachImageForm">
+        <form action="{{ $status != 9 ? route('message.store') : url('whatsapp/updateAndCreate') }}" method="POST" id="attachImageForm">
           @csrf
 
           <input type="hidden" name="images" id="images" value="">

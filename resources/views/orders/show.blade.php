@@ -944,6 +944,7 @@
                     <div class="d-flex">
                       <div class="form-group">
                         <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a>
+                        <a href="{{ route('attachImages', ['order', $id, 9, $sales_person ? $sales_person : 6]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
                         <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
                       </div>
 

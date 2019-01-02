@@ -292,40 +292,78 @@ class WhatsAppController extends FindByNumberController
     public function updateAndCreate(Request $request)
     {
       $message = Message::find($request->message_id);
-      $images = $message->getMedia(config('constants.media_tags'));
       $params = [
         'number'  => NULL,
         'status'  => 1,
         'user_id' => Auth::id(),
       ];
 
-      if ($request->model_type == 'leads') {
-        $params['lead_id'] = $message->moduleid;
-        if ($lead = Leads::find($message->moduleid)) {
-          if ($lead->customer) {
-            $params['customer_id'] = $lead->customer->id;
+
+
+      if ($message) {
+        if ($request->moduletype == 'leads') {
+          $params['lead_id'] = $message->moduleid;
+          if ($lead = Leads::find($message->moduleid)) {
+            if ($lead->customer) {
+              $params['customer_id'] = $lead->customer->id;
+            }
+          }
+        } else {
+          $params['order_id'] = $message->moduleid;
+          if ($order = Order::find($message->moduleid)) {
+            if ($order->customer) {
+              $params['customer_id'] = $order->customer->id;
+            }
           }
         }
-      } else {
-        $params['order_id'] = $message->moduleid;
-        if ($order = Order::find($message->moduleid)) {
-          if ($order->customer) {
-            $params['customer_id'] = $order->customer->id;
+
+        $images = $message->getMedia(config('constants.media_tags'));
+
+        if ($images->first()) {
+          $params['message'] = NULL;
+
+          foreach ($images as $img) {
+            $params['media_url'] = $img->getUrl();
+            ChatMessage::create($params);
           }
-        }
-      }
+        } else {
+          $params['message'] = $message->body;
 
-      if ($images->first()) {
-        $params['message'] = NULL;
-
-        foreach ($images as $img) {
-          $params['media_url'] = $img->getUrl();
           ChatMessage::create($params);
         }
       } else {
-        $params['message'] = $message->body;
+        if ($request->moduletype == 'customer') {
+          $params['customer_id'] = $request->moduleid;
+          $params['order_id'] = NULL;
+        }
+        elseif ($request->moduletype == 'leads') {
+          $params['lead_id'] = $request->moduleid;
+          if ($lead = Leads::find($request->moduleid)) {
+            if ($lead->customer) {
+              $params['customer_id'] = $lead->customer->id;
+            }
+          }
+        } else {
+          $params['order_id'] = $request->moduleid;
+          if ($order = Order::find($request->moduleid)) {
+            if ($order->customer) {
+              $params['customer_id'] = $order->customer->id;
+            }
+          }
+        }
 
-        ChatMessage::create($params);
+        if ($request->images) {
+          $params['message'] = NULL;
+
+          foreach (json_decode($request->images) as $product_id) {
+            $product = Product::find($product_id);
+            $media = $product->getMedia(config('constants.media_tags'))->first();
+            $params['media_url'] = $media->getUrl();
+            ChatMessage::create($params);
+          }
+        }
+
+        return redirect('/'. $request->moduletype.'/'.$request->moduleid);
       }
 
       return response('success');

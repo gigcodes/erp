@@ -992,6 +992,7 @@
           <div class="d-flex">
             <div class="form-group">
               <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a>
+              <a href="{{ route('attachImages', ['leads', $leads['id'], 9, $leads['assigned_user']]) . ($brand != '' ? "?brand=$brand" : '') . (($brand != '' && $selected_categories != 'null') ? "&category=$selected_categories" : (($selected_categories != 'null') ? "?category=$selected_categories" : '')) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
               <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
             </div>
 
@@ -1702,7 +1703,7 @@
         type: 'POST',
         data: {
           _token: token,
-          model_type: "leads",
+          moduletype: "leads",
           message_id: message_id
         },
         beforeSend: function() {
