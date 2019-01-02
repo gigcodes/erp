@@ -9,6 +9,9 @@
             <div class="pull-left">
                 <h2>Edit Leads</h2>
                 <label class="badge {{ $leads->customer ? 'badge-secondary' : 'text-warning' }}">{{ $leads->customer ? 'Has Customer' : 'No Customer' }}</label>
+                @if ($leads->customer)
+                  <a href="{{ route('customer.show', $leads->customer->id) }}">Customer</a>
+                @endif
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('leads.index') }}"> Back</a>

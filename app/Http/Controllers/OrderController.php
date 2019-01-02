@@ -550,7 +550,7 @@ class OrderController extends Controller {
 		$data['order_status_report'] = OrderStatuses::all();
 		$data['order_reports'] = OrderReport::where('order_id', $order->id)->get();
 		$data['users_array'] = Helpers::getUserArray(User::all());
-		$data['has_customer'] = $order->customer ? true : false;
+		$data['has_customer'] = $order->customer ? $order->customer->id : false;
 
 		// dd($data);
 		//return $data;

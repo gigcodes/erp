@@ -8,6 +8,9 @@
             <div class="pull-left">
                 <h2>View Order</h2>
                 <label class="badge {{ $has_customer ? 'badge-secondary' : 'text-warning' }}">{{ $has_customer ? 'Has Customer' : 'No Customer' }}</label>
+                @if ($has_customer != false)
+                  <a href="{{ route('customer.show', $has_customer) }}">Customer</a>
+                @endif
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('order.index') }}"> Back</a>
