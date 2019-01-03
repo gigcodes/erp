@@ -39,9 +39,9 @@ class LeadsController extends Controller
         //
 
         if($request->input('orderby') == '')
-            $orderby = 'desc';
-        else
             $orderby = 'asc';
+        else
+            $orderby = 'desc';
 
         switch ($request->input('sortby')) {
             case 'client_name':
@@ -66,7 +66,7 @@ class LeadsController extends Controller
                  $sortby = 'created_at';
                 break;
             default :
-                 $sortby = 'id';
+                 $sortby = 'communication';
         }
 
 

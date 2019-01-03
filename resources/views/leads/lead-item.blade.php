@@ -5,16 +5,16 @@
         @if ($type)
           <th></th>
         @endif
-        <th style="width: 2%"><a href="/leads?sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">ID</a></th>
-        <th style="width: 15%"><a href="/leads?sortby=client_name{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Client Name</a></th>
-        <th style="width: 8%"><a href="/leads?sortby=city{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">City</a></th>
-        <th style="width: 2%"><a href="/leads?sortby=rating{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Rating</a></th>
-        <th style="width: 8%"><a href="/leads?sortby=assigned_user{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Assigned to</a></th>
+        <th style="width: 2%"><a href="/leads?sortby=id{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">ID</a></th>
+        <th style="width: 15%"><a href="/leads?sortby=client_name{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Client Name</a></th>
+        <th style="width: 8%"><a href="/leads?sortby=city{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">City</a></th>
+        <th style="width: 2%"><a href="/leads?sortby=rating{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Rating</a></th>
+        <th style="width: 8%"><a href="/leads?sortby=assigned_user{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Assigned to</a></th>
         <th style="width: 10%">Products</th>
         <th style="width: 5%">Message Status</th>
-        <th style="width: 20%"><a href="/leads?sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Communication</a></th>
-        <th style="width: 8%"><a href="/leads?sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Status</a></th>
-        <th style="width: 10%"><a href="/leads?sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}{{ $search_query }}">Created</a></th>
+        <th style="width: 20%"><a href="/leads?sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Communication</a></th>
+        <th style="width: 8%"><a href="/leads?sortby=status{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Status</a></th>
+        <th style="width: 10%"><a href="/leads?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Created</a></th>
         <th style="width: 15%">Action</th>
     </tr>
     @foreach ($leads_array as $key => $lead)

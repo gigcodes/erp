@@ -46,9 +46,9 @@ class OrderController extends Controller {
 		$term = $request->input('term');
 
 		if($request->input('orderby') == '')
-				$orderby = 'desc';
-		else
 				$orderby = 'asc';
+		else
+				$orderby = 'desc';
 
 		switch ($request->input('sortby')) {
 			case 'type':
@@ -76,7 +76,7 @@ class OrderController extends Controller {
 					 $sortby = 'communication';
 					break;
 			default :
-					 $sortby = 'id';
+					 $sortby = 'communication';
 		}
 
 		$orders = ((new Order())->newQuery());

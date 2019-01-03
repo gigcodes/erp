@@ -29,9 +29,9 @@ class CustomerController extends Controller
       $customers = (new Customer())->newQuery();
 
       if($request->input('orderby') == '')
-  				$orderby = 'desc';
-  		else
   				$orderby = 'asc';
+  		else
+  				$orderby = 'desc';
 
   		switch ($request->input('sortby')) {
   			case 'name':
@@ -53,7 +53,7 @@ class CustomerController extends Controller
   					 $sortby = 'communication';
   					break;
   			default :
-  					 $sortby = 'created_at';
+  					 $sortby = 'communication';
   		}
 
       if ($sortby != 'communication' && $sortby != 'rating') {
