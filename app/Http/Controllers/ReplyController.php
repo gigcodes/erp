@@ -51,6 +51,10 @@ class ReplyController extends Controller
 
   		$reply->create($data);
 
+      if ($request->ajax()) {
+        return response($request->reply);
+      }
+
   		return redirect()->route('reply.index')->with('success','Quick Reply added successfully');
     }
 

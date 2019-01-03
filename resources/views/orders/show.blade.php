@@ -890,11 +890,50 @@
                                         @endforeach
                                     </select>
                                 </p>
+
+                                <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
                             </div>
                           {{-- </div>
                         </div> --}}
                     </form>
                   </div>
+
+                  <div id="ReplyModal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+
+                      <!-- Modal content-->
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h4 class="modal-title"></h4>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <form action="{{ route('reply.store') }}" method="POST" enctype="multipart/form-data" id="approvalReplyForm">
+                          @csrf
+
+                          <div class="modal-body">
+
+                            <div class="form-group">
+                                <strong>Quick Reply:</strong>
+                                <textarea class="form-control" id="reply_field" name="reply" placeholder="Quick Reply" required>{{ old('reply') }}</textarea>
+                                @if ($errors->has('reply'))
+                                    <div class="alert alert-danger">{{$errors->first('reply')}}</div>
+                                @endif
+                            </div>
+
+                            <input type="hidden" name="model" id="model_field" value="">
+
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-secondary">Create</button>
+                          </div>
+                        </form>
+                      </div>
+
+                    </div>
+                  </div>
+
                   <div class="col-xs-12 col-sm-6">
                     <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
                         @csrf
@@ -938,6 +977,8 @@
                                         @endforeach
                                     </select>
                                 </p>
+                                <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
+
                             </div>
                           {{-- </div>
                         </div> --}}
@@ -1854,6 +1895,50 @@
     // $(this).parent().append(pause_button);
 
     recording.play();
+  });
+
+  $('#approval_reply').on('click', function() {
+    $('#model_field').val('Approval Order');
+  });
+
+  $('#internal_reply').on('click', function() {
+    $('#model_field').val('Internal Order');
+  });
+
+  $('#approvalReplyForm').on('submit', function(e) {
+    e.preventDefault();
+
+    var url = "{{ route('reply.store') }}";
+    var reply = $('#reply_field').val();
+    var model = $('#model_field').val();
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      headers: {
+          'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+      },
+      data: {
+        reply: reply,
+        model: model
+      },
+      success: function(reply) {
+        // $('#ReplyModal').modal('hide');
+        $('#reply_field').val('');
+        if (model == 'Approval Order') {
+          $('#quickComment').append($('<option>', {
+            value: reply,
+            text: reply
+          }));
+        } else {
+          $('#quickCommentInternal').append($('<option>', {
+            value: reply,
+            text: reply
+          }));
+        }
+
+      }
+    });
   });
 
     </script>
