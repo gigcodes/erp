@@ -454,7 +454,7 @@ class LeadsController extends Controller
 
         if ($request->type != 'customer') {
           $this->validate(request(), [
-            'client_name' => 'required',
+            'client_name' => '',
   //          'contactno' => 'required',
   //          'city' => 'required',
             'instahandler' => '',

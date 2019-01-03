@@ -76,7 +76,7 @@
                 </div>
             </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            {{-- <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>City:</strong>
                     <input type="text" class="form-control" name="city" placeholder="City"
@@ -85,9 +85,9 @@
                         <div class="alert alert-danger">{{$errors->first('city')}}</div>
                     @endif
                 </div>
-            </div>
+            </div> --}}
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            {{-- <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Contact Detail:</strong>
                     <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
@@ -99,7 +99,7 @@
                         <div class="alert alert-danger">{{$message}}</div>
                     @endif
                 </div>
-            </div>
+            </div> --}}
 
             {{--<div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
@@ -116,7 +116,7 @@
 
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
-                        <strong> Products Attacted:</strong>
+                        <strong> Products Attached:</strong>
                         <table class="table table-bordered" id="products-table">
                             <tr>
                                 <th>Image</th>

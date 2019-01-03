@@ -163,30 +163,30 @@
                     <div class="col-md-6 col-12">
                       <div class="form-group">
                           <strong>Client Name:</strong>
-                          <input type="text" class="form-control" name="client_name" placeholder="Client Name"
+                          <input type="text" readonly class="form-control" name="client_name" placeholder="Client Name"
                                  value="{{ old('client_name') ? old('client_name') : $client_name }}"/>
                           @if ($errors->has('client_name'))
                               <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
                           @endif
                       </div>
 
-                      <div class="form-group">
+                      {{-- <div class="form-group">
                           <strong>City:</strong>
                           <input type="text" class="form-control" name="city" placeholder="City"
                                  value="{{ old('city') ? old('city') : $city }}"/>
                           @if ($errors->has('city'))
                               <div class="alert alert-danger">{{$errors->first('city')}}</div>
                           @endif
-                      </div>
+                      </div> --}}
 
-                      <div class="form-group">
+                      {{-- <div class="form-group">
                           <strong>Contact Detail:</strong>
                           <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
                                  value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
                           @if ($errors->has('contact_detail'))
                               <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
                           @endif
-                      </div>
+                      </div> --}}
 
                         <h3>Payment Details</h3>
 

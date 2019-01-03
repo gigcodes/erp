@@ -17,21 +17,11 @@
             <p>{{ $message }}</p>
         </div>
    		 @endif
-     {{--   @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
---}}
+
      <form action="{{ route('leads.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
          <div class="row">
-             <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Client Name:</strong>
                     <input type="text" class="form-control" name="client_name" placeholder="Client Name" value="{{old('client_name')}}" id="customer_suggestions"/>
@@ -41,7 +31,7 @@
                 </div>
             </div>
 
-              <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+              {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Address:</strong>
                     <input type="text" class="form-control" name="address" placeholder="address" value="{{old('address')}}"/>
@@ -49,10 +39,10 @@
                         <div class="alert alert-danger">{{$errors->first('address')}}</div>
                     @endif
                 </div>
-            </div>
+            </div> --}}
 
 
-             <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+             {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Contact No:</strong>
                     <input type="text" class="form-control" name="contactno" placeholder="contactno" value="{{old('contactno')}}"/>
@@ -63,10 +53,10 @@
                         <div class="alert alert-danger">{{$message}}</div>
                     @endif
                 </div>
-            </div>
+            </div> --}}
 
 
-            <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+            {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Email:</strong>
                     <input type="text" class="form-control" name="email" placeholder="email" value="{{old('email')}}"/>
@@ -74,9 +64,9 @@
                         <div class="alert alert-danger">{{$errors->first('email')}}</div>
                     @endif
                 </div>
-            </div>
+            </div> --}}
 
-            <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <div class="row">
                         <div class="col-xs-12 col-sm-12">
@@ -105,7 +95,7 @@
 
 
 
-              <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+              {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>City:</strong>
                     <input type="text" class="form-control" name="city" placeholder="city" value="{{old('city')}}"/>
@@ -113,9 +103,9 @@
                         <div class="alert alert-danger">{{$errors->first('city')}}</div>
                     @endif
                 </div>
-            </div>
+            </div> --}}
 
-            <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Solo phone:</strong>
                    <Select name="whatsapp_number" class="form-control">
@@ -135,7 +125,7 @@
                 </div>
             </div>
 
-              <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+              <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Rating:</strong>
                     <Select name="rating" class="form-control">
@@ -156,13 +146,13 @@
                     @endif
                 </div>
             </div>
-						<div class="col-xs-12 col-sm-8 col-sm-offset-4">
+						<div class="col-xs-12 col-sm-8 col-sm-offset-2">
 							<div class="form-group">
 								<strong>Upload Images</strong>
 								<input type="file" name="image[]" class="form-control" multiple>
 							</div>
 						</div>
-              <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+              <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Comments:</strong>
                     <textarea  class="form-control" name="comments" placeholder="comments">{{old('comments')}} </textarea>
@@ -173,7 +163,7 @@
                 </div>
             </div>
 
-            <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Brand:</strong>
                     <select id="multi_brand" multiple="" name="multi_brand[]" class="form-control">
@@ -189,14 +179,14 @@
             </div>
 
 
-             <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                  <div class="form-group">
                      <strong>Categories</strong>
                      {!! $data['category_select']  !!}
                  </div>
              </div>
 
-            <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong> Selected Product :</strong>
                     {{--<input type="text" class="form-control" name="selected_product" placeholder="Selected Product" value="{{ old('selected_product') ? old('selected_product') : $selected_product }}"/>--}}
@@ -304,14 +294,14 @@
                 </script>
             </div>
 
-						<div class="col-xs-12 col-sm-8 col-sm-offset-4">
+						<div class="col-xs-12 col-sm-8 col-sm-offset-2">
 							<div class="form-group">
 								<strong>Sizes:</strong>
 								<input type="text" name="size" value="{{ old('size') }}" class="form-control" placeholder="S, M, L">
 							</div>
 						</div>
 
-            <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Assigned To:</strong>
                     <Select name="assigned_user" class="form-control">
@@ -328,7 +318,7 @@
             </div>
 
 
-             <div class="col-xs-12 col-sm-8 col-sm-offset-4">
+             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Status:</strong>
                     <Select name="status" class="form-control">
@@ -344,7 +334,7 @@
                 </div>
             </div>
 
-						<div class="col-xs-12 col-sm-8 col-sm-offset-4">
+						<div class="col-xs-12 col-sm-8 col-sm-offset-2">
 							 <div class="form-group">
 								 <strong>Created at:</strong>
 								 <div class='input-group date' id='created_at'>
@@ -360,7 +350,7 @@
 								 @endif
 							 </div>
 					 </div>
-             <div class="col-xs-12 col-sm-8 col-sm-offset-4 text-center">
+             <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
 
                 <button type="submit" class="btn btn-secondary">+</button>
             </div>

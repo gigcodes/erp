@@ -49,7 +49,7 @@
                   @csrf
                   @method('PUT')
                 <div class="row">
-                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                     {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Client Name:</strong>
                             <input type="text" class="form-control" name="client_name" placeholder="client_name" value="{{$leads->client_name}}"/>
@@ -62,23 +62,23 @@
                             <strong>Address:</strong>
                             <input type="text" class="form-control" name="address" placeholder="address" value="{{$leads->address}}"/>
                         </div>
-                    </div>
+                    </div> --}}
 
                      <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Contact No:</strong>
-                            <input type="text" class="form-control" name="contactno" placeholder="contactno" data-twilio-call data-context="leads" data-id="{{$leads->id}}" value="{{$leads->contactno}}"/>
+                            <input type="text" class="form-control" name="contactno" placeholder="contactno" data-twilio-call data-context="leads" data-id="{{$leads->id}}" value="{{$leads->contactno}}" readonly/>
 
                         </div>
                     </div>
 
-                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                    {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Email:</strong>
                             <input type="text" class="form-control" name="email" placeholder="email" value="{{$leads->email}}"/>
 
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
@@ -107,13 +107,13 @@
 
 
 
-                      <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                      {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>City:</strong>
                             <input type="text" class="form-control" name="city" placeholder="city" value="{{$leads->city}}"/>
 
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
@@ -467,23 +467,23 @@
                        @endif
                    </div>
 
-                   <div class="form-group">
+                   {{-- <div class="form-group">
                        <strong>City:</strong>
                        <input type="text" class="form-control" name="city" placeholder="City"
                               value="{{ old('city') ? old('city') : ($leads->city ? $leads->city : '') }}"/>
                        @if ($errors->has('city'))
                            <div class="alert alert-danger">{{$errors->first('city')}}</div>
                        @endif
-                   </div>
+                   </div> --}}
 
-                   <div class="form-group">
+                   {{-- <div class="form-group">
                        <strong>Contact Detail:</strong>
                        <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
                               value="{{ old('contact_detail') ? old('contact_detail') : ($leads->contactno ? $leads->contactno : '') }}"/>
                        @if ($errors->has('contact_detail'))
                            <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
                        @endif
-                   </div>
+                   </div> --}}
 
                    <div class="form-group">
                        <strong>Office Phone Number:</strong>
