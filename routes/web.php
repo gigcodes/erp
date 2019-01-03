@@ -129,6 +129,8 @@ Route::middleware('auth')->group(function (){
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
 	Route::post('customer/create', 'CustomerController@store')->name('customer.store');
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
+	Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
+	Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
 	Route::delete('customer/{id}/destroy', 'CustomerController@destroy')->name('customer.destroy');
 
 

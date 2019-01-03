@@ -119,6 +119,7 @@
               </td>
               <td>
                 <a class="btn btn-image" href="{{ route('customer.show', $customer['id']) }}"><img src="/images/view.png" /></a>
+                <a class="btn btn-image" href="{{ route('customer.edit',$customer['id']) }}"><img src="/images/edit.png" /></a>
 
                 {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer['id']],'style'=>'display:inline']) !!}
                 <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>

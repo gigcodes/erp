@@ -297,7 +297,9 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
-        //
+      $customer = Customer::find($id);
+
+      return view('customers.edit')->withCustomer($customer);
     }
 
     /**
@@ -309,7 +311,31 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+      $customer = Customer::find($id);
+
+      $this->validate($request, [
+        'name'          => 'required|min:3|max:255',
+        'email'         => 'sometimes|nullable|email',
+        'phone'         => 'required|numeric|unique:customers,id,' . $id,
+        'instahandler'  => 'sometimes|nullable|min:3|max:255',
+        'rating'        => 'required|numeric',
+        'address'       => 'sometimes|nullable|min:3|max:255',
+        'city'          => 'sometimes|nullable|min:3|max:255',
+        'country'       => 'sometimes|nullable|min:3|max:255'
+      ]);
+
+      $customer->name = $request->name;
+      $customer->email = $request->email;
+      $customer->phone = $request->phone;
+      $customer->instahandler = $request->instahandler;
+      $customer->rating = $request->rating;
+      $customer->address = $request->address;
+      $customer->city = $request->city;
+      $customer->country = $request->country;
+
+      $customer->save();
+
+      return redirect()->route('customer.show', $id)->with('success', 'You have successfully updated the customer!');
     }
 
     /**
