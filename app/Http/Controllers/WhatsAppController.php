@@ -40,56 +40,61 @@ class WhatsAppController extends FindByNumberController
 		$to = $data['to'];
 		$from = $data['from'];
 		$text = $data['text'];
-		// $lead = $this->findLeadByNumber( $from );
-    $leads = Leads::where('contactno', '=', $from)->get();
+		$lead = $this->findLeadByNumber( $from );
+    // $leads = Leads::where('contactno', '=', $from)->get();
 
         //save to leads
         $params = [
             'number' => $from
         ];
 
-        if ( count($leads) > 0 ) {
-          foreach ($leads as $lead) {
-            $params['lead_id'] = $lead->id;
-            if ($lead->customer) {
-              $params['customer_id'] = $lead->customer->id;
-            }
-            $params = $this->modifyParamsWithMessage($params, $data);
-            $message = ChatMessage::create($params);
-            $model_type = 'leads';
-            $model_id = $lead->id;
-            $lead->update([
-                'whatsapp_number' => $to
-            ]);
+        // if ( count($leads) > 0 ) {
+        //   foreach ($leads as $lead) {
+        if ($lead) {
+          $params['lead_id'] = $lead->id;
+          if ($lead->customer) {
+            $params['customer_id'] = $lead->customer->id;
           }
+          $params = $this->modifyParamsWithMessage($params, $data);
+          $message = ChatMessage::create($params);
+          $model_type = 'leads';
+          $model_id = $lead->id;
+          $lead->update([
+              'whatsapp_number' => $to
+          ]);
+        } else {
+          $order= $this->findOrderByNumber( $from );
+              if ( $order ) {
+                $params['lead_id'] = null;
+                $params['order_id'] = $order->id;
+                if ($order->customer) {
+                  $params['customer_id'] = $order->customer->id;
+                }
+                $params = $this->modifyParamsWithMessage($params, $data);
+                $message = ChatMessage::create($params);
+                $model_type = 'order';
+                $model_id = $order->id;
+                $order->update([
+                    'whatsapp_number' => $to
+                ]);
+
+              }
         }
 
-        //save to orders
-        $orders = Order::where('contact_detail', '=', $from)->get();
-
-        if (count($orders) > 0) {
-          foreach ($orders as $order) {
-            $params['lead_id'] = null;
-            $params['order_id'] = $order->id;
-            if ($order->customer) {
-              $params['customer_id'] = $order->customer->id;
-            }
-            $params = $this->modifyParamsWithMessage($params, $data);
-            $message = ChatMessage::create($params);
-            $model_type = 'order';
-            $model_id = $order->id;
-            $order->update([
-                'whatsapp_number' => $to
-            ]);
-          }
-        }
-		// $order= $this->findOrderByNumber( $from );
-        // if ( $order ) {
-
-
+        //   }
         // }
 
-        if (count($orders) == 0 && count($leads) == 0) {
+        //save to orders
+        // $orders = Order::where('contact_detail', '=', $from)->get();
+
+        // if (count($orders) > 0) {
+        //   foreach ($orders as $order) {
+
+        //   }
+        // }
+
+
+        if (!$orders && !$leads) {
             $modal_type = 'leads';
             // $new_name = "whatsapp lead " . uniqid( TRUE );
             $user = User::get()[0];
