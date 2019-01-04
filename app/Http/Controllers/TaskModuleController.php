@@ -187,12 +187,13 @@ class TaskModuleController extends Controller {
 				// 	'role'       => '',
 				// ] );
 
-				$diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
+				// $diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
 
 				NotificationQueueController::createNewNotification( [
 					'message'    => 'Reminder for Task : ' . $data['task_details'],
-					'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
-					'reminder'	 => 1,
+					// 'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
+					// 'reminder'	 => 1,
+					'timestamps' => ['+0 minutes'],
 					'model_type' => Task::class,
 					'model_id'   => $task->id,
 					'user_id'    => \Auth::id(),
@@ -232,12 +233,13 @@ class TaskModuleController extends Controller {
 				// 	'role'       => '',
 				// ] );
 
-				$diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
+				// $diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
 
 				NotificationQueueController::createNewNotification( [
 					'message'    => 'Reminder for Task : ' . $data['task_details'],
-					'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
-					'reminder'	 => 1,
+					// 'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
+					// 'reminder'	 => 1,
+					'timestamps' => ['+0 minutes'],
 					'model_type' => Task::class,
 					'model_id'   => $task->id,
 					'user_id'    => \Auth::id(),

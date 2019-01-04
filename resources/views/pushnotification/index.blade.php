@@ -64,10 +64,16 @@
                 {{ $notification->message }} at {{ Carbon\Carbon::parse($notification->created_at)->format('d-m H:i') }}
               </a>
             </td>
-            <td style="width: 20px"><button class="btn btn-link markReadPush" data-id="{{ $notification->id }}">Complete</button></td>
+            @if ($notification->isread == 0)
+              <td style="width: 20px"><button class="btn btn-link markReadPush" data-id="{{ $notification->id }}">Complete</button></td>
+            @else
+              <td style="width: 20px">{{ Carbon\Carbon::parse($notification->updated_at)->format('d-m H:i') }}</td>
+            @endif
           </tr>
           @endforeach
         </table>
+
+        {!! $lead_notifications->appends(Request::except('lead_page'))->links() !!}
       @else
         <span class="d-block mt-3">You are up to date with Lead Notifications</span>
       @endif
@@ -83,10 +89,16 @@
                 {{ $notification->message }} at {{ Carbon\Carbon::parse($notification->created_at)->format('d-m H:i') }}
               </a>
             </td>
-            <td style="width: 20px"><button class="btn btn-link markReadPush" data-id="{{ $notification->id }}">Complete</button></td>
+            @if ($notification->isread == 0)
+              <td style="width: 20px"><button class="btn btn-link markReadPush" data-id="{{ $notification->id }}">Complete</button></td>
+            @else
+              <td style="width: 20px">{{ Carbon\Carbon::parse($notification->updated_at)->format('d-m H:i') }}</td>
+            @endif
           </tr>
           @endforeach
         </table>
+
+        {!! $order_notifications->appends(Request::except('order_page'))->links() !!}
       @else
         <span class="d-block mt-3">You are up to date with Order Notifications</span>
       @endif
@@ -116,12 +128,19 @@
                        at {{ Carbon\Carbon::parse($item['created_at'])->format('d-m H:i') }}
                     </a>
                   </td>
-                  <td style="width: 20px"><button class="btn btn-link markReadPushReminder" data-id="{{ $item['id'] }}">Complete</button></td>
+
+                  @if ($item['isread'] == 0)
+                    <td style="width: 20px"><button class="btn btn-link markReadPushReminder" data-id="{{ $item['id'] }}">Complete</button></td>
+                  @else
+                    <td style="width: 20px">{{ Carbon\Carbon::parse($item['updated_at'])->format('d-m H:i') }}</td>
+                  @endif
                 </tr>
               @endif
             @endforeach
           @endforeach
         </table>
+
+        {!! $message_notifications->appends(Request::except('message_page'))->links() !!}
       @else
         <span class="d-block mt-3">You are up to date with Message Notifications</span>
       @endif
@@ -139,12 +158,19 @@
                       {{ $item['message'] }} at {{ Carbon\Carbon::parse($item['created_at'])->format('d-m H:i') }}
                     </a>
                   </td>
-                  <td style="width: 20px"><button class="btn btn-link markReadPushReminder" data-id="{{ $item['id'] }}">Complete</button></td>
+
+                  @if ($item['isread'] == 0)
+                    <td style="width: 20px"><button class="btn btn-link markReadPushReminder" data-id="{{ $item['id'] }}">Complete</button></td>
+                  @else
+                    <td style="width: 20px">{{ Carbon\Carbon::parse($item['updated_at'])->format('d-m H:i') }}</td>
+                  @endif
                 </tr>
               @endif
             @endforeach
           @endforeach
         </table>
+
+        {!! $task_notifications->appends(Request::except('task_page'))->links() !!}
       @else
         <span class="d-block mt-3">You are up to date with Task Notifications</span>
       @endif
@@ -180,7 +206,8 @@
       url: url,
       success: function(data) {
         if(data.msg === 'success'){
-            button.parent().parent().fadeOut('ease-in');
+          button.parent().html(moment(data.updated_at).format('DD-MM H:m'));
+          button.remove();
         }
       },
       error: function() {

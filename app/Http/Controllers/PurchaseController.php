@@ -183,23 +183,16 @@ class PurchaseController extends Controller
     public function show($id)
     {
       $purchase = Purchase::find($id);
-      // $data                   = $purchase->toArray();
-  		// $data['sales_persons']  = Helpers::getUsersArrayByRole( 'Sales' );
-  		// $data['order_products'] = $this->getOrderProductsWithProductData($purchase->id);
   		$data['comments']        = Comment::with('user')->where( 'subject_id', $purchase->id )
   		                                 ->where( 'subject_type','=' ,Order::class )->get();
   		$data['users']          = User::all()->toArray();
   		$messages = Message::all()->where('moduleid', $purchase->id)->where('moduletype','=', 'purchase')->sortByDesc("created_at")->take(10)->toArray();
       $data['messages'] = $messages;
-      // $data['total_price'] = $this->getTotalOrderPrice($purchase);
-
-  		// $purchase_statuses = (new OrderStatus)->all();
-  		// $data['order_statuses'] = $purchase_statuses;
   		$data['tasks'] = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->get()->toArray();
   		$data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
   		$data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
       $data['purchase_status'] = (new PurchaseStatus)->all();
-      // dd($purchase);
+
   		return view('purchase.show', $data)->withOrder($purchase);
     }
 
@@ -210,10 +203,8 @@ class PurchaseController extends Controller
   		$data['users']          = User::all()->toArray();
   		$messages = Message::all()->where('moduleid', $product->id)->where('moduletype','=', 'product')->sortByDesc("created_at")->take(10)->toArray();
       $data['messages'] = $messages;
-
   		$data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
   		$data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
-      // $data['purchase_status'] = (new PurchaseStatus)->all();
       $data['order_details'] = OrderProduct::where('sku', $product->sku)->get(['order_id', 'size']);
 
   		return view('purchase.product-show', $data)->withProduct($product);

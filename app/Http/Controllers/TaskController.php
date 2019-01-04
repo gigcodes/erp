@@ -167,7 +167,8 @@ class TaskController extends Controller {
 			//Send to the assigned user
 			NotificationQueueController::createNewNotification([
 				'message' => $task->details,
-				'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+				// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+				'timestamps' => ['+0 minutes'],
 				'model_type' => Task::class,
 				'model_id' =>  $task->id,
 				'user_id' => Auth::id(),
@@ -176,15 +177,15 @@ class TaskController extends Controller {
 			]);
 
 			//Send to the author if not done.
-			NotificationQueueController::createNewNotification([
-				'message' => $task->details,
-				'timestamps' => ['+45 minutes'],
-				'model_type' => Task::class,
-				'model_id' =>  $task->id,
-				'user_id' => Auth::id(),
-				'sent_to' => Auth::id(),
-				'role' => '',
-			]);
+			// NotificationQueueController::createNewNotification([
+			// 	'message' => $task->details,
+			// 	'timestamps' => ['+45 minutes'],
+			// 	'model_type' => Task::class,
+			// 	'model_id' =>  $task->id,
+			// 	'user_id' => Auth::id(),
+			// 	'sent_to' => Auth::id(),
+			// 	'role' => '',
+			// ]);
 		}
 
 		$task->name          = $request->get( 'name' );

@@ -23,7 +23,6 @@ class MessageController extends Controller
      */
     public function index()
     {
-        //
         $messages = Message::with(['user'])->get();
 
         return response()->json($messages);
@@ -54,32 +53,10 @@ class MessageController extends Controller
               'status' => 'required',
             ]);
 
-            // if ($request->images) {
-            //   $msgtxt = $request->body . '<br>';
-            //
-            //   foreach (json_decode($request->images) as $image) {
-            //     $msgtxt .= '<div class="thumbnail-wrapper"><img src="'.$image.'" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' . $image . '">x</span></div>';
-            //   }
-            //
-            //   $data = $request->except( '_token', 'body');
-            //   $data['body'] = $msgtxt;
-            // } else {
-            //   $data = $request->except( '_token');
-            // }
-
             $data = $request->except( '_token');
             $id = $request->get('moduleid');
             $moduletype = $request->get('moduletype');
-            // if (isset($_FILES["image"]) && $_FILES["image"]["size"] > 10) {
-            //
-            //        $target_dir = "uploads/";
-            //        $target_file = $target_dir . basename($_FILES["image"]["name"]);
-            //         move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
-            //         $msgtxt = $request->get('body');
-            //         $msgtxt .= '<br><div class="thumbnail-wrapper"><img src="/'.$target_file.'" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="/' . $target_file . '">x</span></div>';
-            //
-            //         $data['body'] = $msgtxt;
-            //  }
+
             if ($moduletype == 'leads') {
               $lead = Leads::find($id);
 
@@ -96,7 +73,6 @@ class MessageController extends Controller
               $customer = Customer::find($id);
               $data['customer_id'] = $customer->id;
             }
-
 
             $data['userid'] = Auth::id();
             if ($data['status'] == '4')
@@ -132,9 +108,9 @@ class MessageController extends Controller
 
               NotificationQueueController::createNewNotification( [
 		            'message'    => 'Reminder : ' . $data['body'],
-                'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-		            // 'timestamps' => [ '+0 minutes'],
-                'reminder'   => 1,
+                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+		            'timestamps' => [ '+0 minutes'],
+                // 'reminder'   => 1,
                 'message_id' => $message->id,
 		            'model_type' => $data['moduletype'],
 		            'model_id'   => $data['moduleid'],
@@ -170,9 +146,9 @@ class MessageController extends Controller
 
               NotificationQueueController::createNewNotification( [
 		            'message'    => 'Reminder to Reply : ' . $data['body'],
-                'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-                // 'timestamps' => [ '+0 minutes'],
-                'reminder'   => 1,
+                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+                'timestamps' => [ '+0 minutes'],
+                // 'reminder'   => 1,
                 'message_id' => $message->id,
 		            'model_type' => $data['moduletype'],
 		            'model_id'   => $data['moduleid'],
@@ -183,9 +159,9 @@ class MessageController extends Controller
 
               NotificationQueueController::createNewNotification( [
 		            'message'    => 'Reminder to Reply : ' . $data['body'],
-                'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-                // 'timestamps' => [ '+0 minutes'],
-                'reminder'   => 1,
+                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+                'timestamps' => [ '+0 minutes'],
+                // 'reminder'   => 1,
                 'message_id' => $message->id,
 		            'model_type' => $data['moduletype'],
 		            'model_id'   => $data['moduleid'],
@@ -277,33 +253,16 @@ class MessageController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-        // $message = Message::find($request->get('messageid'));
        $message = Message::find($id);
-        // $this->validate(request(), [
-        //   'body' => 'required',
-        //
-        // ]);
-         $message->body = $request->get('body');
-         // $moduleid = $request->get('moduleid');
-         // $moduletype = $request->get('moduletype');
-         // if ($_FILES["image"]["size"] > 10) {
-         //           $target_dir = "uploads/";
-         //           $target_file = $target_dir . basename($_FILES["image"]["name"]);
-         //           move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
-         //           $msgtxt = $request->get('body');
-         //            $msgtxt .= ' <a href="/'.$target_file.'" class="message-img" />'.$target_file.'</a>';
-         //            $message->body = $msgtxt;
-         //     }
 
-         $message->save();
-         return response(['message' => 'Success']);
-         // return redirect('/'. $moduletype.'/'.$moduleid);
+       $message->body = $request->get('body');
+
+       $message->save();
+       return response(['message' => 'Success']);
     }
 
     public function updatestatus(Request $request )
     {
-
         $message = Message::find($request->get('id'));
         $message->status = $request->get('status');
         $moduleid = $request->get('moduleid');
@@ -337,24 +296,24 @@ class MessageController extends Controller
 			    'role'       => 'message',
 		    ] );
 
-        NotificationQueueController::createNewNotification( [
-			    'message'    => 'Approved Reminder: ' . $message->body,
-			    // 'timestamps' => [ '+0 minutes' ],
-          'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-          'reminder'   => 1,
-          'message_id' => $message->id,
-			    'model_type' => $message->moduletype,
-			    'model_id'   => $message->moduleid,
-			    'user_id'    => Auth::id(),
-			    'sent_to'    => '',
-			    'role'       => 'message',
-		    ] );
+        // NotificationQueueController::createNewNotification( [
+			  //   'message'    => 'Approved Reminder: ' . $message->body,
+			  //   // 'timestamps' => [ '+0 minutes' ],
+        //   'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+        //   'reminder'   => 1,
+        //   'message_id' => $message->id,
+			  //   'model_type' => $message->moduletype,
+			  //   'model_id'   => $message->moduleid,
+			  //   'user_id'    => Auth::id(),
+			  //   'sent_to'    => '',
+			  //   'role'       => 'message',
+		    // ] );
 
         NotificationQueueController::createNewNotification( [
 			    'message'    => 'Approved : ' . $message->body,
-			    // 'timestamps' => [ '+0 minutes' ],
-          'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-          'reminder'   => 1,
+			    'timestamps' => [ '+0 minutes' ],
+          // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+          // 'reminder'   => 1,
           'message_id' => $message->id,
 			    'model_type' => $message->moduletype,
 			    'model_id'   => $message->moduleid,
@@ -362,19 +321,6 @@ class MessageController extends Controller
 			    'sent_to'    => $message->userid,
 			    'role'       => '',
 		    ] );
-
-        // NotificationQueueController::createNewNotification( [
-        //   'message'    => 'Reminder : ' . $message->body,
-        //   'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-        //   // 'timestamps' => [ '+0 minutes'],
-        //   'reminder'   => 1,
-        //   'message_id' => $message->id,
-        //   'model_type' => $message->moduletype,
-        //   'model_id'   => $message->moduleid,
-        //   'user_id'    => Auth::id(),
-        //   'sent_to'    => '',
-        //   'role'       => 'message',
-        // ] );
 	    }
 
       if( $message->status == '3' ) {

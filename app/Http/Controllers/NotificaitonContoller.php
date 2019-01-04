@@ -12,16 +12,11 @@ class NotificaitonContoller extends Controller
 {
 
 	public function index(Request $request){
-
-//		$roleNames = $auth->user()->getRoleNames();
-//		$notifications = Notification::latest()->whereIn('role',$roleNames)->paginate(20);
 		$notifications = Notification::getUserNotificationByRolesPaginate($request);
 
 		$sort = $request->input('sort_by');
 
 		return view('notification.index',compact('notifications','sort'));
-//			->with('i', (request()->input('page', 1) - 1) * 10);
-
 	}
 
 	public static function json(){

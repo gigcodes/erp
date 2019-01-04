@@ -505,16 +505,6 @@ class OrderController extends Controller {
 			'role' => '',
 		]);
 
-		// NotificationQueueController::createNewNotification([
-		// 	'message' => $data['client_name'],
-		// 	'timestamps' => ['+45 minutes'],
-		// 	'model_type' => Order::class,
-		// 	'model_id' =>  $order->id,
-		// 	'user_id' => \Auth::id(),
-		// 	'sent_to' => \Auth::id(),
-		// 	'role' => '',
-		// ]);
-
 		NotificationQueueController::createNewNotification([
 			'message' => $data['client_name'],
 			'timestamps' => ['+0 minutes'],
@@ -609,21 +599,12 @@ class OrderController extends Controller {
 			NotificationQueueController::createNewNotification([
 				'type' => 'button',
 				'message' => $order->client_name,
-				'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+				// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+				'timestamps' => ['+0 minutes'],
 				'model_type' => Order::class,
 				'model_id' =>  $order->id,
 				'user_id' => \Auth::id(),
 				'sent_to' => $request->input( 'sales_person' ),
-				'role' => '',
-			]);
-
-			NotificationQueueController::createNewNotification([
-				'message' => $order->client_name,
-				'timestamps' => ['+45 minutes'],
-				'model_type' => Order::class,
-				'model_id' =>  $order->id,
-				'user_id' => \Auth::id(),
-				'sent_to' => \Auth::id(),
 				'role' => '',
 			]);
 		}

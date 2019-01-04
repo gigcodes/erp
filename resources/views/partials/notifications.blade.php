@@ -41,13 +41,9 @@
     </ul>
 </li>
 
-<script>
+{{-- <script>
     var interval = 1000 * 30;  // 1000 = 1 second
     var notificationShowCount = 15;
-    // const TaskShowCount = 5;
-    // const OrderShowCount = 5;
-    // const LeadShowCount = 5;
-    // const MessageShowCount = 5;
 
     var allUsers = {!! json_encode( \App\Helpers::getUserArray( \App\User::all() ) ) !!};
     var current_userid = '{{ Auth::id() }}';
@@ -123,12 +119,6 @@
                     element['isShown'] = false;
                     this.items.push(element);
                 }
-
-                /*if(this.isFirst){
-                 toast(this.front());
-                 this.isFirst = false;
-                 this.count++;
-                 }*/
 
                 this.notificationCount();
             }
@@ -338,20 +328,11 @@
         return Queue;
     }();
 
-    // $(document).on('click','.toast-info',function () {
-    //    $('.toast-info').toggleClass('toast-stack');
-    //    $('#toast-container').toggleClass('toast-container-stacked');
-    // });
-
     $(document).on('click touchstart', '.notification', function (e) {
         if ($(e.target).hasClass('notification-link') != true) {
             $('.stack-container').not($(this).parent()).addClass('stacked');
             $(this).parent().toggleClass('stacked');
         }
-
-
-        // $(this).parent().toggleClass('notification-height');
-        // $('#toast-container').toggleClass('toast-container-stacked');
     });
 
     var notificationQueue = new Queue();
@@ -493,32 +474,6 @@
             default:
                 return;
         }
-
-        // toastr.options = {
-        //     // "closeButton": ((notification.type === 'button') && (is_admin == false)) || (notification.reminder == 1) ? false : true,
-        //     "closeButton": ((notification.type === 'button') && (is_admin == false))? false : true,
-        //     "debug": false,
-        //     "newestOnTop": true,
-        //     "progressBar": false,
-        //     "positionClass": "toast-top-right",
-        //     "preventDuplicates": false,
-        //     "showDuration": "500",
-        //     "hideDuration": "400",
-        //     "timeOut": 0,
-        //     "extendedTimeOut": 0,
-        //     "showEasing": "swing",
-        //     "hideEasing": "linear",
-        //     "showMethod": "fadeIn",
-        //     "hideMethod": "fadeOut",
-        //     "tapToDismiss" : false,
-        // };
-        //
-        // toastr.options.onCloseClick = () => markNotificationRead(notification.id);
-        // toastr.options.onHidden = () => nextNotification(notification.id);
-        // // toastr.options.onHidden = () => markNotificationRead(notification.id);
-        // // toastr.options.onclick = () => { return false; };
-        //
-        // toastr['info'](message);
     }
 
     function markNotificationRead(id) {
@@ -558,4 +513,4 @@
     });
 
 
-</script>
+</script> --}}

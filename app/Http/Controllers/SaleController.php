@@ -124,7 +124,8 @@ class SaleController extends Controller {
 
 		NotificationQueueController::createNewNotification([
 			'message' => $request->input( 'description' ),
-			'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+			// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+			'timestamps' => ['+0 minutes'],
 			'model_type' => Sale::class,
 			'model_id' =>  $sale_id,
 			'user_id' => Auth::id(),
@@ -132,15 +133,15 @@ class SaleController extends Controller {
 			'role' => '',
 		]);
 
-		NotificationQueueController::createNewNotification([
-			'message' => $request->input( 'description' ),
-			'timestamps' => ['+45 minutes'],
-			'model_type' => Sale::class,
-			'model_id' =>  $sale_id,
-			'user_id' => Auth::id(),
-			'sent_to' => Auth::id(),
-			'role' => '',
-		]);
+		// NotificationQueueController::createNewNotification([
+		// 	'message' => $request->input( 'description' ),
+		// 	'timestamps' => ['+45 minutes'],
+		// 	'model_type' => Sale::class,
+		// 	'model_id' =>  $sale_id,
+		// 	'user_id' => Auth::id(),
+		// 	'sent_to' => Auth::id(),
+		// 	'role' => '',
+		// ]);
 
 		ActivityConroller::create( $sale_id, 'sales', 'create' );
 
@@ -198,7 +199,8 @@ class SaleController extends Controller {
 
 			NotificationQueueController::createNewNotification([
 				'message' => $request->input( 'description' ),
-				'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+				// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+				'timestamps' => ['+0 minutes'],
 				'model_type' => Sale::class,
 				'model_id' =>   $sale->id,
 				'user_id' => Auth::id(),
@@ -206,15 +208,15 @@ class SaleController extends Controller {
 				'role' => '',
 			]);
 
-			NotificationQueueController::createNewNotification([
-				'message' => $request->input( 'description' ),
-				'timestamps' => ['+45 minutes'],
-				'model_type' => Sale::class,
-				'model_id' =>   $sale->id,
-				'user_id' => Auth::id(),
-				'sent_to' => Auth::id(),
-				'role' => '',
-			]);
+			// NotificationQueueController::createNewNotification([
+			// 	'message' => $request->input( 'description' ),
+			// 	'timestamps' => ['+45 minutes'],
+			// 	'model_type' => Sale::class,
+			// 	'model_id' =>   $sale->id,
+			// 	'user_id' => Auth::id(),
+			// 	'sent_to' => Auth::id(),
+			// 	'role' => '',
+			// ]);
 		}
 
 		ActivityConroller::create( $sale->id, 'sales', 'update' );

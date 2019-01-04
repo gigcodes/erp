@@ -36,8 +36,6 @@ class LeadsController extends Controller
      */
     public function index(Request $request)
     {
-        //
-
         if($request->input('orderby') == '')
             $orderby = 'asc';
         else
@@ -69,8 +67,6 @@ class LeadsController extends Controller
                  $sortby = 'communication';
         }
 
-
-
       $term = $request->input('term');
       $brand = $request->input('brand');
       $rating = $request->input('rating');
@@ -82,8 +78,6 @@ class LeadsController extends Controller
         $type = true;
       }
 
-      // $leads2 = Leads::find(262)->toArray();
-      // dd($leads2);
       if ($request->brand[0] != null) {
         $implode = implode(',', $request->brand);
         $leads->where('multi_brand', 'LIKE', "%$implode%");
@@ -97,9 +91,6 @@ class LeadsController extends Controller
         $rating = $request->rating;
       }
 
-      // if ($request->input('sortby') == 'communication') {
-      //   $leads = Leads::with('messages')->select('messages.body')->orderBy('message:body');
-      // } else
       if ( helpers::getadminorsupervisor() ) {
         if ($sortby != 'communication') {
           $leads = $leads->orderBy( $sortby, $orderby );
@@ -109,14 +100,6 @@ class LeadsController extends Controller
 	    } else {
 		    $leads = $leads->oldest()->where( 'assigned_user', '=', Auth::id() );
 	    }
-      //
-      // if ($request->brand[0] != null) {
-      //   $leads->whereIn('brand', $request->brand);
-      // }
-      //
-      // if ($request->rating[0] != null) {
-      //   $leads->whereIn('rating', $request->rating);
-      // }
 
 	    if(!empty($term)){
 	    	$leads = $leads->where(function ($query) use ($term){
@@ -135,8 +118,6 @@ class LeadsController extends Controller
 	    }
 
       $leads_array = $leads->whereNull( 'deleted_at' )->get()->toArray();
-      // dd($leads_array);
-
 
       if ($sortby == 'communication') {
         if ($orderby == 'asc') {
@@ -157,15 +138,14 @@ class LeadsController extends Controller
       $currentItems = array_slice($leads_array, $perPage * ($currentPage - 1), $perPage);
 
       $leads_array = new LengthAwarePaginator($currentItems, count($leads_array), $perPage, $currentPage);
-      // dd($results);
       $leads = $leads->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
 
       if ($request->ajax()) {
   			$html = view('leads.lead-item', ['leads_array' => $leads_array, 'leads' => $leads, 'orderby' => $orderby, 'term' => $term, 'brand' => http_build_query(['brand' => $brand]), 'rating' => http_build_query(['rating' => $rating]), 'type' => $type])->render();
-        // dd($brand, $rating);
+
   			return response()->json(['html' => $html]);
   		}
-      // dd($leads);
+
       return view('leads.index',compact('leads', 'leads_array','term', 'orderby', 'brand', 'rating', 'type'))
                 ->with('i', (request()->input('page', 1) - 1) * 10);
 
@@ -178,7 +158,6 @@ class LeadsController extends Controller
      */
     public function create()
     {
-        //
         $status = New status;
         $data['status'] = $status->all();
         $users = User::oldest()->get()->toArray();
@@ -283,13 +262,10 @@ class LeadsController extends Controller
         $lead = Leads::create($data);
         if ($request->hasfile('image')) {
           foreach ($request->file('image') as $image) {
-
-            // dd('yra');
             $media = MediaUploader::fromSource($image)->upload();
             $lead->attachMedia($media,config('constants.media_tags'));
           }
         }
-        // dd('stap');
 
 
         if(!empty($request->input('assigned_user'))){
@@ -321,17 +297,6 @@ class LeadsController extends Controller
 	        ]);
         }
 
-
-	    // NotificationQueueController::createNewNotification([
-		  //   'message' => $data['client_name'],
-		  //   'timestamps' => ['+45 minutes'],
-		  //   'model_type' => Leads::class,
-		  //   'model_id' =>  $lead->id,
-		  //   'user_id' => Auth::id(),
-		  //   'sent_to' => Auth::id(),
-		  //   'role' => '',
-	    // ]);
-
 	    NotificationQueueController::createNewNotification([
 		    'message' => $data['client_name'],
 		    'timestamps' => ['+0 minutes'],
@@ -342,20 +307,10 @@ class LeadsController extends Controller
 		    'role' => 'Admin',
 	    ]);
 
-	    // NotificationQueueController::createNewNotification([
-		  //   'message' => 'Client Name: '.$data['client_name'],
-		  //   'timestamps' => ['+0 minutes'],
-		  //   'model_type' => Leads::class,
-		  //   'model_id' =>  $lead->id,
-		  //   'user_id' => Auth::id(),
-		  //   'sent_to' => '',
-		  //   'role' => 'Supervisors',
-	    // ]);
-
       if ($request->ajax()) {
         return response('success');
       }
-      
+
         return redirect()->route('leads.create')
                          ->with('success','Lead created successfully.');
 
@@ -369,7 +324,6 @@ class LeadsController extends Controller
      */
     public function show($id)
     {
-        //
         $leads = Leads::find($id);
         $status = New status;
         $data = $status->all();
@@ -418,36 +372,7 @@ class LeadsController extends Controller
      */
     public function edit($id)
     {
-        //
-      //   $leads = Leads::find($id);
-      //   $status = New status;
-      //   $data = $status->all();
-      //   $leads['statusid'] = $data;
-      //   $users = User::all()->toArray();
-      //   $leads['users']  = $users;
-      //   $brands = Brand::all()->toArray();
-      //   $leads['brands']  = $brands;
-      //   $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
-      //   $leads['products_array']          = [];
-      //
-      //
-	    // $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
-      //
-      //
-	    // $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
-	    // $data['category_select'] = Category::attr(['name' => 'multi_category[]','class' => 'form-control','id' => 'multi_category'])
-	    //                             ->selected($selected_categories)
-	    //                             ->renderAsMultiple();
-      //
-      //   if ( ! empty( $leads['selected_products_array']  ) ) {
-      //       foreach ( $leads['selected_products_array']  as $product_id ) {
-      //           $skuOrName                             = $this->getProductNameSkuById( $product_id );
-      //
-      //          $data['products_array'][$product_id] = $skuOrName;
-      //       }
-      //   }
-      //  // var_dump($leads['products_array']);
-      // return view('leads.edit',compact('leads','id','data'));
+
     }
 
     /**
@@ -459,7 +384,6 @@ class LeadsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
         $leads = Leads::find($id);
 
         if ($request->type != 'customer') {
@@ -484,7 +408,8 @@ class LeadsController extends Controller
 		    NotificationQueueController::createNewNotification([
 			    'type' => 'button',
 			    'message' => $leads->client_name,
-			    'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+          'timestamps' => ['+0 minutes'],
+			    // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
 			    'model_type' => Leads::class,
 			    'model_id' =>  $id,
 			    'user_id' => Auth::id(),
@@ -492,15 +417,15 @@ class LeadsController extends Controller
 			    'role' => '',
 		    ]);
 
-		    NotificationQueueController::createNewNotification([
-			    'message' => $leads->client_name,
-			    'timestamps' => ['+45 minutes'],
-			    'model_type' => Leads::class,
-			    'model_id' =>  $id,
-			    'user_id' => Auth::id(),
-			    'sent_to' => Auth::id(),
-			    'role' => '',
-		    ]);
+		    // NotificationQueueController::createNewNotification([
+			  //   'message' => $leads->client_name,
+			  //   'timestamps' => ['+45 minutes'],
+			  //   'model_type' => Leads::class,
+			  //   'model_id' =>  $id,
+			  //   'user_id' => Auth::id(),
+			  //   'sent_to' => Auth::id(),
+			  //   'role' => '',
+		    // ]);
 	    }
 
         if ($request->type != 'customer') {
@@ -642,9 +567,6 @@ class LeadsController extends Controller
 
 
     public function saveLeaveMessage(Request $request) {
-
-        //print_r($request->all());
-
         $callBusyMessage = new CallBusyMessage();
         $callBusyMessage->lead_id = $request->input('lead_id');
         $callBusyMessage->message = $request->input('message');
