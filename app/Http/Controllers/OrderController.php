@@ -525,6 +525,10 @@ class OrderController extends Controller {
 			'role' => 'Admin',
 		]);
 
+		if ($request->ajax()) {
+			return response('success');
+		}
+
 		return redirect()->route( 'order.index' )
 		                 ->with( 'message', 'Order created successfully' );
 	}

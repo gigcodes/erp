@@ -352,7 +352,10 @@ class LeadsController extends Controller
 		  //   'role' => 'Supervisors',
 	    // ]);
 
-
+      if ($request->ajax()) {
+        return response('success');
+      }
+      
         return redirect()->route('leads.create')
                          ->with('success','Lead created successfully.');
 

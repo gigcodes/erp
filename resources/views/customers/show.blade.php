@@ -8,8 +8,10 @@
     <div class="pull-left">
       <h2>Customer Page</h2>
     </div>
-    <div class="pull-right">
+    <div class="pull-right mt-4">
       <a class="btn btn-secondary" href="{{ route('customer.index') }}">Back</a>
+      <a class="btn btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
+      <a class="btn btn-secondary" href="#" id="quick_add_order">+ Order</a>
     </div>
   </div>
 </div>
@@ -1441,6 +1443,66 @@
               }
 
             }
+          });
+        });
+
+        $('#quick_add_lead').on('click', function(e) {
+          e.preventDefault();
+
+          var thiss = $(this);
+          var token = "{{ csrf_token() }}";
+          var url = "{{ route('leads.store') }}";
+          var customer_id = {{ $customer->id }};
+          var created_at = moment().format('YYYY-MM-DD HH:mm');
+
+          $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+              _token: token,
+              customer_id: customer_id,
+              rating: 1,
+              status: 1,
+              assigned_user: "{{ Auth::id() }}",
+              created_at: created_at
+            },
+            beforeSend: function() {
+              $(thiss).text('Creating...');
+            },
+            success: function() {
+              location.reload();
+            }
+          }).fail(function(error) {
+            console.log(error);
+            alert('There was an error creating a lead');
+          });
+        });
+
+        $('#quick_add_order').on('click', function(e) {
+          e.preventDefault();
+
+          var thiss = $(this);
+          var token = "{{ csrf_token() }}";
+          var url = "{{ route('order.store') }}";
+          var customer_id = {{ $customer->id }};
+
+          $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+              _token: token,
+              customer_id: customer_id,
+              order_type: "offline"
+            },
+            beforeSend: function() {
+              $(thiss).text('Creating...');
+            },
+            success: function() {
+              location.reload();
+            }
+          }).fail(function(error) {
+            console.log(error);
+            alert('There was an error creating a order');
           });
         });
     </script>
