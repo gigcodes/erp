@@ -1006,7 +1006,7 @@
                  p.html(short_message);
 
                  if (message.status == 0 || message.status == 5 || message.status == 6) {
-                   var row = $("<div class='talk-bubble round grey'></div>");
+                   var row = $("<div class='talk-bubble'></div>");
 
                    var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
                    var mark_read = $("<a href data-url='/message/updatestatus?status=5&id=" + message.id + "&moduleid=" + message.moduleid + "&moduletype=leads' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
@@ -1019,10 +1019,10 @@
                    meta.appendTo(text);
 
                    if (message.status == 0) {
-                     mark_read.appendTo(text);
+                     mark_read.appendTo(meta);
                    }
                    if (message.status == 0 || message.status == 5) {
-                     mark_replied.appendTo(text);
+                     mark_replied.appendTo(meta);
                    }
 
                    text.appendTo(row);
@@ -1034,7 +1034,7 @@
                    }
 
                  } else if (message.status == 4) {
-                   var row = $("<div class='talk-bubble round dashed-border' data-messageid='" + message.id + "'></div>");
+                   var row = $("<div class='talk-bubble' data-messageid='" + message.id + "'></div>");
                    var chat_friend =  (message.assigned_to != 0 && message.assigned_to != leads_assigned_user && message.userid != message.assigned_to) ? ' - ' + users_array[message.assigned_to] : '';
                    var meta = $("<em>" + users_array[message.userid] + " " + chat_friend + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/1.png' /> &nbsp;</em>");
 
@@ -1051,7 +1051,7 @@
                      row.prependTo(container);
                    }
                  } else {
-                   var row = $("<div class='talk-bubble round' data-messageid='" + message.id + "'></div>");
+                   var row = $("<div class='talk-bubble' data-messageid='" + message.id + "'></div>");
                    var body = $("<span id='message_body_" + message.id + "'></span>");
                    var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.body + '</textarea>');
                    var meta = "<em>" + users_array[message.userid] + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/" + message.status + ".png' /> &nbsp;";
@@ -1093,7 +1093,7 @@
                    }
                  }
                } else {
-                 var row = $("<div class='talk-bubble round'></div>");
+                 var row = $("<div class='talk-bubble'></div>");
                  var text = $("<div class='talktext'></div>");
                  var p = $("<p class='collapsible-message'></p>");
                  if (!message.received) {
@@ -1146,10 +1146,10 @@
                    var mark_replied = $('<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '&moduleid=' + moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
 
                    if (message.status == 0) {
-                     mark_read.appendTo(text);
+                     mark_read.appendTo(meta);
                    }
                    if (message.status == 0 || message.status == 5) {
-                     mark_replied.appendTo(text);
+                     mark_replied.appendTo(meta);
                    }
                  }
 

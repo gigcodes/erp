@@ -394,7 +394,7 @@ form.display-inline{
 #remember{margin: 4px 0px 0 -20px !important}
 /* CSS talk bubble */
 .talk-bubble {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   border: 1px solid grey;
 }
 
@@ -635,16 +635,20 @@ form.display-inline{
 
 /* talk bubble contents */
 .talktext{
-  padding: 1em;
+  /* padding: 1em; */
+  padding: 0 5px;
   text-align: left;
   line-height: 1.5em;
+  display: flex;
+  align-items: center;
 }
-.talktext p{
+.talktext p, .talktext span{
   /* remove webkit p margins */
   -webkit-margin-before: 0em;
   -webkit-margin-after: 0em;
-  height: 50px;
-  overflow-y: scroll;
+  /* height: 50px; */
+  /* overflow-y: scroll; */
+  flex-grow: 1;
 }
 
 .show_more_main{text-align: center;margin: 0px auto;padding: 5px ;background: #eee;width: 100px;cursor: pointer;}
