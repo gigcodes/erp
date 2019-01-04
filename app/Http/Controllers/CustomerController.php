@@ -205,13 +205,13 @@ class CustomerController extends Controller
     {
       $this->validate($request, [
         'name'          => 'required|min:3|max:255',
-        'email'         => 'sometimes|email',
-        'phone'         => 'required|unique:customers|numeric',
-        'instahandler'  => 'sometimes|min:3|max:255',
+        'email'         => 'required_without_all:phone,instahandler|nullable|email',
+        'phone'         => 'required_without_all:email,instahandler|nullable|unique:customers|numeric',
+        'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
         'rating'        => 'required|numeric',
-        'address'       => 'sometimes|min:3|max:255',
-        'city'          => 'sometimes|min:3|max:255',
-        'country'       => 'sometimes|min:3|max:255'
+        'address'       => 'sometimes|nullable|min:3|max:255',
+        'city'          => 'sometimes|nullable|min:3|max:255',
+        'country'       => 'sometimes|nullable|min:3|max:255'
       ]);
 
       $customer = new Customer;
@@ -315,9 +315,9 @@ class CustomerController extends Controller
 
       $this->validate($request, [
         'name'          => 'required|min:3|max:255',
-        'email'         => 'sometimes|nullable|email',
-        'phone'         => 'required|numeric|unique:customers,id,' . $id,
-        'instahandler'  => 'sometimes|nullable|min:3|max:255',
+        'email'         => 'required_without_all:phone,instahandler|nullable|email',
+        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|unique:customers,id,' . $id,
+        'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
         'rating'        => 'required|numeric',
         'address'       => 'sometimes|nullable|min:3|max:255',
         'city'          => 'sometimes|nullable|min:3|max:255',
