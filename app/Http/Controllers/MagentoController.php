@@ -108,7 +108,6 @@ class MagentoController extends Controller {
 
 			$results = json_decode( json_encode( $proxy->salesOrderInfo( $sessionId, $orderlist[ $j ]->increment_id ) ), true );
 
-
 			$atts = unserialize( $results['items'][0]['product_options'] );
 			if ( ! empty( $results['total_paid'] ) ) {
 				$paid = $results['total_paid'];
@@ -119,8 +118,16 @@ class MagentoController extends Controller {
 
 			$full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
 
-			if ($results['billing_address']['telephone'] != null) {
-				$customer = Customer::where('phone', $results['billing_address']['telephone'])->first();
+			$customer_phone = str_replace(' ', '', $results['billing_address']['telephone']);
+
+			if ($customer_phone != null) {
+				if ($results['billing_address']['country_id'] == 'IN') {
+					if (strlen($customer_phone) <= 10) {
+						$customer_phone = '91' . $customer_phone;
+					}
+				}
+
+				$customer = Customer::where('phone', $customer_phone)->first();
 			} else {
 				$customer = Customer::where('name', 'LIKE', "%$full_name%")->first();
 			}
@@ -130,15 +137,19 @@ class MagentoController extends Controller {
 			} else {
 				$customer = new Customer;
 				$customer->name = $full_name;
+				$customer->address = $results['billing_address']['street'];
+				$customer->city = $results['billing_address']['city'];
+				$customer->country = $results['billing_address']['country_id'];
 				$temp_number = [];
 
-				if ($results['billing_address']['telephone'] != null) {
-					$temp_number['phone'] = $results['billing_address']['telephone'];
+				if ($customer_phone != null) {
+					$temp_number['phone'] = $customer_phone;
 				} else {
 					$temp_number['phone'] = self::generateRandomString();
 				}
 
-				$customer->phone = self::validatePhone($temp_number);
+				$final_phone = self::validatePhone($temp_number);
+				$customer->phone = $final_phone;
 
 				$customer->save();
 
@@ -154,7 +165,7 @@ class MagentoController extends Controller {
 					'client_name'    => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
 					'city'           => $results['billing_address']['city'],
 					'advance_detail' => $paid,
-					'contact_detail' => $results['billing_address']['telephone'],
+					'contact_detail' => $final_phone,
 					'balance_amount' => $balance_amount,
 					'created_at'     => $results['created_at'],
 					'updated_at'     => $results['created_at'],
