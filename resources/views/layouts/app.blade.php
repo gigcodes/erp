@@ -914,7 +914,10 @@
 
                         @include('partials.notifications')
 
-
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
+                        </li>
+
 
 
 
