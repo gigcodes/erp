@@ -588,41 +588,7 @@ class WhatsAppController extends FindByNumberController
                                 ->where('order_id', $message->order_id)->where('customer_id', $message->customer_id)->where('created_at', '>=', $message->created_at)->get();
 
 
-        $send = $message->message;
-        if (is_null($send)) {
-            $send = $message->media_url;
-        }
-        if ($context == "leads") {
-            $lead = Leads::find($message->lead_id);
-            $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send);
-        } elseif ( $context == "orders") {
-            $order = Order::find($message->order_id);
-            $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send);
-        } elseif ($context == "customer") {
-            $customer = Customer::find($message->customer_id);
 
-            if ($leads = $customer->leads) {
-              foreach ($leads as $lead) {
-                if ($lead->whatsapp_number) {
-                  $whatsapp_number = $lead->whatsapp_number;
-                }
-              }
-            }
-            if ($orders = $customer->orders) {
-              foreach ($orders as $order) {
-                if ($order->whatsapp_number) {
-                  $whatsapp_number = $order->whatsapp_number;
-                }
-              }
-            }
-
-            $this->sendWithWhatsApp( $message->customer->phone,$whatsapp_number, $send);
-        }
-
-        $message->update([
-            'approved' => 1,
-            'status'   => 2
-        ]);
 
         if (count($messages) > 1) {
           $messages_keys = [];
@@ -667,6 +633,42 @@ class WhatsAppController extends FindByNumberController
           }
 
           return response($messages_keys);
+        } else {
+          $send = $message->message;
+          if (is_null($send)) {
+              $send = $message->media_url;
+          }
+          if ($context == "leads") {
+              $lead = Leads::find($message->lead_id);
+              $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send);
+          } elseif ( $context == "orders") {
+              $order = Order::find($message->order_id);
+              $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send);
+          } elseif ($context == "customer") {
+              $customer = Customer::find($message->customer_id);
+
+              if ($leads = $customer->leads) {
+                foreach ($leads as $lead) {
+                  if ($lead->whatsapp_number) {
+                    $whatsapp_number = $lead->whatsapp_number;
+                  }
+                }
+              }
+              if ($orders = $customer->orders) {
+                foreach ($orders as $order) {
+                  if ($order->whatsapp_number) {
+                    $whatsapp_number = $order->whatsapp_number;
+                  }
+                }
+              }
+
+              $this->sendWithWhatsApp( $message->customer->phone,$whatsapp_number, $send);
+          }
+
+          $message->update([
+              'approved' => 1,
+              'status'   => 2
+          ]);
         }
 
         return response("success");
