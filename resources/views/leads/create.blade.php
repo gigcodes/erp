@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 	<div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
@@ -21,7 +22,7 @@
      <form action="{{ route('leads.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
          <div class="row">
-             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+             {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
                     <strong>Client Name:</strong>
                     <input type="text" class="form-control" name="client_name" placeholder="Client Name" value="{{old('client_name')}}" id="customer_suggestions"/>
@@ -29,7 +30,22 @@
                         <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
                     @endif
                 </div>
-            </div>
+            </div> --}}
+
+						<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+							 <div class="form-group">
+									 <strong>Client:</strong>
+									 <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" required>
+										 @foreach ($data['customers'] as $customer)
+										  <option data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->phone }}</option>
+										@endforeach
+									</select>
+
+									 @if ($errors->has('customer_id'))
+											 <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
+									 @endif
+							 </div>
+					 </div>
 
               {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group">
@@ -358,6 +374,7 @@
     </form>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
     <script>
 

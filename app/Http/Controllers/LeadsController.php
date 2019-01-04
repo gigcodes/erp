@@ -199,6 +199,8 @@ class LeadsController extends Controller
            array_push($customer_suggestions, $customer['name']);
          }
 
+         $data['customers'] = Customer::all();
+
          $data['customer_suggestions'] = $customer_suggestions;
 
         return view('leads.create',compact('data'));
@@ -214,7 +216,7 @@ class LeadsController extends Controller
     {
 
         $leads = $this->validate(request(), [
-          'client_name' => 'required',
+          'customer_id' => 'required',
 //          'contactno' => 'required',
 //          'city' => 'required',
           'instahandler' => '',
@@ -236,34 +238,39 @@ class LeadsController extends Controller
         ]);
 
         $data = $request->except( '_token');
+        // dd($data);
+        //
+        // if ($customer = Customer::where('name', $data['client_name'])->first()) {
+        //   $data['customer_id'] = $customer->id;
+        // } else {
+        //   $customer = new Customer;
+        //   $customer->name = $data['client_name'];
+        //
+        //   $validator = Validator::make($data, [
+        //     'contactno' => 'unique:customers,phone'
+        //   ]);
+        //
+        //   if ($validator->fails()) {
+        //     return back()->with('phone_error', 'The phone already exists')->withInput();
+        //   }
+        //   $customer->phone = $data['contactno'];
+        //
+        //   if ($data['source'] == 'instagram') {
+        //     $customer->instahandler = $data['leadsourcetxt'];
+        //   }
+        //
+        //   $customer->rating = $data['rating'];
+        //   $customer->address = $data['address'];
+        //   $customer->city = $data['city'];
+        //
+        //   $customer->save();
+        //
+        //   $data['customer_id'] = $customer->id;
+        // }
+        $customer = Customer::find($request->customer_id);
 
-        if ($customer = Customer::where('name', $data['client_name'])->first()) {
-          $data['customer_id'] = $customer->id;
-        } else {
-          $customer = new Customer;
-          $customer->name = $data['client_name'];
-
-          $validator = Validator::make($data, [
-            'contactno' => 'unique:customers,phone'
-          ]);
-
-          if ($validator->fails()) {
-            return back()->with('phone_error', 'The phone already exists')->withInput();
-          }
-          $customer->phone = $data['contactno'];
-
-          if ($data['source'] == 'instagram') {
-            $customer->instahandler = $data['leadsourcetxt'];
-          }
-
-          $customer->rating = $data['rating'];
-          $customer->address = $data['address'];
-          $customer->city = $data['city'];
-
-          $customer->save();
-
-          $data['customer_id'] = $customer->id;
-        }
+        $data['client_name'] = $customer->name;
+        $data['contactno'] = $customer->phone;
 
         $data['userid'] = Auth::id();
         $data['selected_product'] = json_encode( $request->input( 'selected_product' ) );

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
@@ -25,6 +25,21 @@
             @method('PUT')
         @endif
         <div class="row">
+
+          <div class="col-xs-12">
+             <div class="form-group">
+                 <strong>Client:</strong>
+                 <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" required>
+                   @foreach ($customers as $customer)
+                    <option data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->phone }}</option>
+                  @endforeach
+                </select>
+
+                 @if ($errors->has('customer_id'))
+                     <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
+                 @endif
+             </div>
+         </div>
 
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
@@ -65,7 +80,7 @@
                 </div>
             </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            {{-- <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Client Name:</strong>
                     <input type="text" class="form-control" name="client_name" placeholder="Client Name"
@@ -74,7 +89,7 @@
                         <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
                     @endif
                 </div>
-            </div>
+            </div> --}}
 
             {{-- <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
@@ -444,6 +459,7 @@
       @csrf
     </form>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script type="text/javascript">
       $(document).ready(function() {
         $('#createProduct').on('click', function() {

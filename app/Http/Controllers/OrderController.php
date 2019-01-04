@@ -418,6 +418,8 @@ class OrderController extends Controller {
 			array_push($customer_suggestions, $customer['name']);
 		}
 
+		$data['customers'] = Customer::all();
+
 		$data['customer_suggestions'] = $customer_suggestions;
 
 
@@ -434,7 +436,7 @@ class OrderController extends Controller {
 	public function store( Request $request ) {
 
 		$this->validate( $request, [
-			'client_name'    => 'required',
+			'customer_id'    => 'required',
 			'advance_detail' => 'numeric|nullable',
 			'balance_amount' => 'numeric|nullable',
 		] );
@@ -451,26 +453,31 @@ class OrderController extends Controller {
 			$data['order_date'] = date( 'Y-m-d' );
 		}
 
-		if ($customer = Customer::where('name', $data['client_name'])->first()) {
-			$data['customer_id'] = $customer->id;
-		} else {
-			$customer = new Customer;
-			$customer->name = $data['client_name'];
+		// if ($customer = Customer::where('name', $data['client_name'])->first()) {
+		// 	$data['customer_id'] = $customer->id;
+		// } else {
+		// 	$customer = new Customer;
+		// 	$customer->name = $data['client_name'];
+		//
+		// 	$validator = Validator::make($data, [
+		// 		'contact_detail' => 'unique:customers,phone'
+		// 	]);
+		//
+		// 	if ($validator->fails()) {
+		// 		return back()->with('phone_error', 'The phone already exists')->withInput();
+		// 	}
+		//
+		// 	$customer->phone = $data['contact_detail'];
+		// 	$customer->city = $data['city'];
+		// 	$customer->save();
+		//
+		// 	$data['customer_id'] = $customer->id;
+		// }
 
-			$validator = Validator::make($data, [
-				'contact_detail' => 'unique:customers,phone'
-			]);
+		$customer = Customer::find($request->customer_id);
 
-			if ($validator->fails()) {
-				return back()->with('phone_error', 'The phone already exists')->withInput();
-			}
-
-			$customer->phone = $data['contact_detail'];
-			$customer->city = $data['city'];
-			$customer->save();
-
-			$data['customer_id'] = $customer->id;
-		}
+		$data['client_name'] = $customer->name;
+		$data['contact_detail'] = $customer->phone;
 
 		$order = Order::create( $data );
 
@@ -551,6 +558,7 @@ class OrderController extends Controller {
 		$data['order_reports'] = OrderReport::where('order_id', $order->id)->get();
 		$data['users_array'] = Helpers::getUserArray(User::all());
 		$data['has_customer'] = $order->customer ? $order->customer->id : false;
+		$data['customer'] = $order->customer;
 
 		// dd($data);
 		//return $data;
