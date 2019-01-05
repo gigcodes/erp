@@ -25,6 +25,14 @@
         </div>
     @endif
 
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            @foreach ($errors->all() as $msg)
+              <li>{{ $msg }}</li>
+            @endforeach
+        </div>
+    @endif
+
     <div id="exTab2" class="container">
            <ul class="nav nav-tabs">
               <li class="active">

@@ -585,9 +585,10 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update( Request $request, Order $order ) {
+
 		if ($request->type != 'customer') {
 			$this->validate( $request, [
-				'client_name'    => 'required',
+				// 'client_name'    => 'required',
 				'advance_detail' => 'numeric|nullable',
 				'balance_amount' => 'numeric|nullable',
 			] );
@@ -617,10 +618,11 @@ class OrderController extends Controller {
 				$order_product->update( $order_product_data );
 			}
 		}
-
+		
 		$data = $request->except(['_token', '_method', 'status']);
 		$data['order_status'] = $request->status;
 		$order->update( $data );
+
 
 		$this->calculateBalanceAmount($order);
 
