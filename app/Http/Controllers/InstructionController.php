@@ -16,7 +16,7 @@ class InstructionController extends Controller
      */
     public function index()
     {
-      $instructions = Instruction::paginate(Setting::get('pagination'));
+      $instructions = Instruction::latest()->paginate(Setting::get('pagination'));
 
       return view('instructions.index')->withInstructions($instructions);
     }
@@ -94,6 +94,15 @@ class InstructionController extends Controller
       $instruction->save();
 
       return response("$instruction->completed_at");
+    }
+
+    public function pending(Request $request)
+    {
+      $instruction = Instruction::find($request->id);
+      $instruction->pending = 1;
+      $instruction->save();
+
+      return response("success");
     }
 
     /**

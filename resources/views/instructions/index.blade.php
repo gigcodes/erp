@@ -27,6 +27,8 @@
           <th>Number</th>
           <th>Instructions</th>
           <th>Action</th>
+          <th>Pending</th>
+          <th>Created at</th>
           <th>Remark</th>
         </tr>
         @foreach ($instructions as $instruction)
@@ -43,6 +45,14 @@
                   <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}">Complete</a>
                 @endif
               </td>
+              <td>
+                @if ($instruction->pending == 0)
+                  <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                @else
+                  Pending
+                @endif
+              </td>
+              <td>{{ $instruction->created_at->diffForHumans() }}</td>
               <td>
                 <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{ $instruction->id }}" data-id="{{ $instruction->id }}">Add</a>
                 <span> | </span>
@@ -127,6 +137,33 @@
           }
         }).done( function(response) {
           $(thiss).parent().html(moment(response).format('DD-MM HH:mm'));
+          $(thiss).remove();
+        }).fail(function(errObj) {
+          console.log(errObj);
+          alert("Could not mark as completed");
+        });
+      });
+
+      $(document).on('click', '.pending-call', function(e) {
+        e.preventDefault();
+
+        var thiss = $(this);
+        var token = "{{ csrf_token() }}";
+        var url = "{{ route('instruction.pending') }}";
+        var id = $(this).data('id');
+
+        $.ajax({
+          type: 'POST',
+          url: url,
+          data: {
+            _token: token,
+            id: id
+          },
+          beforeSend: function() {
+            $(thiss).text('Loading');
+          }
+        }).done( function(response) {
+          $(thiss).parent().html('Pending');
           $(thiss).remove();
         }).fail(function(errObj) {
           console.log(errObj);
