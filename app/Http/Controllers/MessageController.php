@@ -9,6 +9,7 @@ use App\Leads;
 use App\Order;
 use App\Product;
 use App\Customer;
+use App\ChatMessage;
 use App\PushNotification;
 use App\NotificationQueue;
 use Plank\Mediable\Media;
@@ -415,7 +416,11 @@ class MessageController extends Controller
 
     public function removeImage(Request $request, $id)
     {
-      $message = Message::find($id);
+      if ($request->type == 'message') {
+        $message = Message::find($id);
+      } else {
+        $message = ChatMessage::find($id);
+      }
 
       $message->detachMedia($request->image_id, config('constants.media_tags'));
 

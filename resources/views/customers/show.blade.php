@@ -1109,6 +1109,7 @@
                  p.attr("data-messageshort", message.message);
                  p.attr("data-message", message.message);
                  p.attr("data-expanded", "true");
+                 p.attr("data-messageid", message.id);
                  // console.log("renderMessage message is ", message);
                  if ( message.message ) {
                      p.html( message.message );
@@ -1128,6 +1129,15 @@
                      } else if (splitted[0]==="video") {
                          $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
                      }
+                 } else if (message.images) {
+                   var images = '';
+                   message.images.forEach(function (image) {
+                     images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '">' : '';
+                     images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
+                     images += image.product_id !== '' ? '</a>' : '';
+                   });
+                   images += '<br>';
+                   $(images).appendTo(p);
                  }
 
                  p.appendTo( text );
@@ -1372,6 +1382,11 @@
           // var message = $(this).closest('.talk-bubble').find('.collapsible-message').data('message');
           var token = "{{ csrf_token() }}";
           var url = "{{ url('message') }}/" + message_id + '/removeImage';
+          var type = 'message';
+
+          if ($(this).hasClass('whatsapp-image')) {
+            type = "whatsapp";
+          }
 
           // var image_container = '<div class="thumbnail-wrapper"><img src="' + image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image + '">x</span></div>';
           // var new_message = message.replace(image_container, '');
@@ -1388,7 +1403,8 @@
             data: {
               _token: token,
               image_id: image_id,
-              message_id: message_id
+              message_id: message_id,
+              type: type
             },
             success: function(data) {
               $(thiss).parent().remove();
