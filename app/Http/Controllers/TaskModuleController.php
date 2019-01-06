@@ -340,28 +340,33 @@ class TaskModuleController extends Controller {
 		$remark_entry = Remark::create([
 			'taskid'	=> $id,
 			'remark'	=> $remark,
+			'module_type'	=> $request->module_type,
 			'user_name'	=> Auth::user()->name
 		]);
 		// $remark_entry = DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
-		$task = Task::find($remark_entry->taskid);
 
-		PushNotification::create( [
-			'message'    => 'Remark added: ' . $remark,
-			'model_type' => Task::class,
-			'model_id'   => $task->id,
-			'user_id'    => Auth::id(),
-			'sent_to'    => $task->assign_from,
-			'role'       => '',
-		] );
+		if (is_null($request->module_type)) {
+			$task = Task::find($remark_entry->taskid);
 
-		PushNotification::create( [
-			'message'    => 'Remark added: ' . $remark,
-			'model_type' => Task::class,
-			'model_id'   => $task->id,
-			'user_id'    => Auth::id(),
-			'sent_to'    => '',
-			'role'       => 'Admin',
-		] );
+			PushNotification::create( [
+				'message'    => 'Remark added: ' . $remark,
+				'model_type' => Task::class,
+				'model_id'   => $task->id,
+				'user_id'    => Auth::id(),
+				'sent_to'    => $task->assign_from,
+				'role'       => '',
+			] );
+
+			PushNotification::create( [
+				'message'    => 'Remark added: ' . $remark,
+				'model_type' => Task::class,
+				'model_id'   => $task->id,
+				'user_id'    => Auth::id(),
+				'sent_to'    => '',
+				'role'       => 'Admin',
+			] );
+		}
+
 
 		return response()->json(['remark' => $remark ],200);
 	}
@@ -528,7 +533,11 @@ class TaskModuleController extends Controller {
 
 		$id   = $request->input( 'id' );
 
-		$remark = \App\Task::getremarks($id);
+		if (is_null($request->module_type)) {
+			$remark = \App\Task::getremarks($id);
+		} else {
+			$remark = Remark::where('module_type', $request->module_type)->where('taskid', $id)->get();
+		}
 
 		return response()->json($remark,200);
 	}

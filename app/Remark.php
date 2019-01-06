@@ -8,7 +8,8 @@ class Remark extends Model
 {
     protected $fillable = [
     	'remark',
-	    'taskid',
+      'taskid',
+	    'module_type',
       'user_name'
     ];
 }

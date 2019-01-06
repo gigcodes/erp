@@ -1431,7 +1431,8 @@
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
-                                    <a class="dropdown-item" href="{{ route('customer.index') }}">Customers</a>
+                                    <a class="dropdown-item" href="{{ route('customer.index') }}">Customers</a>
+                                    <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
                                     <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
 
                                     @can('lead-create')

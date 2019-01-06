@@ -63,6 +63,10 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('chat','ChatController');
 //	Route::resource('task','TaskController');
 
+	// Instruction
+	Route::resource('instruction','InstructionController');
+	Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
+
 
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
