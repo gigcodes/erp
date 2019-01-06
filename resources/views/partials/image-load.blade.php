@@ -20,19 +20,31 @@
 
 <div class="row">
   @foreach ($products as $product)
-    <div class="col-md-3 col-xs-6 text-center mb-5">
-      <a href="{{ route('products.show', $product->id) }}">
-        <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
-          ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
-          : ''
-        }}" class="img-responsive grid-image" alt="" />
-        <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
-        <p>Id : {{ $product->id }}</p>
-        <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
-        <p>Price : {{ $product->price_special }}</p>
-      </a>
-      <a href="#" class="btn btn-secondary attach-photo" data-image="{{ $product->id }}" data-attached="0">Attach</a>
-    </div>
+    @if ($images = $product->getMedia(config('constants.media_tags')))
+      @foreach ($images as $image)
+        <div class="col-md-3 col-xs-6 text-center mb-5">
+          <a href="{{ route('products.show', $product->id) }}">
+            <img src="{{ $image->getUrl() }}" class="img-responsive grid-image" alt="" />
+            <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
+            <p>Id : {{ $product->id }}</p>
+            <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
+            <p>Price : {{ $product->price_special }}</p>
+          </a>
+          <a href="#" class="btn btn-secondary attach-photo" data-image="{{ $image->getKey() }}" data-attached="0">Attach</a>
+        </div>
+      @endforeach
+    @else
+      <div class="col-md-3 col-xs-6 text-center mb-5">
+        <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" title="{{ $images_html ? $images_html : 'Nothing to show' }}">
+          <img src="" class="img-responsive grid-image" alt="" />
+          <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
+          <p>Id : {{ $product->id }}</p>
+          <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
+          <p>Price : {{ $product->price_special }}</p>
+        </a>
+        <a href="#" class="btn btn-secondary attach-photo" data-image="" data-attached="0">Attach</a>
+      </div>
+    @endif
   @endforeach
 </div>
 

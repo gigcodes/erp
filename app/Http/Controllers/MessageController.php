@@ -87,9 +87,10 @@ class MessageController extends Controller
             }
 
             if ($request->images) {
-              foreach (json_decode($request->images) as $product_id) {
-                $product = Product::find($product_id);
-                $media = $product->getMedia(config('constants.media_tags'))->first();
+              foreach (json_decode($request->images) as $image) {
+                // $product = Product::find($product_id);
+                // $media = $product->getMedia(config('constants.media_tags'))->first();
+                $media = Media::find($image);
                 $message->attachMedia($media,config('constants.media_tags'));
               }
             }

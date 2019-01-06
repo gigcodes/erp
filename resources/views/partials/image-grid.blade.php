@@ -192,9 +192,6 @@
           data: formData
         }).done(function(data) {
           $('#productGrid').html(data.html);
-          // $('.pagination-container').empty();
-          // $('.pagination-container').html(data.pagination);
-          console.log(data);
         }).fail(function() {
           alert('Error searching for products');
         });

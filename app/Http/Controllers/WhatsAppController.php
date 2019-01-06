@@ -365,11 +365,11 @@ class WhatsAppController extends FindByNumberController
         if ($request->images) {
           $params['message'] = NULL;
           $chat_message = ChatMessage::create($params);
-          foreach (json_decode($request->images) as $product_id) {
-            $product = Product::find($product_id);
-            $media = $product->getMedia(config('constants.media_tags'))->first();
+          foreach (json_decode($request->images) as $image) {
+            // $product = Product::find($product_id);
+            // $media = $product->getMedia(config('constants.media_tags'))->first();
             // $params['media_url'] = $media->getUrl();
-
+            $media = Media::find($image);
             $chat_message->attachMedia($media,config('constants.media_tags'));
           }
         }
@@ -711,7 +711,7 @@ class WhatsAppController extends FindByNumberController
                 if ($images = $message->getMedia(config('constants.media_tags'))) {
                   foreach ($images as $image) {
                     $send = str_replace(' ', '%20', $image->getUrl());
-                    
+
                     if ($context == "leads") {
                         $lead = Leads::find($message->lead_id);
                         $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send);
