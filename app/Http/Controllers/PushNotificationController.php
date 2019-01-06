@@ -20,7 +20,7 @@ class PushNotificationController extends Controller {
 
 		$lead_notifications = PushNotification::where('model_type', 'App\Leads');
 		$order_notifications = PushNotification::where('model_type', 'App\Order');
-		$message_notifications = PushNotification::whereIn('model_type', ['order', 'leads']);
+		$message_notifications = PushNotification::whereIn('model_type', ['order', 'leads', 'customer']);
 		$task_notifications = PushNotification::whereIn('model_type', ['App\Task', 'App\SatutoryTask', 'App\Http\Controllers\Task', 'User']);
 
 		if ($request->user[0] != null) {

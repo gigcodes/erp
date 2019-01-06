@@ -144,6 +144,10 @@ class NotificationQueueController extends Controller
 					case 'order':
 						PushNotification::create($item);
 					break;
+
+					case 'customer':
+						PushNotification::create($item);
+					break;
 				}
 
 				NotificationQueueController::destroy( $item['id'] );
