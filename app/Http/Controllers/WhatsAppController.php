@@ -379,6 +379,31 @@ class WhatsAppController extends FindByNumberController
 
       return response('success');
     }
+
+    public function forwardMessage(Request $request)
+    {
+      $message = ChatMessage::find($request->message_id);
+
+      $new_message = new ChatMessage;
+      $new_message->number = $message->number;
+      $new_message->message = $message->message;
+      $new_message->lead_id = $message->lead_id;
+      $new_message->order_id = $message->order_id;
+      $new_message->user_id = $message->user_id;
+      $new_message->customer_id = $request->customer_id;
+      $new_message->status = 1;
+      $new_message->media_url = $message->media_url;
+
+      $new_message->save();
+
+      if ($images = $message->getMedia(config('constants.media_tags'))) {
+        foreach ($images as $image) {
+          $new_message->attachMedia($image,config('constants.media_tags'));
+        }
+      }
+
+      return redirect()->back();
+    }
 	/**
      * poll messages
      *

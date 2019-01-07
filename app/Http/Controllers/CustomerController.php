@@ -340,6 +340,7 @@ class CustomerController extends Controller
     public function show($id)
     {
       $customer = Customer::find($id);
+      $customers = Customer::all();
 
       // $leads = Leads::find($id);
       $status = (New status)->all();
@@ -380,6 +381,7 @@ class CustomerController extends Controller
       // $selected_categories = $leads['multi_category'];
 
       return view('customers.show', [
+        'customers'  => $customers,
         'customer'  => $customer,
         'status'    => $status,
         'brands'    => $brands,
