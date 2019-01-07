@@ -45,17 +45,19 @@
           <strong>Name:</strong> {{ $customer->name }}
         </div>
 
-        <div class="form-group">
-          <strong>Email:</strong> {{ $customer->email }}
-        </div>
+        @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+          <div class="form-group">
+            <strong>Email:</strong> {{ $customer->email }}
+          </div>
 
-        <div class="form-group">
-          <strong>Phone:</strong> {{ $customer->phone }}
-        </div>
+          <div class="form-group">
+            <strong>Phone:</strong> {{ $customer->phone }}
+          </div>
 
-        <div class="form-group">
-          <strong>Instagram Handle:</strong> {{ $customer->instahandler }}
-        </div>
+          <div class="form-group">
+            <strong>Instagram Handle:</strong> {{ $customer->instahandler }}
+          </div>
+        @endif
 
         <div class="form-group">
           <strong>Rating:</strong> {{ $customer->rating }}

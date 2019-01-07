@@ -43,9 +43,11 @@
     <table class="table table-bordered">
         <tr>
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=name{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Name</a></th>
-          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=email{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Email</a></th>
-          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=phone{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Phone</a></th>
-          <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=instagram{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Instagram</a></th>
+          @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+            <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=email{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Email</a></th>
+            <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=phone{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Phone</a></th>
+            <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=instagram{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Instagram</a></th>
+          @endif
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=rating{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Rating</a></th>
           <th>Lead/Order Status</th>
           <th>Message Status</th>
@@ -55,9 +57,11 @@
         @foreach ($customers as $key => $customer)
             <tr class="{{ ((!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }} {{ ((!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }}">
               <td>{{ $customer['name'] }}</td>
-              <td>{{ $customer['email'] }}</td>
-              <td>{{ $customer['phone'] }}</td>
-              <td>{{ $customer['instahandler'] }}</td>
+              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                <td>{{ $customer['email'] }}</td>
+                <td>{{ $customer['phone'] }}</td>
+                <td>{{ $customer['instahandler'] }}</td>
+              @endif
               <td>
                 @if ($customer['lead'])
                   {{ $customer['lead']['rating'] }}
