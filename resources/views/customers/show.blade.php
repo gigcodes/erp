@@ -55,6 +55,10 @@
           </div>
 
           <div class="form-group">
+            <strong>Whatsapp Number:</strong> {{ $customer->whatsapp_number }}
+          </div>
+
+          <div class="form-group">
             <strong>Instagram Handle:</strong> {{ $customer->instahandler }}
           </div>
         @endif

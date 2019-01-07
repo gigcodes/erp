@@ -53,6 +53,26 @@
 
 		<div class="col-xs-12 col-sm-8 col-sm-offset-2">
 			<div class="form-group">
+				<strong>Solo phone:</strong>
+				<Select name="whatsapp_number" class="form-control">
+					<option value>None</option>
+					<option value="919167152579" {{ $customer->whatsapp_number == '919167152579' ? 'selected' : '' }}>00</option>
+					<option value="918291920452" {{ $customer->whatsapp_number == '918291920452' ? 'selected' : '' }}>02</option>
+					<option value="918291920455" {{ $customer->whatsapp_number == '918291920455' ? 'selected' : '' }}>03</option>
+					<option value="919152731483" {{ $customer->whatsapp_number == '919152731483' ? 'selected' : '' }}>04</option>
+					<option value="919152731484" {{ $customer->whatsapp_number == '919152731484' ? 'selected' : '' }}>05</option>
+					<option value="919152731486" {{ $customer->whatsapp_number == '919152731486' ? 'selected' : '' }}>06</option>
+					<option value="918291352520" {{ $customer->whatsapp_number == '918291352520' ? 'selected' : '' }}>08</option>
+					<option value="919004008983" {{ $customer->whatsapp_number == '919004008983' ? 'selected' : '' }}>09</option>
+				</Select>
+				@if ($errors->has('whatsapp_number'))
+						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
+				@endif
+			</div>
+		</div>
+
+		<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+			<div class="form-group">
 				<strong>Instagram Handle:</strong>
 				<input type="text" class="form-control" name="instahandler" placeholder="instahandle" value="{{ $customer->instahandler }}" />
 				@if ($errors->has('instahandler'))

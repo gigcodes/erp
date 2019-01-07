@@ -721,22 +721,22 @@ class WhatsAppController extends FindByNumberController
                     } elseif ($context == "customer") {
                         $customer = Customer::find($message->customer_id);
 
-                        if ($leads = $customer->leads) {
-                          foreach ($leads as $lead) {
-                            if ($lead->whatsapp_number) {
-                              $whatsapp_number = $lead->whatsapp_number;
-                            }
-                          }
-                        }
-                        if ($orders = $customer->orders) {
-                          foreach ($orders as $order) {
-                            if ($order->whatsapp_number) {
-                              $whatsapp_number = $order->whatsapp_number;
-                            }
-                          }
-                        }
+                        // if ($leads = $customer->leads) {
+                        //   foreach ($leads as $lead) {
+                        //     if ($lead->whatsapp_number) {
+                        //       $whatsapp_number = $lead->whatsapp_number;
+                        //     }
+                        //   }
+                        // }
+                        // if ($orders = $customer->orders) {
+                        //   foreach ($orders as $order) {
+                        //     if ($order->whatsapp_number) {
+                        //       $whatsapp_number = $order->whatsapp_number;
+                        //     }
+                        //   }
+                        // }
 
-                        $this->sendWithWhatsApp( $message->customer->phone,$whatsapp_number, $send);
+                        $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send);
                     }
                   }
                 }

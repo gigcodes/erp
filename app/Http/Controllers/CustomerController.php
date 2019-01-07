@@ -28,6 +28,31 @@ class CustomerController extends Controller
       $term = $request->input('term');
       $customers = (new Customer())->newQuery();
 
+      // $customers = Customer::all();
+      // foreach($customers as $customer) {
+      //   if ($customer->leads) {
+      //     foreach($customer->leads as $lead) {
+      //       if ($lead->whatsapp_number) {
+      //         $customer->whatsapp_number = $lead->whatsapp_number;
+      //         $customer->save();
+      //       }
+      //
+      //     }
+      //   }
+      //
+      //   if ($customer->orders) {
+      //     foreach($customer->orders as $order) {
+      //       if ($order->whatsapp_number) {
+      //         $customer->whatsapp_number = $order->whatsapp_number;
+      //         $customer->save();
+      //       }
+      //
+      //     }
+      //   }
+      // }
+      //
+      // dd('ole');
+
       if($request->input('orderby') == '')
   				$orderby = 'asc';
   		else
@@ -217,6 +242,7 @@ class CustomerController extends Controller
       $first_customer->name = $request->name;
       $first_customer->email = $request->email;
       $first_customer->phone = $request->phone;
+      $first_customer->whatsapp_number = $request->whatsapp_number;
       $first_customer->instahandler = $request->instahandler;
       $first_customer->rating = $request->rating;
       $first_customer->address = $request->address;
@@ -293,6 +319,7 @@ class CustomerController extends Controller
       $customer->name = $request->name;
       $customer->email = $request->email;
       $customer->phone = $request->phone;
+      $customer->whatsapp_number = $request->whatsapp_number;
       $customer->instahandler = $request->instahandler;
       $customer->rating = $request->rating;
       $customer->address = $request->address;
@@ -401,6 +428,7 @@ class CustomerController extends Controller
       $customer->name = $request->name;
       $customer->email = $request->email;
       $customer->phone = $request->phone;
+      $customer->whatsapp_number = $request->whatsapp_number;
       $customer->instahandler = $request->instahandler;
       $customer->rating = $request->rating;
       $customer->address = $request->address;
