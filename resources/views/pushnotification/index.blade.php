@@ -115,8 +115,10 @@
                     @php
                       if ($item['model_type'] == 'leads') {
                         $link = route('leads.show', $item['model_id']);
-                      } else {
+                      } elseif ($item['model_type'] == 'order') {
                         $link = route('order.show', $item['model_id']);
+                      } else {
+                        $link = route('customer.show', $item['model_id']);
                       }
                     @endphp
                     <a class="notification-link" href="{{ $link }}">
