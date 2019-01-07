@@ -76,6 +76,10 @@
         </div>
 
         <div class="form-group">
+          <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
+        </div>
+
+        <div class="form-group">
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
 
           <div id="instructionModal" class="modal fade" role="dialog">
@@ -316,6 +320,11 @@
                          <div class="alert alert-danger">{{$errors->first('image')}}</div>
                      @endif
                  </div>
+
+                 <div class="form-group">
+                   <strong>Created at:</strong>
+                   {{ Carbon\Carbon::parse($lead->created_at)->format('d-m H:i') }}
+                 </div>
             </div>
 
               <div class="col-xs-12 text-center">
@@ -437,6 +446,11 @@
                  <div class="form-group">
                      <strong>Created by:</strong>
                      {{ $order->user_id != 0 ? App\Helpers::getUserNameById($order->user_id) : 'Unknown' }}
+                 </div>
+
+                 <div class="form-group">
+                   <strong>Created at:</strong>
+                   {{ Carbon\Carbon::parse($order->created_at)->format('d-m H:i') }}
                  </div>
                 <div class="form-group">
                     <strong>Remark</strong>
