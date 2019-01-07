@@ -121,6 +121,8 @@ class SearchController extends Controller {
 			Cache::forget('filter-category-' . Auth::id());
 		}
 
+
+
 		if ($request->price != null) {
 			$exploded = explode(',', $request->price);
 			$min = $exploded[0];
@@ -169,7 +171,7 @@ class SearchController extends Controller {
 				                                 ->latest()->whereIn('supplier', $request->supplier);
 			}
 
-			$data['supplier'] = $request->supplier;
+			$data['supplier'] = $request->supplier[0];
 			Cache::put('filter-supplier-' . Auth::id(), $data['supplier'], 120);
 		} else {
 			// if (Cache::has('filter-supplier')) {
@@ -228,12 +230,8 @@ class SearchController extends Controller {
 				$productQuery = $productQuery->whereNull( 'dnf' );
 			}
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == null && $request->price[0] == null && $request->quick_product !== 'true') {
-				$productQuery = ( new Product() )->newQuery()
-				                                 ->latest()
-				                                 ->orWhere( 'sku', 'LIKE', "%$term%" )
-				                                 ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
-				;
+			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == 1 && $request->price == "0,10000000" && $request->supplier[0] == null) {
+				$productQuery = ( new Product() )->newQuery()->latest();
 			}
 		}
 

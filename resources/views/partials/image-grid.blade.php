@@ -53,18 +53,39 @@
 
                             <div class="form-group mr-3">
                                 @php $brands = \App\Brand::getAll(); @endphp
-                                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                                {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
+                                <select class="form-control select-multiple" name="brand[]" multiple>
+                                  <optgroup label="Brands">
+                                    @foreach ($brands as $key => $name)
+                                      <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                    @endforeach
+                                </optgroup>
+                                </select>
                             </div>
 
                             <div class="form-group mr-3">
                               {{-- <strong>Color</strong> --}}
                               @php $colors = new \App\Colors(); @endphp
-                              {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                              {{-- {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
+                              <select class="form-control select-multiple" name="color[]" multiple>
+                                <optgroup label="Colors">
+                                  @foreach ($colors->all() as $key => $col)
+                                    <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+                                  @endforeach
+                              </optgroup>
+                              </select>
                             </div>
 
                             <div class="form-group mr-3">
                               @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp
-                              {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                              {{-- {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
+                              <select class="form-control select-multiple" name="supplier[]" multiple>
+                                <optgroup label="Suppliers">
+                                  @foreach ($suppliers->all() as $key => $name)
+                                    <option value="{{ $key }}" {{ isset($supplier) && $supplier == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                  @endforeach
+                              </optgroup>
+                              </select>
                             </div>
 
                             <div class="form-group mr-3">
