@@ -131,6 +131,8 @@ Route::middleware('auth')->group(function (){
 
 	// Customers
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
+	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
+	Route::post('customer/merge', 'CustomerController@merge')->name('customer.merge');
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
 	Route::post('customer/create', 'CustomerController@store')->name('customer.store');
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');

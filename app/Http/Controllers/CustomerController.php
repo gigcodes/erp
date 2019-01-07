@@ -178,11 +178,85 @@ class CustomerController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+      $customers_all = Customer::all();
+
       return view('customers.index', [
         'customers' => $customers,
+        'customers_all' => $customers_all,
         'term' => $term,
         'orderby' => $orderby,
       ]);
+    }
+
+    public function load(Request $request)
+    {
+      $first_customer = Customer::find($request->first_customer);
+      $second_customer = Customer::find($request->second_customer);
+
+      return response()->json([
+        'first_customer'  => $first_customer,
+        'second_customer'  => $second_customer
+      ]);
+    }
+
+    public function merge(Request $request)
+    {
+      $this->validate($request, [
+        'name'          => 'required|min:3|max:255',
+        'email'         => 'required_without_all:phone,instahandler|nullable|email',
+        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|unique:customers,id,' . $request->first_customer_id,
+        'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
+        'rating'        => 'required|numeric',
+        'address'       => 'sometimes|nullable|min:3|max:255',
+        'city'          => 'sometimes|nullable|min:3|max:255',
+        'country'       => 'sometimes|nullable|min:3|max:255'
+      ]);
+
+      $first_customer = Customer::find($request->first_customer_id);
+
+      $first_customer->name = $request->name;
+      $first_customer->email = $request->email;
+      $first_customer->phone = $request->phone;
+      $first_customer->instahandler = $request->instahandler;
+      $first_customer->rating = $request->rating;
+      $first_customer->address = $request->address;
+      $first_customer->city = $request->city;
+      $first_customer->country = $request->country;
+
+      $first_customer->save();
+
+      $chat_messages = ChatMessage::where('customer_id', $request->second_customer_id)->get();
+
+      foreach ($chat_messages as $chat) {
+        $chat->customer_id = $first_customer->id;
+        $chat->save();
+      }
+
+      $messages = Message::where('customer_id', $request->second_customer_id)->get();
+
+      foreach ($messages as $message) {
+        $message->customer_id = $first_customer->id;
+        $message->save();
+      }
+
+      $leads = Leads::where('customer_id', $request->second_customer_id)->get();
+
+      foreach ($leads as $lead) {
+        $lead->customer_id = $first_customer->id;
+        $lead->save();
+      }
+
+      $orders = Order::where('customer_id', $request->second_customer_id)->get();
+
+      foreach ($orders as $order) {
+        $order->customer_id = $first_customer->id;
+        $order->save();
+      }
+
+      $second_customer = Customer::find($request->second_customer_id);
+      $second_customer->delete();
+
+      return redirect()->route('customer.index');
     }
 
     /**

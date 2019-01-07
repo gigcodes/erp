@@ -44,7 +44,7 @@
 		<div class="col-xs-12 col-sm-8 col-sm-offset-2">
 			<div class="form-group">
 				<strong>Phone:</strong>
-				<input type="number" class="form-control" name="phone" placeholder="900000000" value="{{ $customer->phone }}" />
+				<input type="number" class="form-control" name="phone" placeholder="900000000" value="{{ str_replace('+', '', $customer->phone) }}" />
 				@if ($errors->has('phone'))
 				<div class="alert alert-danger">{{$errors->first('phone')}}</div>
 				@endif
