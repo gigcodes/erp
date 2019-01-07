@@ -93,7 +93,9 @@ class InstructionController extends Controller
       $instruction->completed_at = Carbon::now();
       $instruction->save();
 
-      return response("$instruction->completed_at");
+      $url = route('customer.show', $instruction->customer->id);
+
+      return response()->json(['time' => "$instruction->completed_at", 'url'  => "$url"]);
     }
 
     public function pending(Request $request)

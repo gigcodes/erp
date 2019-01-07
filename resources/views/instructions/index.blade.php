@@ -26,8 +26,7 @@
           <th>Client Name</th>
           <th>Number</th>
           <th>Instructions</th>
-          <th>Action</th>
-          <th>Pending</th>
+          <th colspan="2" class="text-center">Action</th>
           <th>Created at</th>
           <th>Remark</th>
         </tr>
@@ -46,10 +45,14 @@
                 @endif
               </td>
               <td>
-                @if ($instruction->pending == 0)
-                  <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                @if ($instruction->completed_at)
+                  Completed
                 @else
-                  Pending
+                  @if ($instruction->pending == 0)
+                    <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                  @else
+                    Pending
+                  @endif
                 @endif
               </td>
               <td>{{ $instruction->created_at->diffForHumans() }}</td>
@@ -136,8 +139,9 @@
             $(thiss).text('Loading');
           }
         }).done( function(response) {
-          $(thiss).parent().html(moment(response).format('DD-MM HH:mm'));
+          $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
           $(thiss).remove();
+          window.location.href = response.url;
         }).fail(function(errObj) {
           console.log(errObj);
           alert("Could not mark as completed");
