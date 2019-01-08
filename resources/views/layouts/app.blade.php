@@ -1704,6 +1704,10 @@
                               @endcan
                               @can('social-manage')
                               @endcan
+
+                              <a class="dropdown-item" href="{{ route('image.grid.approved') }}">Approved Images</a>
+                              <a class="dropdown-item" href="{{ route('image.grid.final.approval') }}">Final Approval</a>
+
 
 
                                 <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts

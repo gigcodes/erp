@@ -188,6 +188,8 @@ Route::middleware('auth')->group(function (){
 	Route::get('images/grid', 'ImageController@index')->name('image.grid');
 	Route::post('images/grid', 'ImageController@store')->name('image.grid.store');
 	Route::post('images/grid/attachImage', 'ImageController@attachImage')->name('image.grid.attach');
+	Route::get('images/grid/approvedImages', 'ImageController@approved')->name('image.grid.approved');
+	Route::get('images/grid/finalApproval', 'ImageController@final')->name('image.grid.final.approval');
 	Route::get('images/grid/{id}', 'ImageController@show')->name('image.grid.show');
 	Route::get('images/grid/{id}/edit', 'ImageController@edit')->name('image.grid.edit');
 	Route::post('images/grid/{id}/edit', 'ImageController@update')->name('image.grid.update');

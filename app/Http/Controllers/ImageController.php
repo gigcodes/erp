@@ -29,12 +29,26 @@ class ImageController extends Controller
     public function index(Request $request)
     {
       if (!isset($request->sortby) || $request->sortby == 'asc') {
-        $images = Images::paginate(Setting::get('pagination'));
+        $images = Images::where('status', '1')->paginate(Setting::get('pagination'));
       } else {
-        $images = Images::latest()->paginate(Setting::get('pagination'));
+        $images = Images::where('status', '1')->latest()->paginate(Setting::get('pagination'));
       }
 
       return view('images.index')->withImages($images);
+    }
+
+    public function approved()
+    {
+      $images = Images::whereNotNull('approved_date')->where('status', '1')->latest()->paginate(Setting::get('pagination'));
+
+      return view('images.approved')->withImages($images);
+    }
+
+    public function final()
+    {
+      $images = Images::where('status', '2')->latest()->paginate(Setting::get('pagination'));
+
+      return view('images.final')->withImages($images);
     }
 
     /**
@@ -68,11 +82,16 @@ class ImageController extends Controller
 
           $new_image = new Images;
           $new_image->filename = $filename;
+          $new_image->status = $request->status;
           $new_image->save();
         }
       }
 
-      return redirect()->route('image.grid')->with('success', 'The image(s) were successfully uploaded');
+      if ($request->status == '1') {
+        return redirect()->route('image.grid')->with('success', 'The image(s) were successfully uploaded');
+      } elseif ($request->status == '2') {
+        return redirect()->route('image.grid.approved')->with('success', 'The image(s) were successfully uploaded');
+      }
     }
 
     /**
@@ -160,7 +179,12 @@ class ImageController extends Controller
 
       $image->save();
 
-      return redirect()->route('image.grid')->with('success', 'You have successfully approved image');
+      if ($image->status == '1') {
+        return redirect()->route('image.grid')->with('success', 'You have successfully approved image');
+      } elseif ($image->status == '2') {
+        return redirect()->route('image.grid.final.approval')->with('success', 'You have successfully approved image');
+      }
+
     }
 
     public function attachImage(Request $request)
