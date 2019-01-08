@@ -837,7 +837,7 @@
         <div class="modal-body">
           <div class="form-group">
               <strong>Client:</strong>
-              <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" required>
+              <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id[]" title="Choose a Customer" required multiple>
                 @foreach ($customers as $client)
                  <option data-tokens="{{ $client->name }} {{ $client->email }}  {{ $client->phone }} {{ $client->instahandler }}" value="{{ $client->id }}">{{ $client->name }} - {{ $client->phone }}</option>
                @endforeach
