@@ -186,6 +186,24 @@ class SearchController extends Controller {
 			Cache::forget('filter-supplier-' . Auth::id());
 		}
 
+		if (trim($request->size) != '') {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->supplier[0] != null) {
+				$productQuery = $productQuery->whereNotNull('size')->where('size', 'LIKE', "%$request->size%");
+			} else {
+				$productQuery = ( new Product() )->newQuery()
+																			 ->latest()->whereNotNull('size')->where('size', 'LIKE', "%$request->size%");
+			}
+
+			$data['size'] = $request->size;
+			Cache::put('filter-size-' . Auth::id(), $data['size'], 120);
+		} else {
+			Cache::forget('filter-size-' . Auth::id());
+		}
+
+
+
+
+
 		if ($request->quick_product === 'true') {
 				$productQuery = ( new Product() )->newQuery()
 				                                 ->latest()->where('quick_product', 1);
@@ -229,10 +247,12 @@ class SearchController extends Controller {
 				$productQuery = $productQuery->whereNull( 'dnf' );
 			}
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == 1 && $request->price == "0,10000000" && $request->supplier[0] == null) {
+			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == 1 && $request->price == "0,10000000" && $request->supplier[0] == null && trim($request->size) == '') {
 				$productQuery = ( new Product() )->newQuery()->latest();
 			}
 		}
+
+
 
 		$search_suggestions = [];
 		// $product_suggestions = ( new Product() )->newQuery()
