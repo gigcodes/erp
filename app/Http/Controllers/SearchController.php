@@ -128,7 +128,7 @@ class SearchController extends Controller {
 			$min = $exploded[0];
 			$max = $exploded[1];
 
-			if ($min != 0 && $max != 10000000) {
+			if ($min != '0' || $max != '10000000') {
 				if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
 					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
 				} else {
@@ -136,7 +136,6 @@ class SearchController extends Controller {
 					                                 ->latest()->whereBetween('price_special', [$min, $max]);
 				}
 			}
-
 
 			$data['price'][0] = $min;
 			$data['price'][1] = $max;
