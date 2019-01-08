@@ -59,6 +59,12 @@
                 {!! Form::select('roles[]', $roles,[], array('class' => 'form-control','multiple')) !!}
             </div>
         </div>
+             <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Agent Role:</strong>
+                {!! Form::select('agent_role[]', $agent_roles,[], array('class' => 'form-control','multiple')) !!}
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Responsible User:</strong>
