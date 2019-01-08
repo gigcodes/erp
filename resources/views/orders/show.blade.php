@@ -257,6 +257,12 @@
                             @endif
                         </div>
 
+                        @if ($has_customer)
+                          <div class="form-group">
+                            <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
+                          </div>
+                        @endif
+
 
                     </div>
 
@@ -436,6 +442,40 @@
                     </div>
                 </div>
               </form>
+
+              @if ($has_customer)
+                <div id="instructionModal" class="modal fade" role="dialog">
+                  <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <form action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title">Create Instruction</h4>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="form-group">
+                            <strong>Instruction:</strong>
+                            <textarea type="text" class="form-control" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
+                            @if ($errors->has('instruction'))
+                                <div class="alert alert-danger">{{$errors->first('instruction')}}</div>
+                            @endif
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-secondary">Create</button>
+                        </div>
+                      </form>
+                    </div>
+
+                  </div>
+                </div>
+              @endif
 
               <div id="statusModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
