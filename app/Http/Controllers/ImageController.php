@@ -10,6 +10,8 @@ use Auth;
 use Carbon\Carbon;
 use App\Setting;
 use App\Tag;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ImageController extends Controller
 {
@@ -161,6 +163,21 @@ class ImageController extends Controller
       return redirect()->route('image.grid')->with('success', 'You have successfully approved image');
     }
 
+    public function attachImage(Request $request)
+    {
+      if ($request->images) {
+        foreach (json_decode($request->images) as $image) {
+          $new_image = new Images;
+          $media = Media::find($image);
+          $new_image->save();
+
+          $new_image->attachMedia($media,config('constants.media_tags'));
+        }
+      }
+
+      return redirect()->route('image.grid')->with('success', 'You have successfully attached images');
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -174,6 +191,7 @@ class ImageController extends Controller
       Storage::disk('uploads')->delete("social-media/$image->filename");
 
       $image->tags()->detach();
+      $image->detachMedia(config('constants.media_tags'));
       $image->delete();
 
       return redirect()->route('image.grid')->with('success', 'The image was successfully deleted');

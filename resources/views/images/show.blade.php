@@ -9,7 +9,7 @@
       <h2>Image</h2>
   </div>
 
-  <div class="col-lg-2">
+  <div class="col-lg-2 mt-4">
     <a href="{{ route('image.grid') }}" class="btn btn-secondary">Back</a>
   </div>
 </div>
@@ -42,7 +42,7 @@
   </div>
 
   <div class="col-md-6">
-    <img src="{{ asset('uploads/social-media') . '/' . $image->filename }}" class="img-responsive" alt="">
+    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive" alt="">
   </div>
 </div>
 

@@ -3,19 +3,19 @@
 
 @section('content')
 <div class="row">
-  <div class="col-lg-10 margin-tb">
-    <div class="mb-3">
-      <h2>Image Grid</h2>
+  <div class="col-12 margin-tb mb-3">
+    <h2 class="page-heading">Image Grid</h2>
 
-      {{-- <strong>Sort By</strong>
-      <a href="{{ route('image.grid') . '?sortby=asc' }}" class="btn-link">ASC</a>
-       |
-      <a href="{{ route('image.grid') . '?sortby=desc' }}" class="btn-link">DESC</a> --}}
+    {{-- <strong>Sort By</strong>
+    <a href="{{ route('image.grid') . '?sortby=asc' }}" class="btn-link">ASC</a>
+     |
+    <a href="{{ route('image.grid') . '?sortby=desc' }}" class="btn-link">DESC</a> --}}
+  {{-- </div>
+  <div class="col-lg-2 mt-4"> --}}
+    <div class="pull-right btn-group">
+      <a href="{{ route('attachImages', ['images']) }}" class="btn btn-secondary">Attach Images</a>
+      <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</a>
     </div>
-
-  </div>
-  <div class="col-lg-2">
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button>
 
     <div id="imageModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -61,7 +61,7 @@
 <div class="row">
   @foreach ($images as $image)
   <div class="col-md-3 col-xs-6 text-center mb-5">
-    <img src="{{ asset('uploads/social-media') . '/' . $image->filename }}" class="img-responsive grid-image" alt="" />
+    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
 
     <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
     <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>

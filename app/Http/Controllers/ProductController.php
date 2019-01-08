@@ -194,7 +194,7 @@ class ProductController extends Controller {
 		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'search_suggestions', 'category_selection', 'attachImages' ) );
 	}
 
-	public function attachImages($model_type, $model_id, $status, $assigned_user, Request $request) {
+	public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
 		$products = Product::latest();
@@ -267,7 +267,7 @@ class ProductController extends Controller {
 			$supplier = Cache::get('filter-supplier-' . Auth::id());
 			$products = $products->where('supplier', $supplier);
 		}
-		
+
 		if ($request->page) {
 			Cache::put('filter-page-' . Auth::id(), $request->page, 120);
 		} else {

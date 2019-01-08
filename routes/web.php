@@ -122,7 +122,7 @@ Route::middleware('auth')->group(function (){
 	Route::post('attachProductToModel/{model_type}/{model_id}/{product_id}','ProductController@attachProductToModel')->name('attachProductToModel');
 	Route::post('deleteOrderProduct/{order_product}','OrderController@deleteOrderProduct')->name('deleteOrderProduct');
 
-	Route::get('attachImages/{model_type}/{model_id}/{status}/{assigned_user}','ProductController@attachImages')->name('attachImages');
+	Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}','ProductController@attachImages')->name('attachImages');
 	Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
 	Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
@@ -187,6 +187,7 @@ Route::middleware('auth')->group(function (){
 	// Social Media Image Module
 	Route::get('images/grid', 'ImageController@index')->name('image.grid');
 	Route::post('images/grid', 'ImageController@store')->name('image.grid.store');
+	Route::post('images/grid/attachImage', 'ImageController@attachImage')->name('image.grid.attach');
 	Route::get('images/grid/{id}', 'ImageController@show')->name('image.grid.show');
 	Route::get('images/grid/{id}/edit', 'ImageController@edit')->name('image.grid.edit');
 	Route::post('images/grid/{id}/edit', 'ImageController@update')->name('image.grid.update');
