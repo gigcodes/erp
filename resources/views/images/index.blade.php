@@ -2,9 +2,34 @@
 
 
 @section('content')
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+
 <div class="row">
   <div class="col-12 margin-tb mb-3">
     <h2 class="page-heading">Image Grid</h2>
+
+    <form action="{{ route('image.grid') }}" method="GET" class="form-inline align-items-start">
+      <div class="form-group mr-3 mb-3">
+        {!! $category_selection !!}
+      </div>
+
+      <div class="form-group mr-3">
+        <select class="form-control select-multiple" name="brand[]" multiple>
+          <optgroup label="Brands">
+            @foreach ($brands as $key => $name)
+              <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+            @endforeach
+        </optgroup>
+        </select>
+      </div>
+
+      <div class="form-group mr-3">
+        <strong class="mr-3">Price</strong>
+        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
+      </div>
+
+      <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+    </form>
 
     {{-- <strong>Sort By</strong>
     <a href="{{ route('image.grid') . '?sortby=asc' }}" class="btn-link">ASC</a>
@@ -91,7 +116,12 @@
 
 {!! $images->appends(Request::except('page'))->links() !!}
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+   $(".select-multiple").multiselect();
+});
+</script>
 {{-- <script>
   // var searchSuggestions = ;
   var image_array = [];

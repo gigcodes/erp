@@ -36,6 +36,29 @@
       </div>
 
       <div class="form-group">
+        <strong>Brand:</strong>
+        {!! Form::select('brand',$brands, $image->brand, ['placeholder' => 'Select a Brand','class' => 'form-control', 'id'  => 'product-brand']) !!}
+
+        @if ($errors->has('brand'))
+            <div class="alert alert-danger">{{$errors->first('brand')}}</div>
+        @endif
+      </div>
+
+      <div class="form-group">
+        <strong>Category</strong>
+        {!! $category_select  !!}
+      </div>
+
+      <div class="form-group">
+        <strong>Price:</strong>
+        <input type="number" class="form-control" name="price" placeholder="Price" value="{{ $image->price }}" />
+
+        @if ($errors->has('price'))
+            <div class="alert alert-danger">{{$errors->first('price')}}</div>
+        @endif
+      </div>
+
+      <div class="form-group">
         <strong>Publish Date:</strong>
         <div class='input-group date' id='publish-date'>
           <input type='text' class="form-control" name="publish_date" value="{{ isset($image->publish_date) ? $image->publish_date : date('Y-m-d H:i') }}" />
@@ -75,6 +98,10 @@
 
   $('#tags').tagsinput({
     tagClass: 'label label-default'
+  });
+
+  $('#multi_category').select2({
+      placeholder: 'Category',
   });
 </script>
 

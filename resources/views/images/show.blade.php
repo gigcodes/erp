@@ -23,6 +23,19 @@
 <div class="row">
   <div class="col-md-6">
     <div class="form-group">
+      <strong>Brand:</strong> {{ $image->brand ? $brands[$image->brand] : '' }}
+    </div>
+
+    <div class="form-group">
+      <strong>Category</strong>
+      {!! $category_select  !!}
+    </div>
+
+    <div class="form-group">
+      <strong>Price:</strong> {{ $image->price }}
+    </div>
+
+    <div class="form-group">
       <strong>Publish Date:</strong> {{ isset($image->publish_date) ? $image->publish_date : date('Y-m-d H:i') }}
     </div>
 
@@ -51,6 +64,11 @@
 <script type="text/javascript">
   $('#publish-date').datetimepicker({
     format: 'YYYY-MM-DD HH:mm'
+  });
+
+  $('#multi_category').select2({
+      placeholder: 'Category',
+      disabled: 'readonly'
   });
 </script>
 
