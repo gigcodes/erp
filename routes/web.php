@@ -205,6 +205,20 @@ Route::post('twilio/incoming', 'TwilioController@incomingCall');
 Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
 Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');
 Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback');
+Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatus');
+      // Route::post(
+      //       '/twilio/store-recording', [
+      //           'as' => 'store-recording',
+      //           'uses' => 'TwilioController@storeRecording'
+      //       ]
+      //   );
+  Route::post('twilio/storerecording','TwilioController@storeRecording');
+ Route::get(
+            '/twilio/hangup', [
+                'as' => 'hangup',
+                'uses' => 'TwilioController@showHangup'
+            ]
+        );
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');

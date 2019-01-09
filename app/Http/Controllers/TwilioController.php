@@ -17,7 +17,9 @@ use App\Message;
 use App\CallRecording;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Helpers;
+use App\Recording;
 
 
 class TwilioController extends FindByNumberController
@@ -79,6 +81,7 @@ class TwilioController extends FindByNumberController
      */
     public function ivr(Request $request)
     {
+                Log::info('Showing user profile for IVR: ');
 
        $response = new Twiml();
        $this->createIncomingGather($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
@@ -161,6 +164,9 @@ class TwilioController extends FindByNumberController
      */
     public function recordingStatusCallback(Request $request)
     {
+
+                        Log::info('Recording Callback Enter ');
+
         $url = $request->get("RecordingUrl");
         $sid = $request->get("CallSid");
         $params = [
@@ -184,26 +190,47 @@ class TwilioController extends FindByNumberController
         $users = User::get();
         $clients = [];
         foreach ($users as $user) {
-            if ($user->agent_role == $role) {
-                $clients[] = $user->name;
-            }
+
+              $agentrolearr = explode(',',$user->agent_role);
+            if (in_array($role, $agentrolearr)) {
+                            $clients[] = $user->name;
+                        }
+
+            // if ($user->agent_role == $role) {
+            //     $clients[] = $user->name;
+            // }
         }
         return $clients;
     }
     private function dialAllClients($response, $role="sales", $context=NULL, $object=NULL)
     {
         $url =  \Config::get("app.url")."/twilio/recordingStatusCallback";
+          $actionurl =  "http://c2b5d80e.ngrok.io/twilio/handleDialCallStatus";
         if ($context) {
             $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id;
         }
+   Log::info('Context: '.$context);  
+        // $dial = $response->dial([
+        //     'record' => 'true',
+        //     'recordingStatusCallback' =>$url,
+        //     'recording_status_callback_event' => 'in-progress',
+        //     'action' =>  $actionurl,
+        //     'method' => 'POST',
+        //     'statusCallback' => $actionurl,
 
-        $dial = $response->dial([
-            'record' => 'true',
-            'recordingStatusCallback' =>$url
-        ]);
+        // ]);
+
+               $dial = $response->dial( [
+            'action' => $actionurl,
+            'method' => 'POST']);
+
         $clients = $this->getConnectedClients($role);
+           Log::info('Role: '.$role);
+           Log::info('Action URL for callback: '.$actionurl);  
+
+        Log::info('Client for callings: '.implode(',', $clients));  
         foreach ($clients as $client) {
-            $dial->client( $client );
+            $dial->client( $client);
         }
     }
    private function createIncomingGather($response, $speech)
@@ -213,4 +240,85 @@ class TwilioController extends FindByNumberController
         ]);
         $gather->say($speech);
     }
+
+    /**
+     * Handle Dial call callback
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+    public function handleDialCallStatus(Request $request){
+
+         $response = new Twiml();
+        $callStatus = $request->input('DialCallStatus');
+$recordurl = "http://c2b5d80e.ngrok.io/twilio/storerecording";
+ Log::info('Enter in new function'.json_encode( $callStatus));
+
+      if ($callStatus !== 'completed') {
+            $response->say(
+                'It appears that no agent is available. ' .
+                'Please leave a message after the beep',
+                ['voice' => 'alice', 'language' => 'en-GB']
+            );
+
+            $response->record(
+                ['maxLength' => '20',
+                 'method' => 'GET',
+                 'action' => route('hangup', [], false),
+                 'transcribeCallback' => $recordurl
+                ]
+            );
+
+            $response->say(
+                'No recording received. Goodbye',
+                ['voice' => 'alice', 'language' => 'en-GB']
+            );
+            $response->hangup();
+
+            return $response;
+        }
+
+        return "Ok";
+
+    }
+
+
+        /**
+     * Store a new recording from callback
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function storeRecording(Request $request)
+    {
+
+ $params = [
+            'recording_url' => $request->input('RecordingUrl'),
+            'twilio_call_sid' => $request->input('Caller')
+        ];
+ Log::info('Recording URL'.$request->input('RecordingUrl'));
+         Log::info('TranscriptionText '.$request->input('TranscriptionText'));
+
+ CallRecording::create($params);
+        return "Recording saved";
+    }
+
+ /**
+     * Replies with a hangup
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showHangup()
+    {
+        $response = new Twiml();
+        $response->say(
+            'Thanks for your message. Goodbye',
+            ['voice' => 'alice', 'language' => 'en-GB']
+        );
+        $response->hangup();
+
+        return $response;
+    }
+
+
+
 }
