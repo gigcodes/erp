@@ -1684,7 +1684,8 @@
                         @endcan
 
 
-
+                       @can('social-view')
+
                         <li class="nav-item dropdown">
 
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
@@ -1699,11 +1700,9 @@
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
-                              @can('social-create')
+
                                 <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
-                              @endcan
-                              @can('social-manage')
-                              @endcan
+
 
                               <a class="dropdown-item" href="{{ route('image.grid.approved') }}">Approved Images</a>
                               <a class="dropdown-item" href="{{ route('image.grid.final.approval') }}">Final Approval</a>
@@ -1741,6 +1740,8 @@
                             </div>
 
                         </li>
+                        @endcan
+
 
 
 

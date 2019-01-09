@@ -18,8 +18,9 @@ class ImageController extends Controller
 
   public function __construct() {
 
-		$this->middleware('permission:social-create', ['except' => ['approveImage']]);
-		// $this->middleware( 'permission:social-manage', [ 'only' => [ 'create', 'store' ] ] );
+		$this->middleware('permission:social-view', ['except' => ['approveImage', 'store', 'edit', 'update', 'attachImage', 'destroy']]);
+    $this->middleware('permission:social-create', ['only' => ['store', 'edit', 'update', 'attachImage', 'destroy']]);
+		$this->middleware('permission:social-manage', ['only' => ['approveImage']]);
 	}
     /**
      * Display a listing of the resource.

@@ -29,12 +29,12 @@
     @if (isset($image->approved_user))
       <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
     @else
-      @if (Auth::user()->hasRole('Admin'))
+      @can ('social-manage')
         <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
           @csrf
           <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
         </form>
-      @endif
+      @endcan
     @endif
   </div>
   @endforeach
@@ -43,7 +43,7 @@
 {!! $images->appends(Request::except('page'))->links() !!}
 
 
-<script>
+{{-- <script>
   // var searchSuggestions = ;
   var image_array = [];
 
@@ -54,5 +54,5 @@
       response(results.slice(0, 10));
     }
   });
-</script>
+</script> --}}
 @endsection

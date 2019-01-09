@@ -6,42 +6,44 @@
   <div class="col-12 margin-tb mb-3">
     <h2 class="page-heading">Approved Images</h2>
 
-    <div class="pull-right">
-      <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload Templates</a>
-    </div>
+    @can('social-create')
+      <div class="pull-right">
+        <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload Templates</a>
+      </div>
 
-    <div id="imageModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
+      <div id="imageModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
 
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Upload Images</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Upload Images</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <form action="{{ route('image.grid.store') }}" method="POST" enctype="multipart/form-data">
+              @csrf
+              <input type="hidden" name="status" value="2">
+
+              <div class="modal-body">
+                <div class="form-group">
+                     <input type="file" name="images[]" multiple required />
+                     @if ($errors->has('images'))
+                         <div class="alert alert-danger">{{$errors->first('images')}}</div>
+                     @endif
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-secondary">Upload</button>
+              </div>
+            </form>
           </div>
 
-          <form action="{{ route('image.grid.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" name="status" value="2">
-
-            <div class="modal-body">
-              <div class="form-group">
-                   <input type="file" name="images[]" multiple required />
-                   @if ($errors->has('images'))
-                       <div class="alert alert-danger">{{$errors->first('images')}}</div>
-                   @endif
-              </div>
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary">Upload</button>
-            </div>
-          </form>
         </div>
-
       </div>
-    </div>
+    @endcan
   </div>
 </div>
 

@@ -12,6 +12,7 @@
     <a href="{{ route('image.grid') . '?sortby=desc' }}" class="btn-link">DESC</a> --}}
   {{-- </div>
   <div class="col-lg-2 mt-4"> --}}
+  @can('social-create')
     <div class="pull-right btn-group">
       <a href="{{ route('attachImages', ['images']) }}" class="btn btn-secondary">Attach Images</a>
       <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</a>
@@ -49,6 +50,7 @@
 
       </div>
     </div>
+  @endcan
   </div>
 </div>
 
@@ -65,21 +67,23 @@
     <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
 
     <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
-    <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
+    @can ('social-create')
+      <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
 
-    {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
-      <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-    {!! Form::close() !!}
+      {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
+        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+      {!! Form::close() !!}
+    @endcan
 
     @if (isset($image->approved_user))
       <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
     @else
-      @if (Auth::user()->hasRole('Admin'))
+      @can ('social-manage')
         <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
           @csrf
           <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
         </form>
-      @endif
+      @endcan
     @endif
   </div>
   @endforeach
@@ -88,7 +92,7 @@
 {!! $images->appends(Request::except('page'))->links() !!}
 
 
-<script>
+{{-- <script>
   // var searchSuggestions = ;
   var image_array = [];
 
@@ -99,5 +103,5 @@
       response(results.slice(0, 10));
     }
   });
-</script>
+</script> --}}
 @endsection
