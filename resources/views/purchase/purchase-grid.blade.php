@@ -12,29 +12,16 @@
       <div class="col-lg-12 margin-tb">
         <form action="{{ route('purchase.grid') }}" method="GET" class="form-inline align-items-start">
             <div class="form-group mr-3 mb-3">
-                {{-- <div class="row"> --}}
-                    {{-- <div class="col-md-4"> --}}
-                        <input name="term" type="text" class="form-control" id="product-search"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="name, sku, supplier">
-                        {{-- <input hidden name="roletype" type="text" value="{{ $roletype }}"> --}}
-                        {{--@if( $roletype == 'Sale' )
-                            <input hidden name="saleId" type="text" value="{{ $sale_id ?? '' }}">
-                        @endif--}}
-                        {{-- @if( isset($doSelection) )
-                            <input hidden name="doSelection" type="text" value="true">
-                            <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
-                            <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
-                        @endif --}}
-                      </div>
-                    {{-- </div> --}}
+              <input name="term" type="text" class="form-control" id="product-search"
+                     value="{{ isset($term) ? $term : '' }}"
+                     placeholder="name, sku, supplier">
+            </div>
 
+            <div class="form-group mr-3">
+              {!! Form::select('status[]', $order_status, (isset($status) ? $status : ''), ['placeholder' => 'Select an Order Status','class' => 'form-control select-multiple']) !!}
+            </div>
 
-
-
-                    <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
-                {{-- </div>
-            </div> --}}
+            <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
         </form>
       </div>
     </div>

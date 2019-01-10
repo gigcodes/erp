@@ -14,6 +14,7 @@ use App\Comment;
 use App\Reply;
 use App\Message;
 use App\Task;
+use App\ReadOnly\OrderStatus as OrderStatus;
 use App\ReadOnly\PurchaseStatus;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -103,9 +104,20 @@ class PurchaseController extends Controller
 
     public function purchaseGrid(Request $request)
     {
-      $orders = OrderProduct::select('sku')->get()->toArray();
+      if ($request->status[0] != null) {
+        $status = $request->status[0];
+
+  			$orders = OrderProduct::select('sku')->with('Order')->whereHas('Order', function($q) use ($status) {
+          $q->where('order_status', $status);
+        })->get()->toArray();
+  		} else {
+        $orders = OrderProduct::select('sku')->get()->toArray();
+      }
+
       $products = Product::whereIn('sku', $orders)->whereNotNull('supplier');
       $term = $request->input('term');
+      $status = isset($status) ? $status : '';
+      $order_status = (new OrderStatus)->all();
 
      if(!empty($term)){
 	    	$products = $products->where(function ($query) use ($term){
@@ -135,7 +147,12 @@ class PurchaseController extends Controller
         'path'  => LengthAwarePaginator::resolveCurrentPath()
       ]);
 
-      return view('purchase.purchase-grid')->withProducts($leads_array);
+      return view('purchase.purchase-grid')->with([
+        'products'      => $leads_array,
+        'order_status'  => $order_status,
+        'term'          => $term,
+        'status'        => $status
+      ]);
     }
 
     /**
