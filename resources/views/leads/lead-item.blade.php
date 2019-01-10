@@ -1,4 +1,4 @@
-<div class="table-responsive">
+<div class="table-responsive-lg">
     <table class="table table-bordered" style="margin-top: 25px">
     <tr>
       @php $search_query = (isset($term) ? "&term=$term" : '') . (isset($brand) ? "&$brand" : '') . (isset($rating) ? "&$rating" : ''); @endphp
@@ -12,7 +12,7 @@
         <th style="width: 8%"><a href="/leads?sortby=assigned_user{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Assigned to</a></th>
         <th style="width: 10%">Products</th>
         <th style="width: 5%">Message Status</th>
-        <th style="width: 20%"><a href="/leads?sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Communication</a></th>
+        <th style="width: 17%"><a href="/leads?sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Communication</a></th>
         <th style="width: 8%"><a href="/leads?sortby=status{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Status</a></th>
         <th style="width: 10%"><a href="/leads?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Created</a></th>
         <th style="width: 15%">Action</th>
