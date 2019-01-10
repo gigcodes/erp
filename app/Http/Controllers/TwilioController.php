@@ -15,6 +15,7 @@ use App\Brand;
 use App\Product;
 use App\Message;
 use App\CallRecording;
+use App\CallBusyMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -205,20 +206,11 @@ class TwilioController extends FindByNumberController
     private function dialAllClients($response, $role="sales", $context=NULL, $object=NULL)
     {
         $url =  \Config::get("app.url")."/twilio/recordingStatusCallback";
-          $actionurl =  "http://c2b5d80e.ngrok.io/twilio/handleDialCallStatus";
+          $actionurl =  \Config::get("app.url")."/twilio/handleDialCallStatus";
         if ($context) {
             $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id;
         }
    Log::info('Context: '.$context);  
-        // $dial = $response->dial([
-        //     'record' => 'true',
-        //     'recordingStatusCallback' =>$url,
-        //     'recording_status_callback_event' => 'in-progress',
-        //     'action' =>  $actionurl,
-        //     'method' => 'POST',
-        //     'statusCallback' => $actionurl,
-
-        // ]);
 
                $dial = $response->dial( [
             'action' => $actionurl,
@@ -250,9 +242,9 @@ class TwilioController extends FindByNumberController
     public function handleDialCallStatus(Request $request){
 
          $response = new Twiml();
-        $callStatus = $request->input('DialCallStatus');
-$recordurl = "http://c2b5d80e.ngrok.io/twilio/storerecording";
- Log::info('Enter in new function'.json_encode( $callStatus));
+         $callStatus = $request->input('DialCallStatus');
+         $recordurl = \Config::get("app.url")."/twilio/storerecording"; 
+         Log::info('Enter in new function'.json_encode( $callStatus));
 
       if ($callStatus !== 'completed') {
             $response->say(
@@ -293,14 +285,15 @@ $recordurl = "http://c2b5d80e.ngrok.io/twilio/storerecording";
 
  $params = [
             'recording_url' => $request->input('RecordingUrl'),
-            'twilio_call_sid' => $request->input('Caller')
+            'twilio_call_sid' => $request->input('Caller'),
+            'message' => $request->input('TranscriptionText')
         ];
- Log::info('Recording URL'.$request->input('RecordingUrl'));
+         Log::info('Recording URL'.$request->input('RecordingUrl'));
+         Log::info('Caller NAME '.$request->input('From'));
          Log::info('TranscriptionText '.$request->input('TranscriptionText'));
-
- CallRecording::create($params);
-        return "Recording saved";
-    }
+         CallBusyMessage::create($params);
+                return "Recording saved";
+            }
 
  /**
      * Replies with a hangup
