@@ -114,7 +114,7 @@ class PurchaseController extends Controller
         $orders = OrderProduct::select('sku')->get()->toArray();
       }
 
-      $products = Product::whereIn('sku', $orders)->whereNotNull('supplier');
+      $products = Product::whereIn('sku', $orders);
       $term = $request->input('term');
       $status = isset($status) ? $status : '';
       $order_status = (new OrderStatus)->all();

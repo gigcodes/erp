@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section("styles")
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+@endsection
+
 
 @section('content')
     <div class="row">
@@ -90,8 +94,11 @@
     {{-- </div> --}}
 
     {{-- {!! $leads->links() !!} --}}
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
+    });
 
 
         Array.prototype.groupBy = function (prop) {
