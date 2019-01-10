@@ -58,7 +58,8 @@ class UserController extends Controller
 	{
 		$roles = Role::pluck('name','name')->all();
 		$users = User::all();
-		return view('users.create',compact('roles', 'users'));
+		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
+		return view('users.create',compact('roles', 'users' , 'agent_roles'));
 	}
 
 
@@ -74,13 +75,14 @@ class UserController extends Controller
 			'name' => 'required',
 			'email' => 'required|email|unique:users,email',
 			'password' => 'required|same:confirm-password',
-			'roles' => 'required'
+			'roles' => 'required',
+			'agent_role' => 'required',
 		]);
 
 
 		$input = $request->all();
 		$input['password'] = Hash::make($input['password']);
-
+        $input['agent_role'] = implode(',', $input['agent_role']);
 
 		$user = User::create($input);
 		$user->assignRole($request->input('roles'));
@@ -116,9 +118,11 @@ class UserController extends Controller
 		$roles = Role::pluck('name','name')->all();
 		$users = User::all();
 		$userRole = $user->roles->pluck('name','name')->all();
+		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
+        $user_agent_roles = explode(',', $user->agent_role);
 
 
-		return view('users.edit',compact('user', 'users', 'roles','userRole'));
+		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles'));
 	}
 
 
@@ -135,13 +139,14 @@ class UserController extends Controller
 			'name' => 'required',
 			'email' => 'required|email|unique:users,email,'.$id,
 			'password' => 'same:confirm-password',
-			'roles' => 'required'
+			'roles' => 'required',
+			'agent_role' => 'required',
 		]);
 
 
 		$input = $request->all();
 
-
+        $input['agent_role'] = implode(',', $input['agent_role']);
 //		$input['name'] = 'solo_admin';
 //		$input['email'] = 'admin@example.com';
 //		$input['password'] = 'admin@example.com';

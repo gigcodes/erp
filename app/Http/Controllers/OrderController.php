@@ -9,6 +9,7 @@ use App\OrderProduct;
 use App\Product;
 use App\ReadOnly\OrderStatus as OrderStatus;
 use App\User;
+use App\Leads;
 use App\Message;
 use App\Task;
 use App\Reply;
@@ -775,11 +776,28 @@ class OrderController extends Controller {
 
 	public function missedCalls() {
 
-        $callBusyMessages = CallBusyMessage::select('leads.id', 'lead_id', 'message', 'client_name')
-        ->join("leads", "leads.id", "call_busy_messages.lead_id")
-        ->orderBy('id', 'DESC')->paginate(20);
-        //print_r($callBusyMessages); die;
+        $callBusyMessages = CallBusyMessage::select( 'call_busy_messages.id','twilio_call_sid' ,'message', 'recording_url' ,  'call_busy_messages.created_at')
+        // ->join("leads", "leads.id", "call_busy_messages.lead_id")
+        ->orderBy('id', 'DESC')->paginate(20)->toArray();
 
-        return view( 'orders.missed_call', compact('callBusyMessages' ) );
+
+		foreach ($callBusyMessages['data'] as $key => $value){
+
+			if (is_numeric($value['twilio_call_sid'])) {
+				# code...
+
+			$customer_array = Customer::where('phone', 'like',   str_replace('+91', '', $value['twilio_call_sid']))->get()->toArray();
+				 if(!empty($customer_array)){
+				 	$callBusyMessages['data'][$key]['customerid'] = $customer_array[0]['id'];
+				 	if(!empty( $customer_array[0]['lead'])){
+				 	$callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
+				 }			
+			}
+
+		}
     }
+       return view( 'orders.missed_call', compact( 'callBusyMessages') );
+
+}
+
 }

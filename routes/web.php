@@ -207,7 +207,27 @@ Route::middleware('auth')->group(function (){
 	Route::get('social/post/page','SocialController@index')->name('social.post.page');
 	Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
 
-		// End to Routes creating routes here
+Route::get('twilio/token', 'TwilioController@createToken');
+Route::post('twilio/ivr', 'TwilioController@ivr');
+Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
+Route::post('twilio/incoming', 'TwilioController@incomingCall');
+Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
+Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');
+Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback');
+Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatus');
+      // Route::post(
+      //       '/twilio/store-recording', [
+      //           'as' => 'store-recording',
+      //           'uses' => 'TwilioController@storeRecording'
+      //       ]
+      //   );
+  Route::post('twilio/storerecording','TwilioController@storeRecording');
+ Route::get(
+            '/twilio/hangup', [
+                'as' => 'hangup',
+                'uses' => 'TwilioController@showHangup'
+            ]
+        );
 
 
 		// Ad reports routes
