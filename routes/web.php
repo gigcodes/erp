@@ -195,6 +195,7 @@ Route::middleware('auth')->group(function (){
 	Route::post('images/grid/{id}/edit', 'ImageController@update')->name('image.grid.update');
 	Route::delete('images/grid/{id}/delete', 'ImageController@destroy')->name('image.grid.delete');
 	Route::post('images/grid/{id}/approveImage', 'ImageController@approveImage')->name('image.grid.approveImage');
+	Route::get('images/grid/{id}/download', 'ImageController@download')->name('image.grid.download');
 
   Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
 

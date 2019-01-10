@@ -95,7 +95,9 @@
       {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
         <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
       {!! Form::close() !!}
-    @endcan}
+    @endcan
+
+    <a href="{{ route('image.grid.download', $image->id) }}" class="btn-link">Download</a>
 
     @if (isset($image->approved_user))
       <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>

@@ -482,4 +482,17 @@ class ImageController extends Controller
 
       return redirect()->back()->with('success', 'The image was successfully deleted');
     }
+
+    public function download($id)
+    {
+      $image = Images::find($id);
+
+      if ($image->filename != '') {
+        $path = public_path('uploads/social-media') . '/' . $image->filename;
+      } else {
+        $path = $image->getMedia(config('constants.media_tags'))->first()->getAbsolutePath();
+      }
+
+      return response()->download($path);
+    }
 }
