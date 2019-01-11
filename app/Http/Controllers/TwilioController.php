@@ -270,7 +270,7 @@ class TwilioController extends FindByNumberController
             return $response;
         }
 
-        return "Ok";
+        return $response;
 
     }
 
