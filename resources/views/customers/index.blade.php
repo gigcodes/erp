@@ -318,7 +318,7 @@
 
           $('#first_customer_name').val(response.first_customer.name);
           $('#first_customer_email').val(response.first_customer.email);
-          $('#first_customer_phone').val((response.first_customer.phone).replace(/[\s+]/g, ''));
+          $('#first_customer_phone').val(response.first_customer.phone ? (response.first_customer.phone).replace(/[\s+]/g, '') : '');
           $('#first_customer_instahandler').val(response.first_customer.instahandler);
           $('#first_customer_rating').val(response.first_customer.rating);
           $('#first_customer_address').val(response.first_customer.address);
@@ -327,7 +327,7 @@
 
           $('#second_customer_name').val(response.second_customer.name);
           $('#second_customer_email').val(response.second_customer.email);
-          $('#second_customer_phone').val((response.second_customer.phone).replace(/[\s+]/g, ''));
+          $('#second_customer_phone').val(response.second_customer.phone ? (response.second_customer.phone).replace(/[\s+]/g, '') : '');
           $('#second_customer_instahandler').val(response.second_customer.instahandler);
           $('#second_customer_rating').val(response.second_customer.rating);
           $('#second_customer_address').val(response.second_customer.address);
