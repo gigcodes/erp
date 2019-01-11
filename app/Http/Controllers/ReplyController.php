@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Reply;
 use App\Setting;
+use App\ReplyCategory;
 
 class ReplyController extends Controller
 {
@@ -28,8 +29,10 @@ class ReplyController extends Controller
     public function create()
     {
       $data['reply'] = '';
-  		$data['model'] = '';
+      $data['model'] = '';
+  		$data['category_id'] = '';
       $data['modify'] = 0;
+      $data['reply_categories'] = ReplyCategory::all();
 
   		return view('reply.form',$data);
     }
@@ -43,8 +46,9 @@ class ReplyController extends Controller
     public function store(Request $request, Reply $reply)
     {
       $this->validate($request,[
-  			'reply' => 'required|string',
-  			'model' => 'required'
+        'reply'       => 'required|string',
+  			'category_id' => 'required|numeric',
+  			'model'       => 'required'
   		]);
 
   		$data = $request->except('_token','_method');
@@ -56,6 +60,19 @@ class ReplyController extends Controller
       }
 
   		return redirect()->route('reply.index')->with('success','Quick Reply added successfully');
+    }
+
+    public function categoryStore(Request $request)
+    {
+      $this->validate($request, [
+        'name'  => 'required|string'
+      ]);
+
+      $category = new ReplyCategory;
+      $category->name = $request->name;
+      $category->save();
+
+      return redirect()->route('reply.index')->with('success', 'You have successfully created category');
     }
 
     /**
@@ -79,6 +96,7 @@ class ReplyController extends Controller
     {
       $data = $reply->toArray();
   		$data['modify'] = 1;
+      $data['reply_categories'] = ReplyCategory::all();
 
   		return view('reply.form',$data);
     }

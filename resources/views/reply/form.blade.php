@@ -49,6 +49,20 @@
                 </div>
             </div>
 
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Category</strong>
+                    <select class="form-control" name="category_id" required>
+                      @foreach ($reply_categories as $category)
+                        <option value="{{ $category->id }}" {{ $category->id == $category_id ? 'selected' : '' }}>{{ $category->name }}</option>
+                      @endforeach
+                    </select>
+                    @if ($errors->has('model'))
+                        <div class="alert alert-danger">{{$errors->first('model')}}</div>
+                    @endif
+                </div>
+            </div>
+
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                 <button type="submit" class="btn btn-secondary">+</button>
             </div>

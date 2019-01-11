@@ -16,6 +16,7 @@ use App\Image;
 use App\Reply;
 use App\Customer;
 use App\CallRecording;
+use App\ReplyCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -337,8 +338,9 @@ class LeadsController extends Controller
         $leads['products_array'] = [];
         $leads['recordings'] = CallRecording::where('lead_id', $leads->id)->get()->toArray();
         $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->get()->toArray();
-        $approval_replies = Reply::where('model', 'Approval Lead')->get();
-        $internal_replies = Reply::where('model', 'Internal Lead')->get();
+        // $approval_replies = Reply::where('model', 'Approval Lead')->get();
+        // $internal_replies = Reply::where('model', 'Internal Lead')->get();
+        $reply_categories = ReplyCategory::all();
 
 	    $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
 	    $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
@@ -361,7 +363,7 @@ class LeadsController extends Controller
         $users_array = Helpers::getUserArray(User::all());
 
         $selected_categories = $leads['multi_category'];
-        return view('leads.show',compact('leads','id','data', 'tasks', 'approval_replies', 'internal_replies', 'sales_persons', 'selected_categories', 'users_array'));
+        return view('leads.show',compact('leads','id','data', 'tasks', 'sales_persons', 'selected_categories', 'users_array', 'reply_categories'));
     }
 
     /**

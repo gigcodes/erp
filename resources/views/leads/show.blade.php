@@ -971,12 +971,18 @@
 
                  <p class="pb-4" style="display: block;">
                      {{-- <strong>Quick Reply</strong> --}}
+                     <select name="quickCategory" id="quickCategory" class="form-control mb-3">
+                       <option value="">Select Category</option>
+                       @foreach($reply_categories as $category)
+                           <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                       @endforeach
+                     </select>
 
                      <select name="quickComment" id="quickComment" class="form-control">
-                         <option value="">Quick Reply</option>
-                         @foreach($approval_replies as $reply )
-                             <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                         @endforeach
+                       <option value="">Quick Reply</option>
+                       {{-- @foreach($approval_replies as $reply )
+                           <option value="{{$reply->reply}}">{{$reply->reply}}</option>
+                       @endforeach --}}
                      </select>
                  </p>
 
@@ -1003,6 +1009,17 @@
               @csrf
 
               <div class="modal-body">
+                <div class="form-group">
+                    <strong>Select Category:</strong>
+                    <select class="form-control" name="category_id" id="category_id_field">
+                      @foreach ($reply_categories as $category)
+                        <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->name }}</option>
+                      @endforeach
+                    </select>
+                    @if ($errors->has('category_id'))
+                        <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
+                    @endif
+                </div>
 
                 <div class="form-group">
                     <strong>Quick Reply:</strong>
@@ -1093,12 +1110,18 @@
 
                    <p class="pb-4" style="display: block;">
                        {{-- <strong>Quick Reply</strong> --}}
+                       <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
+                         <option value="">Select Category</option>
+                         @foreach($reply_categories as $category)
+                             <option value="{{ $category->internal_leads }}">{{ $category->name }}</option>
+                         @endforeach
+                       </select>
 
                        <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
                            <option value="">Quick Reply</option>
-                           @foreach($internal_replies as $reply)
+                           {{-- @foreach($internal_replies as $reply)
                                <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                           @endforeach
+                           @endforeach --}}
                        </select>
                    </p>
 
@@ -2015,6 +2038,7 @@
 
     var url = "{{ route('reply.store') }}";
     var reply = $('#reply_field').val();
+    var category_id = $('#category_id_field').val();
     var model = $('#model_field').val();
 
     $.ajax({
@@ -2025,6 +2049,7 @@
       },
       data: {
         reply: reply,
+        category_id: category_id,
         model: model
       },
       success: function(reply) {
@@ -2043,6 +2068,40 @@
         }
 
       }
+    });
+  });
+
+  $('#quickCategory').on('change', function() {
+    var replies = JSON.parse($(this).val());
+    $('#quickComment').empty();
+
+    $('#quickComment').append($('<option>', {
+      value: '',
+      text: 'Quick Reply'
+    }));
+
+    replies.forEach(function(reply) {
+      $('#quickComment').append($('<option>', {
+        value: reply.reply,
+        text: reply.reply
+      }));
+    });
+  });
+
+  $('#quickCategoryInternal').on('change', function() {
+    var replies = JSON.parse($(this).val());
+    $('#quickCommentInternal').empty();
+
+    $('#quickCommentInternal').append($('<option>', {
+      value: '',
+      text: 'Quick Reply'
+    }));
+
+    replies.forEach(function(reply) {
+      $('#quickCommentInternal').append($('<option>', {
+        value: reply.reply,
+        text: reply.reply
+      }));
     });
   });
  </script>

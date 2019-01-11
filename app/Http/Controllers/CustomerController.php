@@ -14,6 +14,7 @@ use App\ChatMessage;
 use App\Message;
 use App\Helpers;
 use App\Reply;
+use App\ReplyCategory;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
@@ -351,8 +352,9 @@ class CustomerController extends Controller
       $users_array = Helpers::getUserArray(User::all());
       // $leads['users']  = $users;
       $brands = Brand::all()->toArray();
-      $approval_replies = Reply::where('model', 'Approval Lead')->get();
-      $internal_replies = Reply::where('model', 'Internal Lead')->get();
+      // $approval_replies = Reply::where('model', 'Approval Lead')->get();
+      // $internal_replies = Reply::where('model', 'Internal Lead')->get();
+      $reply_categories = ReplyCategory::all();
       // $leads['brands']  = $brands;
       // $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
       // $leads['products_array'] = [];
@@ -387,8 +389,9 @@ class CustomerController extends Controller
         'brands'    => $brands,
         'users'     => $users,
         'users_array'     => $users_array,
-        'approval_replies'     => $approval_replies,
-        'internal_replies'     => $internal_replies,
+        // 'approval_replies'     => $approval_replies,
+        // 'internal_replies'     => $internal_replies,
+        'reply_categories'  => $reply_categories
       ]);
     }
 

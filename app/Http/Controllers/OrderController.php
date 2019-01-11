@@ -18,6 +18,7 @@ use App\OrderStatus as OrderStatuses;
 use App\OrderReport;
 use App\Purchase;
 use App\Customer;
+use App\ReplyCategory;
 use Auth;
 use Cache;
 use Validator;
@@ -546,14 +547,15 @@ class OrderController extends Controller {
 		$order_statuses = (new OrderStatus)->all();
 		$data['order_statuses'] = $order_statuses;
 		$data['tasks'] = Task::where('model_type', 'order')->where('model_id', $order->id)->get()->toArray();
-		$data['approval_replies'] = Reply::where('model', 'Approval Order')->get();
-		$data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
+		// $data['approval_replies'] = Reply::where('model', 'Approval Order')->get();
+		// $data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
         $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get()->toArray();
 		$data['order_status_report'] = OrderStatuses::all();
 		$data['order_reports'] = OrderReport::where('order_id', $order->id)->get();
 		$data['users_array'] = Helpers::getUserArray(User::all());
 		$data['has_customer'] = $order->customer ? $order->customer->id : false;
 		$data['customer'] = $order->customer;
+		$data['reply_categories'] = ReplyCategory::all();
 
 		// dd($data);
 		//return $data;
@@ -619,7 +621,7 @@ class OrderController extends Controller {
 				$order_product->update( $order_product_data );
 			}
 		}
-		
+
 		$data = $request->except(['_token', '_method', 'status']);
 		$data['order_status'] = $request->status;
 		$order->update( $data );
@@ -791,7 +793,7 @@ class OrderController extends Controller {
 				 	$callBusyMessages['data'][$key]['customerid'] = $customer_array[0]['id'];
 				 	if(!empty( $customer_array[0]['lead'])){
 				 	$callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
-				 }			
+				 }
 			}
 
 		}

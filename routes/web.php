@@ -50,6 +50,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 //	Route::resource('activity','ActivityConroller');
 	Route::resource('brand','BrandController');
 	Route::resource('reply','ReplyController');
+	Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
 	Route::resource('settings','SettingController');
 	Route::resource('category','CategoryController');
