@@ -20,6 +20,11 @@ class Customer extends Model
     return $this->hasMany('App\Order');
   }
 
+  public function instructions()
+  {
+    return $this->hasMany('App\Instruction');
+  }
+
   public function latest_order()
   {
     return $this->hasMany('App\Order')->latest()->first();

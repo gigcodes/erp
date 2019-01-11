@@ -39,7 +39,7 @@
               <td>{{ $instruction->instruction }}</td>
               <td>
                 @if ($instruction->completed_at)
-                  {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m') }}
+                  {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
                 @else
                   <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}">Complete</a>
                 @endif
