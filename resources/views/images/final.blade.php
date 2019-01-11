@@ -59,10 +59,12 @@
       <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
     @else
       @can ('social-manage')
-        <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
+        {{-- <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
           @csrf
           <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-        </form>
+        </form> --}}
+
+        <button type="button" class="btn btn-xs btn-secondary approve-image" data-id="{{ $image->id }}">Approve</button>
       @endcan
     @endif
   </div>
@@ -73,8 +75,33 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
-  $(document).ready(function() {
-     $(".select-multiple").multiselect();
-  });
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
+    });
+
+    $(document).on('click', '.approve-image', function() {
+      var id = $(this).data('id');
+      var thiss = $(this);
+
+      $.ajax({
+        type: "POST",
+        url: "{{ url('images/grid') }}/" + id + "/approveImage",
+        data: {
+          _token: "{{ csrf_token() }}"
+        },
+        beforeSend: function() {
+          $(thiss).text('Approving');
+        }
+      }).done(function(response) {
+        var users_array = {!! json_encode(\App\Helpers::getUserArray(\App\User::all())) !!};
+        var span = $('<span>Approved by ' + users_array[response.user] + ' on ' + moment(response.date).format('DD-MM') + '</span>');
+
+        $(thiss).parent('div').append(span);
+        $(thiss).remove();
+      }).fail(function(response) {
+        console.log(response);
+        alert('Error while approving image');
+      });
+    });
   </script>
 @endsection

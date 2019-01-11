@@ -432,7 +432,7 @@ class ImageController extends Controller
       return redirect()->route('image.grid.edit', $image->id)->with('success', 'You have successfully updated image');
     }
 
-    public function approveImage($id)
+    public function approveImage(Request $request, $id)
     {
       $image = Images::find($id);
 
@@ -440,6 +440,14 @@ class ImageController extends Controller
       $image->approved_date = Carbon::now();
 
       $image->save();
+
+      if ($request->ajax()) {
+        if ($image->status == '1') {
+          return response('success');
+        } elseif ($image->status == '2') {
+          return response(['user' => $image->approved_user, 'date' => "$image->approved_date"]);
+        }
+      }
 
       if ($image->status == '1') {
         return redirect()->route('image.grid')->with('success', 'You have successfully approved image');
