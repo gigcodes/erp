@@ -64,7 +64,10 @@
                         <strong>Name: </strong> {{ $customer->name }} <br>
                         <strong>Email: </strong> {{ $customer->email }} <br>
                         <strong>Phone: </strong> {{ $customer->phone }} <br>
-                        <strong>Instagram Handle: </strong> {{ $customer->instahandler }}
+                        <strong>Instagram Handle: </strong> {{ $customer->instahandler }} <br>
+                        <strong>Address: </strong> {{ $customer->address }} <br>
+                        <strong>City: </strong> {{ $customer->city }} <br>
+                        <strong>Country: </strong> {{ $customer->country }}
                       @endif
 
                       <div class="form-group mt-5">
