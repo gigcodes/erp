@@ -66,7 +66,11 @@ class ProductApproverController extends Controller
 			NotificaitonContoller::store( 'has Final Approved', [ 'Inventory' ], $product->id );
 			ActivityConroller::create( $product->id, 'approver', 'create' );
 
-			return back()->with( 'success', 'Product has been Final Approved' );
+			$next_product = Product::latest()
+			                   ->where('stage','>=', '6')
+			                   ->whereNull('dnf')->where('isFinal', '!=', '1')->first();
+
+			return redirect()->route('products.show', $next_product->id)->with( 'success', 'Product has been Final Approved' );
 		}
 
 		return back()->with('error','Error Occured while uploading');

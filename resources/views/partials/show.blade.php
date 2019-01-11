@@ -256,7 +256,7 @@
                                 <img src="/images/edit.png" />
                             </button>
                         </a>
-                        
+
                         {{-- @can('supervisor-edit')
                             <form method="POST" action="{{ route('productsupervisor.approve',$id) }}"
                                   style="display: inline;">
@@ -291,7 +291,7 @@
                                   style="display: inline;">
                                 @csrf
                                 <button type="submit" data-id="{{ $id }}"
-                                        class="btn btn-secondary {{ ( $isFinal  ==  '1' ) ? 'btn-success' : ''  }} ">
+                                        class="btn {{ ( $isFinal  ==  '1' ) ? 'btn-success' : 'btn-secondary'  }} ">
                                     {{ ( $isFinal  ==  '1' ) ? 'Final Approved' : 'Final Approve'  }}
                                 </button>
                             </form>
