@@ -567,23 +567,26 @@
   });
 
   $(document).on('click', ".collapsible-message", function() {
-    var short_message = $(this).data('messageshort');
-    var message = $(this).data('message');
-    var status = $(this).data('expanded');
+    var selection = window.getSelection();
+    if (selection.toString().length === 0) {
+      var short_message = $(this).data('messageshort');
+      var message = $(this).data('message');
+      var status = $(this).data('expanded');
 
-    if (status == false) {
-      $(this).addClass('expanded');
-      $(this).html(message);
-      $(this).data('expanded', true);
-      $(this).siblings('.thumbnail-wrapper').remove();
-      $(this).parent().find('.message-img').removeClass('thumbnail-200');
-      $(this).parent().find('.message-img').parent().css('width', 'auto');
-    } else {
-      $(this).removeClass('expanded');
-      $(this).html(short_message);
-      $(this).data('expanded', false);
-      $(this).parent().find('.message-img').addClass('thumbnail-200');
-      $(this).parent().find('.message-img').parent().css('width', '200px');
+      if (status == false) {
+        $(this).addClass('expanded');
+        $(this).html(message);
+        $(this).data('expanded', true);
+        $(this).siblings('.thumbnail-wrapper').remove();
+        $(this).parent().find('.message-img').removeClass('thumbnail-200');
+        $(this).parent().find('.message-img').parent().css('width', 'auto');
+      } else {
+        $(this).removeClass('expanded');
+        $(this).html(short_message);
+        $(this).data('expanded', false);
+        $(this).parent().find('.message-img').addClass('thumbnail-200');
+        $(this).parent().find('.message-img').parent().css('width', '200px');
+      }
     }
   });
 
