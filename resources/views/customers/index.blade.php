@@ -6,24 +6,24 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h2>Customers List</h2>
+                <h2 class="page-heading">Customers List</h2>
+                <div class="pull-left">
+                  <form action="/customers/" method="GET">
+                      <div class="form-group">
+                          <div class="row">
+                              <div class="col-md-12">
+                                  <input name="term" type="text" class="form-control"
+                                         value="{{ isset($term) ? $term : '' }}"
+                                         placeholder="Search">
+                              </div>
+                              <div class="col-md-4">
+                                  <button hidden type="submit" class="btn btn-primary">Submit</button>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+                </div>
 
-                <form action="/customers/" method="GET">
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search">
-                            </div>
-                            <div class="col-md-4">
-                                <button hidden type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
             <div class="pull-right mt-4">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
                 <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
@@ -99,7 +99,7 @@
 
                   <div class="form-group">
             				<strong>Rating:</strong>
-            				<Select name="rating" class="form-control" id="first_customer_rating">
+            				<Select name="rating" class="form-control" id="first_customer_rating" required>
       								<option value="1">1</option>
       								<option value="2">2</option>
       								<option value="3">3</option>
@@ -191,6 +191,17 @@
     @if ($message = Session::get('warning'))
         <div class="alert alert-warning">
             <p>{{ $message }}</p>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
