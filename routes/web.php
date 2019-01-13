@@ -197,6 +197,8 @@ Route::middleware('auth')->group(function (){
 	Route::delete('images/grid/{id}/delete', 'ImageController@destroy')->name('image.grid.delete');
 	Route::post('images/grid/{id}/approveImage', 'ImageController@approveImage')->name('image.grid.approveImage');
 	Route::get('images/grid/{id}/download', 'ImageController@download')->name('image.grid.download');
+	Route::post('images/grid/make/set', 'ImageController@set')->name('image.grid.set');
+	Route::post('images/grid/make/set/download', 'ImageController@setDownload')->name('image.grid.set.download');
 
   Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
 

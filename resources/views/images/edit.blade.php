@@ -58,20 +58,22 @@
         @endif
       </div>
 
-      <div class="form-group">
-        <strong>Publish Date:</strong>
-        <div class='input-group date' id='publish-date'>
-          <input type='text' class="form-control" name="publish_date" value="{{ isset($image->publish_date) ? $image->publish_date : date('Y-m-d H:i') }}" />
+      @if ($image->status == 2 && $image->publish_date)
+        <div class="form-group">
+          <strong>Publish Date:</strong>
+          <div class='input-group date' id='publish-date'>
+            <input type='text' class="form-control" name="publish_date" value="{{ isset($image->publish_date) ? $image->publish_date : date('Y-m-d H:i') }}" />
 
-          <span class="input-group-addon">
-            <span class="glyphicon glyphicon-calendar"></span>
-          </span>
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+
+          @if ($errors->has('publish_date'))
+              <div class="alert alert-danger">{{$errors->first('publish_date')}}</div>
+          @endif
         </div>
-
-        @if ($errors->has('publish_date'))
-            <div class="alert alert-danger">{{$errors->first('publish_date')}}</div>
-        @endif
-      </div>
+      @endif
 
       <div class="form-group">
         <strong>Tags</strong> <br>
