@@ -78,7 +78,7 @@
                      <div class="col-xs-12 col-sm-8 col-sm-offset-2 mt-5">
                         <div class="form-group">
                             <strong>Contact No:</strong>
-                            <input type="text" class="form-control" name="contactno" placeholder="contactno" data-twilio-call data-context="leads" data-id="{{$leads->id}}" value="{{$leads->contactno}}" />
+                            <input type="number" class="form-control" name="contactno" placeholder="contactno" data-twilio-call data-context="leads" data-id="{{$leads->id}}" value="{{$leads->contactno}}" />
                         </div>
                     </div>
 
