@@ -299,3 +299,15 @@ Route::get('whatsapp/pollMessagesCustomer', 'WhatsAppController@pollMessagesCust
 Route::get('whatsapp/updatestatus/', 'WhatsAppController@updateStatus');
 Route::post('whatsapp/updateAndCreate/', 'WhatsAppController@updateAndCreate');
 Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->name('whatsapp.forward');
+
+
+/*
+ * @date 1/13/2019
+ * @author Rishabh Aryal
+ * This is route for Instagram
+ * feature in this ERP
+ */
+
+Route::prefix('instagram')->group(function () {
+    Route::get('posts', 'InstagramController@showPosts');
+});
