@@ -28,7 +28,7 @@
           <th>Instructions</th>
           <th colspan="2" class="text-center">Action</th>
           <th>Created at</th>
-          <th>Remark</th>
+          {{-- <th>Remark</th> --}}
         </tr>
         @foreach ($instructions as $instruction)
             <tr>
@@ -56,7 +56,7 @@
                 @endif
               </td>
               <td>{{ $instruction->created_at->diffForHumans() }}</td>
-              <td>
+              {{-- <td>
                 <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{ $instruction->id }}" data-id="{{ $instruction->id }}">Add</a>
                 <span> | </span>
                 <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{ $instruction->id }}">View</a>
@@ -111,7 +111,7 @@
                   </div>
 
                 </div>
-              </div>
+              </div> --}}
             </tr>
         @endforeach
     </table>
@@ -175,51 +175,51 @@
         });
       });
 
-      function addNewRemark(id){
-        var remark = $('#remark-text_'+id).val();
-
-        $.ajax({
-            type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            url: '{{ route('task.addRemark') }}',
-            data: {
-              id:id,
-              remark:remark,
-              module_type: 'instruction'
-            },
-        }).done(response => {
-            alert('Remark Added Success!')
-            window.location.reload();
-        }).fail(function(response) {
-          console.log(response);
-        });
-      }
-
-      $(".view-remark").click(function () {
-        var id = $(this).attr('data-id');
-
-          $.ajax({
-              type: 'GET',
-              headers: {
-                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-              },
-              url: '{{ route('task.gettaskremark') }}',
-              data: {
-                id:id,
-                module_type: "instruction"
-              },
-          }).done(response => {
-              var html='';
-
-              $.each(response, function( index, value ) {
-                html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
-                html+"<hr>";
-              });
-              $("#view-remark-list").find('#remark-list').html(html);
-          });
-      });
+      // function addNewRemark(id){
+      //   var remark = $('#remark-text_'+id).val();
+      //
+      //   $.ajax({
+      //       type: 'POST',
+      //       headers: {
+      //           'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+      //       },
+      //       url: '{{ route('task.addRemark') }}',
+      //       data: {
+      //         id:id,
+      //         remark:remark,
+      //         module_type: 'instruction'
+      //       },
+      //   }).done(response => {
+      //       alert('Remark Added Success!')
+      //       window.location.reload();
+      //   }).fail(function(response) {
+      //     console.log(response);
+      //   });
+      // }
+      //
+      // $(".view-remark").click(function () {
+      //   var id = $(this).attr('data-id');
+      //
+      //     $.ajax({
+      //         type: 'GET',
+      //         headers: {
+      //             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+      //         },
+      //         url: '{{ route('task.gettaskremark') }}',
+      //         data: {
+      //           id:id,
+      //           module_type: "instruction"
+      //         },
+      //     }).done(response => {
+      //         var html='';
+      //
+      //         $.each(response, function( index, value ) {
+      //           html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+      //           html+"<hr>";
+      //         });
+      //         $("#view-remark-list").find('#remark-list').html(html);
+      //     });
+      // });
     </script>
 
 @endsection
