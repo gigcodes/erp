@@ -183,7 +183,8 @@
 						$link = route( 'productselection.edit', $product->id );
 						break;
 					case 'Searcher':
-						$link = route( 'productsearcher.edit', $product->id );
+						// $link = route( 'productsearcher.edit', $product->id );
+            $link = route( 'productattribute.edit', $product->id );
 						break;
 					case 'Attribute':
 						$link = route( 'productattribute.edit', $product->id );

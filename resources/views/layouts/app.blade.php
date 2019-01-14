@@ -1017,9 +1017,28 @@
 
                                     </li>
 
+                                    <li class="nav-item dropdown dropdown-submenu">
+
+                                      <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+
+                                         aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                          Supervisor<span class="caret"></span>
+
+                                      </a>
+
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                          <a class="dropdown-item" href="{{ route('productsupervisor.index') }}">Supervisor Grid</a>
 
 
-                                    <li class="nav-item dropdown dropdown-submenu" data-count="{{
+                                      </ul>
+
+                                    </li>
+
+
+
+                                    {{-- <li class="nav-item dropdown dropdown-submenu" data-count="{{
 
                                           \App\Http\Controllers\ProductAttributeController::rejectedProductCountByUser()
 
@@ -1041,11 +1060,11 @@
 
                                                 Grid</a>
 
-                                            {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
+                                            {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>
 
                                         </ul>
 
-                                    </li>
+                                    </li> --}}
 
 
 
@@ -1289,7 +1308,7 @@
 
 
 
-                            {{-- @can('supervisor-list')
+                            @can('supervisor-list')
 
                                 <li class="nav-item dropdown">
 
@@ -1305,17 +1324,17 @@
 
                                         <a class="dropdown-item" href="{{ route('productsupervisor.index') }}">Supervisor Grid</a>
 
-                                        {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>
+                                        {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
 
                                     </div>
 
                                 </li>
 
-                            @endcan --}}
+                            @endcan
 
 
 
-                            @can('attribute-list')
+                            {{-- @can('attribute-list')
 
                                 <li class="nav-item dropdown" data-count="{{
 
@@ -1339,13 +1358,12 @@
 
                                             Grid</a>
 
-                                        {{--<a class="dropdown-item" href="{{ route('productattribute.list') }}">Searcher List</a>--}}
 
                                     </div>
 
                                 </li>
 
-                            @endcan
+                            @endcan --}}
 
 
 
