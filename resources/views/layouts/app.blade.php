@@ -1687,6 +1687,26 @@
 
                         @endcan
 
+                        <li class="nav-item dropdown">
+
+                            <a id="instagramMenu" class="nav-link dropdown-toggle" href="#" role="button"
+
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                Instagram <span class="caret"></span>
+
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
+
+                                @can('social-create')
+                                    <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
+                                @endcan
+                            </div>
+
+
+                        </li>
+
 
 
                         <li class="nav-item dropdown">
@@ -1883,6 +1903,7 @@
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
 @yield('scripts')
+@yield('styles')
 
 </body>
 
