@@ -96,7 +96,7 @@ class WhatsAppController extends FindByNumberController
         // }
 
 
-        if (!$orders && !$leads) {
+        if (!isset($order) && !isset($lead)) {
             $modal_type = 'leads';
             // $new_name = "whatsapp lead " . uniqid( TRUE );
             $user = User::get()[0];
