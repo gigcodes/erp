@@ -2,6 +2,7 @@
 
 
 @section('content')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 
 <div class="row">
@@ -31,6 +32,55 @@
       <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
     </form>
   </div>
+
+  @can('social-create')
+    <div class="col-12 mb-3">
+      <div class="pull-right">
+        <a href class="btn btn-secondary select-image">Select Images</a>
+        <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Create a Set</a>
+      </div>
+    </div>
+
+    <div id="imageModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create a Set</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <form action="{{ route('image.grid.set') }}" method="POST" id="setForm">
+            @csrf
+            <input type="hidden" name="image_id" value="" id="image_ids">
+
+            <div class="modal-body">
+              <div class="form-group">
+                <strong>Publish Date:</strong>
+                <div class='input-group date' id='publish-date'>
+                  <input type='text' class="form-control" name="publish_date" value="{{ date('Y-m-d H:i') }}" required />
+
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+
+                @if ($errors->has('publish_date'))
+                    <div class="alert alert-danger">{{$errors->first('publish_date')}}</div>
+                @endif
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary" id="setFormSubmit">Create a Set</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  @endcan
 </div>
 
 
@@ -40,43 +90,134 @@
 </div>
 @endif
 
-<div class="row">
-  @foreach ($images as $image)
-  <div class="col-md-3 col-xs-6 text-center mb-5">
-    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
-
-    <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
-
-    @can ('social-create')
-      <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
-
-      {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
-        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-      {!! Form::close() !!}
-    @endcan
-
-    @if (isset($image->approved_user))
-      <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
-    @else
-      @can ('social-manage')
-        {{-- <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
-          @csrf
-          <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-        </form> --}}
-
-        <button type="button" class="btn btn-xs btn-secondary approve-image" data-id="{{ $image->id }}">Approve</button>
-      @endcan
-    @endif
-  </div>
-  @endforeach
+<div id="exTab2" class="container">
+  <ul class="nav nav-tabs">
+    <li class="active">
+      <a href="#1" data-toggle="tab">Images</a>
+    </li>
+    <li><a href="#2" data-toggle="tab">Calendar</a></li>
+  </ul>
 </div>
 
-{!! $images->appends(Request::except('page'))->links() !!}
+<div class="tab-content ">
+  <div class="tab-pane active mt-3" id="1">
+    <div class="row">
+      @foreach ($images as $image)
+      <div class="col-md-3 col-xs-6 text-center mb-5">
+        <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
+        <input type="checkbox" class="form-control image-selection" value="{{ $image->id }}" style="display: none;">
 
+        <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
+
+        @can ('social-create')
+          <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
+
+          {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
+            <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+          {!! Form::close() !!}
+        @endcan
+
+        @if (isset($image->approved_user))
+          <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
+        @else
+          @can ('social-manage')
+            {{-- <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
+              @csrf
+              <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+            </form> --}}
+
+            <button type="button" class="btn btn-xs btn-secondary approve-image" data-id="{{ $image->id }}">Approve</button>
+          @endcan
+        @endif
+      </div>
+      @endforeach
+    </div>
+
+    {!! $images->appends(Request::except('page'))->links() !!}
+  </div>
+
+  <div class="tab-pane mt-3" id="2">
+    <div class="row">
+      <div class="col-12">
+        <div id="calendar"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="calendarModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <form action="{{ route('image.grid.set.download') }}" method="POST" id="downloadForm">
+        @csrf
+        <input type="hidden" name="images" value="" id="download_images_field">
+        <div class="modal-body">
+          <div class="form-group" id="image_container">
+
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-secondary" id="downloadImages">Download All</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
+    $('#publish-date').datetimepicker({
+      format: 'YYYY-MM-DD HH:mm'
+    });
+
     $(document).ready(function() {
        $(".select-multiple").multiselect();
+       $('#calendar').fullCalendar({
+          events: [
+            @foreach ($image_sets as $time => $set)
+              {
+                title: 'Post',
+                start: "{{ $time }}",
+                image_names: [
+                  @foreach ($set as $image)
+                    {
+                      "id": {{ $image->id }},
+                      'name': "{{ asset('uploads/social-media') . '/' . $image->filename }}",
+                    },
+                  @endforeach
+                ]
+              },
+            @endforeach
+          ],
+          eventClick: function(calEvent, jsEvent, view) {
+            $('#image_container').empty();
+
+            var download_images = [];
+            var image = '<div class="row">';
+            calEvent.image_names.forEach(function(img) {
+              image += '<div class="col-md-4"><img src="' + img.name + '" class="img-responsive" /></div>';
+              download_images.push(img.id);
+            });
+            image += '</div>';
+
+            $('#image_container').append($(image));
+            $('#download_images_field').val(JSON.stringify(download_images));
+
+            jQuery.noConflict();
+            $('#calendarModal').modal('toggle');
+          }
+        });
     });
 
     $(document).on('click', '.approve-image', function() {
@@ -102,6 +243,29 @@
         console.log(response);
         alert('Error while approving image');
       });
+    });
+
+    var images_array = [];
+    $('.select-image').on('click', function(e) {
+      e.preventDefault();
+
+      $('.image-selection').show();
+    });
+
+    $(document).on('click', '.image-selection', function() {
+      images_array.push($(this).val());
+    });
+
+    $('#setFormSubmit').on('click', function(e) {
+      e.preventDefault();
+
+      if (images_array.length == 0) {
+        alert('Please select first some images!');
+        return;
+      }
+
+      $('#image_ids').val(JSON.stringify(images_array));
+      $('#setForm').submit();
     });
   </script>
 @endsection

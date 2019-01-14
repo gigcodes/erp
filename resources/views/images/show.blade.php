@@ -35,9 +35,11 @@
       <strong>Price:</strong> {{ $image->price }}
     </div>
 
-    <div class="form-group">
-      <strong>Publish Date:</strong> {{ isset($image->publish_date) ? $image->publish_date : date('Y-m-d H:i') }}
-    </div>
+    @if ($image->status == 2 && $image->publish_date)
+      <div class="form-group">
+        <strong>Publish Date:</strong> {{ isset($image->publish_date) ? $image->publish_date : date('Y-m-d H:i') }}
+      </div>
+    @endif
 
     @if (isset($image->approved_user))
       <div class="form-group">

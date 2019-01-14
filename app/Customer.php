@@ -32,7 +32,7 @@ class Customer extends Model
 
   public function messages()
 	{
-		return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'order')->latest()->first();
+		return $this->hasMany('App\Message', 'customer_id')->latest()->first();
 	}
 
 	public function whatsapps()
@@ -42,20 +42,20 @@ class Customer extends Model
 
 	public function getCommunicationAttribute()
 	{
-		// $message = $this->messages();
+		$message = $this->messages();
 		$whatsapp = $this->whatsapps();
 
-		// if ($message && $whatsapp) {
-		// 	if ($message->created_at > $whatsapp->created_at) {
-		// 		return $message;
-		// 	}
-    //
-		// 	return $whatsapp;
-		// }
+		if ($message && $whatsapp) {
+			if ($message->created_at > $whatsapp->created_at) {
+				return $message;
+			}
 
-		// if ($message) {
-		// 	return $message;
-		// }
+			return $whatsapp;
+		}
+
+		if ($message) {
+			return $message;
+		}
 
 		return $whatsapp;
 	}

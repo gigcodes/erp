@@ -110,23 +110,23 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
-  $(document).ready(function() {
-     $(".select-multiple").multiselect();
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
 
-     $('.select-image').on('click', function(e) {
-       e.preventDefault();
+       $('.select-image').on('click', function(e) {
+         e.preventDefault();
 
-       $('.image-selection').show();
-     });
+         $('.image-selection').show();
+       });
 
-     $(document).on('click', '.image-selection', function() {
-       $('.image-selection').prop('checked', false);
+       $(document).on('click', '.image-selection', function() {
+         $('.image-selection').prop('checked', false);
 
-       $(this).prop('checked', true);
-       $('input[name="image_id"]').val($(this).val());
-       jQuery.noConflict();
-       $('#imageModal').modal('toggle')
-     });
-  });
+         $(this).prop('checked', true);
+         $('input[name="image_id"]').val($(this).val());
+         jQuery.noConflict();
+         $('#imageModal').modal('toggle')
+       });
+    });
   </script>
 @endsection

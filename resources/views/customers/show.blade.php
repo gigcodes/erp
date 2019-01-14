@@ -41,22 +41,14 @@
 <div class="tab-content ">
   <div class="tab-pane active mt-3" id="1">
     <div class="row">
-      <div class="col-md-6 col-12">
+      <div class="col-md-6">
         <div class="form-group">
           <strong>Name:</strong> {{ $customer->name }}
         </div>
 
         @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
           <div class="form-group">
-            <strong>Email:</strong> {{ $customer->email }}
-          </div>
-
-          <div class="form-group">
             <strong>Phone:</strong> {{ $customer->phone }}
-          </div>
-
-          <div class="form-group">
-            <strong>Whatsapp Number:</strong> {{ $customer->whatsapp_number }}
           </div>
 
           <div class="form-group">
@@ -65,64 +57,79 @@
         @endif
 
         <div class="form-group">
+          <strong>Address:</strong> {{ $customer->address }}
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+          <div class="form-group">
+            <strong>Email:</strong> {{ $customer->email }}
+          </div>
+
+          <div class="form-group">
+            <strong>Whatsapp Number:</strong> {{ $customer->whatsapp_number }}
+          </div>
+        @endif
+
+        <div class="form-group">
           <strong>Rating:</strong> {{ $customer->rating }}
         </div>
 
-        <div class="form-group">
-          <strong>Address:</strong> {{ $customer->address }}
-        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <strong>City:</strong> {{ $customer->city }}
+            </div>
+          </div>
 
-        <div class="form-group">
-          <strong>City:</strong> {{ $customer->city }}
-        </div>
-
-        <div class="form-group">
-          <strong>Country:</strong> {{ $customer->country }}
+          <div class="col">
+            <div class="form-group">
+              <strong>Country:</strong> {{ $customer->country }}
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
           <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
         </div>
-
-        <div class="form-group">
-          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
-
-          <div id="instructionModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-
-              <!-- Modal content-->
-              <div class="modal-content">
-                <form action="{{ route('instruction.store') }}" method="POST">
-                  @csrf
-                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-
-                  <div class="modal-header">
-                    <h4 class="modal-title">Create Instruction</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="form-group">
-                      <strong>Instruction:</strong>
-                      <textarea type="text" class="form-control" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
-                      @if ($errors->has('instruction'))
-                          <div class="alert alert-danger">{{$errors->first('instruction')}}</div>
-                      @endif
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-secondary">Create</button>
-                  </div>
-                </form>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
       </div>
 
       <div class="col-xs-12">
+        <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
+
+        <div id="instructionModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <form action="{{ route('instruction.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+
+                <div class="modal-header">
+                  <h4 class="modal-title">Create Instruction</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <strong>Instruction:</strong>
+                    <textarea type="text" class="form-control" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
+                    @if ($errors->has('instruction'))
+                        <div class="alert alert-danger">{{$errors->first('instruction')}}</div>
+                    @endif
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-secondary">Create</button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-bordered">
             <tr>
@@ -1111,25 +1118,27 @@
           });
 
           $(document).on('click', ".collapsible-message", function() {
-            var short_message = $(this).data('messageshort');
-            var message = $(this).data('message');
-            var status = $(this).data('expanded');
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+              var short_message = $(this).data('messageshort');
+              var message = $(this).data('message');
+              var status = $(this).data('expanded');
 
-            if (status == false) {
-              $(this).addClass('expanded');
-              $(this).html(message);
-              $(this).data('expanded', true);
-              // $(this).siblings('.thumbnail-wrapper').remove();
-              $(this).closest('.talktext').find('.message-img').removeClass('thumbnail-200');
-              $(this).closest('.talktext').find('.message-img').parent().css('width', 'auto');
-            } else {
-              $(this).removeClass('expanded');
-              $(this).html(short_message);
-              $(this).data('expanded', false);
-              $(this).closest('.talktext').find('.message-img').addClass('thumbnail-200');
-              $(this).closest('.talktext').find('.message-img').parent().css('width', '200px');
+              if (status == false) {
+                $(this).addClass('expanded');
+                $(this).html(message);
+                $(this).data('expanded', true);
+                // $(this).siblings('.thumbnail-wrapper').remove();
+                $(this).closest('.talktext').find('.message-img').removeClass('thumbnail-200');
+                $(this).closest('.talktext').find('.message-img').parent().css('width', 'auto');
+              } else {
+                $(this).removeClass('expanded');
+                $(this).html(short_message);
+                $(this).data('expanded', false);
+                $(this).closest('.talktext').find('.message-img').addClass('thumbnail-200');
+                $(this).closest('.talktext').find('.message-img').parent().css('width', '200px');
+              }
             }
-
           });
 
           $(document).ready(function() {

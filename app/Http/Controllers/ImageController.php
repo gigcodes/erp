@@ -12,6 +12,7 @@ use App\Setting;
 use App\Tag;
 use App\Category;
 use App\Brand;
+use Chumper\Zipper\Zipper;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -259,8 +260,11 @@ class ImageController extends Controller
 
       $images = $images->paginate(Setting::get('pagination'));
 
+      $image_sets = Images::whereNotNull('publish_date')->get()->groupBy('publish_date');
+
       return view('images.final')->with([
         'images'  => $images,
+        'image_sets'  => $image_sets,
         'brands'  => $brands,
         'category_selection'  => $category_selection,
         'brand'  => $brand,
@@ -430,6 +434,37 @@ class ImageController extends Controller
       }
 
       return redirect()->route('image.grid.edit', $image->id)->with('success', 'You have successfully updated image');
+    }
+
+    public function set(Request $request)
+    {
+      $this->validate($request, [
+        'image_id'      => 'required',
+        'publish_date'  => 'required'
+      ]);
+
+      foreach (json_decode($request->image_id) as $image_id) {
+        $image = Images::find($image_id);
+        $image->publish_date = $request->publish_date;
+        $image->save();
+      }
+
+      return redirect()->route('image.grid.final.approval')->with('success', 'You have successfully created a set');
+    }
+
+    public function setDownload(Request $request)
+    {
+      $images = Images::whereIn('id', json_decode($request->images))->get();
+
+      $images_array = [];
+      foreach ($images as $image) {
+        $path = public_path('uploads/social-media') . '/' . $image->filename;
+        array_push($images_array, $path);
+      }
+
+      \Zipper::make(public_path('images.zip'))->add($images_array)->close();
+
+      return response()->download(public_path('images.zip'))->deleteFileAfterSend();
     }
 
     public function approveImage(Request $request, $id)
