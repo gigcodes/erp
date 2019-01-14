@@ -401,20 +401,23 @@
                 </div>
 
                 <?php $images = $lead->getMedia(config('constants.media_tags')) ?>
-                @foreach ($images as $key => $image)
-                  <div class="old-image{{ $key }}" style="
-                       @if ($errors->has('image'))
-                          display: none;
-                       @endif
-                  ">
-                    <p>
-                      <img src="{{ $image->getUrl() }}" class="img-responsive" style="max-width: 200px;"  alt="">
-                      <button class="btn btn-image removeOldImage" data-id="{{ $key }}" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
+                <div class="row">
+                  @foreach ($images as $key => $image)
+                    <div class="col-md-4 old-image{{ $key }}" style="
+                         @if ($errors->has('image'))
+                            display: none;
+                         @endif
+                    ">
+                      <p>
+                        <img src="{{ $image->getUrl() }}" class="img-responsive" alt="">
+                        <button class="btn btn-image removeOldImage" data-id="{{ $key }}" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
 
-                      <input type="text" hidden name="oldImage[{{ $key }}]" value="{{ $images ? '0' : '-1' }}">
-                   </p>
+                        <input type="text" hidden name="oldImage[{{ $key }}]" value="{{ $images ? '0' : '-1' }}">
+                     </p>
+                  </div>
+                  @endforeach
                 </div>
-                @endforeach
+
 
                 @if (count($images) == 0)
                   <input type="text" hidden name="oldImage[0]" value="{{ $images ? '0' : '-1' }}">
