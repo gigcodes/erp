@@ -146,8 +146,11 @@ class UserController extends Controller
 
 
 		$input = $request->all();
-		if(isset($input['agent_role']))
+		if(isset($input['agent_role'])){
         $input['agent_role'] = implode(',', $input['agent_role']);
+    }else{
+    	$input['agent_role'] = '';
+    }
 //		$input['name'] = 'solo_admin';
 //		$input['email'] = 'admin@example.com';
 //		$input['password'] = 'admin@example.com';
