@@ -48,7 +48,7 @@
 
         @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
           <div class="form-group">
-            <strong>Phone:</strong> {{ $customer->phone }}
+            <strong>Phone:</strong> <span data-twilio-call data-context="leads" data-id="{{ $customer->id }}">{{ $customer->phone }}</span>
           </div>
 
           <div class="form-group">
