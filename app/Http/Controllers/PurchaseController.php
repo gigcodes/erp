@@ -15,6 +15,7 @@ use App\Reply;
 use App\Message;
 use App\Task;
 use App\ReadOnly\OrderStatus as OrderStatus;
+use App\ReadOnly\SupplierList;
 use App\ReadOnly\PurchaseStatus;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -105,19 +106,44 @@ class PurchaseController extends Controller
     public function purchaseGrid(Request $request)
     {
       if ($request->status[0] != null) {
-        $status = $request->status[0];
+        $status = $request->status;
 
   			$orders = OrderProduct::select('sku')->with('Order')->whereHas('Order', function($q) use ($status) {
-          $q->where('order_status', $status);
-        })->get()->toArray();
-  		} else {
-        $orders = OrderProduct::select('sku')->get()->toArray();
+          $q->whereIn('order_status', $status);
+        })->get();
+  		}
+
+      if ($request->supplier[0] != null) {
+        $supplier = $request->supplier[0];
+
+        if ($request->status[0] != null) {
+          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) use ($status) {
+            $q->whereIn('order_status', $status);
+          })->whereHas('Product', function($q) use ($supplier) {
+            $q->where('supplier', $supplier);
+          })->get();
+        } else {
+          $orders = OrderProduct::select('sku')->with('Product')->whereHas('Product', function($q) use ($supplier) {
+            $q->where('supplier', $supplier);
+          })->get();
+        }
       }
 
-      $products = Product::whereIn('sku', $orders);
+      if ($request->status[0] == null && $request->supplier[0] == null) {
+        $orders = OrderProduct::select('sku')->get();
+      }
+
+      $new_orders = [];
+      foreach ($orders as $order) {
+        array_push($new_orders, $order['sku']);
+      }
+
+      $products = Product::whereIn('sku', $new_orders);
       $term = $request->input('term');
       $status = isset($status) ? $status : '';
+      $supplier = isset($supplier) ? $supplier : '';
       $order_status = (new OrderStatus)->all();
+      $supplier_list = (new SupplierList)->all();
 
      if(!empty($term)){
 	    	$products = $products->where(function ($query) use ($term){
@@ -143,15 +169,17 @@ class PurchaseController extends Controller
       $perPage = Setting::get('pagination');
       $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
 
-      $leads_array = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
+      $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
         'path'  => LengthAwarePaginator::resolveCurrentPath()
       ]);
 
       return view('purchase.purchase-grid')->with([
-        'products'      => $leads_array,
+        'products'      => $new_products,
         'order_status'  => $order_status,
+        'supplier_list' => $supplier_list,
         'term'          => $term,
-        'status'        => $status
+        'status'        => $status,
+        'supplier'        => $supplier
       ]);
     }
 
