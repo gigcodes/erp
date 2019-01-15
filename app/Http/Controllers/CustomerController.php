@@ -230,7 +230,7 @@ class CustomerController extends Controller
       $this->validate($request, [
         'name'          => 'required|min:3|max:255',
         'email'         => 'required_without_all:phone,instahandler|nullable|email',
-        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers,id,' . $request->first_customer_id,
+        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $request->first_customer_id,
         'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
         'rating'        => 'required|numeric',
         'address'       => 'sometimes|nullable|min:3|max:255',
@@ -307,7 +307,7 @@ class CustomerController extends Controller
       $this->validate($request, [
         'name'          => 'required|min:3|max:255',
         'email'         => 'required_without_all:phone,instahandler|nullable|email',
-        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers|numeric',
+        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers',
         'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
         'rating'        => 'required|numeric',
         'address'       => 'sometimes|nullable|min:3|max:255',
@@ -422,7 +422,7 @@ class CustomerController extends Controller
       $this->validate($request, [
         'name'          => 'required|min:3|max:255',
         'email'         => 'required_without_all:phone,instahandler|nullable|email',
-        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|unique:customers,id,' . $id,
+        'phone'         => 'required_without_all:email,instahandler|nullable|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $id,
         'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
         'rating'        => 'required|numeric',
         'address'       => 'sometimes|nullable|min:3|max:255',
