@@ -73,7 +73,7 @@ class LeadsController extends Controller
       $rating = $request->input('rating');
 
       $type = false;
-	    $leads = ((new Leads())->newQuery());
+	    $leads = ((new Leads())->newQuery()->with('customer'));
 
       if ($request->type == 'multiple') {
         $type = true;
