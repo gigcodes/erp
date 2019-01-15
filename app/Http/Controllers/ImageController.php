@@ -313,6 +313,10 @@ class ImageController extends Controller
             $new_image->publish_date = $old_image->publish_date;
           }
 
+          if ($request->lifestyle == 1) {
+            $new_image->lifestyle = 1;
+          }
+
           $new_image->status = $request->status;
           $new_image->save();
 
@@ -473,6 +477,10 @@ class ImageController extends Controller
 
       $image->approved_user = Auth::id();
       $image->approved_date = Carbon::now();
+
+      if ($image->lifestyle == 1) {
+        $image->status = 2;
+      }
 
       $image->save();
 
