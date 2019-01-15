@@ -184,6 +184,9 @@
     $(document).ready(function() {
        $(".select-multiple").multiselect();
        $('#calendar').fullCalendar({
+         header: {
+           right: "month,agendaWeek,agendaDay, today prev,next",
+         },
           events: [
             @foreach ($image_sets as $time => $set)
               {
@@ -216,6 +219,13 @@
 
             jQuery.noConflict();
             $('#calendarModal').modal('toggle');
+          },
+          eventRender: function(event, eventElement) {
+            if (event.image_names) {
+              event.image_names.forEach(function(image) {
+                eventElement.find("div.fc-content").prepend("<img src='" + image.name +"' width='50' height='50'>");
+              });
+            }
           }
         });
     });
