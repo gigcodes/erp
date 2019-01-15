@@ -140,7 +140,7 @@
 		</div>
 
 		<div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
-			<button type="submit" class="btn btn-secondary">+</button>
+			<button type="submit" class="btn btn-secondary" id="submitButton">+</button>
 		</div>
 	</div>
 </form>
@@ -154,5 +154,20 @@
         });
 
 		</script> --}}
+		<script type="text/javascript">
+			$('#submitButton').on('click', function(e) {
+				e.preventDefault();
+
+				var phone = $('input[name="phone"]').val();
+
+				if (phone.length != 0) {
+					if (/^[91]{2}/.test(phone) != true) {
+						$('input[name="phone"]').val('91' + phone);
+					}
+				}
+
+				$(this).closest('form').submit();
+			});
+		</script>
 
 @endsection

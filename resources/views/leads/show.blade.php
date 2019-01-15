@@ -415,7 +415,7 @@
 
                     <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
                         <div class="form-group">
-                            <button type="submit" class="btn btn-secondary">Update</button>
+                            <button type="submit" class="btn btn-secondary" id="submitButton">Update</button>
                         </div>
                     </div>
 
@@ -2105,6 +2105,20 @@
         text: reply.reply
       }));
     });
+  });
+
+  $('#submitButton').on('click', function(e) {
+    e.preventDefault();
+
+    var phone = $('input[name="contactno"]').val();
+
+    if (phone.length != 0) {
+      if (/^[91]{2}/.test(phone) != true) {
+        $('input[name="contactno"]').val('91' + phone);
+      }
+    }
+
+    $(this).closest('form').submit();
   });
  </script>
 
