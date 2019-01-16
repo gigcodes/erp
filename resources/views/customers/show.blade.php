@@ -29,6 +29,9 @@
     <li class="active">
       <a href="#1" data-toggle="tab">Customer Info</a>
     </li>
+    <li>
+      <a href="#6" data-toggle="tab">Call Recording</a>
+    </li>
     @if (count($customer->leads) > 0)
     <li><a href="#2" data-toggle="tab">Leads</a></li>
     @endif
@@ -238,6 +241,32 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <div class="tab-pane mt-3" id="6">
+    <div class="row">
+      <h2> Call Recording </h2>
+      <table class="table table-bordered">
+        <tr>
+            <th style="width: 50%">Call Recording</th>
+            <th style="width: 50%">Call Time</th>
+        </tr>
+  @if (count($call_history) > 0)
+@foreach ($call_history as $history_val)
+
+        <tr class="">
+
+<td><audio src="{{$history_val['recording_url']}}" controls preload="metadata">
+  <p>Alas, your browser doesn't support html5 audio.</p>
+</audio> </td>
+<td>{{$history_val['created_at']}}</td>
+
+        </tr>
+
+         @endforeach
+  @endif
+    </table>
     </div>
   </div>
 
@@ -1002,6 +1031,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
     <script type="text/javascript">
+jQuery(document).ready(function( $ ) {
+  $('audio').on("play", function (me) {
+    $('audio').each(function (i,e) {
+      if (e !== me.currentTarget) {
+        this.pause();
+      }
+    });
+  });
+})
+
+
+
       $('#completion-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
       });
