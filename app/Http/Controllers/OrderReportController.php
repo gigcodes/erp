@@ -53,29 +53,29 @@ class OrderReportController extends Controller
       $report->save();
 
       $order = Order::find($report->order_id);
+      //
+      // if ($order->sales_person) {
+      //   NotificationQueueController::createNewNotification([
+    	// 		'type' => 'button',
+    	// 		'message' => $order->client_name . ' - ' . $report->status,
+    	// 		'timestamps' => ['+0 minutes'],
+    	// 		'model_type' => Order::class,
+    	// 		'model_id' =>  $report->order_id,
+    	// 		'user_id' => \Auth::id(),
+    	// 		'sent_to' => $order->sales_person,
+    	// 		'role' => '',
+    	// 	]);
+      // }
 
-      if ($order->sales_person) {
-        NotificationQueueController::createNewNotification([
-    			'type' => 'button',
-    			'message' => $order->client_name . ' - ' . $report->status,
-    			'timestamps' => ['+0 minutes'],
-    			'model_type' => Order::class,
-    			'model_id' =>  $report->order_id,
-    			'user_id' => \Auth::id(),
-    			'sent_to' => $order->sales_person,
-    			'role' => '',
-    		]);
-      }
-
-  		NotificationQueueController::createNewNotification([
-  			'message' => $order->client_name . ' - ' . $report->status,
-  			'timestamps' => ['+0 minutes'],
-  			'model_type' => Order::class,
-  			'model_id' =>  $report->order_id,
-  			'user_id' => \Auth::id(),
-  			'sent_to' => '',
-  			'role' => 'Admin',
-  		]);
+  		// NotificationQueueController::createNewNotification([
+  		// 	'message' => $order->client_name . ' - ' . $report->status,
+  		// 	'timestamps' => ['+0 minutes'],
+  		// 	'model_type' => Order::class,
+  		// 	'model_id' =>  $report->order_id,
+  		// 	'user_id' => \Auth::id(),
+  		// 	'sent_to' => '',
+  		// 	'role' => 'Admin',
+  		// ]);
 
       return redirect()->back()->with('message', 'Order action was created successfully');
     }

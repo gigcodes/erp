@@ -157,24 +157,24 @@ class TaskModuleController extends Controller {
 			if($data['is_statutory'] == 0) {
 				$task = Task::create( $data );
 
-				PushNotification::create( [
-					'type'       => 'button',
-					'message'    => 'Task Details: ' . $data['task_details'],
-					'model_type' => Task::class,
-					'model_id'   => $task->id,
-					'user_id'    => Auth::id(),
-					'sent_to'    => $assign_to,
-					'role'       => '',
-				] );
-
-				PushNotification::create( [
-					'message'    => 'Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($assign_to),
-					'model_type' => Task::class,
-					'model_id'   => $task->id,
-					'user_id'    => Auth::id(),
-					'sent_to'    => '',
-					'role'       => 'Admin',
-				] );
+				// PushNotification::create( [
+				// 	'type'       => 'button',
+				// 	'message'    => 'Task Details: ' . $data['task_details'],
+				// 	'model_type' => Task::class,
+				// 	'model_id'   => $task->id,
+				// 	'user_id'    => Auth::id(),
+				// 	'sent_to'    => $assign_to,
+				// 	'role'       => '',
+				// ] );
+				//
+				// PushNotification::create( [
+				// 	'message'    => 'Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($assign_to),
+				// 	'model_type' => Task::class,
+				// 	'model_id'   => $task->id,
+				// 	'user_id'    => Auth::id(),
+				// 	'sent_to'    => '',
+				// 	'role'       => 'Admin',
+				// ] );
 
 				// NotificationQueueController::createNewNotification( [
 				// 	'message'    => 'Reminder for Task : ' . $data['task_details'],
@@ -189,38 +189,38 @@ class TaskModuleController extends Controller {
 
 				// $diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
 
-				NotificationQueueController::createNewNotification( [
-					'message'    => 'Reminder for Task : ' . $data['task_details'],
-					// 'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
-					// 'reminder'	 => 1,
-					'timestamps' => ['+0 minutes'],
-					'model_type' => Task::class,
-					'model_id'   => $task->id,
-					'user_id'    => \Auth::id(),
-					'sent_to'    => $assign_to,
-					'role'       => '',
-				] );
+				// NotificationQueueController::createNewNotification( [
+				// 	'message'    => 'Reminder for Task : ' . $data['task_details'],
+				// 	// 'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
+				// 	// 'reminder'	 => 1,
+				// 	'timestamps' => ['+0 minutes'],
+				// 	'model_type' => Task::class,
+				// 	'model_id'   => $task->id,
+				// 	'user_id'    => \Auth::id(),
+				// 	'sent_to'    => $assign_to,
+				// 	'role'       => '',
+				// ] );
 			}
 			else {
 				$task = SatutoryTask::create($data);
 
-				PushNotification::create( [
-					'message'    => 'Recurring Task Assigned: ' . $data['task_details'],
-					'model_type' => Task::class,
-					'model_id'   => $task->id,
-					'user_id'    => Auth::id(),
-					'sent_to'    => $assign_to,
-					'role'       => '',
-				] );
-
-				PushNotification::create( [
-					'message'    => 'Recurring Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($assign_to),
-					'model_type' => Task::class,
-					'model_id'   => $task->id,
-					'user_id'    => Auth::id(),
-					'sent_to'    => '',
-					'role'       => 'Admin',
-				] );
+				// PushNotification::create( [
+				// 	'message'    => 'Recurring Task Assigned: ' . $data['task_details'],
+				// 	'model_type' => Task::class,
+				// 	'model_id'   => $task->id,
+				// 	'user_id'    => Auth::id(),
+				// 	'sent_to'    => $assign_to,
+				// 	'role'       => '',
+				// ] );
+				//
+				// PushNotification::create( [
+				// 	'message'    => 'Recurring Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($assign_to),
+				// 	'model_type' => Task::class,
+				// 	'model_id'   => $task->id,
+				// 	'user_id'    => Auth::id(),
+				// 	'sent_to'    => '',
+				// 	'role'       => 'Admin',
+				// ] );
 
 				// NotificationQueueController::createNewNotification( [
 				// 	'message'    => 'Reminder for Recurring Task : ' . $data['task_details'],
@@ -235,17 +235,17 @@ class TaskModuleController extends Controller {
 
 				// $diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
 
-				NotificationQueueController::createNewNotification( [
-					'message'    => 'Reminder for Task : ' . $data['task_details'],
-					// 'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
-					// 'reminder'	 => 1,
-					'timestamps' => ['+0 minutes'],
-					'model_type' => Task::class,
-					'model_id'   => $task->id,
-					'user_id'    => \Auth::id(),
-					'sent_to'    => $assign_to,
-					'role'       => '',
-				] );
+				// NotificationQueueController::createNewNotification( [
+				// 	'message'    => 'Reminder for Task : ' . $data['task_details'],
+				// 	// 'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
+				// 	// 'reminder'	 => 1,
+				// 	'timestamps' => ['+0 minutes'],
+				// 	'model_type' => Task::class,
+				// 	'model_id'   => $task->id,
+				// 	'user_id'    => \Auth::id(),
+				// 	'sent_to'    => $assign_to,
+				// 	'role'       => '',
+				// ] );
 			}
 		}
 
@@ -280,25 +280,25 @@ class TaskModuleController extends Controller {
 		else
 			$message = 'Recurring Task Completed: ' . $task->task_details;
 
-		PushNotification::create( [
-			'message'    => $message,
-			'model_type' => Task::class,
-			'model_id'   => $task->id,
-			'user_id'    => Auth::id(),
-			'sent_to'    => $task->assign_from,
-			'role'       => '',
-		] );
+		// PushNotification::create( [
+		// 	'message'    => $message,
+		// 	'model_type' => Task::class,
+		// 	'model_id'   => $task->id,
+		// 	'user_id'    => Auth::id(),
+		// 	'sent_to'    => $task->assign_from,
+		// 	'role'       => '',
+		// ] );
+		//
+		// PushNotification::create( [
+		// 	'message'    => $message,
+		// 	'model_type' => Task::class,
+		// 	'model_id'   => $task->id,
+		// 	'user_id'    => Auth::id(),
+		// 	'sent_to'    => '',
+		// 	'role'       => 'Admin',
+		// ] );
 
-		PushNotification::create( [
-			'message'    => $message,
-			'model_type' => Task::class,
-			'model_id'   => $task->id,
-			'user_id'    => Auth::id(),
-			'sent_to'    => '',
-			'role'       => 'Admin',
-		] );
-
-		$notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\Task')->delete();
+		// $notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\Task')->delete();
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task marked as completed.' );
@@ -316,16 +316,16 @@ class TaskModuleController extends Controller {
 
 		$message = 'Statutory Task Completed: ' . $task->task_details;
 
-		$notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\StatutoryTask')->delete();
+		// $notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\StatutoryTask')->delete();
 
-		PushNotification::create( [
-			'message'    => $message,
-			'model_type' => SatutoryTask::class,
-			'model_id'   => $task->id,
-			'user_id'    => Auth::id(),
-			'sent_to'    => $task->assign_from,
-			'role'       => '',
-		] );
+		// PushNotification::create( [
+		// 	'message'    => $message,
+		// 	'model_type' => SatutoryTask::class,
+		// 	'model_id'   => $task->id,
+		// 	'user_id'    => Auth::id(),
+		// 	'sent_to'    => $task->assign_from,
+		// 	'role'       => '',
+		// ] );
 
 		return redirect()->back()
 		                 ->with( 'success', 'Statutory Task marked as completed.' );
@@ -345,27 +345,27 @@ class TaskModuleController extends Controller {
 		]);
 		// $remark_entry = DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
 
-		if (is_null($request->module_type)) {
-			$task = Task::find($remark_entry->taskid);
-
-			PushNotification::create( [
-				'message'    => 'Remark added: ' . $remark,
-				'model_type' => Task::class,
-				'model_id'   => $task->id,
-				'user_id'    => Auth::id(),
-				'sent_to'    => $task->assign_from,
-				'role'       => '',
-			] );
-
-			PushNotification::create( [
-				'message'    => 'Remark added: ' . $remark,
-				'model_type' => Task::class,
-				'model_id'   => $task->id,
-				'user_id'    => Auth::id(),
-				'sent_to'    => '',
-				'role'       => 'Admin',
-			] );
-		}
+		// if (is_null($request->module_type)) {
+		// 	$task = Task::find($remark_entry->taskid);
+		//
+		// 	PushNotification::create( [
+		// 		'message'    => 'Remark added: ' . $remark,
+		// 		'model_type' => Task::class,
+		// 		'model_id'   => $task->id,
+		// 		'user_id'    => Auth::id(),
+		// 		'sent_to'    => $task->assign_from,
+		// 		'role'       => '',
+		// 	] );
+		//
+		// 	PushNotification::create( [
+		// 		'message'    => 'Remark added: ' . $remark,
+		// 		'model_type' => Task::class,
+		// 		'model_id'   => $task->id,
+		// 		'user_id'    => Auth::id(),
+		// 		'sent_to'    => '',
+		// 		'role'       => 'Admin',
+		// 	] );
+		// }
 
 
 		return response()->json(['remark' => $remark ],200);
@@ -519,14 +519,14 @@ class TaskModuleController extends Controller {
 		$statutory_task['statutory_id'] = $statutory_task['id'];
 		$task = Task::create( $statutory_task );
 
-		PushNotification::create([
-			'message'    => 'Recurring Task: ' . $statutory_task['task_details'],
-			'role'       => '',
-			'model_type' => Task::class,
-			'model_id'   => $task->id,
-			'user_id'    => Auth::id(),
-			'sent_to'    => $statutory_task['assign_to'],
-		]);
+		// PushNotification::create([
+		// 	'message'    => 'Recurring Task: ' . $statutory_task['task_details'],
+		// 	'role'       => '',
+		// 	'model_type' => Task::class,
+		// 	'model_id'   => $task->id,
+		// 	'user_id'    => Auth::id(),
+		// 	'sent_to'    => $statutory_task['assign_to'],
+		// ]);
 	}
 
 	public function getTaskRemark(Request $request){

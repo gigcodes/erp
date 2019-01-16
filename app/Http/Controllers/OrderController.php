@@ -495,27 +495,27 @@ class OrderController extends Controller {
 			}
 		}
 
-		NotificationQueueController::createNewNotification([
-			'type' => 'button',
-			'message' => $data['client_name'],
-			// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-			'timestamps' => ['+0 minutes'],
-			'model_type' => Order::class,
-			'model_id' =>  $order->id,
-			'user_id' => \Auth::id(),
-			'sent_to' => $request->input( 'sales_person' ),
-			'role' => '',
-		]);
-
-		NotificationQueueController::createNewNotification([
-			'message' => $data['client_name'],
-			'timestamps' => ['+0 minutes'],
-			'model_type' => Order::class,
-			'model_id' =>  $order->id,
-			'user_id' => \Auth::id(),
-			'sent_to' => '',
-			'role' => 'Admin',
-		]);
+		// NotificationQueueController::createNewNotification([
+		// 	'type' => 'button',
+		// 	'message' => $data['client_name'],
+		// 	// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+		// 	'timestamps' => ['+0 minutes'],
+		// 	'model_type' => Order::class,
+		// 	'model_id' =>  $order->id,
+		// 	'user_id' => \Auth::id(),
+		// 	'sent_to' => $request->input( 'sales_person' ),
+		// 	'role' => '',
+		// ]);
+		//
+		// NotificationQueueController::createNewNotification([
+		// 	'message' => $data['client_name'],
+		// 	'timestamps' => ['+0 minutes'],
+		// 	'model_type' => Order::class,
+		// 	'model_id' =>  $order->id,
+		// 	'user_id' => \Auth::id(),
+		// 	'sent_to' => '',
+		// 	'role' => 'Admin',
+		// ]);
 
 		if ($request->ajax()) {
 			return response('success');
@@ -599,20 +599,20 @@ class OrderController extends Controller {
 		}
 
 
-		if( $order->sales_person != $request->input('sales_person') ){
-
-			NotificationQueueController::createNewNotification([
-				'type' => 'button',
-				'message' => $order->client_name,
-				// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-				'timestamps' => ['+0 minutes'],
-				'model_type' => Order::class,
-				'model_id' =>  $order->id,
-				'user_id' => \Auth::id(),
-				'sent_to' => $request->input( 'sales_person' ),
-				'role' => '',
-			]);
-		}
+		// if( $order->sales_person != $request->input('sales_person') ){
+		//
+		// 	NotificationQueueController::createNewNotification([
+		// 		'type' => 'button',
+		// 		'message' => $order->client_name,
+		// 		// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+		// 		'timestamps' => ['+0 minutes'],
+		// 		'model_type' => Order::class,
+		// 		'model_id' =>  $order->id,
+		// 		'user_id' => \Auth::id(),
+		// 		'sent_to' => $request->input( 'sales_person' ),
+		// 		'role' => '',
+		// 	]);
+		// }
 
 		if(!empty($request->input('order_products'))) {
 

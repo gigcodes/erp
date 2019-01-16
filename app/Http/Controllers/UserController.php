@@ -76,7 +76,7 @@ class UserController extends Controller
 			'email' => 'required|email|unique:users,email',
 			'password' => 'required|same:confirm-password',
 			'roles' => 'required',
-			
+
 		]);
 
 
@@ -141,7 +141,7 @@ class UserController extends Controller
 			'email' => 'required|email|unique:users,email,'.$id,
 			'password' => 'same:confirm-password',
 			'roles' => 'required',
-		
+
 		]);
 
 
@@ -185,8 +185,8 @@ class UserController extends Controller
 	{
 		$user = User::find($id);
 
-		NotificationQueue::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
-		PushNotification::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
+		// NotificationQueue::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
+		// PushNotification::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
 
 		$user->delete();
 

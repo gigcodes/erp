@@ -125,25 +125,25 @@ class WhatsAppController extends FindByNumberController
             $model_id = $lead->id;
         }
 
-        NotificationQueueController::createNewNotification([
-          'message' => 'NWA - ' . $message->message,
-          'timestamps' => ['+0 minutes'],
-          'model_type' => $model_type,
-          'model_id' =>  $model_id,
-          'user_id' => '6',
-          'sent_to' => '',
-          'role' => 'message',
-        ]);
-
-        NotificationQueueController::createNewNotification([
-          'message' => 'NWA - ' . $message->message,
-          'timestamps' => ['+0 minutes'],
-          'model_type' => $model_type,
-          'model_id' =>  $model_id,
-          'user_id' => '6',
-          'sent_to' => '',
-          'role' => 'Admin',
-        ]);
+        // NotificationQueueController::createNewNotification([
+        //   'message' => 'NWA - ' . $message->message,
+        //   'timestamps' => ['+0 minutes'],
+        //   'model_type' => $model_type,
+        //   'model_id' =>  $model_id,
+        //   'user_id' => '6',
+        //   'sent_to' => '',
+        //   'role' => 'message',
+        // ]);
+        //
+        // NotificationQueueController::createNewNotification([
+        //   'message' => 'NWA - ' . $message->message,
+        //   'timestamps' => ['+0 minutes'],
+        //   'model_type' => $model_type,
+        //   'model_id' =>  $model_id,
+        //   'user_id' => '6',
+        //   'sent_to' => '',
+        //   'role' => 'Admin',
+        // ]);
 
         return response("");
     }
@@ -217,25 +217,25 @@ class WhatsAppController extends FindByNumberController
             $params['status'] = 1;
             $message = ChatMessage::create($params);
 
-            NotificationQueueController::createNewNotification([
-  		        'message' => 'WAA - ' . $message->message,
-  		        'timestamps' => ['+0 minutes'],
-  		        'model_type' => $model_type,
-  		        'model_id' =>  $model_id,
-  		        'user_id' => Auth::id(),
-  		        'sent_to' => '',
-  		        'role' => 'message',
-  	        ]);
-
-            NotificationQueueController::createNewNotification([
-      		    'message' => 'WAA - ' . $message->message,
-      		    'timestamps' => ['+0 minutes'],
-              'model_type' => $model_type,
-  		        'model_id' =>  $model_id,
-      		    'user_id' => Auth::id(),
-      		    'sent_to' => '',
-      		    'role' => 'Admin',
-      	    ]);
+            // NotificationQueueController::createNewNotification([
+  		      //   'message' => 'WAA - ' . $message->message,
+  		      //   'timestamps' => ['+0 minutes'],
+  		      //   'model_type' => $model_type,
+  		      //   'model_id' =>  $model_id,
+  		      //   'user_id' => Auth::id(),
+  		      //   'sent_to' => '',
+  		      //   'role' => 'message',
+  	        // ]);
+            //
+            // NotificationQueueController::createNewNotification([
+      		  //   'message' => 'WAA - ' . $message->message,
+      		  //   'timestamps' => ['+0 minutes'],
+            //   'model_type' => $model_type,
+  		      //   'model_id' =>  $model_id,
+      		  //   'user_id' => Auth::id(),
+      		  //   'sent_to' => '',
+      		  //   'role' => 'Admin',
+      	    // ]);
         } catch (\Exception $ex) {
             return response($ex->getMessage(), 500);
         }
@@ -268,25 +268,25 @@ class WhatsAppController extends FindByNumberController
 
             $message = ChatMessage::create($params);
 
-            NotificationQueueController::createNewNotification([
-              'message' => 'WAA - ' . $message->message,
-              'timestamps' => ['+0 minutes'],
-              'model_type' => $model_type,
-              'model_id' =>  $model_id,
-              'user_id' => Auth::id(),
-              'sent_to' => '',
-              'role' => 'message',
-            ]);
-
-            NotificationQueueController::createNewNotification([
-              'message' => 'WAA - ' . $message->message,
-              'timestamps' => ['+0 minutes'],
-             'model_type' => $model_type,
-              'model_id' =>  $model_id,
-              'user_id' => Auth::id(),
-              'sent_to' => '',
-              'role' => 'Admin',
-            ]);
+            // NotificationQueueController::createNewNotification([
+            //   'message' => 'WAA - ' . $message->message,
+            //   'timestamps' => ['+0 minutes'],
+            //   'model_type' => $model_type,
+            //   'model_id' =>  $model_id,
+            //   'user_id' => Auth::id(),
+            //   'sent_to' => '',
+            //   'role' => 'message',
+            // ]);
+            //
+            // NotificationQueueController::createNewNotification([
+            //   'message' => 'WAA - ' . $message->message,
+            //   'timestamps' => ['+0 minutes'],
+            //  'model_type' => $model_type,
+            //   'model_id' =>  $model_id,
+            //   'user_id' => Auth::id(),
+            //   'sent_to' => '',
+            //   'role' => 'Admin',
+            // ]);
            } catch (\Exception $ex) {
                return response($ex->getMessage(), 500);
            }
@@ -910,46 +910,46 @@ class WhatsAppController extends FindByNumberController
     {
         $message = ChatMessage::find($request->get('id'));
         $message->status = $request->get('status');
-        $moduleid = $request->get('moduleid');
-        $moduletype = $request->get('moduletype');
+        // $moduleid = $request->get('moduleid');
+        // $moduletype = $request->get('moduletype');
         $message->save();
 
-      if( $message->status == '5' ) {
-		    NotificationQueueController::createNewNotification( [
-			    'message'    => 'Message was read : ' . $message->message,
-			    'timestamps' => [ '+0 minutes' ],
-			    'model_type' => $moduletype,
-			    'model_id'   => $moduleid,
-			    'user_id'    => Auth::id(),
-			    'sent_to'    => '',
-			    'role'       => 'Admin',
-		    ] );
-	    }
+      // if( $message->status == '5' ) {
+		  //   NotificationQueueController::createNewNotification( [
+			//     'message'    => 'Message was read : ' . $message->message,
+			//     'timestamps' => [ '+0 minutes' ],
+			//     'model_type' => $moduletype,
+			//     'model_id'   => $moduleid,
+			//     'user_id'    => Auth::id(),
+			//     'sent_to'    => '',
+			//     'role'       => 'Admin',
+		  //   ] );
+	    // }
 
-      if( $message->status == '6' ) {
-        if ($notifications = PushNotification::where('model_id', $moduleid)->where('model_type', $moduletype)->get()) {
-          foreach ($notifications as $notification) {
-            $notification->isread = 1;
-            $notification->save();
-          }
-        }
-
-        if ($notifications_queue = NotificationQueue::where('model_id', $moduleid)->where('model_type', $moduletype)->get()) {
-          foreach ($notifications_queue as $notification) {
-            $notification->delete();
-          }
-        }
-
-		    NotificationQueueController::createNewNotification( [
-			    'message'    => 'Message Sent : ' . $message->message,
-			    'timestamps' => [ '+0 minutes' ],
-			    'model_type' => $moduletype,
-			    'model_id'   => $moduleid,
-			    'user_id'    => Auth::id(),
-			    'sent_to'    => '6',
-			    'role'       => 'Admin',
-		    ] );
-	    }
+      // if( $message->status == '6' ) {
+      //   if ($notifications = PushNotification::where('model_id', $moduleid)->where('model_type', $moduletype)->get()) {
+      //     foreach ($notifications as $notification) {
+      //       $notification->isread = 1;
+      //       $notification->save();
+      //     }
+      //   }
+      //
+      //   if ($notifications_queue = NotificationQueue::where('model_id', $moduleid)->where('model_type', $moduletype)->get()) {
+      //     foreach ($notifications_queue as $notification) {
+      //       $notification->delete();
+      //     }
+      //   }
+      //
+		  //   NotificationQueueController::createNewNotification( [
+			//     'message'    => 'Message Sent : ' . $message->message,
+			//     'timestamps' => [ '+0 minutes' ],
+			//     'model_type' => $moduletype,
+			//     'model_id'   => $moduleid,
+			//     'user_id'    => Auth::id(),
+			//     'sent_to'    => '6',
+			//     'role'       => 'Admin',
+		  //   ] );
+	    // }
 
 	    // return redirect('/'. $moduletype.'/'.$moduleid);
     }

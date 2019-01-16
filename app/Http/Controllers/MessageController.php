@@ -95,106 +95,106 @@ class MessageController extends Controller
               }
             }
 
-            if( $data['status'] == '1' ) {
-
-	            NotificationQueueController::createNewNotification( [
-		            'message'    => 'New : ' . $data['body'],
-		            'timestamps' => [ '+0 minutes'],
-		            'model_type' => $data['moduletype'],
-		            'model_id'   => $data['moduleid'],
-                'message_id' => $message->id,
-		            'user_id'    => \Auth::id(),
-		            'sent_to'    => '',
-		            'role'       => 'Admin',
-	            ] );
-
-              NotificationQueueController::createNewNotification( [
-		            'message'    => 'Reminder : ' . $data['body'],
-                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-		            'timestamps' => [ '+0 minutes'],
-                // 'reminder'   => 1,
-                'message_id' => $message->id,
-		            'model_type' => $data['moduletype'],
-		            'model_id'   => $data['moduleid'],
-		            'user_id'    => \Auth::id(),
-		            'sent_to'    => '',
-		            'role'       => 'Admin',
-	            ] );
-
-            }
-            else if($data['status'] == '0'){
-
-	            NotificationQueueController::createNewNotification( [
-		            'message'    => "Reply : " . $data['body'],
-		            'timestamps' => [ '+0 minutes' ],
-		            'model_type' => $data['moduletype'],
-                'message_id' => $message->id,
-		            'model_id'   => $data['moduleid'],
-		            'user_id'    => \Auth::id(),
-		            'sent_to'    => $data['assigned_user'],
-                'role'       => ''
-	            ] );
-
-              NotificationQueueController::createNewNotification( [
-		            'message'    => "Reply : " . $data['body'],
-		            'timestamps' => [ '+0 minutes' ],
-		            'model_type' => $data['moduletype'],
-		            'model_id'   => $data['moduleid'],
-                'message_id' => $message->id,
-		            'user_id'    => \Auth::id(),
-		            'sent_to'    => '',
-		            'role'       => 'Admin',
-	            ] );
-
-              NotificationQueueController::createNewNotification( [
-		            'message'    => 'Reminder to Reply : ' . $data['body'],
-                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-                'timestamps' => [ '+0 minutes'],
-                // 'reminder'   => 1,
-                'message_id' => $message->id,
-		            'model_type' => $data['moduletype'],
-		            'model_id'   => $data['moduleid'],
-		            'user_id'    => \Auth::id(),
-		            'sent_to'    => $data['assigned_user'],
-                'role'       => ''
-	            ] );
-
-              NotificationQueueController::createNewNotification( [
-		            'message'    => 'Reminder to Reply : ' . $data['body'],
-                // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-                'timestamps' => [ '+0 minutes'],
-                // 'reminder'   => 1,
-                'message_id' => $message->id,
-		            'model_type' => $data['moduletype'],
-		            'model_id'   => $data['moduleid'],
-		            'user_id'    => \Auth::id(),
-		            'sent_to'    => '',
-		            'role'       => 'Admin',
-	            ] );
-            } else if($data['status'] == '4'){
-
-	            NotificationQueueController::createNewNotification( [
-		            'message'    => 'New Instructions : ' . $data['body'],
-		            'timestamps' => [ '+0 minutes' ],
-		            'model_type' => $data['moduletype'],
-		            'model_id'   => $data['moduleid'],
-                'message_id' => $message->id,
-		            'user_id'    => \Auth::id(),
-		            'sent_to'    => $data['assigned_user'],
-                'role'       => ''
-	            ] );
-
-              NotificationQueueController::createNewNotification( [
-		            'message'    => 'New Instructions : ' . $data['body'],
-		            'timestamps' => [ '+0 minutes' ],
-		            'model_type' => $data['moduletype'],
-		            'model_id'   => $data['moduleid'],
-                'message_id' => $message->id,
-		            'user_id'    => \Auth::id(),
-		            'sent_to'    => '',
-                'role'       => 'Admin'
-	            ] );
-            }
+            // if( $data['status'] == '1' ) {
+            //
+	          //   NotificationQueueController::createNewNotification( [
+		        //     'message'    => 'New : ' . $data['body'],
+		        //     'timestamps' => [ '+0 minutes'],
+		        //     'model_type' => $data['moduletype'],
+		        //     'model_id'   => $data['moduleid'],
+            //     'message_id' => $message->id,
+		        //     'user_id'    => \Auth::id(),
+		        //     'sent_to'    => '',
+		        //     'role'       => 'Admin',
+	          //   ] );
+            //
+            //   NotificationQueueController::createNewNotification( [
+		        //     'message'    => 'Reminder : ' . $data['body'],
+            //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+		        //     'timestamps' => [ '+0 minutes'],
+            //     // 'reminder'   => 1,
+            //     'message_id' => $message->id,
+		        //     'model_type' => $data['moduletype'],
+		        //     'model_id'   => $data['moduleid'],
+		        //     'user_id'    => \Auth::id(),
+		        //     'sent_to'    => '',
+		        //     'role'       => 'Admin',
+	          //   ] );
+            //
+            // }
+            // else if($data['status'] == '0'){
+            //
+	          //   NotificationQueueController::createNewNotification( [
+		        //     'message'    => "Reply : " . $data['body'],
+		        //     'timestamps' => [ '+0 minutes' ],
+		        //     'model_type' => $data['moduletype'],
+            //     'message_id' => $message->id,
+		        //     'model_id'   => $data['moduleid'],
+		        //     'user_id'    => \Auth::id(),
+		        //     'sent_to'    => $data['assigned_user'],
+            //     'role'       => ''
+	          //   ] );
+            //
+            //   NotificationQueueController::createNewNotification( [
+		        //     'message'    => "Reply : " . $data['body'],
+		        //     'timestamps' => [ '+0 minutes' ],
+		        //     'model_type' => $data['moduletype'],
+		        //     'model_id'   => $data['moduleid'],
+            //     'message_id' => $message->id,
+		        //     'user_id'    => \Auth::id(),
+		        //     'sent_to'    => '',
+		        //     'role'       => 'Admin',
+	          //   ] );
+            //
+            //   NotificationQueueController::createNewNotification( [
+		        //     'message'    => 'Reminder to Reply : ' . $data['body'],
+            //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+            //     'timestamps' => [ '+0 minutes'],
+            //     // 'reminder'   => 1,
+            //     'message_id' => $message->id,
+		        //     'model_type' => $data['moduletype'],
+		        //     'model_id'   => $data['moduleid'],
+		        //     'user_id'    => \Auth::id(),
+		        //     'sent_to'    => $data['assigned_user'],
+            //     'role'       => ''
+	          //   ] );
+            //
+            //   NotificationQueueController::createNewNotification( [
+		        //     'message'    => 'Reminder to Reply : ' . $data['body'],
+            //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+            //     'timestamps' => [ '+0 minutes'],
+            //     // 'reminder'   => 1,
+            //     'message_id' => $message->id,
+		        //     'model_type' => $data['moduletype'],
+		        //     'model_id'   => $data['moduleid'],
+		        //     'user_id'    => \Auth::id(),
+		        //     'sent_to'    => '',
+		        //     'role'       => 'Admin',
+	          //   ] );
+            // } else if($data['status'] == '4'){
+            //
+	          //   NotificationQueueController::createNewNotification( [
+		        //     'message'    => 'New Instructions : ' . $data['body'],
+		        //     'timestamps' => [ '+0 minutes' ],
+		        //     'model_type' => $data['moduletype'],
+		        //     'model_id'   => $data['moduleid'],
+            //     'message_id' => $message->id,
+		        //     'user_id'    => \Auth::id(),
+		        //     'sent_to'    => $data['assigned_user'],
+            //     'role'       => ''
+	          //   ] );
+            //
+            //   NotificationQueueController::createNewNotification( [
+		        //     'message'    => 'New Instructions : ' . $data['body'],
+		        //     'timestamps' => [ '+0 minutes' ],
+		        //     'model_type' => $data['moduletype'],
+		        //     'model_id'   => $data['moduleid'],
+            //     'message_id' => $message->id,
+		        //     'user_id'    => \Auth::id(),
+		        //     'sent_to'    => '',
+            //     'role'       => 'Admin'
+	          //   ] );
+            // }
 
             if ($moduletype == 'product') {
               $moduletype = 'purchase/product';
@@ -272,125 +272,125 @@ class MessageController extends Controller
         $message->save();
 
 
-	    if( $message->status == '2' ) {
-        // $notification_queues = NotificationQueue::where('model_id', $message->moduleid)->where('model_type', $message->moduletype)->delete();
-        if ($notifications = PushNotification::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
-          foreach ($notifications as $notification) {
-            $notification->isread = 1;
-            $notification->save();
-          }
-        }
+	    // if( $message->status == '2' ) {
+      //   // $notification_queues = NotificationQueue::where('model_id', $message->moduleid)->where('model_type', $message->moduletype)->delete();
+      //   if ($notifications = PushNotification::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
+      //     foreach ($notifications as $notification) {
+      //       $notification->isread = 1;
+      //       $notification->save();
+      //     }
+      //   }
+      //
+      //   if ($notifications_queue = NotificationQueue::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
+      //     foreach ($notifications_queue as $notification) {
+      //       $notification->delete();
+      //     }
+      //   }
+      //
+		  //   // NotificationQueueController::createNewNotification( [
+			//   //   'message'    => 'Approved : ' . $message->body,
+			//   //   'timestamps' => [ '+0 minutes' ],
+      //   //   'message_id' => $message->id,
+			//   //   'model_type' => $message->moduletype,
+			//   //   'model_id'   => $message->moduleid,
+			//   //   'user_id'    => Auth::id(),
+			//   //   'sent_to'    => '',
+			//   //   'role'       => 'message',
+		  //   // ] );
+      //
+      //   // NotificationQueueController::createNewNotification( [
+			//   //   'message'    => 'Approved Reminder: ' . $message->body,
+			//   //   // 'timestamps' => [ '+0 minutes' ],
+      //   //   'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+      //   //   'reminder'   => 1,
+      //   //   'message_id' => $message->id,
+			//   //   'model_type' => $message->moduletype,
+			//   //   'model_id'   => $message->moduleid,
+			//   //   'user_id'    => Auth::id(),
+			//   //   'sent_to'    => '',
+			//   //   'role'       => 'message',
+		  //   // ] );
+      //
+      //   // NotificationQueueController::createNewNotification( [
+			//   //   'message'    => 'Approved : ' . $message->body,
+			//   //   'timestamps' => [ '+0 minutes' ],
+      //   //   // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+      //   //   // 'reminder'   => 1,
+      //   //   'message_id' => $message->id,
+			//   //   'model_type' => $message->moduletype,
+			//   //   'model_id'   => $message->moduleid,
+			//   //   'user_id'    => Auth::id(),
+			//   //   'sent_to'    => $message->userid,
+			//   //   'role'       => '',
+		  //   // ] );
+	    // }
 
-        if ($notifications_queue = NotificationQueue::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
-          foreach ($notifications_queue as $notification) {
-            $notification->delete();
-          }
-        }
+      // if( $message->status == '3' ) {
+      //   // $notification_queues = NotificationQueue::where('model_id', $message->moduleid)->where('model_type', $message->moduletype)->delete();
+      //   if ($notifications = PushNotification::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
+      //     foreach ($notifications as $notification) {
+      //       $notification->isread = 1;
+      //       $notification->save();
+      //     }
+      //   }
+      //
+      //   if ($notifications_queue = NotificationQueue::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
+      //     foreach ($notifications_queue as $notification) {
+      //       $notification->delete();
+      //     }
+      //   }
+      //
+		  //   // NotificationQueueController::createNewNotification( [
+			//   //   'message'    => 'Message Sent : ' . $message->body,
+			//   //   'timestamps' => [ '+0 minutes' ],
+			//   //   'model_type' => $message->moduletype,
+			//   //   'model_id'   => $message->moduleid,
+      //   //   'message_id' => $message->id,
+			//   //   'user_id'    => Auth::id(),
+			//   //   'sent_to'    => $message->userid,
+			//   //   'role'       => 'Admin',
+		  //   // ] );
+	    // }
 
-		    NotificationQueueController::createNewNotification( [
-			    'message'    => 'Approved : ' . $message->body,
-			    'timestamps' => [ '+0 minutes' ],
-          'message_id' => $message->id,
-			    'model_type' => $message->moduletype,
-			    'model_id'   => $message->moduleid,
-			    'user_id'    => Auth::id(),
-			    'sent_to'    => '',
-			    'role'       => 'message',
-		    ] );
+      // if( $message->status == '5' ) {
+		  //   NotificationQueueController::createNewNotification( [
+			//     'message'    => 'Message was read : ' . $message->body,
+			//     'timestamps' => [ '+0 minutes' ],
+			//     'model_type' => $message->moduletype,
+			//     'model_id'   => $message->moduleid,
+      //     'message_id' => $message->id,
+			//     'user_id'    => Auth::id(),
+			//     'sent_to'    => '',
+			//     'role'       => 'Admin',
+		  //   ] );
+	    // }
 
-        // NotificationQueueController::createNewNotification( [
-			  //   'message'    => 'Approved Reminder: ' . $message->body,
-			  //   // 'timestamps' => [ '+0 minutes' ],
-        //   'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-        //   'reminder'   => 1,
-        //   'message_id' => $message->id,
-			  //   'model_type' => $message->moduletype,
-			  //   'model_id'   => $message->moduleid,
-			  //   'user_id'    => Auth::id(),
-			  //   'sent_to'    => '',
-			  //   'role'       => 'message',
-		    // ] );
-
-        NotificationQueueController::createNewNotification( [
-			    'message'    => 'Approved : ' . $message->body,
-			    'timestamps' => [ '+0 minutes' ],
-          // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-          // 'reminder'   => 1,
-          'message_id' => $message->id,
-			    'model_type' => $message->moduletype,
-			    'model_id'   => $message->moduleid,
-			    'user_id'    => Auth::id(),
-			    'sent_to'    => $message->userid,
-			    'role'       => '',
-		    ] );
-	    }
-
-      if( $message->status == '3' ) {
-        // $notification_queues = NotificationQueue::where('model_id', $message->moduleid)->where('model_type', $message->moduletype)->delete();
-        if ($notifications = PushNotification::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
-          foreach ($notifications as $notification) {
-            $notification->isread = 1;
-            $notification->save();
-          }
-        }
-
-        if ($notifications_queue = NotificationQueue::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
-          foreach ($notifications_queue as $notification) {
-            $notification->delete();
-          }
-        }
-
-		    NotificationQueueController::createNewNotification( [
-			    'message'    => 'Message Sent : ' . $message->body,
-			    'timestamps' => [ '+0 minutes' ],
-			    'model_type' => $message->moduletype,
-			    'model_id'   => $message->moduleid,
-          'message_id' => $message->id,
-			    'user_id'    => Auth::id(),
-			    'sent_to'    => $message->userid,
-			    'role'       => 'Admin',
-		    ] );
-	    }
-
-      if( $message->status == '5' ) {
-		    NotificationQueueController::createNewNotification( [
-			    'message'    => 'Message was read : ' . $message->body,
-			    'timestamps' => [ '+0 minutes' ],
-			    'model_type' => $message->moduletype,
-			    'model_id'   => $message->moduleid,
-          'message_id' => $message->id,
-			    'user_id'    => Auth::id(),
-			    'sent_to'    => '',
-			    'role'       => 'Admin',
-		    ] );
-	    }
-
-      if( $message->status == '6' ) {
-        // $notification_queues = NotificationQueue::where('model_id', $message->moduleid)->where('model_type', $message->moduletype)->delete();
-        if ($notifications = PushNotification::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
-          foreach ($notifications as $notification) {
-            $notification->isread = 1;
-            $notification->save();
-          }
-        }
-
-        if ($notifications_queue = NotificationQueue::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
-          foreach ($notifications_queue as $notification) {
-            $notification->delete();
-          }
-        }
-
-		    NotificationQueueController::createNewNotification( [
-			    'message'    => 'Message Sent : ' . $message->body,
-			    'timestamps' => [ '+0 minutes' ],
-			    'model_type' => $message->moduletype,
-			    'model_id'   => $message->moduleid,
-          'message_id' => $message->id,
-			    'user_id'    => Auth::id(),
-			    'sent_to'    => $message->userid,
-			    'role'       => 'Admin',
-		    ] );
-	    }
+      // if( $message->status == '6' ) {
+      //   // $notification_queues = NotificationQueue::where('model_id', $message->moduleid)->where('model_type', $message->moduletype)->delete();
+      //   if ($notifications = PushNotification::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
+      //     foreach ($notifications as $notification) {
+      //       $notification->isread = 1;
+      //       $notification->save();
+      //     }
+      //   }
+      //
+      //   if ($notifications_queue = NotificationQueue::where('message_id', $message->id)->where('model_type', $message->moduletype)->get()) {
+      //     foreach ($notifications_queue as $notification) {
+      //       $notification->delete();
+      //     }
+      //   }
+      //
+		  //   NotificationQueueController::createNewNotification( [
+			//     'message'    => 'Message Sent : ' . $message->body,
+			//     'timestamps' => [ '+0 minutes' ],
+			//     'model_type' => $message->moduletype,
+			//     'model_id'   => $message->moduleid,
+      //     'message_id' => $message->id,
+			//     'user_id'    => Auth::id(),
+			//     'sent_to'    => $message->userid,
+			//     'role'       => 'Admin',
+		  //   ] );
+	    // }
 
 	    // return redirect('/'. $moduletype.'/'.$moduleid);
     }

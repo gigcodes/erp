@@ -112,26 +112,26 @@ class SaleController extends Controller {
 		}
 
 		//To all sales persons
-		NotificationQueueController::createNewNotification([
-			'message' => $request->input( 'description' ),
-			'timestamps' => ['+0 minutes'],
-			'model_type' => Sale::class,
-			'model_id' =>  $sale_id,
-			'user_id' => Auth::id(),
-			'sent_to' => '',
-			'role' => 'Sales',
-		]);
+		// NotificationQueueController::createNewNotification([
+		// 	'message' => $request->input( 'description' ),
+		// 	'timestamps' => ['+0 minutes'],
+		// 	'model_type' => Sale::class,
+		// 	'model_id' =>  $sale_id,
+		// 	'user_id' => Auth::id(),
+		// 	'sent_to' => '',
+		// 	'role' => 'Sales',
+		// ]);
 
-		NotificationQueueController::createNewNotification([
-			'message' => $request->input( 'description' ),
-			// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-			'timestamps' => ['+0 minutes'],
-			'model_type' => Sale::class,
-			'model_id' =>  $sale_id,
-			'user_id' => Auth::id(),
-			'sent_to' => $request->input( 'allocated_to' ),
-			'role' => '',
-		]);
+		// NotificationQueueController::createNewNotification([
+		// 	'message' => $request->input( 'description' ),
+		// 	// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+		// 	'timestamps' => ['+0 minutes'],
+		// 	'model_type' => Sale::class,
+		// 	'model_id' =>  $sale_id,
+		// 	'user_id' => Auth::id(),
+		// 	'sent_to' => $request->input( 'allocated_to' ),
+		// 	'role' => '',
+		// ]);
 
 		// NotificationQueueController::createNewNotification([
 		// 	'message' => $request->input( 'description' ),
@@ -195,29 +195,29 @@ class SaleController extends Controller {
 		] );
 
 
-		if ( $request->input( 'allocated_to' ) != $sale->allocated_to ) {
-
-			NotificationQueueController::createNewNotification([
-				'message' => $request->input( 'description' ),
-				// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-				'timestamps' => ['+0 minutes'],
-				'model_type' => Sale::class,
-				'model_id' =>   $sale->id,
-				'user_id' => Auth::id(),
-				'sent_to' => $request->input( 'allocated_to' ),
-				'role' => '',
-			]);
-
-			// NotificationQueueController::createNewNotification([
-			// 	'message' => $request->input( 'description' ),
-			// 	'timestamps' => ['+45 minutes'],
-			// 	'model_type' => Sale::class,
-			// 	'model_id' =>   $sale->id,
-			// 	'user_id' => Auth::id(),
-			// 	'sent_to' => Auth::id(),
-			// 	'role' => '',
-			// ]);
-		}
+		// if ( $request->input( 'allocated_to' ) != $sale->allocated_to ) {
+		//
+		// 	NotificationQueueController::createNewNotification([
+		// 		'message' => $request->input( 'description' ),
+		// 		// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+		// 		'timestamps' => ['+0 minutes'],
+		// 		'model_type' => Sale::class,
+		// 		'model_id' =>   $sale->id,
+		// 		'user_id' => Auth::id(),
+		// 		'sent_to' => $request->input( 'allocated_to' ),
+		// 		'role' => '',
+		// 	]);
+		//
+		// 	// NotificationQueueController::createNewNotification([
+		// 	// 	'message' => $request->input( 'description' ),
+		// 	// 	'timestamps' => ['+45 minutes'],
+		// 	// 	'model_type' => Sale::class,
+		// 	// 	'model_id' =>   $sale->id,
+		// 	// 	'user_id' => Auth::id(),
+		// 	// 	'sent_to' => Auth::id(),
+		// 	// 	'role' => '',
+		// 	// ]);
+		// }
 
 		ActivityConroller::create( $sale->id, 'sales', 'update' );
 		NotificaitonContoller::store( 'Sale Updated', '', '', $sale->id, $sale->author_id );

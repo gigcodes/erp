@@ -29,31 +29,6 @@ class CustomerController extends Controller
       $term = $request->input('term');
       $customers = (new Customer())->newQuery();
 
-      // $customers = Customer::all();
-      // foreach($customers as $customer) {
-      //   if ($customer->leads) {
-      //     foreach($customer->leads as $lead) {
-      //       if ($lead->whatsapp_number) {
-      //         $customer->whatsapp_number = $lead->whatsapp_number;
-      //         $customer->save();
-      //       }
-      //
-      //     }
-      //   }
-      //
-      //   if ($customer->orders) {
-      //     foreach($customer->orders as $order) {
-      //       if ($order->whatsapp_number) {
-      //         $customer->whatsapp_number = $order->whatsapp_number;
-      //         $customer->save();
-      //       }
-      //
-      //     }
-      //   }
-      // }
-      //
-      // dd('ole');
-
       if($request->input('orderby') == '')
   				$orderby = 'asc';
   		else
@@ -124,77 +99,6 @@ class CustomerController extends Controller
   				}));
   			}
   		}
-      // $leads = Leads::whereNotNull('contactno')->get()->groupBy('contactno');
-      //
-      // foreach ($leads as $number => $lead) {
-      //   if ($customer = Customer::where('phone', $number)->first()) {
-      //     foreach ($lead as $key => $item) {
-      //       if ($item->address) {
-      //         $customer->address = $item->address;
-      //       }
-      //
-      //       if ($item->city) {
-      //         $customer->city = $item->city;
-      //       }
-      //
-      //       if ($item->rating) {
-      //         $customer->rating = $item->rating;
-      //       }
-      //
-      //       $customer->save();
-      //     }
-      //   }
-      //
-      // }
-      //
-      // $orders = Order::whereNotNull('contact_detail')->get()->groupBy('contact_detail');
-      //
-      // foreach ($orders as $number => $order) {
-      //   if ($customer = Customer::where('phone', $number)->first()) {
-      //     foreach ($order as $item) {
-      //       if ($item->city) {
-      //         $customer->city = $item->city;
-      //       }
-      //
-      //       $customer->save();
-      //     }
-      //   }
-      // }
-
-      // $chat_messages_leads = Message::where('moduletype', 'leads')->get();
-      // $chat_messages_orders = Message::where('moduletype', 'order')->get();
-      //
-      // foreach ($chat_messages_leads as $chat) {
-      //   $lead = Leads::withTrashed()->whereNotNull('contactno')->where('id', $chat->moduleid)->first();
-      //   if ($lead) {
-      //     if ($customer = Customer::where('phone', $lead->contactno)->first()) {
-      //       $chat->customer_id = $customer->id;
-      //       $chat->save();
-      //     } else {
-      //       // dd($lead->contactno, 'no lead customer');
-      //     }
-      //
-      //
-      //   } else {
-      //     // dd('no lead');
-      //   }
-      // }
-      //
-      // foreach ($chat_messages_orders as $chat) {
-      //   $order = Order::withTrashed()->whereNotNull('contact_detail')->where('id', $chat->moduleid)->first();
-      //   if ($order) {
-      //     if ($customer = Customer::where('phone', $order->contact_detail)->first()) {
-      //       $chat->customer_id = $customer->id;
-      //       $chat->save();
-      //     } else {
-      //       // dd($order->contact_detail, 'no order customer');
-      //     }
-      //
-      //
-      //   } else {
-      //     // dd('no lead');
-      //   }
-      // }
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = Setting::get('pagination');
@@ -342,45 +246,11 @@ class CustomerController extends Controller
     {
       $customer = Customer::find($id);
       $customers = Customer::all();
-
-      // $leads = Leads::find($id);
       $status = (New status)->all();
-      // $data = $status->all();
-      // $sales_persons = Helpers::getUsersArrayByRole( 'Sales' );
-      // $leads['statusid'] = $data;
       $users = User::all()->toArray();
       $users_array = Helpers::getUserArray(User::all());
-      // $leads['users']  = $users;
       $brands = Brand::all()->toArray();
-      // $approval_replies = Reply::where('model', 'Approval Lead')->get();
-      // $internal_replies = Reply::where('model', 'Internal Lead')->get();
       $reply_categories = ReplyCategory::all();
-      // $leads['brands']  = $brands;
-      // $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
-      // $leads['products_array'] = [];
-      // $leads['recordings'] = CallRecording::where('lead_id', $leads->id)->get()->toArray();
-      // $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->get()->toArray();
-      // $approval_replies = Reply::where('model', 'Approval Lead')->get();
-      // $internal_replies = Reply::where('model', 'Internal Lead')->get();
-
-    // $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
-
-    // $leads['remark'] = $leads->remark;
-
-      // $messages = Message::all()->where('moduleid','=', $leads['id'])->where('moduletype','=', 'leads')->sortByDesc("created_at")->take(10)->toArray();
-      // $leads['messages'] = $messages;
-
-      // if ( ! empty( $leads['selected_products_array']  ) ) {
-      //     foreach ( $leads['selected_products_array']  as $product_id ) {
-      //         $skuOrName                             = $this->getProductNameSkuById( $product_id );
-      //
-      //        $data['products_array'][$product_id] = $skuOrName;
-      //     }
-      // }
-
-      // $users_array = Helpers::getUserArray(User::all());
-
-      // $selected_categories = $leads['multi_category'];
 
       return view('customers.show', [
         'customers'  => $customers,
