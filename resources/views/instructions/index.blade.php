@@ -44,7 +44,7 @@
             </tr>
             @foreach ($instructions as $instruction)
                 <tr>
-                  <td>{{ $instruction->customer->name }}</td>
+                  <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ $instruction->customer->name }}</a></td>
                   <td>
                     <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
                   </td>
@@ -89,7 +89,7 @@
               </tr>
               @foreach ($completed_instructions as $instruction)
                   <tr>
-                    <td>{{ $instruction->customer->name }}</td>
+                    <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ $instruction->customer->name }}</a></td>
                     <td>
                       <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
                     </td>
