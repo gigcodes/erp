@@ -2,16 +2,15 @@
 
 namespace App\Services\Instagram;
 
-class Instagram {
+use Facebook\Facebook;
 
-    private $clientId;
-    private $clientSecret;
+class Instagram {
+    private $facebook;
     private $url = 'https://graph.facebook.com/';
 
-    public function __construct()
+    public function __construct(Facebook $facebook)
     {
-        $this->clientId = '88787edabc0349a993e596b71415866f';
-        $this->clientSecret = '415d22dab3c54502b843bb8218eab4e6';
+        $this->facebook = $facebook;
     }
 
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Services\Instagram\Instagram;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\View;
 
 class InstagramController extends Controller
 {
@@ -29,6 +28,19 @@ class InstagramController extends Controller
     public function showPosts() {
         $posts = $this->instagram->getMedia();
 
-        return view('instagram.index');
+        return view('instagram.index', compact(
+            'posts'
+        ));
+    }
+
+    /**
+     * @param Request $request
+     * This method will store photo to
+     * Instagram Business account
+     */
+    public function store(Request $request) {
+        $this->validate($request, [
+           'image' => 'required|image'
+        ]);
     }
 }
