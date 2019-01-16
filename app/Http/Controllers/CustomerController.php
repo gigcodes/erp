@@ -14,6 +14,7 @@ use App\ChatMessage;
 use App\Message;
 use App\Helpers;
 use App\Reply;
+use App\CallRecording;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
@@ -240,6 +241,18 @@ class CustomerController extends Controller
     {
       $customer = Customer::find($id);
 
+      if($customer->phone != ''){
+        $phone_number = str_replace('+', '', $customer->phone);
+        if (strlen($phone_number) > 10) {
+         $customer_number = str_replace('91', '', $phone_number);
+        }else{
+          $customer_number = $phone_number;
+        }
+ 
+     $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->get()->toArray();
+      }
+
+
       // $leads = Leads::find($id);
       $status = (New status)->all();
       // $data = $status->all();
@@ -286,6 +299,7 @@ class CustomerController extends Controller
         'users_array'     => $users_array,
         'approval_replies'     => $approval_replies,
         'internal_replies'     => $internal_replies,
+        'call_history' =>  $call_history
       ]);
     }
 
