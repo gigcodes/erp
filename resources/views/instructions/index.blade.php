@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section("styles")
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+@endsection
+
 @section('content')
 
     <div class="row">
@@ -13,6 +17,27 @@
             </div> --}}
         </div>
     </div>
+
+    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+      <div class="row mb-3">
+        <div class="col-md-10 col-sm-12">
+          <form action="{{ route('instruction.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
+            <div class="row full-width" style="width: 100%;">
+              <div class="col-md-4 col-sm-12">
+                <div class="form-group mr-3">
+                  <select class="form-control select-multiple" name="user[]" multiple>
+                    @foreach ($users_array as $index => $name)
+                      <option value="{{ $index }}" {{ isset($user) && in_array($index, $user) ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    @endif
 
     @if ($message = Session::get('success'))
         <div class="alert alert-success">
@@ -37,6 +62,7 @@
             <tr>
               <th>Client Name</th>
               <th>Number</th>
+              <th>Assigned to</th>
               <th>Instructions</th>
               <th colspan="2" class="text-center">Action</th>
               <th>Created at</th>
@@ -48,6 +74,7 @@
                   <td>
                     <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
                   </td>
+                  <td>{{ $users_array[$instruction->assigned_to] }}</td>
                   <td>{{ $instruction->instruction }}</td>
                   <td>
                     @if ($instruction->completed_at)
@@ -82,6 +109,7 @@
               <tr>
                 <th>Client Name</th>
                 <th>Number</th>
+                <th>Assigned to</th>
                 <th>Instructions</th>
                 <th colspan="2" class="text-center">Action</th>
                 <th>Created at</th>
@@ -93,6 +121,7 @@
                     <td>
                       <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
                     </td>
+                    <td>{{ $users_array[$instruction->assigned_to] }}</td>
                     <td>{{ $instruction->instruction }}</td>
                     <td>
                       @if ($instruction->completed_at)
@@ -123,7 +152,12 @@
 
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">
+      $(document).ready(function() {
+         $(".select-multiple").multiselect();
+      });
+
       $(document).on('click', '.complete-call', function(e) {
         e.preventDefault();
 

@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Instruction;
 use App\Setting;
+use App\Helpers;
+use App\User;
 use Carbon\Carbon;
+use Auth;
 
 class InstructionController extends Controller
 {
@@ -14,14 +17,29 @@ class InstructionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-      $instructions = Instruction::whereNull('completed_at')->latest()->paginate(Setting::get('pagination'));
-      $completed_instructions = Instruction::whereNotNull('completed_at')->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+      if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
+        if ($request->user[0] != null) {
+          $instructions = Instruction::whereNull('completed_at')->whereIn('assigned_to', $request->user)->latest()->paginate(Setting::get('pagination'));
+          $completed_instructions = Instruction::whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        } else {
+          $instructions = Instruction::whereNull('completed_at')->latest()->paginate(Setting::get('pagination'));
+          $completed_instructions = Instruction::whereNotNull('completed_at')->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        }
+      } else {
+        $instructions = Instruction::whereNull('completed_at')->where('assigned_to', Auth::id())->latest()->paginate(Setting::get('pagination'));
+        $completed_instructions = Instruction::whereNotNull('completed_at')->where('assigned_to', Auth::id())->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+      }
+
+      $users_array = Helpers::getUserArray(User::all());
+      $user = $request->user ? $request->user : [];
 
       return view('instructions.index')->with([
         'instructions'            => $instructions,
-        'completed_instructions'  => $completed_instructions
+        'completed_instructions'  => $completed_instructions,
+        'users_array'             => $users_array,
+        'user'                    => $user
       ]);
     }
 
@@ -45,12 +63,15 @@ class InstructionController extends Controller
     {
       $this->validate($request, [
         'instruction' => 'required|min:3',
-        'customer_id' => 'required|numeric'
+        'customer_id' => 'required|numeric',
+        'assigned_to' => 'required|numeric'
       ]);
 
       $instruction = new Instruction;
       $instruction->instruction = $request->instruction;
       $instruction->customer_id = $request->customer_id;
+      $instruction->assigned_from = Auth::id();
+      $instruction->assigned_to = $request->assigned_to;
 
       $instruction->save();
 

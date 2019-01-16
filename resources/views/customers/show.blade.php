@@ -119,6 +119,18 @@
                         <div class="alert alert-danger">{{$errors->first('instruction')}}</div>
                     @endif
                   </div>
+
+                  <div class="form-group">
+                    <strong>Assign to:</strong>
+                    <select class="form-control" name="assigned_to" required>
+                      @foreach ($users_array as $index => $user)
+                        <option value="{{ $index }}">{{ $user }}</option>
+                      @endforeach
+                    </select>
+                    @if ($errors->has('assigned_to'))
+                        <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
+                    @endif
+                  </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -145,6 +157,7 @@
                 <table class="table table-bordered">
                 <tr>
                   <th>Number</th>
+                  <th>Assigned to</th>
                   <th>Instructions</th>
                   <th colspan="2" class="text-center">Action</th>
                   <th>Created at</th>
@@ -154,6 +167,7 @@
                       <td>
                         <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
+                      <td>{{ $users_array[$instruction->assigned_to] }}</td>
                       <td>{{ $instruction->instruction }}</td>
                       <td>
                         @if ($instruction->completed_at)
@@ -185,6 +199,7 @@
                 <table class="table table-bordered">
                 <tr>
                   <th>Number</th>
+                  <th>Assigned to</th>
                   <th>Instructions</th>
                   <th colspan="2" class="text-center">Action</th>
                   <th>Created at</th>
@@ -194,6 +209,7 @@
                       <td>
                         <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
+                      <td>{{ $users_array[$instruction->assigned_to] }}</td>
                       <td>{{ $instruction->instruction }}</td>
                       <td>
                         @if ($instruction->completed_at)
