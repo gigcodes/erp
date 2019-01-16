@@ -24,7 +24,7 @@ class SocialController extends Controller
 
         // These are for testing purpose...
 //        $this->user_access_token="EAAD7Te0j0B8BAFRNcoNM6Ofde6tFe6nkmy1Ak4CBhKi2uKO74VBIhZAieyRlGTyRNMcghZB4ado2JOXQZChsdZCTjopbQ633mwaDJuROXI3cXchrPU1PM2FLzHJL0FyGfA01S6P4ZB5FQ8F0WwgtNeIJfSJHu3vOZC5JYCd2ZCYgzN2raWhA0yZBPpd8pb6mgdsZD";
-//        $this->page_access_token="EAAD7Te0j0B8BALZBZAPZBvlnxK5E6zA5p8zXfsO39rZAdjk9jY6YSFdxZBUi2Xe1A6gkdkGB7RyL9P8xJ6n192Lv9esvjbTq2E6g0k7aiySH9HLz5dRjRM2dMx6ZBN4KXIHEUOWpomcYmAG99MgWeV9It54CNb1TIbB1cuEBfGyrzW4CJnZClwbWNMlTxnbjPbZAfNeKGPB2EwZDZD";
+//        $this->page_access_token="EAAD7Te0j0B8BAA0ZBiD9sfgM99a8AZBIUAN3Fj6cDZBu0yMCo053vnYCOJCuBPUpCHifc3djjMXFsPdYFfV60WEvRsWc5ZClbzuhZBYhu25KVcZBS1SiY9XJnQ8ObZCKiMiWFdZCa9F4fRMTvpNjZAuYOuXzzZAQpSFp9HB1wfZAWII2PjeDBDe3Na2";
 
 		
 		
