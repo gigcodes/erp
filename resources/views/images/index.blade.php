@@ -65,6 +65,19 @@
                    @endif
               </div>
 
+              <div class="form-check">
+                <input class="" type="radio" name="lifestyle" id="exampleRadios1" value="0" checked>
+                <label class="form-check-label" for="exampleRadios1">
+                  Default
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input class="" type="radio" name="lifestyle" id="exampleRadios2" value="1">
+                <label class="form-check-label" for="exampleRadios2">
+                  Lifestyle
+                </label>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -22,7 +22,17 @@
             </div>
 
             <div class="form-group mr-3">
-              {!! Form::select('status[]', $order_status, (isset($status) ? $status : ''), ['placeholder' => 'Select an Order Status','class' => 'form-control select-multiple']) !!}
+              <select class="form-control select-multiple" name="status[]" multiple>
+                <optgroup label="Order Status">
+                  @foreach ($order_status as $key => $name)
+                    <option value="{{ $key }}" {{ !empty($status) && in_array($key, $status) ? 'selected' : '' }}>{{ $name }}</option>
+                  @endforeach
+              </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group mr-3">
+              {!! Form::select('supplier[]', $supplier_list, (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
             </div>
 
             <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>

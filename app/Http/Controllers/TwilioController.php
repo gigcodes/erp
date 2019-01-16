@@ -56,6 +56,8 @@ class TwilioController extends FindByNumberController
     {
        $number = $request->get("From");
         //$number = '919748940238';
+
+       Log::info('Enter in Incoming Call Section ');
        $response = new Twiml();
        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
        if (!$context) {
@@ -105,6 +107,9 @@ class TwilioController extends FindByNumberController
         $clients = [];
         $number = $request->get("From");
         list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
+   Log::info('Mobile number from: '.$number);
+      Log::info('Context: '.$context);
+
         if ($digits === "1") {
             $this->dialAllClients($response, "sales", $context, $object);
         } else if ($digits == "2") {
@@ -114,6 +119,8 @@ class TwilioController extends FindByNumberController
         } else {
             $this->createIncomingGather($response, "We did not understand that input. Please dial 1 for sales 2 for support 3 for other queries");
         }
+
+
         return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
 
@@ -128,6 +135,8 @@ class TwilioController extends FindByNumberController
     {
        $number = $request->get("PhoneNumber");
         //$number = '919748940238';
+
+       Log::info('Outgoing call function Enter ');
        $context = $request->get("context");
        $id = $request->get("internalId");
        $response = new Twiml();
@@ -166,7 +175,7 @@ class TwilioController extends FindByNumberController
     public function recordingStatusCallback(Request $request)
     {
 
-                        Log::info('Recording Callback Enter ');
+        Log::info('Recording Callback Enter ');
 
         $url = $request->get("RecordingUrl");
         $sid = $request->get("CallSid");
@@ -205,16 +214,28 @@ class TwilioController extends FindByNumberController
     }
     private function dialAllClients($response, $role="sales", $context=NULL, $object=NULL)
     {
-        $url =  \Config::get("app.url")."/twilio/recordingStatusCallback";
+          $url =  \Config::get("app.url")."/twilio/recordingStatusCallback";
           $actionurl =  \Config::get("app.url")."/twilio/handleDialCallStatus";
         if ($context) {
             $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id;
         }
-   Log::info('Context: '.$context);  
+           Log::info('Recording URL: '.$url);
 
-               $dial = $response->dial( [
-            'action' => $actionurl,
-            'method' => 'POST']);
+//       $dial = $response->dial( [
+//             'record' => 'record-from-ringing-dual',
+// -           'recordingStatusCallback' => $url,
+//             'action' => $actionurl
+//                     ]);
+
+ $dial = $response->dial([
+
+        'record' => 'true',
+
+            'recordingStatusCallback' =>$url,
+
+            'action' => $actionurl
+
+        ]);
 
         $clients = $this->getConnectedClients($role);
            Log::info('Role: '.$role);
@@ -270,7 +291,7 @@ class TwilioController extends FindByNumberController
             return $response;
         }
 
-        return $response;
+        return 'Ok';
 
     }
 

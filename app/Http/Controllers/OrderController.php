@@ -594,6 +594,7 @@ class OrderController extends Controller {
 				// 'client_name'    => 'required',
 				'advance_detail' => 'numeric|nullable',
 				'balance_amount' => 'numeric|nullable',
+				'contact_detail'	=> 'sometimes|nullable|numeric|regex:/^[91]{2}/|digits:12'
 			] );
 		}
 

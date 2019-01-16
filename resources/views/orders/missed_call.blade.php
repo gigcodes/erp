@@ -28,7 +28,9 @@
         <tr class="">
             <td>{{ $callBusyMessage['twilio_call_sid'] }}</td>
             <td>{{ $callBusyMessage['message'] }}</td>
-            <td><a href= "{{ $callBusyMessage['recording_url'] }}" target="_blank"> LINK </a> </td>
+             <td><audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
+  <p>Alas, your browser doesn't support html5 audio.</p>
+</audio> </td>
             <td>{{ $callBusyMessage['created_at'] }}</td>
             
             <td>
@@ -41,5 +43,18 @@
     </table>
 </div>
 
+ <script type="text/javascript">
+
+jQuery(document).ready(function( $ ) {
+  $('audio').on("play", function (me) {
+    $('audio').each(function (i,e) {
+      if (e !== me.currentTarget) {
+        this.pause(); 
+      }
+    });
+  });
+})
+  
+   </script>
 
 @endsection

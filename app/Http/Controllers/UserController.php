@@ -76,12 +76,13 @@ class UserController extends Controller
 			'email' => 'required|email|unique:users,email',
 			'password' => 'required|same:confirm-password',
 			'roles' => 'required',
-			'agent_role' => 'required',
+			
 		]);
 
 
 		$input = $request->all();
 		$input['password'] = Hash::make($input['password']);
+		if(isset($input['agent_role']))
         $input['agent_role'] = implode(',', $input['agent_role']);
 
 		$user = User::create($input);
@@ -140,13 +141,16 @@ class UserController extends Controller
 			'email' => 'required|email|unique:users,email,'.$id,
 			'password' => 'same:confirm-password',
 			'roles' => 'required',
-			'agent_role' => 'required',
+		
 		]);
 
 
 		$input = $request->all();
-
+		if(isset($input['agent_role'])){
         $input['agent_role'] = implode(',', $input['agent_role']);
+    }else{
+    	$input['agent_role'] = '';
+    }
 //		$input['name'] = 'solo_admin';
 //		$input['email'] = 'admin@example.com';
 //		$input['password'] = 'admin@example.com';

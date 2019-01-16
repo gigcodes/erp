@@ -73,7 +73,7 @@ class LeadsController extends Controller
       $rating = $request->input('rating');
 
       $type = false;
-	    $leads = ((new Leads())->newQuery());
+	    $leads = ((new Leads())->newQuery()->with('customer'));
 
       if ($request->type == 'multiple') {
         $type = true;
@@ -391,7 +391,7 @@ class LeadsController extends Controller
         if ($request->type != 'customer') {
           $this->validate(request(), [
             'client_name' => '',
-  //          'contactno' => 'required',
+            'contactno' => 'sometimes|nullable|numeric|regex:/^[91]{2}/|digits:12',
   //          'city' => 'required',
             'instahandler' => '',
             'rating' => 'required',

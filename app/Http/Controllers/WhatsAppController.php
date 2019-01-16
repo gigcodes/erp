@@ -96,7 +96,7 @@ class WhatsAppController extends FindByNumberController
         // }
 
 
-        if (!$orders && !$leads) {
+        if (!isset($order) && !isset($lead)) {
             $modal_type = 'leads';
             // $new_name = "whatsapp lead " . uniqid( TRUE );
             $user = User::get()[0];
@@ -121,8 +121,8 @@ class WhatsAppController extends FindByNumberController
             $params['customer_id'] = $customer->id;
             $params = $this->modifyParamsWithMessage($params, $data);
             $message = ChatMessage::create($params);
-            $modal_type = 'leads';
-            $modal_id = $lead->id;
+            $model_type = 'leads';
+            $model_id = $lead->id;
         }
 
         NotificationQueueController::createNewNotification([
