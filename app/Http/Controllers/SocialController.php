@@ -21,6 +21,11 @@ class SocialController extends Controller
 		$this->page_id="507935072915757";
 		$this->ad_acc_id="act_128125721296439";
 
+
+        // These are for testing purpose...
+//        $this->user_access_token="EAAD7Te0j0B8BAFRNcoNM6Ofde6tFe6nkmy1Ak4CBhKi2uKO74VBIhZAieyRlGTyRNMcghZB4ado2JOXQZChsdZCTjopbQ633mwaDJuROXI3cXchrPU1PM2FLzHJL0FyGfA01S6P4ZB5FQ8F0WwgtNeIJfSJHu3vOZC5JYCd2ZCYgzN2raWhA0yZBPpd8pb6mgdsZD";
+//        $this->page_access_token="EAAD7Te0j0B8BALZBZAPZBvlnxK5E6zA5p8zXfsO39rZAdjk9jY6YSFdxZBUi2Xe1A6gkdkGB7RyL9P8xJ6n192Lv9esvjbTq2E6g0k7aiySH9HLz5dRjRM2dMx6ZBN4KXIHEUOWpomcYmAG99MgWeV9It54CNb1TIbB1cuEBfGyrzW4CJnZClwbWNMlTxnbjPbZAfNeKGPB2EwZDZD";
+
 		
 		
 		
@@ -53,10 +58,8 @@ class SocialController extends Controller
 		}
 		else
 		{
-			$data['posts']=$this->fb->get(''.$this->page_id.'/feed?fields=id,full_picture,permalink_url,name,description,message,created_time,from,story,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=10&access_token='.$this->page_access_token.'')->getGraphEdge();
-			
+			$data['posts']=$this->fb->get(''.$this->page_id.'/feed?fields=id,full_picture,permalink_url,name,description,message,created_time,from,story,likes.limit(0).summary(true),comments.summary(true)&limit=10&access_token='.$this->page_access_token.'')->getGraphEdge();
 		}
-
 
 		// Making Pagination
 
@@ -69,12 +72,26 @@ class SocialController extends Controller
 
 
 		// Getting Final Result as Array
-		$data['posts']=$data['posts']->asArray();
-
-
-
-
-
+        $data['posts'] = $data['posts']->all();
+		$data['posts']=array_map(function ($post) {
+		    $post = $post->all();
+		    return [
+		        'id' => $post['id'],
+		        'full_picture' => $post['full_picture'] ?? null,
+		        'permalink_url' => $post['permalink_url'] ?? null,
+		        'name' => $post['name'] ?? 'N/A',
+		        'message' => $post['message'] ?? null,
+		        'created_time' => $post['created_time'],
+		        'from' => $post['from'],
+		        'likes' => [
+		            'summary' => $post['likes']->getMetaData()['summary']
+                ],
+		        'comments' => [
+		            'summary' => $post['comments']->getMetaData()['summary'],
+                    'items' => $post['comments']->asArray()
+                ],
+            ];
+        }, $data['posts']);
 
 		return view('social.get-posts',$data);
 	}
