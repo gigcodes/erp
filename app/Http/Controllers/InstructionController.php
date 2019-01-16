@@ -16,9 +16,13 @@ class InstructionController extends Controller
      */
     public function index()
     {
-      $instructions = Instruction::latest()->paginate(Setting::get('pagination'));
+      $instructions = Instruction::whereNull('completed_at')->latest()->paginate(Setting::get('pagination'));
+      $completed_instructions = Instruction::whereNotNull('completed_at')->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
-      return view('instructions.index')->withInstructions($instructions);
+      return view('instructions.index')->with([
+        'instructions'            => $instructions,
+        'completed_instructions'  => $completed_instructions
+      ]);
     }
 
     /**
