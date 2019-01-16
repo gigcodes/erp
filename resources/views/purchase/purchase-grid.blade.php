@@ -104,6 +104,7 @@
     {{-- </div> --}}
 
     {{-- {!! $leads->links() !!} --}}
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
     $(document).ready(function() {
@@ -127,7 +128,10 @@
                 'id': '{{ $product['id'] }}',
                 'supplier': '{{ $product['supplier'] }}',
                 'image': '{{ $product['image']}}',
-                'link': '{{ route('products.show', $product['id']) }}'
+                'link': '{{ route('products.show', $product['id']) }}',
+                'customer_name': '{{ $product['customer_name'] }}',
+                'order_price': '{{ $product['order_price'] }}',
+                'order_date': '{{ $product['order_date'] }}'
 
             },
             @endforeach
@@ -147,7 +151,7 @@
                     html += `
                         <div class="col-md-3 col-xs-6 text-center">
 
-                            <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" />
+                            <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Name: </strong>` + product['customer_name'] + `<br><strong>Price in Order: </strong>` + product['order_price'] + `<br><strong>Order Date: </strong>` + moment(product['order_date']).format('DD-MM') + `" />
                                             <input type="checkbox" class="` + key.replace(/[^a-zA-Z0-9]/g, '-') + `" name="products[]" value="` + product['id'] + `">
                                             <a href="` + product['link'] + `" class="btn btn-image"><img src="/images/view.png" /></a>
                                              {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
@@ -166,6 +170,10 @@
                 jQuery('#purchaseGrid').append(html + '</div><div class="row"><div class="col text-center"><button type="submit" class="btn btn-secondary">Submit</button></div></div></form>');
             });
 
+        });
+
+        $(document).ready(function() {
+          $("body").tooltip({ selector: '[data-toggle=tooltip]' });
         });
 
         $(document).on('click', '.select-all', function() {

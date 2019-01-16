@@ -163,6 +163,9 @@ class PurchaseController extends Controller
         $new_products[$key]['id'] = $product->id;
         $new_products[$key]['supplier'] = $product->supplier;
         $new_products[$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+        $new_products[$key]['customer_name'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->name : 'No Customer') : 'No Order';
+        $new_products[$key]['order_price'] = $product->orderproducts->first()->product_price;
+        $new_products[$key]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
       }
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();

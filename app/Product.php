@@ -71,4 +71,9 @@ class Product extends Model
   {
     return $this->belongsToMany('App\Purchase', 'purchase_products', 'purchase_id', 'product_id');
   }
+
+	public function orderproducts()
+  {
+    return $this->hasMany('App\OrderProduct', 'sku', 'sku');
+  }
 }
