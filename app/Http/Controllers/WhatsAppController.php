@@ -836,6 +836,12 @@ class WhatsAppController extends FindByNumberController
 
 	private function sendWithWhatsApp($number, $sendNumber, $text)
 	{
+    if (Auth::id() != 3) {
+      if (strlen($number) != 12 || !preg_match('/^[91]{2}/', $number)) {
+        throw new \Exception("Invalid number format. Must be 12 digits and start with 91");
+      }
+    }
+
         $curl = curl_init();
         if (is_null($sendNumber)) {
             $keys = \Config::get("apiwha.api_keys");

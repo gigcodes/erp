@@ -51,6 +51,9 @@
 
         @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
           <div class="form-group">
+            @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
+              <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+            @endif
             <strong>Phone:</strong> <span data-twilio-call data-context="leads" data-id="{{ $customer->id }}">{{ $customer->phone }}</span>
           </div>
 
@@ -1249,7 +1252,7 @@ jQuery(document).ready(function( $ ) {
                        element.remove();
                      }).fail(function(response) {
                        console.log(response);
-                       alert( "Technical error. could not approve message");
+                       alert(response.responseJSON.message);
                      });
                }
                function createMessageArgs() {

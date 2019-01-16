@@ -63,6 +63,9 @@
 
                         <strong>Name: </strong> {{ $customer->name }} <br>
                         <strong>Email: </strong> {{ $customer->email }} <br>
+                        @if (strlen($customer->phone) != 12 || preg_match('/^[91]{2}/', $customer->phone))
+                          <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                        @endif
                         <strong>Phone: </strong> {{ $customer->phone }} <br>
                         <strong>Instagram Handle: </strong> {{ $customer->instahandler }} <br>
                         <strong>Address: </strong> {{ $customer->address }} <br>
@@ -202,6 +205,9 @@
                       </div> --}}
 
                       <div class="form-group">
+                        @if (strlen($customer->phone) != 12 || preg_match('/^[91]{2}/', $customer->phone))
+                          <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                        @endif
                           <strong>Contact Detail:</strong>
                           <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
                                  value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
@@ -1291,9 +1297,14 @@
       @csrf
     </form>
 
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
     <script type="text/javascript">
+      $(document).ready(function() {
+        $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+      });
+
       $('#completion-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
       });
@@ -1627,7 +1638,7 @@
                 element.remove();
               }).fail(function(response) {
                 console.log(response);
-                alert( "Technical error. could not approve message");
+                alert(response.responseJSON.message);
               });
         }
         function createMessageArgs() {

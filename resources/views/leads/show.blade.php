@@ -56,6 +56,9 @@
 
                       <strong>Name: </strong> {{ $leads->customer->name }} <br>
                       <strong>Email: </strong> {{ $leads->customer->email }} <br>
+                      @if (strlen($leads->customer->phone) != 12 || preg_match('/^[91]{2}/', $leads->customer->phone))
+                        <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                      @endif
                       <strong>Phone: </strong> {{ $leads->customer->phone }} <br>
                       <strong>Instagram Handle: </strong> {{ $leads->customer->instahandler }}
                     </div>
@@ -77,6 +80,9 @@
 
                      <div class="col-xs-12 col-sm-8 col-sm-offset-2 mt-5">
                         <div class="form-group">
+                          @if (strlen($leads->customer->phone) != 12 || preg_match('/^[91]{2}/', $leads->customer->phone))
+                            <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                          @endif
                             <strong>Contact No:</strong>
                             <input type="number" class="form-control" name="contactno" placeholder="contactno" data-twilio-call data-context="leads" data-id="{{$leads->id}}" value="{{$leads->contactno}}" />
                         </div>
@@ -1466,7 +1472,7 @@
                 element.remove();
               }).fail(function(response) {
                 console.log(response);
-                alert( "Technical error. could not approve message");
+                alert(response.responseJSON.message);
               });
         }
         function createMessageArgs() {
