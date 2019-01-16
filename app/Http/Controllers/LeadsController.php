@@ -103,7 +103,9 @@ class LeadsController extends Controller
 	    }
 
 	    if(!empty($term)){
-	    	$leads = $leads->where(function ($query) use ($term){
+	    	$leads = $leads->whereHas('customer', function($query) use ($term) {
+          return $query->where('name', 'LIKE', "%$term%");
+        })->where(function ($query) use ($term){
 	    		return $query
 					    ->orWhere('client_name','like','%'.$term.'%')
 					    ->orWhere('id','like','%'.$term.'%')

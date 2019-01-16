@@ -53,7 +53,7 @@
                 <td>{{ $order['order_id'] }}</td>
                 <td>{{ Carbon\Carbon::parse($order['order_date'])->format('d-m') }}</td>
                 <td>{{ $order['sales_person'] ? $users[$order['sales_person']] : 'nil' }}</td>
-                <td>{{ $order['client_name'] }}</td>
+                <td>{{ $order['customer'] ? $order['customer']['name'] : '' }}</td>
                 <td>{{ $order['order_status']}}</td>
                 <td>{{ $order['action']['status'] }}</td>
                 <td>{{ $order['action']['completion_date'] ? Carbon\Carbon::parse($order['action']['completion_date'])->format('d-m') : '' }}</td>

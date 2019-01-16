@@ -81,7 +81,7 @@ class OrderController extends Controller {
 					 $sortby = 'communication';
 		}
 
-		$orders = ((new Order())->newQuery());
+		$orders = (new Order())->newQuery()->with('customer');
 
 		if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
 			$orders = $orders->orderBy( $sortby, $orderby );
@@ -91,7 +91,9 @@ class OrderController extends Controller {
 			$orders = $orders->latest();
 		else{
 
-			$orders = $orders->latest()
+			$orders = $orders->latest()->whereHas('customer', function($query) use ($term) {
+				return $query->where('name', 'LIKE', "%$term%");
+			})
 			               ->orWhere('order_id','like','%'.$term.'%')
 			               ->orWhere('order_type',$term)
 			               ->orWhere('sales_person',Helpers::getUserIdByName($term))
