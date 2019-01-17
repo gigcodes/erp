@@ -14,6 +14,7 @@ use App\ChatMessage;
 use App\Message;
 use App\Helpers;
 use App\Reply;
+use App\Instruction;
 use App\ReplyCategory;
 use App\CallRecording;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -183,6 +184,13 @@ class CustomerController extends Controller
       foreach ($orders as $order) {
         $order->customer_id = $first_customer->id;
         $order->save();
+      }
+
+      $instructions = Instruction::where('customer_id', $request->second_customer_id)->get();
+
+      foreach ($instructions as $instruction) {
+        $instruction->customer_id = $first_customer->id;
+        $instruction->save();
       }
 
       $second_customer = Customer::find($request->second_customer_id);

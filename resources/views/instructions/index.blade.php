@@ -70,9 +70,9 @@
             </tr>
             @foreach ($instructions as $instruction)
                 <tr>
-                  <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ $instruction->customer->name }}</a></td>
+                  <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ isset($instruction->customer) ? $instruction->customer->name : '' }}</a></td>
                   <td>
-                    <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
+                    <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] }}</td>
                   <td>{{ $instruction->instruction }}</td>
@@ -117,9 +117,9 @@
               </tr>
               @foreach ($completed_instructions as $instruction)
                   <tr>
-                    <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ $instruction->customer->name }}</a></td>
+                    <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ isset($instruction->customer) ? $instruction->customer->name : '' }}</a></td>
                     <td>
-                      <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
+                      <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
                     </td>
                     <td>{{ $users_array[$instruction->assigned_to] }}</td>
                     <td>{{ $instruction->instruction }}</td>
