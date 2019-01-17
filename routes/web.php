@@ -313,3 +313,15 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::prefix('instagram')->group(function () {
     Route::get('posts', 'InstagramController@showPosts');
 });
+
+/*
+ * @date 1/17/2019
+ * @author Rishabh Aryal
+ * This is route API for getting/replying comments
+ * from Facebook API
+ */
+
+Route::prefix('comments')->group(function () {
+    Route::get('/facebook', 'SocialController@getComments');
+    Route::post('/facebook', 'SocialController@postComment');
+});
