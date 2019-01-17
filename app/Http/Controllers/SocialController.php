@@ -24,8 +24,8 @@ class SocialController extends Controller
 
 
         // These are for testing purpose...
-//        $this->user_access_token="EAAD7Te0j0B8BAFRNcoNM6Ofde6tFe6nkmy1Ak4CBhKi2uKO74VBIhZAieyRlGTyRNMcghZB4ado2JOXQZChsdZCTjopbQ633mwaDJuROXI3cXchrPU1PM2FLzHJL0FyGfA01S6P4ZB5FQ8F0WwgtNeIJfSJHu3vOZC5JYCd2ZCYgzN2raWhA0yZBPpd8pb6mgdsZD";
-//        $this->page_access_token="EAAD7Te0j0B8BALZBZAPZBvlnxK5E6zA5p8zXfsO39rZAdjk9jY6YSFdxZBUi2Xe1A6gkdkGB7RyL9P8xJ6n192Lv9esvjbTq2E6g0k7aiySH9HLz5dRjRM2dMx6ZBN4KXIHEUOWpomcYmAG99MgWeV9It54CNb1TIbB1cuEBfGyrzW4CJnZClwbWNMlTxnbjPbZAfNeKGPB2EwZDZD";
+//        $this->user_access_token="EAAD7Te0j0B8BADkSODNHgZAat7qRv4gYjZBM2RO9FgYYLy5TEn1Naamare82P7TABAjO5piVA0Eb0nrxxGcLoZA2mE4ZBvA8JNt7QgAtH1cHjAkfKIoyhyZBBYQOh86SQPGRIZAmxHngAcS7GsN7XOa9zjrZBZCCPHVuwucnkGN9lC3ZChXTz82ZAH09vSGL2ycTIZD";
+//        $this->page_access_token="EAAD7Te0j0B8BAA0ZBiD9sfgM99a8AZBIUAN3Fj6cDZBu0yMCo053vnYCOJCuBPUpCHifc3djjMXFsPdYFfV60WEvRsWc5ZClbzuhZBYhu25KVcZBS1SiY9XJnQ8ObZCKiMiWFdZCa9F4fRMTvpNjZAuYOuXzzZAQpSFp9HB1wfZAWII2PjeDBDe3Na2";
 
 		
 		
@@ -59,7 +59,7 @@ class SocialController extends Controller
 		}
 		else
 		{
-			$data['posts']=$this->fb->get(''.$this->page_id.'/feed?fields=id,full_picture,permalink_url,name,description,message,created_time,from,story,likes.limit(0).summary(true),comments.summary(true)&limit=10&access_token='.$this->page_access_token.'')->getGraphEdge();
+			$data['posts']=$this->fb->get(''.$this->page_id.'/feed?fields=id,full_picture,permalink_url,name,description,message,created_time,from,story,likes.limit(0).summary(true),comments.summary(true).filter(stream)&limit=10&access_token='.$this->page_access_token.'')->getGraphEdge();
 		}
 
 		// Making Pagination
@@ -89,13 +89,52 @@ class SocialController extends Controller
                 ],
 		        'comments' => [
 		            'summary' => $post['comments']->getMetaData()['summary'],
-                    'items' => $post['comments']->asArray()
+                    'items' => implode(',', array_map(function ($item) { return $item['id']; }, $post['comments']->asArray())),
+                    'url' => $post['comments']->getParentGraphEdge()
                 ],
             ];
         }, $data['posts']);
 
 		return view('social.get-posts',$data);
 	}
+
+	public function getComments(Request $request) {
+	    $this->validate($request, [
+	        'items' => 'required'
+        ]);
+        $items = explode(',', $request->get('items'));
+        $comments = array_map(function($commmentId) {
+            $comment = $this->fb->get($commmentId . '?fields=id,message,from,can_comment&access_token='.$this->page_access_token)->getDecodedBody();
+            return $comment;
+        }, $items);
+
+        return response()->json($comments);
+
+    }
+
+    public function postComment(Request $request) {
+	    $this->validate($request, [
+	       'message' => 'required',
+           'post_id' => 'required'
+        ]);
+
+	    $message = $request->get('message');
+	    $postId = $request->get('post_id');
+
+        $comment = $this->fb
+            ->post($postId . '/comments',
+                [
+                    'message' => $message,
+                    'fields' => 'id,message,from'
+                ],
+                $this->page_access_token
+        )->getDecodedBody();
+
+        $comment['status'] = 'success';
+
+        return response()->json($comment);
+
+    }
 
 
 
