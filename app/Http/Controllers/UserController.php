@@ -7,11 +7,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\UserLogin;
+use App\Setting;
 use App\NotificationQueue;
 use App\PushNotification;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
+use Cache;
+use Carbon\Carbon;
 
 
 class UserController extends Controller
@@ -197,13 +200,31 @@ class UserController extends Controller
 
 	public function login()
 	{
-		$logins = UserLogin::all();
+		$logins = UserLogin::paginate(Setting::get('pagination'));
 
 		return view('users.login')->withLogins($logins);
 	}
 
 	public function checkUserLogins()
 	{
-		
+		$users = User::all();
+
+		foreach ($users as $user) {
+			if ($login = UserLogin::where('user_id', $user->id)->latest()->first()) {
+
+			} else {
+				$login = UserLogin::create(['user_id'	=> $user->id]);
+			}
+
+			if (Cache::has('user-is-online-' . $user->id)) {
+				if ($login->logout_at) {
+					UserLogin::create(['user_id'	=> $user->id, 'login_at'	=> Carbon::now()]);
+				}
+			} else {
+				if (!$login->logout_at) {
+					$login->update(['logout_at'	=> Carbon::now()]);
+				}
+			}
+		}
 	}
 }

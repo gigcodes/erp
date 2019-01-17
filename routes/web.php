@@ -30,6 +30,7 @@ Route::get('/productsearcher/list','ProductSearcherController@sList')->name('pro
 	Route::get('/chat/getnew', 'ChatController@checkfornew')->name('checkfornew');
 	Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew');
 	//Route::resource('/chat','ChatController@getmessages');
+	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth'] ], function (){
 
