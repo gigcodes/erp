@@ -34,6 +34,7 @@ Route::get('/productsearcher/list','ProductSearcherController@sList')->name('pro
 Route::group(['middleware'  => ['auth'] ], function (){
 
 	Route::resource('roles','RoleController');
+	Route::get('users/logins', 'UserController@login')->name('users.login.index');
 	Route::resource('users','UserController');
 	Route::resource('products','ProductController');
 	Route::post('products/{id}/archive','ProductController@archive')->name('products.archive');

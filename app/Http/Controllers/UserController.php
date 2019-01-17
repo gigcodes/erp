@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
+use App\UserLogin;
 use App\NotificationQueue;
 use App\PushNotification;
 use Spatie\Permission\Models\Role;
@@ -192,5 +193,17 @@ class UserController extends Controller
 
 		return redirect()->route('users.index')
 		                 ->with('success','User deleted successfully');
+	}
+
+	public function login()
+	{
+		$logins = UserLogin::all();
+
+		return view('users.login')->withLogins($logins);
+	}
+
+	public function checkUserLogins()
+	{
+		
 	}
 }

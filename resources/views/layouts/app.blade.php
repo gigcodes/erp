@@ -1611,6 +1611,8 @@
 
                                     @endcan
 
+                                    <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
+
                                     @can('role-list')
 
                                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
