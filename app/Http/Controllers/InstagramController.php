@@ -21,6 +21,7 @@ class InstagramController extends Controller
 
 
     /**
+     * @param Request $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * This method gives the list of posts
      * that is in Instagram account
@@ -29,15 +30,16 @@ class InstagramController extends Controller
         $url = null;
 
         if ($request->has('next') && !empty($request->get('next'))) {
-            $url = $request->get('next');
+            $url = substr($request->get('next'), 32);
         } else if ($request->has('previous') && !empty($request->get('previous'))) {
-            $url = $request->get('previous');
+            $url = substr($request->get('previous'), 32);
         }
 
-        $posts = $this->instagram->getMedia($url);
+        [$posts, $paging] = $this->instagram->getMedia($url);
 
         return view('instagram.index', compact(
-            'posts'
+            'posts',
+            'paging'
         ));
     }
 
@@ -63,6 +65,18 @@ class InstagramController extends Controller
     }
 
     public function postComment(Request $request) {
+        $this->validate($request, [
+            'message' => 'required',
+            'post_id' => 'required'
+        ]);
 
+        if ($request->has('comment_id') && !empty($request->get('comment_id'))) {
+            $commentId = $request->get('comment_id');
+            $comment = $this->instagram->postReply($commentId, $request->get('message'));
+            return response()->json($comment);
+        }
+
+        $comment = $this->instagram->postComment($request->get('post_id'), $request->get('message'));
+        return response()->json($comment);
     }
 }

@@ -31,7 +31,7 @@ class Instagram {
         if ($url === null) {
             $params = 'fields'
                 . '='
-                . 'id,media_type,media_url,owner{id,username},timestamp,comments{text,owner,timestamp,like_count},like_count,comments_count,caption';
+                . 'id,media_type,media_url,owner{id,username},timestamp,like_count,comments_count,caption';
             $url = $this->instagram_id . '/media?' . $params;
         }
 
@@ -39,6 +39,15 @@ class Instagram {
             $media = $this->facebook->get($url, $this->page_access_token)->getDecodedBody();
         } catch (\Exception $exception) {
             return [];
+        }
+
+        $paging = [];
+
+        if (isset($media['paging']['next'])) {
+            $paging['next'] = $media['paging']['next'];
+        }
+        if (isset($media['paging']['previous'])) {
+            $paging['previous'] = $media['paging']['previous'];
         }
 
 
@@ -65,15 +74,12 @@ class Instagram {
             ];
         }, $media['data']);
 
-        return $media;
-    }
 
-    public function postMedia() {
-
+        return [$media, $paging];
     }
 
     public function getComments($post_id) {
-        $params = '?fields=from,text,timestamp,id';
+        $params = '?fields=username,text,timestamp,id,replies{id,username,text}';
         try {
             $comments = $this->facebook->get($post_id.'/comments'.$params, $this->page_access_token)->getDecodedBody();
             $comments = $comments['data'];
@@ -81,14 +87,53 @@ class Instagram {
             $comments = [];
         }
 
+        $comments = array_map(function($item) {
+            return [
+                'id' => $item['id'],
+                'username' => $item['username'],
+                'text' => $item['text'],
+                'replies' => isset($item['replies']) ? $item['replies']['data'] : [],
+            ];
+        }, $comments);
+
         return $comments;
     }
 
-    public function replyToComment() {
+    /**
+     * @param $postId
+     * @param $message
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     * @return array
+     */
+    public function postComment($postId, $message): array
+    {
+        $comment = $this->facebook
+            ->post($postId . '/comments',
+                [
+                    'message' => $message,
+                    'fields' => 'id,text,username,timestamp'
+                ],
+                $this->user_access_token
+            )->getDecodedBody();
+
+        $comment['status'] = 'success';
+
+        return $comment;
 
     }
 
-    private function sendRequestToAPI() {
+    public function postReply($commentId, $message) {
+        $comment = $this->facebook
+            ->post($commentId . '/replies',
+                [
+                    'message' => $message,
+                    'fields' => 'id,text,username,timestamp'
+                ],
+                $this->user_access_token
+            )->getDecodedBody();
 
+        $comment['status'] = 'success';
+
+        return $comment;
     }
 }
