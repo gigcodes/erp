@@ -25,8 +25,16 @@ class InstagramController extends Controller
      * This method gives the list of posts
      * that is in Instagram account
      */
-    public function showPosts() {
-        $posts = $this->instagram->getMedia();
+    public function showPosts(Request $request) {
+        $url = null;
+
+        if ($request->has('next') && !empty($request->get('next'))) {
+            $url = $request->get('next');
+        } else if ($request->has('previous') && !empty($request->get('previous'))) {
+            $url = $request->get('previous');
+        }
+
+        $posts = $this->instagram->getMedia($url);
 
         return view('instagram.index', compact(
             'posts'
@@ -42,5 +50,19 @@ class InstagramController extends Controller
         $this->validate($request, [
            'image' => 'required|image'
         ]);
+    }
+
+    public function getComments(Request $request) {
+        $this->validate($request, [
+            'post_id' => 'required'
+        ]);
+
+        $comments = $this->instagram->getComments($request->get('post_id'));
+
+        return response()->json($comments);
+    }
+
+    public function postComment(Request $request) {
+
     }
 }
