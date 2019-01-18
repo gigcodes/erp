@@ -253,6 +253,7 @@
       <table class="table table-bordered">
         <tr>
             <th style="width: 50%">Call Recording</th>
+            <th style="width: 50%">Message</th>
             <th style="width: 50%">Call Time</th>
         </tr>
   @if (count($call_history) > 0)
@@ -263,6 +264,7 @@
 <td><audio src="{{$history_val['recording_url']}}" controls preload="metadata">
   <p>Alas, your browser doesn't support html5 audio.</p>
 </audio> </td>
+<td>{{$history_val['message']}}</td>
 <td>{{$history_val['created_at']}}</td>
 
         </tr>

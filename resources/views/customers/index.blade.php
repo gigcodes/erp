@@ -215,6 +215,8 @@
           @endif
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=rating{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Rating</a></th>
           <th>Lead/Order Status</th>
+          <th>Lead Created at</th>
+          <th>Order Created at</th>
           <th>Message Status</th>
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
           <th width="150px">Action</th>
@@ -240,6 +242,16 @@
                 {{ $customer['lead'] && $customer['order'] ? ' / ' : '' }}
                 @if ($customer['order'])
                   {{ $customer['order']['order_status'] }}
+                @endif
+              </td>
+              <td>
+                @if ($customer['lead'])
+                  {{ Carbon\Carbon::parse($customer['lead']['created_at'])->format('d-m') }}
+                @endif
+              </td>
+              <td>
+                @if ($customer['order'])
+                  {{ Carbon\Carbon::parse($customer['order']['created_at'])->format('d-m') }}
                 @endif
               </td>
               <td>
