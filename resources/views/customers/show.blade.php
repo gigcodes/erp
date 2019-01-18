@@ -1622,7 +1622,7 @@ jQuery(document).ready(function( $ ) {
 
           if ($(this).hasClass('wa_send_message')) {
             var message_id = $(this).data('messageid');
-            var message = $('#message_body_' + message_id).find('p').data('message').trim();
+            var message = $('#message_body_' + message_id).find('p').data('message').toString().trim();
 
             $.ajax({
               url: "{{ url('whatsapp/updateAndCreate') }}",

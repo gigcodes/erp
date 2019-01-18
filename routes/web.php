@@ -30,10 +30,12 @@ Route::get('/productsearcher/list','ProductSearcherController@sList')->name('pro
 	Route::get('/chat/getnew', 'ChatController@checkfornew')->name('checkfornew');
 	Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew');
 	//Route::resource('/chat','ChatController@getmessages');
+	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth'] ], function (){
 
 	Route::resource('roles','RoleController');
+	Route::get('users/logins', 'UserController@login')->name('users.login.index');
 	Route::resource('users','UserController');
 	Route::resource('products','ProductController');
 	Route::post('products/{id}/archive','ProductController@archive')->name('products.archive');
