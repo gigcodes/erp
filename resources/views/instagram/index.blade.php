@@ -9,6 +9,18 @@
         <div class="col-md-12">
             <div class="row">
                 @if(isset($posts) && !empty($posts))
+                    @if(isset($posts) && !empty($posts))
+                        <div class="col-md-12">
+                            <div class="text-center mt-5 mb-5">
+                                @if(isset($paging['previous']))
+                                    <a class="btn btn-info" href="{!! action('InstagramController@showPosts').'?previous='.$paging['previous'] !!}">Previous</a>
+                                @endif
+                                @if(isset($paging['next']))
+                                    <a class="btn btn-info" href="{!! action('InstagramController@showPosts').'?next='.$paging['next'] !!}">Next</a>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                     @foreach($posts as $key=>$post)
                         <div class="col-md-6">
                             <div class="card">
@@ -41,54 +53,29 @@
                                 </div><!-- card actions -->
                                 <div class="card-reveal reveal-{{ $key }}">
                                     <span class="card-title">Comments (<span class="count-for-{{$key}}">{{ $post['comments']['summary']['total_count'] }}</span>)</span> <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                                    <div class="comments-content">
+                                    <div data-pid="{{ $key }}" data-post-id="{{ $post['id'] }}" class="comments-content">
                                         <p><strong>There are no comments loaded at this moment.</strong></p>
                                     </div>
                                     <div class="form-group">
-                                        <input type="text" class="form-control reply" data-pid="{{ $key }}" data-post-id="{{ $post['id'] }}" placeholder="Leave a comment...">
+                                        <input type="text" class="form-control reply reply-{{ $key }}" data-pid="{{ $key }}" data-post-id="{{ $post['id'] }}" placeholder="Leave a comment...">
                                     </div>
                                 </div><!-- card reveal -->
                             </div>
                         </div>
                     @endforeach
-
-                    <div class="container text-left mt-4">
-                        <div class="row">
-                            @if(isset($posts) && !empty($posts))
-                                <div class="col-md-6 ml-auto mr-auto">
-                                    <nav aria-label="Page navigation example">
-                                        <ul class="pagination">
-                                            @if(isset($previous))
-                                                <li class="page-item">
-
-                                                    <div class="col-md-4 ">
-                                                        <!-- Next -->
-                                                        <form method="post" action="{{route('social.get-post.page')}}">
-                                                            @csrf
-                                                            <input type="hidden" name="previous" value="{{$previous}}">
-                                                            <input type="submit" value="Previous" class="btn btn-info">
-                                                        </form>
-                                                    </div>
-
-                                                </li>
-                                            @endif
-                                            @if(isset($next))
-                                                <li class="page-item">
-                                                    <div class="col-md-4 ml-3">
-                                                        <form method="post" action="{{route('social.get-post.page')}}">
-                                                            @csrf
-                                                            <input type="hidden" name="next" value="{{$next}}">
-                                                            <input type="submit" value="Next" class="btn btn-info">
-                                                        </form>
-                                                    </div>
-
-                                                </li>
-                                            @endif
-                                        </ul>
-                                    </nav>
-                                </div>
-                            @endif
-                            @endif
+                    @if(isset($posts) && !empty($posts))
+                        <div class="col-md-12">
+                            <div class="text-center mt-5 mb-5">
+                                @if(isset($paging['previous']))
+                                    <a class="btn btn-info" href="{!! action('InstagramController@showPosts').'?previous='.$paging['previous'] !!}">Previous</a>
+                                @endif
+                                @if(isset($paging['next']))
+                                     <a class="btn btn-info" href="{!! action('InstagramController@showPosts').'?next='.$paging['next'] !!}">Next</a>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+            @endif
             </div>
         </div>
     </div>
@@ -100,11 +87,12 @@
 
 @section('scripts')
     <script>
+        var cid = null;
         $(function(){
 
             $('.show-details').on('click',function() {
-                var id = $(this).attr('data-pid');
-                var post_id = $(this).attr('data-media-id');
+                let id = $(this).attr('data-pid');
+                let post_id = $(this).attr('data-media-id');
 
                 $.ajax({
                     url: "{{ action('InstagramController@getComments') }}",
@@ -114,11 +102,23 @@
                     success: function(response) {
                         $('.reveal-'+id+' .comments-content').html('');
                         response.forEach(function (comment) {
-                            var commentHTML = '<p class="comment text-justify" data-cid="'+comment.id+'">';
-                                commentHTML += '<span><button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-reply"></i></button></span>';
-                            commentHTML+= '<span class="text-info">@AUTHOR</span>';
-                            commentHTML += '<span style="display: block">'+comment.text+'</span></p>';
-                            $('.reveal-'+id+' .comments-content').append(commentHTML);
+                            var commentHTML = '<div class="comment text-justify m-2 mb-3" data-cid="'+comment.id+'">';
+                                commentHTML += '<span><button data-pid="'+id+'" data-username="'+comment.username+'" data-cid="'+comment.id+'" type="button" class="close reply-to-comment" data-dismiss="modal" aria-label="Close"><i class="fa fa-reply"></i></button></span>';
+                            commentHTML+= '<span class="text-info">@'+comment.username+'</span>';
+                            commentHTML += '<span style="display: block">'+comment.text+'</span>';
+                            let repliesHTML = '<div class="replies-'+comment.id+'" style="margin: 5px 0 5px 10px; border-left:2px solid #DDD;">';
+                            if (comment.replies !== []) {
+                                comment.replies.forEach(function(reply) {
+                                    repliesHTML += '<p style="margin: 5px 20px 5px 5px;">';
+                                    repliesHTML += '<span class="text-info">@'+reply.username+'</span>';
+                                    repliesHTML += '<span>'+reply.text+'</span>';
+                                    repliesHTML += '</p>';
+                                });
+                            }
+                            repliesHTML += '</div>';
+                            commentHTML += repliesHTML;
+                            commentHTML += '</div>';
+                            $('.reveal-'+id+' .comments-content').prepend(commentHTML);
                         })
                     },
                     error: function() {
@@ -133,13 +133,24 @@
 
             });
 
+            $('body').on('click', '.reply-to-comment', function() {
+                let commentId = $(this).attr('data-cid');
+                let username = $(this).attr('data-username');
+                let pid = $(this).attr('data-pid');
+                cid = commentId;
+                $('.reply-'+pid).val('@'+username);
+                $('.reply-'+pid).focus();
+            });
+
             $('.reply').keypress(function (event) {
                 if (event.keyCode == 13) {
-                    var reply = $(this).val();
+                    let reply = $(this).val();
+                    let comment_id = cid;
+                    cid = null;
                     $(this).val('');
-                    var id = $(this).attr('data-pid');
-                    var self = this;
-                    var postId = $(this).attr('data-post-id');
+                    let id = $(this).attr('data-pid');
+                    let self = this;
+                    let postId = $(this).attr('data-post-id');
                     $.ajax({
                         url: "{{ action('InstagramController@postComment') }}",
                         type: 'post',
@@ -147,22 +158,32 @@
                         data: {
                             message: reply,
                             post_id: postId,
+                            comment_id: comment_id,
                             _token: "{{ csrf_token() }}"
                         },
                         success: function(response) {
                             if (response.status == 'success') {
-                                var commentHTML = '<p class="comment text-justify" data-cid="'+response.id+'">';
-                                commentHTML += '<span><button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-reply"></i></button></span>';
-                                commentHTML+= '<span class="text-info">@author</span>';
-                                commentHTML += '<span style="display: block">'+response.message+'</span></p>';
-                                $('.reveal-'+id+' .comments-content').prepend(commentHTML);
+                                if (comment_id == null) {
+                                    var commentHTML = '<div class="comment text-justify m-2 mb-3" data-cid="'+response.id+'">';
+                                    commentHTML += '<span><button data-username="'+response.username+'" data-cid="'+response.id+'" type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-reply"></i></button></span>';
+                                    commentHTML+= '<span class="text-info">@'+response.username+'</span>';
+                                    commentHTML += '<span style="display: block">'+response.text+'</span></div>';
+                                    $('.reveal-'+id+' .comments-content').append(commentHTML);
+                                } else {
+                                    let repliesHTML = '<p style="margin: 5px 20px 5px 5px;">';
+                                    repliesHTML += '<span class="text-info">@'+response.username+'</span>';
+                                    repliesHTML += '<span>'+response.text+'</span>';
+                                    repliesHTML += '</p>';
+                                    $('.replies-'+comment_id).append(repliesHTML);
+                                    comment_id = null;
+                                }
                                 $('.count-for-'+id).html(parseInt($('.count-for-'+id).html())+1);
                                 $(".s-d-"+id).attr('data-comment-ids', $(".s-d-"+id).attr('data-comment-ids')+','+response.id);
-
                             }
                         },
                         error: function() {
                             alert("There was an unknown error saving this reply.");
+                            $('.s-d-'+id).click();
                         },
                         complete: function () {
                             $(self).removeAttr('disabled');

@@ -18,8 +18,8 @@ class SocialController extends Controller
 
 
 		$this->page_access_token = env('PAGE_ACCESS_TOKEN', 'EAAD7Te0j0B8BAO2yF97qtbFJq2pPzKZBOocsJVU3MZA95wKZBd0VkQtiUAP534GYkXaLXI0xJRNjP3Jrv43GTY84cVofQCqipkEEUNnVrU2ZBuzmR6AdkNcngPF318iIR123ZBw2XT2sWZBgCXrFolAokqFZBcL9eQZBsVs3aZBpyOf8FMuJs4FvLG8J9HJNZBJ9IZD');
-		$this->page_id="507935072915757";
-		$this->ad_acc_id="act_128125721296439";
+		$this->page_id= '507935072915757';
+		$this->ad_acc_id= 'act_128125721296439';
 
 	}
 

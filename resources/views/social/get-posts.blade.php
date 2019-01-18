@@ -159,7 +159,7 @@
                                 commentHTML += '<span><button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-reply"></i></button></span>';
                                 commentHTML+= '<span class="text-info">'+response.from.name+'</span>';
                                 commentHTML += '<span style="display: block">'+response.message+'</span></p>';
-                                $('.reveal-'+id+' .comments-content').prepend(commentHTML);
+                                $('.reveal-'+id+' .comments-content').append(commentHTML);
                                 $('.count-for-'+id).html(parseInt($('.count-for-'+id).html())+1);
                                 $(".s-d-"+id).attr('data-comment-ids', $(".s-d-"+id).attr('data-comment-ids')+','+response.id);
 
