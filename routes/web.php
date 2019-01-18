@@ -312,6 +312,8 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 
 Route::prefix('instagram')->group(function () {
     Route::get('posts', 'InstagramController@showPosts');
+    Route::get('comments', 'InstagramController@getComments');
+    Route::post('comments', 'InstagramController@postComment');
 });
 
 /*
