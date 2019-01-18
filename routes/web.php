@@ -213,6 +213,8 @@ Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatu
       //       ]
       //   );
   Route::post('twilio/storerecording','TwilioController@storeRecording');
+    Route::post('twilio/storetranscript','TwilioController@storetranscript');
+
  Route::get(
             '/twilio/hangup', [
                 'as' => 'hangup',

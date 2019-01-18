@@ -134,10 +134,13 @@ class TwilioController extends FindByNumberController
      */
     public function outgoingCall(Request $request)
     {
+ Log::info('Call Status: = ' . $request->get("CallStatus"));
+
+
 
        $number = $request->get("PhoneNumber");
         //$number = '919748940238';
-       Log::info('Mobile number from: '.$number);
+       Log::info('Call SID: '. $request->get("CallSid"));
        $context = $request->get("context");
        $id = $request->get("internalId");
        Log::info('Outgoing call function Enter '.$id);
@@ -147,9 +150,9 @@ class TwilioController extends FindByNumberController
             'record' => 'true',
             'recordingStatusCallback' => \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .$id . "&Mobile=" .$number 
         ]);
-       // $recordurl = \Config::get("app.url")."/twilio/storetranscript"; 
-       // $response->record([ 'transcribeCallback' => $recordurl
-// ]);
+       $recordurl = \Config::get("app.url")."/twilio/storetranscript";
+       Log::info('Trasncript Call back url '.$recordurl);
+       $response->record([ 'transcribeCallback' => $recordurl ]);
 
        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
@@ -161,18 +164,19 @@ class TwilioController extends FindByNumberController
      */
     public function storetranscript(Request $request)
     {
+      Log::info('---------------- Enter in Function for Trasncript--------------------- ' . $request->get("CallStatus"));
+        $sid = $request->get("CallSid");
+                 Log::info('TranscriptionText '.$request->input('TranscriptionText'));
 
- $params = [
-            'recording_url' => $request->input('RecordingUrl'),
-            'twilio_call_sid' => $request->input('Caller'),
-            'message' => $request->input('TranscriptionText')
-        ];
-         Log::info('Recording URL'.$request->input('RecordingUrl'));
-         Log::info('Caller NAME '.$request->input('From'));
-         Log::info('TranscriptionText '.$request->input('TranscriptionText'));
-                return "Recording saved";
+      $call_status = $request->get("CallStatus");
+        if($call_status == 'completed') {
+                CallRecording::where('callsid', $sid)
+                         ->first()
+                         ->update(['message' => $request->input('TranscriptionText')]);
+
             }
-
+                return 'Ok';
+    }
 
 
 
@@ -209,7 +213,8 @@ class TwilioController extends FindByNumberController
         $sid = $request->get("CallSid");
         $params = [
             'recording_url' => $url,
-            'twilio_call_sid' => $sid
+            'twilio_call_sid' => $sid,
+            'callsid' => $sid
         ];
         $context = $request->get("context");
         $internalId = $request->get("internalId");
@@ -224,9 +229,6 @@ class TwilioController extends FindByNumberController
         $customer_mobile = $request->get("Mobile");
         if($customer_mobile != '')
             $params['customer_number'] = $customer_mobile;
-
-        Log::info('Customer number: '.$customer_mobile);  
-
 
         CallRecording::create($params);
     }
@@ -249,7 +251,7 @@ class TwilioController extends FindByNumberController
     }
     private function dialAllClients($response, $role="sales", $context=NULL, $object=NULL , $number = "")
     {
-          $url =  \Config::get("app.url")."/twilio/recordingStatusCallback". "&Mobile=" .$number ;
+          $url =  \Config::get("app.url")."/twilio/recordingStatusCallback" ;
           $actionurl =  \Config::get("app.url")."/twilio/handleDialCallStatus";
         if ($context) {
             $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id. "&Mobile=" .$number ;
@@ -257,12 +259,9 @@ class TwilioController extends FindByNumberController
 
 
          $dial = $response->dial([
-
-                'record' => 'true',
-
-                    'recordingStatusCallback' =>$url,
-
-                    'action' => $actionurl
+                            'record' => 'true',
+                            'recordingStatusCallback' =>$url,
+                            'action' => $actionurl
 
                 ]);
 
@@ -272,6 +271,9 @@ class TwilioController extends FindByNumberController
         foreach ($clients as $client) {
             $dial->client( $client);
         }
+
+
+
     }
    private function createIncomingGather($response, $speech)
     {
@@ -315,6 +317,11 @@ class TwilioController extends FindByNumberController
             $response->hangup();
 
             return $response;
+        }else{
+
+                       $recordurl = \Config::get("app.url")."/twilio/storetranscript";
+           Log::info('Trasncript Call back url '.$recordurl);
+           $response->record([ 'transcribeCallback' => $recordurl ]);
         }
         return $response;
     }

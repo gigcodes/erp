@@ -249,7 +249,7 @@ class CustomerController extends Controller
           $customer_number = $phone_number;
         }
  
-     $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->get()->toArray();
+     $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
       }
 
 
