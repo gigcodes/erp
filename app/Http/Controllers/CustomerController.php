@@ -49,6 +49,12 @@ class CustomerController extends Controller
   			case 'instagram':
   					 $sortby = 'instahandler';
   					break;
+        case 'lead_created':
+  					 $sortby = 'lead_created';
+  					break;
+        case 'order_created':
+  					 $sortby = 'order_created';
+  					break;
         case 'rating':
   					 $sortby = 'rating';
   					break;
@@ -59,7 +65,7 @@ class CustomerController extends Controller
   					 $sortby = 'communication';
   		}
 
-      if ($sortby != 'communication' && $sortby != 'rating') {
+      if ($sortby != 'communication' && $sortby != 'rating' && $sortby != 'lead_created' && $sortby != 'order_created') {
   			$customers = $customers->orderBy($sortby, $orderby);
       }
 
@@ -98,6 +104,34 @@ class CustomerController extends Controller
   			} else {
   				$customers = array_values(array_sort($customers, function ($value) {
   						return $value['lead']['rating'];
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'lead_created') {
+  			if ($orderby == 'asc') {
+  				$customers = array_values(array_sort($customers, function ($value) {
+  						return $value['lead']['created_at'];
+  				}));
+
+  				$customers = array_reverse($customers);
+  			} else {
+  				$customers = array_values(array_sort($customers, function ($value) {
+  						return $value['lead']['created_at'];
+  				}));
+  			}
+  		}
+
+      if ($sortby == 'order_created') {
+  			if ($orderby == 'asc') {
+  				$customers = array_values(array_sort($customers, function ($value) {
+  						return $value['order']['created_at'];
+  				}));
+
+  				$customers = array_reverse($customers);
+  			} else {
+  				$customers = array_values(array_sort($customers, function ($value) {
+  						return $value['order']['created_at'];
   				}));
   			}
   		}
