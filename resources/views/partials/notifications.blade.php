@@ -429,7 +429,7 @@
                 link = '/instruction';
                 message = '<h4>Reminder</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
 
-                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                notification_html = '<div class="notification">' + message + '</div>';
                 $('#tasks-notification').append(notification_html);
                 $('#tasks-notification').css({'display': 'block'});
 
