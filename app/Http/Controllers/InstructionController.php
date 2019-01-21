@@ -147,6 +147,25 @@ class InstructionController extends Controller
       return response("success");
     }
 
+    public function completeAlert(Request $request)
+    {
+      $instruction = Instruction::find($request->id);
+
+      PushNotification::where('model_type', 'App\Instruction')->where('model_id', $request->id)->delete();
+
+      NotificationQueueController::createNewNotification([
+        'message' => 'Reminder for Instructions',
+        'timestamps' => ['+10 minutes'],
+        'model_type' => Instruction::class,
+        'model_id' =>  $instruction->id,
+        'user_id' => Auth::id(),
+        'sent_to' => $instruction->assigned_to,
+        'role' => '',
+      ]);
+
+      return redirect()->route('instruction.index');
+    }
+
     /**
      * Remove the specified resource from storage.
      *

@@ -51,7 +51,7 @@
         ...
       </div> --}}
       <div class="modal-footer">
-        <a href="{{ route('instruction.index') }}" class="btn btn-secondary mx-auto">OK</a>
+        <a href="" id="instructionAlertUrl" class="btn btn-secondary mx-auto">OK</a>
       </div>
     </div>
   </div>
@@ -266,7 +266,7 @@
                         }
 
                         if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task' || this.items[i].model_type == 'App\\Instruction') {
-                            if (this.taskcount !== 5) {
+                            if (this.taskcount !== 1) {
                                 this.items[i]['isShown'] = true;
                                 toast(this.items[i]);
                                 this.taskcount++;
@@ -442,8 +442,9 @@
                 break;
 
             case 'App\\Instruction':
-                // link = '/instruction';
+                link = "{{ route('instruction.complete.alert') }}" + "?id=" + notification.model_id;
                 // message = '<h4>Reminder</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+                $('#instructionAlertUrl').attr('href', link);
                 jQuery.noConflict();
                 $('#instructionAlertModal').modal('show');
 

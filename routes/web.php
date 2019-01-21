@@ -70,6 +70,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('instruction','InstructionController');
 	Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
 	Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
+	Route::get('instruction/complete/alert', 'InstructionController@completeAlert')->name('instruction.complete.alert');
 
 
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
