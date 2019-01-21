@@ -7,6 +7,8 @@ use App\Instruction;
 use App\Setting;
 use App\Helpers;
 use App\User;
+use App\NotificationQueue;
+use App\PushNotification;
 use Carbon\Carbon;
 use Auth;
 
@@ -75,6 +77,16 @@ class InstructionController extends Controller
 
       $instruction->save();
 
+      NotificationQueueController::createNewNotification([
+        'message' => 'Reminder for Instructions',
+        'timestamps' => ['+10 minutes'],
+        'model_type' => Instruction::class,
+        'model_id' =>  $instruction->id,
+        'user_id' => Auth::id(),
+        'sent_to' => $instruction->assigned_to,
+        'role' => '',
+      ]);
+
       return back()->with('success', 'You have successfully created instruction!');
     }
 
@@ -117,6 +129,9 @@ class InstructionController extends Controller
       $instruction = Instruction::find($request->id);
       $instruction->completed_at = Carbon::now();
       $instruction->save();
+
+      NotificationQueue::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
+      PushNotification::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
 
       $url = route('customer.show', $instruction->customer->id) . '#internal-message-body';
 

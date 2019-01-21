@@ -41,7 +41,7 @@
     </ul>
 </li>
 
-{{-- <script>
+<script>
     var interval = 1000 * 30;  // 1000 = 1 second
     var notificationShowCount = 15;
 
@@ -168,6 +168,10 @@
                                 this.taskcount--;
 
                                 break;
+                            case 'App\\Instruction':
+                                this.taskcount--;
+
+                                break;
                             case 'User':
                                 this.taskcount--;
 
@@ -245,7 +249,7 @@
                             }
                         }
 
-                        if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task') {
+                        if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task' || this.items[i].model_type == 'App\\Instruction') {
                             if (this.taskcount !== 5) {
                                 this.items[i]['isShown'] = true;
                                 toast(this.items[i]);
@@ -291,6 +295,10 @@
 
                                 break;
                             case 'App\\Http\\Controllers\\Task':
+                                this.taskcount--;
+
+                                break;
+                            case 'App\\Instruction':
                                 this.taskcount--;
 
                                 break;
@@ -417,6 +425,16 @@
 
                 break;
 
+            case 'App\\Instruction':
+                link = '/instruction';
+                message = '<h4>Reminder</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+
+                notification_html = '<div class="notification">' + close_button + message + '</div>';
+                $('#tasks-notification').append(notification_html);
+                $('#tasks-notification').css({'display': 'block'});
+
+                break;
+
             case 'User':
                 link = '/#task_' + notification.model_id;
                 message = '<h4>' + (notification.subject.length > 30 ? notification.subject.substring(0, 30 - 3) + '...' : notification.subject) + '</h4><a class="notification-link" href="' + link + '" style="padding-bottom: 10px; display: block;">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + ' - ' + moment(notification.created_at).format('H:m') + '</a>';
@@ -513,4 +531,4 @@
     });
 
 
-</script> --}}
+</script>
