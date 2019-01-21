@@ -130,7 +130,23 @@ class PurchaseController extends Controller
         }
       }
 
-      if ($request->status[0] == null && $request->supplier[0] == null) {
+      if ($request->brand[0] != null) {
+        $brand = $request->brand[0];
+
+        if ($request->status[0] != null) {
+          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) use ($status) {
+            $q->whereIn('order_status', $status);
+          })->whereHas('Product', function($q) use ($brand) {
+            $q->where('brand', $brand);
+          })->get();
+        } else {
+          $orders = OrderProduct::select('sku')->with('Product')->whereHas('Product', function($q) use ($brand) {
+            $q->where('brand', $brand);
+          })->get();
+        }
+      }
+
+      if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
         $orders = OrderProduct::select('sku')->get();
       }
 
@@ -143,6 +159,7 @@ class PurchaseController extends Controller
       $term = $request->input('term');
       $status = isset($status) ? $status : '';
       $supplier = isset($supplier) ? $supplier : '';
+      $brand = isset($brand) ? $brand : '';
       $order_status = (new OrderStatus)->all();
       $supplier_list = (new SupplierList)->all();
 
@@ -183,7 +200,8 @@ class PurchaseController extends Controller
         'supplier_list' => $supplier_list,
         'term'          => $term,
         'status'        => $status,
-        'supplier'        => $supplier
+        'supplier'      => $supplier,
+        'brand'         => $brand
       ]);
     }
 

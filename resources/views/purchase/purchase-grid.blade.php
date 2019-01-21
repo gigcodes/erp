@@ -35,6 +35,17 @@
               {!! Form::select('supplier[]', $supplier_list, (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
             </div>
 
+            <div class="form-group mr-3">
+                @php $brands = \App\Brand::getAll(); @endphp
+                <select class="form-control select-multiple" name="brand[]" multiple>
+                  <optgroup label="Brands">
+                    @foreach ($brands as $key => $name)
+                      <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
+                </optgroup>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
         </form>
       </div>
