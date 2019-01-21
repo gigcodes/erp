@@ -1721,6 +1721,7 @@
 
                                 @can('social-create')
                                     <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
+                                    <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Create A Post</a>
                                 @endcan
                             </div>
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\Instagram;
 
+use App\Image;
 use Facebook\Facebook;
 
 class Instagram {
@@ -11,6 +12,8 @@ class Instagram {
     private $page_access_token;
     private $page_id;
     private $ad_acc_id;
+
+    private $imageIds = [];
 
     /**
      * Instagram constructor.
@@ -135,5 +138,66 @@ class Instagram {
         $comment['status'] = 'success';
 
         return $comment;
+    }
+
+    public function postMedia($images) {
+        if (!is_array($images)) {
+            $images = [$images];
+        }
+
+        $return = [];
+
+        foreach ($images as $image) {
+            $containerId = $this->postMediaObject($image);
+            if ($containerId !== false)
+            {
+                $data = [
+                    'creation_id' => $containerId,
+                    'access_token' => $this->user_access_token
+                ];
+
+                try {
+                    $response = $this->facebook->post($this->instagram_id.'/media_publish', $data)->getDecodedBody();
+                    $return[] = [
+                        'image_id' => $image->id,
+                        'post_id' => $response['id']
+                    ];
+                } catch (\Exception $exception) {
+                    continue;
+                }
+            }
+        }
+
+        $this->imageIds = $return;
+
+    }
+
+    private function postMediaObject(Image $image)
+    {
+        $data['caption']= $image->schedule->description;
+        $data['access_token']=$this->page_access_token;
+        $data['image_url'] = url(public_path().'/uploads/social-media/'.$image->filename);
+
+        $containerId = null;
+
+        try {
+            $response = $this->facebook->post($this->instagram_id.'/media', $data)->getDecodedBody();
+            if (is_array($response)) {
+                $containerId = $response['id'];
+            }
+        } catch (\Exception $exception) {
+            $containerId = false;
+        }
+
+        return $containerId;
+
+    }
+
+    /**
+     * @return array
+     */
+    public function getImageIds(): array
+    {
+        return $this->imageIds;
     }
 }
