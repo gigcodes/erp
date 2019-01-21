@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\PostScheduledMedia;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -20,7 +21,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        PostScheduledMedia::class
     ];
 
     /**
@@ -60,6 +61,9 @@ class Kernel extends ConsoleKernel
          $schedule->call(function () {
 //            MagentoController::get_magento_orders();
         })->hourly();
+
+        $schedule->command('post:scheduled-media')
+            ->everyMinute();
     }
 
     /**
