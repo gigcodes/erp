@@ -11,6 +11,7 @@ use App\User;
 use App\Brand;
 use App\Product;
 use App\Message;
+use App\ChatMessage;
 use App\Task;
 use App\Image;
 use App\Reply;
@@ -339,6 +340,7 @@ class LeadsController extends Controller
         $leads['selected_products_array'] = json_decode( $leads['selected_product'] );
         $leads['products_array'] = [];
         $leads['recordings'] = CallRecording::where('lead_id', $leads->id)->get()->toArray();
+        $leads['customers'] = Customer::all();
         $tasks = Task::where('model_type', 'leads')->where('model_id', $id)->get()->toArray();
         // $approval_replies = Reply::where('model', 'Approval Lead')->get();
         // $internal_replies = Reply::where('model', 'Internal Lead')->get();
@@ -392,6 +394,7 @@ class LeadsController extends Controller
 
         if ($request->type != 'customer') {
           $this->validate(request(), [
+            'customer_id' => 'required',
             'client_name' => '',
             'contactno' => 'sometimes|nullable|numeric|regex:/^[91]{2}/|digits:12',
   //          'city' => 'required',
@@ -433,6 +436,7 @@ class LeadsController extends Controller
 	    // }
 
         if ($request->type != 'customer') {
+          $leads->customer_id = $request->customer_id;
           $leads->client_name = $request->get('client_name');
           $leads->contactno = $request->get('contactno');
           $leads->city= $request->get('city');
@@ -458,6 +462,20 @@ class LeadsController extends Controller
         $leads->selected_product = json_encode( $request->input( 'selected_product' ) );
 
         $leads->save();
+
+        $messages = Message::where('moduletype', 'leads')->where('moduleid', $leads->id)->get();
+
+        foreach ($messages as $message) {
+          $message->customer_id = $leads->customer_id;
+          $message->save();
+        }
+
+        $chats = ChatMessage::where('lead_id', $leads->id)->get();
+
+        foreach ($chats as $chat) {
+          $chat->customer_id = $leads->customer_id;
+          $chat->save();
+        }
 
         $count = 0;
         foreach ($request->oldImage as $old) {

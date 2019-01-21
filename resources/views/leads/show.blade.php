@@ -63,6 +63,21 @@
                       <strong>Instagram Handle: </strong> {{ $leads->customer->instahandler }}
                     </div>
                   @endif
+
+                  <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+      							 <div class="form-group">
+      									 <strong>Customer:</strong>
+      									 <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" required>
+      										 @foreach ($leads['customers'] as $customer)
+      										  <option data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" value="{{ $customer->id }}" {{ isset($leads->customer) && $leads->customer->id == $customer->id ? 'selected' : '' }}>{{ $customer->name }} - {{ $customer->phone }}</option>
+      										@endforeach
+      									</select>
+
+      									 @if ($errors->has('customer_id'))
+      											 <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
+      									 @endif
+      							 </div>
+      					 </div>
                      {{-- <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                         <div class="form-group">
                             <strong>Client Name:</strong>
@@ -80,7 +95,7 @@
 
                      <div class="col-xs-12 col-sm-8 col-sm-offset-2 mt-5">
                         <div class="form-group">
-                          @if (strlen($leads->customer->phone) != 12 || preg_match('/^[91]{2}/', $leads->customer->phone))
+                          @if (strlen($leads->contactno) != 12 || preg_match('/^[91]{2}/', $leads->contactno))
                             <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
                           @endif
                             <strong>Contact No:</strong>
