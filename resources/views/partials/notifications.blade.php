@@ -41,6 +41,22 @@
     </ul>
 </li>
 
+<div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Instruction Reminder</h3>
+      </div>
+      {{-- <div class="modal-body">
+        ...
+      </div> --}}
+      <div class="modal-footer">
+        <a href="{{ route('instruction.index') }}" class="btn btn-secondary mx-auto">OK</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     var interval = 1000 * 30;  // 1000 = 1 second
     var notificationShowCount = 15;
@@ -227,11 +243,11 @@
         }, {
             key: 'notificationCount',
             value: function notificationCount() {
-                if ($('#notification_count').length === 0) {
-                    $('.notifications-container').prepend('<div id="notification_count"></div>');
-                }
-
-                $('#notification_count').html(this.items.length);
+                // if ($('#notification_count').length === 0) {
+                //     $('.notifications-container').prepend('<div id="notification_count"></div>');
+                // }
+                //
+                // $('#notification_count').html(this.items.length);
             }
         }, {
             key: 'showNotification',
@@ -426,12 +442,14 @@
                 break;
 
             case 'App\\Instruction':
-                link = '/instruction';
-                message = '<h4>Reminder</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+                // link = '/instruction';
+                // message = '<h4>Reminder</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
+                jQuery.noConflict();
+                $('#instructionAlertModal').modal('show');
 
-                notification_html = '<div class="notification">' + message + '</div>';
-                $('#tasks-notification').append(notification_html);
-                $('#tasks-notification').css({'display': 'block'});
+                // notification_html = '<div class="notification">' + message + '</div>';
+                // $('#tasks-notification').append(notification_html);
+                // $('#tasks-notification').css({'display': 'block'});
 
                 break;
 
