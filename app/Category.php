@@ -21,7 +21,7 @@ class Category extends Model
 	 * @return string
 	 */
 	public function childs() {
-		return $this->hasMany('App\Category','parent_id','id') ;
+		return $this->hasMany(__CLASS__,'parent_id','id') ;
 	}
 
 	public static function isParent($id){

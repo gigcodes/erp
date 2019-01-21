@@ -43,4 +43,9 @@ class Image extends Model
 		);
 	}
 
+	public function schedule(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+	    return $this->hasOne(ImageSchedule::class, 'image_id', 'id');
+    }
+
 }
