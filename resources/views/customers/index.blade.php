@@ -205,7 +205,7 @@
         </div>
     @endif
 
-    <table class="table table-bordered">
+    <table class="table table-bordered table-responsive">
         <tr>
           <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=name{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Name</a></th>
           @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
