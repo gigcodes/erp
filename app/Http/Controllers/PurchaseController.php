@@ -13,6 +13,7 @@ use App\User;
 use App\Comment;
 use App\Reply;
 use App\Message;
+use App\ReplyCategory;
 use App\Task;
 use App\ReadOnly\OrderStatus as OrderStatus;
 use App\ReadOnly\SupplierList;
@@ -240,6 +241,7 @@ class PurchaseController extends Controller
   		$data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
   		$data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
       $data['purchase_status'] = (new PurchaseStatus)->all();
+      $data['reply_categories'] = ReplyCategory::all();
 
   		return view('purchase.show', $data)->withOrder($purchase);
     }
@@ -302,6 +304,8 @@ class PurchaseController extends Controller
     {
       $purchase = Purchase::find($id);
       $purchase->bill_number = $request->bill_number;
+      $purchase->supplier_phone = $request->supplier_phone;
+      $purchase->whatsapp_number = $request->whatsapp_number;
       $purchase->save();
     }
 

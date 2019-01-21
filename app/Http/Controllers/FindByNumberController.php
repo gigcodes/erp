@@ -15,6 +15,7 @@ use App\User;
 use App\Brand;
 use App\Product;
 use App\Message;
+use App\Purchase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers;
@@ -31,6 +32,11 @@ class FindByNumberController extends Controller
 	{
 		return Order::where('contact_detail', '=', $number)->first();
 	}
+
+	protected function findPurchaseByNumber($number)
+{
+	return Purchase::where('supplier_phone', '=', $number)->first();
+}
     protected function findLeadOrOrderByNumber($number)
     {
         $lead = $this->findLeadByNumber($number);

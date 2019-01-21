@@ -11,6 +11,7 @@ class Purchase extends Model
 
   protected $appends = ['communication'];
 	protected $communication = '';
+  protected $fillable = ['whatsapp_number'];
 
 	public function messages()
 	{

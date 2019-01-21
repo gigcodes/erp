@@ -70,7 +70,7 @@ class MessageController extends Controller
               if ($order->customer) {
                 $data['customer_id'] = $order->customer->id;
               }
-            } else {
+            } elseif ($moduletype == 'customer') {
               $customer = Customer::find($id);
               $data['customer_id'] = $customer->id;
             }
