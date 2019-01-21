@@ -200,7 +200,7 @@ class UserController extends Controller
 
 	public function login()
 	{
-		$logins = UserLogin::paginate(Setting::get('pagination'));
+		$logins = UserLogin::latest()->paginate(Setting::get('pagination'));
 
 		return view('users.login')->withLogins($logins);
 	}
@@ -210,7 +210,7 @@ class UserController extends Controller
 		$users = User::all();
 
 		foreach ($users as $user) {
-			if ($login = UserLogin::where('user_id', $user->id)->latest()->first()) {
+			if ($login = UserLogin::where('user_id', $user->id)->where('created_at', '>', Carbon::now()->format('Y-m-d'))->latest()->first()) {
 
 			} else {
 				$login = UserLogin::create(['user_id'	=> $user->id]);
@@ -219,9 +219,11 @@ class UserController extends Controller
 			if (Cache::has('user-is-online-' . $user->id)) {
 				if ($login->logout_at) {
 					UserLogin::create(['user_id'	=> $user->id, 'login_at'	=> Carbon::now()]);
+				} else if (!$login->login_at) {
+					$login->update(['login_at'	=> Carbon::now()]);
 				}
 			} else {
-				if (!$login->logout_at) {
+				if ($login->created_at && !$login->logout_at) {
 					$login->update(['logout_at'	=> Carbon::now()]);
 				}
 			}
