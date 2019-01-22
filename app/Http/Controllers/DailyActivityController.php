@@ -29,7 +29,7 @@ class DailyActivityController extends Controller
     	$user_id = $selected_user ??  \Auth::id();
 
     	$activities = DailyActivity::where('user_id',$user_id)
-	                               ->where('for_date',date('Y-m-d'))->get()->toArray();
+	                               ->where('for_date',$request->daily_activity_date)->get()->toArray();
 
     	return $activities;
     }

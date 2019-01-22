@@ -36,6 +36,7 @@
                 <div class="col-md-5 col-12">
                     <h4>User</h4>
                     <form action="{{ route('task.index') }}" method="GET" enctype="multipart/form-data">
+                      <input type="hidden" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -210,11 +211,24 @@
                         <div class="panel-heading"><h4>Daily Activity</h4></div>
                         <div class="panel-body">
                             <div class="mt-2 mb-2 text-right">
+                              <form action="/task" method="GET" class="form-inline">
+                                @if (!empty($selected_user))
+                                  <input type="hidden" name="selected_user" value="{{ $selected_user }}">
+                                @endif
+                                <div class='input-group date' id='daily_activity_date'>
+                                  <input type='text' class="form-control" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}" />
+
+                                  <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                                </div>
+                                <button type="submit" class="btn btn-secondary ml-1">Submit</button>
                                 @if(!$isAdmin)
-                                    <button id="add-row" class="btn btn-secondary">Add Row</button>
+                                  <button id="add-row" class="btn btn-secondary ml-5">Add Row</button>
                                 @endif
                                 <button id="save-activity" class="btn btn-secondary">Save</button>
                                 <img id="loading_activty" style="display: none" src="{{ asset('images/loading.gif') }}"/>
+                              </form>
                             </div>
 
                             <div id="daily_activity"></div>
@@ -600,6 +614,10 @@
           format: 'YYYY-MM-DD HH:mm'
         });
 
+        $('#daily_activity_date').datetimepicker({
+          format: 'YYYY-MM-DD'
+        });
+
         let users = {!! json_encode( $data['users'] ) !!};
 
         let isAdmin = {{ $isAdmin ? 1 : 0}};
@@ -738,6 +756,7 @@
                 type: 'GET',
                 data :{
                     selected_user : '{{ $selected_user }}',
+                    daily_activity_date: "{{ $data['daily_activity_date'] }}",
                 },
                 url: '{{ route('dailyActivity.get') }}',
             }).done(response => {

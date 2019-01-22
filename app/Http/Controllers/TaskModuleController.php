@@ -121,6 +121,7 @@ class TaskModuleController extends Controller {
 
 		$users                     = User::oldest()->get()->toArray();
 		$data['users']             = $users;
+		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
 		$category = '';
 
