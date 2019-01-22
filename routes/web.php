@@ -49,6 +49,8 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('productapprover','ProductApproverController');
 	Route::resource('productinventory','ProductInventoryController');
 	Route::resource('sales','SaleController');
+	Route::resource('stock','StockController');
+	Route::delete('stock/{id}/permanentDelete', 'StockController@permanentDelete')->name('stock.permanentDelete');
 //	Route::resource('activity','ActivityConroller');
 	Route::resource('brand','BrandController');
 	Route::resource('reply','ReplyController');
