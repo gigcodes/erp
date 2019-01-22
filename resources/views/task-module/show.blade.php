@@ -224,9 +224,9 @@
                                 </div>
                                 <button type="submit" class="btn btn-secondary ml-1">Submit</button>
                                 @if(!$isAdmin)
-                                  <button id="add-row" class="btn btn-secondary ml-5">Add Row</button>
+                                  <button id="add-row" type="button" class="btn btn-secondary ml-5">Add Row</button>
                                 @endif
-                                <button id="save-activity" class="btn btn-secondary">Save</button>
+                                <button id="save-activity" type="button" class="btn btn-secondary">Save</button>
                                 <img id="loading_activty" style="display: none" src="{{ asset('images/loading.gif') }}"/>
                               </form>
                             </div>
