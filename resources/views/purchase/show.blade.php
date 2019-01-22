@@ -799,7 +799,7 @@
          if ( message.message ) {
              p.html( message.message );
          } else if ( message.media_url ) {
-             var splitted = message.content_type.split("/");
+             var splitted = message.content_type[1].split("/");
              if (splitted[0]==="image") {
                  var a = $("<a></a>");
                  a.attr("target", "_blank");
