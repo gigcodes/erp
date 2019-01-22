@@ -58,9 +58,9 @@ class NotificationQueueController extends Controller
 			}
 		}
 
-		// if ($notificationArray['sent_to'] == 6 || (array_key_exists('role', $notificationArray) && $notificationArray['role'] == 'Admin')) {
-		// 	// TEMP SOLUTION TO TURN OFF NOTIFICATIONS FOR ADMINS
-		// } else {
+		if ($notificationArray['sent_to'] == 6 || $notificationArray['sent_to'] == 56 || (array_key_exists('role', $notificationArray) && $notificationArray['role'] == 'Admin')) {
+			// TEMP SOLUTION TO TURN OFF NOTIFICATIONS FOR ADMINS
+		} else {
 			foreach ($notificationArray['timestamps'] as $time){
 
 				$data = $notificationArray;
@@ -68,7 +68,7 @@ class NotificationQueueController extends Controller
 
 				NotificationQueue::create($data);
 			}
-		// }
+		}
 
 
 	}
