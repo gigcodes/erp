@@ -330,27 +330,25 @@ class WhatsAppController extends FindByNumberController
         'user_id' => Auth::id(),
       ];
 
-
-
       if ($message) {
-        if ($request->model_type == 'leads') {
+        if ($request->moduletype == 'leads') {
           $params['lead_id'] = $message->moduleid;
           if ($lead = Leads::find($message->moduleid)) {
             if ($lead->customer) {
               $params['customer_id'] = $lead->customer->id;
             }
           }
-        } elseif ($request->model_type == 'orders') {
+        } elseif ($request->moduletype == 'orders') {
           $params['order_id'] = $message->moduleid;
           if ($order = Order::find($message->moduleid)) {
             if ($order->customer) {
               $params['customer_id'] = $order->customer->id;
             }
           }
-        } elseif ($request->model_type == 'customer') {
+        } elseif ($request->moduletype == 'customer') {
           $customer = Customer::find($message->customer_id);
           $params['customer_id'] = $customer->id;
-        } elseif ($request->model_type == 'purchase') {
+        } elseif ($request->moduletype == 'purchase') {
           $params['purchase_id'] = $message->moduleid;
         }
 
@@ -369,11 +367,11 @@ class WhatsAppController extends FindByNumberController
           ChatMessage::create($params);
         }
       } else {
-        if ($request->model_type == 'customer') {
+        if ($request->moduletype == 'customer') {
           $params['customer_id'] = $request->moduleid;
           $params['order_id'] = NULL;
         }
-        elseif ($request->model_type == 'leads') {
+        elseif ($request->moduletype == 'leads') {
           $params['lead_id'] = $request->moduleid;
           if ($lead = Leads::find($request->moduleid)) {
             if ($lead->customer) {

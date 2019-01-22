@@ -1631,7 +1631,7 @@ jQuery(document).ready(function( $ ) {
               type: 'POST',
               data: {
                 _token: token,
-                model_type: "customer",
+                moduletype: "customer",
                 message_id: message_id
               },
               beforeSend: function() {

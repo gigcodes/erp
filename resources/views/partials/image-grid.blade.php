@@ -121,6 +121,17 @@
         </div>
     @endif
 
+    @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
 
 
     <div class="productGrid" id="productGrid">
@@ -198,16 +209,17 @@
         console.log(image_array);
       });
 
-      $('#attachImageForm').on('submit', function(e) {
-        e.preventDefault();
-
-        if (image_array.length == 0) {
-          alert('Please select some images');
-        } else {
-          $('#images').val(JSON.stringify(image_array));
-          $('#attachImageForm')[0].submit();
-        }
-      });
+      // $('#attachImageForm').on('submit', function(e) {
+      //   e.preventDefault();
+      //
+      //   if (image_array.length == 0) {
+      //     alert('Please select some images');
+      //   } else {
+      //     $('#images').val(JSON.stringify(image_array));
+      //     alert(JSON.stringify(image_array));
+      //     // $('#attachImageForm')[0].submit();
+      //   }
+      // });
 
       $('#searchForm').on('submit', function(e) {
         e.preventDefault();
@@ -283,7 +295,12 @@
             });
 
             $(document).on('click', '#sendImageMessage', function() {
-              $('#attachImageForm').submit();
+              if (image_array.length == 0) {
+                alert('Please select some images');
+              } else {
+                $('#images').val(JSON.stringify(image_array));
+                $('#attachImageForm').submit();
+              }
             });
         // });
 
