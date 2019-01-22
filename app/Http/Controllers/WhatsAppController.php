@@ -87,7 +87,7 @@ class WhatsAppController extends FindByNumberController
               $params['lead_id'] = null;
               $params['order_id'] = null;
               $params['purchase_id'] = $purchase->id;
-              
+
               $params = $this->modifyParamsWithMessage($params, $data);
               $message = ChatMessage::create($params);
               $model_type = 'purchase';
@@ -333,24 +333,24 @@ class WhatsAppController extends FindByNumberController
 
 
       if ($message) {
-        if ($request->moduletype == 'leads') {
+        if ($request->model_type == 'leads') {
           $params['lead_id'] = $message->moduleid;
           if ($lead = Leads::find($message->moduleid)) {
             if ($lead->customer) {
               $params['customer_id'] = $lead->customer->id;
             }
           }
-        } elseif ($request->moduletype == 'orders') {
+        } elseif ($request->model_type == 'orders') {
           $params['order_id'] = $message->moduleid;
           if ($order = Order::find($message->moduleid)) {
             if ($order->customer) {
               $params['customer_id'] = $order->customer->id;
             }
           }
-        } elseif ($request->moduletype == 'customer') {
+        } elseif ($request->model_type == 'customer') {
           $customer = Customer::find($message->customer_id);
           $params['customer_id'] = $customer->id;
-        } elseif ($request->moduletype == 'purchase') {
+        } elseif ($request->model_type == 'purchase') {
           $params['purchase_id'] = $message->moduleid;
         }
 
@@ -369,11 +369,11 @@ class WhatsAppController extends FindByNumberController
           ChatMessage::create($params);
         }
       } else {
-        if ($request->moduletype == 'customer') {
+        if ($request->model_type == 'customer') {
           $params['customer_id'] = $request->moduleid;
           $params['order_id'] = NULL;
         }
-        elseif ($request->moduletype == 'leads') {
+        elseif ($request->model_type == 'leads') {
           $params['lead_id'] = $request->moduleid;
           if ($lead = Leads::find($request->moduleid)) {
             if ($lead->customer) {
