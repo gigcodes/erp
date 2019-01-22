@@ -1078,9 +1078,9 @@ jQuery(document).ready(function( $ ) {
 
 
 
-      $('#completion-datetime').datetimepicker({
-        format: 'YYYY-MM-DD HH:mm'
-      });
+      // $('#completion-datetime').datetimepicker({
+      //   format: 'YYYY-MM-DD HH:mm'
+      // });
 
           jQuery(document).ready(function() {
 
