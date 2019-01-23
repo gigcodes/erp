@@ -19,6 +19,16 @@
                           <a href="{{ route('pending',$roletype) }}"><strong>Pending
                                   : </strong> {{ \App\Product::getPendingProductsCount($roletype) }}</a>
                       </div>
+                      @if ($roletype == 'Inventory')
+                        <form class="form-inline mb-3" action="{{ route('productinventory.import') }}" method="POST" enctype="multipart/form-data">
+                          @csrf
+                          <div class="form-group">
+                            <input type="file" name="file" class="form-control-file" required>
+                          </div>
+
+                          <button type="submit" class="btn btn-secondary ml-3">Import Inventory</button>
+                        </form>
+                      @endif
                   @endif
                 @endcan
 
@@ -104,6 +114,17 @@
     @if ($message = Session::get('success'))
         <div class="alert alert-success">
             {{ $message }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 

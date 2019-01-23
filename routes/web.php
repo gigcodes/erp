@@ -47,6 +47,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('productsupervisor','ProductSupervisorController');
 	Route::resource('productlister','ProductListerController');
 	Route::resource('productapprover','ProductApproverController');
+	Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
 	Route::resource('productinventory','ProductInventoryController');
 	Route::resource('sales','SaleController');
 	Route::resource('stock','StockController');

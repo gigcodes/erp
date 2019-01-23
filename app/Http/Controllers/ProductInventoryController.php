@@ -8,6 +8,8 @@ use App\Stage;
 use App\Brand;
 use App\Category;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\InventoryImport;
 
 class ProductInventoryController extends Controller
 {
@@ -272,5 +274,16 @@ class ProductInventoryController extends Controller
 		}
 
 		return $result;
+	}
+
+	public function import(Request $request)
+	{
+		$this->validate($request, [
+			'file'	=> 'required|mimes:xlsx,xls'
+		]);
+
+		Excel::import(new InventoryImport, $request->file('file'));
+
+		return back()->with('success', 'You have successfully imported Inventory');
 	}
 }

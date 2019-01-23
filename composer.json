@@ -16,6 +16,7 @@
         "laravel/passport": "^6.0",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "^5.6",
+        "maatwebsite/excel": "^3.1",
         "plank/laravel-mediable": "^2.7",
         "pusher/pusher-http-laravel": "^4.2",
         "pusher/pusher-php-server": "v3.0.1",
