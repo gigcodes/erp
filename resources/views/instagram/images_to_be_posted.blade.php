@@ -115,13 +115,6 @@
                                     <br>
                                     {!! preg_replace('/(?:^|\s)#(\w+)/', ' <a class="text-info" href="https://www.instagram.com/explore/tags/$1">#$1</a>', $image->schedule->description) !!}
                                 </div>
-                                @if ($image->schedule->status === 0)
-                                    <div class="text-center mt-5">
-                                        <button class="btn btn-success btn-lg post-now" data-pid="{{$key}}" data-image-id="{{$image->id}}">
-                                            Post Now <i class="fa fa-send"></i>
-                                        </button>
-                                    </div>
-                                @endif
                             @else
                                 <form action="{{ action('InstagramController@postMedia') }}" method="post" class="post-submit" data-pid="{{$key}}">
                                     @csrf
@@ -206,24 +199,6 @@
             });
             $(".datepicker").datepicker({
                 dateFormat: 'yy-mm-dd'
-            });
-            $('.post-now').click(function() {
-                let pid = $(this).attr('data-pid');
-                let imageId = $(this).attr('data-image-id');
-                let self = this;
-                $.ajax({
-                    url: '{{ action('InstagramController@postMediaNow', '') }}'+'/'+imageId,
-                    type: 'get',
-                    success: function(response) {
-                        if (response.status == 'success') {
-                            alert("Image posted successfully. We will reload the page for recent data.");
-                            location.reload();
-                        }
-                    },
-                    beforeSend: function() {
-                        $(self).html('Posting... <i class="fa fa-spinner"></i>');
-                    }
-                });
             });
         });
         $('.schedule-handle').on('click', function () {

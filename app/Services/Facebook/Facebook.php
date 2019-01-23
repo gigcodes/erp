@@ -30,11 +30,12 @@ class Facebook {
         $this->instagram_id = '17841406743743390';
     }
 
-    public function postMedia($images): void
+    public function postMedia($images, $message = ''): void
     {
         if (!is_array($images)) {
             $images = [$images];
         }
+
         $imageIds = [];
         $key = 0;
 
@@ -53,6 +54,7 @@ class Facebook {
         }
 
         $data = null;
+        $postMedia['message'] = $message;
 
         try {
             $response = $this->facebook->post('/me/feed',$postMedia)->getDecodedBody();
