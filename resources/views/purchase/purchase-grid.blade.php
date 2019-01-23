@@ -140,6 +140,7 @@
                 'supplier': '{{ $product['supplier'] }}',
                 'image': '{{ $product['image']}}',
                 'link': '{{ route('products.show', $product['id']) }}',
+                'customer_id': '{{ $product['customer_id'] != 'No Customer' && $product['customer_id'] != 'No Order' ? route('customer.show', $product['customer_id']) : '#noCustomer' }}',
                 'customer_name': '{{ $product['customer_name'] }}',
                 'order_price': '{{ $product['order_price'] }}',
                 'order_date': '{{ $product['order_date'] }}'
@@ -161,7 +162,7 @@
 
                     html += `
                         <div class="col-md-3 col-xs-6 text-center">
-
+                          <a href="` + product['customer_id'] + `">
                             <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Name: </strong>` + product['customer_name'] + `<br><strong>Price in Order: </strong>` + product['order_price'] + `<br><strong>Order Date: </strong>` + moment(product['order_date']).format('DD-MM') + `<br><strong>Supplier: </strong>` + product['supplier'] + `" />
                                             <input type="checkbox" class="` + key.replace(/[^a-zA-Z0-9]/g, '-') + `" name="products[]" value="` + product['id'] + `">
                                             <a href="` + product['link'] + `" class="btn btn-image"><img src="/images/view.png" /></a>
@@ -174,7 +175,7 @@
                                 </button>
                             @endcan--}}
 
-                        </div>
+                        </a></div>
                     `;
                 });
 
