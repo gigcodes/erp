@@ -6,6 +6,7 @@ use App\Brand;
 use App\Category;
 use App\Image;
 use App\ImageSchedule;
+use App\ScheduleGroup;
 use App\Services\Instagram\Instagram;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -88,7 +89,9 @@ class InstagramController extends Controller
         return response()->json($comment);
     }
 
-    public function showImagesToBePosted(Request $request, Image $images) {
+    public function showImagesToBePosted(Request $request) {
+
+        $images = Image::where('status', 2);
 
         $selected_categories = 1;
         $selected_brands = [];
@@ -149,6 +152,12 @@ class InstagramController extends Controller
             $schedule->status = 0;
             $schedule->save();
 
+            $scheduleGroup = new ScheduleGroup();
+            $scheduleGroup->images = [$request->get('image_id')];
+            $scheduleGroup->scheduled_for = $date;
+            $scheduleGroup->description = $request->get('description');
+            $scheduleGroup->save();
+
             return response()->json([
                 'status' => 'success',
                 'post_status' => $schedule->status,
@@ -196,21 +205,98 @@ class InstagramController extends Controller
 
     }
 
-    public function postMediaNow($image)
+    public function postMediaNow($schedule)
     {
-        $image = Image::findOrFail($image);
+        $schedule = ScheduleGroup::findOrFail($schedule);
+        $images = $schedule->images->get()->all();
 
-        $this->facebook->postMedia($image);
-        ImageSchedule::whereIn('image_id', $this->facebook->getImageIds())->update([
-            'status' => 1,
-            'scheduled_for' => date('Y-m-d')
-        ]);
+
+        if ($images[0]->schedule->facebook) {
+            $this->facebook->postMedia($images, $schedule->description);
+            ImageSchedule::whereIn('image_id', $this->facebook->getImageIds())->update([
+                'status' => 1,
+                'scheduled_for' => date('Y-m-d h:i:00')
+            ]);
+        }
+        if ($images[0]->schedule->instagram) {
+            $this->instagram->postMedia($images);
+            ImageSchedule::whereIn('image_id', $this->instagram->getImageIds())->update([
+                'status' => 1,
+                'scheduled_for' => date('Y-m-d h:i:00')
+            ]);
+        }
+
+        $schedule->status = 1;
+        $schedule->scheduled_for = date('Y-m-d h:i:00');
+        $schedule->save();
 
         return response()->json([
             'status' => 'success',
-            'post_status' => $image->schedule->status,
-            'time' => $image->schedule->scheduled_for->diffForHumans(),
-            'message' => 'This post has been posted successfully!.'
+            'post_status' => $schedule->status,
+            'time' => $schedule->scheduled_for->diffForHumans(),
+            'message' => 'This schedule has been posted successfully!.'
         ]);
+    }
+
+    public function showSchedules(Request $request) {
+        $imagesWithoutSchedules = Image::whereDoesntHave('schedule')->where('status', 2)->orderBy('created_at', 'DESC')->get();
+        $imagesWithSchedules = ScheduleGroup::where('status', 0)->get();
+        $postedImages = Image::whereHas('schedule', function($query) {
+            $query->where('status', 1);
+        })->orderBy('created_at', 'DESC')->get();
+
+        return view('instagram.schedules', compact('imagesWithoutSchedules', 'imagesWithSchedules', 'postedImages'));
+
+    }
+
+    public function getScheduledEvents() {
+        $imagesWithSchedules = ScheduleGroup::where('status', 0)->get()->toArray();
+        $imagesWithSchedules = array_map(function($item) {
+            return [
+                'title' => substr($item['description'], 0, 500).'...',
+                'start' => $item['scheduled_for'],
+                'end' => $item['scheduled_for']
+
+            ];
+        }, $imagesWithSchedules);
+
+        return response()->json($imagesWithSchedules);
+    }
+
+    public function postSchedules(Request $request) {
+        $this->validate($request, [
+            'images' => 'required',
+            'description' => 'required',
+            'date' => 'required|date',
+            'hour' => 'required|numeric|min:0|max:23',
+            'minute' => 'required|numeric|min:0|max:59',
+        ]);
+
+
+        $images = $request->get('images');
+        $descriptions = $request->get('description');
+        $date = explode('-', $request->get('date'));
+        $date = Carbon::create($date[0], $date[1], $date[2], $request->get('hour'), $request->get('minute'), 0);
+        $date = $date->toDateTimeString();
+
+        foreach ($images as $image) {
+            $schedule = new ImageSchedule();
+            $schedule->image_id = $image;
+            $schedule->facebook = ($request->get('facebook') === 'on') ? 1 : 0;
+            $schedule->instagram = ($request->get('instagram') === 'on') ? 1 : 0;
+            $schedule->description = $descriptions[$image] ?? '';
+            $schedule->scheduled_for = $date;
+            $schedule->status = 0;
+            $schedule->save();
+        }
+
+        $scheduleGroup = new ScheduleGroup();
+        $scheduleGroup->images = $images;
+        $scheduleGroup->description = $request->get('caption') ?? '';
+        $scheduleGroup->scheduled_for = $date;
+        $scheduleGroup->save();
+
+        return redirect()->back()->with('message', 'The images has been successfully scheduled for post!');
+
     }
 }
