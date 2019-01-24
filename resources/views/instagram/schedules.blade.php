@@ -105,6 +105,9 @@
                                                         <button class="btn btn-success btn-lg post-now" data-pid="{{$schedule->id}}" data-schedule-id="{{$schedule->id}}">
                                                             Post Now <i class="fa fa-send"></i>
                                                         </button>
+                                                        <button class="btn btn-danger btn-lg post-delete" data-pid="{{$schedule->id}}" data-schedule-id="{{$schedule->id}}">
+                                                            <i class="fa fa-trash"></i> Delete Schedule
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -125,6 +128,27 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="calendarModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row" id="image_container"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
         </div>
     </div>
 @endsection
@@ -151,20 +175,34 @@
             });
 
             $('#calendar').fullCalendar({
-                defaultView: 'listWeek',
-                views: {
-                    listDay: { buttonText: 'List Day' },
-                    listWeek: { buttonText: 'List Week' },
-                    listMonth: { buttonText: 'List Month' },
-                    listYear: { buttonText: 'List Year' },
-                },
-
                 header: {
-                    left: 'title',
-                    center: '',
-                    right: 'listDay,listWeek,listMonth,listYear'
+                    right: "month,agendaWeek,agendaDay, today prev,next",
                 },
-                events: '{{ action('InstagramController@getScheduledEvents') }}'
+                events: '{{ action('InstagramController@getScheduledEvents') }}',
+                eventClick: function(calEvent, jsEvent, view) {
+                    $('#image_container').empty();
+
+                    let download_images = [];
+                    let image = '';
+                    calEvent.image_names.forEach(function(img) {
+                        image += '<div class="col-md-6"><div class="card"><div class="card-image"><a><img src="' + img.name + '" style="width:100%" /></a></div></div></div>';
+                        download_images.push(img.id);
+                    });
+
+                    $('#image_container').append($(image));
+
+                    jQuery.noConflict();
+                    $('#calendarModal').modal('toggle');
+                },
+                eventRender: function(event, eventElement) {
+                    if (event.image_names) {
+                        let imgHTML = '<div>';
+                        event.image_names.forEach(function(image) {
+                            imgHTML += ("<img src='" + image.name +"' width='50' height='50''>");
+                        });
+                        eventElement.find("div.fc-content").append(imgHTML+'</div>');
+                    }
+                }
             });
 
             $('.post-now').click(function() {
@@ -181,6 +219,24 @@
                     },
                     beforeSend: function() {
                         $(self).html('Posting... <i class="fa fa-spinner"></i>');
+                    }
+                });
+            });
+
+            $('.post-delete').click(function() {
+                let scheduleId = $(this).attr('data-schedule-id');
+                let self = this;
+                $.ajax({
+                    url: '{{ action('InstagramController@cancelSchedule', '') }}'+'/'+scheduleId,
+                    type: 'get',
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            alert("Successfully deleted! We will reload the page for recent data.");
+                            location.reload();
+                        }
+                    },
+                    beforeSend: function() {
+                        $(self).html('<i class="fa fa-spinner"></i> Deleting... ');
                     }
                 });
             });

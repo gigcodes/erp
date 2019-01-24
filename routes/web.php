@@ -341,6 +341,7 @@ Route::prefix('instagram')->group(function () {
     Route::get('post-media', 'InstagramController@showImagesToBePosted');
     Route::post('post-media', 'InstagramController@postMedia');
     Route::get('post-media-now/{schedule}', 'InstagramController@postMediaNow');
+    Route::get('delete-schedule/{schedule}', 'InstagramController@cancelSchedule');
     Route::get('media/schedules', 'InstagramController@showSchedules');
     Route::post('media/schedules', 'InstagramController@postSchedules');
     Route::get('scheduled/events', 'InstagramController@getScheduledEvents');
