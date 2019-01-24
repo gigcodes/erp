@@ -14,6 +14,7 @@ use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
 use Cache;
+use Log;
 use Carbon\Carbon;
 
 
@@ -198,15 +199,20 @@ class UserController extends Controller
 		                 ->with('success','User deleted successfully');
 	}
 
-	public function login()
+	public function login(Request $request)
 	{
-		$logins = UserLogin::latest()->paginate(Setting::get('pagination'));
+		$date = $request->date ? $request->date : Carbon::now()->format('Y-m-d');
+		$logins = UserLogin::whereBetween('login_at', [$date, Carbon::parse($date)->addDay()])->latest()->paginate(Setting::get('pagination'));
 
-		return view('users.login')->withLogins($logins);
+		return view('users.login', [
+			'logins'	=> $logins,
+			'date'		=> $date
+		]);
 	}
 
 	public function checkUserLogins()
 	{
+		Log::info(Carbon::now() . " begin checking users logins");
 		$users = User::all();
 
 		foreach ($users as $user) {
@@ -228,5 +234,7 @@ class UserController extends Controller
 				}
 			}
 		}
+
+		Log::info(Carbon::now() . " end of checking users logins");
 	}
 }

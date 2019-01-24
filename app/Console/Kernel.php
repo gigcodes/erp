@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\PostScheduledMedia;
+use App\Console\Commands\CheckLogins;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -21,7 +22,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        PostScheduledMedia::class
+        PostScheduledMedia::class,
+        CheckLogins::class
     ];
 
     /**
@@ -64,6 +66,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('post:scheduled-media')
             ->everyMinute();
+
+        $schedule->command('check:user-logins')->everyMinute();
     }
 
     /**
