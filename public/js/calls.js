@@ -51,12 +51,21 @@
       cleanup();
     });
     Twilio.Device.incoming(function (conn) {
-        console.log("incoming call with number: " + conn.parameters.From);
+    
 		$.getJSON("/twilio/getLeadByNumber?number="+ encodeURIComponent(conn.parameters.From), function( data ) {
             if (data.found) { 
+              console.log(JSON.stringify(data));
+              var win = window.open(data.customer_id, '_blank');
+              if (win) {
+                  //Browser has allowed it to be opened
+                  win.focus();
+              } else {
+                  //Browser has blocked it
+                  alert('Please allow popups for this website');
+              }
                 var name = data.name;
                 var number = data.number;
-                var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + number + " would you like to answer call?");
+                var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + conn.parameters.From + " would you like to answer call?");
             } else {
                 var confirmed = window.confirm("Incoming call from: " + number + " would you like to answer call?");
             }
