@@ -1,5 +1,5 @@
 (function() {
-	var notifs = [];	
+	var notifs = [];
 	var applicationSid = "AP3219d6e242854380b4fa67e6cb7e2305";
 	var remotePhoneNumber = "";
 
@@ -27,15 +27,20 @@
             }
             var context = $(this).attr("data-context");
             var id= $(this).attr("data-id");
-			var call = $("<button class='btn btn-primary' type='button'>Call</button>");
-			call.click( function() {
-                var numberToCall = number;
-                if (!numberToCall.startsWith("+")) {
-                    numberToCall = "+"+number;
-                }
-				callNumber( numberToCall, context, id  );
-			} );
-			call.insertAfter( this );
+			if ($('#twillio_call_button').length) {
+
+			} else {
+				var call = $("<button class='btn btn-primary' type='button' id='twillio_call_button'>Call</button>");
+				call.click( function() {
+	                var numberToCall = number;
+	                if (!numberToCall.startsWith("+")) {
+	                    numberToCall = "+"+number;
+	                }
+					callNumber( numberToCall, context, id  );
+				} );
+				call.insertAfter( this );
+			}
+
 		} );
     });
     Twilio.Device.error(function (error) {
@@ -53,7 +58,7 @@
     Twilio.Device.incoming(function (conn) {
         console.log("incoming call with number: " + conn.parameters.From);
 		$.getJSON("/twilio/getLeadByNumber?number="+ encodeURIComponent(conn.parameters.From), function( data ) {
-            if (data.found) { 
+            if (data.found) {
                 var name = data.name;
                 var number = data.number;
                 var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + number + " would you like to answer call?");
@@ -200,7 +205,7 @@
 		 center.find(".muter").text( muteText );
 		 center.find(".muter").click( callerMute );
 		 center.find(".hangup").click( callerHangup );
-		 
+
 		 myNotif.update({
 			'message':main.html(),
 			'type': 'info' });
