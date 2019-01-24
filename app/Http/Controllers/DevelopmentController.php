@@ -18,18 +18,22 @@ class DevelopmentController extends Controller
      */
 
      public function __construct() {
-     		$this->middleware('permission:developer-tasks', ['except' => ['issueCreate', 'issueStore']]);
+     		$this->middleware('permission:developer-tasks', ['except' => ['issueCreate', 'issueStore', 'moduleStore']]);
      	}
 
     public function index(Request $request)
     {
       $user = $request->user ? $request->user : Auth::id();
-      $tasks = DeveloperTask::where('user_id', $user)->orderBy('priority')->get();
+      $tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', '!=', 'Done')->orderBy('priority')->get();
+      $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->orderBy('priority')->get();
+      $modules = DeveloperTask::where('module', 1)->get();
       $users = Helpers::getUserArray(User::all());
 
       return view('development.index', [
         'tasks' => $tasks,
+        'completed_tasks' => $completed_tasks,
         'users' => $users,
+        'modules' => $modules,
         'user'  => $user
       ]);
     }
@@ -97,6 +101,23 @@ class DevelopmentController extends Controller
       return redirect()->back()->with('success', 'You have successfully submitted an issue!');
     }
 
+    public function moduleStore(Request $request)
+    {
+      $this->validate($request, [
+        'priority'  => 'required|integer',
+        'task'      => 'required|string|min:3',
+        'status'    => 'required'
+      ]);
+
+      $data = $request->except('_token');
+      $data['user_id'] = Auth::id();
+      $data['module'] = 1;
+
+      DeveloperTask::create($data);
+
+      return redirect()->back()->with('success', 'You have successfully submitted an issue!');
+    }
+
     public function issueAssign(Request $request, $id)
     {
       $this->validate($request, [
@@ -109,7 +130,7 @@ class DevelopmentController extends Controller
       $task->priority = $issue->priority;
       $task->task = $issue->issue;
       $task->user_id = $request->user_id;
-      $task->status = 'To-do';
+      $task->status = 'Planned';
 
       $task->save();
       $issue->user_id = $request->user_id;
@@ -117,6 +138,22 @@ class DevelopmentController extends Controller
       $issue->delete();
 
       return redirect()->back()->with('success', 'You have successfully assigned the issue!');
+    }
+
+    public function moduleAssign(Request $request, $id)
+    {
+      $this->validate($request, [
+        'user_id' => 'required|integer'
+      ]);
+
+      $module = DeveloperTask::find($id);
+
+      $module->user_id = $request->user_id;
+      $module->module = 0;
+
+      $module->save();
+
+      return redirect()->route('development.index')->with('success', 'You have successfully assigned the module!');
     }
 
     /**
@@ -183,5 +220,12 @@ class DevelopmentController extends Controller
       Issue::find($id)->delete();
 
       return redirect()->route('development.issue.index')->with('success', 'You have successfully archived the issue!');
+    }
+
+    public function moduleDestroy($id)
+    {
+      DeveloperTask::find($id)->delete();
+
+      return redirect()->route('development.index')->with('success', 'You have successfully archived the module!');
     }
 }

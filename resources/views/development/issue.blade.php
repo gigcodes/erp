@@ -54,6 +54,45 @@
     </table>
   </div>
 
+  <h3>Modules</h3>
+
+  <form class="form-inline" action="{{ route('development.module.store') }}" method="POST">
+    @csrf
+
+    <input type="hidden" name="priority" value="5">
+    <input type="hidden" name="status" value="Planned">
+    <div class="form-group">
+      <input type="text" class="form-control" name="task" placeholder="Module" value="{{ old('task') }}" required>
+
+      @if ($errors->has('task'))
+        <div class="alert alert-danger">{{$errors->first('task')}}</div>
+      @endif
+    </div>
+
+    <button type="submit" class="btn btn-secondary ml-3">Add Module</button>
+  </form>
+
+  <div class="table-responsive mt-3">
+    <table class="table table-bordered">
+      <tr>
+        <th>Module</th>
+        <th>Action</th>
+      </tr>
+      @foreach ($modules as $key => $module)
+        <tr>
+          <td>{{ $module->task }}</td>
+          <td>
+            {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+
+            {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
+            <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+            {!! Form::close() !!} --}}
+          </td>
+        </tr>
+      @endforeach
+    </table>
+  </div>
+
   <div id="assignIssueModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
 

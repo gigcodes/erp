@@ -94,9 +94,9 @@
               <div class="form-group">
                 <strong>Status:</strong>
                 <select class="form-control" name="status" required>
-                  <option value="To-do" {{ old('status') == 'To-do' ? 'selected' : '' }}>To-do</option>
+                  <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
                   <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
-                  <option value="Completed" {{ old('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
+                  <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option>
                </select>
 
                 @if ($errors->has('status'))
@@ -134,29 +134,128 @@
       </div>
   @endif
 
-  <div class="table-responsive">
+  <div id="exTab2" class="container">
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a href="#1" data-toggle="tab">Tasks</a>
+      </li>
+      <li>
+        <a href="#2" data-toggle="tab">Completed Tasks</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="tab-content ">
+    <div class="tab-pane active mt-3" id="1">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th>Priority</th>
+            <th>Task</th>
+            <th>Cost</th>
+            <th>Status</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Action</th>
+          </tr>
+          @foreach ($tasks as $key => $task)
+            <tr>
+              <td>{{ $task->priority }}</td>
+              <td>{{ $task->task }}</td>
+              <td>{{ $task->cost }}</td>
+              <td>{{ $task->status }}</td>
+              <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
+              <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+              <td>
+                <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+
+                {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
+                <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                {!! Form::close() !!}
+              </td>
+            </tr>
+          @endforeach
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane mt-3" id="2">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th>Priority</th>
+            <th>Task</th>
+            <th>Cost</th>
+            <th>Status</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Action</th>
+          </tr>
+          @php $total_cost = 0 @endphp
+          @foreach ($completed_tasks as $key => $task)
+            <tr>
+              <td>{{ $task->priority }}</td>
+              <td>{{ $task->task }}</td>
+              <td>{{ $task->cost }}</td>
+              <td>{{ $task->status }}</td>
+              <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
+              <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+              <td>
+                <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+
+                {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
+                <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                {!! Form::close() !!}
+              </td>
+            </tr>
+
+            @php $total_cost += $task->cost @endphp
+          @endforeach
+          <tr>
+            <td></td>
+            <td class="text-right"><strong>Total:</strong></td>
+            <td><strong>{{ $total_cost }}</strong></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <h3>Modules</h3>
+
+  <form class="form-inline" action="{{ route('development.module.store') }}" method="POST">
+    @csrf
+
+    <input type="hidden" name="priority" value="5">
+    <input type="hidden" name="status" value="Planned">
+    <div class="form-group">
+      <input type="text" class="form-control" name="task" placeholder="Module" value="{{ old('task') }}" required>
+
+      @if ($errors->has('task'))
+        <div class="alert alert-danger">{{$errors->first('task')}}</div>
+      @endif
+    </div>
+
+    <button type="submit" class="btn btn-secondary ml-3">Add Module</button>
+  </form>
+
+  <div class="table-responsive mt-3">
     <table class="table table-bordered">
       <tr>
-        <th>Priority</th>
-        <th>Task</th>
-        <th>Cost</th>
-        <th>Status</th>
-        <th>Start Time</th>
-        <th>End Time</th>
+        <th>Module</th>
         <th>Action</th>
       </tr>
-      @foreach ($tasks as $key => $task)
+      @foreach ($modules as $key => $module)
         <tr>
-          <td>{{ $task->priority }}</td>
-          <td>{{ $task->task }}</td>
-          <td>{{ $task->cost }}</td>
-          <td>{{ $task->status }}</td>
-          <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
-          <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+          <td>{{ $module->task }}</td>
           <td>
-            <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+            <button type="button" data-toggle="modal" data-target="#assignModuleModal" data-id="{{ $module->id }}" class="btn btn-image assign-module-button"><img src="/images/edit.png" /></button>
 
-            {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
+            {!! Form::open(['method' => 'DELETE','route' => ['development.module.destroy', $module->id],'style'=>'display:inline']) !!}
             <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
             {!! Form::close() !!}
           </td>
@@ -231,9 +330,9 @@
             <div class="form-group">
               <strong>Status:</strong>
               <select class="form-control" name="status" id="status_field" required>
-                <option value="To-do" {{ old('status') == 'To-do' ? 'selected' : '' }}>To-do</option>
+                <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
                 <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
-                <option value="Completed" {{ old('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
+                <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option>
              </select>
 
               @if ($errors->has('status'))
@@ -282,6 +381,42 @@
     </div>
   </div>
 
+  <div id="assignModuleModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Assign Module</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <form action="" id="assignModuleForm" method="POST">
+          @csrf
+
+          <div class="modal-body">
+            <div class="form-group">
+              <strong>User:</strong>
+              <select class="form-control" name="user_id" id="user_field" required>
+                @foreach ($users as $id => $name)
+                  <option value="{{ $id }}" {{ old('user_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+             </select>
+
+              @if ($errors->has('user_id'))
+                  <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
+              @endif
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary">Assign</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript">
     $('#start_time, #end_time').datetimepicker({
@@ -303,6 +438,13 @@
       $('#end_time_field').val(task.end_time);
 
       $('#editTaskForm').attr('action', url);
+    });
+
+    $(document).on('click', '.assign-module-button', function() {
+      var module_id = $(this).data('id');
+      var url = "{{ url('development') }}/" + module_id + "/assignModule";
+
+      $('#assignModuleForm').attr('action', url);
     });
   </script>
 

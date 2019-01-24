@@ -213,11 +213,16 @@ Route::middleware('auth')->group(function (){
 	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
 	Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
 	Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
+
 	Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
 	Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
 	Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
 	Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
 	Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
+
+	Route::post('development/module/create', 'DevelopmentController@moduleStore')->name('development.module.store');
+	Route::delete('development/module/{id}/destroy', 'DevelopmentController@moduleDestroy')->name('development.module.destroy');
+	Route::post('development/{id}/assignModule', 'DevelopmentController@moduleAssign')->name('development.module.assign');
 
 	/*Routes For Social */
 

@@ -10,6 +10,6 @@ class DeveloperTask extends Model
   use SoftDeletes;
 
   protected $fillable = [
-    'user_id', 'priority', 'task', 'cost', 'status', 'start_time', 'end_time'
+    'user_id', 'priority', 'task', 'cost', 'status', 'module', 'start_time', 'end_time'
   ];
 }
