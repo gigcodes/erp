@@ -194,7 +194,7 @@ class TwilioController extends FindByNumberController
            return response()->json(['found' => FALSE,  'number' => $number]);
         }
         if ($context == "leads") {
-            $result = ['found' => TRUE, 'name' => $object->client_name];
+            $result = ['found' => TRUE, 'name' => $object->client_name , 'customer_id' => \Config::get("app.url").'/customer/'. $object->customer_id];
         } elseif ($context == "orders") {
             $result = ['found' => TRUE, 'name' => $object->client_name];
         }
