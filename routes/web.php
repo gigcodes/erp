@@ -208,6 +208,17 @@ Route::middleware('auth')->group(function (){
 
   Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
 
+	// Development
+	Route::get('development', 'DevelopmentController@index')->name('development.index');
+	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
+	Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
+	Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
+	Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+	Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
+	Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
+	Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
+	Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
+
 	/*Routes For Social */
 
 	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
