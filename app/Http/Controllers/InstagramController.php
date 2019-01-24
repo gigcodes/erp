@@ -255,8 +255,12 @@ class InstagramController extends Controller
             return [
                 'title' => substr($item['description'], 0, 500).'...',
                 'start' => $item['scheduled_for'],
-                'end' => $item['scheduled_for']
-
+                'image_names' => array_map(function ($img) {
+                    return [
+                        'id' => $img['id'],
+                        'name' => $img['filename'] ? asset('uploads/social-media') . '/' . $img['filename'] : 'http://lorempixel.com/555/300/black',
+                    ];
+                }, $item['images']->get(['id', 'filename'])->toArray())
             ];
         }, $imagesWithSchedules);
 
@@ -297,6 +301,24 @@ class InstagramController extends Controller
         $scheduleGroup->save();
 
         return redirect()->back()->with('message', 'The images has been successfully scheduled for post!');
+
+    }
+
+    public function cancelSchedule($schedule)
+    {
+        $schedule = ScheduleGroup::findOrFail($schedule);
+
+        $images = $schedule->images->get();
+        foreach ($images as $image) {
+            $image->schedule()->delete();
+        }
+
+        $schedule->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'This schedule has been deleted successfully!.'
+        ]);
 
     }
 }
