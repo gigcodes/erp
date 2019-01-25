@@ -1602,30 +1602,38 @@
                                 </a>
 
 
+                                <ul class="dropdown-menu multi-level">
 
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
+                                {{-- <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"> --}}
 
-                                    <a class="dropdown-item" href="{{ route('users.index') }}">List Users</a>
+                                      <a class="dropdown-item" href="{{ route('users.index') }}">List Users</a>
+                                    {{-- </li> --}}
 
                                     @can('user-create')
-
+                                      {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
                                         <a class="dropdown-item" href="{{ route('users.create') }}">Add New</a>
-
+                                      {{-- </li> --}}
                                     @endcan
 
-                                    <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
+                                    {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
+                                      <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
+                                    {{-- </li> --}}
 
                                     @can('role-list')
+                                      <li class="nav-item dropdown dropdown-submenu">
+                                        {{-- <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"> --}}
 
-                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                          {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
 
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                              <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
 
-                                            Roles<span class="caret"></span>
+                                                 aria-haspopup="true" aria-expanded="false" v-pre>
 
-                                        </a>
+                                                  Roles<span class="caret"></span>
+                                              </a>
 
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
                                             <a class="dropdown-item" href="{{ route('roles.index') }}">List Roles</a>
 
@@ -1635,11 +1643,12 @@
 
                                             @endcan
 
-                                        </div>
+                                        </ul>
+                                      </li>
 
                                     @endcan
 
-                                </div>
+                                </ul>
 
                             </li>
 

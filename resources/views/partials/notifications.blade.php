@@ -4,11 +4,6 @@
         Notifications<span class="caret"></span>
     </a>
     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-
-
-        <li class="nav-item" style="display: block">
-            <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
-        </li>
         <li>
             <hr>
         </li>
