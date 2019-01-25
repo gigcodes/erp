@@ -643,9 +643,6 @@
                             {{ $order->remark }}
                         </div>
 
-
-
-
                       </div>
 
                       <div class="col-xs-12">
@@ -669,9 +666,18 @@
                                     @foreach($order->order_product  as $order_product)
                                         <tr>
                                             @if(isset($order_product->product))
-                                              <th><img width="200" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()
+                                              <th>
+                                                @php
+                                                  $string = $order_product->product->supplier;
+                                                  $expr = '/(?<=\s|^)[a-z]/i';
+                                                  preg_match_all($expr, $string, $matches);
+                                                  $supplier_initials = implode('', $matches[0]);
+                                                  $supplier_initials = strtoupper($supplier_initials);
+                                                @endphp
+                                                <img width="200" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()
                                                             ? $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl()
-                                                            : '' }}" /></th>
+                                                            : '' }}" data-toggle='tooltip' data-html='true' data-placement='top' title="{{ Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM') ? "<strong>Supplier:</strong> $supplier_initials" : '' }}" />
+                                              </th>
                                               <th>{{ $order_product->product->name }}</th>
                                               <th>{{ $order_product->product->sku }}</th>
                                               <th>{{ $order_product->product->color }}</th>
