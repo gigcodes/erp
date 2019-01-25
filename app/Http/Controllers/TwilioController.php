@@ -87,11 +87,40 @@ class TwilioController extends FindByNumberController
     {
                 Log::info('Showing user profile for IVR: ');
 
-       $response = new Twiml();
-       $this->createIncomingGather($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
+/*---------------------------------------*/
 
-       $response = new Twiml(); 
-       $this->createIncomingGather($response, "Thank you for calling solo luxury. Please dial 1 for sales, 2 for support or 3 for other queries");
+        $number = $request->get("From");
+        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
+   $url =  \Config::get("app.url")."/twilio/recordingStatusCallback" ;
+          $actionurl =  \Config::get("app.url")."/twilio/handleDialCallStatus";
+        if ($context) {
+            $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id. "&Mobile=" .$number ;
+        }
+        $response = new Twiml();
+$response->say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
+
+         $dial = $response->dial([
+                            'record' => 'true',
+                            'recordingStatusCallback' =>$url,
+                            'action' => $actionurl
+
+                ]);
+
+        $clients = $this->getConnectedClients();
+
+        Log::info('Client for callings: '.implode(',', $clients));  
+        foreach ($clients as $client) {
+            $dial->client( $client);
+        }
+
+        /*--------------------------------------------------------*/
+
+
+       // $response = new Twiml();
+       // $this->createIncomingGather($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
+
+       // $response = new Twiml(); 
+       // $this->createIncomingGather($response, "Thank you for calling solo luxury. Please dial 1 for sales, 2 for support or 3 for other queries");
 
        return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
     }
@@ -108,15 +137,38 @@ class TwilioController extends FindByNumberController
         $clients = [];
         $number = $request->get("From");
         list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
-   
+      $recordurl = \Config::get("app.url")."/twilio/storerecording"; 
       Log::info('Context: '.$context);
 
-        if ($digits === "1") {
-            $this->dialAllClients($response, "sales", $context, $object , $number);
-        } else if ($digits == "2") {
-            $this->dialAllClients($response, "support", $context, $object, $number);
-        } else if ($digits == "3") {
-            $this->dialAllClients($response, "queries", $context, $object, $number);
+        if ($digits === "0") {
+   $response->say(
+                'It appears that no agent is available. ' .
+                'Please leave a message after the beep',
+                ['voice' => 'alice', 'language' => 'en-GB']
+            );
+
+            $response->record(
+                ['maxLength' => '20',
+                 'method' => 'GET',
+                 'action' => route('hangup', [], false),
+                 'transcribeCallback' => $recordurl
+                ]
+            );
+
+            $response->say(
+                'No recording received. Goodbye',
+                ['voice' => 'alice', 'language' => 'en-GB']
+            );
+            $response->hangup();
+
+            return $response;
+            
+
+            // $this->dialAllClients($response, "sales", $context, $object , $number);
+        // } else if ($digits == "2") {
+        //     $this->dialAllClients($response, "support", $context, $object, $number);
+        // } else if ($digits == "3") {
+        //     $this->dialAllClients($response, "queries", $context, $object, $number);
         } else {
             $this->createIncomingGather($response, "We did not understand that input. Please dial 1 for sales 2 for support 3 for other queries");
         }
@@ -237,11 +289,11 @@ class TwilioController extends FindByNumberController
         $users = User::get();
         $clients = [];
         foreach ($users as $user) {
-
-              $agentrolearr = explode(',',$user->agent_role);
-            if (in_array($role, $agentrolearr)) {
-                            $clients[] = $user->name;
-                        }
+$clients[] = $user->name;
+            //   $agentrolearr = explode(',',$user->agent_role);
+            // if (in_array($role, $agentrolearr)) {
+                            
+            //             }
 
             // if ($user->agent_role == $role) {
             //     $clients[] = $user->name;
@@ -294,29 +346,14 @@ class TwilioController extends FindByNumberController
          $response = new Twiml();
          $callStatus = $request->input('DialCallStatus');
          $recordurl = \Config::get("app.url")."/twilio/storerecording"; 
+           Log::info('Current Call Status '.$callStatus);
 
       if ($callStatus !== 'completed') {
-            $response->say(
-                'It appears that no agent is available. ' .
-                'Please leave a message after the beep',
-                ['voice' => 'alice', 'language' => 'en-GB']
-            );
 
-            $response->record(
-                ['maxLength' => '20',
-                 'method' => 'GET',
-                 'action' => route('hangup', [], false),
-                 'transcribeCallback' => $recordurl
-                ]
-            );
+   $response = new Twiml();
+       $this->createIncomingGather($response, "Please dial 0 for leave message");
 
-            $response->say(
-                'No recording received. Goodbye',
-                ['voice' => 'alice', 'language' => 'en-GB']
-            );
-            $response->hangup();
-
-            return $response;
+         
         }else{
 
                        $recordurl = \Config::get("app.url")."/twilio/storetranscript";
