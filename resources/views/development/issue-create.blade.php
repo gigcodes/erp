@@ -62,13 +62,13 @@
 <form class="form-inline" action="{{ route('development.module.store') }}" method="POST">
 	@csrf
 
-	<input type="hidden" name="priority" value="5">
-	<input type="hidden" name="status" value="Planned">
+	{{-- <input type="hidden" name="priority" value="5">
+	<input type="hidden" name="status" value="Planned"> --}}
 	<div class="form-group">
-		<input type="text" class="form-control" name="task" placeholder="Module" value="{{ old('task') }}" required>
+		<input type="text" class="form-control" name="name" placeholder="Module" value="{{ old('name') }}" required>
 
-		@if ($errors->has('task'))
-			<div class="alert alert-danger">{{$errors->first('task')}}</div>
+		@if ($errors->has('name'))
+			<div class="alert alert-danger">{{$errors->first('name')}}</div>
 		@endif
 	</div>
 

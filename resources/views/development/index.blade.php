@@ -57,13 +57,25 @@
               @endcan
 
               <div class="form-group">
+                <strong>Module:</strong>
+                <select class="form-control" name="module_id" >
+                  <option value>Select a Module</option>
+                  @foreach ($modules as $module)
+                    <option value="{{ $module->id }}" {{ $module->id == old('module_id') ? 'selected' : '' }}>{{ $module->name }}</option>
+                  @endforeach
+               </select>
+
+                @if ($errors->has('module_id'))
+                    <div class="alert alert-danger">{{$errors->first('module_id')}}</div>
+                @endif
+              </div>
+
+              <div class="form-group">
                 <strong>Priority:</strong>
                 <select class="form-control" name="priority" required>
-                  <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>1</option>
-                  <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>2</option>
-                  <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>3</option>
-                  <option value="4" {{ old('priority') == '4' ? 'selected' : '' }}>4</option>
-                  <option value="5" {{ old('priority') == '5' ? 'selected' : '' }}>5</option>
+                  <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
+                  <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
+                  <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
                </select>
 
                 @if ($errors->has('priority'))
@@ -158,22 +170,40 @@
             <th>End Time</th>
             <th>Action</th>
           </tr>
-          @foreach ($tasks as $key => $task)
+          @php
+            $priorities = [
+              "1" => 'Critical',
+              "2" => 'Urgent',
+              "3" => 'Normal'
+            ];
+          @endphp
+          @foreach ($tasks as $key => $module_tasks)
             <tr>
-              <td>{{ $task->priority }}</td>
-              <td>{{ $task->task }}</td>
-              <td>{{ $task->cost }}</td>
-              <td>{{ $task->status }}</td>
-              <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
-              <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
-              <td>
-                <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
-
-                {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
-                <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-                {!! Form::close() !!}
-              </td>
+              <td></td>
+              <td><strong>{{ $key != '' ? $module_names[$key] : 'General Tasks' }}</strong></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
+            @foreach ($module_tasks as $task)
+              <tr>
+                <td>{{ $priorities[$task->priority] }}</td>
+                <td>{{ $task->task }}</td>
+                <td>{{ $task->cost }}</td>
+                <td>{{ $task->status }}</td>
+                <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
+                <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+                <td>
+                  <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+
+                  {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
+                  <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                  {!! Form::close() !!}
+                </td>
+              </tr>
+            @endforeach
           @endforeach
         </table>
       </div>
@@ -192,24 +222,35 @@
             <th>Action</th>
           </tr>
           @php $total_cost = 0 @endphp
-          @foreach ($completed_tasks as $key => $task)
+          @foreach ($completed_tasks as $key => $module_tasks)
             <tr>
-              <td>{{ $task->priority }}</td>
-              <td>{{ $task->task }}</td>
-              <td>{{ $task->cost }}</td>
-              <td>{{ $task->status }}</td>
-              <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
-              <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
-              <td>
-                <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
-
-                {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
-                <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-                {!! Form::close() !!}
-              </td>
+              <td></td>
+              <td><strong>{{ $key != '' ? $module_names[$key] : 'General Tasks' }}</strong></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
+            @foreach ($module_tasks as $task)
+              <tr>
+                <td>{{ $priorities[$task->priority] }}</td>
+                <td>{{ $task->task }}</td>
+                <td>{{ $task->cost }}</td>
+                <td>{{ $task->status }}</td>
+                <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
+                <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+                <td>
+                  <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
 
-            @php $total_cost += $task->cost @endphp
+                  {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
+                  <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                  {!! Form::close() !!}
+                </td>
+              </tr>
+
+              @php $total_cost += $task->cost @endphp
+            @endforeach
           @endforeach
           <tr>
             <td></td>
@@ -222,6 +263,60 @@
           </tr>
         </table>
       </div>
+
+      <h3>Amount Paid</h3>
+
+      <form class="form-inline mb-3" action="{{ route('development.cost.store') }}" method="POST">
+        @csrf
+
+        <input type="hidden" name="user_id" value="{{ $user }}">
+        <div class="form-group">
+          <input type="number" class="form-control" name="amount" placeholder="100" value="{{ old('amount') }}" required>
+
+          @if ($errors->has('amount'))
+            <div class="alert alert-danger">{{$errors->first('amount')}}</div>
+          @endif
+        </div>
+
+        <div class="form-group ml-3">
+          <strong>Paid On:</strong>
+          <div class='input-group date' id='paid_date'>
+            <input type='text' class="form-control" name="paid_date" value="{{ date('Y-m-d') }}" />
+
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+
+          @if ($errors->has('paid_date'))
+              <div class="alert alert-danger">{{$errors->first('paid_date')}}</div>
+          @endif
+        </div>
+
+        <button type="submit" class="btn btn-secondary ml-3">Add Amount</button>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th>Paid On</th>
+            <th>Amount</th>
+          </tr>
+          @php $total_paid = 0; @endphp
+          @foreach ($amounts as $amount)
+            <tr>
+              <td>{{ \Carbon\Carbon::parse($amount->paid_date)->format('d-m') }}</td>
+              <td>{{ $amount->amount }}</td> 
+            </tr>
+            @php $total_paid += $amount->amount @endphp
+          @endforeach
+          <tr>
+            <td class="text-right"><strong>Total Paid:</strong></td>
+            <td>{{ $total_paid }} of {{ $total_cost }}</td>
+            <td><strong>Left:</strong> {{ $total_cost - $total_paid }}</td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -230,13 +325,13 @@
   <form class="form-inline" action="{{ route('development.module.store') }}" method="POST">
     @csrf
 
-    <input type="hidden" name="priority" value="5">
-    <input type="hidden" name="status" value="Planned">
+    {{-- <input type="hidden" name="priority" value="5">
+    <input type="hidden" name="status" value="Planned"> --}}
     <div class="form-group">
-      <input type="text" class="form-control" name="task" placeholder="Module" value="{{ old('task') }}" required>
+      <input type="text" class="form-control" name="name" placeholder="Module" value="{{ old('name') }}" required>
 
-      @if ($errors->has('task'))
-        <div class="alert alert-danger">{{$errors->first('task')}}</div>
+      @if ($errors->has('name'))
+        <div class="alert alert-danger">{{$errors->first('name')}}</div>
       @endif
     </div>
 
@@ -251,9 +346,9 @@
       </tr>
       @foreach ($modules as $key => $module)
         <tr>
-          <td>{{ $module->task }}</td>
+          <td>{{ $module->name }}</td>
           <td>
-            <button type="button" data-toggle="modal" data-target="#assignModuleModal" data-id="{{ $module->id }}" class="btn btn-image assign-module-button"><img src="/images/edit.png" /></button>
+            {{-- <button type="button" data-toggle="modal" data-target="#assignModuleModal" data-id="{{ $module->id }}" class="btn btn-image assign-module-button"><img src="/images/edit.png" /></button> --}}
 
             {!! Form::open(['method' => 'DELETE','route' => ['development.module.destroy', $module->id],'style'=>'display:inline']) !!}
             <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
@@ -262,6 +357,56 @@
         </tr>
       @endforeach
     </table>
+  </div>
+
+  <h3>Comments</h3>
+
+  <div class="row">
+    <div class="col-xs-12 col-sm-6">
+      <form action="{{ route('development.comment.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
+          @csrf
+
+          <div class="form-group">
+            <div class="upload-btn-wrapper btn-group">
+              {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+              <input type="file" name="image" /> --}}
+              <button type="submit" class="btn btn-image px-1"><img src="/images/filled-sent.png" /></button>
+            </div>
+          </div>
+
+          <div class="form-group flex-fill">
+            <textarea class="form-control" name="message" placeholder="Enter Your Comment" required></textarea>
+
+            {{-- <input type="hidden" name="moduletype" value="customer" /> --}}
+            {{-- <input type="hidden" name="moduleid" value="" /> --}}
+            <input type="hidden" name="send_to" value="{{ $user }}" />
+            <input type="hidden" name="status" value="0" />
+          </div>
+
+       </form>
+     </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      @foreach ($comments as $comment)
+        <div class="talk-bubble">
+          @if ($comment->status == 1)
+            <span class="badge badge-warning">!</span>
+          @endif
+          <div class="talktext">
+            <p class="collapsible-message">{{ $comment->message }}</p>
+            <em>
+              {{ $users[$comment->user_id] }}
+              {{ \Carbon\Carbon::parse($comment->created_at)->format('d-m H:i') }}
+              @if ($comment->status == 0)
+                <a href="#" class="btn-link awaiting-response-button" data-id="{{ $comment->id }}">Awaiting Response</a>
+              @endif
+            </em>
+          </div>
+        </div>
+      @endforeach
+    </div>
   </div>
 
   <div id="editTaskModal" class="modal fade" role="dialog">
@@ -295,11 +440,9 @@
             <div class="form-group">
               <strong>Priority:</strong>
               <select class="form-control" name="priority" id="priority_field" required>
-                <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>1</option>
-                <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>2</option>
-                <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>3</option>
-                <option value="4" {{ old('priority') == '4' ? 'selected' : '' }}>4</option>
-                <option value="5" {{ old('priority') == '5' ? 'selected' : '' }}>5</option>
+                <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
+                <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
+                <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
              </select>
 
               @if ($errors->has('priority'))
@@ -423,6 +566,10 @@
       format: 'YYYY-MM-DD HH:mm'
     });
 
+    $('#paid_date').datetimepicker({
+      format: 'YYYY-MM-DD'
+    });
+
     $(document).on('click', '.edit-task-button', function() {
       var task = $(this).data('task');
       var url = "{{ url('development') }}/" + task.id + "/edit";
@@ -445,6 +592,31 @@
       var url = "{{ url('development') }}/" + module_id + "/assignModule";
 
       $('#assignModuleForm').attr('action', url);
+    });
+
+    $(document).on('click', '.awaiting-response-button', function(e) {
+      e.preventDefault();
+
+      var thiss = $(this);
+      var comment_id = $(this).data('id');
+
+      $.ajax({
+        type: "POST",
+        url: "{{ url('development') }}/" + comment_id + "/awaiting/response",
+        data: {
+          _token: "{{ csrf_token() }}"
+        },
+        beforeSend: function() {
+          $(thiss).text('Loading...');
+        }
+      }).done(function() {
+        var badge = $('<span class="badge badge-warning">!</span>');
+        $(thiss).closest('.talk-bubble').prepend(badge);
+        $(thiss).remove();
+      }).fail(function(response) {
+        console.log(response);
+        alert('Something went wrong');
+      });
     });
   </script>
 

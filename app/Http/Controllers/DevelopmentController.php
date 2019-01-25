@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\DeveloperTask;
+use App\DeveloperModule;
+use App\DeveloperComment;
+use App\DeveloperCost;
 use App\User;
 use App\Helpers;
 use App\Issue;
@@ -23,18 +26,29 @@ class DevelopmentController extends Controller
 
     public function index(Request $request)
     {
+      // $tasks = DeveloperTask::where('user_id', $user)
       $user = $request->user ? $request->user : Auth::id();
-      $tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', '!=', 'Done')->orderBy('priority')->get();
-      $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->orderBy('priority')->get();
-      $modules = DeveloperTask::where('module', 1)->get();
+      $tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', '!=', 'Done')->orderBy('priority')->get()->groupBy('module_id');
+      $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->orderBy('priority')->get()->groupBy('module_id');
+      $modules = DeveloperModule::all();
       $users = Helpers::getUserArray(User::all());
+      $comments = DeveloperComment::where('send_to', $user)->latest()->get();
+      $amounts = DeveloperCost::where('user_id', $user)->orderBy('paid_date')->get();
+      $module_names = [];
+
+      foreach ($modules as $module) {
+        $module_names[$module->id] = $module->name;
+      }
 
       return view('development.index', [
         'tasks' => $tasks,
         'completed_tasks' => $completed_tasks,
         'users' => $users,
         'modules' => $modules,
-        'user'  => $user
+        'user'  => $user,
+        'module_names'  => $module_names,
+        'comments'  => $comments,
+        'amounts'  => $amounts
       ]);
     }
 
@@ -82,6 +96,13 @@ class DevelopmentController extends Controller
       $data = $request->except('_token');
       $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
 
+      if ($request->module_id) {
+        $module = DeveloperTask::find($request->module_id);
+        $module->user_id = $data['user_id'];
+        $module->module = 0;
+        $module->save();
+      }
+
       DeveloperTask::create($data);
 
       return redirect()->route('development.index')->with('success', 'You have successfully added task!');
@@ -104,18 +125,51 @@ class DevelopmentController extends Controller
     public function moduleStore(Request $request)
     {
       $this->validate($request, [
-        'priority'  => 'required|integer',
-        'task'      => 'required|string|min:3',
-        'status'    => 'required'
+        'name'  => 'required|string|min:3'
+      ]);
+
+      $data = $request->except('_token');
+
+      DeveloperModule::create($data);
+
+      return redirect()->back()->with('success', 'You have successfully submitted an issue!');
+    }
+
+    public function commentStore(Request $request)
+    {
+      $this->validate($request, [
+        'message'  => 'required|string|min:3'
       ]);
 
       $data = $request->except('_token');
       $data['user_id'] = Auth::id();
-      $data['module'] = 1;
 
-      DeveloperTask::create($data);
+      DeveloperComment::create($data);
 
-      return redirect()->back()->with('success', 'You have successfully submitted an issue!');
+      return redirect()->back()->with('success', 'You have successfully wrote a comment!');
+    }
+
+    public function costStore(Request $request)
+    {
+      $this->validate($request, [
+        'amount'      => 'required|numeric',
+        'paid_date'   => 'required'
+      ]);
+
+      $data = $request->except('_token');
+
+      DeveloperCost::create($data);
+
+      return redirect()->back()->with('success', 'You have successfully added payment!');
+    }
+
+    public function awaitingResponse(Request $request, $id)
+    {
+      $comment = DeveloperComment::find($id);
+      $comment->status = 1;
+      $comment->save();
+
+      return response('success');
     }
 
     public function issueAssign(Request $request, $id)
@@ -224,7 +278,7 @@ class DevelopmentController extends Controller
 
     public function moduleDestroy($id)
     {
-      DeveloperTask::find($id)->delete();
+      DeveloperModule::find($id)->delete();
 
       return redirect()->route('development.index')->with('success', 'You have successfully archived the module!');
     }

@@ -224,6 +224,11 @@ Route::middleware('auth')->group(function (){
 	Route::delete('development/module/{id}/destroy', 'DevelopmentController@moduleDestroy')->name('development.module.destroy');
 	Route::post('development/{id}/assignModule', 'DevelopmentController@moduleAssign')->name('development.module.assign');
 
+	Route::post('development/comment/create', 'DevelopmentController@commentStore')->name('development.comment.store');
+	Route::post('development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse')->name('development.comment.awaiting.response');
+
+	Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
+
 	/*Routes For Social */
 
 	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
