@@ -363,3 +363,5 @@ Route::prefix('comments')->group(function () {
     Route::get('/facebook', 'SocialController@getComments');
     Route::post('/facebook', 'SocialController@postComment');
 });
+
+Route::get('/rishabh', 'InstagramController@index');

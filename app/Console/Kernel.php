@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\PostScheduledMedia;
 use App\Console\Commands\CheckLogins;
+use App\Console\Commands\SyncInstagramMessage;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -23,7 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         PostScheduledMedia::class,
-        CheckLogins::class
+        CheckLogins::class,
+        SyncInstagramMessage::class,
     ];
 
     /**
@@ -68,6 +70,9 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
 
         $schedule->command('check:user-logins')->everyMinute();
+
+//        $schedule->command('sync:instagram-messages')
+//            ->everyMinute();
     }
 
     /**
