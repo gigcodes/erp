@@ -40,6 +40,10 @@ class Customer extends Model
 		return $this->hasMany('App\ChatMessage', 'customer_id')->latest()->first();
 	}
 
+	public function instagramThread() {
+      return $this->hasOne(InstagramThread::class);
+    }
+
 	public function getCommunicationAttribute()
 	{
 		$message = $this->messages();

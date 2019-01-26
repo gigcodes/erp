@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Brand;
 use App\Category;
+use App\Customer;
 use App\Image;
 use App\ImageSchedule;
 use App\ScheduleGroup;
+use App\Services\Instagram\DirectMessage;
 use App\Services\Instagram\Instagram;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,11 +18,13 @@ class InstagramController extends Controller
 {
     private $instagram;
     private $facebook;
+    private $messages;
 
-    public function __construct(Instagram $instagram, Facebook $facebook)
+    public function __construct(Instagram $instagram, Facebook $facebook, DirectMessage $messages)
     {
         $this->instagram = $instagram;
         $this->facebook = $facebook;
+        $this->messages = $messages;
 
     }
 
@@ -320,5 +324,43 @@ class InstagramController extends Controller
             'message' => 'This schedule has been deleted successfully!.'
         ]);
 
+    }
+
+    public function getThread($thread) {
+        $thread = $this->messages->getThread($thread)->asArray();
+        $thread = $thread['thread'];
+        $currentUserId = $this->messages->getCurrentUserId();
+        $threadJson['messages'] = array_map(function($item) use ($currentUserId) {
+            $text = '';
+            if ($item['item_type'] == 'text') {
+                $text = $item['text'];
+            } else if ($item['item_type'] == 'like') {
+                $text = $item['like'];
+            } else if ($item['item_type'] == 'media') {
+                $text = $item['media']['image_versions2']['candidates'][0]['url'];
+            }
+            return [
+                'id' => $item['item_id'],
+                'text' => $text,
+                'item_type' => $item['item_type'],
+                'type' => ($item['user_id']===$currentUserId) ? 'sent' : 'received'
+            ];
+        }, $thread['items']);
+
+        $threadJson['profile_picture'] = $thread['users'][0]['profile_pic_url'];
+        $threadJson['username'] = $thread['users'][0]['username'];
+        $threadJson['name'] = $thread['users'][0]['full_name'];
+
+        return response()->json($threadJson);
+    }
+
+    public function replyToThread($thread, Request $request)
+    {
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $this->messages->sendImage(['thread' => $thread], $file);
+        }
+        $this->messages->sendMessage(['thread' => $thread], $request->get('message'));
+        return $this->getThread($thread);
     }
 }

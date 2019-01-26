@@ -140,6 +140,7 @@
         </div>
 
         <div class="tab-content ">
+
           <div class="tab-pane active mt-3" id="4">
             <div class="table-responsive">
                 <table class="table table-bordered">
@@ -755,6 +756,24 @@
   @endif
 </div>
 
+@if ($customer->instagramThread)
+    <div class="row">
+        <div class="col-md-12">
+            <div class="mesgs">
+                <p style="font-size: 24px;font-weight: bolder;" class="text-center mb-5">Instagram Messages</p>
+                <div class="msg_history"></div>
+                <div class="type_msg">
+                    <div class="input_msg_write">
+                        <input data-thread-id="{{$customer->instagramThread->thread_id}}" type="text" class="write_msg ig-reply" placeholder="Type a message" />
+                        <label for="ig_image" class="btn btn-info"  style="position: absolute; top: 10px; right: 5px; border-radius:50%"><i class="fa fa-image" aria-hidden="true"></i></label>
+                        <input type="file" data-thread-id="{{$customer->instagramThread->thread_id}}" name="ig_image" id="ig_image" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
 <div class="row">
   <div class="col-xs-12 col-sm-6">
     <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
@@ -986,11 +1005,119 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
     <script type="text/javascript">
+        @if ($customer->instagramThread)
+        var ft = true;
+        function loadThread() {
+            let threadId = "{{$customer->instagramThread->thread_id}}";
+            $.ajax({
+                url: "{{ action('InstagramController@getThread', '') }}"+'/'+threadId,
+                success: function(response) {
+                    updateThreadInChatBox(response);
+                },
+                error: function() {
+                    // alert("We could not load Instagram messages at the moment");
+                }
+            });
+        }
+
+        function updateThreadInChatBox(data) {
+            $('.msg_history').html('');
+            let messages = data.messages;
+            let profile_picture = data.profile_picture;
+            let username = data.username;
+            messages.forEach(function(item) {
+                let messageHTML = '';
+                if (item.type == 'sent') {
+                    messageHTML += '<div class="outgoing_msg">';
+                    messageHTML += '<div class="sent_msg">';
+                    if (item.item_type == 'text' || item.item_type == 'like') {
+                        messageHTML += '<p>'+item.text+'</p>';
+                    } else if (item.item_type == 'media') {
+                        messageHTML += '<p><img src="'+item.text+'" class="img-responsive"></p>';
+                    } else {
+                        messageHTML += '<p></p>';
+                    }
+                    messageHTML += '</div>';
+                    messageHTML += '</div>';
+                } else {
+                    messageHTML += '<div class="incoming_msg">';
+                    messageHTML += '<div class="incoming_msg_img"><img class="img-responsive img-circle" src="'+profile_picture+'" alt="'+username+'"></div>';
+                    messageHTML += '<div class="received_msg">';
+                    messageHTML += '<div class="received_withd_msg">';
+                    if (item.item_type == 'text' || item.item_type == 'like') {
+                        messageHTML += '<p>'+item.text+'</p>';
+                    } else if (item.item_type == 'media') {
+                        messageHTML += '<p><img src="'+item.text+'" class="img-responsive"></p>';
+                    } else {
+                        messageHTML += '<p></p>';
+                    }
+                    messageHTML += '</div>';
+                    messageHTML += '</div>';
+                    messageHTML += '</div>';
+                }
+
+                $('.msg_history').prepend(messageHTML);
+                if (ft) {
+                    ft = false;
+                    $(".msg_history").animate({ scrollTop: $('.msg_history').prop("scrollHeight")}, 1000);
+                }
+            });
+        }
+
+        setInterval(function() {
+            loadThread();
+        }, 5000);
+        @endif
       $('#completion-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
       });
 
           jQuery(document).ready(function() {
+              $('.ig-reply').keyup(function(event) {
+                  if (event.keyCode == 13) {
+                      let threadId = $(this).data('thread-id');
+                      let message = $(this).val();
+                      $(this).attr('disabled', 'disabled');
+                      let self = this;
+                      if (message != '') {
+                          $.ajax({
+                              url: '{{ action('InstagramController@replyToThread', '') }}'+'/'+threadId,
+                              data: {
+                                  message: message,
+                                  _token: "{{ csrf_token() }}"
+                              },
+                              type: 'POST',
+                              success: function(response) {
+                                  $(self).val('');
+                                  $(self).removeAttr('disabled');
+                                  updateThreadInChatBox(response);
+                                  $(".msg_history").animate({ scrollTop: $('.msg_history').prop("scrollHeight")}, 1000);
+                              },
+                              error: function() {
+                                  alert("Couldn't send message right now!");
+                              }
+                          });
+                      }
+                  }
+              });
+
+              $("#ig_image").change(function(event) {
+                  let threadId = $(this).data('thread-id');
+                  let fd = new FormData();
+                  fd.append('photo', $('#ig_image').prop('files')[0]);
+                  $('#ig_image').val('');
+                  $.ajax({
+                      url: '{{action('InstagramController@replyToThread', '')}}'+'/'+threadId,
+                      type: 'POST',
+                      cache: false,
+                      contentType: false,
+                      processData: false,
+                      data: fd,
+                      success: function(response) {
+                          loadThread(response);
+                      }
+                  });
+              });
 
               jQuery('.multi_brand').select2({
                   placeholder: 'Brand',
@@ -1846,3 +1973,145 @@
     </script>
 
     @endsection
+
+@section('styles')
+    <style>
+        .inbox_people {
+            background: #f8f8f8 none repeat scroll 0 0;
+            float: left;
+            overflow: hidden;
+            width: 40%; border-right:1px solid #c4c4c4;
+        }
+        .inbox_msg {
+            border: 1px solid #c4c4c4;
+            clear: both;
+            overflow: hidden;
+        }
+        .top_spac{ margin: 20px 0 0;}
+
+
+        .recent_heading {float: left; width:40%;}
+        .srch_bar {
+            display: inline-block;
+            text-align: right;
+            width: 60%; padding:
+        }
+        .headind_srch{ padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
+
+        .recent_heading h4 {
+            color: #3595d7;
+            font-size: 21px;
+            margin: auto;
+        }
+        .srch_bar input{ border:1px solid #cdcdcd; border-width:0 0 1px 0; width:80%; padding:2px 0 4px 6px; background:none;}
+        .srch_bar .input-group-addon button {
+            background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+            border: medium none;
+            padding: 0;
+            color: #707070;
+            font-size: 18px;
+        }
+        .srch_bar .input-group-addon { margin: 0 0 0 -27px;}
+
+        .chat_ib h5{ font-size:15px; color:#464646; margin:0 0 8px 0;}
+        .chat_ib h5 span{ font-size:13px; float:right;}
+        .chat_ib p{ font-size:14px; color:#989898; margin:auto}
+        .chat_img {
+            float: left;
+            width: 11%;
+        }
+        .chat_ib {
+            float: left;
+            padding: 0 0 0 15px;
+            width: 88%;
+        }
+
+        .chat_people{ overflow:hidden; clear:both;}
+        .chat_list {
+            border-bottom: 1px solid #c4c4c4;
+            margin: 0;
+            padding: 18px 16px 10px;
+        }
+        .inbox_chat { height: 550px; overflow-y: scroll;}
+
+        .active_chat{ background:#ebebeb;}
+
+        .incoming_msg_img {
+            display: inline-block;
+            width: 6%;
+        }
+        .received_msg {
+            display: inline-block;
+            padding: 0 0 0 10px;
+            vertical-align: top;
+            width: 92%;
+        }
+        .received_withd_msg p {
+            background: #ebebeb none repeat scroll 0 0;
+            border-radius: 3px;
+            color: #646464;
+            font-size: 14px;
+            margin: 0;
+            padding: 5px 10px 5px 12px;
+            width: 100%;
+        }
+        .time_date {
+            color: #747474;
+            display: block;
+            font-size: 12px;
+            margin: 8px 0 0;
+        }
+        .received_withd_msg { width: 57%;}
+        .mesgs {
+            padding: 30px 15px 10px 25px;
+            width: 100%;
+            background: #F9F9F9;
+            margin-bottom: 50px;
+        }
+
+        .sent_msg p {
+            background: #3595d7 none repeat scroll 0 0;
+            border-radius: 3px;
+            font-size: 14px;
+            margin: 0; color:#fff;
+            padding: 5px 10px 5px 12px;
+            width:100%;
+        }
+        .outgoing_msg{ overflow:hidden; margin:26px 0 26px;}
+        .sent_msg {
+            float: right;
+            width: 46%;
+        }
+        .input_msg_write input {
+            background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+            border: medium none;
+            color: #4c4c4c;
+            padding: 15px 2px;
+            font-size: 15px;
+            min-height: 48px;
+            outline: none !important;
+            width: 100%;
+        }
+
+        .type_msg {border-top: 1px solid #c4c4c4;position: relative;}
+        .msg_send_btn {
+            background: #3595d7 none repeat scroll 0 0;
+            border: medium none;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            font-size: 17px;
+            height: 33px;
+            position: absolute;
+            right: 0;
+            top: 11px;
+            width: 33px;
+        }
+        .messaging { padding: 0 0 50px 0;}
+        .msg_history {
+            height: 516px;
+            overflow-y: auto;
+            padding-bottom: 15px;
+        }
+    </style>
+@endsection
