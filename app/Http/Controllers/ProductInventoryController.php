@@ -137,27 +137,6 @@ class ProductInventoryController extends Controller
 		}
 
 		if ($request->price != null) {
-			// switch ($request->price) {
-			// 	case 1:
-			// 		$min = 0;
-			// 		$max = 10000;
-			// 		break;
-			// 	case 2:
-			// 		$min = 10000;
-			// 		$max = 30000;
-			// 		break;
-			// 	case 3:
-			// 		$min = 30000;
-			// 		$max = 50000;
-			// 		break;
-			// 	case 4:
-			// 		$min = 50000;
-			// 		$max = 100000;
-			// 		break;
-			// 	default:
-			// 		$min = 0;
-			// 		$max = 100000000;
-			// }
 			$exploded = explode(',', $request->price);
 			$min = $exploded[0];
 			$max = $exploded[1];
@@ -233,6 +212,15 @@ class ProductInventoryController extends Controller
 
 
 		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+
+		$data['date'] = $request->date ? $request->date : '';
+		$data['type'] = $request->type ? $request->type : '';
+		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
+
+		if ($request->ajax()) {
+			$html = view('instock.product-items', $data)->render();
+			return response()->json(['html' => $html]);
+		}
 
 		return view( 'instock.index', $data );
 	}

@@ -52,6 +52,8 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('sales','SaleController');
 	Route::resource('stock','StockController');
 	Route::delete('stock/{id}/permanentDelete', 'StockController@permanentDelete')->name('stock.permanentDelete');
+	Route::post('stock/privateViewing/create', 'StockController@privateViewingStore')->name('stock.privateViewing.store');
+	Route::get('stock/private/viewing', 'StockController@privateViewing')->name('stock.private.viewing');
 //	Route::resource('activity','ActivityConroller');
 	Route::resource('brand','BrandController');
 	Route::resource('reply','ReplyController');
