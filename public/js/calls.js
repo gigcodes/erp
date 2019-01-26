@@ -27,9 +27,9 @@
             }
             var context = $(this).attr("data-context");
             var id= $(this).attr("data-id");
-			if ($('#twillio_call_button').length) {
-
-			} else {
+			// if ($('#twillio_call_button').length) {
+			//
+			// } else {
 				var call = $("<button class='btn btn-primary' type='button' id='twillio_call_button'>Call</button>");
 				call.click( function() {
 	                var numberToCall = number;
@@ -39,7 +39,7 @@
 					callNumber( numberToCall, context, id  );
 				} );
 				call.insertAfter( this );
-			}
+			// }
 
 		} );
     });
@@ -58,7 +58,7 @@
     Twilio.Device.incoming(function (conn) {
 
 		$.getJSON("/twilio/getLeadByNumber?number="+ encodeURIComponent(conn.parameters.From), function( data ) {
-            if (data.found) { 
+            if (data.found) {
               console.log(JSON.stringify(data));
               var win = window.open(data.customer_id, '_blank');
               if (win) {
