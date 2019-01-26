@@ -29,6 +29,14 @@
       </div>
   @endif
 
+  @php
+    $priorities = [
+      "1" => 'Critical',
+      "2" => 'Urgent',
+      "3" => 'Normal'
+    ];
+  @endphp
+
   <div class="table-responsive">
     <table class="table table-bordered">
       <tr>
@@ -39,8 +47,18 @@
       </tr>
       @foreach ($issues as $key => $issue)
         <tr>
-          <td>{{ $issue->priority }}</td>
-          <td>{{ $issue->issue }}</td>
+          <td>{{ $priorities[$issue->priority] }}</td>
+          <td>
+            {{ $issue->issue }}
+            @if ($issue->getMedia(config('constants.media_tags'))->first())
+              <br>
+              @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
+                <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                  <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                </a>
+              @endforeach
+            @endif
+          </td>
           <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
           <td>
             <button type="button" data-toggle="modal" data-target="#assignIssueModal" data-id="{{ $issue->id }}" class="btn btn-image assign-issue-button"><img src="/images/edit.png" /></button>

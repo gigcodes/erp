@@ -32,6 +32,14 @@
 	@csrf
 
 	<div class="form-group">
+		<strong>Attach files:</strong>
+		<input type="file" name="images[]" class="form-control" multiple>
+		@if ($errors->has('images'))
+		<div class="alert alert-danger">{{$errors->first('images')}}</div>
+		@endif
+	</div>
+
+	<div class="form-group">
 		<strong>Issue:</strong>
 		<textarea name="issue" class="form-control" rows="8" cols="80" required>{{ old('issue') }}</textarea>
 		@if ($errors->has('issue'))
@@ -42,11 +50,9 @@
 	<div class="form-group">
 		<strong>Priority:</strong>
 		<select class="form-control" name="priority" required>
-			<option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>1</option>
-			<option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>2</option>
-			<option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>3</option>
-			<option value="4" {{ old('priority') == '4' ? 'selected' : '' }}>4</option>
-			<option value="5" {{ old('priority') == '5' ? 'selected' : '' }}>5</option>
+			<option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
+			<option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
+			<option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
 	 </select>
 
 		@if ($errors->has('priority'))

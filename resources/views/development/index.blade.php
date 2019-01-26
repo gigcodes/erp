@@ -37,7 +37,7 @@
             <h4 class="modal-title">Add New Task</h4>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
           </div>
-          <form action="{{ route('development.store') }}" method="POST">
+          <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="modal-body">
@@ -55,6 +55,14 @@
                   @endif
                 </div>
               @endcan
+
+              <div class="form-group">
+            		<strong>Attach files:</strong>
+            		<input type="file" name="images[]" class="form-control" multiple>
+            		@if ($errors->has('images'))
+            		<div class="alert alert-danger">{{$errors->first('images')}}</div>
+            		@endif
+            	</div>
 
               <div class="form-group">
                 <strong>Module:</strong>
@@ -190,7 +198,17 @@
             @foreach ($module_tasks as $task)
               <tr>
                 <td>{{ $priorities[$task->priority] }}</td>
-                <td>{{ $task->task }}</td>
+                <td>
+                  {{ $task->task }}
+                  @if ($task->getMedia(config('constants.media_tags'))->first())
+                    <br>
+                    @foreach ($task->getMedia(config('constants.media_tags')) as $image)
+                      <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                        <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                      </a>
+                    @endforeach
+                  @endif
+                </td>
                 <td>{{ $task->cost }}</td>
                 <td>{{ $task->status }}</td>
                 <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
@@ -235,7 +253,17 @@
             @foreach ($module_tasks as $task)
               <tr>
                 <td>{{ $priorities[$task->priority] }}</td>
-                <td>{{ $task->task }}</td>
+                <td>
+                  {{ $task->task }}
+                  @if ($task->getMedia(config('constants.media_tags'))->first())
+                    <br>
+                    @foreach ($task->getMedia(config('constants.media_tags')) as $image)
+                      <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                        <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                      </a>
+                    @endforeach
+                  @endif
+                </td>
                 <td>{{ $task->cost }}</td>
                 <td>{{ $task->status }}</td>
                 <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
@@ -306,7 +334,7 @@
           @foreach ($amounts as $amount)
             <tr>
               <td>{{ \Carbon\Carbon::parse($amount->paid_date)->format('d-m') }}</td>
-              <td>{{ $amount->amount }}</td> 
+              <td>{{ $amount->amount }}</td>
             </tr>
             @php $total_paid += $amount->amount @endphp
           @endforeach
@@ -418,7 +446,7 @@
           <h4 class="modal-title">Edit Task</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
-        <form action="" id="editTaskForm" method="POST">
+        <form action="" id="editTaskForm" method="POST" enctype="multipart/form-data">
           @csrf
 
           <div class="modal-body">
@@ -436,6 +464,14 @@
                 @endif
               </div>
             @endcan
+
+            <div class="form-group">
+              <strong>Attach files:</strong>
+              <input type="file" name="images[]" class="form-control" multiple>
+              @if ($errors->has('images'))
+              <div class="alert alert-danger">{{$errors->first('images')}}</div>
+              @endif
+            </div>
 
             <div class="form-group">
               <strong>Priority:</strong>

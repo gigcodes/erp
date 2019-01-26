@@ -11,6 +11,8 @@ use App\User;
 use App\Helpers;
 use App\Issue;
 use Auth;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class DevelopmentController extends Controller
 {
@@ -103,7 +105,14 @@ class DevelopmentController extends Controller
       //   $module->save();
       // }
 
-      DeveloperTask::create($data);
+      $task = DeveloperTask::create($data);
+
+      if ($request->hasfile('images')) {
+        foreach ($request->file('images') as $image) {
+          $media = MediaUploader::fromSource($image)->upload();
+          $task->attachMedia($media,config('constants.media_tags'));
+        }
+      }
 
       return redirect()->route('development.index')->with('success', 'You have successfully added task!');
     }
@@ -117,7 +126,14 @@ class DevelopmentController extends Controller
 
       $data = $request->except('_token');
 
-      Issue::create($data);
+      $issue = Issue::create($data);
+
+      if ($request->hasfile('images')) {
+        foreach ($request->file('images') as $image) {
+          $media = MediaUploader::fromSource($image)->upload();
+          $issue->attachMedia($media,config('constants.media_tags'));
+        }
+      }
 
       return redirect()->back()->with('success', 'You have successfully submitted an issue!');
     }
@@ -187,6 +203,11 @@ class DevelopmentController extends Controller
       $task->status = 'Planned';
 
       $task->save();
+
+      foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
+        $task->attachMedia($image, config('constants.media_tags'));
+      }
+
       $issue->user_id = $request->user_id;
       $issue->save();
       $issue->delete();
@@ -251,7 +272,15 @@ class DevelopmentController extends Controller
       $data = $request->except('_token');
       $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
 
-      DeveloperTask::find($id)->update($data);
+      $task = DeveloperTask::find($id);
+      $task->update($data);
+
+      if ($request->hasfile('images')) {
+        foreach ($request->file('images') as $image) {
+          $media = MediaUploader::fromSource($image)->upload();
+          $task->attachMedia($media,config('constants.media_tags'));
+        }
+      }
 
       return redirect()->route('development.index')->with('success', 'You have successfully updated task!');
     }
