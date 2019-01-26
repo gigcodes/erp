@@ -74,7 +74,7 @@ class SyncInstagramMessage extends Command
             return;
         }
 
-        $customer = Customer::where('instahandler', $user['username'])->first();
+        $customer = Customer::where('ig_username', $user['username'])->first();
 
 
         if (!$customer) {

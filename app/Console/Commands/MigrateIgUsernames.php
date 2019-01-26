@@ -42,5 +42,9 @@ class MigrateIgUsernames extends Command
         Customer::whereNotNull('instahandler')->update([
             'ig_username' => DB::raw('customers.instahandler')
         ]);
+
+        Customer::whereNotNull('instahandler')->update([
+            'instahandler' => null
+        ]);
     }
 }
