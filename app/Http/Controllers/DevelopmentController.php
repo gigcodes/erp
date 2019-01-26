@@ -96,12 +96,12 @@ class DevelopmentController extends Controller
       $data = $request->except('_token');
       $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
 
-      if ($request->module_id) {
-        $module = DeveloperTask::find($request->module_id);
-        $module->user_id = $data['user_id'];
-        $module->module = 0;
-        $module->save();
-      }
+      // if ($request->module_id) {
+      //   $module = DeveloperTask::find($request->module_id);
+      //   $module->user_id = $data['user_id'];
+      //   $module->module = 0;
+      //   $module->save();
+      // }
 
       DeveloperTask::create($data);
 
