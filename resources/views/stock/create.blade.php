@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('styles')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+@endsection
+
 @section('content')
 
     <div class="row">
@@ -31,6 +35,28 @@
             {!! Form::text('courier', old('courier'), array('placeholder' => 'Courier','class' => 'form-control', 'required'  => true)) !!}
             @if ($errors->has('courier'))
               <div class="alert alert-danger">{{$errors->first('courier')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>From:</strong>
+            {!! Form::text('package_from', old('package_from'), array('placeholder' => 'Name','class' => 'form-control')) !!}
+            @if ($errors->has('package_from'))
+              <div class="alert alert-danger">{{$errors->first('package_from')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Date:</strong>
+            <div class='input-group date' id='date'>
+                <input type='text' class="form-control" name="date" value="{{ date('Y-m-d') }}" />
+
+                <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+            @if ($errors->has('date'))
+              <div class="alert alert-danger">{{$errors->first('date')}}</div>
             @endif
           </div>
 
@@ -80,10 +106,25 @@
             @endif
           </div>
 
+          <div class="form-group">
+            <strong>Pcs:</strong>
+            {!! Form::number('pcs', old('pcs'), array('placeholder' => '3','class' => 'form-control')) !!}
+            @if ($errors->has('pcs'))
+              <div class="alert alert-danger">{{$errors->first('pcs')}}</div>
+            @endif
+          </div>
+
           <div class="text-center">
             <button type="submit" class="btn btn-secondary">Create Stock</button>
           </div>
         {!! Form::close() !!}
       </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript">
+      $('#date').datetimepicker({
+        format: 'YYYY-MM-DD'
+      });
+    </script>
 @endsection

@@ -48,11 +48,14 @@ class StockController extends Controller
     {
       $this->validate($request, [
         'courier'     => 'required|string|min:3|max:255',
+        'from'        => 'sometimes|nullable|string|min:3|max:255',
+        'date'        => 'sometimes|nullable',
         'awb'         => 'required|min:3|max:255',
         'l_dimension' => 'sometimes|nullable|numeric',
         'w_dimension' => 'sometimes|nullable|numeric',
         'h_dimension' => 'sometimes|nullable|numeric',
         'weight'      => 'sometimes|nullable|numeric',
+        'pcs'         => 'sometimes|nullable|numeric',
       ]);
 
       Stock::create($request->except('_token'));
@@ -97,11 +100,14 @@ class StockController extends Controller
     {
       $this->validate($request, [
         'courier'     => 'required|string|min:3|max:255',
+        'from'        => 'sometimes|nullable|string|min:3|max:255',
+        'date'        => 'sometimes|nullable',
         'awb'         => 'required|min:3|max:255',
         'l_dimension' => 'sometimes|nullable|numeric',
         'w_dimension' => 'sometimes|nullable|numeric',
         'h_dimension' => 'sometimes|nullable|numeric',
         'weight'      => 'sometimes|nullable|numeric',
+        'pcs'         => 'sometimes|nullable|numeric',
       ]);
 
       Stock::find($id)->update($request->except('_token'));
