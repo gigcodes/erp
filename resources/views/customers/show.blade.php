@@ -27,7 +27,7 @@
 <div id="exTab2" class="container">
   <ul class="nav nav-tabs">
     <li class="active">
-      <a href="#1" data-toggle="tab">Customer Info</a>
+      <a href="#one" data-toggle="tab">Customer Info</a>
     </li>
     <li>
       <a href="#6" data-toggle="tab">Call Recording</a>
@@ -38,11 +38,14 @@
     @if (count($customer->orders) > 0)
       <li><a href="#3" data-toggle="tab">Orders</a></li>
     @endif
+    @if ($customer->instagramThread)
+      <li><a href="#igdm" data-toggle="tab">Instagram DM</a></li>
+    @endif
   </ul>
 </div>
 
 <div class="tab-content ">
-  <div class="tab-pane active mt-3" id="1">
+  <div class="tab-pane active mt-3" id="one">
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
@@ -58,7 +61,7 @@
           </div>
 
           <div class="form-group">
-            <strong>Instagram Handle:</strong> {{ $customer->instahandler }}
+            <strong>Instagram Handle:</strong> {{ $customer->ig_username }}
           </div>
         @endif
 
@@ -275,6 +278,25 @@
     </table>
     </div>
   </div>
+    @if ($customer->instagramThread)
+        <div class="tab-pane mt-3" id="igdm">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mesgs">
+                        <p style="font-size: 24px;font-weight: bolder;" class="text-center mb-5">Instagram Messages</p>
+                        <div class="msg_history"></div>
+                        <div class="type_msg">
+                            <div class="input_msg_write">
+                                <input data-thread-id="{{$customer->instagramThread->thread_id}}" type="text" class="write_msg ig-reply" placeholder="Type a message" />
+                                <label for="ig_image" class="btn btn-info"  style="position: absolute; top: 10px; right: 5px; border-radius:50%"><i class="fa fa-image" aria-hidden="true"></i></label>
+                                <input type="file" data-thread-id="{{$customer->instagramThread->thread_id}}" name="ig_image" id="ig_image" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
   @if (count($customer->leads) > 0)
     <div class="tab-pane mt-3" id="2">
@@ -510,6 +532,7 @@
               </div>
             </div>
           </div>
+<<<<<<< HEAD
     @endforeach
       </div>
     </div>
@@ -842,25 +865,6 @@
   @endif
 </div>
 
-
-@if ($customer->instagramThread)
-    <div class="row">
-        <div class="col-md-12">
-            <div class="mesgs">
-                <p style="font-size: 24px;font-weight: bolder;" class="text-center mb-5">Instagram Messages</p>
-                <div class="msg_history"></div>
-                <div class="type_msg">
-                    <div class="input_msg_write">
-                        <input data-thread-id="{{$customer->instagramThread->thread_id}}" type="text" class="write_msg ig-reply" placeholder="Type a message" />
-                        <label for="ig_image" class="btn btn-info"  style="position: absolute; top: 10px; right: 5px; border-radius:50%"><i class="fa fa-image" aria-hidden="true"></i></label>
-                        <input type="file" data-thread-id="{{$customer->instagramThread->thread_id}}" name="ig_image" id="ig_image" style="display: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endif
-
 <div class="row">
   <div class="col-xs-12 col-sm-6">
     <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
@@ -1088,7 +1092,7 @@
 </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
+    {{--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>--}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
     <script type="text/javascript">
