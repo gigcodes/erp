@@ -50,6 +50,7 @@
     "extra": {
         "laravel": {
             "dont-discover": [
+                "mgp25/instagram-php"
             ]
         }
     },
