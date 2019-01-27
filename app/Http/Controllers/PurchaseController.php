@@ -226,7 +226,7 @@ class PurchaseController extends Controller
     {
       $this->validate($request, [
         'purchase_handler'  => 'required',
-        'supplier'          => 'required',
+        // 'supplier'          => 'required',
         'products'          => 'required'
       ]);
 
