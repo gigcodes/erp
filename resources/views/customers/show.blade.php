@@ -906,12 +906,16 @@
       <div class="row">
         <table class="table table-bordered">
           <tr>
-            <th>Products Count</th>
+            <th>Products</th>
             <th>Date</th>
           </tr>
           @foreach ($customer->private_views as $view)
             <tr>
-              <td>{{ $view->products()->count() }}</td>
+              <td>
+                @foreach ($view->products as $product)
+                  <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
+                @endforeach
+              </td>
               <td>{{ \Carbon\Carbon::parse($view->date)->format('d-m') }}</td>
             </tr>
           @endforeach

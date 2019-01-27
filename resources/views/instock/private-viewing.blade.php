@@ -38,14 +38,18 @@
         <table class="table table-bordered">
         <tr>
           <th>Customer</th>
-          <th>Products Count</th>
+          <th>Products</th>
           <th>Date</th>
           <th width="280px">Action</th>
         </tr>
         @foreach ($private_views as $key => $view)
             <tr>
                 <td>{{ $view->customer->name }}</td>
-                <td>{{ $view->products()->count() }}</td>
+                <td>
+                  @foreach ($view->products as $product)
+                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
+                  @endforeach
+                </td>
                 <td>{{ Carbon\Carbon::parse($view->date)->format('d-m-Y') }}</td>
                 <td>
                   {{-- <a class="btn btn-image" href="{{ route('stock.show', $stock->id) }}"><img src="/images/view.png" /></a>
