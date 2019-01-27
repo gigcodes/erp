@@ -97,7 +97,8 @@ class TwilioController extends FindByNumberController
             $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id. "&Mobile=" .$number ;
         }
         $response = new Twiml();
-$response->say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
+        $response->play( \Config::get("app.url")."/voice_ivr.mp3");
+// $response->say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
 
          $dial = $response->dial([
                             'record' => 'true',
@@ -162,7 +163,7 @@ $response->say("Greetings & compliments of the day from solo luxury. the largest
             $response->hangup();
 
             return $response;
-            
+
 
             // $this->dialAllClients($response, "sales", $context, $object , $number);
         // } else if ($digits == "2") {
