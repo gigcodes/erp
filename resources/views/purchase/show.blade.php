@@ -34,7 +34,14 @@
     </div>
 
     <div class="form-group">
-      <strong>Supplier:</strong> {{ $order->supplier }}
+      <strong>Supplier:</strong>
+      @php $supplier_list = (new \App\ReadOnly\SupplierList)->all(); @endphp
+      <select class="form-control" name="supplier">
+        <option value="">Select Supplier</option>
+        @foreach ($supplier_list as $index => $value)
+          <option value="{{ $index }}" {{ $index == $order->supplier ? 'selected' : '' }}>{{ $value }}</option>
+        @endforeach
+      </select>
     </div>
 
     <div class="form-group">
@@ -88,6 +95,7 @@
 
     <div class="form-group">
       <a href="#" class="btn btn-secondary save-bill">Save</a>
+      <span id="save_status" class="text-success" style="display: none;">Successfully saved!</span>
     </div>
   </div>
   <div class="col-md-6 col-12">
@@ -1286,6 +1294,7 @@
 
     var thiss = $(this);
     var token = "{{ csrf_token() }}";
+    var supplier = $('select[name="supplier"]').val();
     var bill_number = $('input[name="bill_number"]').val();
     var supplier_phone = $('input[name="supplier_phone"]').val();
     var whatsapp_number = $('select[name="whatsapp_number"]').val();
@@ -1297,6 +1306,7 @@
       data: {
         _token: token,
         bill_number: bill_number,
+        supplier: supplier,
         supplier_phone: supplier_phone,
         whatsapp_number: whatsapp_number
       },
@@ -1305,7 +1315,13 @@
       }
     }).done( function() {
       $(thiss).text('Save');
+
+      $('#save_status').fadeIn(400);
+      setTimeout(function () {
+        $('#save_status').fadeOut(400);
+      }, 2000);
     }).fail(function(errObj) {
+      $(thiss).text('Save');
       alert("Could not save Bill number");
     });
   });

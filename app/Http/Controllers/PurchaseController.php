@@ -322,6 +322,7 @@ class PurchaseController extends Controller
     public function saveBill(Request $request, $id)
     {
       $purchase = Purchase::find($id);
+      $purchase->supplier = $request->supplier;
       $purchase->bill_number = $request->bill_number;
       $purchase->supplier_phone = $request->supplier_phone;
       $purchase->whatsapp_number = $request->whatsapp_number;
