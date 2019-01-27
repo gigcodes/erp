@@ -4,7 +4,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Inward Stock</h2>
+            <h2 class="page-heading">Private Viewing</h2>
             <div class="pull-left">
 
                 {{-- <form action="/purchases/" method="GET">
@@ -22,9 +22,9 @@
                     </div>
                 </form> --}}
             </div>
-            <div class="pull-right">
+            {{-- <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('stock.create') }}">+</a>
-            </div>
+            </div> --}}
         </div>
     </div>
 
@@ -37,22 +37,18 @@
     <div class="table-responsive mt-3">
         <table class="table table-bordered">
         <tr>
-          <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=courier{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Courier</a></th>
-          <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=package_from{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">From</a></th>
-          <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=awb{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">AWB</a></th>
-          <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=pcs{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Pcs</a></th>
-          <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created at</a></th>
+          <th>Customer</th>
+          <th>Products Count</th>
+          <th>Date</th>
           <th width="280px">Action</th>
         </tr>
-        @foreach ($stocks as $key => $stock)
+        @foreach ($private_views as $key => $view)
             <tr>
-                <td>{{ $stock->courier }}</td>
-                <td>{{ $stock->package_from }}</td>
-                <td>{{ $stock->awb }}</td>
-                <td>{{ $stock->pcs }}</td>
-                <td>{{ Carbon\Carbon::parse($stock->created_at)->format('d-m-Y') }}</td>
+                <td>{{ $view->customer->name }}</td>
+                <td>{{ $view->products()->count() }}</td>
+                <td>{{ Carbon\Carbon::parse($view->date)->format('d-m-Y') }}</td>
                 <td>
-                  <a class="btn btn-image" href="{{ route('stock.show', $stock->id) }}"><img src="/images/view.png" /></a>
+                  {{-- <a class="btn btn-image" href="{{ route('stock.show', $stock->id) }}"><img src="/images/view.png" /></a>
 
                   {!! Form::open(['method' => 'DELETE','route' => ['stock.destroy', $stock->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
@@ -60,12 +56,12 @@
 
                   {!! Form::open(['method' => 'DELETE','route' => ['stock.permanentDelete', $stock->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                  {!! Form::close() !!}
+                  {!! Form::close() !!} --}}
                 </td>
             </tr>
         @endforeach
     </table>
     </div>
 
-    {!! $stocks->appends(Request::except('page'))->links() !!}
+    {!! $private_views->appends(Request::except('page'))->links() !!}
 @endsection

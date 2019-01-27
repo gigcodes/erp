@@ -25,6 +25,11 @@ class Customer extends Model
     return $this->hasMany('App\Instruction');
   }
 
+  public function private_views()
+  {
+    return $this->hasMany('App\PrivateView');
+  }
+
   public function latest_order()
   {
     return $this->hasMany('App\Order')->latest()->first();

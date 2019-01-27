@@ -13,7 +13,42 @@
       <a class="btn btn-secondary" href="{{ route('customer.index') }}">Back</a>
       <a class="btn btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
       <a class="btn btn-secondary" href="#" id="quick_add_order">+ Order</a>
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button>
     </div>
+  </div>
+</div>
+
+<div id="privateViewingModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <form action="{{ route('productinventory.instock') }}" method="GET">
+        <div class="modal-header">
+          <h4 class="modal-title">Set Up for Private Viewing</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="type" value="private_viewing">
+          <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+          <div class="form-group">
+            <strong>Date:</strong>
+            <div class='input-group date' id='date'>
+              <input type='text' class="form-control" name="date" value="{{ date('Y-m-d H:i') }}" />
+
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary">Select Products</button>
+        </div>
+      </form>
+    </div>
+
   </div>
 </div>
 
@@ -40,6 +75,9 @@
     @endif
     @if ($customer->instagramThread)
       <li><a href="#igdm" data-toggle="tab">Instagram DM</a></li>
+    @endif
+    @if (count($customer->private_views) > 0)
+      <li><a href="#private_view_tab" data-toggle="tab">Private Viewing</a></li>
     @endif
   </ul>
 </div>
@@ -532,7 +570,6 @@
               </div>
             </div>
           </div>
-<<<<<<< HEAD
     @endforeach
       </div>
     </div>
@@ -863,6 +900,25 @@
       </div>
     </div>
   @endif
+
+  @if (count($customer->private_views) > 0)
+    <div class="tab-pane mt-3" id="private_view_tab">
+      <div class="row">
+        <table class="table table-bordered">
+          <tr>
+            <th>Products Count</th>
+            <th>Date</th>
+          </tr>
+          @foreach ($customer->private_views as $view)
+            <tr>
+              <td>{{ $view->products()->count() }}</td>
+              <td>{{ \Carbon\Carbon::parse($view->date)->format('d-m') }}</td>
+            </tr>
+          @endforeach
+      </table>
+      </div>
+    </div>
+  @endif
 </div>
 
 <div class="row">
@@ -1108,9 +1164,9 @@ jQuery(document).ready(function( $ ) {
 
 
 
-      // $('#completion-datetime').datetimepicker({
-      //   format: 'YYYY-MM-DD HH:mm'
-      // });
+      $('#date').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm'
+      });
         @if ($customer->instagramThread)
         var ft = true;
         function loadThread() {

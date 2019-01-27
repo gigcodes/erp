@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Stock;
 use App\Setting;
+use App\Product;
+use App\PrivateView;
 
 class StockController extends Controller
 {
@@ -48,11 +50,14 @@ class StockController extends Controller
     {
       $this->validate($request, [
         'courier'     => 'required|string|min:3|max:255',
+        'from'        => 'sometimes|nullable|string|min:3|max:255',
+        'date'        => 'sometimes|nullable',
         'awb'         => 'required|min:3|max:255',
         'l_dimension' => 'sometimes|nullable|numeric',
         'w_dimension' => 'sometimes|nullable|numeric',
         'h_dimension' => 'sometimes|nullable|numeric',
         'weight'      => 'sometimes|nullable|numeric',
+        'pcs'         => 'sometimes|nullable|numeric',
       ]);
 
       Stock::create($request->except('_token'));
@@ -97,16 +102,48 @@ class StockController extends Controller
     {
       $this->validate($request, [
         'courier'     => 'required|string|min:3|max:255',
+        'from'        => 'sometimes|nullable|string|min:3|max:255',
+        'date'        => 'sometimes|nullable',
         'awb'         => 'required|min:3|max:255',
         'l_dimension' => 'sometimes|nullable|numeric',
         'w_dimension' => 'sometimes|nullable|numeric',
         'h_dimension' => 'sometimes|nullable|numeric',
         'weight'      => 'sometimes|nullable|numeric',
+        'pcs'         => 'sometimes|nullable|numeric',
       ]);
 
       Stock::find($id)->update($request->except('_token'));
 
       return redirect()->route('stock.show', $id)->with('success', 'You have successfully updated stock!');
+    }
+
+    public function privateViewing()
+    {
+      $private_views = PrivateView::paginate(Setting::get('pagination'));
+
+      return view('instock.private-viewing', [
+        'private_views' => $private_views
+      ]);
+    }
+
+    public function privateViewingStore(Request $request)
+    {
+      $products = json_decode($request->products);
+
+      foreach ($products as $product_id) {
+        $private_view = new PrivateView;
+        $private_view->customer_id = $request->customer_id;
+        $private_view->date = $request->date;
+        $private_view->save();
+
+        $private_view->products()->attach($product_id);
+
+        $product = Product::find($product_id);
+        $product->supplier = '';
+        $product->save();
+      }
+
+      return redirect()->route('customer.show', $request->customer_id)->with('success', 'You have successfully added products for private viewing!');
     }
 
     /**

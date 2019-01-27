@@ -10,6 +10,6 @@ class Stock extends Model
   use SoftDeletes;
 
   protected $fillable = [
-    'courier', 'awb', 'l_dimension', 'h_dimension', 'w_dimension', 'weight'
+    'courier', 'package_from', 'date', 'awb', 'l_dimension', 'h_dimension', 'w_dimension', 'weight', 'pcs'
   ];
 }
