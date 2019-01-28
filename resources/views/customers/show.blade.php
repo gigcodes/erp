@@ -1170,8 +1170,8 @@
 
   </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     {{--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>--}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
@@ -1645,7 +1645,7 @@ jQuery(document).ready(function( $ ) {
                  if ( message.message ) {
                      p.html( message.message );
                  } else if ( message.media_url ) {
-                     var splitted = message.content_type[1].split("/");
+                     var splitted = message.content_type.split("/");
                      if (splitted[0]==="image") {
                          var a = $("<a></a>");
                          a.attr("target", "_blank");
