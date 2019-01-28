@@ -335,4 +335,7 @@ Route::prefix('comments')->group(function () {
     Route::post('/facebook', 'SocialController@postComment');
 });
 
-Route::get('/rishabh', 'InstagramController@index');
+Route::prefix('scrap')->group(function () {
+    Route::get('/google/images', 'ScrapController@index');
+    Route::post('/google/images', 'ScrapController@scrapGoogleImages');
+});

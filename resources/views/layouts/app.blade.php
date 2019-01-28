@@ -1734,6 +1734,23 @@
 
                         </li>
 
+                            <li class="nav-item dropdown">
+
+                                <a id="scrapMenu" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    Scrap <span class="caret"></span>
+
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
+                                        <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
+                                </div>
+
+
+                            </li>
+
 
 
                         <li class="nav-item dropdown">
