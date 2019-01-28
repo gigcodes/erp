@@ -179,6 +179,7 @@ class PurchaseController extends Controller
 
       foreach($products as $key => $product) {
         $new_products[$key]['id'] = $product->id;
+        $new_products[$key]['sku'] = $product->sku;
         $new_products[$key]['supplier'] = $product->supplier;
         $new_products[$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
         $new_products[$key]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
