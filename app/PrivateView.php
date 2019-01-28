@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Plank\Mediable\Mediable;
 
 class PrivateView extends Model
 {
+  use Mediable;
+  
   public function customer()
   {
     return $this->belongsTo('App\Customer');

@@ -7,6 +7,8 @@ use App\Stock;
 use App\Setting;
 use App\Product;
 use App\PrivateView;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class StockController extends Controller
 {
@@ -144,6 +146,24 @@ class StockController extends Controller
       }
 
       return redirect()->route('customer.show', $request->customer_id)->with('success', 'You have successfully added products for private viewing!');
+    }
+
+    public function privateViewingUpload(Request $request)
+    {
+      $this->validate($request, [
+        'images'  => 'required'
+      ]);
+
+      $private_view = PrivateView::find($request->view_id);
+
+      if ($request->hasfile('images')) {
+        foreach ($request->file('images') as $image) {
+          $media = MediaUploader::fromSource($image)->upload();
+          $private_view->attachMedia($media,config('constants.media_tags'));
+        }
+      }
+
+      return redirect()->back()->with('success', 'You have successfully uploaded images!');
     }
 
     /**

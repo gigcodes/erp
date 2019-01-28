@@ -908,15 +908,35 @@
           <tr>
             <th>Products</th>
             <th>Date</th>
+            <th>Delivery Images</th>
           </tr>
           @foreach ($customer->private_views as $view)
-            <tr>
+            <tr class="{{ \Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d') ? 'row-highlight' : '' }}">
               <td>
                 @foreach ($view->products as $product)
                   <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
                 @endforeach
               </td>
               <td>{{ \Carbon\Carbon::parse($view->date)->format('d-m') }}</td>
+              <td>
+                @if ($view->getMedia(config('constants.media_tags'))->first())
+                  @foreach ($view->getMedia(config('constants.media_tags')) as $image)
+                    <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                      <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
+                    </a>
+                  @endforeach
+                @elseif (\Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d'))
+                  <form action="{{ route('stock.private.viewing.upload') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group">
+                      <input type="hidden" name="view_id" value="{{ $view->id }}">
+                      <input type="file" name="images[]" required multiple>
+                    </div>
+
+                    <button type="submit" class="btn btn-xs btn-secondary">Upload</button>
+                  </form>
+                @endif
+              </td>
             </tr>
           @endforeach
       </table>
