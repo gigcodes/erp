@@ -9,7 +9,7 @@
         <div class="col-md-12">
             <div class="row">
                 @foreach($images as $image)
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-2">
                         <img src="{{ asset('uploads/social-media') . '/' . $image }}" class="img-responsive">
                     </div>
                 @endforeach
