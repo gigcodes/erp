@@ -154,7 +154,7 @@
 
 
 	<?php $stage = new \App\Stage(); ?>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
+    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
     $(document).ready(function() {
@@ -164,13 +164,13 @@
       var searchSuggestions = {!! json_encode($search_suggestions) !!};
       var image_array = [];
 
-      $('#product-search').autocomplete({
-        source: function(request, response) {
-          var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
-
-          response(results.slice(0, 10));
-        }
-      });
+      // $('#product-search').autocomplete({
+      //   source: function(request, response) {
+      //     var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+      //
+      //     response(results.slice(0, 10));
+      //   }
+      // });
 
       $(document).on('click', '.pagination a', function(e) {
         e.preventDefault();

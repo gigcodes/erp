@@ -634,6 +634,12 @@ class WhatsAppController extends FindByNumberController
                $temp_image['product_id'] = $product_image->id;
                $temp_image['special_price'] = $product_image->price_special;
 
+               $string = $product_image->supplier;
+               $expr = '/(?<=\s|^)[a-z]/i';
+               preg_match_all($expr, $string, $matches);
+               $supplier_initials = implode('', $matches[0]);
+               $temp_image['supplier_initials'] = strtoupper($supplier_initials);
+
                if ($product_image->size != NULL) {
                  $temp_image['size'] = $product_image->size;
                } else {
@@ -669,6 +675,12 @@ class WhatsAppController extends FindByNumberController
            if ($product_image) {
              $temp_image['product_id'] = $product_image->id;
              $temp_image['special_price'] = $product_image->price_special;
+
+             $string = $product_image->supplier;
+             $expr = '/(?<=\s|^)[a-z]/i';
+             preg_match_all($expr, $string, $matches);
+             $supplier_initials = implode('', $matches[0]);
+             $temp_image['supplier_initials'] = strtoupper($supplier_initials);
 
              if ($product_image->size != NULL) {
                $temp_image['size'] = $product_image->size;

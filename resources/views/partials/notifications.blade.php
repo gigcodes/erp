@@ -440,7 +440,7 @@
                 link = "{{ route('instruction.complete.alert') }}" + "?id=" + notification.model_id;
                 // message = '<h4>Reminder</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
                 $('#instructionAlertUrl').attr('href', link);
-                jQuery.noConflict();
+                // jQuery.noConflict();
                 $('#instructionAlertModal').modal('show');
 
                 // notification_html = '<div class="notification">' + message + '</div>';
