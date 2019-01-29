@@ -31,7 +31,7 @@
         @foreach ($data as $key => $user)
             <tr>
                 <td>{{ ++$i }}</td>
-                <td><span class="user-status {{ $user->isOnline() ? 'is-online' : '' }}"></span> {{ $user->name }}</td>
+                <td><span class="user-status {{ $user->isOnline() ? 'is-online' : '' }}"></span> {{ str_replace( '_' , ' ' ,$user->name) }}</td>
                 <td>{{ $user->email }}</td>
                 <td>
                     @if(!empty($user->getRoleNames()))

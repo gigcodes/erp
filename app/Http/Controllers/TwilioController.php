@@ -333,7 +333,8 @@ $clients[] = $user->name;
         $gather = $response->gather([
             'action' => url("/twilio/gatherAction")
         ]);
-        $gather->say($speech);
+        // $gather->say($speech);
+         $gather->play( \Config::get("app.url")."/busyring.mp3");
     }
 
     /**

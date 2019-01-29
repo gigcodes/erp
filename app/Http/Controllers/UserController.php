@@ -86,6 +86,7 @@ class UserController extends Controller
 
 
 		$input = $request->all();
+		$input['name'] = str_replace(' ', '_', $input['name']);
 		$input['password'] = Hash::make($input['password']);
 		if(isset($input['agent_role']))
         $input['agent_role'] = implode(',', $input['agent_role']);
@@ -151,6 +152,7 @@ class UserController extends Controller
 
 
 		$input = $request->all();
+		$input['name'] = str_replace(' ', '_', $input['name']);
 		if(isset($input['agent_role'])){
         $input['agent_role'] = implode(',', $input['agent_role']);
     }else{
