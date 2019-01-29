@@ -120,6 +120,20 @@
             @endif
           </div>
 
+          @if ($stock->products()->count() > 0)
+            <h3>Products</h3>
+
+            <div class="row mb-3">
+              @foreach ($stock->products as $product)
+                <div class="col-md-4">
+                  <a href="{{ route('products.show', $product->id) }}" target="_blank">
+                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" alt="">
+                  </a>
+                </div>
+              @endforeach
+            </div>
+          @endif
+
           <div class="text-center">
             <button type="submit" class="btn btn-secondary">Update Stock</button>
           </div>

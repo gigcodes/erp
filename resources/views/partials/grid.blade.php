@@ -317,7 +317,8 @@
 
                 jQuery.ajax({
                     headers: {
-                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                      // 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
                     },
                     type: 'POST',
                     url: '/attachProductToModel/'+ model_type + '/' + model_id + '/' + product_id,

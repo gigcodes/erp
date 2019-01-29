@@ -12,6 +12,7 @@ use App\Sale;
 use App\Setting;
 use App\Sizes;
 use App\Brand;
+use App\Stock;
 use Cache;
 use Auth;
 use Illuminate\Http\Request;
@@ -315,7 +316,15 @@ class ProductController extends Controller {
 			break;
 
 			case  'sale':
-			$action = SaleController::attachProduct($model_id,$product_id);
+				$action = SaleController::attachProduct($model_id,$product_id);
+			break;
+			case 'stock':
+				$stock = Stock::find($model_id);
+				$product = Product::find($product_id);
+
+				$stock->products()->attach($product);
+				$action = 'Attached';
+			break;
 		}
 
 
@@ -366,19 +375,26 @@ class ProductController extends Controller {
 
 		$product_image = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
 
-		$order_product = new OrderProduct;
+		if ($request->order_id) {
+			$order_product = new OrderProduct;
 
-		$order_product->order_id = $request->order_id;
-		$order_product->sku = $request->sku;
-		$order_product->product_price = $request->price;
-		$order_product->size = $request->size;
-		$order_product->color = $request->color;
-		$order_product->qty = $request->quantity;
+			$order_product->order_id = $request->order_id;
+			$order_product->sku = $request->sku;
+			$order_product->product_price = $request->price;
+			$order_product->size = $request->size;
+			$order_product->color = $request->color;
+			$order_product->qty = $request->quantity;
 
-		$order_product->save();
+			$order_product->save();
 
-		// return response($product);
+			// return response($product);
 
-		return response(['product' => $product, 'order' => $order_product, 'quantity' => $request->quantity, 'product_image' => $product_image]);
+			return response(['product' => $product, 'order' => $order_product, 'quantity' => $request->quantity, 'product_image' => $product_image]);
+		} elseif ($request->stock_id) {
+			$stock = Stock::find($request->stock_id);
+			$stock->products()->attach($product);
+
+			return response(['product' => $product, 'product_image' => $product_image]);
+		}
 	}
 }

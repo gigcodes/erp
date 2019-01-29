@@ -62,7 +62,11 @@ class StockController extends Controller
         'pcs'         => 'sometimes|nullable|numeric',
       ]);
 
-      Stock::create($request->except('_token'));
+      $stock = Stock::create($request->except('_token'));
+
+      if ($request->ajax()) {
+        return response($stock->id);
+      }
 
       return redirect()->route('stock.index')->with('success', 'You have successfully created stock');
     }
@@ -181,7 +185,9 @@ class StockController extends Controller
 
     public function permanentDelete($id)
     {
-      Stock::find($id)->forceDelete();
+      $stock = Stock::find($id);
+      $stock->products()->detach();
+      $stock->forceDelete();
 
       return redirect()->route('stock.index')->with('success', 'You have successfully deleted stock');
     }

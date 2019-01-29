@@ -41,6 +41,7 @@
           <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=package_from{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">From</a></th>
           <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=awb{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">AWB</a></th>
           <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=pcs{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Pcs</a></th>
+          <th>Product Count</th>
           <th><a href="/stock{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=created_at{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Created at</a></th>
           <th width="280px">Action</th>
         </tr>
@@ -50,6 +51,7 @@
                 <td>{{ $stock->package_from }}</td>
                 <td>{{ $stock->awb }}</td>
                 <td>{{ $stock->pcs }}</td>
+                <td>{{ $stock->products()->count() }}</td>
                 <td>{{ Carbon\Carbon::parse($stock->created_at)->format('d-m-Y') }}</td>
                 <td>
                   <a class="btn btn-image" href="{{ route('stock.show', $stock->id) }}"><img src="/images/view.png" /></a>
