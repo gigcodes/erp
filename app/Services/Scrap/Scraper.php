@@ -20,7 +20,7 @@ class Scraper
         $this->client = $client;
     }
 
-    public function scrapGoogleImages($q)
+    public function scrapGoogleImages($q, $outputCount)
     {
         $body = $this->getContent(self::GOOGLE_IMAGE_SEARCH_URL[0].$q);
         $c = new HtmlPageCrawler($body);
@@ -33,7 +33,7 @@ class Scraper
             $item = json_decode($image->firstChild->data, true);
             $images[] = $item['ou'];
 
-            if ($key>4) {
+            if ($key+1>=$outputCount) {
                 break;
             }
         }

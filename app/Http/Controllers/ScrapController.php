@@ -29,15 +29,12 @@ class ScrapController extends Controller
         ]);
 
         $q = $request->get('query');
-        $data = $this->scraper->scrapGoogleImages($q);
         $noi = $request->get('noi');
+        $data = $this->scraper->scrapGoogleImages($q, $noi);
 
         $images = [];
 
         foreach ($data as $key=>$datum) {
-            if ($key+1 > $noi) {
-                break;
-            }
             try {
                 $imgData = file_get_contents($datum);
             } catch (\Exception $exception) {
