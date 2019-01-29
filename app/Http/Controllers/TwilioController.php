@@ -143,8 +143,7 @@ class TwilioController extends FindByNumberController
 
         if ($digits === "0") {
    $response->say(
-                'It appears that no agent is available. ' .
-                'Please leave a message after the beep',
+                '',
                 ['voice' => 'alice', 'language' => 'en-GB']
             );
 
