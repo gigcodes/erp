@@ -1,10 +1,14 @@
 @extends('layouts.app')
 
+@section("styles")
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+@endsection
+
 @section('content')
   <div class="row">
     <div class="col-lg-12 margin-tb">
       <div class="">
-        <h2>In stock Products</h2>
+        <h2 class="page-heading">In stock Products</h2>
 
         <!--Product Search Input -->
         <form action="{{ route('productinventory.instock') }}" method="GET" id="searchForm" class="form-inline align-items-start">
@@ -25,13 +29,25 @@
           <div class="form-group mr-3">
             @php $brands = \App\Brand::getAll();
             @endphp
-            {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
+            <select class="form-control select-multiple" name="brand[]" multiple>
+              <optgroup label="Brands">
+                @foreach ($brands as $id => $name)
+                  <option value="{{ $id }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+              </optgroup>
+            </select>
           </div>
 
           <div class="form-group mr-3">
             @php $colors = new \App\Colors();
             @endphp
-            {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control', 'multiple' => true]) !!}
+            <select class="form-control select-multiple" name="color[]" multiple>
+              <optgroup label="Colors">
+                @foreach ($colors->all() as $id => $name)
+                  <option value="{{ $id }}" {{ isset($color) && $color == $id ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+              </optgroup>
+            </select>
           </div>
 
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
@@ -60,9 +76,17 @@
     <input type="hidden" name="products" id="selected_products" value="">
   </form>
 
+@endsection
+
+@section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script>
     var searchSuggestions = {!!json_encode($search_suggestions) !!};
     var product_array = [];
+
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
+    });
 
     $('#product-search').autocomplete({
       source: function(request, response) {
@@ -121,8 +145,6 @@
 
       $(this).toggleClass('btn-success');
       $(this).toggleClass('btn-secondary');
-
-      console.log(product_array);
     });
 
     $(document).on('click', '#privateViewingButton', function() {

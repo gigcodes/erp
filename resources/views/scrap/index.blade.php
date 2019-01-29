@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h1>Scrap Google Image</h1>
+            <h2 class="page-heading">Scrap Google Image</h2>
             <p>Please enter the search query that you want to save the images of.</p>
         </div>
         <div class="col-md-12">

@@ -139,7 +139,7 @@
         <div class="col-2">
             <div class="form-group">
                 Goto :
-                <select onchange="location.href = this.value;">
+                <select onchange="location.href = this.value;" class="form-control">
                     @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
                         <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
                     @endfor
@@ -158,7 +158,7 @@
         <div class="col-2">
             <div class="form-group">
                 Goto :
-                <select onchange="location.href = this.value;">
+                <select onchange="location.href = this.value;" class="form-control">
                     @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
                         <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
                     @endfor
