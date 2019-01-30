@@ -177,13 +177,13 @@
 
       var searchSuggestions = {!! json_encode($search_suggestions) !!};
 
-      $('#product-search').autocomplete({
-        source: function(request, response) {
-          var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
-
-          response(results.slice(0, 10));
-        }
-      });
+      // $('#product-search').autocomplete({
+      //   source: function(request, response) {
+      //     var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+      //
+      //     response(results.slice(0, 10));
+      //   }
+      // });
 
         Array.prototype.groupBy = function (prop) {
             return this.reduce(function (groups, item) {
