@@ -19,7 +19,31 @@
         </div>
     @endif
 
-    <div class="table-responsive">
+    <div class="row">
+      <div class="col-12">
+        <div class="form-inline">
+          <div class="form-group">
+            <input type="number" id="product_price" step="0.01" class="form-control" placeholder="Product price">
+          </div>
+
+          <div class="form-group ml-3">
+            <select class="form-control" id="brand">
+              @foreach ($brands as $brand)
+                <option value="{{ $brand->id }}" data-brand="{{ $brand }}">{{ $brand->name }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <button type="button" id="calculatePriceButton" class="btn btn-secondary ml-3">Calculate</button>
+        </div>
+
+        <div id="result-container">
+
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive mt-3">
         <table class="table table-bordered">
         <tr>
             <th>ID</th>
@@ -47,4 +71,20 @@
 
     {!! $brands->links() !!}
 
+@endsection
+
+@section('scripts')
+  <script type="text/javascript">
+    $('#calculatePriceButton').on('click', function() {
+      var price = $('#product_price').val();
+      var brand = $(':selected').data('brand');
+
+      var price_inr = Math.round(Math.round(price * brand.euro_to_inr) / 1000) * 1000;
+      var price_special = Math.round(Math.round(price_inr - (price_inr * brand.deduction_percentage) / 100) / 1000) * 1000;
+
+      var result = '<strong>INR Price: </strong>' + price_inr + '<br><strong>Special Price: </strong>' + price_special;
+
+      $('#result-container').html(result);
+    });
+  </script>
 @endsection
