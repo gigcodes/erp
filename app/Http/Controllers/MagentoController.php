@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Setting;
 use App\Customer;
+use App\Order;
+use App\OrderProduct;
+use Carbon\Carbon;
 use Validator;
 
 class MagentoController extends Controller {
@@ -104,8 +107,6 @@ class MagentoController extends Controller {
 		$orderlist = $proxy->salesOrderList( $sessionId, $filter );
 
 		for ( $j = 0; $j < sizeof( $orderlist ); $j ++ ) {
-
-
 			$results = json_decode( json_encode( $proxy->salesOrderInfo( $sessionId, $orderlist[ $j ]->increment_id ) ), true );
 
 			$atts = unserialize( $results['items'][0]['product_options'] );
@@ -161,11 +162,19 @@ class MagentoController extends Controller {
 				$customer_id = $customer->id;
 			}
 
+			$payment_method = '';
+			if ($results['payment']['method'] == 'paytm_cc'  || $results['payment']['method'] == 'zestmoney_zestpay') {
+				$payment_method = 'Prepaid';
+			} elseif ($results['payment']['method'] == 'cashondelivery') {
+				$payment_method = 'Proceed without Advance';
+			}
+
 			$id             = DB::table( 'orders' )->insertGetId(
 				array(
 					'customer_id'    => $customer_id,
 					'order_id'       => $results['increment_id'],
 					'order_type'     => 'online',
+					'order_status'	 => $payment_method,
 					'order_date'     => $results['created_at'],
 					'client_name'    => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
 					'city'           => $results['billing_address']['city'],
@@ -205,8 +214,35 @@ class MagentoController extends Controller {
 				}
 			}
 			Setting::add( 'lastid', $orderlist[ $j ]->order_id, 'int' );
-		}
 
+			$order = Order::find($id);
+			if ($order->order_status == 'Proceed without Advance') {
+				$product_names = '';
+				foreach (OrderProduct::where('order_id', $id)->get() as $order_product) {
+
+					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+				}
+
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . Carbon::parse($order->date_of_delivery)->format('d \of\ F');
+				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
+				$requestData = new Request();
+				$requestData2 = new Request();
+				$requestData->setMethod('POST');
+				$requestData2->setMethod('POST');
+				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+				$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+			} elseif ($order->order_status == 'Prepaid') {
+				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+				$requestData = new Request();
+				$requestData->setMethod('POST');
+				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			}
+		}
 	}
 
 	public static function generateRandomString($length = 10) {

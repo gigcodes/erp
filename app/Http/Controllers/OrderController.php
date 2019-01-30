@@ -497,6 +497,32 @@ class OrderController extends Controller {
 			}
 		}
 
+		if ($order->order_status == 'Proceed without Advance') {
+			$product_names = '';
+			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+			}
+
+			$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . Carbon::parse($order->date_of_delivery)->format('d \of\ F');
+			$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
+			$requestData = new Request();
+			$requestData2 = new Request();
+			$requestData->setMethod('POST');
+			$requestData2->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+		} elseif ($order->order_status == 'Prepaid') {
+			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+		}
+
 		// NotificationQueueController::createNewNotification([
 		// 	'type' => 'button',
 		// 	'message' => $data['client_name'],
@@ -627,11 +653,40 @@ class OrderController extends Controller {
 
 		$data = $request->except(['_token', '_method', 'status']);
 		$data['order_status'] = $request->status;
-		$order->update( $data );
-
+		$order->update($data );
 
 		$this->calculateBalanceAmount($order);
+		$order = Order::find($order->id);
 
+		if ($order->auto_messaged == 0) {
+			if ($order->order_status == 'Proceed without Advance') {
+				$product_names = '';
+				foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+				}
+
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . Carbon::parse($order->date_of_delivery)->format('d \of\ F');
+				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
+				$requestData = new Request();
+				$requestData2 = new Request();
+				$requestData->setMethod('POST');
+				$requestData2->setMethod('POST');
+				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+				$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+			} elseif ($order->order_status == 'Prepaid') {
+				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+				$requestData = new Request();
+				$requestData->setMethod('POST');
+				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			}
+
+			$order->update(['auto_messaged' => 1]);
+		}
 
 		return back()->with( 'message', 'Order updated successfully' );
 	}

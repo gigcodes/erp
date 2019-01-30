@@ -30,6 +30,7 @@ class Order extends Model {
 		'date_of_delivery',
 		'received_by',
 		'payment_mode',
+		'auto_messaged',
 		'remark',
         'whatsapp_number',
 		'user_id',
