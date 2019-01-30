@@ -364,8 +364,15 @@ class WhatsAppController extends FindByNumberController
         } else {
           $params['message'] = $message->body;
 
-          ChatMessage::create($params);
+          $chat_message = ChatMessage::create($params);
         }
+
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        $this->approveMessage($request->moduletype, $myRequest);
+
       } else {
         if ($request->moduletype == 'customer') {
           $params['customer_id'] = $request->moduleid;
@@ -717,60 +724,7 @@ class WhatsAppController extends FindByNumberController
 	{
         $user = \Auth::user();
         $message = ChatMessage::findOrFail($request->get("messageId"));
-        // $messages = ChatMessage::whereNull('message')->whereNotNull('media_url')->where('lead_id', $message->lead_id)
-        //                         ->where('order_id', $message->order_id)->where('customer_id', $message->customer_id)->where('created_at', '>=', $message->created_at)->get();
 
-
-
-
-        // if (count($messages) > 1) {
-        //   $messages_keys = [];
-        //   foreach ($messages as $message) {
-        //     $send = $message->message;
-        //     if (is_null($send)) {
-        //         $send = $message->media_url;
-        //
-        //         if (is_null($send)) {
-        //
-        //         }
-        //     }
-        //     if ($context == "leads") {
-        //         $lead = Leads::find($message->lead_id);
-        //         $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send);
-        //     } elseif ( $context == "orders") {
-        //         $order = Order::find($message->order_id);
-        //         $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send);
-        //     } elseif ($context == "customer") {
-        //         $customer = Customer::find($message->customer_id);
-        //
-        //         if ($leads = $customer->leads) {
-        //           foreach ($leads as $lead) {
-        //             if ($lead->whatsapp_number) {
-        //               $whatsapp_number = $lead->whatsapp_number;
-        //             }
-        //           }
-        //         }
-        //         if ($orders = $customer->orders) {
-        //           foreach ($orders as $order) {
-        //             if ($order->whatsapp_number) {
-        //               $whatsapp_number = $order->whatsapp_number;
-        //             }
-        //           }
-        //         }
-        //
-        //         $this->sendWithWhatsApp( $message->customer->phone,$whatsapp_number, $send);
-        //     }
-        //
-        //     $message->update([
-        //         'approved' => 1,
-        //         'status'   => 2
-        //     ]);
-        //
-        //     array_push($messages_keys, $message->id);
-        //   }
-        //
-        //   return response($messages_keys);
-        // } else {
           $send = $message->message;
           if (is_null($send)) {
               $send = $message->media_url;
@@ -789,21 +743,6 @@ class WhatsAppController extends FindByNumberController
                         $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send);
                     } elseif ($context == "customer") {
                         $customer = Customer::find($message->customer_id);
-
-                        // if ($leads = $customer->leads) {
-                        //   foreach ($leads as $lead) {
-                        //     if ($lead->whatsapp_number) {
-                        //       $whatsapp_number = $lead->whatsapp_number;
-                        //     }
-                        //   }
-                        // }
-                        // if ($orders = $customer->orders) {
-                        //   foreach ($orders as $order) {
-                        //     if ($order->whatsapp_number) {
-                        //       $whatsapp_number = $order->whatsapp_number;
-                        //     }
-                        //   }
-                        // }
 
                         $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send);
                     } elseif ($context == 'purchase') {
@@ -880,7 +819,6 @@ class WhatsAppController extends FindByNumberController
               'approved' => 1,
               'status'   => 2
           ]);
-        // }
 
         return response("success");
     }
