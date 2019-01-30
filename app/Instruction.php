@@ -10,4 +10,9 @@ class Instruction extends Model
   {
     return $this->belongsTo('App\Customer');
   }
+
+  public function category()
+  {
+    return $this->belongsTo('App\InstructionCategory');
+  }
 }

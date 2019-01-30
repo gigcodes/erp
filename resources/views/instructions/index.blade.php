@@ -63,10 +63,11 @@
               <th>Client Name</th>
               <th>Number</th>
               <th>Assigned to</th>
+              <th>Category</th>
               <th>Instructions</th>
               <th colspan="2" class="text-center">Action</th>
               <th>Created at</th>
-              {{-- <th>Remark</th> --}}
+              <th>Remark</th>
             </tr>
             @foreach ($instructions as $instruction)
                 <tr>
@@ -75,6 +76,7 @@
                     <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] }}</td>
+                  <td>{{ $instruction->category->name }}</td>
                   <td>{{ $instruction->instruction }}</td>
                   <td>
                     @if ($instruction->completed_at)
@@ -95,6 +97,11 @@
                     @endif
                   </td>
                   <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                  <td>
+                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                    <span> | </span>
+                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                  </td>
                 </tr>
             @endforeach
           </table>
@@ -110,10 +117,11 @@
                 <th>Client Name</th>
                 <th>Number</th>
                 <th>Assigned to</th>
+                <th>Category</th>
                 <th>Instructions</th>
                 <th colspan="2" class="text-center">Action</th>
                 <th>Created at</th>
-                {{-- <th>Remark</th> --}}
+                <th>Remark</th>
               </tr>
               @foreach ($completed_instructions as $instruction)
                   <tr>
@@ -122,6 +130,7 @@
                       <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
                     </td>
                     <td>{{ $users_array[$instruction->assigned_to] }}</td>
+                    <td>{{ $instruction->category->name }}</td>
                     <td>{{ $instruction->instruction }}</td>
                     <td>
                       @if ($instruction->completed_at)
@@ -142,6 +151,11 @@
                       @endif
                     </td>
                     <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                    <td>
+                      <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                      <span> | </span>
+                      <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                    </td>
                   </tr>
               @endforeach
           </table>
@@ -152,112 +166,172 @@
 
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-    <script type="text/javascript">
-      $(document).ready(function() {
-         $(".select-multiple").multiselect();
+    <!-- Modal -->
+    <div id="addRemarkModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add New Remark</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+          </div>
+          <div class="modal-body">
+            <form id="add-remark">
+              <input type="hidden" name="id" value="">
+              <textarea rows="1" name="remark" class="form-control"></textarea>
+              <button type="button" class="btn btn-secondary mt-2" id="addRemarkButton">Add Remark</button>
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="viewRemarkModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">View Remark</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+          </div>
+          <div class="modal-body">
+            <div id="remark-list">
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+@endsection
+
+@section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
+    });
+
+    $(document).on('click', '.complete-call', function(e) {
+      e.preventDefault();
+
+      var thiss = $(this);
+      var token = "{{ csrf_token() }}";
+      var url = "{{ route('instruction.complete') }}";
+      var id = $(this).data('id');
+
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+          _token: token,
+          id: id
+        },
+        beforeSend: function() {
+          $(thiss).text('Loading');
+        }
+      }).done( function(response) {
+        $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
+        $(thiss).remove();
+        window.location.href = response.url;
+      }).fail(function(errObj) {
+        console.log(errObj);
+        alert("Could not mark as completed");
       });
+    });
 
-      $(document).on('click', '.complete-call', function(e) {
-        e.preventDefault();
+    $(document).on('click', '.pending-call', function(e) {
+      e.preventDefault();
 
-        var thiss = $(this);
-        var token = "{{ csrf_token() }}";
-        var url = "{{ route('instruction.complete') }}";
-        var id = $(this).data('id');
+      var thiss = $(this);
+      var token = "{{ csrf_token() }}";
+      var url = "{{ route('instruction.pending') }}";
+      var id = $(this).data('id');
+
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+          _token: token,
+          id: id
+        },
+        beforeSend: function() {
+          $(thiss).text('Loading');
+        }
+      }).done( function(response) {
+        $(thiss).parent().html('Pending');
+        $(thiss).remove();
+      }).fail(function(errObj) {
+        console.log(errObj);
+        alert("Could not mark as completed");
+      });
+    });
+
+    $('.add-task').on('click', function(e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
+    });
+
+    $('#addRemarkButton').on('click', function() {
+      var id = $('#add-remark input[name="id"]').val();
+      var remark = $('#add-remark textarea[name="remark"]').val();
+
+      $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.addRemark') }}',
+          data: {
+            id:id,
+            remark:remark,
+            module_type: 'instruction'
+          },
+      }).done(response => {
+          alert('Remark Added Success!')
+          window.location.reload();
+      }).fail(function(response) {
+        console.log(response);
+      });
+    });
+
+
+    $(".view-remark").click(function () {
+      var id = $(this).attr('data-id');
 
         $.ajax({
-          type: 'POST',
-          url: url,
-          data: {
-            _token: token,
-            id: id
-          },
-          beforeSend: function() {
-            $(thiss).text('Loading');
-          }
-        }).done( function(response) {
-          $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
-          $(thiss).remove();
-          window.location.href = response.url;
-        }).fail(function(errObj) {
-          console.log(errObj);
-          alert("Could not mark as completed");
+            type: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.gettaskremark') }}',
+            data: {
+              id:id,
+              module_type: "instruction"
+            },
+        }).done(response => {
+            var html='';
+
+            $.each(response, function( index, value ) {
+              html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+              html+"<hr>";
+            });
+            $("#viewRemarkModal").find('#remark-list').html(html);
         });
-      });
-
-      $(document).on('click', '.pending-call', function(e) {
-        e.preventDefault();
-
-        var thiss = $(this);
-        var token = "{{ csrf_token() }}";
-        var url = "{{ route('instruction.pending') }}";
-        var id = $(this).data('id');
-
-        $.ajax({
-          type: 'POST',
-          url: url,
-          data: {
-            _token: token,
-            id: id
-          },
-          beforeSend: function() {
-            $(thiss).text('Loading');
-          }
-        }).done( function(response) {
-          $(thiss).parent().html('Pending');
-          $(thiss).remove();
-        }).fail(function(errObj) {
-          console.log(errObj);
-          alert("Could not mark as completed");
-        });
-      });
-
-      // function addNewRemark(id){
-      //   var remark = $('#remark-text_'+id).val();
-      //
-      //   $.ajax({
-      //       type: 'POST',
-      //       headers: {
-      //           'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-      //       },
-      //       url: '{{ route('task.addRemark') }}',
-      //       data: {
-      //         id:id,
-      //         remark:remark,
-      //         module_type: 'instruction'
-      //       },
-      //   }).done(response => {
-      //       alert('Remark Added Success!')
-      //       window.location.reload();
-      //   }).fail(function(response) {
-      //     console.log(response);
-      //   });
-      // }
-      //
-      // $(".view-remark").click(function () {
-      //   var id = $(this).attr('data-id');
-      //
-      //     $.ajax({
-      //         type: 'GET',
-      //         headers: {
-      //             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-      //         },
-      //         url: '{{ route('task.gettaskremark') }}',
-      //         data: {
-      //           id:id,
-      //           module_type: "instruction"
-      //         },
-      //     }).done(response => {
-      //         var html='';
-      //
-      //         $.each(response, function( index, value ) {
-      //           html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
-      //           html+"<hr>";
-      //         });
-      //         $("#view-remark-list").find('#remark-list').html(html);
-      //     });
-      // });
-    </script>
-
+    });
+  </script>
 @endsection

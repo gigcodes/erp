@@ -289,6 +289,15 @@
       <div class="col-xs-12">
         <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
 
+        <form class="form-inline mb-3" action="{{ route('instruction.category.store') }}" method="POST">
+          @csrf
+          <div class="form-group">
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" placeholder="Category" required>
+          </div>
+
+          <button type="submit" class="btn btn-secondary ml-3">Create Category</button>
+        </form>
+
         <div id="instructionModal" class="modal fade" role="dialog">
           <div class="modal-dialog">
 
@@ -303,6 +312,18 @@
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
+                  <div class="form-group">
+                    <strong>Category:</strong>
+                    <select class="form-control" name="category_id" required>
+                      @foreach ($instruction_categories as $category)
+                        <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->name }}</option>
+                      @endforeach
+                    </select>
+                    @if ($errors->has('category_id'))
+                        <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
+                    @endif
+                  </div>
+
                   <div class="form-group">
                     <strong>Instruction:</strong>
                     <textarea type="text" class="form-control" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
@@ -350,9 +371,11 @@
                 <tr>
                   <th>Number</th>
                   <th>Assigned to</th>
+                  <th>Category</th>
                   <th>Instructions</th>
                   <th colspan="2" class="text-center">Action</th>
                   <th>Created at</th>
+                  <th>Remark</th>
                 </tr>
                 @foreach ($customer->instructions()->whereNull('completed_at')->get() as $instruction)
                     <tr>
@@ -360,6 +383,7 @@
                         <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
                       <td>{{ $users_array[$instruction->assigned_to] }}</td>
+                      <td>{{ $instruction->category->name }}</td>
                       <td>{{ $instruction->instruction }}</td>
                       <td>
                         @if ($instruction->completed_at)
@@ -380,6 +404,11 @@
                         @endif
                       </td>
                       <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                      <td>
+                        <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                        <span> | </span>
+                        <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                      </td>
                     </tr>
                 @endforeach
             </table>
@@ -392,9 +421,11 @@
                 <tr>
                   <th>Number</th>
                   <th>Assigned to</th>
+                  <th>Category</th>
                   <th>Instructions</th>
                   <th colspan="2" class="text-center">Action</th>
                   <th>Created at</th>
+                  <th>Remark</th>
                 </tr>
                 @foreach ($customer->instructions()->whereNotNull('completed_at')->get() as $instruction)
                     <tr>
@@ -402,6 +433,7 @@
                         <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
                       <td>{{ $users_array[$instruction->assigned_to] }}</td>
+                      <td>{{ $instruction->category->name }}</td>
                       <td>{{ $instruction->instruction }}</td>
                       <td>
                         @if ($instruction->completed_at)
@@ -422,10 +454,65 @@
                         @endif
                       </td>
                       <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                      <td>
+                        <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                        <span> | </span>
+                        <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                      </td>
                     </tr>
                 @endforeach
             </table>
             </div>
+          </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="addRemarkModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Add New Remark</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+              </div>
+              <div class="modal-body">
+                <form id="add-remark">
+                  <input type="hidden" name="id" value="">
+                  <textarea rows="1" name="remark" class="form-control"></textarea>
+                  <button type="button" class="btn btn-secondary mt-2" id="addRemarkButton">Add Remark</button>
+              </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="viewRemarkModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">View Remark</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+              </div>
+              <div class="modal-body">
+                <div id="remark-list">
+
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -2310,6 +2397,60 @@
             $(element).removeClass('in');
           });
         }
+      });
+
+      $('.add-task').on('click', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        $('#add-remark input[name="id"]').val(id);
+      });
+
+      $('#addRemarkButton').on('click', function() {
+        var id = $('#add-remark input[name="id"]').val();
+        var remark = $('#add-remark textarea[name="remark"]').val();
+
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.addRemark') }}',
+            data: {
+              id:id,
+              remark:remark,
+              module_type: 'instruction'
+            },
+        }).done(response => {
+            alert('Remark Added Success!')
+            window.location.reload();
+        }).fail(function(response) {
+          console.log(response);
+        });
+      });
+
+
+      $(".view-remark").click(function () {
+        var id = $(this).attr('data-id');
+
+          $.ajax({
+              type: 'GET',
+              headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+              },
+              url: '{{ route('task.gettaskremark') }}',
+              data: {
+                id:id,
+                module_type: "instruction"
+              },
+          }).done(response => {
+              var html='';
+
+              $.each(response, function( index, value ) {
+                html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+                html+"<hr>";
+              });
+              $("#viewRemarkModal").find('#remark-list').html(html);
+          });
       });
   </script>
 @endsection

@@ -7,6 +7,7 @@ use App\Instruction;
 use App\Setting;
 use App\Helpers;
 use App\User;
+use App\InstructionCategory;
 use App\NotificationQueue;
 use App\PushNotification;
 use Carbon\Carbon;
@@ -70,6 +71,7 @@ class InstructionController extends Controller
       ]);
 
       $instruction = new Instruction;
+      $instruction->category_id = $request->category_id;
       $instruction->instruction = $request->instruction;
       $instruction->customer_id = $request->customer_id;
       $instruction->assigned_from = Auth::id();
@@ -88,6 +90,19 @@ class InstructionController extends Controller
       ]);
 
       return back()->with('success', 'You have successfully created instruction!');
+    }
+
+    public function categoryStore(Request $request)
+    {
+      $this->validate($request, [
+        'name'  => 'required|min:3|max:255'
+      ]);
+
+      $data = $request->except('_token');
+
+      InstructionCategory::create($data);
+
+      return redirect()->back()->with('success', 'You have successfully created instruction category!');
     }
 
     /**
