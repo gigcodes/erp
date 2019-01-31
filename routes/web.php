@@ -30,10 +30,12 @@ Route::get('/productsearcher/list','ProductSearcherController@sList')->name('pro
 	Route::get('/chat/getnew', 'ChatController@checkfornew')->name('checkfornew');
 	Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew');
 	//Route::resource('/chat','ChatController@getmessages');
+	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth'] ], function (){
 
 	Route::resource('roles','RoleController');
+	Route::get('users/logins', 'UserController@login')->name('users.login.index');
 	Route::resource('users','UserController');
 	Route::resource('products','ProductController');
 	Route::post('products/{id}/archive','ProductController@archive')->name('products.archive');
@@ -45,11 +47,18 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('productsupervisor','ProductSupervisorController');
 	Route::resource('productlister','ProductListerController');
 	Route::resource('productapprover','ProductApproverController');
+	Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
 	Route::resource('productinventory','ProductInventoryController');
 	Route::resource('sales','SaleController');
+	Route::resource('stock','StockController');
+	Route::delete('stock/{id}/permanentDelete', 'StockController@permanentDelete')->name('stock.permanentDelete');
+	Route::post('stock/privateViewing/create', 'StockController@privateViewingStore')->name('stock.privateViewing.store');
+	Route::get('stock/private/viewing', 'StockController@privateViewing')->name('stock.private.viewing');
+	Route::post('stock/private/viewing/upload', 'StockController@privateViewingUpload')->name('stock.private.viewing.upload');
 //	Route::resource('activity','ActivityConroller');
 	Route::resource('brand','BrandController');
 	Route::resource('reply','ReplyController');
+	Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
 	Route::resource('settings','SettingController');
 	Route::resource('category','CategoryController');
@@ -62,6 +71,13 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::delete('leads/permanentDelete/{leads}','LeadsController@permanentDelete')->name('leads.permanentDelete');
 	Route::resource('chat','ChatController');
 //	Route::resource('task','TaskController');
+
+	// Instruction
+	Route::resource('instruction','InstructionController');
+	Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
+	Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
+	Route::get('instruction/complete/alert', 'InstructionController@completeAlert')->name('instruction.complete.alert');
+	Route::post('instruction/category/store', 'InstructionController@categoryStore')->name('instruction.category.store');
 
 
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
@@ -76,6 +92,8 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('task','TaskModuleController');
 	Route::resource('task_category','TaskCategoryController');
 	Route::get('/', 'TaskModuleController@index')->name('home');
+
+	Route::resource('refund', 'RefundController');
 
 });
 
@@ -117,7 +135,7 @@ Route::middleware('auth')->group(function (){
 	Route::post('attachProductToModel/{model_type}/{model_id}/{product_id}','ProductController@attachProductToModel')->name('attachProductToModel');
 	Route::post('deleteOrderProduct/{order_product}','OrderController@deleteOrderProduct')->name('deleteOrderProduct');
 
-	Route::get('attachImages/{model_type}/{model_id}/{status}/{assigned_user}','ProductController@attachImages')->name('attachImages');
+	Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}','ProductController@attachImages')->name('attachImages');
 	Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
 	Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
@@ -126,6 +144,8 @@ Route::middleware('auth')->group(function (){
 
 	// Customers
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
+	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
+	Route::post('customer/merge', 'CustomerController@merge')->name('customer.merge');
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
 	Route::post('customer/create', 'CustomerController@store')->name('customer.store');
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
@@ -180,13 +200,89 @@ Route::middleware('auth')->group(function (){
 	// Social Media Image Module
 	Route::get('images/grid', 'ImageController@index')->name('image.grid');
 	Route::post('images/grid', 'ImageController@store')->name('image.grid.store');
+	Route::post('images/grid/attachImage', 'ImageController@attachImage')->name('image.grid.attach');
+	Route::get('images/grid/approvedImages', 'ImageController@approved')->name('image.grid.approved');
+	Route::get('images/grid/finalApproval', 'ImageController@final')->name('image.grid.final.approval');
 	Route::get('images/grid/{id}', 'ImageController@show')->name('image.grid.show');
 	Route::get('images/grid/{id}/edit', 'ImageController@edit')->name('image.grid.edit');
 	Route::post('images/grid/{id}/edit', 'ImageController@update')->name('image.grid.update');
 	Route::delete('images/grid/{id}/delete', 'ImageController@destroy')->name('image.grid.delete');
 	Route::post('images/grid/{id}/approveImage', 'ImageController@approveImage')->name('image.grid.approveImage');
+	Route::get('images/grid/{id}/download', 'ImageController@download')->name('image.grid.download');
+	Route::post('images/grid/make/set', 'ImageController@set')->name('image.grid.set');
+	Route::post('images/grid/make/set/download', 'ImageController@setDownload')->name('image.grid.set.download');
 
-    Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
+  Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
+
+	// Development
+	Route::get('development', 'DevelopmentController@index')->name('development.index');
+	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
+	Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
+	Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
+
+	Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+	Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
+	Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
+	Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
+	Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
+
+	Route::post('development/module/create', 'DevelopmentController@moduleStore')->name('development.module.store');
+	Route::delete('development/module/{id}/destroy', 'DevelopmentController@moduleDestroy')->name('development.module.destroy');
+	Route::post('development/{id}/assignModule', 'DevelopmentController@moduleAssign')->name('development.module.assign');
+
+	Route::post('development/comment/create', 'DevelopmentController@commentStore')->name('development.comment.store');
+	Route::post('development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse')->name('development.comment.awaiting.response');
+
+	Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
+
+	/*Routes For Social */
+
+	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
+
+		// post creating routes define's here
+
+	Route::get('social/post/page','SocialController@index')->name('social.post.page');
+	Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
+
+		// Ad reports routes
+
+	Route::get('social/ad/report','SocialController@report')->name('social.report');
+	Route::post('social/ad/report/paginate','SocialController@paginateReport')->name('social.report.paginate');
+	Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');
+
+		// end to ad reports routes
+
+		// AdCreative reports routes
+
+	Route::get('social/adcreative/report','SocialController@adCreativereport')->name('social.adCreative.report');
+	Route::post('social/adcreative/report/paginate','SocialController@adCreativepaginateReport')->name('social.adCreative.paginate');
+
+
+		// end to ad reports routes
+
+
+	// Creating Ad Campaign Routes defines here
+
+
+	Route::get('social/ad/campaign/create','SocialController@createCampaign')->name('social.ad.campaign.create');
+
+	Route::post('social/ad/campaign/store','SocialController@storeCampaign')->name('social.ad.campaign.store');
+
+
+
+	// Creating Adset Routes define here
+
+	Route::get('social/ad/adset/create','SocialController@createAdset')->name('social.ad.adset.create');
+	Route::post('social/ad/adset/store','SocialController@storeAdset')->name('social.ad.adset.store');
+
+
+	// Creating Ad Routes define here
+
+	Route::get('social/ad/create','SocialController@createAd')->name('social.ad.create');
+	Route::post('social/ad/store','SocialController@storeAd')->name('social.ad.store');
+
+
+	// End of Routes for social
 
 });
 
@@ -198,6 +294,7 @@ Route::get('mageOrders/','MagentoController@get_magento_orders');
 Route::get('perHourActivityNotification','NotificationQueueController@perHourActivityNotification');
 Route::get('recurringTask','TaskModuleController@recurringTask');
 
+/* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 Route::get('twilio/token', 'TwilioController@createToken');
 Route::post('twilio/ivr', 'TwilioController@ivr');
 Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
@@ -206,21 +303,16 @@ Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
 Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');
 Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback');
 Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatus');
-      // Route::post(
-      //       '/twilio/store-recording', [
-      //           'as' => 'store-recording',
-      //           'uses' => 'TwilioController@storeRecording'
-      //       ]
-      //   );
-  Route::post('twilio/storerecording','TwilioController@storeRecording');
-    Route::post('twilio/storetranscript','TwilioController@storetranscript');
-
- Route::get(
+Route::post('twilio/storerecording','TwilioController@storeRecording');
+Route::post('twilio/storetranscript','TwilioController@storetranscript');
+Route::get(
             '/twilio/hangup', [
                 'as' => 'hangup',
                 'uses' => 'TwilioController@showHangup'
             ]
         );
+
+/* ---------------------------------------------------------------------------------- */
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');
@@ -230,55 +322,42 @@ Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages')
 Route::get('whatsapp/pollMessagesCustomer', 'WhatsAppController@pollMessagesCustomer');
 Route::get('whatsapp/updatestatus/', 'WhatsAppController@updateStatus');
 Route::post('whatsapp/updateAndCreate/', 'WhatsAppController@updateAndCreate');
-
-/*Routes For Social */
-
-Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
-
-	// post creating routes define's here
-
-Route::get('social/post/page','SocialController@index')->name('social.post.page');
-Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
-
-	// End to Routes creating routes here
+Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->name('whatsapp.forward');
 
 
-	// Ad reports routes
+/*
+ * @date 1/13/2019
+ * @author Rishabh Aryal
+ * This is route for Instagram
+ * feature in this ERP
+ */
 
-Route::get('social/ad/report','SocialController@report')->name('social.report');
-Route::post('social/ad/report/paginate','SocialController@paginateReport')->name('social.report.paginate');
-Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');
+Route::prefix('instagram')->group(function () {
+    Route::get('posts', 'InstagramController@showPosts');
+    Route::get('comments', 'InstagramController@getComments');
+    Route::post('comments', 'InstagramController@postComment');
+    Route::get('post-media', 'InstagramController@showImagesToBePosted');
+    Route::post('post-media', 'InstagramController@postMedia');
+    Route::get('post-media-now/{schedule}', 'InstagramController@postMediaNow');
+    Route::get('delete-schedule/{schedule}', 'InstagramController@cancelSchedule');
+    Route::get('media/schedules', 'InstagramController@showSchedules');
+    Route::post('media/schedules', 'InstagramController@postSchedules');
+    Route::get('scheduled/events', 'InstagramController@getScheduledEvents');
+});
 
-	// end to ad reports routes
+/*
+ * @date 1/17/2019
+ * @author Rishabh Aryal
+ * This is route API for getting/replying comments
+ * from Facebook API
+ */
 
-	// AdCreative reports routes
+Route::prefix('comments')->group(function () {
+    Route::get('/facebook', 'SocialController@getComments');
+    Route::post('/facebook', 'SocialController@postComment');
+});
 
-Route::get('social/adcreative/report','SocialController@adCreativereport')->name('social.adCreative.report');
-Route::post('social/adcreative/report/paginate','SocialController@adCreativepaginateReport')->name('social.adCreative.paginate');
-
-
-	// end to ad reports routes
-
-
-// Creating Ad Campaign Routes defines here
-
-
-Route::get('social/ad/campaign/create','SocialController@createCampaign')->name('social.ad.campaign.create');
-
-Route::post('social/ad/campaign/store','SocialController@storeCampaign')->name('social.ad.campaign.store');
-
-
-
-// Creating Adset Routes define here
-
-Route::get('social/ad/adset/create','SocialController@createAdset')->name('social.ad.adset.create');
-Route::post('social/ad/adset/store','SocialController@storeAdset')->name('social.ad.adset.store');
-
-
-// Creating Ad Routes define here
-
-Route::get('social/ad/create','SocialController@createAd')->name('social.ad.create');
-Route::post('social/ad/store','SocialController@storeAd')->name('social.ad.store');
-
-
-// End of Routes for social
+Route::prefix('scrap')->group(function () {
+    Route::get('/google/images', 'ScrapController@index');
+    Route::post('/google/images', 'ScrapController@scrapGoogleImages');
+});

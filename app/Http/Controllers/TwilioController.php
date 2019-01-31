@@ -168,6 +168,7 @@ class TwilioController extends FindByNumberController
             return $response;
         } else {
             $this->createIncomingGather($response, "We did not understand that input.");
+
         }
 
 
@@ -219,6 +220,8 @@ class TwilioController extends FindByNumberController
 
       $call_status = $request->get("CallStatus");
         if($call_status == 'completed') {
+
+
                 CallRecording::where('callsid', $sid)
                          ->first()
                          ->update(['message' => $request->input('TranscriptionText')]);
@@ -338,7 +341,17 @@ class TwilioController extends FindByNumberController
            Log::info('Current Call Status '.$callStatus);
 
       if ($callStatus !== 'completed') {
-     Log::info(' TIME CHECKING : 1' );
+
+ $params = [
+            'twilio_call_sid' => $request->input('Caller'),
+            'message' => 'Missed Call',
+            'caller_sid' => $request->input('CallSid')
+        ];
+
+         CallBusyMessage::create($params);
+                Log::info(' Missed Call saved' );
+               Log::info('-----SID----- '.$request->input('CallSid'));
+
        $this->createIncomingGather($response, "Please dial 0 for leave message");
         }else{
 
@@ -358,16 +371,28 @@ class TwilioController extends FindByNumberController
     public function storeRecording(Request $request)
     {
 
+
  $params = [
             'recording_url' => $request->input('RecordingUrl'),
             'twilio_call_sid' => $request->input('Caller'),
             'message' => $request->input('TranscriptionText')
         ];
+
+     $exist_call = CallBusyMessage::where('caller_sid', '=', $request->input('CallSid'))->first();
+     if($exist_call){
+ CallBusyMessage::where('caller_sid', $request->input('CallSid'))
+                         ->first()
+                         ->update($params);
+             Log::info('update call busy recording table');
+
+     }else{
+
          Log::info('Recording URL'.$request->input('RecordingUrl'));
          Log::info('Caller NAME '.$request->input('From'));
-         Log::info('TranscriptionText '.$request->input('TranscriptionText'));
+         Log::info('-----SID----- '.$request->input('CallSid'));
          CallBusyMessage::create($params);
-                return "Recording saved";
+           Log::info('insert new call busy recording table');
+            }
             }
 
  /**
