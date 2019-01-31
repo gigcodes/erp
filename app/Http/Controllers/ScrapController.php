@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Image;
+use App\Services\Scrap\GebnegozionlineScraper;
 use App\Services\Scrap\GoogleImageScraper;
 use Illuminate\Http\Request;
 use Storage;
@@ -10,10 +11,12 @@ use Storage;
 class ScrapController extends Controller
 {
     private $googleImageScraper;
+    private $gebnegozionlineScraper;
 
-    public function __construct(GoogleImageScraper $googleImageScraper)
+    public function __construct(GoogleImageScraper $googleImageScraper, GebnegozionlineScraper $gebnegozionlineScraper)
     {
         $this->googleImageScraper = $googleImageScraper;
+        $this->gebnegozionlineScraper = $gebnegozionlineScraper;
 
     }
 
@@ -53,5 +56,9 @@ class ScrapController extends Controller
 
         return view('scrap.extracted_images', compact('images'));
 
+    }
+
+    public function scrapTest() {
+        $this->gebnegozionlineScraper->scrap();
     }
 }

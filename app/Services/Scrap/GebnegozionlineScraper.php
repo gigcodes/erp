@@ -2,27 +2,137 @@
 
 namespace App\Services\Scrap;
 
+use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
 class GebnegozionlineScraper extends Scraper implements ScrapInterface
 {
     private const URL = [
         'homepage' => 'https://www.gebnegozionline.com/',
-        ''
+        'designers' => 'https://www.gebnegozionline.com/en_it/women/designers'
     ];
 
 
     public function scrap()
     {
-        $this->scrapPage(self::URL['homepage']);
+        $this->scrapPage(self::URL['homepage'], false);
     }
 
-    private function scrapPage($url) {
+    private function scrapPage($url, $hasProduct=true)
+    {
+        $scrapEntry = ScrapEntries::where('url', $url)->first();
+        if (!$scrapEntry) {
+            $scrapEntry = new ScrapEntries();
+            $scrapEntry->title = $url;
+            $scrapEntry->url = $url;
+            $scrapEntry->save();
+        }
+
+        if ($hasProduct) {
+            return $this->getProducts($url, $scrapEntry);
+        }
+
         $body = $this->getContent($url);
         $c = new HtmlPageCrawler($body);
+        $links = $c->filter('.hover-landing-column-desc')->filter('ul li a')->getIterator();
+
+        $urls = [];
+
+        foreach ($links as $key=>$link) {
+            $text = $link->firstChild->data;
+            $text = trim(preg_replace('/\s\s+/', '', $text));
+            $text = str_replace(' ', '-', strtolower($text));
+            if ($text === '' || $text === 'designers') {
+                continue;
+            }
+            $urls[$text.'_'.$key] = $link->getAttribute('href');
+        }
+
+        foreach ($urls as $itemUrl) {
+
+            $this->scrapPage($itemUrl);
+        }
+
     }
 
-    private function getProducts() {
+    private function getProducts($url, ScrapEntries $scrapEntriy )
+    {
+        $body = $this->getContent($url);
+        $c = new HtmlPageCrawler($body);
 
+        $paginationData = $scrapEntriy->pagination;
+        if (!$paginationData)
+        {
+            $scrapEntriy->pagination =  $this->getPaginationData($c);
+            $scrapEntriy->save();
+        }
+        $products = $c->filter('.product-item')->getIterator();
+
+        foreach ($products as $product) {
+            $images = $this->getImagesFromProduct($product);
+            $title = $this->getTitleFromProduct($product);
+            $link = $this->getLinkFromProduct($product);
+
+            if (!$title || !$link || !$images) {
+                continue;
+            }
+
+            $entry = ScrapEntries::where('title', $title)
+                ->orWhere('url', $link)
+                ->first()
+            ;
+
+            if ($entry) {
+                continue;
+            }
+
+            $entry = new ScrapEntries();
+            $entry->title = $title;
+            $entry->url = $link;
+            $entry->is_product_page = 1;
+            $entry->save();
+
+        }
+
+    }
+
+    private function getImagesFromProduct($product)
+    {
+        $items = $product->getElementsByTagName('img');
+        $images = [];
+
+        for ($i=0; $i<$items->length; $i++) {
+            $images[] = $items->item($i)->getAttribute('src');
+        }
+
+        return $images;
+    }
+
+    private function getTitleFromProduct($product) {
+        try {
+            $description = preg_replace('/\s\s+/', '', $product->getElementsByTagName('p')->item(0)->firstChild->data);
+        } catch (\Exception $exception) {
+            $description = '';
+        }
+
+        return $description;
+
+    }
+
+    private function getLinkFromProduct($product)
+    {
+        try {
+            $item = $product->childNodes->item(1)->getElementsByTagName('a')->item(0);
+            $link = $item->getAttribute('href');
+        } catch (\Exception $exception) {
+            $link = '';
+        }
+
+        return $link;
+    }
+
+    private function getPaginationData( HtmlPageCrawler $c) {
+        $paginationOptions = $c->filter('#paging-label li a span:nth-child(2)')->getIterator();
+        dd($paginationOptions);
     }
 }
