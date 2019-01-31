@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Refund extends Model
 {
   protected $fillable = [
-    'customer_id', 'order_id', 'type', 'payment', 'date_of_payment', 'details', 'completed'
+    'customer_id', 'order_id', 'type', 'chq_number', 'awb', 'date_of_refund', 'date_of_issue', 'details', 'dispatch_date', 'date_of_request'
   ];
 
   public function customer()

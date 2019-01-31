@@ -23,16 +23,18 @@
         <tr>
           <th>Customer Name</th>
           <th>Order ID</th>
-          <th>Date of Payment</th>
-          <th>Completed</th>
+          <th>Date of Refund Request</th>
+          <th>Date of Issue</th>
+          <th>Dispatched</th>
           <th width="280px">Action</th>
         </tr>
         @foreach ($refunds as $refund)
           <tr>
             <td>{{ $refund->customer->name }}</td>
             <td><a href="{{ route('order.show', $refund->order->id) }}">{{ $refund->order->order_id }}</a></td>
-            <td>{{ $refund->date_of_payment ? \Carbon\Carbon::parse($refund->date_of_payment)->format('d-m') : '' }}</td>
-            <td>{{ $refund->completed ? 'Completed' : '' }}</td>
+            <td>{{ $refund->date_of_request ? \Carbon\Carbon::parse($refund->date_of_request)->format('d-m') : '' }}</td>
+            <td>{{ $refund->date_of_issue ? \Carbon\Carbon::parse($refund->date_of_issue)->format('d-m') : '' }}</td>
+            <td>{{ $refund->dispatch_date ? \Carbon\Carbon::parse($refund->dispatch_date)->format('d-m') : '' }}</td>
             <td>
               <a class="btn btn-image" href="{{ route('refund.show', $refund->id) }}"><img src="/images/view.png" /></a>
 

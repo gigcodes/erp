@@ -9,6 +9,7 @@ use App\Refund;
 use App\Setting;
 use App\Customer;
 use App\Order;
+use Carbon\Carbon;
 
 class RefundController extends Controller
 {
@@ -66,6 +67,7 @@ class RefundController extends Controller
 		]);
 
 		$data = $request->except('_token');
+		$data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
 
 		Refund::create($data);
 
@@ -128,10 +130,12 @@ class RefundController extends Controller
 		]);
 
 		$data = $request->except('_token', '_method');
-		if ($request->completed)
-			$data['completed'] = 1;
-		else
-			$data['completed'] = 0;
+		if (!$request->dispatched) {
+			$data['dispatch_date'] = null;
+			$data['awb'] = '';
+		}
+
+		$data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
 
 		Refund::find($id)->update($data);
 

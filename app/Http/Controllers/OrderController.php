@@ -527,9 +527,11 @@ class OrderController extends Controller {
 
 			if (!$refund) {
 				Refund::create([
-					'customer_id'	=> $order->customer->id,
-					'order_id'		=> $order->id,
-					'type'				=> 'Cash'
+					'customer_id'			=> $order->customer->id,
+					'order_id'				=> $order->id,
+					'type'						=> 'Cash',
+					'date_of_request'	=> Carbon::now(),
+					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
 		}
@@ -704,9 +706,11 @@ class OrderController extends Controller {
 
 			if (!$refund) {
 				Refund::create([
-					'customer_id'	=> $order->customer->id,
-					'order_id'		=> $order->id,
-					'type'				=> 'Cash'
+					'customer_id'			=> $order->customer->id,
+					'order_id'				=> $order->id,
+					'type'						=> 'Cash',
+					'date_of_request'	=> Carbon::now(),
+					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
 		}
@@ -755,9 +759,11 @@ class OrderController extends Controller {
 
 			if (!$refund) {
 				Refund::create([
-					'customer_id'	=> $order->customer->id,
-					'order_id'		=> $order->id,
-					'type'				=> 'Cash'
+					'customer_id'			=> $order->customer->id,
+					'order_id'				=> $order->id,
+					'type'						=> 'Cash',
+					'date_of_request'	=> Carbon::now(),
+					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
 		}

@@ -65,17 +65,25 @@
   			</div>
 
         <div class="form-group">
-          <strong>Date of Payment:</strong>
-          <div class='input-group date' id='date_of_payment'>
-            <input type='text' class="form-control" name="date_of_payment" value="{{ date('Y-m-d H:i') }}" />
+  				<strong>CHQ Number:</strong>
+  				<input type="text" name="chq_number" class="form-control" placeholder="00000000" value="{{ old('chq_number') }}">
+  				@if ($errors->has('chq_number'))
+  						<div class="alert alert-danger">{{$errors->first('chq_number')}}</div>
+  				@endif
+  			</div>
+
+        <div class="form-group">
+          <strong>Date of Refund Request:</strong>
+          <div class='input-group date' id='date_of_request'>
+            <input type='text' class="form-control" name="date_of_request" value="{{ date('Y-m-d H:i') }}" />
 
             <span class="input-group-addon">
               <span class="glyphicon glyphicon-calendar"></span>
             </span>
           </div>
 
-          @if ($errors->has('date_of_payment'))
-              <div class="alert alert-danger">{{$errors->first('date_of_payment')}}</div>
+          @if ($errors->has('date_of_request'))
+              <div class="alert alert-danger">{{$errors->first('date_of_request')}}</div>
           @endif
         </div>
 
@@ -101,7 +109,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
   <script>
-    $('#date_of_payment').datetimepicker({
+    $('#date_of_request').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
 

@@ -65,18 +65,30 @@
   			</div>
 
         <div class="form-group">
-          <strong>Date of Payment:</strong>
-          <div class='input-group date' id='date_of_payment'>
-            <input type='text' class="form-control" name="date_of_payment" value="{{ $refund->date_of_payment }}" />
+  				<strong>CHQ Number:</strong>
+  				<input type="text" name="chq_number" class="form-control" placeholder="00000000" value="{{ $refund->chq_number }}">
+  				@if ($errors->has('chq_number'))
+  						<div class="alert alert-danger">{{$errors->first('chq_number')}}</div>
+  				@endif
+  			</div>
+
+        <div class="form-group">
+          <strong>Date of Refund Request:</strong>
+          <div class='input-group date' id='date_of_request'>
+            <input type='text' class="form-control" name="date_of_request" value="{{ $refund->date_of_request }}" />
 
             <span class="input-group-addon">
               <span class="glyphicon glyphicon-calendar"></span>
             </span>
           </div>
 
-          @if ($errors->has('date_of_payment'))
-              <div class="alert alert-danger">{{$errors->first('date_of_payment')}}</div>
+          @if ($errors->has('date_of_request'))
+              <div class="alert alert-danger">{{$errors->first('date_of_request')}}</div>
           @endif
+        </div>
+
+        <div class="form-group">
+          <strong>Date of Issue:</strong> {{ $refund->date_of_issue ? \Carbon\Carbon::parse($refund->date_of_issue)->format('d-m') : '' }}
         </div>
 
         <div class="form-group">
@@ -89,8 +101,33 @@
         </div>
 
         <div class="form-group">
-          <input type="checkbox" name="completed" id="completed" {{ $refund->completed ? 'checked' : '' }}>
-          <label for="#completed">Mark as Completed</label>
+          <input type="checkbox" name="dispatched" id="dispatch_date" {{ $refund->dispatch_date ? 'checked' : '' }}>
+          <label for="dispatch_date">Mark as Dispatched</label>
+        </div>
+
+        <div id="additional-fields" style="display: none;">
+          <div class="form-group">
+            <strong>Date of Dispatch</strong>
+            <div class='input-group date' id='dispatch_date'>
+              <input type='text' class="form-control" name="dispatch_date" value="{{ $refund->dispatch_date }}" />
+
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+
+            @if ($errors->has('dispatch_date'))
+                <div class="alert alert-danger">{{$errors->first('dispatch_date')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+    				<strong>AWB:</strong>
+    				<input type="text" name="awb" class="form-control" placeholder="00000000" value="{{ $refund->awb }}">
+    				@if ($errors->has('awb'))
+    						<div class="alert alert-danger">{{$errors->first('awb')}}</div>
+    				@endif
+    			</div>
         </div>
 
         <button type="submit" class="btn btn-secondary">Update</button>
@@ -122,9 +159,15 @@
       });
 
       $('#order_id').html(select_orders);
+
+      if ($('#dispatch_date').prop('checked')) {
+        $('#additional-fields').show();
+      } else {
+        $('#additional-fields').hide();
+      }
     });
 
-    $('#date_of_payment').datetimepicker({
+    $('#date_of_request, #dispatch_date').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
 
@@ -141,6 +184,14 @@
       });
 
       $('#order_id').html(select_orders);
+    });
+
+    $('#dispatch_date').on('click', function() {
+      if ($(this).prop('checked')) {
+        $('#additional-fields').show();
+      } else {
+        $('#additional-fields').hide();
+      }
     });
   </script>
 @endsection
