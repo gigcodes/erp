@@ -222,7 +222,9 @@
             <th width="150px">Action</th>
           </tr>
           @foreach ($customers as $key => $customer)
-              <tr class="{{ ((!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }} {{ ((!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }}">
+              <tr class="{{ ((!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }} {{ ((!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }}
+              {{ (!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) ? 'text-danger' : '' }}
+              {{ (!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) ? 'text-danger' : '' }}">
                 <td>{{ $customer['name'] }}</td>
                 @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                   <td>{{ $customer['email'] }}</td>
