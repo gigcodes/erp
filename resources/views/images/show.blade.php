@@ -27,8 +27,7 @@
     </div>
 
     <div class="form-group">
-      <strong>Category</strong>
-      {!! $category_select  !!}
+      <strong>Category:</strong> {{ $categories_array[$image->category] }}
     </div>
 
     <div class="form-group">

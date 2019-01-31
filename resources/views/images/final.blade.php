@@ -98,6 +98,7 @@
       <a href="#1" data-toggle="tab">Images</a>
     </li>
     <li><a href="#2" data-toggle="tab">Calendar</a></li>
+    <li><a href="#3" data-toggle="tab">Statistics</a></li>
   </ul>
 </div>
 
@@ -142,6 +143,43 @@
     <div class="row">
       <div class="col-12">
         <div id="calendar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane mt-3" id="3">
+    <div class="row">
+      <div class="col-12">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Counts</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @foreach ($stats as $date => $stat)
+                <tr>
+                  <td>{{ $date }}</td>
+                  <td>
+                    <ul>
+                      @foreach ($stat as $brand_id => $datas)
+                          <li>{{ $brands[$brand_id] }} ({{ count($datas) }})</li>
+                          <ul>
+                            @foreach ($datas as $category_id => $data)
+                              <li>{{ $categories_array[$category_id] }} ({{ count($data) }})</li>
+                            @endforeach
+                          </ul>
+                      @endforeach
+                    </ul>
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -243,7 +281,7 @@
                 date: event.start.format('Y-MM-DD H:mm')
               }
             }).done(function(response) {
-              
+
             }).fail(function(response) {
               alert('Could not update schedule');
               console.log(response);

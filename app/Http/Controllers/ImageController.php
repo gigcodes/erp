@@ -192,6 +192,15 @@ class ImageController extends Controller
 
     public function final(Request $request)
     {
+      $stats = Images::where('status', '2')->whereNotNull('publish_date')->select('brand', 'category', 'publish_date')->get()->groupBy(['publish_date', 'brand', 'category'])->toArray();
+      $categories = Category::all();
+      
+      $categories_array = [];
+      foreach ($categories as $category) {
+        $categories_array[$category->id] = $category->title;
+      }
+      // dd($stats);
+
       if (!isset($request->sortby) || $request->sortby == 'asc') {
         $images = Images::where('status', '2');
       } else {
@@ -269,7 +278,9 @@ class ImageController extends Controller
         'category_selection'  => $category_selection,
         'brand'  => $brand,
         'category'  => $category,
-        'price'  => $price
+        'price'  => $price,
+        'stats' => $stats,
+        'categories_array'  => $categories_array
       ]);
     }
 
@@ -348,16 +359,18 @@ class ImageController extends Controller
     public function show($id)
     {
       $image = Images::find($id);
-      $selected_categories = is_array(json_decode($image->category, true)) ? json_decode($image->category, true) : [] ;
-      $category_select = Category::attr(['name' => 'category[]','class' => 'form-control','id' => 'multi_category'])
-	                                       ->selected($selected_categories)
-	                                       ->renderAsMultiple();
       $brands = Brand::getAll();
+      $categories = Category::all();
+      $categories_array = [];
+
+      foreach ($categories as $category) {
+        $categories_array[$category->id] = $category->title;
+      }
 
       return view('images.show')->with([
-        'image' => $image,
-        'category_select' => $category_select,
-        'brands' => $brands
+        'image'             => $image,
+        'brands'            => $brands,
+        'categories_array'  => $categories_array
       ]);
     }
 
@@ -370,10 +383,10 @@ class ImageController extends Controller
     public function edit($id)
     {
       $image = Images::find($id);
-      $selected_categories = is_array(json_decode($image->category, true)) ? json_decode($image->category, true) : [] ;
-      $category_select = Category::attr(['name' => 'category[]','class' => 'form-control','id' => 'multi_category'])
-	                                       ->selected($selected_categories)
-	                                       ->renderAsMultiple();
+      // $selected_categories = is_array(json_decode($image->category, true)) ? json_decode($image->category, true) : [] ;
+      $category_select = Category::attr(['name' => 'category','class' => 'form-control'])
+	                                       ->selected($image->category)
+	                                       ->renderAsDropdown();
       $brands = Brand::getAll();
 
       return view('images.edit')->with([
@@ -410,7 +423,7 @@ class ImageController extends Controller
       }
 
       $image->brand = $request->brand;
-      $image->category = json_encode($request->category);
+      $image->category = $request->category;
       $image->price = $request->price;
       $image->publish_date = $request->publish_date;
       $image->save();

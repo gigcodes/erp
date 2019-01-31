@@ -40,13 +40,17 @@
         {!! Form::select('brand',$brands, $image->brand, ['placeholder' => 'Select a Brand','class' => 'form-control', 'id'  => 'product-brand']) !!}
 
         @if ($errors->has('brand'))
-            <div class="alert alert-danger">{{$errors->first('brand')}}</div>
+          <div class="alert alert-danger">{{$errors->first('brand')}}</div>
         @endif
       </div>
 
       <div class="form-group">
         <strong>Category</strong>
-        {!! $category_select  !!}
+        {!! $category_select !!}
+
+        @if ($errors->has('category'))
+          <div class="alert alert-danger">{{$errors->first('category')}}</div>
+        @endif
       </div>
 
       <div class="form-group">
