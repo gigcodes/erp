@@ -234,7 +234,7 @@ Route::middleware('auth')->group(function (){
 	Route::post('development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse')->name('development.comment.awaiting.response');
 
 	Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
-});
+
 	/*Routes For Social */
 
 	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
@@ -313,6 +313,7 @@ Route::middleware('auth')->group(function (){
 
 	Route::get('social/post/page','SocialController@index')->name('social.post.page');
 	Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
+});
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 Route::get('twilio/token', 'TwilioController@createToken');
