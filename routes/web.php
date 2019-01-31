@@ -93,6 +93,8 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('task_category','TaskCategoryController');
 	Route::get('/', 'TaskModuleController@index')->name('home');
 
+	Route::resource('refund', 'RefundController');
+
 });
 
 Route::middleware('auth')->group(function (){

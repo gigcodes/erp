@@ -19,6 +19,7 @@ use App\OrderReport;
 use App\Purchase;
 use App\Customer;
 use App\ReplyCategory;
+use App\Refund;
 use Auth;
 use Cache;
 use Validator;
@@ -521,6 +522,16 @@ class OrderController extends Controller {
 			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+		} elseif ($order->order_status == 'Refund to be processed') {
+			$refund = Refund::where('order_id', $order->id)->first();
+
+			if (!$refund) {
+				Refund::create([
+					'customer_id'	=> $order->customer->id,
+					'order_id'		=> $order->id,
+					'type'				=> 'Cash'
+				]);
+			}
 		}
 
 		// NotificationQueueController::createNewNotification([
@@ -688,6 +699,18 @@ class OrderController extends Controller {
 			$order->update(['auto_messaged' => 1]);
 		}
 
+		if ($order->order_status == 'Refund to be processed') {
+			$refund = Refund::where('order_id', $order->id)->first();
+
+			if (!$refund) {
+				Refund::create([
+					'customer_id'	=> $order->customer->id,
+					'order_id'		=> $order->id,
+					'type'				=> 'Cash'
+				]);
+			}
+		}
+
 		return back()->with( 'message', 'Order updated successfully' );
 	}
 
@@ -696,6 +719,48 @@ class OrderController extends Controller {
 		$order = Order::find($id);
 		$order->order_status = $request->status;
 		$order->save();
+
+		if ($order->auto_messaged == 0) {
+			if ($order->order_status == 'Proceed without Advance') {
+				$product_names = '';
+				foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+				}
+
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . Carbon::parse($order->date_of_delivery)->format('d \of\ F');
+				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
+				$requestData = new Request();
+				$requestData2 = new Request();
+				$requestData->setMethod('POST');
+				$requestData2->setMethod('POST');
+				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+				$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+			} elseif ($order->order_status == 'Prepaid') {
+				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+				$requestData = new Request();
+				$requestData->setMethod('POST');
+				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			}
+
+			$order->update(['auto_messaged' => 1]);
+		}
+
+		if ($order->order_status == 'Refund to be processed') {
+			$refund = Refund::where('order_id', $order->id)->first();
+
+			if (!$refund) {
+				Refund::create([
+					'customer_id'	=> $order->customer->id,
+					'order_id'		=> $order->id,
+					'type'				=> 'Cash'
+				]);
+			}
+		}
 	}
 
 	public function calculateBalanceAmount(Order $order){

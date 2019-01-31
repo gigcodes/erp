@@ -1,0 +1,153 @@
+<?php
+
+namespace App\Http\Controllers;
+
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Refund;
+use App\Setting;
+use App\Customer;
+use App\Order;
+
+class RefundController extends Controller
+{
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return \Illuminate\Http\Response
+	 */
+	public function index()
+	{
+		$refunds = Refund::paginate(Setting::get('pagination'));
+
+		return view('refund.index', [
+			'refunds'	=> $refunds
+		]);
+	}
+
+
+	/**
+	 * Show the form for creating a new resource.
+	 *
+	 * @return \Illuminate\Http\Response
+	 */
+	public function create()
+	{
+		$customers = Customer::all();
+		$orders = Order::all();
+		$orders_array = [];
+
+		foreach ($orders as $key => $order) {
+			$orders_array[$key]['id'] = $order->id;
+			$orders_array[$key]['order_id'] = $order->order_id;
+			$orders_array[$key]['customer_id'] = $order->customer_id;
+		}
+
+		return view('refund.create', [
+			'customers'			=> $customers,
+			'orders_array'	=> $orders_array
+		]);
+	}
+
+
+	/**
+	 * Store a newly created resource in storage.
+	 *
+	 * @param  \Illuminate\Http\Request  $request
+	 * @return \Illuminate\Http\Response
+	 */
+	public function store(Request $request)
+	{
+		$this->validate($request, [
+			'customer_id'	=> 'required|integer',
+			'order_id'		=> 'required|integer',
+			'type'				=> 'required|string'
+		]);
+
+		$data = $request->except('_token');
+
+		Refund::create($data);
+
+		return redirect()->route('refund.index')->with('success', 'You have successfully added refund!');
+	}
+
+
+	/**
+	 * Display the specified resource.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function show($id)
+	{
+		$refund = Refund::find($id);
+		$customers = Customer::all();
+		$orders = Order::all();
+		$orders_array = [];
+
+		foreach ($orders as $key => $order) {
+			$orders_array[$key]['id'] = $order->id;
+			$orders_array[$key]['order_id'] = $order->order_id;
+			$orders_array[$key]['customer_id'] = $order->customer_id;
+		}
+
+		return view('refund.show', [
+			'refund'				=> $refund,
+			'customers'			=> $customers,
+			'orders_array'	=> $orders_array
+		]);
+	}
+
+
+	/**
+	 * Show the form for editing the specified resource.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function edit($id)
+	{
+
+	}
+
+
+	/**
+	 * Update the specified resource in storage.
+	 *
+	 * @param  \Illuminate\Http\Request  $request
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function update(Request $request, $id)
+	{
+		$this->validate($request, [
+			'customer_id'	=> 'required|integer',
+			'order_id'		=> 'required|integer',
+			'type'				=> 'required|string'
+		]);
+
+		$data = $request->except('_token', '_method');
+		if ($request->completed)
+			$data['completed'] = 1;
+		else
+			$data['completed'] = 0;
+
+		Refund::find($id)->update($data);
+
+		return redirect()->route('refund.index')->with('success', 'You have successfully added refund!');
+	}
+
+	/**
+	 * Remove the specified resource from storage.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function destroy($id)
+	{
+		Refund::find($id)->delete();
+
+		return redirect()->route('refund.index')->with('success', 'You have successfully deleted refund!');
+	}
+}
