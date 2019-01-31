@@ -23,7 +23,7 @@ class ImageController extends Controller
 
 		$this->middleware('permission:social-view', ['except' => ['approveImage', 'store', 'edit', 'update', 'attachImage', 'destroy']]);
     $this->middleware('permission:social-create', ['only' => ['store', 'edit', 'update', 'attachImage', 'destroy']]);
-		$this->middleware('permission:social-manage', ['only' => ['approveImage']]);
+		$this->middleware('permission:social-manage', ['only' => ['approveImage', 'updateSchedule']]);
 	}
     /**
      * Display a listing of the resource.
@@ -438,6 +438,17 @@ class ImageController extends Controller
       }
 
       return redirect()->route('image.grid.edit', $image->id)->with('success', 'You have successfully updated image');
+    }
+
+    public function updateSchedule(Request $request)
+    {
+      foreach ($request->images as $image) {
+        $img = Images::find($image['id']);
+        $img->publish_date = $request->date;
+        $img->save();
+      }
+
+      return response('success');
     }
 
     public function set(Request $request)

@@ -1,9 +1,11 @@
 @extends('layouts.app')
 
-
-@section('content')
+@section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+@endsection
+
+@section('content')
 
 <div class="row">
   <div class="col-12 margin-tb mb-3">
@@ -174,6 +176,9 @@
   </div>
 </div>
 
+@endsection
+
+@section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
@@ -184,6 +189,7 @@
     $(document).ready(function() {
        $(".select-multiple").multiselect();
        $('#calendar').fullCalendar({
+         editable: true,
          header: {
            right: "month,agendaWeek,agendaDay, today prev,next",
          },
@@ -217,7 +223,7 @@
             $('#image_container').append($(image));
             $('#download_images_field').val(JSON.stringify(download_images));
 
-            jQuery.noConflict();
+            // jQuery.noConflict();
             $('#calendarModal').modal('toggle');
           },
           eventRender: function(event, eventElement) {
@@ -226,6 +232,22 @@
                 eventElement.find("div.fc-content").prepend("<img src='" + image.name +"' width='50' height='50'>");
               });
             }
+          },
+          eventDrop: function(event, delta, revertFunc) {
+            $.ajax({
+              type: "POST",
+              url: "{{ route('image.grid.update.schedule') }}",
+              data: {
+                _token: "{{ csrf_token() }}",
+                images: event.image_names,
+                date: event.start.format('Y-MM-DD H:mm')
+              }
+            }).done(function(response) {
+              
+            }).fail(function(response) {
+              alert('Could not update schedule');
+              console.log(response);
+            });
           }
         });
     });
