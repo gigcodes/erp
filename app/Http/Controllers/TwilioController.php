@@ -133,20 +133,25 @@ class TwilioController extends FindByNumberController
      */
     public function gatherAction(Request $request)
     {
+       
         $response = new Twiml();
+        Log::info(' TIME CHECKING : 2' );
+
         $digits = trim($request->get("Digits"));
+        Log::info(' TIME CHECKING : 3' );
+        
         $clients = [];
+        
         $number = $request->get("From");
-        list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
+        Log::info(' TIME CHECKING : 4' );
+        
+        // list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
       $recordurl = \Config::get("app.url")."/twilio/storerecording"; 
-      Log::info('Context: '.$context);
+      // Log::info('Context: '.$context);
+        Log::info(' TIME CHECKING : 5' );
 
         if ($digits === "0") {
-   $response->say(
-                '',
-                ['voice' => 'alice', 'language' => 'en-GB']
-            );
-
+ Log::info(' Enterd into Leave a message section' );
             $response->record(
                 ['maxLength' => '20',
                  'method' => 'GET',
@@ -160,17 +165,9 @@ class TwilioController extends FindByNumberController
                 ['voice' => 'alice', 'language' => 'en-GB']
             );
             $response->hangup();
-
             return $response;
-
-
-            // $this->dialAllClients($response, "sales", $context, $object , $number);
-        // } else if ($digits == "2") {
-        //     $this->dialAllClients($response, "support", $context, $object, $number);
-        // } else if ($digits == "3") {
-        //     $this->dialAllClients($response, "queries", $context, $object, $number);
         } else {
-            $this->createIncomingGather($response, "We did not understand that input. Please dial 1 for sales 2 for support 3 for other queries");
+            $this->createIncomingGather($response, "We did not understand that input.");
         }
 
 
@@ -289,15 +286,7 @@ class TwilioController extends FindByNumberController
         $users = User::get();
         $clients = [];
         foreach ($users as $user) {
-$clients[] = $user->name;
-            //   $agentrolearr = explode(',',$user->agent_role);
-            // if (in_array($role, $agentrolearr)) {
-                            
-            //             }
-
-            // if ($user->agent_role == $role) {
-            //     $clients[] = $user->name;
-            // }
+            $clients[] = $user->name;
         }
         return $clients;
     }
@@ -313,8 +302,8 @@ $clients[] = $user->name;
          $dial = $response->dial([
                             'record' => 'true',
                             'recordingStatusCallback' =>$url,
-                            'action' => $actionurl
-
+                            'action' => $actionurl,
+                            'timeout' => 5
                 ]);
 
         $clients = $this->getConnectedClients($role);
@@ -332,8 +321,7 @@ $clients[] = $user->name;
         $gather = $response->gather([
             'action' => url("/twilio/gatherAction")
         ]);
-        // $gather->say($speech);
-         $gather->play( \Config::get("app.url")."/busyring.mp3");
+       $gather->play( \Config::get("app.url")."/busyring.mp3");
     }
 
     /**
@@ -350,14 +338,11 @@ $clients[] = $user->name;
            Log::info('Current Call Status '.$callStatus);
 
       if ($callStatus !== 'completed') {
-
-   $response = new Twiml();
+     Log::info(' TIME CHECKING : 1' );
        $this->createIncomingGather($response, "Please dial 0 for leave message");
-
-         
         }else{
 
-                       $recordurl = \Config::get("app.url")."/twilio/storetranscript";
+           $recordurl = \Config::get("app.url")."/twilio/storetranscript";
            Log::info('Trasncript Call back url '.$recordurl);
            $response->record([ 'transcribeCallback' => $recordurl ]);
         }
