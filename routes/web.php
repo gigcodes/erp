@@ -234,7 +234,7 @@ Route::middleware('auth')->group(function (){
 	Route::post('development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse')->name('development.comment.awaiting.response');
 
 	Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
-
+});
 	/*Routes For Social */
 
 	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
