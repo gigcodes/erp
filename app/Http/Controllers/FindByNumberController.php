@@ -34,9 +34,15 @@ class FindByNumberController extends Controller
 	}
 
 	protected function findPurchaseByNumber($number)
-{
-	return Purchase::where('supplier_phone', '=', $number)->first();
-}
+	{
+		return Purchase::where('supplier_phone', '=', $number)->first();
+	}
+
+	protected function findUserByNumber($number)
+	{
+		return User::where('phone', '=', $number)->first();
+	}
+
     protected function findLeadOrOrderByNumber($number)
     {
         $lead = $this->findLeadByNumber($number);

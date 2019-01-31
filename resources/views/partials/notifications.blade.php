@@ -42,9 +42,9 @@
       <div class="modal-header">
         <h3 class="modal-title">Instruction Reminder</h3>
       </div>
-      {{-- <div class="modal-body">
+      <div class="modal-body">
         ...
-      </div> --}}
+      </div>
       <div class="modal-footer">
         <a href="" id="instructionAlertUrl" class="btn btn-secondary mx-auto">OK</a>
       </div>
@@ -440,6 +440,7 @@
                 link = "{{ route('instruction.complete.alert') }}" + "?id=" + notification.model_id;
                 // message = '<h4>Reminder</h4>\n                            <span>By :- ' + allUsers[notification.user_id] + '</span><br>\n                            <a class="notification-link" href="' + link + '">' + (notification.message.length > 30 ? notification.message.substring(0, 30 - 3) + '...' : notification.message) + '</a>' + getStatusButtons(notification);
                 $('#instructionAlertUrl').attr('href', link);
+                $('#instructionAlertModal .modal-body').html(notification.message);
                 // jQuery.noConflict();
                 $('#instructionAlertModal').modal('show');
 

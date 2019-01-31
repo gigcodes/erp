@@ -89,6 +89,16 @@ class InstructionController extends Controller
         'role' => '',
       ]);
 
+      if ($request->send_whatsapp) {
+  			$user = User::find($instruction->assigned_to);
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['remark' => 'Auto message was sent.', 'id' => $instruction->id, 'module_type' => 'instruction']);
+        
+        app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
+  			app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
+      }
+
       return back()->with('success', 'You have successfully created instruction!');
     }
 

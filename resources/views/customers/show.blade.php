@@ -343,6 +343,11 @@
                         <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
                     @endif
                   </div>
+
+                  <div class="form-group">
+                    <input type="checkbox" name="send_whatsapp" id="sendWhatsappCheckbox">
+                    <label for="sendWhatsappCheckbox">Send with Whatsapp</label>
+                  </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -342,7 +342,7 @@ class TaskModuleController extends Controller {
 			'taskid'	=> $id,
 			'remark'	=> $remark,
 			'module_type'	=> $request->module_type,
-			'user_name'	=> Auth::user()->name
+			'user_name'	=> $request->user_name ? $request->user_name : Auth::user()->name
 		]);
 		// $remark_entry = DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
 

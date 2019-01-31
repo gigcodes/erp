@@ -41,6 +41,37 @@
                 {!! Form::text('email', null, array('placeholder' => 'Email','class' => 'form-control')) !!}
             </div>
         </div>
+
+        <div class="col-xs-12">
+    			<div class="form-group">
+    				<strong>Phone:</strong>
+    				<input type="number" class="form-control" name="phone" placeholder="900000000" value="{{old('phone')}}" />
+    				@if ($errors->has('phone'))
+    				<div class="alert alert-danger">{{$errors->first('phone')}}</div>
+    				@endif
+    			</div>
+    		</div>
+
+        <div class="col-xs-12">
+    			<div class="form-group">
+    				<strong>Solo phone:</strong>
+    				<Select name="whatsapp_number" class="form-control">
+    					<option value>None</option>
+    					<option value="919167152579" {{ old('whatsapp_number') == '919167152579' ? 'selected' : '' }}>00</option>
+    					<option value="918291920452" {{ old('whatsapp_number') == '918291920452' ? 'selected' : '' }}>02</option>
+    					<option value="918291920455" {{ old('whatsapp_number') == '918291920455' ? 'selected' : '' }}>03</option>
+    					<option value="919152731483" {{ old('whatsapp_number') == '919152731483' ? 'selected' : '' }}>04</option>
+    					<option value="919152731484" {{ old('whatsapp_number') == '919152731484' ? 'selected' : '' }}>05</option>
+    					<option value="919152731486" {{ old('whatsapp_number') == '919152731486' ? 'selected' : '' }}>06</option>
+    					<option value="918291352520" {{ old('whatsapp_number') == '918291352520' ? 'selected' : '' }}>08</option>
+    					<option value="919004008983" {{ old('whatsapp_number') == '919004008983' ? 'selected' : '' }}>09</option>
+    				</Select>
+    				@if ($errors->has('whatsapp_number'))
+    						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
+    				@endif
+    			</div>
+    		</div>
+
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Password:</strong>

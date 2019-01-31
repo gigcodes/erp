@@ -15,6 +15,7 @@ use App\User;
 use App\Brand;
 use App\Product;
 use App\Message;
+use App\Instruction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers;
@@ -38,131 +39,152 @@ class WhatsAppController extends FindByNumberController
      */
     public function incomingMessage(Request $request)
     {
-		//$data = json_decode($request->get("data"), TRUE);
 		$data = $request->json()->all();
 		$to = $data['to'];
 		$from = $data['from'];
 		$text = $data['text'];
 		$lead = $this->findLeadByNumber( $from );
-    // $leads = Leads::where('contactno', '=', $from)->get();
+    $user = $this->findUserByNumber($from);
 
-        //save to leads
-        $params = [
-            'number' => $from
-        ];
+    //save to leads
+    $params = [
+      'number' => $from
+    ];
 
-        // if ( count($leads) > 0 ) {
-        //   foreach ($leads as $lead) {
-        if ($lead) {
-          $params['lead_id'] = $lead->id;
-          if ($lead->customer) {
-            $params['customer_id'] = $lead->customer->id;
-          }
+    if ($user) {
+      $params = $this->modifyParamsWithMessage($params, $data);
+      $instruction = Instruction::where('assigned_to', $user->id)->latest()->first();
+      $myRequest = new Request();
+      $myRequest->setMethod('POST');
+      $myRequest->request->add(['remark' => $params['message'], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => "User from Whatsapp"]);
+
+      app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
+
+      NotificationQueueController::createNewNotification([
+        'message' => $params['message'],
+        'timestamps' => ['+0 minutes'],
+        'model_type' => Instruction::class,
+        'model_id' =>  $instruction->id,
+        'user_id' => '6',
+        'sent_to' => $instruction->assigned_from,
+        'role' => '',
+      ]);
+    }
+
+    if ($lead) {
+      $params['lead_id'] = $lead->id;
+
+      if ($lead->customer) {
+        $params['customer_id'] = $lead->customer->id;
+      }
+
+      $params = $this->modifyParamsWithMessage($params, $data);
+      $message = ChatMessage::create($params);
+      $model_type = 'leads';
+      $model_id = $lead->id;
+      $lead->update([
+          'whatsapp_number' => $to
+      ]);
+    } else {
+      $order= $this->findOrderByNumber($from);
+
+      if ($order) {
+        $params['lead_id'] = null;
+        $params['order_id'] = $order->id;
+
+        if ($order->customer) {
+          $params['customer_id'] = $order->customer->id;
+        }
+
+        $params = $this->modifyParamsWithMessage($params, $data);
+        $message = ChatMessage::create($params);
+        $model_type = 'order';
+        $model_id = $order->id;
+        $order->update([
+            'whatsapp_number' => $to
+        ]);
+      } else {
+        $purchase = $this->findPurchaseByNumber($from);
+
+        if ($purchase) {
+          $params['lead_id'] = null;
+          $params['order_id'] = null;
+          $params['purchase_id'] = $purchase->id;
+
           $params = $this->modifyParamsWithMessage($params, $data);
           $message = ChatMessage::create($params);
-          $model_type = 'leads';
-          $model_id = $lead->id;
-          $lead->update([
+          $model_type = 'purchase';
+          $model_id = $purchase->id;
+          $purchase->update([
               'whatsapp_number' => $to
           ]);
         } else {
-          $order= $this->findOrderByNumber( $from );
-          if ( $order ) {
-            $params['lead_id'] = null;
-            $params['order_id'] = $order->id;
-            if ($order->customer) {
-              $params['customer_id'] = $order->customer->id;
-            }
-            $params = $this->modifyParamsWithMessage($params, $data);
-            $message = ChatMessage::create($params);
-            $model_type = 'order';
-            $model_id = $order->id;
-            $order->update([
-                'whatsapp_number' => $to
-            ]);
-
-          } else {
-            $purchase = $this->findPurchaseByNumber($from);
-            if ($purchase) {
-              $params['lead_id'] = null;
-              $params['order_id'] = null;
-              $params['purchase_id'] = $purchase->id;
-
-              $params = $this->modifyParamsWithMessage($params, $data);
-              $message = ChatMessage::create($params);
-              $model_type = 'purchase';
-              $model_id = $purchase->id;
-              $purchase->update([
-                  'whatsapp_number' => $to
-              ]);
-
-            }
-          }
+          // placeholder
         }
+      }
+    }
 
-        //   }
-        // }
+    if (!isset($order) && !isset($lead) && !isset($user)) {
+        $modal_type = 'leads';
+        // $new_name = "whatsapp lead " . uniqid( TRUE );
+        $user = User::get()[0];
 
-        //save to orders
-        // $orders = Order::where('contact_detail', '=', $from)->get();
+        $customer = new Customer;
+        $customer->name = $from;
+        $customer->phone = $from;
+        $customer->rating = 2;
+        $customer->save();
 
-        // if (count($orders) > 0) {
-        //   foreach ($orders as $order) {
+        $lead = Leads::create([
+            'customer_id' => $customer->id,
+            'client_name' => $from,
+            'contactno' => $from,
+            'rating' => 2,
+            'status' => 1,
+            'assigned_user' => $user->id,
+            'userid' => $user->id,
+            'whatsapp_number' => $to
+        ]);
 
-        //   }
-        // }
 
+        NotificationQueueController::createNewNotification([
+          'message' => 'Reminder for Instructions',
+          'timestamps' => ['+10 minutes'],
+          'model_type' => Instruction::class,
+          'model_id' =>  $instruction->id,
+          'user_id' => Auth::id(),
+          'sent_to' => $instruction->assigned_to,
+          'role' => '',
+        ]);
+        $params['lead_id'] = $lead->id;
+        $params['customer_id'] = $customer->id;
+        $params = $this->modifyParamsWithMessage($params, $data);
+        $message = ChatMessage::create($params);
+        $model_type = 'leads';
+        $model_id = $lead->id;
+    }
 
-        if (!isset($order) && !isset($lead)) {
-            $modal_type = 'leads';
-            // $new_name = "whatsapp lead " . uniqid( TRUE );
-            $user = User::get()[0];
+    // NotificationQueueController::createNewNotification([
+    //   'message' => 'NWA - ' . $message->message,
+    //   'timestamps' => ['+0 minutes'],
+    //   'model_type' => $model_type,
+    //   'model_id' =>  $model_id,
+    //   'user_id' => '6',
+    //   'sent_to' => '',
+    //   'role' => 'message',
+    // ]);
+    //
+    // NotificationQueueController::createNewNotification([
+    //   'message' => 'NWA - ' . $message->message,
+    //   'timestamps' => ['+0 minutes'],
+    //   'model_type' => $model_type,
+    //   'model_id' =>  $model_id,
+    //   'user_id' => '6',
+    //   'sent_to' => '',
+    //   'role' => 'Admin',
+    // ]);
 
-            $customer = new Customer;
-            $customer->name = $from;
-            $customer->phone = $from;
-            $customer->rating = 2;
-            $customer->save();
-
-            $lead = Leads::create([
-                'customer_id' => $customer->id,
-                'client_name' => $from,
-                'contactno' => $from,
-                'rating' => 2,
-                'status' => 1,
-                'assigned_user' => $user->id,
-                'userid' => $user->id,
-                'whatsapp_number' => $to
-            ]);
-            $params['lead_id'] = $lead->id;
-            $params['customer_id'] = $customer->id;
-            $params = $this->modifyParamsWithMessage($params, $data);
-            $message = ChatMessage::create($params);
-            $model_type = 'leads';
-            $model_id = $lead->id;
-        }
-
-        // NotificationQueueController::createNewNotification([
-        //   'message' => 'NWA - ' . $message->message,
-        //   'timestamps' => ['+0 minutes'],
-        //   'model_type' => $model_type,
-        //   'model_id' =>  $model_id,
-        //   'user_id' => '6',
-        //   'sent_to' => '',
-        //   'role' => 'message',
-        // ]);
-        //
-        // NotificationQueueController::createNewNotification([
-        //   'message' => 'NWA - ' . $message->message,
-        //   'timestamps' => ['+0 minutes'],
-        //   'model_type' => $model_type,
-        //   'model_id' =>  $model_id,
-        //   'user_id' => '6',
-        //   'sent_to' => '',
-        //   'role' => 'Admin',
-        // ]);
-
-        return response("");
+    return response("");
     }
     /**
      * Send message
@@ -823,7 +845,7 @@ class WhatsAppController extends FindByNumberController
         return response("success");
     }
 
-	private function sendWithWhatsApp($number, $sendNumber, $text)
+	public function sendWithWhatsApp($number, $sendNumber, $text)
 	{
     if (Auth::id() != 3) {
       if (strlen($number) != 12 || !preg_match('/^[91]{2}/', $number)) {
