@@ -244,31 +244,6 @@ Route::middleware('auth')->group(function (){
 	Route::get('social/post/page','SocialController@index')->name('social.post.page');
 	Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
 
-Route::get('twilio/token', 'TwilioController@createToken');
-Route::post('twilio/ivr', 'TwilioController@ivr');
-Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
-Route::post('twilio/incoming', 'TwilioController@incomingCall');
-Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
-Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');
-Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback');
-Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatus');
-      // Route::post(
-      //       '/twilio/store-recording', [
-      //           'as' => 'store-recording',
-      //           'uses' => 'TwilioController@storeRecording'
-      //       ]
-      //   );
-  Route::post('twilio/storerecording','TwilioController@storeRecording');
-    Route::post('twilio/storetranscript','TwilioController@storetranscript');
-
- Route::get(
-            '/twilio/hangup', [
-                'as' => 'hangup',
-                'uses' => 'TwilioController@showHangup'
-            ]
-        );
-
-
 		// Ad reports routes
 
 	Route::get('social/ad/report','SocialController@report')->name('social.report');
@@ -309,16 +284,37 @@ Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatu
 
 	// End of Routes for social
 
-});
+	// Development
+	Route::get('development', 'DevelopmentController@index')->name('development.index');
+	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
+	Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
+	Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
 
+	Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+	Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
+	Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
+	Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
+	Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
 
-//Route::get('deQueueNotfication/','NotificationQueueController@deQueueNotfication');
-Route::get('deQueueNotfication/','NotificationQueueController@deQueueNotficationNew');
-Route::get('mageOrders/','MagentoController@get_magento_orders');
+	Route::post('development/module/create', 'DevelopmentController@moduleStore')->name('development.module.store');
+	Route::delete('development/module/{id}/destroy', 'DevelopmentController@moduleDestroy')->name('development.module.destroy');
+	Route::post('development/{id}/assignModule', 'DevelopmentController@moduleAssign')->name('development.module.assign');
 
-Route::get('perHourActivityNotification','NotificationQueueController@perHourActivityNotification');
-Route::get('recurringTask','TaskModuleController@recurringTask');
+	Route::post('development/comment/create', 'DevelopmentController@commentStore')->name('development.comment.store');
+	Route::post('development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse')->name('development.comment.awaiting.response');
 
+	Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
+
+	/*Routes For Social */
+
+	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
+
+		// post creating routes define's here
+
+	Route::get('social/post/page','SocialController@index')->name('social.post.page');
+	Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
+
+/* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 Route::get('twilio/token', 'TwilioController@createToken');
 Route::post('twilio/ivr', 'TwilioController@ivr');
 Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
@@ -326,6 +322,17 @@ Route::post('twilio/incoming', 'TwilioController@incomingCall');
 Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
 Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');
 Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback');
+Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatus');
+Route::post('twilio/storerecording','TwilioController@storeRecording');
+Route::post('twilio/storetranscript','TwilioController@storetranscript');
+Route::get(
+            '/twilio/hangup', [
+                'as' => 'hangup',
+                'uses' => 'TwilioController@showHangup'
+            ]
+        );
+
+/* ---------------------------------------------------------------------------------- */
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');
