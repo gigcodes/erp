@@ -2,6 +2,7 @@
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
 
 @section('content')
@@ -102,6 +103,16 @@
                               <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
                             </div>
 
+                            <div class="form-group ml-3">
+                              <div class='input-group date' id='filter-date'>
+                                  <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />
+
+                                  <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                              </div>
+                            </div>
+
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
 
@@ -168,171 +179,180 @@
     </div>
 
 	<?php $stage = new \App\Stage(); ?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-    <script>
 
-      $(document).ready(function() {
-         $(".select-multiple").multiselect();
+@endsection
+
+@section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script>
+
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
+    });
+
+    $('#filter-date').datetimepicker({
+      format: 'YYYY-MM-DD'
+    });
+
+    var searchSuggestions = {!! json_encode($search_suggestions) !!};
+
+    // $('#product-search').autocomplete({
+    //   source: function(request, response) {
+    //     var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+    //
+    //     response(results.slice(0, 10));
+    //   }
+    // });
+
+      Array.prototype.groupBy = function (prop) {
+          return this.reduce(function (groups, item) {
+              const val = item[prop]
+              groups[val] = groups[val] || []
+              groups[val].push(item)
+              return groups
+          }, {})
+      };
+
+      const products = [
+              @foreach ($products as $product)
+      <?php
+      $r = explode( ' ', $product->created_at );
+
+      switch ( $roletype ) {
+        case 'Selection':
+          $link = route( 'productselection.edit', $product->id );
+          break;
+        case 'Searcher':
+          // $link = route( 'productsearcher.edit', $product->id );
+          $link = route( 'productattribute.edit', $product->id );
+          break;
+        case 'Attribute':
+          $link = route( 'productattribute.edit', $product->id );
+          break;
+        case 'Supervisor':
+          $link = route( 'products.show', $product->id );
+          break;
+        case 'ImageCropper':
+          $link = route( 'productimagecropper.edit', $product->id );
+          break;
+        case 'Lister':
+          $link = route( 'products.show', $product->id );
+          break;
+        case 'Approver':
+          $link = route( 'products.show', $product->id );
+          break;
+        case 'Inventory':
+          $link = route( 'products.show', $product->id );
+          break;
+        case 'Sale':
+          $link = route( 'products.show', $product->id );
+          break;
+      }
+      ?>
+          {
+              'sku': '{{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}',
+              'id': '{{ $product->id }}',
+              'size': '{{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}',
+              'price': '{{ $product->price_special }}',
+              'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
+              'image': '{{ $product->getMedia(config('constants.media_tags'))->first()
+                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                            : ''
+                         }}',
+              'created_at': '{{ $r[0]  }}',
+              'link': '{{ $link }}',
+              'isApproved': '{{ $product->isApproved }}',
+              'stage': '{{ $stage->getNameById( $product->stage )}}',
+
+              @if( isset($doSelection) )
+              'isAttached': '{{ in_array($product->id, $selected_products) ? 1 : 0 }}',
+              @endif
+          },
+          @endforeach
+      ];
+
+      const groupedByTime = products.groupBy('created_at');
+
+      jQuery(document).ready(function () {
+
+          Object.keys(groupedByTime).forEach(function (key) {
+
+              let html = '<h4>' + getTodayYesterdayDate(key) + '</h4><div class="row">';
+
+              groupedByTime[key].forEach(function (product) {
+
+                  html += `
+                      <div class="col-md-3 col-xs-6 text-center mb-5">
+                      <a href="` + product['link'] + `">
+                          <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" />
+                                          <p>Sku : ` + product['sku'] + `</p>
+                                          <p>Id : ` + product['id'] + `</p>
+                                          <p>Size : ` + product['size'] + `</p>
+                                          <p>Price : ` + product['price'] + `</p>
+                                          <!--<p>Brand : ` + product['brand'] + `</p>-->
+                                          <p>Status : ` + product['stage'] + `</p>
+                                           {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
+                                                                  'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
+                          {{--@can('supervisor-edit')
+                              <button data-id="`+product['id']+`"
+                                      class="btn btn-approve btn-secondary `+ ( ( product['isApproved'] ===  '1' ) ? 'btn-success' : '' ) +` ">
+                                      `+ ( ( product['isApproved'] ===  '1' ) ? 'Approved' : 'Approve' ) +`
+                              </button>
+                          @endcan--}}
+                      </a>
+                                          @if( isset($doSelection))
+
+                      <button data-id="` + product['id'] + `" model-type="{{ $model_type }}" model-id="{{ $model_id }}"
+                                                          class="btn-attach btn btn-secondary ` + ((product['isAttached'] === '1') ? 'btn-success' : '') + ` ">
+                                                          ` + ((product['isAttached'] === '0') ? 'Attach' : 'Attached') + `
+                      </button>
+                                          @endif
+                      </div>
+                  `;
+              });
+
+              jQuery('#productGrid').append(html + '</div>');
+          });
+
+          // $('#product-search').on('keyup', function() {
+          //   alert('t');
+          // });
+
+          {{--@if($roletype == 'Supervisor')
+          @can('supervisor-edit')
+              attactApproveEvent();
+          @endcan
+          @endif--}}
+
+          jQuery('.btn-attach').click(function (e) {
+
+              e.preventDefault();
+
+              let btn = jQuery(this);
+              let product_id = btn.attr('data-id');
+              let model_id = btn.attr('model-id');
+              let model_type = btn.attr('model-type');
+
+
+              jQuery.ajax({
+                  headers: {
+                    // 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                      'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                  },
+                  type: 'POST',
+                  url: '/attachProductToModel/'+ model_type + '/' + model_id + '/' + product_id,
+
+                  success: function (response) {
+
+                      if (response.msg === 'success') {
+                          btn.toggleClass('btn-success');
+                          btn.html(response.action);
+                      }
+                  }
+              });
+          });
       });
 
-      var searchSuggestions = {!! json_encode($search_suggestions) !!};
-
-      // $('#product-search').autocomplete({
-      //   source: function(request, response) {
-      //     var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
-      //
-      //     response(results.slice(0, 10));
-      //   }
-      // });
-
-        Array.prototype.groupBy = function (prop) {
-            return this.reduce(function (groups, item) {
-                const val = item[prop]
-                groups[val] = groups[val] || []
-                groups[val].push(item)
-                return groups
-            }, {})
-        };
-
-        const products = [
-                @foreach ($products as $product)
-				<?php
-				$r = explode( ' ', $product->created_at );
-
-				switch ( $roletype ) {
-					case 'Selection':
-						$link = route( 'productselection.edit', $product->id );
-						break;
-					case 'Searcher':
-						// $link = route( 'productsearcher.edit', $product->id );
-            $link = route( 'productattribute.edit', $product->id );
-						break;
-					case 'Attribute':
-						$link = route( 'productattribute.edit', $product->id );
-						break;
-					case 'Supervisor':
-						$link = route( 'products.show', $product->id );
-						break;
-					case 'ImageCropper':
-						$link = route( 'productimagecropper.edit', $product->id );
-						break;
-					case 'Lister':
-						$link = route( 'products.show', $product->id );
-						break;
-					case 'Approver':
-						$link = route( 'products.show', $product->id );
-						break;
-					case 'Inventory':
-						$link = route( 'products.show', $product->id );
-						break;
-					case 'Sale':
-						$link = route( 'products.show', $product->id );
-						break;
-				}
-				?>
-            {
-                'sku': '{{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}',
-                'id': '{{ $product->id }}',
-                'size': '{{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}',
-                'price': '{{ $product->price_special }}',
-                'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
-                'image': '{{ $product->getMedia(config('constants.media_tags'))->first()
-                              ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
-                              : ''
-                           }}',
-                'created_at': '{{ $r[0]  }}',
-                'link': '{{ $link }}',
-                'isApproved': '{{ $product->isApproved }}',
-                'stage': '{{ $stage->getNameById( $product->stage )}}',
-
-                @if( isset($doSelection) )
-                'isAttached': '{{ in_array($product->id, $selected_products) ? 1 : 0 }}',
-                @endif
-            },
-            @endforeach
-        ];
-
-        const groupedByTime = products.groupBy('created_at');
-
-        jQuery(document).ready(function () {
-
-            Object.keys(groupedByTime).forEach(function (key) {
-
-                let html = '<h4>' + getTodayYesterdayDate(key) + '</h4><div class="row">';
-
-                groupedByTime[key].forEach(function (product) {
-
-                    html += `
-                        <div class="col-md-3 col-xs-6 text-center mb-5">
-                        <a href="` + product['link'] + `">
-                            <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" />
-                                            <p>Sku : ` + product['sku'] + `</p>
-                                            <p>Id : ` + product['id'] + `</p>
-                                            <p>Size : ` + product['size'] + `</p>
-                                            <p>Price : ` + product['price'] + `</p>
-                                            <!--<p>Brand : ` + product['brand'] + `</p>-->
-                                            <p>Status : ` + product['stage'] + `</p>
-                                             {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
-                                                                    'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
-                            {{--@can('supervisor-edit')
-                                <button data-id="`+product['id']+`"
-                                        class="btn btn-approve btn-secondary `+ ( ( product['isApproved'] ===  '1' ) ? 'btn-success' : '' ) +` ">
-                                        `+ ( ( product['isApproved'] ===  '1' ) ? 'Approved' : 'Approve' ) +`
-                                </button>
-                            @endcan--}}
-                        </a>
-                                            @if( isset($doSelection))
-
-                        <button data-id="` + product['id'] + `" model-type="{{ $model_type }}" model-id="{{ $model_id }}"
-                                                            class="btn-attach btn btn-secondary ` + ((product['isAttached'] === '1') ? 'btn-success' : '') + ` ">
-                                                            ` + ((product['isAttached'] === '0') ? 'Attach' : 'Attached') + `
-                        </button>
-                                            @endif
-                        </div>
-                    `;
-                });
-
-                jQuery('#productGrid').append(html + '</div>');
-            });
-
-            // $('#product-search').on('keyup', function() {
-            //   alert('t');
-            // });
-
-            {{--@if($roletype == 'Supervisor')
-            @can('supervisor-edit')
-                attactApproveEvent();
-            @endcan
-            @endif--}}
-
-            jQuery('.btn-attach').click(function (e) {
-
-                e.preventDefault();
-
-                let btn = jQuery(this);
-                let product_id = btn.attr('data-id');
-                let model_id = btn.attr('model-id');
-                let model_type = btn.attr('model-type');
-
-
-                jQuery.ajax({
-                    headers: {
-                      // 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                    },
-                    type: 'POST',
-                    url: '/attachProductToModel/'+ model_type + '/' + model_id + '/' + product_id,
-
-                    success: function (response) {
-
-                        if (response.msg === 'success') {
-                            btn.toggleClass('btn-success');
-                            btn.html(response.action);
-                        }
-                    }
-                });
-            });
-        });
-
-    </script>
+  </script>
 @endsection
