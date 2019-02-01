@@ -5,7 +5,7 @@ namespace App\Services\Scrap;
 use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
-class GebnegozionlineScraper extends Scraper implements ScrapInterface
+class GebnegozionlineScraper extends Scraper
 {
     private const URL = [
         'homepage' => 'https://www.gebnegozionline.com/',
@@ -13,12 +13,12 @@ class GebnegozionlineScraper extends Scraper implements ScrapInterface
     ];
 
 
-    public function scrap()
+    public function scrap(): void
     {
         $this->scrapPage(self::URL['homepage'], false);
     }
 
-    private function scrapPage($url, $hasProduct=true)
+    private function scrapPage($url, $hasProduct=true): void
     {
         $scrapEntry = ScrapEntries::where('url', $url)->first();
         if (!$scrapEntry) {
@@ -28,8 +28,13 @@ class GebnegozionlineScraper extends Scraper implements ScrapInterface
             $scrapEntry->save();
         }
 
+        if ($scrapEntry->is_scraped) {
+            return;
+        }
+
         if ($hasProduct) {
-            return $this->getProducts($url, $scrapEntry);
+            $this->getProducts($scrapEntry);
+            return;
         }
 
         $body = $this->getContent($url);
@@ -48,24 +53,35 @@ class GebnegozionlineScraper extends Scraper implements ScrapInterface
             $urls[$text.'_'.$key] = $link->getAttribute('href');
         }
 
-        foreach ($urls as $itemUrl) {
 
+        foreach ($urls as $itemUrl) {
             $this->scrapPage($itemUrl);
         }
 
     }
 
-    private function getProducts($url, ScrapEntries $scrapEntriy )
+    private function getProducts(ScrapEntries $scrapEntriy ): void
     {
-        $body = $this->getContent($url);
-        $c = new HtmlPageCrawler($body);
 
         $paginationData = $scrapEntriy->pagination;
         if (!$paginationData)
         {
+            $body = $this->getContent($scrapEntriy->url);
+            $c = new HtmlPageCrawler($body);
             $scrapEntriy->pagination =  $this->getPaginationData($c);
             $scrapEntriy->save();
         }
+
+        $pageNumber = $scrapEntriy->pagination['current_page_number'];
+        $totalPageNumber = $scrapEntriy->pagination['total_pages'];
+
+        if ($pageNumber < $totalPageNumber) {
+            $pageNumber++;
+        }
+
+        $body = $this->getContent($scrapEntriy->url . '?p=' . $pageNumber);
+        $c = new HtmlPageCrawler($body);
+
         $products = $c->filter('.product-item')->getIterator();
 
         foreach ($products as $product) {
@@ -94,9 +110,18 @@ class GebnegozionlineScraper extends Scraper implements ScrapInterface
 
         }
 
+        if ($pageNumber >= $totalPageNumber) {
+            $scrapEntriy->pagination = [
+                'current_page_number' => $totalPageNumber,
+                'total_pages' => $totalPageNumber
+            ];
+            $scrapEntriy->is_scraped = 1;
+            $scrapEntriy->save();
+        }
+
     }
 
-    private function getImagesFromProduct($product)
+    private function getImagesFromProduct($product): array
     {
         $items = $product->getElementsByTagName('img');
         $images = [];
@@ -131,8 +156,26 @@ class GebnegozionlineScraper extends Scraper implements ScrapInterface
         return $link;
     }
 
-    private function getPaginationData( HtmlPageCrawler $c) {
-        $paginationOptions = $c->filter('#paging-label li a span:nth-child(2)')->getIterator();
-        dd($paginationOptions);
+    private function getPaginationData( HtmlPageCrawler $c): array
+    {
+        $maxPageNumber = 1;
+        $paginationOptions = $c->filter('.pages-items li a')->getIterator();
+        foreach ($paginationOptions as $paginationOption) {
+            $text = $paginationOption->textContent;
+            $text = str_replace('Page', '', $text);
+            $text = preg_replace('/\s\s+/', '', $text);
+            if ($text > $maxPageNumber && ctype_digit($text)) {
+                $maxPageNumber = $text;
+            }
+        }
+
+        $options = [
+            'current_page_number' => 1,
+            'total_pages' => $maxPageNumber
+        ];
+
+        return $options;
+
+
     }
 }

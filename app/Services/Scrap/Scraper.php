@@ -4,7 +4,7 @@ namespace App\Services\Scrap;
 
 use GuzzleHttp\Client;
 
-class Scraper
+abstract class Scraper
 {
     protected $client;
 

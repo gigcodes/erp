@@ -4,7 +4,7 @@ namespace App\Services\Scrap;
 
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
-class GoogleImageScraper extends Scraper implements ScrapInterface
+class GoogleImageScraper extends Scraper
 {
     private const GOOGLE_IMAGE_SEARCH_URL = [
         'https://www.google.com/search?tbm=isch&source=lnms&q=',
@@ -12,7 +12,7 @@ class GoogleImageScraper extends Scraper implements ScrapInterface
     ];
 
 
-    public function scrapGoogleImages($q, $outputCount)
+    public function scrapGoogleImages($q, $outputCount): array
     {
         $body = $this->getContent(self::GOOGLE_IMAGE_SEARCH_URL[0].$q);
         $c = new HtmlPageCrawler($body);
