@@ -26,7 +26,7 @@ class GetGebnegozionlineProductEntries extends Command
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param GebnegozionlineScraper $scraper
      */
     public function __construct(GebnegozionlineScraper $scraper)
     {

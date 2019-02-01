@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\GetGebnegozionlineProductDetails;
+use App\Console\Commands\GetGebnegozionlineProductEntries;
 use App\Console\Commands\PostScheduledMedia;
 use App\Console\Commands\SyncInstagramMessage;
 use App\Http\Controllers\MagentoController;
@@ -23,7 +25,9 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         PostScheduledMedia::class,
-        SyncInstagramMessage::class
+        SyncInstagramMessage::class,
+        GetGebnegozionlineProductDetails::class,
+        GetGebnegozionlineProductEntries::class,
     ];
 
     /**
@@ -66,6 +70,16 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('post:scheduled-media')
             ->everyMinute();
+
+        $schedule->command('gebnegozionline:get-products-list')
+            ->twiceDaily()
+            ->withoutOverlapping()
+        ;
+
+        $schedule->command('gebnegozionline:get-products-detail')
+            ->hourly()
+            ->withoutOverlapping()
+        ;
 
 //        $schedule->command('sync:instagram-messages')
 //            ->everyMinute();

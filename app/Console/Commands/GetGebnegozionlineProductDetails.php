@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\Scrap\GebnegozionlineProductDetailsScraper;
 use Illuminate\Console\Command;
 
 class GetGebnegozionlineProductDetails extends Command
@@ -20,13 +21,16 @@ class GetGebnegozionlineProductDetails extends Command
      */
     protected $description = 'Command description';
 
+    private $scraper;
+
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param GebnegozionlineProductDetailsScraper $scraper
      */
-    public function __construct()
+    public function __construct(GebnegozionlineProductDetailsScraper $scraper)
     {
+        $this->scraper = $scraper;
         parent::__construct();
     }
 
@@ -37,6 +41,6 @@ class GetGebnegozionlineProductDetails extends Command
      */
     public function handle()
     {
-        //
+        $this->scraper->scrap();
     }
 }
