@@ -18,7 +18,20 @@ class DirectMessage {
         $username = env('IG_USERNAME', 'sololuxury');
         $password = env('IG_PASSWORD', 'U;5%wn~L48E+');
         $this->currentId = env('IG_CURRENT_USER_ID', '6827120791');
-        $this->instagram->login($username, $password);
+
+
+        try {
+            $this->instagram->login($username, $password);
+        } catch (Exception $Exception) {
+            if ($Exception instanceof ChallengeRequiredException)
+            {
+                sleep(5);
+                $customResponse = $this->instagram->request(substr($Exception->getResponse()->getChallenge()->getApiPath(), 1))->setNeedsAuth(false)->addPost('choice', 0)->getDecodedResponse();
+                if (is_array($customResponse)) {
+                    $this->instagram->login($username, $password);
+                }
+            }
+        }
     }
 
     public function getInbox() {
