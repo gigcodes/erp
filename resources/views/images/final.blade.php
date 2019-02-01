@@ -155,23 +155,26 @@
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Counts</th>
+                <th>Brand Counts</th>
+                <th>Category Counts</th>
               </tr>
             </thead>
 
             <tbody>
-              @foreach ($stats as $date => $stat)
+              @foreach ($stats_brand as $date => $stat)
                 <tr>
                   <td>{{ $date }}</td>
                   <td>
                     <ul>
                       @foreach ($stat as $brand_id => $datas)
-                          <li>{{ $brands[$brand_id] }} ({{ count($datas) }})</li>
-                          <ul>
-                            @foreach ($datas as $category_id => $data)
-                              <li>{{ $categories_array[$category_id] }} ({{ count($data) }})</li>
-                            @endforeach
-                          </ul>
+                        <li>{{ $brands[$brand_id] }} ({{ count($datas) }})</li>
+                      @endforeach
+                    </ul>
+                  </td>
+                  <td>
+                    <ul>
+                      @foreach ($stats_category[$date] as $category_id => $data)
+                        <li>{{ $categories_array[$category_id] }} ({{ count($data) }})</li>
                       @endforeach
                     </ul>
                   </td>

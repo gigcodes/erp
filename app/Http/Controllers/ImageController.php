@@ -192,14 +192,19 @@ class ImageController extends Controller
 
     public function final(Request $request)
     {
-      $stats = Images::where('status', '2')->whereNotNull('publish_date')->select('brand', 'category', 'publish_date')->get()->groupBy(['publish_date', 'brand', 'category'])->toArray();
+      $stats_brand = Images::where('status', '2')->whereNotNull('publish_date')->whereBetween('publish_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->select('brand', 'category', 'publish_date')->get()->groupBy([function($date) {
+        return Carbon::parse($date->publish_date)->format('Y-m-d');
+      }, 'brand'])->toArray();
+      $stats_category = Images::where('status', '2')->whereNotNull('publish_date')->whereBetween('publish_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->select('brand', 'category', 'publish_date')->get()->groupBy([function($date) {
+        return Carbon::parse($date->publish_date)->format('Y-m-d');
+      }, 'category'])->toArray();
       $categories = Category::all();
-      
+
       $categories_array = [];
       foreach ($categories as $category) {
         $categories_array[$category->id] = $category->title;
       }
-      // dd($stats);
+      // dd($stats_brand);
 
       if (!isset($request->sortby) || $request->sortby == 'asc') {
         $images = Images::where('status', '2');
@@ -279,7 +284,8 @@ class ImageController extends Controller
         'brand'  => $brand,
         'category'  => $category,
         'price'  => $price,
-        'stats' => $stats,
+        'stats_brand' => $stats_brand,
+        'stats_category' => $stats_category,
         'categories_array'  => $categories_array
       ]);
     }
