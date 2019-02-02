@@ -21,7 +21,7 @@ class DirectMessage {
 
 
         try {
-            $this->instagram->login($username, $password);
+            $r = $this->instagram->login($username, $password);
         } catch (Exception $Exception) {
             if ($Exception instanceof ChallengeRequiredException)
             {
