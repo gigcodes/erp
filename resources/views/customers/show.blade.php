@@ -947,7 +947,7 @@
                               <h3>Product Details</h3>
                             </div>
                             <div class="form-group">
-                                <table class="table table-bordered" id="products-table">
+                                <table class="table table-bordered" id="products-table-{{ $order->id }}">
                                     <tr>
                                         <th>Image</th>
                                         <th>Name</th>
@@ -1025,101 +1025,8 @@
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group btn-group">
                                 <a href="{{ route('attachProducts',['order',$order->id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
-                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>
+                                <button type="button" class="btn btn-secondary add-product-button" data-orderid="{{ $order->id }}" data-toggle="modal" data-target="#productModal">+</button>
                             </div>
-                        </div>
-
-                        <div id="productModal" class="modal fade" role="dialog">
-                          <div class="modal-dialog">
-
-                            <!-- Modal content-->
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h4 class="modal-title">Create Product</h4>
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                              </div>
-                              <div class="modal-body">
-                                <div class="form-group">
-                                    <strong>Image:</strong>
-                                    <input type="file" class="form-control" name="image"
-                                           value="{{ old('image') }}" id="product-image"/>
-                                    @if ($errors->has('image'))
-                                        <div class="alert alert-danger">{{$errors->first('image')}}</div>
-                                    @endif
-                                </div>
-
-                                <div class="form-group">
-                                    <strong>Name:</strong>
-                                    <input type="text" class="form-control" name="name" placeholder="Name"
-                                           value="{{ old('name') }}"  id="product-name"/>
-                                    @if ($errors->has('name'))
-                                        <div class="alert alert-danger">{{$errors->first('name')}}</div>
-                                    @endif
-                                </div>
-
-                                <div class="form-group">
-                                    <strong>SKU:</strong>
-                                    <input type="text" class="form-control" name="sku" placeholder="SKU"
-                                           value="{{ old('sku') }}"  id="product-sku"/>
-                                    @if ($errors->has('sku'))
-                                        <div class="alert alert-danger">{{$errors->first('sku')}}</div>
-                                    @endif
-                                </div>
-
-                                <div class="form-group">
-                                    <strong>Color:</strong>
-                                    <input type="text" class="form-control" name="color" placeholder="Color"
-                                           value="{{ old('color') }}"  id="product-color"/>
-                                    @if ($errors->has('color'))
-                                        <div class="alert alert-danger">{{$errors->first('color')}}</div>
-                                    @endif
-                                </div>
-
-                                <div class="form-group">
-                                    <strong>Brand:</strong>
-                                    <?php
-                                    $brands = \App\Brand::getAll();
-                                    echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
-                                      {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
-                                      @if ($errors->has('brand'))
-                                          <div class="alert alert-danger">{{$errors->first('brand')}}</div>
-                                      @endif
-                                </div>
-
-                                <div class="form-group">
-                                    <strong>Price:</strong>
-                                    <input type="number" class="form-control" name="price" placeholder="Price"
-                                           value="{{ old('price') }}" step=".01"  id="product-price"/>
-                                    @if ($errors->has('price'))
-                                        <div class="alert alert-danger">{{$errors->first('price')}}</div>
-                                    @endif
-                                </div>
-
-                                <div class="form-group">
-                                    <strong>Size:</strong>
-                                    <input type="text" class="form-control" name="size" placeholder="Size"
-                                           value="{{ old('size') }}"  id="product-size"/>
-                                    @if ($errors->has('size'))
-                                        <div class="alert alert-danger">{{$errors->first('size')}}</div>
-                                    @endif
-                                </div>
-
-                                <div class="form-group">
-                                    <strong>Quantity:</strong>
-                                    <input type="number" class="form-control" name="quantity" placeholder="Quantity"
-                                           value="{{ old('quantity') }}"  id="product-quantity"/>
-                                    @if ($errors->has('quantity'))
-                                        <div class="alert alert-danger">{{$errors->first('quantity')}}</div>
-                                    @endif
-                                </div>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-success createProduct" data-orderid="{{ $order->id }}">Create</button>
-                              </div>
-                            </div>
-
-                          </div>
                         </div>
                       </div>
 
@@ -1132,6 +1039,100 @@
             </div>
           </div>
         @endforeach
+      </div>
+    </div>
+
+    <div id="productModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Product</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="order_id" value="">
+            <div class="form-group">
+                <strong>Image:</strong>
+                <input type="file" class="form-control" name="image"
+                       value="{{ old('image') }}" id="product-image"/>
+                @if ($errors->has('image'))
+                    <div class="alert alert-danger">{{$errors->first('image')}}</div>
+                @endif
+            </div>
+
+            <div class="form-group">
+                <strong>Name:</strong>
+                <input type="text" class="form-control" name="name" placeholder="Name"
+                       value="{{ old('name') }}"  id="product-name"/>
+                @if ($errors->has('name'))
+                    <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                @endif
+            </div>
+
+            <div class="form-group">
+                <strong>SKU:</strong>
+                <input type="text" class="form-control" name="sku" placeholder="SKU"
+                       value="{{ old('sku') }}"  id="product-sku"/>
+                @if ($errors->has('sku'))
+                    <div class="alert alert-danger">{{$errors->first('sku')}}</div>
+                @endif
+            </div>
+
+            <div class="form-group">
+                <strong>Color:</strong>
+                <input type="text" class="form-control" name="color" placeholder="Color"
+                       value="{{ old('color') }}"  id="product-color"/>
+                @if ($errors->has('color'))
+                    <div class="alert alert-danger">{{$errors->first('color')}}</div>
+                @endif
+            </div>
+
+            <div class="form-group">
+                <strong>Brand:</strong>
+                <?php
+                $brands = \App\Brand::getAll();
+                echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
+                  {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
+                  @if ($errors->has('brand'))
+                      <div class="alert alert-danger">{{$errors->first('brand')}}</div>
+                  @endif
+            </div>
+
+            <div class="form-group">
+                <strong>Price:</strong>
+                <input type="number" class="form-control" name="price" placeholder="Price"
+                       value="{{ old('price') }}" step=".01"  id="product-price"/>
+                @if ($errors->has('price'))
+                    <div class="alert alert-danger">{{$errors->first('price')}}</div>
+                @endif
+            </div>
+
+            <div class="form-group">
+                <strong>Size:</strong>
+                <input type="text" class="form-control" name="size" placeholder="Size"
+                       value="{{ old('size') }}"  id="product-size"/>
+                @if ($errors->has('size'))
+                    <div class="alert alert-danger">{{$errors->first('size')}}</div>
+                @endif
+            </div>
+
+            <div class="form-group">
+                <strong>Quantity:</strong>
+                <input type="number" class="form-control" name="quantity" placeholder="Quantity"
+                       value="{{ old('quantity') }}"  id="product-quantity"/>
+                @if ($errors->has('quantity'))
+                    <div class="alert alert-danger">{{$errors->first('quantity')}}</div>
+                @endif
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-success createProduct">Create</button>
+          </div>
+        </div>
+
       </div>
     </div>
   @endif
@@ -1585,10 +1586,15 @@
           });
         });
 
+        $(document).on('click', '.add-product-button', function() {
+          $('input[name="order_id"]').val($(this).data('orderid'));
+        });
+
         $('.createProduct').on('click', function() {
           var token = "{{ csrf_token() }}";
           var url = "{{ route('products.store') }}";
-          var order_id = $(this).data('orderid');
+          // var order_id = $(this).data('orderid');
+          var order_id = $('input[name="order_id"]').val();
           var image = $('#product-image').prop('files')[0];
           var name = $('#product-name').val();
           var sku = $('#product-sku').val();
@@ -1650,7 +1656,7 @@
                   product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></th>';
                   product_row += '</tr>';
 
-              $('#products-table').append(product_row);
+              $('#products-table-' + order_id).append(product_row);
             }
           });
         });
@@ -1883,7 +1889,7 @@
                    p.html( message.message );
                } else if ( message.media_url ) {
                    var splitted = message.content_type.split("/");
-                   if (splitted[0]==="image") {
+                   if (splitted[0]==="image" || splitted[0] === 'm') {
                        var a = $("<a></a>");
                        a.attr("target", "_blank");
                        a.attr("href", message.media_url);
