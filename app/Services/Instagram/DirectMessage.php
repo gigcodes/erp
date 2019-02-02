@@ -20,7 +20,7 @@ class DirectMessage {
         $this->currentId = env('IG_CURRENT_USER_ID', '');
 
         try {
-            $this->instagram->login($username, $password);
+            $r = $this->instagram->login($username, $password);
         } catch (Exception $Exception) {
             if ($Exception instanceof ChallengeRequiredException)
             {
