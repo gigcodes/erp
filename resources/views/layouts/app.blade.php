@@ -1096,7 +1096,8 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
-                                        <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
+                                    <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
+                                    <a class="dropdown-item" href="{{ action('ScrapController@showGnbProducts') }}">G&B Product</a>
                                 </div>
 
 
