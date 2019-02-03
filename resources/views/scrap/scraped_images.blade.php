@@ -28,6 +28,9 @@
                                         <div style="font-size: 14px;">
                                             <strong>{{ $product->brand ? $product->brand->name : 'N/A' }}</strong>
                                         </div>
+                                        <div style="font-size: 14px;">
+                                            <strong>&euro; {{ $product->price ?? 'N/A' }}</strong>
+                                        </div>
                                     </span>
                                 </div>
                                 <div class="card-action">

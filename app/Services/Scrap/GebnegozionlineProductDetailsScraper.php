@@ -35,6 +35,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $description = $this->getDescription($c);
         $price = $this->getPrice($c);
         $gender = $this->isMaleOrFemale($scrapEntry->url);
+//        $propertiesData = $this->getProperties($c);
 
         $properties = [
             'gender' => $gender
@@ -176,5 +177,22 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
 
         return 'male';
+    }
+
+    private function getProperties(HtmlPageCrawler $c) {
+        $pname =  $c->filter('.control-container select')->getAttribute('input-name');
+        if (!$pname) {
+            $pname = 'Property';
+        }
+        $options = $c->filter('.control-container select option')->getIterator();
+        $values = [];
+        foreach ($options as $key=>$option) {
+            if ($key !== 0) {
+                $value = preg_replace('/\s\s+/', '', $option->textContent);
+                $values[] = $value;
+            }
+        }
+
+        return [$pname => $values];
     }
 }
