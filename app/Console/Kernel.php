@@ -74,15 +74,15 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
 
         $schedule->command('check:user-logins')->everyMinute();
-        $schedule->command('gebnegozionline:get-products-list')
-            ->twiceDaily()
-            ->withoutOverlapping()
-        ;
+//        $schedule->command('gebnegozionline:get-products-list')
+//            ->twiceDaily()
+//            ->withoutOverlapping()
+//        ;
 
-        $schedule->command('gebnegozionline:get-products-detail')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
+//        $schedule->command('gebnegozionline:get-products-detail')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
 
 //        $schedule->command('sync:instagram-messages')
 //            ->everyMinute();
