@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Image;
-use App\Services\Scrap\GebnegozionlineScraper;
+use App\ScrapedProducts;
 use App\Services\Scrap\GoogleImageScraper;
 use Illuminate\Http\Request;
 use Storage;
@@ -11,13 +11,10 @@ use Storage;
 class ScrapController extends Controller
 {
     private $googleImageScraper;
-    private $gebnegozionlineScraper;
 
-    public function __construct(GoogleImageScraper $googleImageScraper, GebnegozionlineScraper $gebnegozionlineScraper)
+    public function __construct(GoogleImageScraper $googleImageScraper)
     {
         $this->googleImageScraper = $googleImageScraper;
-        $this->gebnegozionlineScraper = $gebnegozionlineScraper;
-
     }
 
     public function index() {
@@ -58,7 +55,10 @@ class ScrapController extends Controller
 
     }
 
-    public function scrapTest() {
-        $this->gebnegozionlineScraper->scrap();
+
+    public function showGnbProducts() {
+        $products = ScrapedProducts::where('website', 'G&B')->paginate(20);
+        $title = 'G&B Products';
+        return view('scrap.scraped_images', compact('products', 'title'));
     }
 }
