@@ -5,7 +5,7 @@ namespace App\Console;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
 use App\Console\Commands\PostScheduledMedia;
-use App\Console\Commands\SyncInstagramMessage;
+//use App\Console\Commands\SyncInstagramMessage;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         PostScheduledMedia::class,
-        SyncInstagramMessage::class,
+//        SyncInstagramMessage::class,
         GetGebnegozionlineProductDetails::class,
         GetGebnegozionlineProductEntries::class,
     ];
