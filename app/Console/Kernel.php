@@ -75,7 +75,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('check:user-logins')->everyMinute();
         $schedule->command('gebnegozionline:get-products-list')
-            ->twiceDaily()
+            ->hourly()
             ->withoutOverlapping()
         ;
 
