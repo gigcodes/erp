@@ -25,8 +25,11 @@
                 </div>
 
             <div class="pull-right mt-4">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
-                <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
+              @if (Auth::user()->hasRole('Admin'))
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Send Message to All</button>
+              @endif
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
+              <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
             </div>
         </div>
     </div>
@@ -182,6 +185,49 @@
       </div>
     </div>
 
+    <div id="sendAllModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Send Message to All Customers</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <form action="{{ route('customer.whatsapp.send.all') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+              <div class="form-group">
+                <strong>Message</strong>
+                <textarea name="message" rows="8" cols="80" class="form-control"></textarea>
+              </div>
+
+              <div class="form-group">
+                <input type="file" name="image" />
+              </div>
+
+              <div class="form-group">
+                <input type="checkbox" id="send_type" name="to_all" checked>
+                <label for="send_type">Send Message to All Existing Customers</label>
+              </div>
+
+              <hr>
+
+              <div class="form-group">
+                <strong>Upload Phone Numbers</strong>
+                <input type="file" name="file" />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Send Message</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
     @if ($message = Session::get('success'))
         <div class="alert alert-success">
             <p>{{ $message }}</p>
@@ -204,7 +250,7 @@
             </ul>
         </div>
     @endif
-    <div class="table-responsive">
+    <div class="table-responsive mt-3">
       <table class="table table-bordered">
           <tr>
             <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=name{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Name</a></th>
@@ -264,7 +310,6 @@
                       Replied
                     @elseif ($customer['communication']['status'] == 1)
                       <span>Awaiting Approval</span>
-                      {{-- <a href data-url="/message/updatestatus?status=2&id={{ $customer['communication']['id'] }}&moduleid={{ $customer['communication']['moduleid'] }}&moduletype={{ $customer['communication']['moduletype'] }}" style="font-size: 9px" class="change_message_status">Approve</a> --}}
                     @elseif ($customer['communication']['status'] == 2)
                       Approved
                     @elseif ($customer['communication']['status'] == 4)
@@ -281,7 +326,6 @@
                       Replied
                     @elseif ($customer['communication']['status'] == 1)
                       <span>Awaiting Approval</span>
-                      {{-- <a href data-url="/whatsapp/approve/orders?messageId={{ $customer['communication']['id'] }}" style="font-size: 9px" class="change_message_status approve-whatsapp" data-messageid="{{ $customer['communication']['id'] }}">Approve</a> --}}
                     @elseif ($customer['communication']['status'] == 2)
                       Approved
                     @elseif ($customer['communication']['status'] == 0)
@@ -312,7 +356,6 @@
           @endforeach
       </table>
     </div>
-
 
     {!! $customers->appends(Request::except('page'))->links() !!}
 

@@ -83,14 +83,31 @@ class CustomerController extends Controller
 
       if ($sortby == 'communication') {
   			if ($orderby == 'asc') {
+          // usort($customers, 'sortByReply');
   				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['communication']['created_at'];
+            // if ($value['communication']['status'] == '5') {
+            //   return '0';
+            // }
+            //
+            // if ($value['communication']['status'] == null) {
+            //   return '10';
+            // }
+
+						return $value['communication']['created_at'];
   				}));
 
   				$customers = array_reverse($customers);
   			} else {
   				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['communication']['created_at'];
+            // if ($value['communication']['status'] == '5') {
+            //   return '0';
+            // }
+            //
+            // if ($value['communication']['status'] == null) {
+            //   return '10';
+            // }
+
+            return $value['communication']['created_at'];
   				}));
   			}
   		}
@@ -154,6 +171,16 @@ class CustomerController extends Controller
         'orderby' => $orderby,
       ]);
     }
+
+    // public function sortByReply($a, $b)
+    // {
+    //   $a = $a['status'] == 0 || $a['status'] == 5 ? 0 : 1;
+    //   if ($a['status'] == $b['status']) return 0;
+    //
+    //   if ($a['status'])
+    //
+    //   return ($a['status'])
+    // }
 
     public function load(Request $request)
     {
