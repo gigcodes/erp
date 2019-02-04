@@ -72,6 +72,11 @@
             @if ($errors->has('awb'))
               <div class="alert alert-danger">{{$errors->first('awb')}}</div>
             @endif
+            <button type="button" class="btn btn-xs btn-secondary mt-1" id="trackShipmentButton">Track</button>
+          </div>
+
+          <div class="form-group" id="tracking-container">
+
           </div>
 
           <strong>Size dimensions</strong>
@@ -145,6 +150,31 @@
     <script type="text/javascript">
       $('#date').datetimepicker({
         format: 'YYYY-MM-DD'
+      });
+
+      $('#trackShipmentButton').on('click', function() {
+        var thiss = $(this);
+        var awb = $('input[name="awb"]').val();
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('stock.track.package') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            awb: awb
+          },
+          beforeSend: function() {
+            $(thiss).text('Tracking...');
+          }
+        }).done(function(response) {
+          $(thiss).text('Track');
+
+          $('#tracking-container').html(response);
+        }).fail(function(response) {
+          $(thiss).text('Tracking...');
+          alert('Could not track this package');
+          console.log(response);
+        });
       });
     </script>
 @endsection
