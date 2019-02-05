@@ -335,7 +335,7 @@ class CustomerController extends Controller
         $order_ids[] = $order->id;
       }
       // $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
-     $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orderBy('created_at', 'DESC')->get()->toArray();
+     $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orWhere('customer_id', $customer->id)->orderBy('created_at', 'DESC')->get()->toArray();
       }
 
 
