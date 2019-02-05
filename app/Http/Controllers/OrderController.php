@@ -592,7 +592,7 @@ class OrderController extends Controller {
 		// $data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
         $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get()->toArray();
 		$data['order_status_report'] = OrderStatuses::all();
-		$data['order_reports'] = OrderReport::where('order_id', $order->id)->get();
+		$data['order_reports'] = OrderReport::where('order_id', $order->customer->id)->get();
 		$data['users_array'] = Helpers::getUserArray(User::all());
 		$data['has_customer'] = $order->customer ? $order->customer->id : false;
 		$data['customer'] = $order->customer;

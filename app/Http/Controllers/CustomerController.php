@@ -18,6 +18,7 @@ use App\Instruction;
 use App\ReplyCategory;
 use App\CallRecording;
 use App\InstructionCategory;
+use App\OrderStatus as OrderStatuses;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
@@ -346,6 +347,7 @@ class CustomerController extends Controller
       $brands = Brand::all()->toArray();
       $reply_categories = ReplyCategory::all();
       $instruction_categories = InstructionCategory::all();
+      $order_status_report = OrderStatuses::all();
 
       return view('customers.show', [
         'customers'  => $customers,
@@ -358,7 +360,8 @@ class CustomerController extends Controller
         // 'internal_replies'     => $internal_replies,
         'reply_categories'  => $reply_categories,
         'call_history' =>  $call_history,
-        'instruction_categories' =>  $instruction_categories
+        'instruction_categories' =>  $instruction_categories,
+        'order_status_report' =>  $order_status_report
       ]);
     }
 

@@ -67,6 +67,11 @@ class Order extends Model {
 		return $this->hasMany('App\OrderReport', 'order_id')->latest()->first();
 	}
 
+	public function many_reports()
+	{
+		return $this->hasMany('App\OrderReport', 'order_id')->latest();
+	}
+
 	public function whatsapps()
 	{
 		return $this->hasMany('App\ChatMessage', 'order_id')->latest()->first();
