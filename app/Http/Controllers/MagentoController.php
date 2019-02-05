@@ -242,6 +242,11 @@ class MagentoController extends Controller {
 
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
+
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date'	=> Carbon::now()
+			]);
 		}
 	}
 

@@ -515,6 +515,11 @@ class OrderController extends Controller {
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date' => Carbon::now()
+			]);
 		} elseif ($order->order_status == 'Prepaid') {
 			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
 			$requestData = new Request();
@@ -522,6 +527,11 @@ class OrderController extends Controller {
 			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date' => Carbon::now()
+			]);
 		} elseif ($order->order_status == 'Refund to be processed') {
 			$refund = Refund::where('order_id', $order->id)->first();
 
@@ -698,7 +708,10 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
 
-			$order->update(['auto_messaged' => 1]);
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date' => Carbon::now()
+			]);
 		}
 
 		if ($order->order_status == 'Refund to be processed') {
@@ -751,7 +764,10 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
 
-			$order->update(['auto_messaged' => 1]);
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date' => Carbon::now()
+			]);
 		}
 
 		if ($order->order_status == 'Refund to be processed') {
