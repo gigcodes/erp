@@ -60,7 +60,7 @@
 		$.getJSON("/twilio/getLeadByNumber?number="+ encodeURIComponent(conn.parameters.From), function( data ) {
             if (data.found) {
               console.log(JSON.stringify(data));
-              var win = window.open(data.customer_id, '_blank');
+              var win = window.open(data.customer_url, '_blank');
               if (win) {
                   //Browser has allowed it to be opened
                   win.focus();
