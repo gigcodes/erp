@@ -239,7 +239,7 @@
             @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
               <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
             @endif
-            <strong>Phone:</strong> <span data-twilio-call data-context="leads" data-id="{{ $customer->id }}">{{ $customer->phone }}</span>
+            <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span>
           </div>
 
           <div class="form-group">
@@ -385,7 +385,7 @@
                 @foreach ($customer->instructions()->whereNull('completed_at')->get() as $instruction)
                     <tr>
                       <td>
-                        <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
+                        <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
                       <td>{{ $users_array[$instruction->assigned_to] }}</td>
                       <td>{{ $instruction->category->name }}</td>
@@ -435,7 +435,7 @@
                 @foreach ($customer->instructions()->whereNotNull('completed_at')->get() as $instruction)
                     <tr>
                       <td>
-                        <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
+                        <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
                       <td>{{ $users_array[$instruction->assigned_to] }}</td>
                       <td>{{ $instruction->category->name }}</td>
