@@ -326,7 +326,16 @@ class CustomerController extends Controller
           $customer_number = $phone_number;
         }
 
-     $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
+      $lead_ids = [];
+      $order_ids = [];
+      foreach ($customer->leads as $lead) {
+        $lead_ids[] = $lead->id;
+      }
+      foreach ($customer->orders as $order) {
+        $order_ids[] = $order->id;
+      }
+      // $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
+     $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orderBy('created_at', 'DESC')->get()->toArray();
       }
 
 
