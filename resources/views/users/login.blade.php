@@ -7,7 +7,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">User Logins (not accurate yet)</h2>
+            <h2 class="page-heading">User Logins</h2>
 
             <form class="form-inline mb-3" action="{{ route('users.login.index') }}" method="GET">
               <div class='input-group date' id='login_date'>
