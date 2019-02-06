@@ -42,7 +42,7 @@ class Customer extends Model
 
 	public function whatsapps()
 	{
-		return $this->hasMany('App\ChatMessage', 'customer_id')->latest()->first();
+		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest()->first();
 	}
 
 	public function instagramThread() {

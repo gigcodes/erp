@@ -42,7 +42,7 @@ class AutoInterestMessage extends Command
     {
       $params = [
         'number'  => NULL,
-        'status'  => 1,
+        'status'  => 7, // message status for auto messaging
         'user_id' => 6,
         'message' => 'Auto attached images'
       ];
