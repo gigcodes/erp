@@ -2001,7 +2001,9 @@
                    } else if (splitted[0]==="video") {
                        $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
                    }
-               } else if (message.images) {
+               }
+
+               if (message.images) {
                  var images = '';
                  message.images.forEach(function (image) {
                    images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
@@ -2009,10 +2011,10 @@
                    images += image.product_id !== '' ? '</a>' : '';
                  });
                  images += '<br>';
-                 $(images).appendTo(p);
+                 $(images).appendTo(text);
                }
 
-               p.appendTo( text );
+               p.prependTo(text);
                meta.appendTo(text);
                if (!message.received) {
                  if (!message.approved) {
