@@ -78,7 +78,7 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
 
         $schedule->command('check:user-logins')->everyMinute();
-        $schedule->command('send:image-interest')->dailyAt('07:00');
+        $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
         $schedule->command('send:auto-reminder')->hourly();
 
         $schedule->command('gebnegozionline:get-products-list')

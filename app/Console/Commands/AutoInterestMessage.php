@@ -44,18 +44,76 @@ class AutoInterestMessage extends Command
         'number'  => NULL,
         'status'  => 7, // message status for auto messaging
         'user_id' => 6,
-        'message' => 'Auto attached images'
+        'message' => 'Auto suggestion based on leads'
       ];
 
-      $customers = Customer::with(['Leads' => function ($query) {
-        $query->whereNotNull('brand')->orWhereNotNull('multi_category')->latest();
+      $customers_leads = Customer::with(['Leads' => function ($query) {
+        $query->whereNotNull('multi_brand')->orWhereNotNull('multi_category')->latest();
       }])->whereHas('Leads', function($query) {
-        $query->whereNotNull('brand')->orWhereNotNull('multi_category');
+        $query->whereNotNull('multi_brand')->orWhereNotNull('multi_category')->latest();
       })->get()->toArray();
 
-      foreach ($customers as $customer) {
-        $category = json_decode($customer['leads'][0]['multi_category']);
-        $products = Product::where('brand', $customer['leads'][0]['brand'])->where('category', (int) $category[0])->latest()->take(20)->get();
+      $customers_orders = Customer::with(['Orders' => function ($query) {
+        $query->with(['Order_Product' => function ($order_product_query) {
+          $order_product_query->with(['Product' => function ($product_query) {
+            $product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+          }])->whereHas('Product', function ($product_query) {
+            $product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+          });
+        }])->whereHas('Order_Product', function ($order_product_query) {
+          $order_product_query->with(['Product' => function ($product_query) {
+            $product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+          }])->whereHas('Product', function ($product_query) {
+            $product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+          });
+        });
+      }])->whereHas('Orders', function($query) {
+        $query->with(['Order_Product' => function ($order_product_query) {
+          $order_product_query->with(['Product' => function ($product_query) {
+            $product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+          }])->whereHas('Product', function ($product_query) {
+            $product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+          });
+        }])->whereHas('Order_Product', function ($order_product_query) {
+          $order_product_query->with(['Product' => function ($product_query) {
+            $product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+          }])->whereHas('Product', function ($product_query) {
+            $product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+          });
+        });
+      })->get()->toArray();
+
+      foreach ($customers_leads as $customer) {
+        $brands = $customer['leads'][0]['multi_brand'] ? json_decode($customer['leads'][0]['multi_brand']) : [];
+
+        if (count($brands) > 0) {
+          $products = Product::whereIn('brand', $brands)->where('category', $customer['leads'][0]['multi_category'])->latest()->take(20)->get();
+        } else {
+          $products = Product::where('category', $customer['leads'][0]['multi_category'])->latest()->take(20)->get();
+        }
+
+        if (count($products) > 0) {
+          $params['customer_id'] = $customer['id'];
+
+          $chat_message = ChatMessage::create($params);
+
+          foreach ($products as $product) {
+            $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
+          }
+        }
+      }
+
+      $params['message'] = 'Auto suggestion based on orders';
+
+      foreach ($customers_orders as $customer) {
+        $brand = (int) $customer['orders'][0]['order__product'][0]['product']['brand'];
+        $category = (int) $customer['orders'][0]['order__product'][0]['product']['category'];
+
+        if ($brand) {
+          $products = Product::where('brand', $brand)->whereNotIn('category', [1, $category])->latest()->take(20)->get();
+        } elseif ($category != 1) {
+          $products = Product::where('category', $category)->where('brand', '!=', $brand)->latest()->take(20)->get();
+        }
 
         if (count($products) > 0) {
           $params['customer_id'] = $customer['id'];
