@@ -223,7 +223,7 @@ class MagentoController extends Controller {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . Carbon::parse($order->date_of_delivery)->format('d \of\ F');
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F');
 				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 				$requestData = new Request();
 				$requestData2 = new Request();
