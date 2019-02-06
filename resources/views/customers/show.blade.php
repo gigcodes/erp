@@ -1818,6 +1818,7 @@
                      alert(response.responseJSON.message);
                    });
              }
+
              function createMessageArgs() {
                   var data = new FormData();
                  var text = $("#waNewMessage").val();
@@ -1969,7 +1970,9 @@
                }
              } else {
                var row = $("<div class='talk-bubble'></div>");
+               var body = $("<span id='message_body_" + message.id + "'></span>");
                var text = $("<div class='talktext'></div>");
+               var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>');
                var p = $("<p class='collapsible-message'></p>");
                if (!message.received) {
                  var meta = $("<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:m') + " </em>");
@@ -2015,16 +2018,20 @@
                  $(images).appendTo(text);
                }
 
-               p.prependTo(text);
+               p.appendTo(body);
+               body.appendTo(text);
+               edit_field.appendTo(text);
                meta.appendTo(text);
                if (!message.received) {
                  if (!message.approved) {
                      var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
+                     var editBtn = ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
                      approveBtn.click(function() {
                          approveMessage( this, message );
                      } );
                      if (is_admin || is_hod_crm) {
                        approveBtn.appendTo( text );
+                       $(editBtn).appendTo( text );
                      }
                  }
                } else {
@@ -2221,6 +2228,7 @@
 
       $(document).on('click', '.edit-message', function(e) {
         e.preventDefault();
+        var thiss = $(this);
         var message_id = $(this).data('messageid');
 
         $('#message_body_' + message_id).css({'display': 'none'});
@@ -2235,12 +2243,19 @@
             var url = "{{ url('message') }}/" + message_id;
             var message = $('#edit-message-textarea' + message_id).val();
 
+            if ($(thiss).hasClass('whatsapp-message')) {
+              var type = 'whatsapp';
+            } else {
+              var type = 'message';
+            }
+
             $.ajax({
               type: 'POST',
               url: url,
               data: {
                 _token: token,
-                body: message
+                body: message,
+                type: type
               },
               success: function(data) {
                 $('#edit-message-textarea' + message_id).css({'display': 'none'});
