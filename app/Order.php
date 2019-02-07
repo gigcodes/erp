@@ -14,6 +14,7 @@ class Order extends Model {
 		'customer_id',
 		'order_type',
 		'order_date',
+		'awb',
 		'client_name',
 		'city',
 		'contact_detail',
