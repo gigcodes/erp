@@ -64,19 +64,22 @@
               var number = data.number;
               var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + conn.parameters.From + " would you like to answer call?");
 
-							var win = window.open(data.customer_url);
-              if (win) {
-                  //Browser has allowed it to be opened
-                  win.focus();
-              } else {
-                  //Browser has blocked it
-                  alert('Please allow popups for this website');
-              }
+
             } else {
                 var confirmed = window.confirm("Incoming call from: " + number + " would you like to answer call?");
             }
 
 			if (confirmed) {
+				if (data.found) {
+					var win = window.open(data.customer_url);
+					if (win) {
+							//Browser has allowed it to be opened
+							win.focus();
+					} else {
+							//Browser has blocked it
+							alert('Please allow popups for this website');
+					}
+				}
 				conn.accept();
 			} else {
 				conn.reject();
