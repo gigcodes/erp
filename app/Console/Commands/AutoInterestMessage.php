@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Customer;
 use App\Product;
 use App\ChatMessage;
+use App\Category;
 
 class AutoInterestMessage extends Command
 {
@@ -109,10 +110,35 @@ class AutoInterestMessage extends Command
         $brand = (int) $customer['orders'][0]['order__product'][0]['product']['brand'];
         $category = (int) $customer['orders'][0]['order__product'][0]['product']['category'];
 
-        if ($brand) {
-          $products = Product::where('brand', $brand)->whereNotIn('category', [1, $category])->latest()->take(20)->get();
+        if ($category != 0 && $category != 1 && $category != 2 && $category != 3) {
+          $is_parent = Category::isParent($category);
+    			$category_children = [];
+          
+    			if ($is_parent) {
+    				$children = Category::find($category)->childs()->get();
+
+    				foreach ($children as $child) {
+    					array_push($category_children, $child->id);
+    				}
+    			} else {
+            $children = Category::find($category)->parent->childs;
+
+            foreach ($children as $child) {
+              array_push($category_children, $child->id);
+            }
+
+            if (($key = array_search($category, $category_children)) !== false) {
+              unset($category_children[$key]);
+            }
+          }
+        }
+
+        if ($brand && $category != 1) {
+          $products = Product::where('brand', $brand)->whereIn('category', $category_children)->latest()->take(20)->get();
+        } elseif ($brand) {
+          $products = Product::where('brand', $brand)->latest()->take(20)->get();
         } elseif ($category != 1) {
-          $products = Product::where('category', $category)->where('brand', '!=', $brand)->latest()->take(20)->get();
+          $products = Product::where('category', $category)->latest()->take(20)->get();
         }
 
         if (count($products) > 0) {

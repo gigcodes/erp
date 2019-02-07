@@ -24,6 +24,11 @@ class Category extends Model
 		return $this->hasMany(__CLASS__,'parent_id','id') ;
 	}
 
+	public function parent()
+	{
+		return $this->hasOne('App\Category', 'id', 'parent_id');
+	}
+
 	public static function isParent($id){
 
 		$child_count = DB::table('categories as c')
@@ -45,5 +50,3 @@ class Category extends Model
 	}
 
 }
-
-
