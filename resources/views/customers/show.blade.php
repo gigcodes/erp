@@ -1468,6 +1468,11 @@
   </div>
 </div>
 
+<h2>Suggestions</h2>
+<div class="row">
+  <div class="col-12" id="suggestion-container"></div>
+</div>
+
 <h2>Messages</h2>
 <div class="row">
   <div class="col-12" id="message-container"></div>
@@ -1813,6 +1818,7 @@
 
         $(document).ready(function() {
         var container = $("div#message-container");
+        var suggestion_container = $("div#suggestion-container");
         var sendBtn = $("#waMessageSend");
         var customerId = "{{$customer->id}}";
              var addElapse = false;
@@ -2069,12 +2075,20 @@
 
                text.appendTo( row );
 
-
-               if (tobottom) {
-                 row.appendTo(container);
+               if (message.status == 7) {
+                 if (tobottom) {
+                   row.appendTo(suggestion_container);
+                 } else {
+                   row.prependTo(suggestion_container);
+                 }
                } else {
-                 row.prependTo(container);
+                 if (tobottom) {
+                   row.appendTo(container);
+                 } else {
+                   row.prependTo(container);
+                 }
                }
+
              }
 
                      return true;
