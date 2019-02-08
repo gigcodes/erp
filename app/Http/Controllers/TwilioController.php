@@ -243,6 +243,14 @@ class TwilioController extends FindByNumberController
 
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
         if (!$context) {
+          $customer = new Customer;
+
+          $customer->name = 'Customer from Call';
+          $customer->phone = $number;
+          $customer->rating = 1;
+
+          $customer->save();
+
            return response()->json(['found' => FALSE,  'number' => $number]);
         }
         if ($context == "leads") {
