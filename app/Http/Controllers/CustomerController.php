@@ -77,7 +77,10 @@ class CustomerController extends Controller
   			$customers = $customers->latest()
   			               ->orWhere('name', 'LIKE', "%$term%")
   			               ->orWhere('phone', 'LIKE', "%$term%")
-  			               ->orWhere('instahandler', 'LIKE', "%$term%");
+  			               ->orWhere('instahandler', 'LIKE', "%$term%")
+                       ->orWhereHas('Orders', function ($query) use ($term) {
+                         $query->where('order_id', 'LIKE', "%$term%");
+                       });
   		}
 
       $customers = $customers->get()->toArray();
