@@ -275,6 +275,7 @@
                 {{ (!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) ? 'text-danger' : '' }}
                 {{ (!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) ? 'text-danger' : '' }}
                 {{ ($customer['order'] && ($customer['order']['order_status'] != 'Cancel' && $customer['order']['order_status'] != 'Delivered')) ? 'text-success' : '' }}
+                {{ $customer['order'] ? '' : 'text-primary' }}
                 ">
                   <td>{{ $customer['name'] }}</td>
                   {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
