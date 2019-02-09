@@ -31,8 +31,8 @@ class SyncInstagramMessage extends Command
 
     private $messages;
 
-//    public function __construct(DirectMessage $messages)
     public function __construct()
+//    public function __construct(DirectMessage $messages)
     {
         parent::__construct();
 //        $this->messages = $messages;
