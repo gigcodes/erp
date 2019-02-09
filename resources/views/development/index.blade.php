@@ -2,6 +2,7 @@
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 
 @section('content')
@@ -17,6 +18,15 @@
                 <option value="{{ $id }}" {{ $id == $user ? 'selected' : '' }}>{{ $name }}</option>
               @endforeach
             </select>
+          </div>
+
+          <div class="form-group ml-3">
+            <input type="text" value="" name="range_start" hidden/>
+            <input type="text" value="" name="range_end" hidden/>
+            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+              <i class="fa fa-calendar"></i>&nbsp;
+              <span></span> <i class="fa fa-caret-down"></i>
+            </div>
           </div>
 
           <button type="submit" class="btn btn-secondary ml-3">Submit</button>
@@ -340,8 +350,8 @@
           @endforeach
           <tr>
             <td class="text-right"><strong>Total Paid:</strong></td>
-            <td>{{ $total_paid }} of {{ $total_cost }}</td>
-            <td><strong>Left:</strong> {{ $total_cost - $total_paid }}</td>
+            <td>{{ $total_paid }} of {{ $all_time_cost }}</td>
+            <td><strong>Left:</strong> {{ $all_time_cost - $total_paid }}</td>
           </tr>
         </table>
       </div>
@@ -597,6 +607,7 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
     $('#start_time, #end_time').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
@@ -653,6 +664,42 @@
         console.log(response);
         alert('Something went wrong');
       });
+    });
+
+    let r_s = '';
+    let r_e = '{{ date('y-m-d') }}';
+
+    let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
+    let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+    jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
+    jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
+
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#reportrange').daterangepicker({
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+    cb(start, end);
+
+    $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+
+        jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+        jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
     });
   </script>
 
