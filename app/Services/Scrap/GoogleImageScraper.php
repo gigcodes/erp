@@ -7,14 +7,13 @@ use Wa72\HtmlPageDom\HtmlPageCrawler;
 class GoogleImageScraper extends Scraper
 {
     private const GOOGLE_IMAGE_SEARCH_URL = [
-        'https://www.google.com/search?tbm=isch&source=lnms&q=',
-        'https://www.google.com/search?q=nike&source=lnms&tbm=isch&sa=X#imgrc='
+        'https://www.google.com/search?tbm=isch&source=lnms&q={query_string}&&chips=q:{query_string},g_1:lifestyle'
     ];
 
 
     public function scrapGoogleImages($q, $outputCount): array
     {
-        $body = $this->getContent(self::GOOGLE_IMAGE_SEARCH_URL[0].$q);
+        $body = $this->getContent(str_replace('{query_string}', $q, self::GOOGLE_IMAGE_SEARCH_URL[0]));
         $c = new HtmlPageCrawler($body);
         $imageJson = $c->filter('body')->filter('div.rg_meta');
 
