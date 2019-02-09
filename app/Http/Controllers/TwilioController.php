@@ -13,6 +13,7 @@ use App\Setting;
 use App\User;
 use App\Brand;
 use App\Product;
+use App\Customer;
 use App\Message;
 use App\CallRecording;
 use App\CallBusyMessage;
