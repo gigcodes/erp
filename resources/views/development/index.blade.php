@@ -184,6 +184,7 @@
             <th>Task</th>
             <th>Cost</th>
             <th>Status</th>
+            <th>Estimate</th>
             <th>Start Time</th>
             <th>End Time</th>
             <th>Action</th>
@@ -221,6 +222,7 @@
                 </td>
                 <td>{{ $task->cost }}</td>
                 <td>{{ $task->status }}</td>
+                <td>{{ $task->estimate_time ? \Carbon\Carbon::parse($task->estimate_time)->format('H:i d-m') : '' }}</td>
                 <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
                 <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
                 <td>
@@ -245,6 +247,7 @@
             <th>Task</th>
             <th>Cost</th>
             <th>Status</th>
+            <th>Estimate</th>
             <th>Start Time</th>
             <th>End Time</th>
             <th>Action</th>
@@ -276,6 +279,7 @@
                 </td>
                 <td>{{ $task->cost }}</td>
                 <td>{{ $task->status }}</td>
+                <td>{{ $task->estimate_time ? \Carbon\Carbon::parse($task->estimate_time)->format('H:i d-m') : '' }}</td>
                 <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
                 <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
                 <td>
@@ -530,9 +534,24 @@
             </div>
 
             <div class="form-group">
+              <strong>Estimate Time:</strong>
+              <div class='input-group date' id='estimate_time'>
+                <input type='text' class="form-control" name="estimate_time" id="estimate_time_field" value="{{ date('Y-m-d H:i') }}" />
+
+                <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+
+              @if ($errors->has('estimate_time'))
+                  <div class="alert alert-danger">{{$errors->first('estimate_time')}}</div>
+              @endif
+            </div>
+
+            <div class="form-group">
               <strong>Start Time:</strong>
               <div class='input-group date' id='start_time'>
-                <input type='text' class="form-control" name="start_time" id="start_time_field" value="{{ date('Y-m-d H:i') }}" />
+                <input type='text' class="form-control" name="start_time" id="start_time_field" value="{{ date('Y-m-d H:i') }}" required />
 
                 <span class="input-group-addon">
                   <span class="glyphicon glyphicon-calendar"></span>
@@ -609,7 +628,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
-    $('#start_time, #end_time').datetimepicker({
+    $('#start_time, #end_time, #estimate_time').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
 
@@ -628,6 +647,7 @@
       $('#task_field').val(task.task);
       $('#cost_field').val(task.cost);
       $('#status_field').val(task.status);
+      $('#estimate_time_field').val(task.estimate_time);
       $('#start_time_field').val(task.start_time);
       $('#end_time_field').val(task.end_time);
 
