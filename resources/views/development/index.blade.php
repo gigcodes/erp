@@ -187,6 +187,7 @@
             <th>Estimate</th>
             <th>Start Time</th>
             <th>End Time</th>
+            <th>Comments</th>
             <th>Action</th>
           </tr>
           @php
@@ -226,6 +227,11 @@
                 <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
                 <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
                 <td>
+                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $task->id }}">Add</a>
+                  <span> | </span>
+                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
+                </td>
+                <td>
                   <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
 
                   {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
@@ -250,6 +256,7 @@
             <th>Estimate</th>
             <th>Start Time</th>
             <th>End Time</th>
+            <th>Comments</th>
             <th>Action</th>
           </tr>
           @php $total_cost = 0 @endphp
@@ -282,6 +289,11 @@
                 <td>{{ $task->estimate_time ? \Carbon\Carbon::parse($task->estimate_time)->format('H:i d-m') : '' }}</td>
                 <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
                 <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+                <td>
+                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $task->id }}">Add</a>
+                  <span> | </span>
+                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
+                </td>
                 <td>
                   <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
 
@@ -359,6 +371,56 @@
           </tr>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="addRemarkModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Add New Remark</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+        </div>
+        <div class="modal-body">
+          <form id="add-remark">
+            <input type="hidden" name="id" value="">
+            <textarea rows="1" name="remark" class="form-control"></textarea>
+            <button type="button" class="btn btn-secondary mt-2" id="addRemarkButton">Add Remark</button>
+        </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="viewRemarkModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">View Remark</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+        </div>
+        <div class="modal-body">
+          <div id="remark-list">
+
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -720,6 +782,60 @@
         jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
         jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
 
+    });
+
+    $('.add-task').on('click', function(e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
+    });
+
+    $('#addRemarkButton').on('click', function() {
+      var id = $('#add-remark input[name="id"]').val();
+      var remark = $('#add-remark textarea[name="remark"]').val();
+
+      $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.addRemark') }}',
+          data: {
+            id:id,
+            remark:remark,
+            module_type: 'developer'
+          },
+      }).done(response => {
+          alert('Remark Added Success!')
+          window.location.reload();
+      }).fail(function(response) {
+        console.log(response);
+      });
+    });
+
+
+    $(".view-remark").click(function () {
+      var id = $(this).attr('data-id');
+
+        $.ajax({
+            type: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.gettaskremark') }}',
+            data: {
+              id:id,
+              module_type: "developer"
+            },
+        }).done(response => {
+            var html='';
+
+            $.each(response, function( index, value ) {
+              html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+              html+"<hr>";
+            });
+            $("#viewRemarkModal").find('#remark-list').html(html);
+        });
     });
   </script>
 
