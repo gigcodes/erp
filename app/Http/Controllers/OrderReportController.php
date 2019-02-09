@@ -47,7 +47,12 @@ class OrderReportController extends Controller
 
       $report->status_id = $request->status_id;
       $report->user_id = Auth::id();
-      $report->order_id = $request->order_id;
+
+      if ($request->order_id)
+        $report->order_id = $request->order_id;
+      else
+        $report->customer_id = $request->customer_id;
+
       $report->completion_date = $request->completion_date;
 
       $report->save();
