@@ -170,9 +170,9 @@ class LeadsController extends Controller
         $data['brands']  = $brands;
         $data['products_array'] = [];
 
-	    $data['category_select'] = Category::attr(['name' => 'multi_category[]','class' => 'form-control','id' => 'multi_category'])
+	    $data['category_select'] = Category::attr(['name' => 'multi_category','class' => 'form-control','id' => 'multi_category'])
 	                                       ->selected()
-	                                       ->renderAsMultiple();
+	                                       ->renderAsDropdown();
 
          $customer_suggestions = [];
          $customers = ( new Customer() )->newQuery()
@@ -259,8 +259,9 @@ class LeadsController extends Controller
         $data['selected_product'] = json_encode( $request->input( 'selected_product' ) );
 
 
-        $data['multi_brand'] = json_encode( $request->input( 'multi_brand' ) );
-        $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
+        $data['multi_brand'] = $request->input( 'multi_brand' ) ? json_encode( $request->input( 'multi_brand' ) ) : NULL;
+        $data['multi_category'] = $request->input('multi_category') ;
+        // $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
 
 
         $lead = Leads::create($data);
@@ -347,10 +348,10 @@ class LeadsController extends Controller
         $reply_categories = ReplyCategory::all();
 
 	    $leads['multi_brand'] = is_array(json_decode($leads['multi_brand'],true) ) ? json_decode($leads['multi_brand'],true) : [];
-	    $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
-	    $data['category_select'] = Category::attr(['name' => 'multi_category[]','class' => 'form-control','id' => 'multi_category'])
-	                                       ->selected($selected_categories)
-	                                       ->renderAsMultiple();
+      // $selected_categories = is_array(json_decode( $leads['multi_category'],true)) ? json_decode( $leads['multi_category'] ,true) : [] ;
+	    $data['category_select'] = Category::attr(['name' => 'multi_category','class' => 'form-control','id' => 'multi_category'])
+	                                       ->selected($leads->multi_category)
+	                                       ->renderAsDropdown();
 	    $leads['remark'] = $leads->remark;
 
         $messages = Message::all()->where('moduleid','=', $leads['id'])->where('moduletype','=', 'leads')->sortByDesc("created_at")->take(10)->toArray();
@@ -456,8 +457,9 @@ class LeadsController extends Controller
         $leads->comments = $request->get('comments');
         $leads->assigned_user = $request->get('assigned_user');
 
-        $leads->multi_brand = json_encode($request->get('multi_brand'));
-        $leads->multi_category = json_encode($request->get('multi_category'));
+        $leads->multi_brand = $request->input( 'multi_brand' ) ? json_encode($request->get('multi_brand')) : NULL;
+        // $leads->multi_category = json_encode($request->get('multi_category'));
+        $leads->multi_category = $request->get('multi_category');
 
         $leads->selected_product = json_encode( $request->input( 'selected_product' ) );
 

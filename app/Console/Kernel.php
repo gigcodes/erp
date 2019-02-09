@@ -6,6 +6,8 @@ use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
 use App\Console\Commands\PostScheduledMedia;
 use App\Console\Commands\CheckLogins;
+use App\Console\Commands\AutoInterestMessage;
+use App\Console\Commands\AutoReminder;
 //use App\Console\Commands\SyncInstagramMessage;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -30,6 +32,8 @@ class Kernel extends ConsoleKernel
 //        SyncInstagramMessage::class,
         GetGebnegozionlineProductDetails::class,
         GetGebnegozionlineProductEntries::class,
+        AutoInterestMessage::class,
+        AutoReminder::class,
     ];
 
     /**
@@ -74,6 +78,9 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
 
         $schedule->command('check:user-logins')->everyMinute();
+        $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
+        $schedule->command('send:auto-reminder')->hourly();
+
         $schedule->command('gebnegozionline:get-products-list')
             ->hourly()
             ->withoutOverlapping()

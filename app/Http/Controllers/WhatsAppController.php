@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Twilio\Jwt\ClientToken;
 use Twilio\Twiml;
 use Twilio\Rest\Client;
+use App\Jobs\SendMessageToAll;
+use App\Jobs\SendMessageToSelected;
 use App\Category;
 use App\Notification;
 use App\Leads;
@@ -25,7 +27,9 @@ use App\NotificationQueue;
 use App\Purchase;
 use App\Customer;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Imports\CustomerNumberImport;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -509,7 +513,7 @@ class WhatsAppController extends FindByNumberController
          if ($message['media_url']) {
             $messageParams['media_url'] = $message['media_url'];
             $headers = get_headers($message['media_url'], 1);
-            $messageParams['content_type'] = $headers["Content-Type"];
+            $messageParams['content_type'] = $headers["Content-Type"][1];
          }
          if ($message['message']) {
             $messageParams['message'] = $message['message'];
@@ -639,7 +643,7 @@ class WhatsAppController extends FindByNumberController
          if ($message['media_url']) {
             $messageParams['media_url'] = $message['media_url'];
             $headers = get_headers($message['media_url'], 1);
-            $messageParams['content_type'] = $headers["Content-Type"];
+            $messageParams['content_type'] = $headers["Content-Type"][1];
          }
          if ($message['message']) {
             $messageParams['message'] = $message['message'];
@@ -783,22 +787,22 @@ class WhatsAppController extends FindByNumberController
                 } elseif ($context == "customer") {
                     $customer = Customer::find($message->customer_id);
 
-                    if ($leads = $customer->leads) {
-                      foreach ($leads as $lead) {
-                        if ($lead->whatsapp_number) {
-                          $whatsapp_number = $lead->whatsapp_number;
-                        }
-                      }
-                    }
-                    if ($orders = $customer->orders) {
-                      foreach ($orders as $order) {
-                        if ($order->whatsapp_number) {
-                          $whatsapp_number = $order->whatsapp_number;
-                        }
-                      }
-                    }
+                    // if ($leads = $customer->leads) {
+                    //   foreach ($leads as $lead) {
+                    //     if ($lead->whatsapp_number) {
+                    //       $whatsapp_number = $lead->whatsapp_number;
+                    //     }
+                    //   }
+                    // }
+                    // if ($orders = $customer->orders) {
+                    //   foreach ($orders as $order) {
+                    //     if ($order->whatsapp_number) {
+                    //       $whatsapp_number = $order->whatsapp_number;
+                    //     }
+                    //   }
+                    // }
 
-                    $this->sendWithWhatsApp( $message->customer->phone,$whatsapp_number, $send);
+                    $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send);
                 } elseif($context == 'purchase') {
                   $purchase = Purchase::find($message->purchase_id);
                   $this->sendWithWhatsApp($purchase->supplier_phone,$purchase->whatsapp_number, $send);
@@ -814,22 +818,22 @@ class WhatsAppController extends FindByNumberController
             } elseif ($context == "customer") {
                 $customer = Customer::find($message->customer_id);
 
-                if ($leads = $customer->leads) {
-                  foreach ($leads as $lead) {
-                    if ($lead->whatsapp_number) {
-                      $whatsapp_number = $lead->whatsapp_number;
-                    }
-                  }
-                }
-                if ($orders = $customer->orders) {
-                  foreach ($orders as $order) {
-                    if ($order->whatsapp_number) {
-                      $whatsapp_number = $order->whatsapp_number;
-                    }
-                  }
-                }
+                // if ($leads = $customer->leads) {
+                //   foreach ($leads as $lead) {
+                //     if ($lead->whatsapp_number) {
+                //       $whatsapp_number = $lead->whatsapp_number;
+                //     }
+                //   }
+                // }
+                // if ($orders = $customer->orders) {
+                //   foreach ($orders as $order) {
+                //     if ($order->whatsapp_number) {
+                //       $whatsapp_number = $order->whatsapp_number;
+                //     }
+                //   }
+                // }
 
-                $this->sendWithWhatsApp( $message->customer->phone,$whatsapp_number, $send);
+                $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send);
             } elseif ($context == 'purchase') {
               $purchase = Purchase::find($message->purchase_id);
               $this->sendWithWhatsApp($purchase->supplier_phone,$purchase->whatsapp_number, $send);
@@ -845,11 +849,50 @@ class WhatsAppController extends FindByNumberController
         return response("success");
     }
 
-	public function sendWithWhatsApp($number, $sendNumber, $text)
+  public function sendToAll(Request $request)
+  {
+    $this->validate($request, [
+      'message' => 'required_without:image',
+      'image'   => 'required_without:message',
+      'file'    => 'sometimes|mimes:xlsx,xls'
+    ]);
+
+    if ($request->message) {
+      $content['message'] = $request->message;
+    } else {
+      $content['message'] = NULL;
+      $content['image']['key'] = MediaUploader::fromSource($request->file('image'))->upload()->getKey();
+      $content['image']['url'] = MediaUploader::fromSource($request->file('image'))->upload()->getUrl();
+    }
+
+    if ($request->to_all) {
+      $data = Customer::whereNotNull('phone')->chunk(100, function ($customers) use ($content) {
+        foreach ($customers as $customer) {
+          SendMessageToAll::dispatch(Auth::id(), $customer, $content);
+        }
+      });
+    } else {
+      $array = Excel::toArray(new CustomerNumberImport, $request->file('file'));
+
+      foreach ($array as $item) {
+        foreach ($item as $it) {
+          $number = (int)$it[0];
+
+          SendMessageToSelected::dispatch($number, $content);
+        }
+      }
+    }
+
+    return redirect()->route('customer.index')->with('success', 'Messages are being sent in the background!');
+  }
+
+	public function sendWithWhatsApp($number, $sendNumber, $text, $validation = true)
 	{
-    if (Auth::id() != 3) {
-      if (strlen($number) != 12 || !preg_match('/^[91]{2}/', $number)) {
-        throw new \Exception("Invalid number format. Must be 12 digits and start with 91");
+    if ($validation == true) {
+      if (Auth::id() != 3) {
+        if (strlen($number) != 12 || !preg_match('/^[91]{2}/', $number)) {
+          throw new \Exception("Invalid number format. Must be 12 digits and start with 91");
+        }
       }
     }
 

@@ -52,7 +52,7 @@ class OrderReportController extends Controller
 
       $report->save();
 
-      $order = Order::find($report->order_id);
+      // $order = Order::find($report->order_id);
       //
       // if ($order->sales_person) {
       //   NotificationQueueController::createNewNotification([

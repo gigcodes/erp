@@ -73,7 +73,7 @@
                 <tr>
                   <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ isset($instruction->customer) ? $instruction->customer->name : '' }}</a></td>
                   <td>
-                    <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
+                    <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer_id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] }}</td>
                   <td>{{ $instruction->category->name }}</td>
@@ -127,7 +127,7 @@
                   <tr>
                     <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ isset($instruction->customer) ? $instruction->customer->name : '' }}</a></td>
                     <td>
-                      <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
+                      <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer_id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
                     </td>
                     <td>{{ $users_array[$instruction->assigned_to] }}</td>
                     <td>{{ $instruction->category->name }}</td>

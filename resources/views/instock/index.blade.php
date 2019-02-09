@@ -88,13 +88,13 @@
        $(".select-multiple").multiselect();
     });
 
-    $('#product-search').autocomplete({
-      source: function(request, response) {
-        var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
-
-        response(results.slice(0, 10));
-      }
-    });
+    // $('#product-search').autocomplete({
+    //   source: function(request, response) {
+    //     var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+    //
+    //     response(results.slice(0, 10));
+    //   }
+    // });
 
     $(document).on('click', '.pagination a', function(e) {
       e.preventDefault();

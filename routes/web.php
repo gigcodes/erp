@@ -23,6 +23,8 @@ Route::get('/productselection/list','ProductSelectionController@sList')->name('p
 Route::get('/productsearcher/list','ProductSearcherController@sList')->name('productsearcher.list');
 // adding chat contro
 
+Route::get('/mageOrders', 'MagentoController@get_magento_orders');
+
 	Route::get('/message', 'MessageController@index')->name('message');
 	Route::post('/message', 'MessageController@store')->name('message.store');
 	Route::post('/message/{message}', 'MessageController@update')->name('message.update');
@@ -51,6 +53,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('productinventory','ProductInventoryController');
 	Route::resource('sales','SaleController');
 	Route::resource('stock','StockController');
+	Route::post('stock/track/package', 'StockController@trackPackage')->name('stock.track.package');
 	Route::delete('stock/{id}/permanentDelete', 'StockController@permanentDelete')->name('stock.permanentDelete');
 	Route::post('stock/privateViewing/create', 'StockController@privateViewingStore')->name('stock.privateViewing.store');
 	Route::get('stock/private/viewing', 'StockController@privateViewing')->name('stock.private.viewing');
@@ -152,6 +155,7 @@ Route::middleware('auth')->group(function (){
 	Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
 	Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
 	Route::delete('customer/{id}/destroy', 'CustomerController@destroy')->name('customer.destroy');
+	Route::post('customer/send/message/all', 'WhatsAppController@sendToAll')->name('customer.whatsapp.send.all');
 
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');

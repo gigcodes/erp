@@ -239,7 +239,7 @@
             @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
               <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
             @endif
-            <strong>Phone:</strong> <span data-twilio-call data-context="leads" data-id="{{ $customer->id }}">{{ $customer->phone }}</span>
+            <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span>
           </div>
 
           <div class="form-group">
@@ -385,7 +385,7 @@
                 @foreach ($customer->instructions()->whereNull('completed_at')->get() as $instruction)
                     <tr>
                       <td>
-                        <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
+                        <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
                       <td>{{ $users_array[$instruction->assigned_to] }}</td>
                       <td>{{ $instruction->category->name }}</td>
@@ -435,7 +435,7 @@
                 @foreach ($customer->instructions()->whereNotNull('completed_at')->get() as $instruction)
                     <tr>
                       <td>
-                        <span data-twilio-call data-context="leads" data-id="{{ $instruction->id }}">{{ $instruction->customer->phone }}</span>
+                        <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
                       <td>{{ $users_array[$instruction->assigned_to] }}</td>
                       <td>{{ $instruction->category->name }}</td>
@@ -607,10 +607,11 @@
                       <div class="form-group">
                         <strong>Categories</strong>
                         @php
-                        $selected_categories = is_array(json_decode( $lead->multi_category,true)) ? json_decode( $lead->multi_category ,true) : [] ;
-                        $category_selection = \App\Category::attr(['name' => 'multi_category[]','class' => 'form-control multi_category'])
-                        ->selected($selected_categories)
-                        ->renderAsMultiple();
+                        $selected_category = $lead->multi_category ? $lead->multi_category : '';
+                        // $selected_categories = is_array(json_decode( $lead->multi_category,true)) ? json_decode( $lead->multi_category ,true) : [] ;
+                        $category_selection = \App\Category::attr(['name' => 'multi_category','class' => 'form-control'])
+                        ->selected($selected_category)
+                        ->renderAsDropdown();
                         @endphp
                         {!! $category_selection  !!}
                       </div>
@@ -895,6 +896,18 @@
                              <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
                          </div>
 
+                         <div id="tracking-wrapper-{{ $order->id }}" style="display: {{ $order->order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
+                           <div class="form-group">
+                             <strong>AWB Number:</strong>
+                             <input type="text" name="awb" class="form-control" id="awb_field_{{ $order->id }}" value="{{ $order->awb }}" placeholder="00000000000">
+                             <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $order->id }}">Track</button>
+                           </div>
+
+                           <div class="form-group" id="tracking-container-{{ $order->id }}">
+
+                           </div>
+                         </div>
+
                          <div class="form-group">
                              <strong>Estimated Delivery Date:</strong>
                              <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
@@ -1035,10 +1048,108 @@
                       </div>
                   </div>
                 </form>
+
+                <div class="row">
+                  <div class="col-md-6 col-12 mb-3">
+                    <form action="{{ route('status.report.store') }}" method="POST">
+                      @csrf
+
+                      <input type="hidden" name="order_id" value="{{ $order->id }}">
+
+                      <div class="form-group">
+                        <strong>Next action due</strong>
+                        <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
+
+                        <select class="form-control" name="status_id" required>
+                          <option value="">Select action</option>
+                          @foreach ($order_status_report as $status)
+                            <option value="{{ $status->id }}">{{ $status->status }}</option>
+                          @endforeach
+                        </select>
+                      </div>
+
+                      <div class="form-group" id="completion_form_group">
+                        <strong>Completion Date:</strong>
+                        <div class='input-group date' id='report-completion-datetime'>
+                          <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                          <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                          </span>
+                        </div>
+
+                        @if ($errors->has('completion_date'))
+                            <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                        @endif
+                      </div>
+
+                      <button type="submit" class="btn btn-secondary">Add Report</button>
+                    </form>
+
+                    @if (count($order->many_reports) > 0)
+                      <h4>Order Reports</h4>
+
+                      <table class="table table-bordered mt-4">
+                        <thead>
+                          <tr>
+                            <th>Status</th>
+                            <th>Created at</th>
+                            <th>Creator</th>
+                            <th>Due date</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          @foreach ($order->many_reports as $report)
+                            <tr>
+                              <td>{{ $report->status }}</td>
+                              <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
+                              <td>{{ $users_array[$report->user_id] }}</td>
+                              <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
+                            </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                    @endif
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         @endforeach
+      </div>
+    </div>
+
+    <div id="statusModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Action</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <form action="{{ route('status.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <div class="modal-body">
+              <div class="form-group">
+                  <strong>Order Status:</strong>
+                   <input type="text" class="form-control" name="status" placeholder="Order Status" id="status" required />
+                   @if ($errors->has('status'))
+                       <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                   @endif
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Create</button>
+            </div>
+          </form>
+        </div>
+
       </div>
     </div>
 
@@ -1357,6 +1468,11 @@
   </div>
 </div>
 
+<h2>Suggestions</h2>
+<div class="row">
+  <div class="col-12" id="suggestion-container"></div>
+</div>
+
 <h2>Messages</h2>
 <div class="row">
   <div class="col-12" id="message-container"></div>
@@ -1427,7 +1543,7 @@
 
 
 
-    $('#date').datetimepicker({
+    $('#date, #report-completion-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
       @if ($customer->instagramThread)
@@ -1577,7 +1693,12 @@
               status: status
             }
           }).done( function(response) {
+            if ($(thiss).hasClass('order_status') && status == 'Product shiped to Client') {
+              $('#tracking-wrapper-' + id).css({'display' : 'block'});
+            }
+
             $(thiss).siblings('.change_status_message').fadeIn(400);
+
             setTimeout(function () {
               $(thiss).siblings('.change_status_message').fadeOut(400);
             }, 2000);
@@ -1697,6 +1818,7 @@
 
         $(document).ready(function() {
         var container = $("div#message-container");
+        var suggestion_container = $("div#suggestion-container");
         var sendBtn = $("#waMessageSend");
         var customerId = "{{$customer->id}}";
              var addElapse = false;
@@ -1719,6 +1841,7 @@
                      alert(response.responseJSON.message);
                    });
              }
+
              function createMessageArgs() {
                   var data = new FormData();
                  var text = $("#waNewMessage").val();
@@ -1870,7 +1993,9 @@
                }
              } else {
                var row = $("<div class='talk-bubble'></div>");
+               var body = $("<span id='message_body_" + message.id + "'></span>");
                var text = $("<div class='talktext'></div>");
+               var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>');
                var p = $("<p class='collapsible-message'></p>");
                if (!message.received) {
                  var meta = $("<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:m') + " </em>");
@@ -1903,7 +2028,9 @@
                    } else if (splitted[0]==="video") {
                        $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
                    }
-               } else if (message.images) {
+               }
+
+               if (message.images) {
                  var images = '';
                  message.images.forEach(function (image) {
                    images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
@@ -1911,19 +2038,23 @@
                    images += image.product_id !== '' ? '</a>' : '';
                  });
                  images += '<br>';
-                 $(images).appendTo(p);
+                 $(images).appendTo(text);
                }
 
-               p.appendTo( text );
+               p.appendTo(body);
+               body.appendTo(text);
+               edit_field.appendTo(text);
                meta.appendTo(text);
                if (!message.received) {
                  if (!message.approved) {
                      var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
+                     var editBtn = ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
                      approveBtn.click(function() {
                          approveMessage( this, message );
                      } );
                      if (is_admin || is_hod_crm) {
                        approveBtn.appendTo( text );
+                       $(editBtn).appendTo( text );
                      }
                  }
                } else {
@@ -1944,12 +2075,20 @@
 
                text.appendTo( row );
 
-
-               if (tobottom) {
-                 row.appendTo(container);
+               if (message.status == 7) {
+                 if (tobottom) {
+                   row.appendTo(suggestion_container);
+                 } else {
+                   row.prependTo(suggestion_container);
+                 }
                } else {
-                 row.prependTo(container);
+                 if (tobottom) {
+                   row.appendTo(container);
+                 } else {
+                   row.prependTo(container);
+                 }
                }
+
              }
 
                      return true;
@@ -2120,6 +2259,7 @@
 
       $(document).on('click', '.edit-message', function(e) {
         e.preventDefault();
+        var thiss = $(this);
         var message_id = $(this).data('messageid');
 
         $('#message_body_' + message_id).css({'display': 'none'});
@@ -2134,12 +2274,19 @@
             var url = "{{ url('message') }}/" + message_id;
             var message = $('#edit-message-textarea' + message_id).val();
 
+            if ($(thiss).hasClass('whatsapp-message')) {
+              var type = 'whatsapp';
+            } else {
+              var type = 'message';
+            }
+
             $.ajax({
               type: 'POST',
               url: url,
               data: {
                 _token: token,
-                body: message
+                body: message,
+                type: type
               },
               success: function(data) {
                 $('#edit-message-textarea' + message_id).css({'display': 'none'});
@@ -2462,6 +2609,32 @@
               });
               $("#viewRemarkModal").find('#remark-list').html(html);
           });
+      });
+
+      $(document).on('click', '.track-shipment-button', function() {
+        var thiss = $(this);
+        var order_id = $(this).data('id');
+        var awb = $('#awb_field_' + order_id).val();
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('stock.track.package') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            awb: awb
+          },
+          beforeSend: function() {
+            $(thiss).text('Tracking...');
+          }
+        }).done(function(response) {
+          $(thiss).text('Track');
+
+          $('#tracking-container-' + order_id).html(response);
+        }).fail(function(response) {
+          $(thiss).text('Tracking...');
+          alert('Could not track this package');
+          console.log(response);
+        });
       });
   </script>
 @endsection

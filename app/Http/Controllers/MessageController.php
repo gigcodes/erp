@@ -255,12 +255,17 @@ class MessageController extends Controller
      */
     public function update(Request $request, $id)
     {
-       $message = Message::find($id);
+      if ($request->type == 'message') {
+        $message = Message::find($id);
+        $message->body = $request->get('body');
+        $message->save();
+      } elseif ($request->type == 'whatsapp') {
+        $message = ChatMessage::find($id);
+        $message->message = $request->get('body');
+        $message->save();
+      }
 
-       $message->body = $request->get('body');
-
-       $message->save();
-       return response(['message' => 'Success']);
+      return response(['message' => 'Success']);
     }
 
     public function updatestatus(Request $request )

@@ -504,7 +504,7 @@ class OrderController extends Controller {
 				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 			}
 
-			$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . Carbon::parse($order->date_of_delivery)->format('d \of\ F');
+			$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F');
 			$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 			$requestData = new Request();
 			$requestData2 = new Request();
@@ -515,6 +515,11 @@ class OrderController extends Controller {
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date' => Carbon::now()
+			]);
 		} elseif ($order->order_status == 'Prepaid') {
 			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
 			$requestData = new Request();
@@ -522,6 +527,11 @@ class OrderController extends Controller {
 			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date' => Carbon::now()
+			]);
 		} elseif ($order->order_status == 'Refund to be processed') {
 			$refund = Refund::where('order_id', $order->id)->first();
 
@@ -592,7 +602,7 @@ class OrderController extends Controller {
 		// $data['internal_replies'] = Reply::where('model', 'Internal Order')->get();
         $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get()->toArray();
 		$data['order_status_report'] = OrderStatuses::all();
-		$data['order_reports'] = OrderReport::where('order_id', $order->id)->get();
+		$data['order_reports'] = OrderReport::where('order_id', $order->customer->id)->get();
 		$data['users_array'] = Helpers::getUserArray(User::all());
 		$data['has_customer'] = $order->customer ? $order->customer->id : false;
 		$data['customer'] = $order->customer;
@@ -678,7 +688,7 @@ class OrderController extends Controller {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . Carbon::parse($order->date_of_delivery)->format('d \of\ F');
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F');
 				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 				$requestData = new Request();
 				$requestData2 = new Request();
@@ -698,7 +708,10 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
 
-			$order->update(['auto_messaged' => 1]);
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date' => Carbon::now()
+			]);
 		}
 
 		if ($order->order_status == 'Refund to be processed') {
@@ -731,7 +744,7 @@ class OrderController extends Controller {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . Carbon::parse($order->date_of_delivery)->format('d \of\ F');
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F');
 				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 				$requestData = new Request();
 				$requestData2 = new Request();
@@ -751,7 +764,10 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
 
-			$order->update(['auto_messaged' => 1]);
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date' => Carbon::now()
+			]);
 		}
 
 		if ($order->order_status == 'Refund to be processed') {

@@ -8,6 +8,7 @@ use Twilio\Rest\Client;
 use App\Category;
 use App\Notification;
 use App\Leads;
+use App\Customer;
 use App\Order;
 use App\Status;
 use App\Setting;
@@ -28,6 +29,10 @@ class FindByNumberController extends Controller
 	{
 		return Leads::where('contactno', '=', $number)->first();
 	}
+	protected function findCustomerByNumber($number)
+	{
+		return Customer::where('phone', '=', $number)->first();
+	}
     protected function findOrderByNumber($number)
 	{
 		return Order::where('contact_detail', '=', $number)->first();
@@ -43,16 +48,33 @@ class FindByNumberController extends Controller
 		return User::where('phone', '=', $number)->first();
 	}
 
-    protected function findLeadOrOrderByNumber($number)
-    {
-        $lead = $this->findLeadByNumber($number);
-        if($lead) {
-            return array("leads", $lead);
-        }
-        $order = $this->findOrderByNumber($number);
-        if ($order) {
-            return array("orders", $order);
-        }
-        return array(FALSE, FALSE);
+  protected function findLeadOrOrderByNumber($number)
+  {
+      $lead = $this->findLeadByNumber($number);
+      if($lead) {
+          return array("leads", $lead);
+      }
+      $order = $this->findOrderByNumber($number);
+      if ($order) {
+          return array("orders", $order);
+      }
+      return array(FALSE, FALSE);
+  }
+
+	protected function findCustomerOrLeadOrOrderByNumber($number)
+  {
+		$customer = $this->findCustomerByNumber($number);
+		if($customer) {
+				return array("customers", $customer);
+		}
+    $lead = $this->findLeadByNumber($number);
+    if($lead) {
+        return array("leads", $lead);
     }
+    $order = $this->findOrderByNumber($number);
+    if ($order) {
+        return array("orders", $order);
+    }
+    return array(FALSE, FALSE);
+  }
 }

@@ -146,6 +146,18 @@
                              <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
                          </div>
 
+                         <div id="tracking-wrapper-{{ $id }}" style="display: {{ $order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
+                           <div class="form-group">
+                             <strong>AWB Number:</strong>
+                             <input type="text" name="awb" class="form-control" id="awb_field_{{ $id }}" value="{{ $awb }}" placeholder="00000000000">
+                             <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $id }}">Track</button>
+                           </div>
+
+                           <div class="form-group" id="tracking-container-{{ $id }}">
+
+                           </div>
+                         </div>
+
                          <div class="form-group">
                              <strong>Estimated Delivery Date:</strong>
                              <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
@@ -1484,6 +1496,7 @@
           status: status
         }
       }).done( function(response) {
+        $('#tracking-wrapper-' + id).css({'display' : 'block'});
         $('#change_status_message').fadeIn(400);
         setTimeout(function () {
           $('#change_status_message').fadeOut(400);
@@ -2102,6 +2115,32 @@
   }
 
   $(this).closest('form').submit();
+  });
+
+  $(document).on('click', '.track-shipment-button', function() {
+    var thiss = $(this);
+    var order_id = $(this).data('id');
+    var awb = $('#awb_field_' + order_id).val();
+
+    $.ajax({
+      type: "POST",
+      url: "{{ route('stock.track.package') }}",
+      data: {
+        _token: "{{ csrf_token() }}",
+        awb: awb
+      },
+      beforeSend: function() {
+        $(thiss).text('Tracking...');
+      }
+    }).done(function(response) {
+      $(thiss).text('Track');
+
+      $('#tracking-container-' + order_id).html(response);
+    }).fail(function(response) {
+      $(thiss).text('Tracking...');
+      alert('Could not track this package');
+      console.log(response);
+    });
   });
 
   </script>

@@ -14,6 +14,7 @@ class Order extends Model {
 		'customer_id',
 		'order_type',
 		'order_date',
+		'awb',
 		'client_name',
 		'city',
 		'contact_detail',
@@ -31,6 +32,7 @@ class Order extends Model {
 		'received_by',
 		'payment_mode',
 		'auto_messaged',
+		'auto_messaged_date',
 		'remark',
         'whatsapp_number',
 		'user_id',
@@ -65,6 +67,11 @@ class Order extends Model {
 	public function reports()
 	{
 		return $this->hasMany('App\OrderReport', 'order_id')->latest()->first();
+	}
+
+	public function many_reports()
+	{
+		return $this->hasMany('App\OrderReport', 'order_id')->latest();
 	}
 
 	public function whatsapps()

@@ -18,6 +18,7 @@ use App\Instruction;
 use App\ReplyCategory;
 use App\CallRecording;
 use App\InstructionCategory;
+use App\OrderStatus as OrderStatuses;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
@@ -76,21 +77,41 @@ class CustomerController extends Controller
   			$customers = $customers->latest()
   			               ->orWhere('name', 'LIKE', "%$term%")
   			               ->orWhere('phone', 'LIKE', "%$term%")
-  			               ->orWhere('instahandler', 'LIKE', "%$term%");
+  			               ->orWhere('instahandler', 'LIKE', "%$term%")
+                       ->orWhereHas('Orders', function ($query) use ($term) {
+                         $query->where('order_id', 'LIKE', "%$term%");
+                       });
   		}
 
       $customers = $customers->get()->toArray();
 
       if ($sortby == 'communication') {
   			if ($orderby == 'asc') {
+          // usort($customers, 'sortByReply');
   				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['communication']['created_at'];
+            // if ($value['communication']['status'] == '5') {
+            //   return '0';
+            // }
+            //
+            // if ($value['communication']['status'] == null) {
+            //   return '10';
+            // }
+
+						return $value['communication']['created_at'];
   				}));
 
   				$customers = array_reverse($customers);
   			} else {
   				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['communication']['created_at'];
+            // if ($value['communication']['status'] == '5') {
+            //   return '0';
+            // }
+            //
+            // if ($value['communication']['status'] == null) {
+            //   return '10';
+            // }
+
+            return $value['communication']['created_at'];
   				}));
   			}
   		}
@@ -154,6 +175,16 @@ class CustomerController extends Controller
         'orderby' => $orderby,
       ]);
     }
+
+    // public function sortByReply($a, $b)
+    // {
+    //   $a = $a['status'] == 0 || $a['status'] == 5 ? 0 : 1;
+    //   if ($a['status'] == $b['status']) return 0;
+    //
+    //   if ($a['status'])
+    //
+    //   return ($a['status'])
+    // }
 
     public function load(Request $request)
     {
@@ -299,7 +330,16 @@ class CustomerController extends Controller
           $customer_number = $phone_number;
         }
 
-     $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
+      $lead_ids = [];
+      $order_ids = [];
+      foreach ($customer->leads as $lead) {
+        $lead_ids[] = $lead->id;
+      }
+      foreach ($customer->orders as $order) {
+        $order_ids[] = $order->id;
+      }
+      // $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
+     $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orWhere('customer_id', $customer->id)->orderBy('created_at', 'DESC')->get()->toArray();
       }
 
 
@@ -310,6 +350,7 @@ class CustomerController extends Controller
       $brands = Brand::all()->toArray();
       $reply_categories = ReplyCategory::all();
       $instruction_categories = InstructionCategory::all();
+      $order_status_report = OrderStatuses::all();
 
       return view('customers.show', [
         'customers'  => $customers,
@@ -322,7 +363,8 @@ class CustomerController extends Controller
         // 'internal_replies'     => $internal_replies,
         'reply_categories'  => $reply_categories,
         'call_history' =>  $call_history,
-        'instruction_categories' =>  $instruction_categories
+        'instruction_categories' =>  $instruction_categories,
+        'order_status_report' =>  $order_status_report
       ]);
     }
 
