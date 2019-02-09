@@ -843,7 +843,8 @@ class WhatsAppController extends FindByNumberController
 
           $message->update([
               'approved' => 1,
-              'status'   => 2
+              'status'   => 2,
+              'created_at'  => Carbon::now()
           ]);
 
         return response("success");
