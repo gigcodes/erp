@@ -2,6 +2,7 @@
 
 namespace App\Services\Instagram;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use InstagramAPI\Instagram;
 use InstagramAPI\Media\Photo\InstagramPhoto;
 
@@ -23,6 +24,7 @@ class DirectMessage {
         try {
             $r = $this->instagram->login($username, $password);
         } catch (Exception $Exception) {
+            Bugsnag::notifyException($Exception);
             if ($Exception instanceof ChallengeRequiredException)
             {
                 sleep(5);
