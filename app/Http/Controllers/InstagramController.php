@@ -8,7 +8,7 @@ use App\Customer;
 use App\Image;
 use App\ImageSchedule;
 use App\ScheduleGroup;
-//use App\Services\Instagram\DirectMessage;
+use App\Services\Instagram\DirectMessage;
 use App\Services\Instagram\Instagram;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
