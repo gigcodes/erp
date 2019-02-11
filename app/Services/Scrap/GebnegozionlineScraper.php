@@ -8,7 +8,7 @@ use Wa72\HtmlPageDom\HtmlPageCrawler;
 class GebnegozionlineScraper extends Scraper
 {
     private const URL = [
-        'homepage' => 'https://www.gebnegozionline.com/',
+        'homepage' => 'https://www.gebnegozionline.com/en_wr/',
         'designers' => 'https://www.gebnegozionline.com/en_it/women/designers'
     ];
 
