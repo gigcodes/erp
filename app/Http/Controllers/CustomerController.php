@@ -334,8 +334,9 @@ class CustomerController extends Controller
     {
       $customer = Customer::find($id);
       $customers = Customer::all();
+        $call_history = [];
 
-      if($customer->phone != ''){
+        if($customer->phone != ''){
         $phone_number = str_replace('+', '', $customer->phone);
         if (strlen($phone_number) > 10) {
          $customer_number = str_replace('91', '', $phone_number);
@@ -351,6 +352,7 @@ class CustomerController extends Controller
       foreach ($customer->orders as $order) {
         $order_ids[] = $order->id;
       }
+
       // $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
      $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orWhere('customer_id', $customer->id)->orderBy('created_at', 'DESC')->get()->toArray();
       }
