@@ -367,6 +367,7 @@ class ProductController extends Controller {
 		$product->price = $request->price;
 		$product->brand = $request->brand;
 		$product->color = $request->color;
+		$product->supplier = $request->supplier;
 
 		$product->save();
 
@@ -396,5 +397,7 @@ class ProductController extends Controller {
 
 			return response(['product' => $product, 'product_image' => $product_image]);
 		}
+
+		return redirect()->back()->with('success', 'You have successfully uploaded product!');
 	}
 }
