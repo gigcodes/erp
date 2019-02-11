@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Customer extends Model
 {
   use SoftDeletes;
-  protected $appends = ['communication', 'lead', 'order'];
+  protected $appends = ['communication'];
   protected $fillable = [
     'name', 'phone', 'city', 'whatsapp_number'
   ];
@@ -48,9 +48,19 @@ class Customer extends Model
 		return $this->hasMany('App\Message', 'customer_id')->latest()->first();
 	}
 
+  public function messages_all()
+	{
+		return $this->hasMany('App\Message', 'customer_id')->latest();
+	}
+
 	public function whatsapps()
 	{
 		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest()->first();
+	}
+
+  public function whatsapps_all()
+	{
+		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest();
 	}
 
 	public function instagramThread() {

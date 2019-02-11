@@ -301,8 +301,8 @@
                 {{ ((!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }}
                 {{ (!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) ? 'text-danger' : '' }}
                 {{ (!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) ? 'text-danger' : '' }}
-                {{ ($customer['order'] && ($customer['order']['order_status'] != 'Cancel' && $customer['order']['order_status'] != 'Delivered')) ? 'text-success' : '' }}
-                {{ $customer['order'] ? '' : 'text-primary' }}
+                {{ ($customer['orders'] && ($customer['orders'][0]['order_status'] != 'Cancel' && $customer['orders'][0]['order_status'] != 'Delivered')) ? 'text-success' : '' }}
+                {{ $customer['orders'] ? '' : 'text-primary' }}
                 ">
                   <td>{{ $customer['name'] }}</td>
                   {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
@@ -311,28 +311,28 @@
                     <td>{{ $customer['instahandler'] }}</td>
                   @endif --}}
                   <td>
-                    @if ($customer['lead'])
-                      {{ $customer['lead']['rating'] }}
+                    @if ($customer['leads'])
+                      {{ $customer['leads'][0]['rating'] }}
                     @endif
                   </td>
                   <td>
-                    @if ($customer['lead'])
+                    @if ($customer['leads'])
                       @php $status = array_flip((new \App\Status)->all()); @endphp
-                      {{ $status[$customer['lead']['status']] }}
+                      {{ $status[$customer['leads'][0]['status']] }}
                     @endif
-                    {{ $customer['lead'] && $customer['order'] ? ' / ' : '' }}
-                    @if ($customer['order'])
-                      {{ $customer['order']['order_status'] }}
-                    @endif
-                  </td>
-                  <td>
-                    @if ($customer['lead'])
-                      {{ Carbon\Carbon::parse($customer['lead']['created_at'])->format('d-m') }}
+                    {{ $customer['leads'] && $customer['orders'] ? ' / ' : '' }}
+                    @if ($customer['orders'])
+                      {{ $customer['orders'][0]['order_status'] }}
                     @endif
                   </td>
                   <td>
-                    @if ($customer['order'])
-                      {{ Carbon\Carbon::parse($customer['order']['created_at'])->format('d-m') }}
+                    @if ($customer['leads'])
+                      {{ Carbon\Carbon::parse($customer['leads'][0]['created_at'])->format('d-m') }}
+                    @endif
+                  </td>
+                  <td>
+                    @if ($customer['orders'])
+                      {{ Carbon\Carbon::parse($customer['orders'][0]['created_at'])->format('d-m') }}
                     @endif
                   </td>
                   <td>
