@@ -15,9 +15,9 @@ class DirectMessage {
     public function __construct(Instagram $instagram)
     {
         $this->instagram = $instagram;
-        $username = env('IG_USERNAME', 'sololuxury');
-        $password = env('IG_PASSWORD', 'U;5%wn~L48E+');
-        $this->currentId = env('IG_CURRENT_USER_ID', '6827120791');
+        $username = env('IG_USERNAME');
+        $password = env('IG_PASSWORD');
+        $this->currentId = env('IG_CURRENT_USER_ID');
 
 
         try {
