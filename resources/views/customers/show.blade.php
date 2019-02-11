@@ -313,6 +313,19 @@
                 </div>
                 <div class="modal-body">
                   <div class="form-group">
+                      <strong>Assign to:</strong>
+                      <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assigned_to" title="Choose a User" required>
+                        @foreach ($users_array as $index => $user)
+                         <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
+                       @endforeach
+                     </select>
+
+                      @if ($errors->has('assigned_to'))
+                          <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
+                      @endif
+                  </div>
+
+                  <div class="form-group">
                     <strong>Category:</strong>
                     <select class="form-control" name="category_id" required>
                       @foreach ($instruction_categories as $category)
@@ -329,18 +342,6 @@
                     <textarea type="text" class="form-control" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
                     @if ($errors->has('instruction'))
                         <div class="alert alert-danger">{{$errors->first('instruction')}}</div>
-                    @endif
-                  </div>
-
-                  <div class="form-group">
-                    <strong>Assign to:</strong>
-                    <select class="form-control" name="assigned_to" required>
-                      @foreach ($users_array as $index => $user)
-                        <option value="{{ $index }}">{{ $user }}</option>
-                      @endforeach
-                    </select>
-                    @if ($errors->has('assigned_to'))
-                        <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
                     @endif
                   </div>
 
@@ -1531,7 +1532,7 @@
 @section('scripts')
   {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script> --}}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script> --}}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
   <script type="text/javascript">
   jQuery(document).ready(function( $ ) {
