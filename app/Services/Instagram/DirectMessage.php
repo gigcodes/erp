@@ -2,6 +2,7 @@
 
 namespace App\Services\Instagram;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use InstagramAPI\Instagram;
 use InstagramAPI\Media\Photo\InstagramPhoto;
 
@@ -19,18 +20,10 @@ class DirectMessage {
         $password = env('IG_PASSWORD');
         $this->currentId = env('IG_CURRENT_USER_ID');
 
-
         try {
-            $r = $this->instagram->login($username, $password);
+            $this->instagram->login($username, $password);
         } catch (Exception $Exception) {
-            if ($Exception instanceof ChallengeRequiredException)
-            {
-                sleep(5);
-                $customResponse = $this->instagram->request(substr($Exception->getResponse()->getChallenge()->getApiPath(), 1))->setNeedsAuth(false)->addPost('choice', 0)->getDecodedResponse();
-                if (is_array($customResponse)) {
-                    $this->instagram->login($username, $password);
-                }
-            }
+            Bugsnag::notifyException($Exception);
         }
     }
 
