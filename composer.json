@@ -10,6 +10,7 @@
         "barryvdh/laravel-ide-helper": "^2.4",
         "bugsnag/bugsnag-laravel": "^2.0",
         "chumper/zipper": "^1.0",
+        "doctrine/dbal": "^2.9",
         "facebook/graph-sdk": "~5.0",
         "fideloper/proxy": "^4.0",
         "intervention/image": "^2.4",
