@@ -1545,8 +1545,6 @@
   });
   })
 
-
-
     $('#date, #report-completion-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
@@ -2107,6 +2105,7 @@
                      qs += "&elapse=3600";
                  }
                  var anyNewMessages = false;
+
                  return new Promise(function(resolve, reject) {
                      $.getJSON("/whatsapp/pollMessagesCustomer" + qs, function( data ) {
 
@@ -2116,6 +2115,10 @@
                                  anyNewMessages = true;
                              }
                          } );
+
+                         if (page) {
+                           $('#load-more-messages').text('Load More');
+                         }
 
                          if ( anyNewMessages ) {
                              scrollChatTop();
@@ -2128,6 +2131,7 @@
 
                          resolve();
                      });
+
                  });
         }
              function scrollChatTop() {
@@ -2216,8 +2220,8 @@
            $(this).data('nextpage', current_page + 1);
            var next_page = $(this).data('nextpage');
            $('#load-more-messages').text('Loading...');
+
            pollMessages(next_page, true);
-           $('#load-more-messages').text('Load More');
          });
       });
 
