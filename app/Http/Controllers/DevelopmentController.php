@@ -11,6 +11,7 @@ use App\User;
 use App\Helpers;
 use App\Issue;
 use Auth;
+use Carbon\Carbon;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -28,10 +29,20 @@ class DevelopmentController extends Controller
 
     public function index(Request $request)
     {
-      // $tasks = DeveloperTask::where('user_id', $user)
       $user = $request->user ? $request->user : Auth::id();
+      $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
+      $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
+
       $tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', '!=', 'Done')->orderBy('priority')->get()->groupBy('module_id');
-      $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->orderBy('priority')->get()->groupBy('module_id');
+      $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->whereBetween('start_time', [$start, $end])->orderBy('priority')->get()->groupBy('module_id');
+
+      $total_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->get();
+
+      $all_time_cost = 0;
+      foreach ($total_tasks as $task) {
+        $all_time_cost += $task->cost;
+      }
+
       $modules = DeveloperModule::all();
       $users = Helpers::getUserArray(User::all());
       $comments = DeveloperComment::where('send_to', $user)->latest()->get();
@@ -50,7 +61,8 @@ class DevelopmentController extends Controller
         'user'  => $user,
         'module_names'  => $module_names,
         'comments'  => $comments,
-        'amounts'  => $amounts
+        'amounts'  => $amounts,
+        'all_time_cost' => $all_time_cost,
       ]);
     }
 

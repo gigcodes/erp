@@ -9,6 +9,9 @@ class Customer extends Model
 {
   use SoftDeletes;
   protected $appends = ['communication', 'lead', 'order'];
+  protected $fillable = [
+    'name', 'phone', 'city', 'whatsapp_number'
+  ];
 
   public function leads()
   {
@@ -34,6 +37,11 @@ class Customer extends Model
   {
     return $this->hasMany('App\Order')->latest()->first();
   }
+
+  public function many_reports()
+	{
+		return $this->hasMany('App\OrderReport', 'customer_id')->latest();
+	}
 
   public function messages()
 	{

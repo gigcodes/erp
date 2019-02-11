@@ -471,6 +471,71 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="col-md-6 col-12 mb-3">
+            <form action="{{ route('status.report.store') }}" method="POST">
+              @csrf
+
+              <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+
+              <div class="form-group">
+                <strong>Next action due</strong>
+                <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
+
+                <select class="form-control" name="status_id" required>
+                  <option value="">Select action</option>
+                  @foreach ($order_status_report as $status)
+                    <option value="{{ $status->id }}">{{ $status->status }}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              <div class="form-group" id="completion_form_group">
+                <strong>Completion Date:</strong>
+                <div class='input-group date' id='report-completion-datetime'>
+                  <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+
+                @if ($errors->has('completion_date'))
+                    <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                @endif
+              </div>
+
+              <button type="submit" class="btn btn-secondary">Add Report</button>
+            </form>
+
+            @if (count($customer->many_reports) > 0)
+              <h4>Order Reports</h4>
+
+              <table class="table table-bordered mt-4">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Created at</th>
+                    <th>Creator</th>
+                    <th>Due date</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @foreach ($customer->many_reports as $report)
+                    <tr>
+                      <td>{{ $report->status }}</td>
+                      <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
+                      <td>{{ $users_array[$report->user_id] }}</td>
+                      <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
+                    </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            @endif
+          </div>
+        </div>
+
         <!-- Modal -->
         <div id="addRemarkModal" class="modal fade" role="dialog">
           <div class="modal-dialog">
@@ -1049,70 +1114,6 @@
                   </div>
                 </form>
 
-                <div class="row">
-                  <div class="col-md-6 col-12 mb-3">
-                    <form action="{{ route('status.report.store') }}" method="POST">
-                      @csrf
-
-                      <input type="hidden" name="order_id" value="{{ $order->id }}">
-
-                      <div class="form-group">
-                        <strong>Next action due</strong>
-                        <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
-
-                        <select class="form-control" name="status_id" required>
-                          <option value="">Select action</option>
-                          @foreach ($order_status_report as $status)
-                            <option value="{{ $status->id }}">{{ $status->status }}</option>
-                          @endforeach
-                        </select>
-                      </div>
-
-                      <div class="form-group" id="completion_form_group">
-                        <strong>Completion Date:</strong>
-                        <div class='input-group date' id='report-completion-datetime'>
-                          <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
-
-                          <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                          </span>
-                        </div>
-
-                        @if ($errors->has('completion_date'))
-                            <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-                        @endif
-                      </div>
-
-                      <button type="submit" class="btn btn-secondary">Add Report</button>
-                    </form>
-
-                    @if (count($order->many_reports) > 0)
-                      <h4>Order Reports</h4>
-
-                      <table class="table table-bordered mt-4">
-                        <thead>
-                          <tr>
-                            <th>Status</th>
-                            <th>Created at</th>
-                            <th>Creator</th>
-                            <th>Due date</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          @foreach ($order->many_reports as $report)
-                            <tr>
-                              <td>{{ $report->status }}</td>
-                              <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
-                              <td>{{ $users_array[$report->user_id] }}</td>
-                              <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
-                            </tr>
-                          @endforeach
-                        </tbody>
-                      </table>
-                    @endif
-                  </div>
-                </div>
               </div>
             </div>
           </div>

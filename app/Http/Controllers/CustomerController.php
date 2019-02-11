@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Imports\CustomerImport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Customer;
 use App\Setting;
 use App\Leads;
@@ -263,6 +265,17 @@ class CustomerController extends Controller
       $second_customer->delete();
 
       return redirect()->route('customer.index');
+    }
+
+    public function import(Request $request)
+    {
+      $this->validate($request, [
+        'file'  => 'required|mimes:xls,xlsx'
+      ]);
+
+      (new CustomerImport)->queue($request->file('file'));
+
+      return redirect()->back()->with('success', 'Customers are being imported in the background');
     }
 
     /**

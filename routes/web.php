@@ -50,6 +50,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('productlister','ProductListerController');
 	Route::resource('productapprover','ProductApproverController');
 	Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
+	Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
 	Route::resource('productinventory','ProductInventoryController');
 	Route::resource('sales','SaleController');
 	Route::resource('stock','StockController');
@@ -149,6 +150,7 @@ Route::middleware('auth')->group(function (){
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
 	Route::post('customer/merge', 'CustomerController@merge')->name('customer.merge');
+	Route::post('customer/import', 'CustomerController@import')->name('customer.import');
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
 	Route::post('customer/create', 'CustomerController@store')->name('customer.store');
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
