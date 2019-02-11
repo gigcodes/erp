@@ -20,12 +20,11 @@ class InstagramController extends Controller
     private $facebook;
     private $messages;
 
-//    public function __construct(Instagram $instagram, Facebook $facebook, DirectMessage $messages)
-    public function __construct(Instagram $instagram, Facebook $facebook)
+    public function __construct(Instagram $instagram, Facebook $facebook, DirectMessage $messages)
     {
         $this->instagram = $instagram;
         $this->facebook = $facebook;
-//        $this->messages = $messages;
+        $this->messages = $messages;
 
     }
 
@@ -327,41 +326,41 @@ class InstagramController extends Controller
 
     }
 
-//    public function getThread($thread) {
-//        $thread = $this->messages->getThread($thread)->asArray();
-//        $thread = $thread['thread'];
-//        $currentUserId = $this->messages->getCurrentUserId();
-//        $threadJson['messages'] = array_map(function($item) use ($currentUserId) {
-//            $text = '';
-//            if ($item['item_type'] == 'text') {
-//                $text = $item['text'];
-//            } else if ($item['item_type'] == 'like') {
-//                $text = $item['like'];
-//            } else if ($item['item_type'] == 'media') {
-//                $text = $item['media']['image_versions2']['candidates'][0]['url'];
-//            }
-//            return [
-//                'id' => $item['item_id'],
-//                'text' => $text,
-//                'item_type' => $item['item_type'],
-//                'type' => ($item['user_id']===$currentUserId) ? 'sent' : 'received'
-//            ];
-//        }, $thread['items']);
-//
-//        $threadJson['profile_picture'] = $thread['users'][0]['profile_pic_url'];
-//        $threadJson['username'] = $thread['users'][0]['username'];
-//        $threadJson['name'] = $thread['users'][0]['full_name'];
-//
-//        return response()->json($threadJson);
-//    }
-//
-//    public function replyToThread($thread, Request $request)
-//    {
-//        if ($request->hasFile('photo')) {
-//            $file = $request->file('photo');
-//            $this->messages->sendImage(['thread' => $thread], $file);
-//        }
-//        $this->messages->sendMessage(['thread' => $thread], $request->get('message'));
-//        return $this->getThread($thread);
-//    }
+    public function getThread($thread) {
+        $thread = $this->messages->getThread($thread)->asArray();
+        $thread = $thread['thread'];
+        $currentUserId = $this->messages->getCurrentUserId();
+        $threadJson['messages'] = array_map(function($item) use ($currentUserId) {
+            $text = '';
+            if ($item['item_type'] == 'text') {
+                $text = $item['text'];
+            } else if ($item['item_type'] == 'like') {
+                $text = $item['like'];
+            } else if ($item['item_type'] == 'media') {
+                $text = $item['media']['image_versions2']['candidates'][0]['url'];
+            }
+            return [
+                'id' => $item['item_id'],
+                'text' => $text,
+                'item_type' => $item['item_type'],
+                'type' => ($item['user_id']===$currentUserId) ? 'sent' : 'received'
+            ];
+        }, $thread['items']);
+
+        $threadJson['profile_picture'] = $thread['users'][0]['profile_pic_url'];
+        $threadJson['username'] = $thread['users'][0]['username'];
+        $threadJson['name'] = $thread['users'][0]['full_name'];
+
+        return response()->json($threadJson);
+    }
+
+    public function replyToThread($thread, Request $request)
+    {
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $this->messages->sendImage(['thread' => $thread], $file);
+        }
+        $this->messages->sendMessage(['thread' => $thread], $request->get('message'));
+        return $this->getThread($thread);
+    }
 }

@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Customer;
 use App\InstagramThread;
 use Illuminate\Console\Command;
-//use App\Services\Instagram\DirectMessage;
+use App\Services\Instagram\DirectMessage;
 
 class SyncInstagramMessage extends Command
 {
@@ -31,11 +31,10 @@ class SyncInstagramMessage extends Command
 
     private $messages;
 
-    public function __construct()
-//    public function __construct(DirectMessage $messages)
+    public function __construct(DirectMessage $messages)
     {
         parent::__construct();
-//        $this->messages = $messages;
+        $this->messages = $messages;
     }
 
     /**
