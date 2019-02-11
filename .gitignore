@@ -21,3 +21,4 @@ temp.php
 logs
 .git.zip
 _MACOSX
+composer.lock
