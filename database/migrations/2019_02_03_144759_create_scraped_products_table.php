@@ -21,7 +21,7 @@ class CreateScrapedProductsTable extends Migration
             $table->foreign('brand_id')->references('id')->on('brands');
             $table->text('description')->nullable();
             $table->text('images');
-            $table->decimal('price');
+            $table->string('price');
             $table->text('properties')->nullable();
             $table->text('url')->nullable();
             $table->timestamps();

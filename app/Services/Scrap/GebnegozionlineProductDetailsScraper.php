@@ -78,16 +78,9 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         try {
             $price = preg_replace('/\s\s+/', '', $c->filter('span.price')->getInnerHtml());
         } catch (\Exception $exception) {
-            $price = '';
+            $price = 'N/A';
         }
 
-        $price = str_replace('&euro;', '', $price);
-
-        if (!is_numeric($price)) {
-            return 0;
-        }
-
-        $price = str_replace(',', '', $price);
         return $price;
     }
 
