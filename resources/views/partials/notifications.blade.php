@@ -52,6 +52,22 @@
   </div>
 </div>
 
+<div class="modal fade" id="developerAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Developer Task Reminder</h3>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <a href="" id="developerAlertUrl" class="btn btn-secondary mx-auto">OK</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     var interval = 1000 * 30;  // 1000 = 1 second
     var notificationShowCount = 15;
@@ -183,6 +199,10 @@
                                 this.taskcount--;
 
                                 break;
+                            case 'App\\DeveloperTask':
+                                this.taskcount--;
+
+                                break;
                             case 'User':
                                 this.taskcount--;
 
@@ -260,8 +280,9 @@
                             }
                         }
 
-                        if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task' || this.items[i].model_type == 'App\\Instruction') {
-                            if (this.taskcount !== 1) {
+                        if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task' || this.items[i].model_type == 'App\\Instruction' || this.items[i].model_type == 'App\\DeveloperTask') {
+
+                            if (this.taskcount !== 5) {
                                 this.items[i]['isShown'] = true;
                                 toast(this.items[i]);
                                 this.taskcount++;
@@ -310,6 +331,10 @@
 
                                 break;
                             case 'App\\Instruction':
+                                this.taskcount--;
+
+                                break;
+                            case 'App\\DeveloperTask':
                                 this.taskcount--;
 
                                 break;
@@ -447,6 +472,15 @@
                 // notification_html = '<div class="notification">' + message + '</div>';
                 // $('#tasks-notification').append(notification_html);
                 // $('#tasks-notification').css({'display': 'block'});
+
+                break;
+
+            case 'App\\DeveloperTask':
+                link = "{{ route('development.verify.view') }}" + "?tab=review&id=" + notification.model_id;
+
+                $('#developerAlertUrl').attr('href', link);
+                $('#developerAlertModal .modal-body').html(notification.message);
+                $('#developerAlertModal').modal('show');
 
                 break;
 

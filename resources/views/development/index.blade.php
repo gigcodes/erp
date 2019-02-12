@@ -170,7 +170,10 @@
         <a href="#1" data-toggle="tab">Tasks</a>
       </li>
       <li>
-        <a href="#2" data-toggle="tab">Completed Tasks</a>
+        <a href="#2" data-toggle="tab">Review Tasks</a>
+      </li>
+      <li>
+        <a href="#3" data-toggle="tab">Completed Tasks</a>
       </li>
     </ul>
   </div>
@@ -246,6 +249,73 @@
     </div>
 
     <div class="tab-pane mt-3" id="2">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th>Priority</th>
+            <th>Task</th>
+            <th>Cost</th>
+            <th>Status</th>
+            <th>Estimate</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Comments</th>
+            <th>Action</th>
+          </tr>
+
+          @foreach ($review_tasks as $key => $module_tasks)
+            <tr>
+              <td></td>
+              <td><strong>{{ $key != '' ? $module_names[$key] : 'General Tasks' }}</strong></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            @foreach ($module_tasks as $task)
+              <tr id="review_task_{{ $task->id }}">
+                <td>{{ $priorities[$task->priority] }}</td>
+                <td>
+                  {{ $task->task }}
+                  @if ($task->getMedia(config('constants.media_tags'))->first())
+                    <br>
+                    @foreach ($task->getMedia(config('constants.media_tags')) as $image)
+                      <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                        <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                      </a>
+                    @endforeach
+                  @endif
+                </td>
+                <td>{{ $task->cost }}</td>
+                <td>{{ $task->status }}</td>
+                <td>{{ $task->estimate_time ? \Carbon\Carbon::parse($task->estimate_time)->format('H:i d-m') : '' }}</td>
+                <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
+                <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+                <td>
+                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $task->id }}">Add</a>
+                  <span> | </span>
+                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
+                </td>
+                <td>
+                  <form action="{{ route('development.verify', $task->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-xs btn-secondary">Verify</button>
+                  </form>
+                  <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+
+                  {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
+                  <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                  {!! Form::close() !!}
+                </td>
+              </tr>
+            @endforeach
+          @endforeach
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane mt-3" id="3">
       <div class="table-responsive">
         <table class="table table-bordered">
           <tr>
@@ -697,6 +767,17 @@
     $('#paid_date').datetimepicker({
       format: 'YYYY-MM-DD'
     });
+
+    @if ($tab == 'review')
+      var hash = window.location.hash.substr(1);
+
+      $('a[href="#2"]').click();
+
+      setTimeout(function() {
+        location.href = location.hash;
+      }, 1000);
+      $('#' + hash).addClass('row-highlight');
+    @endif
 
     $(document).on('click', '.edit-task-button', function() {
       var task = $(this).data('task');
