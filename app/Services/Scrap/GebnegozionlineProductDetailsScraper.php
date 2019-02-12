@@ -170,6 +170,10 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             return 'female';
         }
 
+        if (strpos($url, 'uomo') !== false || strpos($url, 'men') !== false) {
+            return 'female';
+        }
+
         return 'male';
     }
 
