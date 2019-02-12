@@ -223,6 +223,9 @@
     @if (count($customer->private_views) > 0)
       <li><a href="#private_view_tab" data-toggle="tab">Private Viewing</a></li>
     @endif
+    <li>
+      <a href="#suggestion_tab" data-toggle="tab">Suggestions</a>
+    </li>
   </ul>
 </div>
 
@@ -1294,6 +1297,13 @@
       </div>
     </div>
   @endif
+
+  <div class="tab-pane mt-3" id="suggestion_tab">
+    <h2>Suggestions</h2>
+    <div class="row">
+      <div class="col-12" id="suggestion-container"></div>
+    </div>
+  </div>
 </div>
 
 <div class="row mt-5">
@@ -1470,11 +1480,6 @@
     <label>Attach Media</label>
     <input id="waMessageMedia" type="file" name="media" />
   </div>
-</div>
-
-<h2>Suggestions</h2>
-<div class="row">
-  <div class="col-12" id="suggestion-container"></div>
 </div>
 
 <h2>Messages</h2>
