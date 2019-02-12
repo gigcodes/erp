@@ -14,4 +14,8 @@ class DeveloperTask extends Model
   protected $fillable = [
     'user_id', 'module_id', 'priority', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time'
   ];
+
+  public function user() {
+    return $this->belongsTo('App\User');
+  }
 }

@@ -361,27 +361,73 @@ class DevelopmentController extends Controller
 
       PushNotification::where('model_type', 'App\DeveloperTask')->where('model_id', $request->id)->delete();
 
-      NotificationQueueController::createNewNotification([
-        'message' => 'New Task to Verify',
-        'timestamps' => ['+10 minutes'],
-        'model_type' => DeveloperTask::class,
-        'model_id' =>  $task->id,
-        'user_id' => Auth::id(),
-        'sent_to' => 6,
-        'role' => '',
-      ]);
+      if ($request->tab) {
+        $message = 'New Task to Verify';
 
-      NotificationQueueController::createNewNotification([
-        'message' => 'New Task to Verify',
-        'timestamps' => ['+10 minutes'],
-        'model_type' => DeveloperTask::class,
-        'model_id' =>  $task->id,
-        'user_id' => Auth::id(),
-        'sent_to' => 56,
-        'role' => '',
-      ]);
+        NotificationQueueController::createNewNotification([
+          'message' => $message,
+          'timestamps' => ['+10 minutes'],
+          'model_type' => DeveloperTask::class,
+          'model_id' =>  $task->id,
+          'user_id' => Auth::id(),
+          'sent_to' => 6,
+          'role' => '',
+        ]);
 
-      return redirect(url("/development?tab=review#review_task_$request->id"));
+        NotificationQueueController::createNewNotification([
+          'message' => $message,
+          'timestamps' => ['+10 minutes'],
+          'model_type' => DeveloperTask::class,
+          'model_id' =>  $task->id,
+          'user_id' => Auth::id(),
+          'sent_to' => 56,
+          'role' => '',
+        ]);
+
+        return redirect(url("/development?tab=review#review_task_$request->id"));
+      } else {
+        $message = 'New Task Remark';
+
+        if ($request->user == Auth::id()) {
+          NotificationQueueController::createNewNotification([
+            'message' => $message,
+            'timestamps' => ['+10 minutes'],
+            'model_type' => DeveloperTask::class,
+            'model_id' =>  $task->id,
+            'user_id' => Auth::id(),
+            'sent_to' => 6,
+            'role' => '',
+          ]);
+
+          NotificationQueueController::createNewNotification([
+            'message' => $message,
+            'timestamps' => ['+10 minutes'],
+            'model_type' => DeveloperTask::class,
+            'model_id' =>  $task->id,
+            'user_id' => Auth::id(),
+            'sent_to' => 56,
+            'role' => '',
+          ]);
+        } else {
+          NotificationQueueController::createNewNotification([
+            'message' => $message,
+            'timestamps' => ['+10 minutes'],
+            'model_type' => DeveloperTask::class,
+            'model_id' =>  $task->id,
+            'user_id' => Auth::id(),
+            'sent_to' => $request->user,
+            'role' => '',
+          ]);
+        }
+
+        if ($task->status == 'Done' && $task->completed == 1) {
+          return redirect(url("/development?tab=3#completed_task_$task->id"));
+        } elseif ($task->status == 'Done' && $task->completed == 0) {
+          return redirect(url("/development?tab=review#review_task_$request->id"));
+        } else {
+          return redirect(url("/development?tab=1#task_$task->id"));
+        }
+      }
     }
 
     /**

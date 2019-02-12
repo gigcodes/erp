@@ -211,7 +211,7 @@
               <td></td>
             </tr>
             @foreach ($module_tasks as $task)
-              <tr>
+              <tr id="task_{{ $task->id }}">
                 <td>{{ $priorities[$task->priority] }}</td>
                 <td>
                   {{ $task->task }}
@@ -341,7 +341,7 @@
               <td></td>
             </tr>
             @foreach ($module_tasks as $task)
-              <tr>
+              <tr id="completed_task_{{ $task->id }}">
                 <td>{{ $priorities[$task->priority] }}</td>
                 <td>
                   {{ $task->task }}
@@ -773,10 +773,37 @@
 
       $('a[href="#2"]').click();
 
-      setTimeout(function() {
-        location.href = location.hash;
-      }, 1000);
-      $('#' + hash).addClass('row-highlight');
+      if (location.hash) {
+        setTimeout(function() {
+          location.href = location.hash;
+        }, 1000);
+
+        $('#' + hash).addClass('row-highlight');
+      }
+    @elseif ($tab == '3')
+      var hash = window.location.hash.substr(1);
+
+      $('a[href="#3"]').click();
+
+      if (location.hash) {
+        setTimeout(function() {
+          location.href = location.hash;
+        }, 1000);
+
+        $('#' + hash).addClass('row-highlight');
+      }
+    @else
+      var hash = window.location.hash.substr(1);
+
+      // $('a[href="#1"]').click();
+
+      if (location.hash) {
+        setTimeout(function() {
+          location.href = location.hash;
+        }, 1000);
+
+        $('#' + hash).addClass('row-highlight');
+      }
     @endif
 
     $(document).on('click', '.edit-task-button', function() {
