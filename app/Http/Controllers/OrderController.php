@@ -504,7 +504,7 @@ class OrderController extends Controller {
 				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 			}
 
-			$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.';
+			$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F')) . '.';
 			$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 			$requestData = new Request();
 			$requestData2 = new Request();
@@ -688,7 +688,7 @@ class OrderController extends Controller {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.';
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F')) . '.';
 				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 				$requestData = new Request();
 				$requestData2 = new Request();
@@ -708,7 +708,7 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
 
-			if ($order->order_status == 'Proceed without Advance' || $order->order_status == 'Prepaid') {
+			if (($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') || $order->order_status == 'Prepaid') {
 				$order->update([
 					'auto_messaged' => 1,
 					'auto_messaged_date' => Carbon::now()
@@ -746,7 +746,7 @@ class OrderController extends Controller {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.';
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F')) . '.';
 				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 				$requestData = new Request();
 				$requestData2 = new Request();
@@ -766,7 +766,7 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
 
-			if ($order->order_status == 'Proceed without Advance' || $order->order_status == 'Prepaid') {
+			if (($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') || $order->order_status == 'Prepaid') {
 				$order->update([
 					'auto_messaged' => 1,
 					'auto_messaged_date' => Carbon::now()
