@@ -25,12 +25,13 @@ class ScrapController extends Controller
     {
         $this->validate($request, [
             'query' => 'required',
-            'noi' => 'required'
-        ]);
+            'noi' => 'required',
+            ]);
 
         $q = $request->get('query');
         $noi = $request->get('noi');
-        $data = $this->googleImageScraper->scrapGoogleImages($q, $noi);
+        $chip = $request->get('chip');
+        $data = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
 
         $images = [];
 

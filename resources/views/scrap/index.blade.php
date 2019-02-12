@@ -14,8 +14,12 @@
                     <input class="form-control" type="text" id="query" name="query" placeholder="Eg: Nike, Jordan, etc">
                 </div>
                 <div class="form-group">
-                    <label for="noi">Search Text</label>
+                    <label for="noi">Number of Results</label>
                     <input class="form-control" type="number" id="noi" name="noi" placeholder="5" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="noi">Chips (lifestyle, fashion, beauty, etc.)</label>
+                    <input class="form-control" type="text" id="chip" name="chip" placeholder="Eg: lifestyle" value="lifestyle">
                 </div>
                 <div class="form-group">
                     <button class="btn btn-primary">Extract Images</button>
