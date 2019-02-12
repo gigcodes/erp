@@ -300,15 +300,15 @@
                                       <th>Sku</th>
                                       <th>Color</th>
                                       <th>Brand</th>
-                                      <th>Price</th>
-                                      <th>Size</th>
-                                      <th style="width: 30px">Qty</th>
-                                      <th style="width: 160px">Action</th>
+                                      <th style="width: 100px">Price</th>
+                                      <th style="width: 100px">Size</th>
+                                      <th style="width: 80px">Qty</th>
+                                      <th>Action</th>
                                   </tr>
                                   @foreach($order_products  as $order_product)
                                       <tr>
                                           @if(isset($order_product['product']))
-                                            <th><img width="200" src="{{ $order_product['product']['image'] }}" /></th>
+                                            <th><img width="150" src="{{ $order_product['product']['image'] }}" /></th>
                                             <th>{{ $order_product['product']['name'] }}</th>
                                             <th>{{ $order_product['product']['sku'] }}</th>
                                             <th>{{ $order_product['product']['color'] }}</th>
@@ -322,7 +322,7 @@
                                           @endif
 
                                           <th>
-                                              <input class="table-input" type="text" value="{{ $order_product['product_price'] }}" name="order_products[{{ $order_product['id'] }}][product_price]">
+                                              <input class="form-control" type="text" value="{{ $order_product['product_price'] }}" name="order_products[{{ $order_product['id'] }}][product_price]">
                                           </th>
                                           <th>
                                               @if(!empty($order_product['product']['size']))
@@ -331,7 +331,7 @@
       					                        $sizes = \App\Helpers::explodeToArray($order_product['product']['size']);
       					                        $size_name = 'order_products['.$order_product['id'].'][size]';
 
-      					                        echo Form::select($size_name,$sizes,( $order_product['size'] ), ['placeholder' => 'Select a size'])
+      					                        echo Form::select($size_name,$sizes,( $order_product['size'] ), ['class' => 'form-control', 'placeholder' => 'Select a size'])
       					                        ?>
                                               @else
                                                   <select hidden class="form-control" name="order_products[{{ $order_product['id'] }}][size]">
@@ -341,7 +341,7 @@
                                               @endif
                                           </th>
                                           <th>
-                                              <input class="table-input" type="number" value="{{ $order_product['qty'] }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                              <input class="form-control" type="number" value="{{ $order_product['qty'] }}" name="order_products[{{ $order_product['id'] }}][qty]">
                                           </th>
                                           @if(isset($order_product['product']))
                                               <th>

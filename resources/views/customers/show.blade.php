@@ -313,6 +313,19 @@
                 </div>
                 <div class="modal-body">
                   <div class="form-group">
+                      <strong>Assign to:</strong>
+                      <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assigned_to" title="Choose a User" required>
+                        @foreach ($users_array as $index => $user)
+                         <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
+                       @endforeach
+                     </select>
+
+                      @if ($errors->has('assigned_to'))
+                          <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
+                      @endif
+                  </div>
+
+                  <div class="form-group">
                     <strong>Category:</strong>
                     <select class="form-control" name="category_id" required>
                       @foreach ($instruction_categories as $category)
@@ -329,18 +342,6 @@
                     <textarea type="text" class="form-control" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
                     @if ($errors->has('instruction'))
                         <div class="alert alert-danger">{{$errors->first('instruction')}}</div>
-                    @endif
-                  </div>
-
-                  <div class="form-group">
-                    <strong>Assign to:</strong>
-                    <select class="form-control" name="assigned_to" required>
-                      @foreach ($users_array as $index => $user)
-                        <option value="{{ $index }}">{{ $user }}</option>
-                      @endforeach
-                    </select>
-                    @if ($errors->has('assigned_to'))
-                        <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
                     @endif
                   </div>
 
@@ -1024,78 +1025,80 @@
                             <div class="text-center">
                               <h3>Product Details</h3>
                             </div>
-                            <div class="form-group">
+                            <div class="table-responsive">
                                 <table class="table table-bordered" id="products-table-{{ $order->id }}">
-                                    <tr>
-                                        <th>Image</th>
-                                        <th>Name</th>
-                                        <th>Sku</th>
-                                        <th>Color</th>
-                                        <th>Brand</th>
-                                        <th>Price</th>
-                                        <th>Size</th>
-                                        <th style="width: 30px">Qty</th>
-                                        <th style="width: 160px">Action</th>
-                                    </tr>
+                                  <thead>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>Sku</th>
+                                    <th>Color</th>
+                                    <th>Brand</th>
+                                    <th style="width: 100px">Price</th>
+                                    <th style="width: 100px">Size</th>
+                                    <th style="width: 80px">Qty</th>
+                                    <th>Action</th>
+                                  </thead>
+                                  <tbody>
                                     @foreach($order->order_product  as $order_product)
-                                        <tr>
-                                            @if(isset($order_product->product))
-                                              <th>
-                                                @php
-                                                  $string = $order_product->product->supplier;
-                                                  $expr = '/(?<=\s|^)[a-z]/i';
-                                                  preg_match_all($expr, $string, $matches);
-                                                  $supplier_initials = implode('', $matches[0]);
-                                                  $supplier_initials = strtoupper($supplier_initials);
-                                                @endphp
-                                                <img width="200" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()
-                                                            ? $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl()
-                                                            : '' }}" data-toggle='tooltip' data-html='true' data-placement='top' title="{{ Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM') ? "<strong>Supplier:</strong> $supplier_initials" : '' }}" />
-                                              </th>
-                                              <th>{{ $order_product->product->name }}</th>
-                                              <th>{{ $order_product->product->sku }}</th>
-                                              <th>{{ $order_product->product->color }}</th>
-                                              <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product->product->brand) }}</th>
+                                      <tr>
+                                        @if(isset($order_product->product))
+                                          <td>
+                                            @php
+                                            $string = $order_product->product->supplier;
+                                            $expr = '/(?<=\s|^)[a-z]/i';
+                                            preg_match_all($expr, $string, $matches);
+                                            $supplier_initials = implode('', $matches[0]);
+                                            $supplier_initials = strtoupper($supplier_initials);
+                                            @endphp
+                                            <img width="150" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()
+                                              ? $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                                              : '' }}" data-toggle='tooltip' data-html='true' data-placement='top' title="{{ Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM') ? "<strong>Supplier:</strong> $supplier_initials" : '' }}" />
+                                            </td>
+                                            <td>{{ $order_product->product->name }}</td>
+                                            <td>{{ $order_product->product->sku }}</td>
+                                            <td>{{ $order_product->product->color }}</td>
+                                            <td>{{ \App\Http\Controllers\BrandController::getBrandName($order_product->product->brand) }}</td>
+                                          @else
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{$order_product->sku}}</td>
+                                            <td></td>
+                                            <td></td>
+                                          @endif
+
+                                          <td>
+                                            <input class="form-control" type="text" value="{{ $order_product->product_price }}" name="order_products[{{ $order_product->id }}][product_price]">
+                                          </td>
+                                          <td>
+                                            @if(!empty($order_product->product->size))
+                                              <?php
+
+                                              $sizes = \App\Helpers::explodeToArray($order_product->product->size);
+                                              $size_name = 'order_products['.$order_product->id.'][size]';
+
+                                              echo Form::select($size_name,$sizes,( $order_product->size ), ['class' => 'form-control', 'placeholder' => 'Select a size'])
+                                              ?>
                                             @else
-                                              <th></th>
-                                              <th></th>
-                                              <th>{{$order_product->sku}}</th>
-                                              <th></th>
-                                              <th></th>
+                                              <select hidden class="form-control" name="order_products[{{ $order_product->id }}][size]">
+                                                <option selected="selected" value=""></option>
+                                              </select>
+                                              nil
                                             @endif
-
-                                            <th>
-                                                <input class="table-input" type="text" value="{{ $order_product->product_price }}" name="order_products[{{ $order_product->id }}][product_price]">
-                                            </th>
-                                            <th>
-                                                @if(!empty($order_product->product->size))
-                                          <?php
-
-                                          $sizes = \App\Helpers::explodeToArray($order_product->product->size);
-                                          $size_name = 'order_products['.$order_product->id.'][size]';
-
-                                          echo Form::select($size_name,$sizes,( $order_product->size ), ['placeholder' => 'Select a size'])
-                                          ?>
-                                                @else
-                                                    <select hidden class="form-control" name="order_products[{{ $order_product->id }}][size]">
-                                                        <option selected="selected" value=""></option>
-                                                    </select>
-                                                    nil
-                                                @endif
-                                            </th>
-                                            <th>
-                                                <input class="table-input" type="number" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
-                                            </th>
-                                            @if(isset($order_product->product))
-                                                <th>
-                                                    <a class="btn btn-image" href="{{ route('products.show',$order_product->product->id) }}"><img src="/images/view.png" /></a>
-                                                    <a class="btn btn-image remove-product" href="#" data-product="{{ $order_product->id }}"><img src="/images/delete.png" /></a>
-                                                </th>
-                                            @else
-                                                <th></th>
-                                            @endif
+                                          </td>
+                                          <td>
+                                            <input class="form-control" type="number" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                          </td>
+                                          @if(isset($order_product->product))
+                                            <td>
+                                              <a class="btn btn-image" href="{{ route('products.show',$order_product->product->id) }}"><img src="/images/view.png" /></a>
+                                              <a class="btn btn-image remove-product" href="#" data-product="{{ $order_product->id }}"><img src="/images/delete.png" /></a>
+                                            </td>
+                                          @else
+                                            <td></td>
+                                          @endif
                                         </tr>
-                                    @endforeach
+                                      @endforeach
+                                  </tbody>
                                 </table>
                             </div>
                         </div>
@@ -1529,7 +1532,7 @@
 @section('scripts')
   {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script> --}}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script> --}}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
   <script type="text/javascript">
   jQuery(document).ready(function( $ ) {
@@ -1541,8 +1544,6 @@
   });
   });
   })
-
-
 
     $('#date, #report-completion-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
@@ -2104,6 +2105,7 @@
                      qs += "&elapse=3600";
                  }
                  var anyNewMessages = false;
+
                  return new Promise(function(resolve, reject) {
                      $.getJSON("/whatsapp/pollMessagesCustomer" + qs, function( data ) {
 
@@ -2113,6 +2115,10 @@
                                  anyNewMessages = true;
                              }
                          } );
+
+                         if (page) {
+                           $('#load-more-messages').text('Load More');
+                         }
 
                          if ( anyNewMessages ) {
                              scrollChatTop();
@@ -2125,6 +2131,7 @@
 
                          resolve();
                      });
+
                  });
         }
              function scrollChatTop() {
@@ -2213,8 +2220,8 @@
            $(this).data('nextpage', current_page + 1);
            var next_page = $(this).data('nextpage');
            $('#load-more-messages').text('Loading...');
+
            pollMessages(next_page, true);
-           $('#load-more-messages').text('Load More');
          });
       });
 

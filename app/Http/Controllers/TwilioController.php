@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Helpers;
 use App\Recording;
+use Carbon\Carbon;
 
 
 class TwilioController extends FindByNumberController
@@ -39,7 +40,7 @@ class TwilioController extends FindByNumberController
     {
       $client = $this->getTwilioClient();
       $user = \Auth::user();
-      $agent = $user->name;
+      $agent = $user->id;
       $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
       $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
       $capability->allowClientIncoming($agent);
@@ -92,13 +93,27 @@ class TwilioController extends FindByNumberController
 
         $number = $request->get("From");
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
-   $url =  \Config::get("app.url")."/twilio/recordingStatusCallback" ;
-          $actionurl =  \Config::get("app.url")."/twilio/handleDialCallStatus";
+        $url =  \Config::get("app.url")."/twilio/recordingStatusCallback" ;
+        $actionurl =  \Config::get("app.url")."/twilio/handleDialCallStatus";
+
         if ($context) {
-            $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id. "&Mobile=" .$number ;
+          $url =  \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .  $object->id. "&Mobile=" .$number ;
         }
+
         $response = new Twiml();
-        $response->play( \Config::get("app.url")."/voice_ivr.mp3");
+
+        $time = Carbon::now();
+        $sunday = Carbon::now()->endOfWeek();
+        $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
+        $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
+
+        if ($time == $sunday) { // If Sunday or Holiday
+          $response->play( \Config::get("app.url")."/holiday_ring.mp3");
+        } elseif (!$time->between($morning, $evening, true)) {
+          $response->play( \Config::get("app.url")."/end_work_ring.mp3");
+        } else {
+          $response->play( \Config::get("app.url")."/intro_ring.mp3");
+        }
 // $response->say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
 
          $dial = $response->dial([
@@ -305,10 +320,10 @@ class TwilioController extends FindByNumberController
 
         $clients = [];
         foreach ($admins as $admin) {
-            $clients[] = $admin->name;
+            $clients[] = $admin->id;
         }
         foreach ($hods as $hod) {
-            $clients[] = $hod->name;
+            $clients[] = $hod->id;
         }
         return $clients;
     }
@@ -343,7 +358,7 @@ class TwilioController extends FindByNumberController
         $gather = $response->gather([
             'action' => url("/twilio/gatherAction")
         ]);
-       $gather->play( \Config::get("app.url")."/busyring.mp3");
+       $gather->play( \Config::get("app.url")."/busy_ring.mp3");
     }
 
     /**

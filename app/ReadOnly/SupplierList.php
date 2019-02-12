@@ -23,6 +23,7 @@ class SupplierList extends ReadOnlyBase {
 		'Gucci'								=> 'Gucci',
 		'Lidia'								=> 'Lidia',
 		'Valenti'							=> 'Valenti',
+		'Wise Boutique'				=> 'Wise Boutique',
 		'In-stock'						=> 'In-stock',
 	];
 }

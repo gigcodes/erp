@@ -33,7 +33,17 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
       $term = $request->input('term');
-      $customers = (new Customer())->newQuery();
+      $customers = (new Customer())->newQuery()->with(['Orders' => function ($query) {
+        $query->latest();
+      }, 'Leads' => function ($query) {
+        $query->latest();
+      }, 'Messages_all' => function ($query) {
+        $query->latest();
+      }, 'Whatsapps_all' => function ($query) {
+        $query->latest();
+      }]);
+
+      // dd($customers->take(20)->get());
 
       if($request->input('orderby') == '')
   				$orderby = 'asc';
@@ -86,33 +96,36 @@ class CustomerController extends Controller
   		}
 
       $customers = $customers->get()->toArray();
+      // $customers_array = [];
+      //
+      // foreach ($customers as $key => $customer) {
+      //   $customers_array[$key] = $customer;
+      //   if ($customer['messages_all'] && $customer['whatsapps_all']) {
+      //     if ($customer['messages_all'][0]['created_at'] > $customer['whatsapps_all'][0]['created_at']) {
+      //       $customers_array[$key]['recent_message'] = $customer['messages_all'][0];
+      //     } else {
+      //       $customers_array[$key]['recent_message'] = $customer['whatsapps_all'][0];
+      //     }
+      //   } elseif ($customer['messages_all']) {
+      //     $customers_array[$key]['recent_message'] = $customer['messages_all'][0];
+      //   } elseif ($customer['whatsapps_all']) {
+      //     $customers_array[$key]['recent_message'] = $customer['whatsapps_all'][0];
+      //   } else {
+      //     $customers_array[$key]['recent_message'] = NULL;
+      //   }
+      // }
+      // /
+      // $customers = $customers_array;
 
       if ($sortby == 'communication') {
   			if ($orderby == 'asc') {
-          // usort($customers, 'sortByReply');
   				$customers = array_values(array_sort($customers, function ($value) {
-            // if ($value['communication']['status'] == '5') {
-            //   return '0';
-            // }
-            //
-            // if ($value['communication']['status'] == null) {
-            //   return '10';
-            // }
-
 						return $value['communication']['created_at'];
   				}));
 
   				$customers = array_reverse($customers);
   			} else {
   				$customers = array_values(array_sort($customers, function ($value) {
-            // if ($value['communication']['status'] == '5') {
-            //   return '0';
-            // }
-            //
-            // if ($value['communication']['status'] == null) {
-            //   return '10';
-            // }
-
             return $value['communication']['created_at'];
   				}));
   			}
@@ -177,16 +190,6 @@ class CustomerController extends Controller
         'orderby' => $orderby,
       ]);
     }
-
-    // public function sortByReply($a, $b)
-    // {
-    //   $a = $a['status'] == 0 || $a['status'] == 5 ? 0 : 1;
-    //   if ($a['status'] == $b['status']) return 0;
-    //
-    //   if ($a['status'])
-    //
-    //   return ($a['status'])
-    // }
 
     public function load(Request $request)
     {
