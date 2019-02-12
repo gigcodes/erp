@@ -108,8 +108,7 @@ class MagentoController extends Controller {
 
 		for ( $j = 0; $j < sizeof( $orderlist ); $j ++ ) {
 			$results = json_decode( json_encode( $proxy->salesOrderInfo( $sessionId, $orderlist[ $j ]->increment_id ) ), true );
-			dump($results['state']);
-			dump($results['payment']['method']);
+
 			$atts = unserialize( $results['items'][0]['product_options'] );
 			if ( ! empty( $results['total_paid'] ) ) {
 				$paid = $results['total_paid'];
@@ -235,7 +234,7 @@ class MagentoController extends Controller {
 
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
-		} elseif ($order->order_status == 'Prepaid' && $results['state'] == 'SUCCESS') {
+		} elseif ($order->order_status == 'Prepaid' && $results['state'] == 'processing') {
 			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
@@ -244,7 +243,7 @@ class MagentoController extends Controller {
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 		}
 
-			if ($order->order_status == 'Proceed without Advance' || $order->order_status == 'Prepaid') {
+			if ($order->order_status == 'Proceed without Advance' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
 				$order->update([
 					'auto_messaged' => 1,
 					'auto_messaged_date'	=> Carbon::now()
