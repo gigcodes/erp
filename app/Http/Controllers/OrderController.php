@@ -498,7 +498,7 @@ class OrderController extends Controller {
 			}
 		}
 
-		if ($order->order_status == 'Proceed without Advance') {
+		if ($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
 			$product_names = '';
 			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
 				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
@@ -682,7 +682,7 @@ class OrderController extends Controller {
 		$order = Order::find($order->id);
 
 		if ($order->auto_messaged == 0) {
-			if ($order->order_status == 'Proceed without Advance') {
+			if ($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
 				$product_names = '';
 				foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
@@ -740,7 +740,7 @@ class OrderController extends Controller {
 		$order->save();
 
 		if ($order->auto_messaged == 0) {
-			if ($order->order_status == 'Proceed without Advance') {
+			if ($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
 				$product_names = '';
 				foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
