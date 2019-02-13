@@ -107,6 +107,7 @@ Route::middleware('auth')->group(function (){
 	Route::get('/notificaitonsJson','NotificaitonContoller@json')->name('notificationJson');
 	Route::get('/salesNotificaitonsJson','NotificaitonContoller@salesJson')->name('salesNotificationJson');
 	Route::post('/notificationMarkRead/{notificaion}','NotificaitonContoller@markRead')->name('notificationMarkRead');
+	Route::get('/deQueueNotfication', 'NotificationQueueController@deQueueNotficationNew');
 
 	Route::post('/productsupervisor/approve/{product}','ProductSupervisorController@approve')->name('productsupervisor.approve');
 	Route::post('/productsupervisor/reject/{product}','ProductSupervisorController@reject')->name('productsupervisor.reject');
@@ -225,6 +226,8 @@ Route::middleware('auth')->group(function (){
 	Route::get('development', 'DevelopmentController@index')->name('development.index');
 	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
 	Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
+	Route::post('development/{id}/verify', 'DevelopmentController@verify')->name('development.verify');
+	Route::get('development/verify/view', 'DevelopmentController@verifyView')->name('development.verify.view');
 	Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
 
 	Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');

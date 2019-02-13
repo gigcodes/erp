@@ -45,7 +45,6 @@ class AutoInterestMessage extends Command
         'number'  => NULL,
         'status'  => 7, // message status for auto messaging
         'user_id' => 6,
-        'message' => 'Auto suggestion based on leads'
       ];
 
       $customers_leads = Customer::with(['Leads' => function ($query) {
@@ -104,8 +103,6 @@ class AutoInterestMessage extends Command
         }
       }
 
-      $params['message'] = 'Auto suggestion based on orders';
-
       foreach ($customers_orders as $customer) {
         $brand = (int) $customer['orders'][0]['order__product'][0]['product']['brand'];
         $category = (int) $customer['orders'][0]['order__product'][0]['product']['category'];
@@ -113,7 +110,7 @@ class AutoInterestMessage extends Command
         if ($category != 0 && $category != 1 && $category != 2 && $category != 3) {
           $is_parent = Category::isParent($category);
     			$category_children = [];
-          
+
     			if ($is_parent) {
     				$children = Category::find($category)->childs()->get();
 

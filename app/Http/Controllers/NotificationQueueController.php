@@ -152,6 +152,10 @@ class NotificationQueueController extends Controller
 					case 'App\Instruction':
 						PushNotification::create($item);
 					break;
+
+					case 'App\DeveloperTask':
+						PushNotification::create($item);
+					break;
 				}
 
 				NotificationQueueController::destroy( $item['id'] );

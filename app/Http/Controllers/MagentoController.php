@@ -223,7 +223,7 @@ class MagentoController extends Controller {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F');
+				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.';
 				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 				$requestData = new Request();
 				$requestData2 = new Request();
@@ -234,19 +234,21 @@ class MagentoController extends Controller {
 
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
-			} elseif ($order->order_status == 'Prepaid') {
-				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
-				$requestData = new Request();
-				$requestData->setMethod('POST');
-				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+		} elseif ($order->order_status == 'Prepaid' && $results['state'] == 'processing') {
+			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
 
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+		}
+
+			if ($order->order_status == 'Proceed without Advance' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
+				$order->update([
+					'auto_messaged' => 1,
+					'auto_messaged_date'	=> Carbon::now()
+				]);
 			}
-
-			$order->update([
-				'auto_messaged' => 1,
-				'auto_messaged_date'	=> Carbon::now()
-			]);
 		}
 	}
 

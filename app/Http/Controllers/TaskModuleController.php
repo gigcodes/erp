@@ -12,6 +12,7 @@ use App\Helpers;
 use App\User;
 use App\Task;
 use App\Remark;
+use App\DeveloperTask;
 use App\NotificationQueue;
 
 class TaskModuleController extends Controller {
@@ -344,6 +345,42 @@ class TaskModuleController extends Controller {
 			'module_type'	=> $request->module_type,
 			'user_name'	=> $request->user_name ? $request->user_name : Auth::user()->name
 		]);
+
+		if ($request->module_type == 'developer') {
+			$task = DeveloperTask::find($id);
+
+			if ($task->user->id == Auth::id()) {
+				NotificationQueueController::createNewNotification([
+					'message' => 'New Task Remark',
+					'timestamps' => ['+0 minutes'],
+					'model_type' => DeveloperTask::class,
+					'model_id' =>  $task->id,
+					'user_id' => Auth::id(),
+					'sent_to' => 6,
+					'role' => '',
+				]);
+
+				NotificationQueueController::createNewNotification([
+					'message' => 'New Task Remark',
+					'timestamps' => ['+0 minutes'],
+					'model_type' => DeveloperTask::class,
+					'model_id' =>  $task->id,
+					'user_id' => Auth::id(),
+					'sent_to' => 56,
+					'role' => '',
+				]);
+			} else {
+				NotificationQueueController::createNewNotification([
+					'message' => 'New Task Remark',
+					'timestamps' => ['+0 minutes'],
+					'model_type' => DeveloperTask::class,
+					'model_id' =>  $task->id,
+					'user_id' => Auth::id(),
+					'sent_to' => $task->user_id,
+					'role' => '',
+				]);
+			}
+		}
 		// $remark_entry = DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
 
 		// if (is_null($request->module_type)) {
