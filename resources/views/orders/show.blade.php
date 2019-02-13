@@ -217,7 +217,7 @@
                       </div> --}}
 
                       <div class="form-group">
-                        @if (strlen($customer->phone) != 12 || preg_match('/^[91]{2}/', $customer->phone))
+                        @if (strlen($contact_detail) != 12 || preg_match('/^[91]{2}/', $contact_detail))
                           <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
                         @endif
                           <strong>Contact Detail:</strong>
@@ -568,7 +568,7 @@
                     <button type="submit" class="btn btn-secondary">Add Report</button>
                   </form>
 
-                  @if (count($order_reports) > 0)
+                  @if (isset($order_reports) && count($order_reports) > 0)
                     <h4>Order Reports</h4>
 
                     <table class="table table-bordered mt-4">

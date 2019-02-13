@@ -12,6 +12,7 @@ use App\NotificationQueue;
 use App\PushNotification;
 use Carbon\Carbon;
 use Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class InstructionController extends Controller
 {
@@ -24,19 +25,37 @@ class InstructionController extends Controller
     {
       if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
         if ($request->user[0] != null) {
-          $instructions = Instruction::whereNull('completed_at')->whereIn('assigned_to', $request->user)->latest()->paginate(Setting::get('pagination'));
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->whereNull('completed_at')->whereIn('assigned_to', $request->user)->latest()->get()->toArray();
           $completed_instructions = Instruction::whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         } else {
-          $instructions = Instruction::whereNull('completed_at')->latest()->paginate(Setting::get('pagination'));
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->whereNull('completed_at')->latest()->get()->toArray();
           $completed_instructions = Instruction::whereNotNull('completed_at')->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         }
       } else {
-        $instructions = Instruction::whereNull('completed_at')->where('assigned_to', Auth::id())->latest()->paginate(Setting::get('pagination'));
+        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->whereNull('completed_at')->where('assigned_to', Auth::id())->latest()->get()->toArray();
         $completed_instructions = Instruction::whereNotNull('completed_at')->where('assigned_to', Auth::id())->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
       }
 
       $users_array = Helpers::getUserArray(User::all());
       $user = $request->user ? $request->user : [];
+
+			$instructions = array_values(array_sort($instructions, function ($value) {
+        if ($value['remarks']) {
+          return $value['remarks'][0]['created_at'];
+        }
+
+        return NULL;
+			}));
+
+      $instructions = array_reverse($instructions);
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		$perPage = Setting::get('pagination');
+  		$currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
+
+  		$instructions = new LengthAwarePaginator($currentItems, count($instructions), $perPage, $currentPage, [
+  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		]);
 
       return view('instructions.index')->with([
         'instructions'            => $instructions,
@@ -94,7 +113,7 @@ class InstructionController extends Controller
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['remark' => 'Auto message was sent.', 'id' => $instruction->id, 'module_type' => 'instruction']);
-        
+
         app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
   			app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
       }

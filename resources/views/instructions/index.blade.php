@@ -71,36 +71,36 @@
             </tr>
             @foreach ($instructions as $instruction)
                 <tr>
-                  <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ isset($instruction->customer) ? $instruction->customer->name : '' }}</a></td>
+                  <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
                   <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer_id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
+                    <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
                   </td>
-                  <td>{{ $users_array[$instruction->assigned_to] }}</td>
-                  <td>{{ $instruction->category->name }}</td>
-                  <td>{{ $instruction->instruction }}</td>
+                  <td>{{ $users_array[$instruction['assigned_to']] }}</td>
+                  <td>{{ $instruction['category']['name'] }}</td>
+                  <td>{{ $instruction['instruction'] }}</td>
                   <td>
-                    @if ($instruction->completed_at)
-                      {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                    @if ($instruction['completed_at'])
+                      {{ Carbon\Carbon::parse($instruction['completed_at'])->format('d-m H:i') }}
                     @else
-                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}">Complete</a>
+                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction['id'] }}">Complete</a>
                     @endif
                   </td>
                   <td>
-                    @if ($instruction->completed_at)
+                    @if ($instruction['completed_at'])
                       Completed
                     @else
-                      @if ($instruction->pending == 0)
-                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                      @if ($instruction['pending'] == 0)
+                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction['id'] }}">Mark as Pending</a>
                       @else
                         Pending
                       @endif
                     @endif
                   </td>
-                  <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                  <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
                   <td>
-                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction['id'] }}">Add</a>
                     <span> | </span>
-                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
                   </td>
                 </tr>
             @endforeach
