@@ -40,7 +40,7 @@ class TwilioController extends FindByNumberController
     {
       $client = $this->getTwilioClient();
       $user = \Auth::user();
-      $agent = $user->id;
+      $agent = str_replace('-', '_', str_slug($user->name));
       $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
       $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
       $capability->allowClientIncoming($agent);
@@ -317,14 +317,18 @@ class TwilioController extends FindByNumberController
         // $users = User::get();
         $admins = Helpers::getUsersByRoleName('Admin');
         $hods = Helpers::getUsersByRoleName('HOD of CRM');
+        $andy = User::find(56);
+        $yogesh = User::find(6);
 
         $clients = [];
-        foreach ($admins as $admin) {
-            $clients[] = $admin->id;
-        }
+        // foreach ($admins as $admin) {
+        //     $clients[] = $admin->id;
+        // }
         foreach ($hods as $hod) {
-            $clients[] = $hod->id;
+            $clients[] = str_replace('-', '_', str_slug($hod->name));
         }
+        $clients[] = str_replace('-', '_', str_slug($andy->name));
+        $clients[] = str_replace('-', '_', str_slug($yogesh->name));
         return $clients;
     }
     private function dialAllClients($response, $role="sales", $context=NULL, $object=NULL , $number = "")
@@ -347,7 +351,7 @@ class TwilioController extends FindByNumberController
 
         Log::info('Client for callings: '.implode(',', $clients));
         foreach ($clients as $client) {
-            $dial->client( $client);
+            $dial->client($client);
         }
 
 
