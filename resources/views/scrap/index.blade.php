@@ -10,6 +10,13 @@
             <form method="post" action="{{ action('ScrapController@scrapGoogleImages') }}">
                 @csrf
                 <div class="form-group">
+                    <input id="google" type="checkbox" name="google" checked>
+                    <label for="google">Google</label>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <input id="pinterest" type="checkbox" name="pinterest" checked>
+                    <label for="pinterest">Pinterest</label>
+                </div>
+                <div class="form-group">
                     <label for="query">Search Text</label>
                     <input class="form-control" type="text" id="query" name="query" placeholder="Eg: Nike, Jordan, etc">
                 </div>

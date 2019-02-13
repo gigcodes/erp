@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Image;
 use App\ScrapedProducts;
 use App\Services\Scrap\GoogleImageScraper;
+use App\Services\Scrap\PinterestScraper;
 use Illuminate\Http\Request;
 use Storage;
 
 class ScrapController extends Controller
 {
     private $googleImageScraper;
+    private $pinterestScraper;
 
-    public function __construct(GoogleImageScraper $googleImageScraper)
+    public function __construct(GoogleImageScraper $googleImageScraper, PinterestScraper $pinterestScraper)
     {
         $this->googleImageScraper = $googleImageScraper;
+        $this->pinterestScraper = $pinterestScraper;
     }
 
     public function index() {
@@ -26,12 +29,26 @@ class ScrapController extends Controller
         $this->validate($request, [
             'query' => 'required',
             'noi' => 'required',
-            ]);
+        ]);
 
         $q = $request->get('query');
         $noi = $request->get('noi');
         $chip = $request->get('chip');
-        $data = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
+
+        $pinterestData = [];
+        $googleData = [];
+
+        if ($request->get('pinterest') === 'on') {
+            $pinterestData = $this->pinterestScraper->scrap($q, $noi);
+        }
+
+        if ($request->get('google') === 'on') {
+            $googleData = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
+        }
+
+        $data = array_merge($pinterestData, $googleData);
+
+
 
         $images = [];
 
