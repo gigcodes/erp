@@ -8,9 +8,16 @@
         </div>
         <div class="col-md-12">
             <div class="row">
-                @foreach($images as $image)
+                <h2>Google Images</h2>
+                @foreach($googleData as $image)
                     <div class="col-md-4 mb-2">
-                        <img src="{{ asset('uploads/social-media') . '/' . $image }}" class="img-responsive">
+                        <img src="{{ $image }}" class="img-responsive">
+                    </div>
+                @endforeach
+                <h2>Pinterest Images</h2>
+                @foreach($pinterestData as $image)
+                    <div class="col-md-4 mb-2">
+                        <img src="{{ $image }}" class="img-responsive">
                     </div>
                 @endforeach
             </div>

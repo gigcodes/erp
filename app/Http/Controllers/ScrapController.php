@@ -69,7 +69,7 @@ class ScrapController extends Controller
             $images[] = $fileName;
         }
 
-        return view('scrap.extracted_images', compact('images'));
+        return view('scrap.extracted_images', compact('images', 'googleData', 'pinterestData'));
 
     }
 
