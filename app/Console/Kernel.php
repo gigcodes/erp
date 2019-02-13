@@ -67,7 +67,7 @@ class Kernel extends ConsoleKernel
 
 	    $schedule->call(function () {
 		    \Log::debug('deQueueNotficationNew Start');
-//	    	NotificationQueueController::deQueueNotficationNew();
+	    	NotificationQueueController::deQueueNotficationNew();
 	    })->everyMinute();
 
          $schedule->call(function () {
