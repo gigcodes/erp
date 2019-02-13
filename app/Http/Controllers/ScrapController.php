@@ -39,7 +39,7 @@ class ScrapController extends Controller
         $googleData = [];
 
         if ($request->get('pinterest') === 'on') {
-            $pinterestData = $this->pinterestScraper->scrap($q, $noi);
+            $pinterestData = $this->pinterestScraper->scrapPinterestImages($q, $chip, $noi);
         }
 
         if ($request->get('google') === 'on') {

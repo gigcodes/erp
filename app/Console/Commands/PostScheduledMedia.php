@@ -47,8 +47,7 @@ class PostScheduledMedia extends Command
      */
     public function handle()
     {
-        $schedules = ScheduleGroup::where('status', 0)->where('scheduled_for', date('Y-m-d H-i-00'))->get();
-
+        $schedules = ScheduleGroup::where('status', 1)->where('scheduled_for', date('Y-m-d H-i-00'))->get();
         foreach ($schedules as $schedule) {
             $images = $schedule->images->get()->all();
 
@@ -66,7 +65,7 @@ class PostScheduledMedia extends Command
                 ]);
             }
 
-            $schedule->status = 1;
+            $schedule->status = 2;
             $schedule->save();
         }
     }

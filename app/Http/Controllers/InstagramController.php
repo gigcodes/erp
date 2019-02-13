@@ -146,6 +146,10 @@ class InstagramController extends Controller
             $date = Carbon::create($date[0], $date[1], $date[2], $request->get('hour'), $request->get('minute'), 0);
             $date = $date->toDateTimeString();
 
+            $image = Image::findOrFail($request->get('image_id'));
+            $image->is_scheduled = 1;
+            $image->save();
+
 
             $schedule = new ImageSchedule();
             $schedule->image_id = $request->get('image_id');
@@ -160,6 +164,7 @@ class InstagramController extends Controller
             $scheduleGroup->images = [$request->get('image_id')];
             $scheduleGroup->scheduled_for = $date;
             $scheduleGroup->description = $request->get('description');
+            $scheduleGroup->status = 1;
             $scheduleGroup->save();
 
             return response()->json([
@@ -176,6 +181,8 @@ class InstagramController extends Controller
         }
 
         $image = Image::findOrFail($request->get('image_id'));
+        $image->is_scheduled = 1;
+        $image->save();
 
         $schedule = new ImageSchedule();
         $schedule->image_id = $request->get('image_id');
@@ -230,7 +237,7 @@ class InstagramController extends Controller
             ]);
         }
 
-        $schedule->status = 1;
+        $schedule->status = 2;
         $schedule->scheduled_for = date('Y-m-d h:i:00');
         $schedule->save();
 
@@ -244,7 +251,7 @@ class InstagramController extends Controller
 
     public function showSchedules(Request $request) {
         $imagesWithoutSchedules = Image::whereDoesntHave('schedule')->where('status', 2)->orderBy('created_at', 'DESC')->get();
-        $imagesWithSchedules = ScheduleGroup::where('status', 0)->get();
+        $imagesWithSchedules = ScheduleGroup::where('status', '!=', 2)->get();
         $postedImages = Image::whereHas('schedule', function($query) {
             $query->where('status', 1);
         })->orderBy('created_at', 'DESC')->get();
@@ -254,7 +261,7 @@ class InstagramController extends Controller
     }
 
     public function getScheduledEvents() {
-        $imagesWithSchedules = ScheduleGroup::where('status', 0)->get()->toArray();
+        $imagesWithSchedules = ScheduleGroup::where('status', 1)->get()->toArray();
         $imagesWithSchedules = array_map(function($item) {
             return [
                 'title' => substr($item['description'], 0, 500).'...',
@@ -302,6 +309,7 @@ class InstagramController extends Controller
         $scheduleGroup->images = $images;
         $scheduleGroup->description = $request->get('caption') ?? '';
         $scheduleGroup->scheduled_for = $date;
+        $scheduleGroup->status = 1;
         $scheduleGroup->save();
 
         return redirect()->back()->with('message', 'The images has been successfully scheduled for post!');
@@ -362,5 +370,49 @@ class InstagramController extends Controller
         }
         $this->messages->sendMessage(['thread' => $thread], $request->get('message'));
         return $this->getThread($thread);
+    }
+
+    public function editSchedule($scheduleId)
+    {
+        $schedule = ScheduleGroup::find($scheduleId);
+        return view('instagram.schedule', compact('schedule'));
+    }
+
+    public function updateSchedule($scheduleId, Request $request)
+    {
+        $schedule = ScheduleGroup::findOrFail($scheduleId);
+
+        $schedule->status = 0;
+        if ($request->get('approval') === 'on') {
+            $schedule->status = 1;
+        }
+        $schedule->description = trim($request->get('description'));
+
+        $images = $request->get('images');
+        $selectedImages = $request->get('selected_images');
+
+        foreach ($images as $image)
+        {
+            $img = Image::find($image);
+
+            if (!in_array($image, $selectedImages, false)) {
+                if ($img && $img->schedule)
+                {
+                    $img->schedule->delete();
+                }
+                continue;
+            }
+
+            $img->schedule->description = trim($request->get('description_'.$image));
+            $img->schedule->save();
+        }
+
+
+        $schedule->images = $selectedImages;
+        $schedule->save();
+
+
+        return redirect()->back()->with('message', 'Schedule updated successfully!');
+
     }
 }

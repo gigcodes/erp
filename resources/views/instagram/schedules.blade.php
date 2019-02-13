@@ -108,6 +108,7 @@
                                                         <button class="btn btn-danger btn-lg post-delete" data-pid="{{$schedule->id}}" data-schedule-id="{{$schedule->id}}">
                                                             <i class="fa fa-trash"></i> Delete Schedule
                                                         </button>
+                                                        <a role="button" href="{{ action('InstagramController@editSchedule', $schedule->id) }}" class="btn btn-success btn-lg"><i class="fa fa-edit"></i> Edit/Approval</a>
                                                     </div>
                                                 </div>
                                             </div>
