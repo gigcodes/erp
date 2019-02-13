@@ -41,8 +41,7 @@ class MakeApprovedImagesSchedule extends Command
      */
     public function handle()
     {
-        $images = Image::where('is_scheduled', 0)->where('status', 2)->inRandomOrder()->take(3)->pluck('id');
-
+        $images = Image::where('is_scheduled', 0)->where('status', 2)->inRandomOrder()->take(1)->pluck('id');
 
         foreach ($images as $image) {
             $schedule = new ImageSchedule();
@@ -50,14 +49,14 @@ class MakeApprovedImagesSchedule extends Command
             $schedule->facebook = 1;
             $schedule->instagram = 1;
             $schedule->description = 'Auto Scheduled';
-            $schedule->scheduled_for = Carbon::tomorrow()->toDateString();
+            $schedule->scheduled_for = Carbon::tomorrow()->toDateString() . ' ' . date('H:i:00');
             $schedule->status = 0;
             $schedule->save();
         }
 
         $scheduleGroup = new ScheduleGroup();
         $scheduleGroup->images = $images;
-        $scheduleGroup->scheduled_for = Carbon::tomorrow()->toDateString();
+        $scheduleGroup->scheduled_for = Carbon::tomorrow()->toDateString() . ' ' . date('H:i:00');
         $scheduleGroup->description = 'Auto Scheduled';
         $scheduleGroup->save();
 

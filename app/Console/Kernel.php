@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
+use App\Console\Commands\MakeApprovedImagesSchedule;
 use App\Console\Commands\PostScheduledMedia;
 use App\Console\Commands\CheckLogins;
 use App\Console\Commands\AutoInterestMessage;
@@ -34,6 +35,7 @@ class Kernel extends ConsoleKernel
         GetGebnegozionlineProductEntries::class,
         AutoInterestMessage::class,
         AutoReminder::class,
+        MakeApprovedImagesSchedule::class
     ];
 
     /**
@@ -90,6 +92,10 @@ class Kernel extends ConsoleKernel
             ->hourly()
             ->withoutOverlapping()
         ;
+
+        $schedule->command('image:create-schedule')->dailyAt(14);
+        $schedule->command('image:create-schedule')->dailyAt(17);
+        $schedule->command('image:create-schedule')->dailyAt(20);
 
 //        $schedule->command('sync:instagram-messages')
 //            ->everyMinute();
