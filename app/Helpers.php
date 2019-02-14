@@ -50,7 +50,12 @@ class Helpers {
 	public static function getUserNameById($id)
 	{
 		$user = User::find($id);
-		return $user->name;
+
+		if ($user) {
+			return $user->name;
+		} else {
+			return 'Unkown';
+		}
 	}
 	public static function getUsersArrayByRole( $roleName = 'Sales' ) {
 
