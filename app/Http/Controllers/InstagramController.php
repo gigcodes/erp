@@ -312,6 +312,12 @@ class InstagramController extends Controller
         $scheduleGroup->status = 1;
         $scheduleGroup->save();
 
+        if ($request->isXmlHttpRequest()) {
+            return response()->json([
+                'status' => 'success'
+            ]);
+        }
+
         return redirect()->back()->with('message', 'The images has been successfully scheduled for post!');
 
     }

@@ -125,6 +125,18 @@
             <div id="menu2" class="tab-pane fade">
                 <div class="row mt-5">
                     <div class="col-md-12">
+                        <div class="row">
+                            <div id='external-events'>
+                                <p>
+                                    <strong>Drag Images To The calender</strong>
+                                </p>
+                                @foreach($imagesWithoutSchedules as $key => $item)
+                                    <img data-imgid="{{$item->id}}" class="fc-event" alt="Instagram Image" style="width: 20%;" src="{!! $item->filename ? asset('uploads/social-media') . '/' . $item->filename : 'http://lorempixel.com/555/300/black' !!}">
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
                         <div id="calendar"></div>
                     </div>
                 </div>
@@ -159,6 +171,7 @@
 @endsection
 
 @section('scripts')
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
     <script>
         var scheduling = false;
         $(document).ready(function() {
@@ -178,6 +191,34 @@
             $('#calendar').fullCalendar({
                 header: {
                     right: "month,agendaWeek,agendaDay, today prev,next",
+                },
+                droppable: true,
+                drop: function(date) {
+                    let imgid = $(this).attr('data-imgId');
+                    let imgsrc = $(this).attr('src');
+                    date = date.format();
+
+                    $.ajax({
+                        url: '{{action('InstagramController@postSchedules')}}',
+                        data: {
+                            images: [imgid],
+                            description: 'Added via Calender',
+                            date: date,
+                            hour: 0,
+                            minute: 0,
+                            _token: '{{ @csrf_token() }}'
+                        },
+                        type: 'POST',
+                        success: function(response) {
+                            if (response.status == 'success') {
+                                $('#calendar').fullCalendar( 'removeEvents' );
+                                $('#calendar').fullCalendar( 'refetchEvents' );
+                                alert("This item has been added successfully.");
+                            }
+                        }
+                    });
+
+
                 },
                 events: '{{ action('InstagramController@getScheduledEvents') }}',
                 eventClick: function(calEvent, jsEvent, view) {
@@ -240,6 +281,23 @@
                         $(self).html('<i class="fa fa-spinner"></i> Deleting... ');
                     }
                 });
+            });
+
+            $('#external-events .fc-event').each(function() {
+
+                // store data so the calendar knows to render an event upon drop
+                $(this).data('event', {
+                    title: $.trim($(this).text()), // use the element's text as the event title
+                    stick: true // maintain when user navigates (see docs on the renderEvent method)
+                });
+
+                // make the event draggable using jQuery UI
+                $(this).draggable({
+                    zIndex: 999,
+                    revert: true,      // will cause the event to go back to its
+                    revertDuration: 0  //  original position after the drag
+                });
+
             });
         });
     </script>
