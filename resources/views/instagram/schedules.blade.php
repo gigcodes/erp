@@ -130,9 +130,13 @@
                                 <p>
                                     <strong>Drag Images To The calender</strong>
                                 </p>
-                                @foreach($imagesWithoutSchedules as $key => $item)
-                                    <img data-imgid="{{$item->id}}" class="fc-event" alt="Instagram Image" style="width: 20%;" src="{!! $item->filename ? asset('uploads/social-media') . '/' . $item->filename : 'http://lorempixel.com/555/300/black' !!}">
-                                @endforeach
+                                <div class="row">
+                                    @foreach($imagesWithoutSchedules as $key => $item)
+                                        <div class="col-md-3 fc-eventx" data-imgid="{{$item->id}}">
+                                            <img class="img-fluid" data-imgid="{{$item->id}}" alt="Instagram Image"  src="{!! $item->filename ? asset('uploads/social-media') . '/' . $item->filename : 'http://lorempixel.com/555/300/black' !!}">
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -195,8 +199,8 @@
                 droppable: true,
                 drop: function(date) {
                     let imgid = $(this).attr('data-imgId');
-                    let imgsrc = $(this).attr('src');
                     date = date.format();
+                    let self = this;
 
                     $.ajax({
                         url: '{{action('InstagramController@postSchedules')}}',
@@ -213,7 +217,7 @@
                             if (response.status == 'success') {
                                 $('#calendar').fullCalendar( 'removeEvents' );
                                 $('#calendar').fullCalendar( 'refetchEvents' );
-                                alert("This item has been added successfully.");
+                                $(self).remove();
                             }
                         }
                     });
@@ -239,6 +243,7 @@
                 eventRender: function(event, eventElement) {
                     if (event.image_names) {
                         let imgHTML = '<div>';
+                        imgHTML += "<button class='btn btn-danger btn-sm btn-block' onclick='delete_schedule("+event.id+")'><i class='fa fa-remove'></i> Remove</button><br>";
                         event.image_names.forEach(function(image) {
                             imgHTML += ("<img src='" + image.name +"' width='50' height='50''>");
                         });
@@ -265,25 +270,7 @@
                 });
             });
 
-            $('.post-delete').click(function() {
-                let scheduleId = $(this).attr('data-schedule-id');
-                let self = this;
-                $.ajax({
-                    url: '{{ action('InstagramController@cancelSchedule', '') }}'+'/'+scheduleId,
-                    type: 'get',
-                    success: function(response) {
-                        if (response.status == 'success') {
-                            alert("Successfully deleted! We will reload the page for recent data.");
-                            location.reload();
-                        }
-                    },
-                    beforeSend: function() {
-                        $(self).html('<i class="fa fa-spinner"></i> Deleting... ');
-                    }
-                });
-            });
-
-            $('#external-events .fc-event').each(function() {
+            $('#external-events .fc-eventx').each(function() {
 
                 // store data so the calendar knows to render an event upon drop
                 $(this).data('event', {
@@ -299,6 +286,26 @@
                 });
 
             });
+        });
+
+        function delete_schedule(scheduleId) {
+            $.ajax({
+                url: '{{ action('InstagramController@cancelSchedule', '') }}'+'/'+scheduleId,
+                type: 'get',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        alert("Successfully deleted! We will reload the page for recent data.");
+                        location.reload();
+                    }
+                }
+            });
+        }
+
+
+        $(document).on('click', '.post-delete', function() {
+            let scheduleId = $(this).attr('data-schedule-id');
+            $(self).html('<i class="fa fa-spinner"></i> Deleting... ');
+            delete_schedule(scheduleId);
         });
     </script>
 @endsection

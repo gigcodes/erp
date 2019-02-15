@@ -264,6 +264,7 @@ class InstagramController extends Controller
         $imagesWithSchedules = ScheduleGroup::where('status', 1)->get()->toArray();
         $imagesWithSchedules = array_map(function($item) {
             return [
+                'id' => $item['id'],
                 'title' => substr($item['description'], 0, 500).'...',
                 'start' => $item['scheduled_for'],
                 'image_names' => array_map(function ($img) {
@@ -328,6 +329,8 @@ class InstagramController extends Controller
 
         $images = $schedule->images->get();
         foreach ($images as $image) {
+            $image->is_scheduled = 0;
+            $image->save();
             $image->schedule()->delete();
         }
 
