@@ -31,6 +31,7 @@
                 <form action="{{ route('search') }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     {{-- <div class="form-group">
                         <div class="row"> --}}
+                        <input type="hidden" name="selected_products[]" id="selected_products" value="">
                             <div class="form-group mr-3 mb-3">
                                 <input name="term" type="text" class="form-control" id="product-search"
                                        value="{{ isset($term) ? $term : '' }}"
@@ -174,7 +175,7 @@
 
       $(document).on('click', '.pagination a', function(e) {
         e.preventDefault();
-        var url = $(this).attr('href');
+        var url = $(this).attr('href') + '&selected_products=' + JSON.stringify(image_array);
 
         getProducts(url);
       });
@@ -223,6 +224,8 @@
 
       $('#searchForm').on('submit', function(e) {
         e.preventDefault();
+
+        $('#selected_products').val(image_array);
 
         var url = "{{ route('search') }}";
         var formData = $('#searchForm').serialize();
