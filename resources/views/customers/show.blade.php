@@ -802,7 +802,7 @@
                     <div class="form-group">
                       <strong>Created by:</strong>
 
-                      <input type="text" class="form-control" name="" placeholder="Created by" value="{{ App\Helpers::getUserNameById($lead->userid) }}" readonly/>
+                      <input type="text" class="form-control" name="" placeholder="Created by" value="{{ $lead->userid != 0 && App\Helpers::getUserNameById($lead->userid) }}" readonly/>
                     </div>
                   </div>
 

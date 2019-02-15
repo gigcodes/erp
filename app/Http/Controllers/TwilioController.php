@@ -119,7 +119,8 @@ class TwilioController extends FindByNumberController
          $dial = $response->dial([
                             'record' => 'true',
                             'recordingStatusCallback' =>$url,
-                            'action' => $actionurl
+                            'action' => $actionurl,
+                            'timeout' => '26'
 
                 ]);
 
@@ -371,33 +372,31 @@ class TwilioController extends FindByNumberController
      * @return \Illuminate\Http\Response
      */
 
-    public function handleDialCallStatus(Request $request){
+    public function handleDialCallStatus(Request $request) {
+      $response = new Twiml();
+      $callStatus = $request->input('DialCallStatus');
+      $recordurl = \Config::get("app.url")."/twilio/storerecording";
+      Log::info('Current Call Status '.$callStatus);
 
-         $response = new Twiml();
-         $callStatus = $request->input('DialCallStatus');
-         $recordurl = \Config::get("app.url")."/twilio/storerecording";
-           Log::info('Current Call Status '.$callStatus);
-
-      if ($callStatus !== 'completed') {
-
- $params = [
-            'twilio_call_sid' => $request->input('Caller'),
-            'message' => 'Missed Call',
-            'caller_sid' => $request->input('CallSid')
+      if ($callStatus === 'completed') {
+        $recordurl = \Config::get("app.url")."/twilio/storetranscript";
+        Log::info('Trasncript Call back url '.$recordurl);
+        $response->record([ 'transcribeCallback' => $recordurl ]);
+      } else {
+        $params = [
+          'twilio_call_sid' => $request->input('Caller'),
+          'message' => 'Missed Call',
+          'caller_sid' => $request->input('CallSid')
         ];
 
-         CallBusyMessage::create($params);
-                Log::info(' Missed Call saved' );
-               Log::info('-----SID----- '.$request->input('CallSid'));
+        CallBusyMessage::create($params);
+        Log::info(' Missed Call saved' );
+        Log::info('-----SID----- '.$request->input('CallSid'));
 
-       $this->createIncomingGather($response, "Please dial 0 for leave message");
-        }else{
+        $this->createIncomingGather($response, "Please dial 0 for leave message");
+      }
 
-           $recordurl = \Config::get("app.url")."/twilio/storetranscript";
-           Log::info('Trasncript Call back url '.$recordurl);
-           $response->record([ 'transcribeCallback' => $recordurl ]);
-        }
-        return $response;
+      return $response;
     }
 
 
