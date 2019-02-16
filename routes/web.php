@@ -159,6 +159,7 @@ Route::middleware('auth')->group(function (){
 	Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
 	Route::delete('customer/{id}/destroy', 'CustomerController@destroy')->name('customer.destroy');
 	Route::post('customer/send/message/all', 'WhatsAppController@sendToAll')->name('customer.whatsapp.send.all');
+	Route::get('customer/email/fetch', 'CustomerController@emailFetch')->name('customer.email.fetch');
 
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');

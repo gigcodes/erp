@@ -10,6 +10,7 @@ use App\Category;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryImport;
+use Carbon\Carbon;
 
 class ProductInventoryController extends Controller
 {
@@ -48,6 +49,139 @@ class ProductInventoryController extends Controller
 		return view('partials.grid',compact('products','roletype', 'search_suggestions', 'category_selection'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 
+	}
+
+	public function list(Request $request, Stage $stage)
+	{
+		// $products = Product::latest()
+		//                    ->where('stage','>=',$stage->get('Approver') )
+		// 									 ->whereNull('dnf')
+		// 									 ->where('stock', '>=', 1)
+		//                    ->paginate(Setting::get('pagination'));
+
+		$category_tree = [];
+
+		// dd(Category::parentLevel(128));
+
+		foreach (Category::all() as $category) {
+			// $is_parent = Category::isParent($category->id);
+
+			// $category = DB::table('categories')->where('id', $id)->first();
+			// dump('pirmas', $count);
+			// dump($category->parent_id);
+			if ($category->parent_id != 0) {
+				$parent = $category->parent;
+				if ($parent->parent_id != 0) {
+					$category_tree[$parent->parent_id][$parent->id][$category->id];
+				} else {
+					// dump($parent->id, $category->id);
+					$category_tree[$parent->id][$category->id] = 0;
+				}
+			}
+		}
+
+		// dd($category_tree);
+
+		$brands_array = Brand::getAll();
+		$products_brands = Product::latest()
+		                   ->where('stage','>=',$stage->get('Approver') )
+											 ->whereNull('dnf')
+											 ->where('stock', '>=', 1)->get()
+											 ->groupBy([function ($query) use ($brands_array) {
+												 return $brands_array[$query->brand];
+											 }, 'category']);
+
+		 // $products_categories = Product::latest()
+			//                    ->where('stage','>=',$stage->get('Approver') )
+			// 									 ->whereNull('dnf')
+			// 									 ->where('stock', '>=', 1)->get()
+			// 									 ->groupBy(['category']);
+
+			$temp = [];
+
+			foreach ($products_brands as $brand_name => $categories) {
+				foreach ($categories as $category_id => $products) {
+					$temp[$brand_name][$category_id] = count($products);
+				}
+			}
+
+			// dd($temp);
+
+		$inventory_data = [];
+		// dd($products_brands);
+		foreach ($products_brands as $brand_name => $categories) {
+			$tree = [];
+			$inventory_data[$brand_name]['count'] = 'count';
+			$inventory_data[$brand_name]['tree'] = $category_tree;
+			foreach ($categories as $category_id => $products) {
+				// dd($categories);
+				// $is_parent = Category::isParent($category_id);
+				//
+				// if ($parent = Category::find($category)->parent) {
+				//
+				// }
+				// $parent = Category::find($category)->parent;
+				// while ($parent) {
+				//
+				// }
+
+				// $inventory_data[$brand_name][$brand_id]['id'] = $brand_id;
+
+
+				$category = Category::find($category_id);
+				if ($category->parent_id != 0) {
+					$parent = $category->parent;
+					if ($parent->parent_id != 0) {
+						$inventory_data[$brand_name]['tree'][$parent->parent_id][$parent->id] += count($products);
+
+						// dump('tevukas');
+						// dd($inventory_data[$brand_name]['tree'][$parent->parent_id][$parent->id]);
+					} else {
+						// dump($parent->id, $category->id);
+						$inventory_data[$brand_name]['tree'][$parent->id][$category->id] += count($products);
+						// dump('tevas');
+					}
+				}
+			}
+		}
+
+		// dd($inventory_data);
+
+		$categories_array = [];
+		$categories = Category::all();
+
+		foreach ($categories as $category) {
+			$categories_array[$category->id] = $category->title;
+		}
+
+		// foreach ($products_categories as $month => $categories) {
+		// 	foreach ($categories as $category_id => $data) {
+		// 		$inventory_data[$month]['categories'][$category_id]['id'] = $category_id;
+		// 		$inventory_data[$month]['categories'][$category_id]['count'] = count($data);
+		// 	}
+		// }
+
+		// dd($inventory_data);
+		// $roletype = 'Inventory';
+
+ 		// $search_suggestions = [];
+ 		// $sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get();
+ 		// $brand_suggestions = Brand::getAll();
+		//
+ 		// foreach ($sku_suggestions as $key => $suggestion) {
+ 		// 	array_push($search_suggestions, $suggestion->sku);
+ 		// }
+		//
+ 		// foreach ($brand_suggestions as $key => $suggestion) {
+ 		// 	array_push($search_suggestions, $suggestion);
+ 		// }
+		//
+ 		// $category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
+ 		//                                         ->selected(1)
+ 		//                                         ->renderAsDropdown();
+
+ 		return view('products.list',compact('inventory_data', 'categories_array'))
+ 			->with('i', (request()->input('page', 1) - 1) * 10);
 	}
 
 	public function edit(Product $productlister){

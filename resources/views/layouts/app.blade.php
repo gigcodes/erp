@@ -507,6 +507,8 @@
 
                                                 Grid</a>
 
+                                            <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+
                                             <a class="dropdown-item" href="{{ route('productinventory.instock') }}">In
 
                                                 stock</a>
