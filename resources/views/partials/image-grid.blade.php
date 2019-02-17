@@ -31,6 +31,7 @@
                 <form action="{{ route('search') }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     {{-- <div class="form-group">
                         <div class="row"> --}}
+                        <input type="hidden" name="selected_products" id="selected_products" value="">
                             <div class="form-group mr-3 mb-3">
                                 <input name="term" type="text" class="form-control" id="product-search"
                                        value="{{ isset($term) ? $term : '' }}"
@@ -174,7 +175,7 @@
 
       $(document).on('click', '.pagination a', function(e) {
         e.preventDefault();
-        var url = $(this).attr('href');
+        var url = $(this).attr('href') + '&selected_products=' + JSON.stringify(image_array);
 
         getProducts(url);
       });
@@ -183,6 +184,7 @@
         $.ajax({
           url: url
         }).done(function(data) {
+          console.log(data);
           $('#productGrid').html(data.html);
         }).fail(function() {
           alert('Error loading more products');
@@ -224,6 +226,8 @@
       $('#searchForm').on('submit', function(e) {
         e.preventDefault();
 
+        $('#selected_products').val(JSON.stringify(image_array));
+
         var url = "{{ route('search') }}";
         var formData = $('#searchForm').serialize();
 
@@ -248,7 +252,6 @@
           data: formData
         }).done(function(data) {
           $('#productGrid').html(data.html);
-          console.log(data);
         }).fail(function() {
           alert('Error searching for products');
         });

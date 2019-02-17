@@ -233,7 +233,7 @@ class SearchController extends Controller {
 		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
 
 		if ($request->ajax()) {
-			$html = view('partials.image-load', ['products' => $data['products'], 'data'	=> $data])->render();
+			$html = view('partials.image-load', ['products' => $data['products'], 'data'	=> $data, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : [])])->render();
 
 			return response()->json(['html' => $html]);
 		}

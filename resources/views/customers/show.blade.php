@@ -398,7 +398,7 @@
                         @if ($instruction->completed_at)
                           {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
                         @else
-                          <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}">Complete</a>
+                          <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
                         @endif
                       </td>
                       <td>
@@ -432,7 +432,7 @@
                   <th>Assigned to</th>
                   <th>Category</th>
                   <th>Instructions</th>
-                  <th colspan="2" class="text-center">Action</th>
+                  <th colspan="3" class="text-center">Action</th>
                   <th>Created at</th>
                   <th>Remark</th>
                 </tr>
@@ -448,7 +448,7 @@
                         @if ($instruction->completed_at)
                           {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
                         @else
-                          <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}">Complete</a>
+                          <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
                         @endif
                       </td>
                       <td>
@@ -460,6 +460,15 @@
                           @else
                             Pending
                           @endif
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction->verified == 1)
+                          <span class="badge">Verified</span>
+                        @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                          <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                        @else
+                          <span class="badge">Not Verified</span>
                         @endif
                       </td>
                       <td>{{ $instruction->created_at->diffForHumans() }}</td>
@@ -2474,6 +2483,8 @@
         var token = "{{ csrf_token() }}";
         var url = "{{ route('instruction.complete') }}";
         var id = $(this).data('id');
+        var assigned_from = $(this).data('assignedfrom');
+        var current_user = {{ Auth::id() }};
 
         $.ajax({
           type: 'POST',
@@ -2489,7 +2500,13 @@
           // $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
           $(thiss).closest('tr').remove();
 
-          var row = '<tr><td></td><td>' + response.instruction + '</td><td>' + moment(response.time).format('DD-MM HH:mm') + '</td><td>Completed</td><td></td></tr>';
+          if (assigned_from == current_user) {
+            var verify_button = '<a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="' + id + '">Verify</a>';
+          } else {
+            var verify_button = '<span class="badge">Not Verified</span>';
+          }
+
+          var row = '<tr><td></td><td></td><td></td><td>' + response.instruction + '</td><td>' + moment(response.time).format('DD-MM HH:mm') + '</td><td>Completed</td><td>' + verify_button + '</td><td></td><td></td></tr>';
 
           $('#5 tbody').append($(row));
         }).fail(function(errObj) {
@@ -2647,6 +2664,33 @@
           $(thiss).text('Tracking...');
           alert('Could not track this package');
           console.log(response);
+        });
+      });
+
+      $(document).on('click', '.verify-btn', function(e) {
+        e.preventDefault();
+
+        var thiss = $(this);
+        var id = $(this).data('id');
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('instruction.verify') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            id: id
+          },
+          beforeSend: function() {
+            $(thiss).text('Verifying...');
+          }
+        }).done(function(response) {
+          $(thiss).parent().html('<span class="badge">Verified</span>');
+
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Verify');
+          console.log(response);
+          alert('Could not verify the instruction!');
         });
       });
   </script>

@@ -80,6 +80,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('instruction','InstructionController');
 	Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
 	Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
+	Route::post('instruction/verify', 'InstructionController@verify')->name('instruction.verify');
 	Route::get('instruction/complete/alert', 'InstructionController@completeAlert')->name('instruction.complete.alert');
 	Route::post('instruction/category/store', 'InstructionController@categoryStore')->name('instruction.category.store');
 
@@ -159,6 +160,7 @@ Route::middleware('auth')->group(function (){
 	Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
 	Route::delete('customer/{id}/destroy', 'CustomerController@destroy')->name('customer.destroy');
 	Route::post('customer/send/message/all', 'WhatsAppController@sendToAll')->name('customer.whatsapp.send.all');
+	Route::get('customer/email/fetch', 'CustomerController@emailFetch')->name('customer.email.fetch');
 
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
