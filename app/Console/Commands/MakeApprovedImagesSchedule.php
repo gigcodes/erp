@@ -41,7 +41,7 @@ class MakeApprovedImagesSchedule extends Command
      */
     public function handle()
     {
-        $images = Image::where('is_scheduled', 0)->where('status', 2)->inRandomOrder()->take(1)->pluck('id');
+        $images = $this->getImages();
 
         foreach ($images as $image) {
             $schedule = new ImageSchedule();
@@ -63,5 +63,26 @@ class MakeApprovedImagesSchedule extends Command
         Image::whereIn('id', $images)->update([
             'is_scheduled' => 1
         ]);
+    }
+
+    private function getImages($count = 10)
+    {
+        if ($count === 0) {
+            $images = Image::where('is_scheduled', 0)->where('status', 2)->inRandomOrder()->take(1)->pluck('id')->toArray();
+            return $images;
+        }
+
+        $schedules = ImageSchedule::orderBy('id', 'DESC')->take($count)->pluck('image_id');
+
+        $brands = Image::whereIn('id', $schedules)->pluck('brand');
+
+
+        $images = Image::where('is_scheduled', 0)->where('status', 2)->whereNotIn('brand', $brands)->take(1)->pluck('id')->toArray();
+
+        if ($images) {
+            return $images;
+        }
+
+        return $this->getImages($count-1);
     }
 }
