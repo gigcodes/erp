@@ -80,6 +80,7 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::resource('instruction','InstructionController');
 	Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
 	Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
+	Route::post('instruction/verify', 'InstructionController@verify')->name('instruction.verify');
 	Route::get('instruction/complete/alert', 'InstructionController@completeAlert')->name('instruction.complete.alert');
 	Route::post('instruction/category/store', 'InstructionController@categoryStore')->name('instruction.category.store');
 

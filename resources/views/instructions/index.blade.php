@@ -119,7 +119,7 @@
                 <th>Assigned to</th>
                 <th>Category</th>
                 <th>Instructions</th>
-                <th colspan="2" class="text-center">Action</th>
+                <th colspan="3" class="text-center">Action</th>
                 <th>Created at</th>
                 <th>Remark</th>
               </tr>
@@ -148,6 +148,15 @@
                         @else
                           Pending
                         @endif
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction->verified == 1)
+                        <span class="badge">Verified</span>
+                      @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                        <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                      @else
+                        <span class="badge">Not Verified</span>
                       @endif
                     </td>
                     <td>{{ $instruction->created_at->diffForHumans() }}</td>
@@ -332,6 +341,33 @@
             });
             $("#viewRemarkModal").find('#remark-list').html(html);
         });
+    });
+
+    $(document).on('click', '.verify-btn', function(e) {
+      e.preventDefault();
+
+      var thiss = $(this);
+      var id = $(this).data('id');
+
+      $.ajax({
+        type: "POST",
+        url: "{{ route('instruction.verify') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: id
+        },
+        beforeSend: function() {
+          $(thiss).text('Verifying...');
+        }
+      }).done(function(response) {
+        $(thiss).parent().html('<span class="badge">Verified</span>');
+
+        $(thiss).remove();
+      }).fail(function(response) {
+        $(thiss).text('Verify');
+        console.log(response);
+        alert('Could not verify the instruction!');
+      });
     });
   </script>
 @endsection

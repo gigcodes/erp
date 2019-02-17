@@ -191,6 +191,15 @@ class InstructionController extends Controller
       return response("success");
     }
 
+    public function verify(Request $request)
+    {
+      $instruction = Instruction::find($request->id);
+      $instruction->verified = 1;
+      $instruction->save();
+
+      return response("success");
+    }
+
     public function completeAlert(Request $request)
     {
       $instruction = Instruction::find($request->id);
