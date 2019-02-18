@@ -130,6 +130,11 @@
     			</div>
         </div>
 
+        <div class="form-group">
+          <input type="checkbox" name="credited" id="credited" {{ $refund->credited ? 'checked' : '' }}>
+          <label for="credited">Mark as Credited</label>
+        </div>
+
         <button type="submit" class="btn btn-secondary">Update</button>
 
         {!! Form::close() !!}

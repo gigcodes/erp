@@ -135,9 +135,18 @@ class RefundController extends Controller
 			$data['awb'] = '';
 		}
 
+		if ($request->credited)
+			$data['credited'] = 1;
+
 		$data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
 
-		Refund::find($id)->update($data);
+		$refund = Refund::find($id);
+		$refund->update($data);
+
+		if ($request->credited) {
+			$refund->order->delete();
+			$refund->delete();
+		}
 
 		return redirect()->route('refund.index')->with('success', 'You have successfully added refund!');
 	}

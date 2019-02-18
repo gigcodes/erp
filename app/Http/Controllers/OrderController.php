@@ -604,7 +604,7 @@ class OrderController extends Controller {
 		$data['order_status_report'] = OrderStatuses::all();
 		if ($order->customer)
 			$data['order_reports'] = OrderReport::where('order_id', $order->customer->id)->get();
-			
+
 		$data['users_array'] = Helpers::getUserArray(User::all());
 		$data['has_customer'] = $order->customer ? $order->customer->id : false;
 		$data['customer'] = $order->customer;
@@ -729,6 +729,16 @@ class OrderController extends Controller {
 					'date_of_request'	=> Carbon::now(),
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
+			}
+		}
+
+		if ($order->order_status == 'Delivered') {
+			$order->delete();
+
+			if ($request->type != 'customer') {
+				return redirect()->route('order.index')->with('success', 'Order was updated and archived successfully!');
+			} else {
+				return back()->with('success', 'Order was updated and archived successfully!');
 			}
 		}
 
