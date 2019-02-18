@@ -58,6 +58,7 @@ class MakeApprovedImagesSchedule extends Command
         $scheduleGroup->images = $images;
         $scheduleGroup->scheduled_for = Carbon::tomorrow()->toDateString() . ' ' . date('H:i:00');
         $scheduleGroup->description = 'Auto Scheduled';
+        $scheduleGroup->status = 1;
         $scheduleGroup->save();
 
         Image::whereIn('id', $images)->update([
