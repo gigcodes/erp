@@ -29,7 +29,7 @@
                                             <strong>{{ $product->brand ? $product->brand->name : 'N/A' }}</strong>
                                         </div>
                                         <div style="font-size: 14px;">
-                                            <strong>{{ $product->price ?? 'N/A' }}</strong>
+                                            <strong>{!! $product->price ?? 'N/A' !!}</strong>
                                         </div>
                                     </span>
                                 </div>

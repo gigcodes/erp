@@ -10,6 +10,7 @@ use App\Console\Commands\CheckLogins;
 use App\Console\Commands\AutoInterestMessage;
 use App\Console\Commands\AutoReminder;
 //use App\Console\Commands\SyncInstagramMessage;
+use App\Console\Commands\UpdateSkuInGnb;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -35,7 +36,8 @@ class Kernel extends ConsoleKernel
         GetGebnegozionlineProductEntries::class,
         AutoInterestMessage::class,
         AutoReminder::class,
-        MakeApprovedImagesSchedule::class
+        MakeApprovedImagesSchedule::class,
+        UpdateSkuInGnb::class
     ];
 
     /**
@@ -96,6 +98,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('image:create-schedule')->dailyAt(14);
         $schedule->command('image:create-schedule')->dailyAt(17);
         $schedule->command('image:create-schedule')->dailyAt(20);
+        $schedule->command('gnb:get-sku')->everyMinute();
 
 //        $schedule->command('sync:instagram-messages')
 //            ->everyMinute();

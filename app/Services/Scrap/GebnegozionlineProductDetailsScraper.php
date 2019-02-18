@@ -19,6 +19,26 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $this->getProductDetails($product);
         }
     }
+    public function updateSku() {
+
+        $products = ScrapedProducts::where('has_sku', 0)->take(10)->get();
+
+        foreach ($products as $product) {
+            $content = $this->getContent($product->url);
+            if ($content === '') {
+                $product->delete();
+                return;
+            }
+
+            $c = new HtmlPageCrawler($content);
+            $sku = $this->getSku($c);
+            $product->sku = $sku;
+            if ($sku != 'N/A') {
+                $product->has_sku = 1;
+            }
+            $product->save();
+        }
+    }
 
     private function getProductDetails(ScrapEntries $scrapEntry)
     {
@@ -30,6 +50,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
         $c = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
+        $sku = $this->getSku($c);
         $brand = $this->getDesignerName($c);
         $images = $this->getImages($c);
         $description = $this->getDescription($c);
@@ -50,11 +71,15 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
         $image = new ScrapedProducts();
         $image->brand_id = $brandId;
+        $image->sku = $sku;
         $image->website = 'G&B';
         $image->title = $title;
         $image->description = $description;
         $image->images = $images;
         $image->price = $price;
+        if ($sku != 'N/A') {
+            $image->has_sku = 1;
+        }
         $image->url = $scrapEntry->url;
         $image->properties = $properties;
         $image->save();
@@ -82,6 +107,16 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
 
         return $price;
+    }
+
+    private function getSku(HtmlPageCrawler $c) {
+        try {
+            $sku = preg_replace('/\s\s+/', '', $c->filter('div.product-code div p')->getInnerHtml());
+        } catch (\Exception $exception) {
+            $sku = 'N/A';
+        }
+
+        return $sku;
     }
 
     private function getDescription(HtmlPageCrawler $c) {
