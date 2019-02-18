@@ -20,6 +20,7 @@ class SettingController extends Controller
 //		$data['euro_to_inr'] = Setting::get('euro_to_inr');
 //		$data['special_price_discount'] = Setting::get('special_price_discount');
 		$data['pagination'] = Setting::get('pagination');
+		$data['incoming_calls'] = Setting::get('incoming_calls');
 
 		return view('setting.index',$data);
 	}
@@ -33,10 +34,13 @@ class SettingController extends Controller
 		$euro_to_inr = $request->input('euro_to_inr');
 //		$special_price_discount = $request->input('special_price_discount');
 		$pagination = $request->input('pagination');
+		$incoming_calls = $request->incoming_calls ? 1 : 0;
+
 
 //		Setting::add('euro_to_inr', $euro_to_inr, 'double');
 //		Setting::add('special_price_discount', $special_price_discount, 'int');
 		Setting::add('pagination', $pagination, 'int');
+		Setting::add('incoming_calls', $incoming_calls, 'tinyint');
 
 		return redirect()->back()->with('status', 'Settings has been saved.');
 	}

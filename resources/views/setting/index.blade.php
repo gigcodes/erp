@@ -61,6 +61,14 @@
                                         <div class="alert alert-danger">{{$errors->first('pagination')}}</div>
                                     @endif
                                 </div>
+
+                                <div class="form-group">
+                                    <input type="checkbox" name="incoming_calls" id="incoming_calls" {{ $incoming_calls ? 'checked' : '' }} />
+                                    <label for="incoming_calls">Incoming Calls for Yogesh:</label>
+                                    @if ($errors->has('incoming_calls'))
+                                        <div class="alert alert-danger">{{$errors->first('incoming_calls')}}</div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>

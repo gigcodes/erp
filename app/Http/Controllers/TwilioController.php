@@ -326,10 +326,14 @@ class TwilioController extends FindByNumberController
         //     $clients[] = $admin->id;
         // }
         foreach ($hods as $hod) {
-            $clients[] = str_replace('-', '_', str_slug($hod->name));
+          $clients[] = str_replace('-', '_', str_slug($hod->name));
         }
+
         $clients[] = str_replace('-', '_', str_slug($andy->name));
-        $clients[] = str_replace('-', '_', str_slug($yogesh->name));
+
+        if (Setting::get('incoming_calls') == 1) {
+          $clients[] = str_replace('-', '_', str_slug($yogesh->name));
+        }
         return $clients;
     }
     private function dialAllClients($response, $role="sales", $context=NULL, $object=NULL , $number = "")
