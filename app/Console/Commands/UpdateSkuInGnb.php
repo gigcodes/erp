@@ -43,6 +43,7 @@ class UpdateSkuInGnb extends Command
     public function handle()
     {
         $this->scraper->updateSku();
+        $this->scraper->updateProperties();
 
     }
 }

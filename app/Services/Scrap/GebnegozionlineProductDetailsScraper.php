@@ -77,6 +77,25 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
     }
 
+    public function updateProperties() {
+
+        $products = ScrapedProducts::where('is_property_updated', 0)->take(10)->get();
+
+        foreach ($products as $product) {
+            $content = $this->getContent($product->url);
+            if ($content === '') {
+                $product->delete();
+                return;
+            }
+
+            $c = new HtmlPageCrawler($content);
+            $properties = $this->getProperties($c);
+            $product->properties = $properties;
+            $product->is_property_updated = 1;
+            $product->save();
+        }
+    }
+
     private function getProductDetails(ScrapEntries $scrapEntry)
     {
         $content = $this->getContent($scrapEntry->url);
@@ -92,12 +111,8 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $images = $this->getImages($c);
         $description = $this->getDescription($c);
         $price = $this->getPrice($c);
-        $gender = $this->isMaleOrFemale($scrapEntry->url);
-//        $propertiesData = $this->getProperties($c);
+        $properties = $this->getProperties($c);
 
-        $properties = [
-            'gender' => $gender
-        ];
 
         if (!$images || !$title) {
             $scrapEntry->delete();
@@ -276,19 +291,26 @@ class GebnegozionlineProductDetailsScraper extends Scraper
     }
 
     private function getProperties(HtmlPageCrawler $c) {
-        $pname =  $c->filter('.control-container select')->getAttribute('input-name');
-        if (!$pname) {
-            $pname = 'Property';
-        }
-        $options = $c->filter('.control-container select option')->getIterator();
-        $values = [];
-        foreach ($options as $key=>$option) {
-            if ($key !== 0) {
-                $value = preg_replace('/\s\s+/', '', $option->textContent);
-                $values[] = $value;
+        $properties =  $c->filter('table#product-attribute-specs-table tbody')->children()->getIterator();
+
+        $propertiesData = [];
+
+        foreach ($properties as $property) {
+            $tag = '';
+            $value = '';
+            foreach ($property->childNodes as $key=>$childNode) {
+                if ($key === 0) {
+                    $tag = trim($childNode->textContent);
+                    continue;
+                }
+                if ($key === 2) {
+                    $value = preg_replace('/\s\s+/', '\n', $childNode->textContent);
+                    break;
+                }
             }
+            $propertiesData[$tag] = $value;
         }
 
-        return [$pname => $values];
+        return $propertiesData;
     }
 }
