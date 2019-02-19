@@ -44,7 +44,7 @@ class TwilioController extends FindByNumberController
       $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
       $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
       $capability->allowClientIncoming($agent);
-      $expiresIn = (3600*10);
+      $expiresIn = (3600*1);
       $token = $capability->generateToken($expiresIn);
       return response()->json(['twilio_token' => $token]);
     }
