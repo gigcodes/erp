@@ -45,7 +45,6 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $new_product->short_description = $product->description;
             $new_product->price = $product->price;
             $new_product->supplier_link = $product->url;
-            $new_product->supplier_link = $product->url;
             $new_product->save();
 
             foreach ($product->images as $image_name) {
