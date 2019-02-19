@@ -5,8 +5,12 @@ namespace App\Services\Scrap;
 use App\Brand;
 use App\ScrapedProducts;
 use App\ScrapEntries;
+use App\Product;
 use Storage;
+use Validator;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class GebnegozionlineProductDetailsScraper extends Scraper
 {
@@ -19,6 +23,40 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $this->getProductDetails($product);
         }
     }
+
+    public function createProducts()
+    {
+        $products = ScrapedProducts::where('has_sku', 1)->get();
+
+        foreach ($products as $product) {
+          $data['sku'] = $product->sku;
+          $validator = Validator::make($data, [
+            'sku' => 'unique:products,sku'
+          ]);
+
+          if ($validator->fails()) {
+
+          } else {
+            $new_product = new Product;
+            $new_product->sku = $product->sku;
+            $new_product->brand = $product->brand_id;
+            $new_product->supplier = 'G & B Negozionline';
+            $new_product->name = $product->title;
+            $new_product->short_description = $product->description;
+            $new_product->price = $product->price;
+            $new_product->supplier_link = $product->url;
+            $new_product->supplier_link = $product->url;
+            $new_product->save();
+
+            foreach ($product->images as $image_name) {
+              $path = public_path('uploads') . '/social-media/' . $image_name;
+              $media = MediaUploader::fromSource($path)->upload();
+              $new_product->attachMedia($media,config('constants.media_tags'));
+            }
+          }
+        }
+    }
+
     public function updateSku() {
 
         $products = ScrapedProducts::where('has_sku', 0)->take(10)->get();
@@ -88,6 +126,32 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
+
+        $data['sku'] = $sku;
+        $validator = Validator::make($data, [
+          'sku' => 'unique:products,sku'
+        ]);
+
+        if ($validator->fails()) {
+
+        } else {
+          $product = new Product;
+          $product->sku = $sku;
+          $product->brand = $brandId;
+          $product->supplier = 'G & B Negozionline';
+          $product->name = $title;
+          $product->short_description = $description;
+          $product->price = $price;
+          $product->supplier_link = $scrapEntry->url;
+          $product->stage = 3;
+          $product->save();
+
+          foreach ($images as $image_name) {
+            $path = public_path('uploads') . '/social-media/' . $image_name;
+            $media = MediaUploader::fromSource($path)->upload();
+            $product->attachMedia($media,config('constants.media_tags'));
+          }
+        }
     }
 
     private function getTitle(HtmlPageCrawler $c) {
