@@ -45,6 +45,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $new_product->short_description = $product->description;
             $new_product->price = $product->price;
             $new_product->supplier_link = $product->url;
+            $new_product->stage = 3;
             $new_product->save();
 
             foreach ($product->images as $image_name) {
@@ -141,30 +142,44 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
 
-        $data['sku'] = $sku;
-        $validator = Validator::make($data, [
-          'sku' => 'unique:products,sku'
-        ]);
-
-        if ($validator->fails()) {
-
-        } else {
-          $product = new Product;
-          $product->sku = $sku;
-          $product->brand = $brandId;
-          $product->supplier = 'G & B Negozionline';
-          $product->name = $title;
-          $product->short_description = $description;
-          $product->price = $price;
-          $product->supplier_link = $scrapEntry->url;
-          $product->stage = 3;
-          $product->save();
-
-          foreach ($images as $image_name) {
-            $path = public_path('uploads') . '/social-media/' . $image_name;
-            $media = MediaUploader::fromSource($path)->upload();
-            $product->attachMedia($media,config('constants.media_tags'));
-          }
+        // $data['sku'] = $sku;
+        // $validator = Validator::make($data, [
+        //   'sku' => 'unique:products,sku'
+        // ]);
+        //
+        // if ($validator->fails()) {
+        //
+        // } else {
+        //   $product = new Product;
+        //   $product->sku = $sku;
+        //   $product->brand = $brandId;
+        //   $product->supplier = 'G & B Negozionline';
+        //   $product->name = $title;
+        //   $product->short_description = $description;
+        //   $product->price = $price;
+        //   $product->supplier_link = $scrapEntry->url;
+        //   $product->stage = 3;
+        //
+        //   $properties_array = json_decode($properties);
+        //
+        //   if (array_key_exists('Details', $properties_array)) {
+        //     $product->composition = $properties_array['Details'];
+        //   }
+        //
+        //   if (array_key_exists('Color Code', $properties_array)) {
+        //     $product->color = $properties_array['Color Code'];
+        //   }
+        //
+        //   // size
+        //   // price
+        //
+        //   $product->save();
+        //
+        //   foreach ($images as $image_name) {
+        //     $path = public_path('uploads') . '/social-media/' . $image_name;
+        //     $media = MediaUploader::fromSource($path)->upload();
+        //     $product->attachMedia($media,config('constants.media_tags'));
+        //   }
         }
     }
 
