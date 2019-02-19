@@ -60,7 +60,7 @@ class NotificationQueueController extends Controller
 		}
 
 		// if ($notificationArray['sent_to'] == 6 || $notificationArray['sent_to'] == 56 || (array_key_exists('role', $notificationArray) && $notificationArray['role'] == 'Admin')) {
-		if (($notificationArray['sent_to'] == 6 && $notificationArray['model_type'] == Instruction::class) || ($notificationArray['sent_to'] == 3 && $notificationArray['model_type'] == Instruction::class)) {
+		if (($notificationArray['sent_to'] == 6 && $notificationArray['model_type'] == Instruction::class) || ($notificationArray['sent_to'] == 3 && $notificationArray['model_type'] == Instruction::class) || ($notificationArray['sent_to'] == 23 && $notificationArray['model_type'] == Instruction::class)) {
 			// TEMP SOLUTION TO TURN OFF NOTIFICATIONS FOR ADMINS
 		} else {
 			foreach ($notificationArray['timestamps'] as $time){
