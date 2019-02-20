@@ -189,92 +189,92 @@ class CustomerController extends Controller
 
     public function load(Request $request)
     {
-      $first_customer = Customer::find($request->first_customer);
-      $second_customer = Customer::find($request->second_customer);
+        $first_customer = Customer::find($request->first_customer);
+        $second_customer = Customer::find($request->second_customer);
 
-      return response()->json([
-        'first_customer'  => $first_customer,
-        'second_customer'  => $second_customer
-      ]);
+        return response()->json([
+            'first_customer'  => $first_customer,
+            'second_customer'  => $second_customer
+        ]);
     }
 
     public function merge(Request $request)
     {
-      $this->validate($request, [
-        'name'          => 'required|min:3|max:255',
-        'email'         => 'required_without_all:phone,instahandler|nullable|email',
-        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $request->first_customer_id,
-        'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
-        'rating'        => 'required|numeric',
-        'address'       => 'sometimes|nullable|min:3|max:255',
-        'city'          => 'sometimes|nullable|min:3|max:255',
-        'country'       => 'sometimes|nullable|min:3|max:255'
-      ]);
+        $this->validate($request, [
+            'name'          => 'required|min:3|max:255',
+            'email'         => 'required_without_all:phone,instahandler|nullable|email',
+            'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $request->first_customer_id,
+            'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
+            'rating'        => 'required|numeric',
+            'address'       => 'sometimes|nullable|min:3|max:255',
+            'city'          => 'sometimes|nullable|min:3|max:255',
+            'country'       => 'sometimes|nullable|min:3|max:255'
+        ]);
 
-      $first_customer = Customer::find($request->first_customer_id);
+        $first_customer = Customer::find($request->first_customer_id);
 
-      $first_customer->name = $request->name;
-      $first_customer->email = $request->email;
-      $first_customer->phone = $request->phone;
-      $first_customer->whatsapp_number = $request->whatsapp_number;
-      $first_customer->instahandler = $request->instahandler;
-      $first_customer->rating = $request->rating;
-      $first_customer->address = $request->address;
-      $first_customer->city = $request->city;
-      $first_customer->country = $request->country;
+        $first_customer->name = $request->name;
+        $first_customer->email = $request->email;
+        $first_customer->phone = $request->phone;
+        $first_customer->whatsapp_number = $request->whatsapp_number;
+        $first_customer->instahandler = $request->instahandler;
+        $first_customer->rating = $request->rating;
+        $first_customer->address = $request->address;
+        $first_customer->city = $request->city;
+        $first_customer->country = $request->country;
 
-      $first_customer->save();
+        $first_customer->save();
 
-      $chat_messages = ChatMessage::where('customer_id', $request->second_customer_id)->get();
+        $chat_messages = ChatMessage::where('customer_id', $request->second_customer_id)->get();
 
-      foreach ($chat_messages as $chat) {
-        $chat->customer_id = $first_customer->id;
-        $chat->save();
-      }
+        foreach ($chat_messages as $chat) {
+            $chat->customer_id = $first_customer->id;
+            $chat->save();
+        }
 
-      $messages = Message::where('customer_id', $request->second_customer_id)->get();
+        $messages = Message::where('customer_id', $request->second_customer_id)->get();
 
-      foreach ($messages as $message) {
-        $message->customer_id = $first_customer->id;
-        $message->save();
-      }
+        foreach ($messages as $message) {
+            $message->customer_id = $first_customer->id;
+            $message->save();
+        }
 
-      $leads = Leads::where('customer_id', $request->second_customer_id)->get();
+        $leads = Leads::where('customer_id', $request->second_customer_id)->get();
 
-      foreach ($leads as $lead) {
-        $lead->customer_id = $first_customer->id;
-        $lead->save();
-      }
+        foreach ($leads as $lead) {
+            $lead->customer_id = $first_customer->id;
+            $lead->save();
+        }
 
-      $orders = Order::where('customer_id', $request->second_customer_id)->get();
+        $orders = Order::where('customer_id', $request->second_customer_id)->get();
 
-      foreach ($orders as $order) {
-        $order->customer_id = $first_customer->id;
-        $order->save();
-      }
+        foreach ($orders as $order) {
+            $order->customer_id = $first_customer->id;
+            $order->save();
+        }
 
-      $instructions = Instruction::where('customer_id', $request->second_customer_id)->get();
+        $instructions = Instruction::where('customer_id', $request->second_customer_id)->get();
 
-      foreach ($instructions as $instruction) {
-        $instruction->customer_id = $first_customer->id;
-        $instruction->save();
-      }
+        foreach ($instructions as $instruction) {
+            $instruction->customer_id = $first_customer->id;
+            $instruction->save();
+        }
 
-      $second_customer = Customer::find($request->second_customer_id);
-      $second_customer->delete();
+        $second_customer = Customer::find($request->second_customer_id);
+        $second_customer->delete();
 
-      return redirect()->route('customer.index');
+        return redirect()->route('customer.index');
     }
 
     public function import(Request $request)
     {
-      $this->validate($request, [
-        'file'  => 'required|mimes:xls,xlsx'
-      ]);
+        $this->validate($request, [
+            'file'  => 'required|mimes:xls,xlsx'
+        ]);
 
-      (new CustomerImport)->queue($request->file('file'));
+        (new CustomerImport)->queue($request->file('file'));
 
-      return redirect()->back()->with('success', 'Customers are being imported in the background');
+        return redirect()->back()->with('success', 'Customers are being imported in the background');
     }
 
     /**
@@ -284,7 +284,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-      return view('customers.create');
+        return view('customers.create');
     }
 
     /**
@@ -295,32 +295,32 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-      $this->validate($request, [
-        'name'          => 'required|min:3|max:255',
-        'email'         => 'required_without_all:phone,instahandler|nullable|email',
-        'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers',
-        'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
-        'rating'        => 'required|numeric',
-        'address'       => 'sometimes|nullable|min:3|max:255',
-        'city'          => 'sometimes|nullable|min:3|max:255',
-        'country'       => 'sometimes|nullable|min:3|max:255'
-      ]);
+        $this->validate($request, [
+            'name'          => 'required|min:3|max:255',
+            'email'         => 'required_without_all:phone,instahandler|nullable|email',
+            'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers',
+            'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
+            'rating'        => 'required|numeric',
+            'address'       => 'sometimes|nullable|min:3|max:255',
+            'city'          => 'sometimes|nullable|min:3|max:255',
+            'country'       => 'sometimes|nullable|min:3|max:255'
+        ]);
 
-      $customer = new Customer;
+        $customer = new Customer;
 
-      $customer->name = $request->name;
-      $customer->email = $request->email;
-      $customer->phone = $request->phone;
-      $customer->whatsapp_number = $request->whatsapp_number;
-      $customer->instahandler = $request->instahandler;
-      $customer->rating = $request->rating;
-      $customer->address = $request->address;
-      $customer->city = $request->city;
-      $customer->country = $request->country;
+        $customer->name = $request->name;
+        $customer->email = $request->email;
+        $customer->phone = $request->phone;
+        $customer->whatsapp_number = $request->whatsapp_number;
+        $customer->instahandler = $request->instahandler;
+        $customer->rating = $request->rating;
+        $customer->address = $request->address;
+        $customer->city = $request->city;
+        $customer->country = $request->country;
 
-      $customer->save();
+        $customer->save();
 
-      return redirect()->route('customer.index')->with('success', 'You have successfully added new customer!');
+        return redirect()->route('customer.index')->with('success', 'You have successfully added new customer!');
     }
 
     /**
@@ -331,55 +331,55 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-      $customer = Customer::find($id);
-      $customers = Customer::all();
+        $customer = Customer::find($id);
+        $customers = Customer::all();
         $call_history = [];
 
         if($customer->phone != ''){
-        $phone_number = str_replace('+', '', $customer->phone);
-        if (strlen($phone_number) > 10) {
-         $customer_number = str_replace('91', '', $phone_number);
-        }else{
-          $customer_number = $phone_number;
+            $phone_number = str_replace('+', '', $customer->phone);
+            if (strlen($phone_number) > 10) {
+                $customer_number = str_replace('91', '', $phone_number);
+            }else{
+                $customer_number = $phone_number;
+            }
+
+            $lead_ids = [];
+            $order_ids = [];
+            foreach ($customer->leads as $lead) {
+                $lead_ids[] = $lead->id;
+            }
+            foreach ($customer->orders as $order) {
+                $order_ids[] = $order->id;
+            }
+
+            // $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
+            $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orWhere('customer_id', $customer->id)->orderBy('created_at', 'DESC')->get()->toArray();
         }
 
-      $lead_ids = [];
-      $order_ids = [];
-      foreach ($customer->leads as $lead) {
-        $lead_ids[] = $lead->id;
-      }
-      foreach ($customer->orders as $order) {
-        $order_ids[] = $order->id;
-      }
 
-      // $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
-     $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orWhere('customer_id', $customer->id)->orderBy('created_at', 'DESC')->get()->toArray();
-      }
+        // $leads = Leads::find($id);
+        $status = (New status)->all();
+        $users = User::all()->toArray();
+        $users_array = Helpers::getUserArray(User::all());
+        $brands = Brand::all()->toArray();
+        $reply_categories = ReplyCategory::all();
+        $instruction_categories = InstructionCategory::all();
+        $order_status_report = OrderStatuses::all();
 
-
-      // $leads = Leads::find($id);
-      $status = (New status)->all();
-      $users = User::all()->toArray();
-      $users_array = Helpers::getUserArray(User::all());
-      $brands = Brand::all()->toArray();
-      $reply_categories = ReplyCategory::all();
-      $instruction_categories = InstructionCategory::all();
-      $order_status_report = OrderStatuses::all();
-
-      return view('customers.show', [
-        'customers'  => $customers,
-        'customer'  => $customer,
-        'status'    => $status,
-        'brands'    => $brands,
-        'users'     => $users,
-        'users_array'     => $users_array,
-        // 'approval_replies'     => $approval_replies,
-        // 'internal_replies'     => $internal_replies,
-        'reply_categories'  => $reply_categories,
-        'call_history' =>  $call_history,
-        'instruction_categories' =>  $instruction_categories,
-        'order_status_report' =>  $order_status_report
-      ]);
+        return view('customers.show', [
+            'customers'  => $customers,
+            'customer'  => $customer,
+            'status'    => $status,
+            'brands'    => $brands,
+            'users'     => $users,
+            'users_array'     => $users_array,
+            // 'approval_replies'     => $approval_replies,
+            // 'internal_replies'     => $internal_replies,
+            'reply_categories'  => $reply_categories,
+            'call_history' =>  $call_history,
+            'instruction_categories' =>  $instruction_categories,
+            'order_status_report' =>  $order_status_report
+        ]);
     }
 
     /**
@@ -390,9 +390,9 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
-      $customer = Customer::find($id);
+        $customer = Customer::find($id);
 
-      return view('customers.edit')->withCustomer($customer);
+        return view('customers.edit')->withCustomer($customer);
     }
 
     /**
@@ -404,32 +404,32 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
-      $customer = Customer::find($id);
+        $customer = Customer::find($id);
 
-      $this->validate($request, [
-        'name'          => 'required|min:3|max:255',
-        'email'         => 'required_without_all:phone,instahandler|nullable|email',
-        'phone'         => 'required_without_all:email,instahandler|nullable|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $id,
-        'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
-        'rating'        => 'required|numeric',
-        'address'       => 'sometimes|nullable|min:3|max:255',
-        'city'          => 'sometimes|nullable|min:3|max:255',
-        'country'       => 'sometimes|nullable|min:3|max:255'
-      ]);
+        $this->validate($request, [
+            'name'          => 'required|min:3|max:255',
+            'email'         => 'required_without_all:phone,instahandler|nullable|email',
+            'phone'         => 'required_without_all:email,instahandler|nullable|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $id,
+            'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
+            'rating'        => 'required|numeric',
+            'address'       => 'sometimes|nullable|min:3|max:255',
+            'city'          => 'sometimes|nullable|min:3|max:255',
+            'country'       => 'sometimes|nullable|min:3|max:255'
+        ]);
 
-      $customer->name = $request->name;
-      $customer->email = $request->email;
-      $customer->phone = $request->phone;
-      $customer->whatsapp_number = $request->whatsapp_number;
-      $customer->instahandler = $request->instahandler;
-      $customer->rating = $request->rating;
-      $customer->address = $request->address;
-      $customer->city = $request->city;
-      $customer->country = $request->country;
+        $customer->name = $request->name;
+        $customer->email = $request->email;
+        $customer->phone = $request->phone;
+        $customer->whatsapp_number = $request->whatsapp_number;
+        $customer->instahandler = $request->instahandler;
+        $customer->rating = $request->rating;
+        $customer->address = $request->address;
+        $customer->city = $request->city;
+        $customer->country = $request->country;
 
-      $customer->save();
+        $customer->save();
 
-      return redirect()->route('customer.show', $id)->with('success', 'You have successfully updated the customer!');
+        return redirect()->route('customer.show', $id)->with('success', 'You have successfully updated the customer!');
     }
 
     /**
@@ -440,14 +440,14 @@ class CustomerController extends Controller
      */
     public function destroy($id)
     {
-      $customer = Customer::find($id);
+        $customer = Customer::find($id);
 
-      if (count($customer->leads) > 0 || count($customer->orders) > 0) {
-        return redirect()->route('customer.index')->with('warning', 'You have related leads or orders to this customer');
-      }
+        if (count($customer->leads) > 0 || count($customer->orders) > 0) {
+            return redirect()->route('customer.index')->with('warning', 'You have related leads or orders to this customer');
+        }
 
-      $customer->delete();
+        $customer->delete();
 
-      return redirect()->route('customer.index')->with('success', 'You have successfully deleted a customer');
+        return redirect()->route('customer.index')->with('success', 'You have successfully deleted a customer');
     }
 }
