@@ -89,7 +89,9 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
 	Route::get('order/products/list', 'OrderController@products')->name('order.products');
 	Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
-    Route::resource('order','OrderController');
+	Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
+	Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
+  Route::resource('order','OrderController');
 
 	Route::post('order/status/store','OrderReportController@statusStore')->name('status.store');
 	Route::post('order/report/store','OrderReportController@store')->name('status.report.store');
@@ -336,6 +338,7 @@ Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
 Route::get('twilio/getLeadByNumber', 'TwilioController@getLeadByNumber');
 Route::post('twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback');
 Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatus');
+Route::post('twilio/handleOutgoingDialCallStatus', 'TwilioController@handleOutgoingDialCallStatus');
 Route::post('twilio/storerecording','TwilioController@storeRecording');
 Route::post('twilio/storetranscript','TwilioController@storetranscript');
 Route::get(

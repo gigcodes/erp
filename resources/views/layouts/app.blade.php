@@ -878,6 +878,8 @@
 
                                         List</a>
 
+                                      <a class="dropdown-item" href="{{ route('order.calls-history') }}">Calls History</a>
+
                                       <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
                                       <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
 

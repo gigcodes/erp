@@ -17,6 +17,7 @@ use App\Customer;
 use App\Message;
 use App\CallRecording;
 use App\CallBusyMessage;
+use App\CallHistory;
 use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -403,6 +404,16 @@ class TwilioController extends FindByNumberController
         $this->createIncomingGather($response, "Please dial 0 for leave message");
       }
 
+      if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->input('Caller'))->first()) {
+        $params = [
+          'customer_id' => $customer->id,
+          'status'      => $callStatus
+        ];
+
+        CallHistory::create($params);
+      }
+
+
       return $response;
     }
 
@@ -426,6 +437,15 @@ class TwilioController extends FindByNumberController
 
           app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $params['message']);
         }
+      }
+
+      if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->phone_number)->first()) {
+        $params = [
+          'customer_id' => $customer->id,
+          'status'      => $callStatus
+        ];
+
+        CallHistory::create($params);
       }
 
       return $response;
