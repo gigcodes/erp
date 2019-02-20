@@ -12,12 +12,12 @@ use Wa72\HtmlPageDom\HtmlPageCrawler;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
-class GebnegozionlineProductDetailsScraper extends Scraper
+class WiseBoutiqueProductDetailsScraper extends Scraper
 {
 
     public function scrap()
     {
-        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'GNB')->take(25)->get();
+        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'Wiseboutique')->take(25)->get();
 
         foreach ($products as $product) {
             $this->getProductDetails($product);
@@ -26,6 +26,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     public function createProducts()
     {
+        dd('here...');
         $products = ScrapedProducts::where('has_sku', 1)->get();
 
         foreach ($products as $product) {
@@ -34,65 +35,23 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             'sku' => 'unique:products,sku'
           ]);
 
-          if ($validator->fails()) {
+          if (!$validator->fails()) {
+              $new_product = new Product;
+              $new_product->sku = $product->sku;
+              $new_product->brand = $product->brand_id;
+              $new_product->supplier = 'Wiseboutique';
+              $new_product->name = $product->title;
+              $new_product->short_description = $product->description;
+              $new_product->price = $product->price;
+              $new_product->supplier_link = $product->url;
+              $new_product->save();
 
-          } else {
-            $new_product = new Product;
-            $new_product->sku = $product->sku;
-            $new_product->brand = $product->brand_id;
-            $new_product->supplier = 'G & B Negozionline';
-            $new_product->name = $product->title;
-            $new_product->short_description = $product->description;
-            $new_product->price = $product->price;
-            $new_product->supplier_link = $product->url;
-            $new_product->save();
-
-            foreach ($product->images as $image_name) {
-              $path = public_path('uploads') . '/social-media/' . $image_name;
-              $media = MediaUploader::fromSource($path)->upload();
-              $new_product->attachMedia($media,config('constants.media_tags'));
-            }
+              foreach ($product->images as $image_name) {
+                  $path = public_path('uploads') . '/social-media/' . $image_name;
+                  $media = MediaUploader::fromSource($path)->upload();
+                  $new_product->attachMedia($media,config('constants.media_tags'));
+              }
           }
-        }
-    }
-
-    public function updateSku() {
-
-        $products = ScrapedProducts::where('has_sku', 0)->take(10)->get();
-
-        foreach ($products as $product) {
-            $content = $this->getContent($product->url);
-            if ($content === '') {
-                $product->delete();
-                return;
-            }
-
-            $c = new HtmlPageCrawler($content);
-            $sku = $this->getSku($c);
-            $product->sku = $sku;
-            if ($sku != 'N/A') {
-                $product->has_sku = 1;
-            }
-            $product->save();
-        }
-    }
-
-    public function updateProperties() {
-
-        $products = ScrapedProducts::where('is_property_updated', 0)->take(10)->get();
-
-        foreach ($products as $product) {
-            $content = $this->getContent($product->url);
-            if ($content === '') {
-                $product->delete();
-                return;
-            }
-
-            $c = new HtmlPageCrawler($content);
-            $properties = $this->getProperties($c);
-            $product->properties = $properties;
-            $product->is_property_updated = 1;
-            $product->save();
         }
     }
 
@@ -106,13 +65,12 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
         $c = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
-        $sku = $this->getSku($c);
         $brand = $this->getDesignerName($c);
+        $price = $this->getPrice($c);
+        $sku = $this->getSku($c);
         $images = $this->getImages($c);
         $description = $this->getDescription($c);
-        $price = $this->getPrice($c);
         $properties = $this->getProperties($c);
-
 
         if (!$images || !$title) {
             $scrapEntry->delete();
@@ -124,7 +82,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $image = new ScrapedProducts();
         $image->brand_id = $brandId;
         $image->sku = $sku;
-        $image->website = 'G&B';
+        $image->website = 'Wiseboutique';
         $image->title = $title;
         $image->description = $description;
         $image->images = $images;
@@ -152,7 +110,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
           $product = new Product;
           $product->sku = $sku;
           $product->brand = $brandId;
-          $product->supplier = 'G & B Negozionline';
+          $product->supplier = 'Wiseboutique';
           $product->name = $title;
           $product->short_description = $description;
           $product->price = $price;
@@ -170,7 +128,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     private function getTitle(HtmlPageCrawler $c) {
         try {
-            $title = preg_replace('/\s\s+/', '', $c->filter('.product-title-name div.value p.title')->getInnerHtml());
+            $title = preg_replace('/\s\s+/', '', $c->filter('div.dettagliinterno h2')->getInnerHtml());
         } catch (\Exception $exception) {
             $title = '';
         }
@@ -179,7 +137,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     private function getPrice(HtmlPageCrawler $c) {
         try {
-            $price = preg_replace('/\s\s+/', '', $c->filter('span.price')->getInnerHtml());
+            $price = preg_replace('/\s\s+/', '', $c->filter('div.prezzidettaglio div span')->getInnerHtml());
         } catch (\Exception $exception) {
             $price = 'N/A';
         }
@@ -189,7 +147,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     private function getSku(HtmlPageCrawler $c) {
         try {
-            $sku = preg_replace('/\s\s+/', '', $c->filter('div.product-code div p')->getInnerHtml());
+            $sku = preg_replace('/\s\s+/', '', $c->filter('div.dettagliinterno h3 i span')->getInnerHtml());
         } catch (\Exception $exception) {
             $sku = 'N/A';
         }
@@ -199,35 +157,22 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     private function getDescription(HtmlPageCrawler $c) {
         try {
-            $title = preg_replace('/\s\s+/', '', strip_tags($c->filter('div.description div.value')->getInnerHtml()));
+            $title = preg_replace('/\s\s+/', '', strip_tags($c->filter('div.descrizioniprodotto div')->getInnerHtml()));
         } catch (\Exception $exception) {
             $title = '';
         }
+
+        $title = str_replace('-', '\n', $title);
         return $title;
     }
 
     private function getImages(HtmlPageCrawler $c) {
-        $scripts = $c->filter('script')->getIterator();
-        $content = '';
+        $images = $c->filter('.dettagli a')->getIterator();
+        $content = [];
 
-        foreach ($scripts as $script) {
-            $content = trim($script->textContent);
-            if (strpos($content, 'var sizeGuideData =') !== false) {
-                break;
-            }
+        foreach ($images as $image) {
+            $content[] = 'https://www.wiseboutique.com' . trim($image->getAttribute('href'));
         }
-
-        $content = str_replace('var sizeGuideData = ', '', $content);
-        $content = str_replace('}];', '}]', $content);
-
-
-        $content = json_decode($content, true);
-
-
-        $content = array_map(function($item) {
-            return $item['full'];
-        }, $content);
-
 
         return $this->downloadImages($content, 'gnb');
     }
@@ -235,7 +180,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
     private function getDesignerName(HtmlPageCrawler $c)
     {
         try {
-            $title = preg_replace('/\s\s+/', '', $c->filter('h1.page-title span')->getInnerHtml());
+            $title = preg_replace('/\s\s+/', '', $c->filter('h1.notranslate a span')->getInnerHtml());
         } catch (\Exception $exception) {
             $title = '';
         }
@@ -277,39 +222,32 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         return $images;
     }
 
-    private function isMaleOrFemale($url) {
-        $url = strtolower($url);
-        if (strpos($url, 'donna') !== false || strpos($url, 'women') !== false) {
-            return 'female';
-        }
-
-        if (strpos($url, 'uomo') !== false || strpos($url, 'men') !== false) {
-            return 'female';
-        }
-
-        return 'male';
-    }
-
     private function getProperties(HtmlPageCrawler $c) {
-        $properties =  $c->filter('table#product-attribute-specs-table tbody')->children()->getIterator();
-
+        $propertiesValues =  $c->filter('div.dettagliinterno div.clear .col9')->getIterator();
         $propertiesData = [];
 
-        foreach ($properties as $property) {
-            $tag = '';
-            $value = '';
-            foreach ($property->childNodes as $key=>$childNode) {
-                if ($key === 0) {
-                    $tag = trim($childNode->textContent);
-                    continue;
-                }
-                if ($key === 2) {
-                    $value = preg_replace('/\s\s+/', '\n', $childNode->textContent);
-                    break;
-                }
-            }
-            $propertiesData[$tag] = $value;
+        foreach ($propertiesValues as $key=>$property) {
+            $value = preg_replace('/\s\s+/', '\n', $property->textContent);
+            $propertiesData[] = $value;
         }
+
+        $bread = $c->filter('ol.breadcrumb li')->filter('a span')->getIterator();
+
+        $categoryTypes = [];
+
+        foreach ($bread as $item) {
+            if (trim($item->textContent) != 'HOME') {
+                $categoryTypes[] = trim($item->textContent);
+            }
+        }
+
+        if (in_array('DONNA', $categoryTypes, false) || in_array('WOMAN', $categoryTypes, false)) {
+            $propertiesData['gender'] = 'Female';
+        } else {
+            $propertiesData['gender'] = 'Male';
+        }
+
+        $propertiesData['category'] = $categoryTypes;
 
         return $propertiesData;
     }

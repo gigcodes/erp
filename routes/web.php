@@ -397,3 +397,5 @@ Route::prefix('scrap')->group(function () {
     Route::post('/google/images', 'ScrapController@scrapGoogleImages');
     Route::get('/gnb', 'ScrapController@showGnbProducts');
 });
+
+$c = new \App\Services\Scrap\WiseBoutiqueScraper(new \GuzzleHttp\Client);
