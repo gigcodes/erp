@@ -123,17 +123,13 @@ class CustomerController extends Controller
         if ($sortby == 'communication') {
             if ($orderby == 'asc') {
                 $customers = array_values(array_sort($customers, function ($value) {
-                    if (isset($value['communication'])) {
-                        return $value['communication']['created_at'];
-                    }
+                    return $value['communication']['created_at'];
                 }));
 
                 $customers = array_reverse($customers);
             } else {
                 $customers = array_values(array_sort($customers, function ($value) {
-                    if (isset($value['communication'])) {
-                        return $value['communication']['created_at'];
-                    }
+                    return $value['communication']['created_at'];
                 }));
             }
         }
@@ -141,17 +137,13 @@ class CustomerController extends Controller
         if ($sortby == 'rating') {
             if ($orderby == 'asc') {
                 $customers = array_values(array_sort($customers, function ($value) {
-                    if (isset($value['lead'])) {
-                        return $value['lead']['rating'];
-                    }
+                    return $value['lead']['rating'];
                 }));
 
                 $customers = array_reverse($customers);
             } else {
                 $customers = array_values(array_sort($customers, function ($value) {
-                    if (isset($value['lead'])) {
-                        return $value['lead']['rating'];
-                    }
+                    return $value['lead']['rating'];
                 }));
             }
         }
@@ -159,17 +151,13 @@ class CustomerController extends Controller
         if ($sortby == 'lead_created') {
             if ($orderby == 'asc') {
                 $customers = array_values(array_sort($customers, function ($value) {
-                    if (isset($value['lead'])) {
-                        return $value['lead']['created_at'];
-                    }
+                    return $value['lead']['created_at'];
                 }));
 
                 $customers = array_reverse($customers);
             } else {
                 $customers = array_values(array_sort($customers, function ($value) {
-                    if (isset($value['lead'])) {
-                        return $value['lead']['created_at'];
-                    }
+                    return $value['lead']['created_at'];
                 }));
             }
         }
@@ -177,17 +165,13 @@ class CustomerController extends Controller
         if ($sortby == 'order_created') {
             if ($orderby == 'asc') {
                 $customers = array_values(array_sort($customers, function ($value) {
-                    if (isset($value['order'])) {
-                        return $value['order']['created_at'];
-                    }
+                    return $value['order']['created_at'];
                 }));
 
                 $customers = array_reverse($customers);
             } else {
                 $customers = array_values(array_sort($customers, function ($value) {
-                    if (isset($value['order'])) {
-                        return $value['order']['created_at'];
-                    }
+                    return $value['order']['created_at'];
                 }));
             }
         }
