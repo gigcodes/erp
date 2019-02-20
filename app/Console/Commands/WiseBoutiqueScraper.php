@@ -25,7 +25,7 @@ class WiseBoutiqueScraper extends Command
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param WiseBoutiqueScraperService $scraper
      */
     public function __construct(WiseBoutiqueScraperService $scraper)
     {
