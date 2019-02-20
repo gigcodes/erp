@@ -37,10 +37,6 @@ class CustomerController extends Controller
         $query->latest();
       }, 'Leads' => function ($query) {
         $query->latest();
-      }, 'Messages_all' => function ($query) {
-        $query->latest();
-      }, 'Whatsapps_all' => function ($query) {
-        $query->latest();
       }]);
 
       // dd($customers->take(20)->get());
