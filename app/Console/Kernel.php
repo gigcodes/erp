@@ -12,6 +12,8 @@ use App\Console\Commands\AutoReminder;
 //use App\Console\Commands\SyncInstagramMessage;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
+use App\Console\Commands\WiseboutiqueProductDetailScraper;
+use App\Console\Commands\WiseBoutiqueScraper;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -40,6 +42,8 @@ class Kernel extends ConsoleKernel
         MakeApprovedImagesSchedule::class,
         UpdateSkuInGnb::class,
         CreateScrapedProducts::class,
+        WiseBoutiqueScraper::class,
+        WiseboutiqueProductDetailScraper::class
     ];
 
     /**
@@ -93,6 +97,16 @@ class Kernel extends ConsoleKernel
         ;
 
         $schedule->command('gebnegozionline:get-products-detail')
+            ->hourly()
+            ->withoutOverlapping()
+        ;
+
+        $schedule->command('gebnegozionline:get-products-list')
+            ->hourly()
+            ->withoutOverlapping()
+        ;
+
+        $schedule->command('scrap:wiseboutique-list')
             ->hourly()
             ->withoutOverlapping()
         ;
