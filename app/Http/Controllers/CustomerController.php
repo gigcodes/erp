@@ -95,9 +95,7 @@ class CustomerController extends Controller
                 });
         }
 
-        $customers = $customers->paginate(15);
-        $pagination = $customers->links();
-        $customers = $customers->toArray()['data'];
+        $customers = $customers->get()->toArray();
 
         // $customers_array = [];
         //
@@ -176,6 +174,12 @@ class CustomerController extends Controller
             }
         }
 
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = Setting::get('pagination');
+        $currentItems = array_slice($customers, $perPage * ($currentPage - 1), $perPage);
+        $customers = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [
+            'path'	=> LengthAwarePaginator::resolveCurrentPath()
+        ]);
         $customers_all = Customer::all();
 
         return view('customers.index', [
@@ -183,7 +187,6 @@ class CustomerController extends Controller
             'customers_all' => $customers_all,
             'term' => $term,
             'orderby' => $orderby,
-            'pagination' => $pagination
         ]);
     }
 

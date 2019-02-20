@@ -391,7 +391,7 @@
         </table>
     </div>
 
-    {!! $pagination !!}
+    {!! $customers->appends(Request::except('page'))->links() !!}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script type="text/javascript">
