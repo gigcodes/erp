@@ -29,13 +29,61 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $products = ScrapedProducts::where('has_sku', 1)->get();
 
         foreach ($products as $product) {
-          $data['sku'] = $product->sku;
-          $validator = Validator::make($data, [
-            'sku' => 'unique:products,sku'
-          ]);
+          // $data['sku'] = $product->sku;
 
-          if ($validator->fails()) {
+          if ($old_product = Product::where('sku', $product->sku)->first()) {
+            $old_product->sku = $product->sku;
+            $old_product->brand = $product->brand_id;
+            $old_product->supplier = 'G & B Negozionline';
+            $old_product->name = $product->title;
+            $old_product->short_description = $product->description;
+            $old_product->supplier_link = $product->url;
+            $old_product->stage = 3;
 
+            $properties_array = $product->properties;
+
+            if (array_key_exists('Details', $properties_array)) {
+              $old_product->composition = (string) $properties_array['Details'];
+            }
+
+            if (array_key_exists('Color Code', $properties_array)) {
+              $old_product->color = $properties_array['Color Code'];
+            }
+
+            if (array_key_exists('Size & Fit', $properties_array)) {
+              $sizes = $properties_array['Size & Fit'];
+              if (strpos($sizes, 'Width:') !== false) {
+                preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+
+                $old_product->lmeasurement = (int) $match[1][0];
+                $old_product->measurement_size_type = 'measurement';
+              }
+
+              if (strpos($sizes, 'Height:') !== false) {
+                preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+
+                $old_product->hmeasurement = (int) $match[1][0];
+              }
+
+              if (strpos($sizes, 'Depth:') !== false) {
+                preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+
+                $old_product->dmeasurement = (int) $match[1][0];
+              }
+            }
+
+            $brand = Brand::find($product->brand_id);
+
+            $price = (int) preg_replace('/[\$,]/', '', $product->price);
+            $old_product->price = $price * 0.88;
+            $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
+
+    				$old_product->price_inr = round($old_product->price_inr, -3);
+    				$old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
+
+    				$old_product->price_special = round($old_product->price_special, -3);
+
+            $old_product->save();
           } else {
             $new_product = new Product;
             $new_product->sku = $product->sku;
@@ -43,9 +91,52 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $new_product->supplier = 'G & B Negozionline';
             $new_product->name = $product->title;
             $new_product->short_description = $product->description;
-            $new_product->price = $product->price;
             $new_product->supplier_link = $product->url;
             $new_product->stage = 3;
+
+            $properties_array = $product->properties;
+
+            if (array_key_exists('Details', $properties_array)) {
+              $new_product->composition = $properties_array['Details'];
+            }
+
+            if (array_key_exists('Color Code', $properties_array)) {
+              $new_product->color = $properties_array['Color Code'];
+            }
+
+            if (array_key_exists('Size & Fit', $properties_array)) {
+              $sizes = $properties_array['Size & Fit'];
+              if (strpos($sizes, 'Width:') !== false) {
+                preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+
+                $new_product->lmeasurement = (int) $match[1][0];
+                $new_product->measurement_size_type = 'measurement';
+              }
+
+              if (strpos($sizes, 'Height:') !== false) {
+                preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+
+                $new_product->hmeasurement = (int) $match[1][0];
+              }
+
+              if (strpos($sizes, 'Depth:') !== false) {
+                preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+
+                $new_product->dmeasurement = (int) $match[1][0];
+              }
+            }
+
+            $brand = Brand::find($product->brand_id);
+
+            $price = (int) preg_replace('/[\$,]/', '', $product->price);
+            $new_product->price = $price * 0.88;
+            $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
+
+    				$new_product->price_inr = round($new_product->price_inr, -3);
+    				$new_product->price_special = $new_product->price_inr - ($new_product->price_inr * $brand->deduction_percentage) / 100;
+
+    				$new_product->price_special = round($new_product->price_special, -3);
+
             $new_product->save();
 
             foreach ($product->images as $image_name) {
@@ -142,44 +233,73 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
 
-        // $data['sku'] = $sku;
-        // $validator = Validator::make($data, [
-        //   'sku' => 'unique:products,sku'
-        // ]);
-        //
-        // if ($validator->fails()) {
-        //
-        // } else {
-        //   $product = new Product;
-        //   $product->sku = $sku;
-        //   $product->brand = $brandId;
-        //   $product->supplier = 'G & B Negozionline';
-        //   $product->name = $title;
-        //   $product->short_description = $description;
-        //   $product->price = $price;
-        //   $product->supplier_link = $scrapEntry->url;
-        //   $product->stage = 3;
-        //
-        //   $properties_array = json_decode($properties);
-        //
-        //   if (array_key_exists('Details', $properties_array)) {
-        //     $product->composition = $properties_array['Details'];
-        //   }
-        //
-        //   if (array_key_exists('Color Code', $properties_array)) {
-        //     $product->color = $properties_array['Color Code'];
-        //   }
-        //
-        //   // size
-        //   // price
-        //
-        //   $product->save();
-        //
-        //   foreach ($images as $image_name) {
-        //     $path = public_path('uploads') . '/social-media/' . $image_name;
-        //     $media = MediaUploader::fromSource($path)->upload();
-        //     $product->attachMedia($media,config('constants.media_tags'));
-        //   }
+        $data['sku'] = $sku;
+        $validator = Validator::make($data, [
+          'sku' => 'unique:products,sku'
+        ]);
+
+        if ($validator->fails()) {
+
+        } else {
+          $product = new Product;
+          $product->sku = $product->sku;
+          $product->brand = $product->brand_id;
+          $product->supplier = 'G & B Negozionline';
+          $product->name = $product->title;
+          $product->short_description = $product->description;
+          $product->supplier_link = $product->url;
+          $product->stage = 3;
+
+          $properties_array = $product->properties;
+
+          if (array_key_exists('Details', $properties_array)) {
+            $product->composition = (string) $properties_array['Details'];
+          }
+
+          if (array_key_exists('Color Code', $properties_array)) {
+            $product->color = $properties_array['Color Code'];
+          }
+
+          if (array_key_exists('Size & Fit', $properties_array)) {
+            $sizes = $properties_array['Size & Fit'];
+            if (strpos($sizes, 'Width:') !== false) {
+              preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+
+              $product->lmeasurement = (int) $match[1][0];
+              $product->measurement_size_type = 'measurement';
+            }
+
+            if (strpos($sizes, 'Height:') !== false) {
+              preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+
+              $product->hmeasurement = (int) $match[1][0];
+            }
+
+            if (strpos($sizes, 'Depth:') !== false) {
+              preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+
+              $product->dmeasurement = (int) $match[1][0];
+            }
+          }
+
+          $brand = Brand::find($product->brand_id);
+
+          $price = (int) preg_replace('/[\$,]/', '', $product->price);
+          $product->price = $price * 0.88;
+          $product->price_inr = $brand->euro_to_inr * $product->price;
+
+          $product->price_inr = round($product->price_inr, -3);
+          $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+
+          $product->price_special = round($product->price_special, -3);
+
+          $product->save();
+
+          foreach ($images as $image_name) {
+            $path = public_path('uploads') . '/social-media/' . $image_name;
+            $media = MediaUploader::fromSource($path)->upload();
+            $product->attachMedia($media,config('constants.media_tags'));
+          }
         }
     }
 
