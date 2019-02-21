@@ -331,22 +331,6 @@
                     </td>
                     <td>
                         @if (!empty($customer->message))
-                            @if ($customer->message_status == 5 || $customer->message_status == 3)
-                                Read
-                            @elseif ($customer->message_status == 6)
-                                Replied
-                            @elseif ($customer->message_status == 1)
-                                <span>Awaiting Approval</span>
-                            @elseif ($customer->message_status == 2)
-                                Approved
-                            @elseif ($customer->message_status == 4)
-                                Internal Message
-                            @elseif ($customer->message_status == 0)
-                                Unread
-                            @endif
-                        @endif
-
-                        @if (!empty($customer->message))
                             @if ($customer->message_status == 5)
                                 Read
                             @elseif ($customer->message_status == 6)
