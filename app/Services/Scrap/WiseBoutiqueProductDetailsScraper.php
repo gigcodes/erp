@@ -94,7 +94,6 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $image->properties = $properties;
         $image->save();
 
-        unset($image);
 
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
@@ -108,15 +107,16 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
         } else {
           $product = new Product;
-          $product->sku = $product->sku;
-          $product->brand = $product->brand_id;
+          $product->sku = $image->sku;
+          $product->brand = $image->brand_id;
           $product->supplier = 'Wise Boutique';
-          $product->name = $product->title;
-          $product->short_description = $product->description;
-          $product->supplier_link = $product->url;
+          $product->name = $image->title;
+          $product->short_description = $image->description;
+          $product->supplier_link = $image->url;
           $product->stage = 3;
 
-          $properties_array = $product->properties;
+          $properties_array = $image->properties ?? [];
+
 
           if (array_key_exists('Details', $properties_array)) {
             $product->composition = (string) $properties_array['Details'];
@@ -148,7 +148,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             }
           }
 
-          $brand = Brand::find($product->brand_id);
+          $brand = Brand::find($image->brand_id);
 
           $price = (int) preg_replace('/[\$,]/', '', $product->price);
           $product->price = $price * 0.88;
