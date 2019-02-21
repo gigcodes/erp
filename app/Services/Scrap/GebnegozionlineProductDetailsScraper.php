@@ -245,6 +245,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         if ($sku != 'N/A') {
             $image->has_sku = 1;
         }
+        $image->is_price_updated = 1;
         $image->url = $scrapEntry->url;
         $image->properties = $properties;
         $image->save();
