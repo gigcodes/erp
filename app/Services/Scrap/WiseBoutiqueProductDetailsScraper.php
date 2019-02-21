@@ -151,8 +151,8 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
           $brand = Brand::find($image->brand_id);
 
-          $price = (int) preg_replace('/[\$,]/', '', $product->price);
-          $product->price = $price * 0.88;
+          $price = (int) preg_replace('/[\€,]/', '', $product->price);
+          $product->price = $price;
           $product->price_inr = $brand->euro_to_inr * $product->price;
 
           $product->price_inr = round($product->price_inr, -3);
