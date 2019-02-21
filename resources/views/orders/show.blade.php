@@ -1647,11 +1647,11 @@
       function approveMessage(element, message) {
           $.post( "/whatsapp/approve/orders", { messageId: message.id })
             .done(function( data ) {
-              if (data != 'success') {
-                data.forEach(function(id) {
-                  $('#waMessage_' + id).find('.btn-approve').remove();
-                });
-              }
+              // if (data != 'success') {
+              //   data.forEach(function(id) {
+              //     $('#waMessage_' + id).find('.btn-approve').remove();
+              //   });
+              // }
 
               element.remove();
             }).fail(function(response) {
