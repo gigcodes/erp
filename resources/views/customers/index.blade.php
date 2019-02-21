@@ -297,91 +297,85 @@
             <tbody>
             @foreach ($customers as $key => $customer)
                 <tr class="
-                {{ ((!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }}
-                {{ ((!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) || $customer['communication']['status'] == 1 || $customer['communication']['status'] == 5) ? 'row-highlight' : '' }}
-                {{ (!empty($customer['communication']['body']) && $customer['communication']['status'] == 0) ? 'text-danger' : '' }}
-                {{ (!empty($customer['communication']['message']) && $customer['communication']['status'] == 0) ? 'text-danger' : '' }}
-                {{ ($customer['orders'] && ($customer['orders'][0]['order_status'] != 'Cancel' && $customer['orders'][0]['order_status'] != 'Delivered')) ? 'text-success' : '' }}
-                {{ $customer['orders'] ? '' : 'text-primary' }}
+                {{ ((!empty($customer->message) && $customer->message_status == 0) || $customer->message_status == 1 || $customer->message_status == 5) ? 'row-highlight' : '' }}
+                {{ (!empty($customer->message) && $customer->message_status == 0) ? 'text-danger' : '' }}
+                {{ ($customer->order_status && ($customer->order_status != 'Cancel' && $customer->order_status != 'Delivered')) ? 'text-success' : '' }}
+                {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
-                    <td>{{ $customer['name'] }}</td>
+                    <td>{{ $customer->name }}</td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                       <td>{{ $customer['email'] }}</td>
                       <td>{{ $customer['phone'] }}</td>
                       <td>{{ $customer['instahandler'] }}</td>
                     @endif --}}
                     <td>
-                        @if ($customer['leads'])
-                            {{ $customer['leads'][0]['rating'] }}
-                        @endif
+                        {{ $customer->rating ?? 'N/A' }}
                     </td>
                     <td>
-                        @if ($customer['leads'])
+                        @if ($customer->lead_status)
                             @php $status = array_flip((new \App\Status)->all()); @endphp
-                            {{ $status[$customer['leads'][0]['status']] }}
+                            {{ $status[$customer->lead_status] }}
                         @endif
-                        {{ $customer['leads'] && $customer['orders'] ? ' / ' : '' }}
-                        @if ($customer['orders'])
-                            {{ $customer['orders'][0]['order_status'] }}
-                        @endif
-                    </td>
-                    <td>
-                        @if ($customer['leads'])
-                            {{ Carbon\Carbon::parse($customer['leads'][0]['created_at'])->format('d-m') }}
+                        {{ $customer->order_status ? ' / ' : '' }}
+                        @if ($customer->order_status)
+                            {{ $customer->order_status }}
                         @endif
                     </td>
                     <td>
-                        @if ($customer['orders'])
-                            {{ Carbon\Carbon::parse($customer['orders'][0]['created_at'])->format('d-m') }}
+                        {{ $customer->lead_created }}
+                    </td>
+                    <td>
+                        @if ($customer->order_status)
+                            {{ $customer->order_created }}
                         @endif
                     </td>
                     <td>
-                        @if (!empty($customer['communication']['body']))
-                            @if ($customer['communication']['status'] == 5 || $customer['communication']['status'] == 3)
+                        @if (!empty($customer->message))
+                            @if ($customer->message_status == 5 || $customer->message_status == 3)
                                 Read
-                            @elseif ($customer['communication']['status'] == 6)
+                            @elseif ($customer->message_status == 6)
                                 Replied
-                            @elseif ($customer['communication']['status'] == 1)
+                            @elseif ($customer->message_status == 1)
                                 <span>Awaiting Approval</span>
-                            @elseif ($customer['communication']['status'] == 2)
+                            @elseif ($customer->message_status == 2)
                                 Approved
-                            @elseif ($customer['communication']['status'] == 4)
+                            @elseif ($customer->message_status == 4)
                                 Internal Message
-                            @elseif ($customer['communication']['status'] == 0)
+                            @elseif ($customer->message_status == 0)
                                 Unread
                             @endif
                         @endif
 
-                        @if (!empty($customer['communication']['message']))
-                            @if ($customer['communication']['status'] == 5)
+                        @if (!empty($customer->message))
+                            @if ($customer->message_status == 5)
                                 Read
-                            @elseif ($customer['communication']['status'] == 6)
+                            @elseif ($customer->message_status == 6)
                                 Replied
-                            @elseif ($customer['communication']['status'] == 1)
+                            @elseif ($customer->message_status == 1)
                                 <span>Awaiting Approval</span>
-                            @elseif ($customer['communication']['status'] == 2)
+                            @elseif ($customer->message_status == 2)
                                 Approved
-                            @elseif ($customer['communication']['status'] == 0)
+                            @elseif ($customer->message_status == 0)
                                 Unread
                             @endif
                         @endif
                     </td>
                     <td>
-                        @if (isset($customer['communication']['body']))
-                            @if (strpos($customer['communication']['body'], '<br>') !== false)
-                                {{ substr($customer['communication']['body'], 0, strpos($customer['communication']['body'], '<br>')) }}
+                        @if (isset($customer->message))
+                            @if (strpos($customer->message, '<br>') !== false)
+                                {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
                             @else
-                                {{ strlen($customer['communication']['body']) > 100 ? substr($customer['communication']['body'], 0, 97) . '...' : $customer['communication']['body'] }}
+                                {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
                             @endif
                         @else
-                            {{ strlen($customer['communication']['message']) > 100 ? substr($customer['communication']['message'], 0, 97) . '...' : $customer['communication']['message'] }}
+                            {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
                         @endif
                     </td>
                     <td>
-                        <a class="btn btn-image" href="{{ route('customer.show', $customer['id']) }}"><img src="/images/view.png" /></a>
-                        <a class="btn btn-image" href="{{ route('customer.edit',$customer['id']) }}"><img src="/images/edit.png" /></a>
+                        <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
+                        <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}"><img src="/images/edit.png" /></a>
 
-                        {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer['id']],'style'=>'display:inline']) !!}
+                        {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                         {!! Form::close() !!}
                     </td>
@@ -391,7 +385,7 @@
         </table>
     </div>
 
-    {!! $customers->appends(Request::except('page'))->links() !!}
+    {!! $customers->links() !!}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script type="text/javascript">
