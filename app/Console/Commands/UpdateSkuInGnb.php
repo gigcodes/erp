@@ -44,6 +44,7 @@ class UpdateSkuInGnb extends Command
     {
         $this->scraper->updateSku();
         $this->scraper->updateProperties();
+        $this->scraper->updatePrice();
 
     }
 }
