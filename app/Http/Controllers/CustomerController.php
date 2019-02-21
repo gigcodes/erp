@@ -97,8 +97,8 @@ class CustomerController extends Controller
         }
 
 
-        $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, chat_messages.message as chat_message_body, MAX(chat_messages.created_at) as chat_message_created_at, chat_messages.status as chat_message_status FROM chat_messages GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
-        $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, messages.body as message_body, MAX(messages.created_at) as message_created_at, messages.status as message_status FROM messages GROUP BY messages.customer_id ORDER BY messages.created_at ' . $orderby . ') as messages'), 'messages.mcid', '=', 'customers.id', 'LEFT');
+        $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, chat_messages.message as chat_message_body, MAX(chat_messages.created_at) as chat_message_created_at, chat_messages.status as chat_message_status FROM chat_messages GROUP BY chat_messages.customer_id) as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
+        $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, messages.body as message_body, MAX(messages.created_at) as message_created_at, messages.status as message_status FROM messages GROUP BY messages.customer_id) as messages'), 'messages.mcid', '=', 'customers.id', 'LEFT');
 
         if ($sortby === 'communication') {
             $customers = $customers->orderBy('last_communicated_at', $orderby);
