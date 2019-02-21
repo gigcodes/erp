@@ -404,7 +404,7 @@ class TwilioController extends FindByNumberController
         $this->createIncomingGather($response, "Please dial 0 for leave message");
       }
 
-      if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->input('Caller'))->first()) {
+      if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->input('Caller')))->first()) {
         $params = [
           'customer_id' => $customer->id,
           'status'      => $callStatus
@@ -439,7 +439,7 @@ class TwilioController extends FindByNumberController
         }
       }
 
-      if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->phone_number)->first()) {
+      if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->phone_number))->first()) {
         $params = [
           'customer_id' => $customer->id,
           'status'      => $callStatus

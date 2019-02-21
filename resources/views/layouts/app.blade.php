@@ -51,7 +51,7 @@
 
     <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
 
-    @if (Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
       <script src="{{ asset('js/calls.js') }}"></script>
     @endif
 
@@ -167,7 +167,7 @@
 
     </script>
 
-    @if (Auth::user())
+    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
         <script>
 
