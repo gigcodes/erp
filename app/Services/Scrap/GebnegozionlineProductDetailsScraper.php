@@ -150,7 +150,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     public function updateSku() {
 
-        $products = ScrapedProducts::where('has_sku', 0)->take(10)->get();
+        $products = ScrapedProducts::where('has_sku', 0)->where('website', 'G&B')->take(10)->get();
 
         foreach ($products as $product) {
             $content = $this->getContent($product->url);
@@ -169,9 +169,30 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
     }
 
+    public function updatePrice() {
+
+        $products = ScrapedProducts::where('is_price_updated', 0)->where('website', 'G&B')->take(10)->get();
+
+        foreach ($products as $product) {
+            $content = $this->getContent($product->url);
+            if ($content === '') {
+                $product->delete();
+                return;
+            }
+
+            $c = new HtmlPageCrawler($content);
+            $price = $this->getPrice($c);
+            $product->price = $price;
+            if ($price != 'N/A') {
+                $product->is_price_updated = 1;
+            }
+            $product->save();
+        }
+    }
+
     public function updateProperties() {
 
-        $products = ScrapedProducts::where('is_property_updated', 0)->take(10)->get();
+        $products = ScrapedProducts::where('is_property_updated', 0)->where('website', 'G&B')->take(10)->get();
 
         foreach ($products as $product) {
             $content = $this->getContent($product->url);
