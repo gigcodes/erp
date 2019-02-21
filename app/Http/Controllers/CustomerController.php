@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Imports\CustomerImport;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Customer;
 use App\Setting;
@@ -32,150 +33,13 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
+      $customers = $this->getCustomersIndex($request);
       $term = $request->input('term');
-      $customers = (new Customer())->newQuery()->with(['Orders' => function ($query) {
-        $query->latest();
-      }, 'Leads' => function ($query) {
-        $query->latest();
-      }]);
 
-      // dd($customers->take(20)->get());
-
-      if($request->input('orderby') == '')
-  				$orderby = 'asc';
-  		else
-  				$orderby = 'desc';
-
-  		switch ($request->input('sortby')) {
-  			case 'name':
-  					 $sortby = 'name';
-  					break;
-  			case 'email':
-  					 $sortby = 'email';
-  					break;
-  			case 'phone':
-  					 $sortby = 'phone';
-  					break;
-  			case 'instagram':
-  					 $sortby = 'instahandler';
-  					break;
-        case 'lead_created':
-  					 $sortby = 'lead_created';
-  					break;
-        case 'order_created':
-  					 $sortby = 'order_created';
-  					break;
-        case 'rating':
-  					 $sortby = 'rating';
-  					break;
-        case 'communication':
-  					 $sortby = 'communication';
-  					break;
-  			default :
-  					 $sortby = 'communication';
-  		}
-
-      if ($sortby != 'communication' && $sortby != 'rating' && $sortby != 'lead_created' && $sortby != 'order_created') {
-  			$customers = $customers->orderBy($sortby, $orderby);
+      $orderby = 'DESC';
+      if($request->input('orderby') === '') {
+         $orderby = 'ASC';
       }
-
-      if(empty($term))
-  			$customers = $customers->latest();
-  		else{
-  			$customers = $customers->latest()
-  			               ->orWhere('name', 'LIKE', "%$term%")
-  			               ->orWhere('phone', 'LIKE', "%$term%")
-  			               ->orWhere('instahandler', 'LIKE', "%$term%")
-                       ->orWhereHas('Orders', function ($query) use ($term) {
-                         $query->where('order_id', 'LIKE', "%$term%");
-                       });
-  		}
-
-      $customers = $customers->get()->toArray();
-      // $customers_array = [];
-      //
-      // foreach ($customers as $key => $customer) {
-      //   $customers_array[$key] = $customer;
-      //   if ($customer['messages_all'] && $customer['whatsapps_all']) {
-      //     if ($customer['messages_all'][0]['created_at'] > $customer['whatsapps_all'][0]['created_at']) {
-      //       $customers_array[$key]['recent_message'] = $customer['messages_all'][0];
-      //     } else {
-      //       $customers_array[$key]['recent_message'] = $customer['whatsapps_all'][0];
-      //     }
-      //   } elseif ($customer['messages_all']) {
-      //     $customers_array[$key]['recent_message'] = $customer['messages_all'][0];
-      //   } elseif ($customer['whatsapps_all']) {
-      //     $customers_array[$key]['recent_message'] = $customer['whatsapps_all'][0];
-      //   } else {
-      //     $customers_array[$key]['recent_message'] = NULL;
-      //   }
-      // }
-      // /
-      // $customers = $customers_array;
-
-      if ($sortby == 'communication') {
-  			if ($orderby == 'asc') {
-  				$customers = array_values(array_sort($customers, function ($value) {
-						return $value['communication']['created_at'];
-  				}));
-
-  				$customers = array_reverse($customers);
-  			} else {
-  				$customers = array_values(array_sort($customers, function ($value) {
-            return $value['communication']['created_at'];
-  				}));
-  			}
-  		}
-
-      if ($sortby == 'rating') {
-  			if ($orderby == 'asc') {
-  				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['lead']['rating'];
-  				}));
-
-  				$customers = array_reverse($customers);
-  			} else {
-  				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['lead']['rating'];
-  				}));
-  			}
-  		}
-
-      if ($sortby == 'lead_created') {
-  			if ($orderby == 'asc') {
-  				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['lead']['created_at'];
-  				}));
-
-  				$customers = array_reverse($customers);
-  			} else {
-  				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['lead']['created_at'];
-  				}));
-  			}
-  		}
-
-      if ($sortby == 'order_created') {
-  			if ($orderby == 'asc') {
-  				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['order']['created_at'];
-  				}));
-
-  				$customers = array_reverse($customers);
-  			} else {
-  				$customers = array_values(array_sort($customers, function ($value) {
-  						return $value['order']['created_at'];
-  				}));
-  			}
-  		}
-
-      $currentPage = LengthAwarePaginator::resolveCurrentPage();
-  		$perPage = Setting::get('pagination');
-  		$currentItems = array_slice($customers, $perPage * ($currentPage - 1), $perPage);
-
-  		$customers = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [
-  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
-  		]);
 
       $customers_all = Customer::all();
 
@@ -185,6 +49,62 @@ class CustomerController extends Controller
         'term' => $term,
         'orderby' => $orderby,
       ]);
+    }
+
+    public function getCustomersIndex(Request $request) {
+        $term = $request->input('term');
+        $customers = DB::table('customers');
+
+        $orderWhereClause = '';
+
+        if(!empty($term)) {
+            $customers = $customers->latest()
+                ->orWhere('customers.name', 'LIKE', "%$term%")
+                ->orWhere('customers.phone', 'LIKE', "%$term%")
+                ->orWhere('customers.instahandler', 'LIKE', "%$term%");
+
+            $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
+        }
+
+        $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, orders.created_at as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'LEFT');
+        $customers = $customers->join(DB::raw('(SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, leads.created_at as lead_created, leads.status as lead_status FROM `leads` GROUP BY customer_id) as leads'), 'customers.id', '=', 'leads.lcid', 'LEFT');
+
+        $orderby = 'DESC';
+
+        if($request->input('orderby') === '') {
+            $orderby = 'ASC';
+        }
+
+        $sortby = 'communication';
+
+        $sortBys = [
+            'name' => 'name',
+            'email' => 'email',
+            'phone' => 'phone',
+            'instagram' => 'instahandler',
+            'lead_created' => 'lead_created',
+            'order_created' => 'order_created',
+            'rating' => 'rating',
+            'communication' => 'communication',
+        ];
+
+        if (isset($sortBys[$request->input('sortby')])) {
+            $sortby = $sortBys[$request->input('sortby')];
+        }
+
+        if ($sortby !== 'communication') {
+            $customers = $customers->orderBy($sortby, $orderby);
+        }
+        $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, chat_messages.message as chat_message_body, chat_messages.created_at as chat_message_created_at, chat_messages.status as chat_message_status FROM chat_messages GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at DESC) as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
+        $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, messages.body as message_body, messages.created_at as message_created_at, messages.status as message_status FROM messages GROUP BY messages.customer_id ORDER BY messages.created_at DESC) as messages'), 'messages.mcid', '=', 'customers.id', 'LEFT');
+
+        if ($sortby === 'communication') {
+            $customers = $customers->orderBy('last_communicated_at', $orderby);
+        }
+
+        $customers = $customers->selectRaw('customers.id, customers.name, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_body ELSE chat_messages.chat_message_body END AS message, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_status ELSE chat_messages.chat_message_status END AS message_status')->paginate(24);
+
+        return $customers;
     }
 
     public function load(Request $request)
