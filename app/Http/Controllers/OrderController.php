@@ -23,10 +23,14 @@ use App\Refund;
 use Auth;
 use Cache;
 use Validator;
+use Storage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\CallBusyMessage;
+use App\CallHistory;
+use App\Setting;
+use App\Services\BlueDart\BlueDart;
 
 class OrderController extends Controller {
 
@@ -801,6 +805,120 @@ class OrderController extends Controller {
 		}
 	}
 
+	public function generateAWB(Request $request) {
+		$options   = array(
+			'trace' 							=> 1,
+			'style'								=> SOAP_DOCUMENT,
+			'use'									=> SOAP_LITERAL,
+			'soap_version' 				=> SOAP_1_2
+		);
+
+		$soap     = new BlueDart('https://netconnect.bluedart.com/Ver1.8/Demo/ShippingAPI/Waybill/WayBillGeneration.svc?wsdl', $options);
+
+		$soap->__setLocation("https://netconnect.bluedart.com/Ver1.8/Demo/ShippingAPI/Waybill/WayBillGeneration.svc");
+
+		$soap->sendRequest = true;
+		$soap->printRequest = false;
+		$soap->formatXML = true;
+
+		$actionHeader = new \SoapHeader('http://www.w3.org/2005/08/addressing','Action','http://tempuri.org/IWayBillGeneration/GenerateWayBill',true);
+
+		$soap->__setSoapHeaders($actionHeader);
+
+		$params = array(
+		'Request' =>
+		array (
+		'Consignee' =>
+			array (
+				'ConsigneeAddress1' => 'A',
+				'ConsigneeAddress2' => 'A',
+				'ConsigneeAddress3'=> 'A',
+				'ConsigneeAttention'=> 'A',
+				'ConsigneeMobile'=> '1234567890',
+				'ConsigneeName'=> 'Customer',
+				'ConsigneePincode'=> '411060',
+				'ConsigneeTelephone'=> '1234567890',
+			)	,
+		'Services' =>
+			array (
+				'ActualWeight' => '1',
+				'CollectableAmount' => '0',
+				'Commodity' =>
+					array (
+						'CommodityDetail1' => 'PRETTYSECRETS Dark Blue 	Allure',
+						'CommodityDetail2'  => ' Aultra Boost Mutltiway Push Up ',
+						'CommodityDetail3' => 'Bra'
+				),
+				'CreditReferenceNo' => '107',
+				'DeclaredValue' => '1000',
+				'Dimensions' =>
+					array (
+						'Dimension' =>
+							array (
+								'Breadth' => '1',
+								'Count' => '1',
+								'Height' => '1',
+								'Length' => '1'
+							),
+					),
+					'InvoiceNo' => '',
+					'PackType' => '',
+					'PickupDate' => '2019-02-20',
+					'PickupTime' => '1800',
+					'PieceCount' => '1',
+					'ProductCode' => 'A',
+					'ProductType' => 'Dutiables',
+					'SpecialInstruction' => '1',
+					'SubProductCode' => ''
+			),
+			'Shipper' =>
+				array(
+					'CustomerAddress1' => '1',
+					'CustomerAddress2' => '1',
+					'CustomerAddress3' => '1',
+					'CustomerCode' => '382200',
+					'CustomerEmailID' => 'a@b.com',
+					'CustomerMobile' => '1234567890',
+					'CustomerName' => 'Tom',
+					'CustomerPincode' => '400060',
+					'CustomerTelephone' => '1234567890',
+					'IsToPayCustomer' => '',
+					'OriginArea' => 'BOM',
+					'Sender' => 'I am sender',
+					'VendorCode' => ''
+				)
+		),
+		'Profile' =>
+		 array(
+			'Api_type' => 'S',
+			'LicenceKey'=>'e2be31925a15e48125bfec50bfeb64a7',
+			'LoginID'=>'BOM07707',
+			'Version'=>'1.3')
+			);
+
+
+		#echo "<br>";
+		#echo '<h2>Parameters</h2><pre>'; print_r($params); echo '</pre>';
+
+		// Here I call my external function
+		$result = $soap->__soapCall('GenerateWayBill', [$params])->GenerateWayBillResult;
+
+		#echo "Generated Waybill number " + $result->GenerateWayBillResult->AWBNo;
+		#echo $result->GenerateWayBillResult->Status->WayBillGenerationStatus->StatusInformation
+
+		// $xml = simplexml_load_string($result);
+
+		if ($result->IsError) {
+			$error = $result->Status->WayBillGenerationStatus->StatusInformation;
+
+			return redirect()->back()->with('error', "$error");
+		} else {
+			Storage::disk('uploads')->put('waybill.pdf', $result->AWBPrintContent);
+		}
+
+		dd('stap');
+	}
+
 	public function calculateBalanceAmount(Order $order){
 
 		$order_instance = Order::where('id',$order->id)->with('order_product')->get()->first();
@@ -961,6 +1079,14 @@ class OrderController extends Controller {
     }
        return view( 'orders.missed_call', compact( 'callBusyMessages') );
 
+}
+
+public function callsHistory() {
+	$calls = CallHistory::paginate(Setting::get('pagination'));
+
+	return view('orders.call_history', [
+		'calls'	=> $calls
+	]);
 }
 
 }

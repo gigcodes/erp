@@ -17,6 +17,8 @@ use App\Customer;
 use App\Message;
 use App\CallRecording;
 use App\CallBusyMessage;
+use App\CallHistory;
+use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -210,12 +212,14 @@ class TwilioController extends FindByNumberController
        Log::info('Call SID: '. $request->get("CallSid"));
        $context = $request->get("context");
        $id = $request->get("internalId");
+       $actionurl =  \Config::get("app.url")."/twilio/handleOutgoingDialCallStatus" . "?phone_number=$number";
        Log::info('Outgoing call function Enter '.$id);
        $response = new Twiml();
        $response->dial( $number, [
             'callerId' => \Config::get("twilio.caller_id"),
             'record' => 'true',
-            'recordingStatusCallback' => \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .$id . "&Mobile=" .$number
+            'recordingStatusCallback' => \Config::get("app.url")."/twilio/recordingStatusCallback?context=" . $context . "&internalId=" .$id . "&Mobile=" .$number,
+            'action'  => $actionurl
         ]);
        $recordurl = \Config::get("app.url")."/twilio/storetranscript";
        Log::info('Trasncript Call back url '.$recordurl);
@@ -398,6 +402,50 @@ class TwilioController extends FindByNumberController
         Log::info('-----SID----- '.$request->input('CallSid'));
 
         $this->createIncomingGather($response, "Please dial 0 for leave message");
+      }
+
+      if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->input('Caller')))->first()) {
+        $params = [
+          'customer_id' => $customer->id,
+          'status'      => $callStatus
+        ];
+
+        CallHistory::create($params);
+      }
+
+
+      return $response;
+    }
+
+    public function handleOutgoingDialCallStatus(Request $request) {
+      $response = new Twiml();
+      $callStatus = $request->input('DialCallStatus');
+      Log::info('Current Outgoing Call Status '.$callStatus);
+      Log::info($request->all());
+
+      if ($callStatus == 'busy' || $callStatus == 'no-answer') {
+        if ($customer = Customer::where('phone', $request->phone_number)->first()) {
+          $params = [
+            'number'      => NULL,
+            'message'     => 'Greetings from Solo Luxury, our Solo Valets were trying to get in touch with you but were unable to get through, you can call us on 000800401700. Please do not use +91 when calling  as it does not connect to our toll free number.',
+            'customer_id' => $customer->id,
+            'approved'    => 1,
+            'status'      => 2
+          ];
+
+          ChatMessage::create($params);
+
+          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $params['message']);
+        }
+      }
+
+      if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->phone_number))->first()) {
+        $params = [
+          'customer_id' => $customer->id,
+          'status'      => $callStatus
+        ];
+
+        CallHistory::create($params);
       }
 
       return $response;
