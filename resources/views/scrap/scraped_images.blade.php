@@ -41,7 +41,19 @@
                                         <strong>Properties</strong>
                                         <ul style="list-style: none;padding-left: 10px">
                                             @foreach($product->properties as $key=>$property)
-                                                <li><strong>{{ ucfirst($key) }}</strong>: <strong class="text-info">{{ ucfirst($property) }}</strong></li>
+                                                <li><strong>{{ ucfirst($key) }}</strong>: <strong class="text-info">
+                                                        @if (is_array($property))
+                                                            @foreach($property as $item)
+                                                                @if ($loop->last)
+                                                                    {{ $item }}
+                                                                @else
+                                                                    {{ $item . ', ' }}
+                                                                @endif
+                                                            @endforeach
+                                                        @else
+                                                            {{ ucfirst($property)  }}
+                                                        @endif
+                                                    </strong></li>
                                             @endforeach
                                         </ul>
                                     @endif
