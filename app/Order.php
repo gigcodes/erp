@@ -84,6 +84,11 @@ class Order extends Model {
 		return $this->hasOne('App\DeliveryApproval');
 	}
 
+	public function waybill()
+	{
+		return $this->hasOne('App\Waybill');
+	}
+
 	public function getCommunicationAttribute()
 	{
 		$message = $this->messages();

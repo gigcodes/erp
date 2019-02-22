@@ -30,10 +30,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
+
 use App\Services\BlueDart\BlueDart;
 use App\DeliveryApproval;
+use App\Waybill;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use \SoapClient;
 
 class OrderController extends Controller {
 
@@ -617,6 +620,7 @@ class OrderController extends Controller {
 		$data['customer'] = $order->customer;
 		$data['reply_categories'] = ReplyCategory::all();
 		$data['delivery_approval'] = $order->delivery_approval;
+		$data['waybill'] = $order->waybill;
 
 		// dd($data);
 		//return $data;
@@ -759,7 +763,7 @@ class OrderController extends Controller {
 		]);
 
 		if ($delivery_approval = Order::find($id)->delivery_approval) {
-			
+
 		} else {
 			$delivery_approval = new DeliveryApproval;
 			$delivery_approval->order_id = $id;
@@ -783,6 +787,13 @@ class OrderController extends Controller {
 		$delivery_approval->save();
 
 		return redirect()->back()->with('success', 'You have successfully approved delivery!');
+	}
+
+	public function downloadPackageSlip($id)
+	{
+		$waybill = Waybill::find($id);
+
+		return Storage::disk('uploads')->download('waybills/' . $waybill->package_slip);
 	}
 
 	public function updateStatus(Request $request, $id)
@@ -849,7 +860,7 @@ class OrderController extends Controller {
 			'soap_version' 				=> SOAP_1_2
 		);
 
-		$soap     = new BlueDart('https://netconnect.bluedart.com/Ver1.8/Demo/ShippingAPI/Waybill/WayBillGeneration.svc?wsdl', $options);
+		$soap     = new SoapClient('https://netconnect.bluedart.com/Ver1.8/Demo/ShippingAPI/Waybill/WayBillGeneration.svc?wsdl', $options);
 
 		$soap->__setLocation("https://netconnect.bluedart.com/Ver1.8/Demo/ShippingAPI/Waybill/WayBillGeneration.svc");
 
@@ -861,98 +872,107 @@ class OrderController extends Controller {
 
 		$soap->__setSoapHeaders($actionHeader);
 
-		$params = array(
-		'Request' =>
-		array (
-		'Consignee' =>
-			array (
-				'ConsigneeAddress1' => 'A',
-				'ConsigneeAddress2' => 'A',
-				'ConsigneeAddress3'=> 'A',
-				'ConsigneeAttention'=> 'A',
-				'ConsigneeMobile'=> '1234567890',
-				'ConsigneeName'=> 'Customer',
-				'ConsigneePincode'=> '411060',
-				'ConsigneeTelephone'=> '1234567890',
-			)	,
-		'Services' =>
-			array (
-				'ActualWeight' => '1',
-				'CollectableAmount' => '0',
-				'Commodity' =>
-					array (
-						'CommodityDetail1' => 'PRETTYSECRETS Dark Blue 	Allure',
-						'CommodityDetail2'  => ' Aultra Boost Mutltiway Push Up ',
-						'CommodityDetail3' => 'Bra'
-				),
-				'CreditReferenceNo' => '107',
-				'DeclaredValue' => '1000',
-				'Dimensions' =>
-					array (
-						'Dimension' =>
-							array (
-								'Breadth' => '1',
-								'Count' => '1',
-								'Height' => '1',
-								'Length' => '1'
-							),
-					),
-					'InvoiceNo' => '',
-					'PackType' => '',
-					'PickupDate' => '2019-02-20',
-					'PickupTime' => '1800',
-					'PieceCount' => '1',
-					'ProductCode' => 'A',
-					'ProductType' => 'Dutiables',
-					'SpecialInstruction' => '1',
-					'SubProductCode' => ''
-			),
-			'Shipper' =>
-				array(
-					'CustomerAddress1' => '1',
-					'CustomerAddress2' => '1',
-					'CustomerAddress3' => '1',
-					'CustomerCode' => '382200',
-					'CustomerEmailID' => 'a@b.com',
-					'CustomerMobile' => '1234567890',
-					'CustomerName' => 'Tom',
-					'CustomerPincode' => '400060',
-					'CustomerTelephone' => '1234567890',
-					'IsToPayCustomer' => '',
-					'OriginArea' => 'BOM',
-					'Sender' => 'I am sender',
-					'VendorCode' => ''
-				)
-		),
-		'Profile' =>
-		 array(
-			'Api_type' => 'S',
-			'LicenceKey'=>'e2be31925a15e48125bfec50bfeb64a7',
-			'LoginID'=>'BOM07707',
-			'Version'=>'1.3')
-			);
+		$order = Order::find($request->order_id);
 
+		$order->customer->name = $request->customer_name;
+		$order->customer->address = $request->customer_address1;
+		$order->customer->city = $request->customer_address2;
+		$order->customer->pincode = $request->customer_pincode;
 
-		#echo "<br>";
-		#echo '<h2>Parameters</h2><pre>'; print_r($params); echo '</pre>';
+		$order->customer->save();
 
-		// Here I call my external function
-		$result = $soap->__soapCall('GenerateWayBill', [$params])->GenerateWayBillResult;
+		$pickup_datetime = explode(' ', $request->pickup_time);
+		$pickup_date = $pickup_datetime[0];
+		$pickup_time = str_replace(':', '', $pickup_datetime[1]);
 
-		#echo "Generated Waybill number " + $result->GenerateWayBillResult->AWBNo;
-		#echo $result->GenerateWayBillResult->Status->WayBillGenerationStatus->StatusInformation
+		$total_price = 0;
 
-		// $xml = simplexml_load_string($result);
-
-		if ($result->IsError) {
-			$error = $result->Status->WayBillGenerationStatus->StatusInformation;
-
-			return redirect()->back()->with('error', "$error");
-		} else {
-			Storage::disk('uploads')->put('waybill.pdf', $result->AWBPrintContent);
+		foreach ($order->order_product as $product) {
+			$total_price += $product->product_price;
 		}
 
-		dd('stap');
+		$piece_count = $order->order_product()->count();
+
+		$params = array(
+		'Request' =>
+			array (
+				'Consignee' =>
+					array (
+						'ConsigneeAddress1' => $order->customer->address,
+						'ConsigneeAddress2' => $order->customer->city,
+						'ConsigneeMobile'=> $order->customer->phone,
+						'ConsigneeName'=> $order->customer->name,
+						'ConsigneePincode'=> $order->customer->pincode,
+					)	,
+				'Services' =>
+					array (
+						'ActualWeight' => $request->actual_weight,
+
+						'CreditReferenceNo' => $order->id,
+						'PickupDate' => $pickup_date,
+						'PickupTime' => $pickup_time,
+						'PieceCount' => $piece_count,
+						'DeclaredValue'	=> $total_price,
+						'ProductCode' => 'A',
+						'ProductType' => 'Dutiables',
+
+						'Dimensions' =>
+							array (
+								'Dimension' =>
+									array (
+										'Breadth' => '1',
+										'Count' => $piece_count,
+										'Height' => '1',
+										'Length' => '1'
+									),
+							),
+					),
+					'Shipper' =>
+						array(
+							'CustomerAddress1' => 'Shipper Address 1',
+							'CustomerAddress2' => 'Shipper Address 2',
+							'CustomerCode' => '382200',
+							'CustomerMobile' => 'Shipper Mobile',
+							'CustomerName' => 'Solo Luxury',
+							'CustomerPincode' => '400060',
+							'IsToPayCustomer' => '',
+							'OriginArea' => 'BOM'
+						)
+			),
+			'Profile' =>
+				 array(
+				 	'Api_type' => 'S',
+					'LicenceKey'=>'e2be31925a15e48125bfec50bfeb64a7',
+					'LoginID'=>'BOM07707',
+					'Version'=>'1.3')
+					);
+
+		$result = $soap->__soapCall('GenerateWayBill', [$params])->GenerateWayBillResult;
+
+		if ($result->IsError) {
+			if (is_array($result->Status->WayBillGenerationStatus)) {
+				$error = '';
+				foreach ($result->Status->WayBillGenerationStatus as $error_object) {
+					$error .= $error_object->StatusInformation . '. ';
+				}
+			} else {
+				$error = $result->Status->WayBillGenerationStatus->StatusInformation;
+			}
+			// dd($error);
+			return redirect()->back()->with('error', "$error");
+		} else {
+			Storage::disk('uploads')->put('waybills/' . $order->id . '_package_slip.pdf', $result->AWBPrintContent);
+
+			$waybill = new Waybill;
+			$waybill->order_id = $order->id;
+			$waybill->awb = $result->AWBNo;
+			$waybill->actual_weight = $request->actual_weight;
+			$waybill->package_slip = $order->id . '_package_slip.pdf';
+			$waybill->pickup_date = $request->pickup_time;
+			$waybill->save();
+		}
+
+		return redirect()->back()->with('success', 'You have successfully generated AWB!');
 	}
 
 	public function calculateBalanceAmount(Order $order){
