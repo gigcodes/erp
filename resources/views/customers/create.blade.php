@@ -139,6 +139,16 @@
 			</div>
 		</div>
 
+		<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+			<div class="form-group">
+				<strong>Pincode:</strong>
+				<input type="number" class="form-control" name="pincode" max="999999" placeholder="411060" value="{{ old('pincode') }}" />
+				@if ($errors->has('pincode'))
+				<div class="alert alert-danger">{{$errors->first('pincode')}}</div>
+				@endif
+			</div>
+		</div>
+
 		<div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
 			<button type="submit" class="btn btn-secondary" id="submitButton">+</button>
 		</div>

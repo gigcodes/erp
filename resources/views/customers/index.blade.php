@@ -131,6 +131,11 @@
                                     <strong>Country:</strong>
                                     <input type="text" class="form-control" name="country" placeholder="India" id="first_customer_country" value="" />
                                 </div>
+
+                                <div class="form-group">
+                                    <strong>Pincode:</strong>
+                                    <input type="number" class="form-control" name="pincode" placeholder="411060" id="first_customer_pincode" value="" />
+                                </div>
                             </div>
 
                             <div class="col-md-6">
@@ -172,6 +177,11 @@
                                 <div class="form-group">
                                     <strong>Country:</strong>
                                     <input type="text" class="form-control" id="second_customer_country" value="" readonly />
+                                </div>
+
+                                <div class="form-group">
+                                    <strong>Pincode:</strong>
+                                    <input type="number" class="form-control" name="pincode" placeholder="" id="second_customer_pincode" value="" readonly />
                                 </div>
                             </div>
                         </div>
@@ -406,6 +416,7 @@
                 $('#first_customer_address').val(response.first_customer.address);
                 $('#first_customer_city').val(response.first_customer.city);
                 $('#first_customer_country').val(response.first_customer.country);
+                $('#first_customer_pincode').val(response.first_customer.pincode);
 
                 $('#second_customer_name').val(response.second_customer.name);
                 $('#second_customer_email').val(response.second_customer.email);
@@ -415,6 +426,7 @@
                 $('#second_customer_address').val(response.second_customer.address);
                 $('#second_customer_city').val(response.second_customer.city);
                 $('#second_customer_country').val(response.second_customer.country);
+                $('#second_customer_pincode').val(response.second_customer.pincode);
 
                 $('#customers-data').show();
                 $('#mergeButton').prop('disabled', false);

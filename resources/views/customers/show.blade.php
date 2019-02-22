@@ -282,6 +282,12 @@
               <strong>Country:</strong> {{ $customer->country }}
             </div>
           </div>
+
+          <div class="col">
+            <div class="form-group">
+              <strong>Pincode:</strong> {{ $customer->pincode }}
+            </div>
+          </div>
         </div>
 
         <div class="form-group">

@@ -104,8 +104,8 @@ class CustomerController extends Controller
             $customers = $customers->orderBy('last_communicated_at', $orderby);
         }
 
-        $customers = $customers->selectRaw('customers.id, customers.name, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at, 
-        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mmm.body FROM messages mmm WHERE mmm.id = message_id) ELSE (SELECT mm2.message FROM chat_messages mm2 WHERE mm2.id = chat_message_id) END AS message, 
+        $customers = $customers->selectRaw('customers.id, customers.name, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at,
+        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mmm.body FROM messages mmm WHERE mmm.id = message_id) ELSE (SELECT mm2.message FROM chat_messages mm2 WHERE mm2.id = chat_message_id) END AS message,
         CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm3.status FROM messages mm3 WHERE mm3.id = message_id) ELSE (SELECT mm4.status FROM chat_messages mm4 WHERE mm4.id = chat_message_id) END AS message_status')->paginate(24);
         return $customers;
     }
@@ -131,7 +131,8 @@ class CustomerController extends Controller
             'rating'        => 'required|numeric',
             'address'       => 'sometimes|nullable|min:3|max:255',
             'city'          => 'sometimes|nullable|min:3|max:255',
-            'country'       => 'sometimes|nullable|min:3|max:255'
+            'country'       => 'sometimes|nullable|min:3|max:255',
+            'pincode'       => 'sometimes|nullable|max:6'
         ]);
 
         $first_customer = Customer::find($request->first_customer_id);
@@ -145,14 +146,15 @@ class CustomerController extends Controller
         $first_customer->address = $request->address;
         $first_customer->city = $request->city;
         $first_customer->country = $request->country;
+        $first_customer->pincode = $request->pincode;
 
         $first_customer->save();
 
         $chat_messages = ChatMessage::where('customer_id', $request->second_customer_id)->get();
 
         foreach ($chat_messages as $chat) {
-            $chat->customer_id = $first_customer->id;
-            $chat->save();
+          $chat->customer_id = $first_customer->id;
+          $chat->save();
         }
 
         $messages = Message::where('customer_id', $request->second_customer_id)->get();
@@ -226,7 +228,8 @@ class CustomerController extends Controller
             'rating'        => 'required|numeric',
             'address'       => 'sometimes|nullable|min:3|max:255',
             'city'          => 'sometimes|nullable|min:3|max:255',
-            'country'       => 'sometimes|nullable|min:3|max:255'
+            'country'       => 'sometimes|nullable|min:2|max:255',
+            'pincode'       => 'sometimes|nullable|max:6',
         ]);
 
         $customer = new Customer;
@@ -240,6 +243,7 @@ class CustomerController extends Controller
         $customer->address = $request->address;
         $customer->city = $request->city;
         $customer->country = $request->country;
+        $customer->pincode = $request->pincode;
 
         $customer->save();
 
@@ -337,7 +341,8 @@ class CustomerController extends Controller
             'rating'        => 'required|numeric',
             'address'       => 'sometimes|nullable|min:3|max:255',
             'city'          => 'sometimes|nullable|min:3|max:255',
-            'country'       => 'sometimes|nullable|min:3|max:255'
+            'country'       => 'sometimes|nullable|min:2|max:255',
+            'pincode'       => 'sometimes|nullable|max:6',
         ]);
 
         $customer->name = $request->name;
@@ -349,6 +354,7 @@ class CustomerController extends Controller
         $customer->address = $request->address;
         $customer->city = $request->city;
         $customer->country = $request->country;
+        $customer->pincode = $request->pincode;
 
         $customer->save();
 

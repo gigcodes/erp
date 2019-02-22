@@ -146,6 +146,7 @@ class MagentoController extends Controller {
 				$customer->address = $results['billing_address']['street'];
 				$customer->city = $results['billing_address']['city'];
 				$customer->country = $results['billing_address']['country_id'];
+				$customer->pincode = $results['billing_address']['postcode'];
 				$temp_number = [];
 
 				if ($customer_phone != null) {

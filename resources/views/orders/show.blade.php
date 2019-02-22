@@ -70,7 +70,7 @@
 
                         <strong>Name: </strong> {{ $customer->name }} <br>
                         <strong>Email: </strong> {{ $customer->email }} <br>
-                        @if (strlen($customer->phone) != 12 || preg_match('/^[91]{2}/', $customer->phone))
+                        @if (strlen($customer->phone) != 12 || preg_match('/^[91]{2}/', $customer->phone) == false)
                           <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
                         @endif
                         <strong>Phone: </strong> {{ $customer->phone }} <br>
@@ -78,6 +78,7 @@
                         <strong>Address: </strong> {{ $customer->address }} <br>
                         <strong>City: </strong> {{ $customer->city }} <br>
                         <strong>Country: </strong> {{ $customer->country }}
+                        <strong>Pincode: </strong> {{ $customer->pincode }}
                       @endif
 
                       <div class="form-group mt-5">
@@ -224,7 +225,7 @@
                       </div> --}}
 
                       <div class="form-group">
-                        @if (strlen($contact_detail) != 12 || preg_match('/^[91]{2}/', $contact_detail))
+                        @if (strlen($contact_detail) != 12 || preg_match('/^[91]{2}/', $contact_detail) == false)
                           <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
                         @endif
                           <strong>Contact Detail:</strong>
