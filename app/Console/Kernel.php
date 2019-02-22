@@ -101,7 +101,7 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
         ;
 
-        $schedule->command('gebnegozionline:get-products-list')
+        $schedule->command('wiseboutique:get-product-details')
             ->hourly()
             ->withoutOverlapping()
         ;
