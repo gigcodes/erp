@@ -79,6 +79,11 @@ class Order extends Model {
 		return $this->hasMany('App\ChatMessage', 'order_id')->latest()->first();
 	}
 
+	public function delivery_approval()
+	{
+		return $this->hasOne('App\DeliveryApproval');
+	}
+
 	public function getCommunicationAttribute()
 	{
 		$message = $this->messages();

@@ -41,6 +41,7 @@
               {{-- <li><a href="#2" data-toggle="tab">WhatsApp Conversation</a>
               </li> --}}
               <li><a href="#3" data-toggle="tab">Call Recordings</a>
+              <li><a href="#delivery_approval" data-toggle="tab">Delivery Approval</a>
               </li>
            </ul>
         </div>
@@ -708,6 +709,72 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="tab-pane" id="delivery_approval">
+          <div class="row">
+            <div class="col-xs-12 col-sm-12">
+              <h3 style="text-center">Delivery Approval</h3>
+
+              <form class="form-inline" action="{{ route('order.upload.approval', $id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <div class="form-group">
+                  <input type="file" name="images[]" required multiple>
+                </div>
+
+                <button type="submit" class="btn btn-secondary ml-3">Upload for Approval</button>
+              </form>
+             </div>
+
+
+
+            <div class="col-xs-12 col-sm-12">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Uploaded Photos</th>
+                      <th>Approved</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        @foreach($order_products  as $order_product)
+                          @if(isset($order_product['product']))
+                            <img width="150" src="{{ $order_product['product']['image'] }}" />
+                          @endif
+                        @endforeach
+                      </td>
+                      <td>
+                        @if (isset($delivery_approval))
+                          @foreach ($delivery_approval->getMedia(config('constants.media_tags')) as $image)
+                            <img width="150" src="{{ $image->getUrl() }}" />
+                          @endforeach
+                        @endif
+                      </td>
+                      <td>
+                        @if (isset($delivery_approval))
+                          @if ($delivery_approval->approved == 1)
+                            Approved
+                          @else
+                            <form action="{{ route('order.delivery.approve', $delivery_approval->id) }}" method="POST">
+                              @csrf
+
+                              <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                            </form>
+                          @endif
+                        @endif
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 

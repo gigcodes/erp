@@ -86,6 +86,8 @@ Route::group(['middleware'  => ['auth'] ], function (){
 
 
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
+	Route::post('order/{id}/uploadForApproval', 'OrderController@uploadForApproval')->name('order.upload.approval');
+	Route::post('order/{id}/deliveryApprove', 'OrderController@deliveryApprove')->name('order.delivery.approve');
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
 	Route::get('order/products/list', 'OrderController@products')->name('order.products');
 	Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');

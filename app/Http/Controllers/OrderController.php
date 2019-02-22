@@ -31,6 +31,9 @@ use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
 use App\Services\BlueDart\BlueDart;
+use App\DeliveryApproval;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class OrderController extends Controller {
 
@@ -613,6 +616,7 @@ class OrderController extends Controller {
 		$data['has_customer'] = $order->customer ? $order->customer->id : false;
 		$data['customer'] = $order->customer;
 		$data['reply_categories'] = ReplyCategory::all();
+		$data['delivery_approval'] = $order->delivery_approval;
 
 		// dd($data);
 		//return $data;
@@ -747,6 +751,38 @@ class OrderController extends Controller {
 		}
 
 		return back()->with( 'message', 'Order updated successfully' );
+	}
+
+	public function uploadForApproval(Request $request, $id) {
+		$this->validate($request, [
+			'images'	=> 'required'
+		]);
+
+		if ($delivery_approval = Order::find($id)->delivery_approval) {
+			
+		} else {
+			$delivery_approval = new DeliveryApproval;
+			$delivery_approval->order_id = $id;
+			$delivery_approval->save();
+		}
+
+		if ($request->hasfile('images')) {
+			foreach ($request->file('images') as $image) {
+				$media = MediaUploader::fromSource($image)->upload();
+				$delivery_approval->attachMedia($media,config('constants.media_tags'));
+			}
+		}
+
+		return redirect()->route('order.show', $id)->with('success', 'You have successfully uploaded delivery images for approval!');
+	}
+
+	public function deliveryApprove(Request $request, $id)
+	{
+		$delivery_approval = DeliveryApproval::find($id);
+		$delivery_approval->approved = 1;
+		$delivery_approval->save();
+
+		return redirect()->back()->with('success', 'You have successfully approved delivery!');
 	}
 
 	public function updateStatus(Request $request, $id)
