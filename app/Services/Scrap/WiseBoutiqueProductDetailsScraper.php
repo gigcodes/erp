@@ -119,16 +119,16 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
           $properties_array = $image->properties ?? [];
 
 
-          if (array_key_exists('Details', $properties_array)) {
-            $product->composition = (string) $properties_array['Details'];
+          if (array_key_exists('1', $properties_array)) {
+            $product->composition = (string) $properties_array['1'];
           }
 
-          if (array_key_exists('Color Code', $properties_array)) {
-            $product->color = $properties_array['Color Code'];
+          if (array_key_exists('3', $properties_array)) {
+            $product->color = $properties_array['3'];
           }
 
-          if (array_key_exists('Size & Fit', $properties_array)) {
-            $sizes = $properties_array['Size & Fit'];
+          if (array_key_exists('2', $properties_array)) {
+            $sizes = $properties_array['2'];
             if (strpos($sizes, 'Width:') !== false) {
               preg_match_all('/Width: ([\d]+)/', $sizes, $match);
 
