@@ -777,7 +777,7 @@ class OrderController extends Controller {
 			}
 		}
 
-		return redirect()->route('order.show', $id)->with('success', 'You have successfully uploaded delivery images for approval!');
+		return redirect()->back()->with('success', 'You have successfully uploaded delivery images for approval!');
 	}
 
 	public function deliveryApprove(Request $request, $id)

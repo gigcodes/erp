@@ -905,6 +905,11 @@
                 <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#order{{ $key + 1 }}" aria-expanded="false" aria-controls="order{{ $key + 1 }}">
                   Order {{ $key + 1 }}
                   <a href="{{ route('order.show', $order->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
+                  <span class="ml-3">
+                    @if (isset($order->delivery_approval) && $order->delivery_approval->approved == 0)
+                      <span class="badge">Waiting for Delivery Approval</span>
+                    @endif
+                  </span>
                 </button>
               </h5>
             </div>
@@ -1134,6 +1139,54 @@
                       </div>
                   </div>
                 </form>
+
+                <hr>
+                <h3 class="text-center">Delivery Approval</h3>
+
+                <form class="form-inline my-3" action="{{ route('order.upload.approval', $order->id) }}" method="POST" enctype="multipart/form-data">
+                  @csrf
+
+                  <div class="form-group">
+                    <input type="file" name="images[]" required multiple>
+                  </div>
+
+                  <button type="submit" class="btn btn-xs btn-secondary ml-3">Upload for Approval</button>
+                </form>
+
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Uploaded Photos</th>
+                        <th>Approved</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          @if (isset($order->delivery_approval))
+                            @foreach ($order->delivery_approval->getMedia(config('constants.media_tags')) as $image)
+                              <img width="150" src="{{ $image->getUrl() }}" />
+                            @endforeach
+                          @endif
+                        </td>
+                        <td>
+                          @if (isset($order->delivery_approval))
+                            @if ($order->delivery_approval->approved == 1)
+                              Approved
+                            @else
+                              <form action="{{ route('order.delivery.approve', $order->delivery_approval->id) }}" method="POST">
+                                @csrf
+
+                                <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                              </form>
+                            @endif
+                          @endif
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
 
               </div>
             </div>
