@@ -1433,7 +1433,7 @@
 
               <div class="form-group">
                 <strong>Customer Pincode:</strong>
-                <input type="number" name="customer_pincode" class="form-control" value="411060" max="999999" required>
+                <input type="number" name="customer_pincode" class="form-control" value="{{ $customer->pincode }}" max="999999" required>
               </div>
 
               <div class="form-group">
