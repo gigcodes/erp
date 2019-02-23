@@ -40,34 +40,43 @@
         </thead>
 
         <tbody>
-          @foreach ($inventory_data as $brand_name => $categories)
+          @foreach ($inventory_data as $brand_name => $suppliers)
             <tr>
               <td>{{ $brand_name }}</td>
               <td>
-                <table class="table">
-                  @foreach ($categories['tree'] as $main_id => $main)
-                    <th>{{ $categories_array[$main_id] }}</th>
-                  @endforeach
-                  <tr>
-                    @foreach ($categories['tree'] as $main_id => $main)
+                @foreach ($suppliers as $supplier_name => $categories)
+                  <table class="table">
+                    <th>{{ $supplier_name != '' ? $supplier_name : 'Without Supplier' }}</th>
+                    <tr>
                       <td>
                         <table class="table">
-                          @foreach ($main as $next_id => $count)
-                            <th>{{ $categories_array[$next_id] }}</th>
-
+                          @foreach ($categories as $main_id => $main)
+                            <th>{{ $categories_array[$main_id] }}</th>
                           @endforeach
                           <tr>
-                          @foreach ($main as $next_id => $count)
-                              <td>{{ $count }}</td>
+                            @foreach ($categories as $main_id => $main)
+                              <td>
+                                <table class="table">
+                                  @foreach ($main as $next_id => $count)
+                                    <th>{{ $categories_array[$next_id] }}</th>
 
-                          @endforeach
-                        </tr>
+                                  @endforeach
+                                  <tr>
+                                  @foreach ($main as $next_id => $count)
+                                      <td>{{ $count }}</td>
 
+                                  @endforeach
+                                </tr>
+
+                                </table>
+                              </td>
+                            @endforeach
+                          </tr>
                         </table>
                       </td>
-                    @endforeach
-                  </tr>
-                </table>
+                    </tr>
+                  </table>
+                @endforeach
               </td>
             </tr>
           @endforeach
