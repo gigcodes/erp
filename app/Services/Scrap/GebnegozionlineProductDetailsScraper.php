@@ -26,13 +26,11 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     public function createProducts()
     {
-        $products = ScrapedProducts::where('has_sku', 1)->get();
+        $products = ScrapedProducts::where('has_sku', 1)->where('website', 'GNB')->get();
 
         foreach ($products as $product) {
-          // $data['sku'] = $product->sku;
-
-          if ($old_product = Product::where('sku', $product->sku)->first()) {
-            $old_product->sku = $product->sku;
+          if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
+            $old_product->sku = $str_replace(' ', '', $product->sku);
             $old_product->brand = $product->brand_id;
             $old_product->supplier = 'G & B Negozionline';
             $old_product->name = $product->title;
@@ -86,7 +84,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $old_product->save();
           } else {
             $new_product = new Product;
-            $new_product->sku = $product->sku;
+            $new_product->sku = str_replace(' ', '', $product->sku);
             $new_product->brand = $product->brand_id;
             $new_product->supplier = 'G & B Negozionline';
             $new_product->name = $product->title;
@@ -264,15 +262,15 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
         } else {
           $product = new Product;
-          $product->sku = $product->sku;
-          $product->brand = $product->brand_id;
+          $product->sku = str_replace(' ', '', $image->sku);
+          $product->brand = $image->brand_id;
           $product->supplier = 'G & B Negozionline';
-          $product->name = $product->title;
-          $product->short_description = $product->description;
-          $product->supplier_link = $product->url;
+          $product->name = $image->title;
+          $product->short_description = $image->description;
+          $product->supplier_link = $image->url;
           $product->stage = 3;
 
-          $properties_array = $product->properties;
+          $properties_array = $image->properties;
 
           if (array_key_exists('Details', $properties_array)) {
             $product->composition = (string) $properties_array['Details'];
@@ -306,7 +304,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
           $brand = Brand::find($product->brand_id);
 
-          $price = (int) preg_replace('/[\$,]/', '', $product->price);
+          $price = (int) preg_replace('/[\$,]/', '', $image->price);
           $product->price = $price * 1.22 * 0.88;
           $product->price_inr = $brand->euro_to_inr * $product->price;
 

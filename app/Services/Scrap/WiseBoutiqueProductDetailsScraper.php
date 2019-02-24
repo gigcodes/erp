@@ -26,33 +26,126 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
     public function createProducts()
     {
-        dd('here...');
-        $products = ScrapedProducts::where('has_sku', 1)->get();
+      $products = ScrapedProducts::where('has_sku', 1)->where('website', 'Wiseboutique')->get();
 
-        foreach ($products as $product) {
-          $data['sku'] = $product->sku;
-          $validator = Validator::make($data, [
-            'sku' => 'unique:products,sku'
-          ]);
+      foreach ($products as $product) {
+        if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
+          $old_product->sku = str_replace(' ', '', $product->sku);
+          $old_product->brand = $product->brand_id;
+          $old_product->supplier = 'Wise Boutique';
+          $old_product->name = $product->title;
+          $old_product->short_description = $product->description;
+          $old_product->supplier_link = $product->url;
+          $old_product->stage = 3;
 
-          if (!$validator->fails()) {
-              $new_product = new Product;
-              $new_product->sku = $product->sku;
-              $new_product->brand = $product->brand_id;
-              $new_product->supplier = 'Wiseboutique';
-              $new_product->name = $product->title;
-              $new_product->short_description = $product->description;
-              $new_product->price = $product->price;
-              $new_product->supplier_link = $product->url;
-              $new_product->save();
+          $properties_array = $product->properties ?? [];
 
-              foreach ($product->images as $image_name) {
-                  $path = public_path('uploads') . '/social-media/' . $image_name;
-                  $media = MediaUploader::fromSource($path)->upload();
-                  $new_product->attachMedia($media,config('constants.media_tags'));
-              }
+
+          if (array_key_exists('1', $properties_array)) {
+            $old_product->composition = (string) $properties_array['1'];
+          }
+
+          if (array_key_exists('3', $properties_array)) {
+            $old_product->color = $properties_array['3'];
+          }
+
+          if (array_key_exists('2', $properties_array)) {
+            $sizes = $properties_array['2'];
+            if (strpos($sizes, 'Width:') !== false) {
+              preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+
+              $old_product->lmeasurement = (int) $match[1];
+              $old_product->measurement_size_type = 'measurement';
+            }
+
+            if (strpos($sizes, 'Height:') !== false) {
+              preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+
+              $old_product->hmeasurement = (int) $match[1];
+            }
+
+            if (strpos($sizes, 'Depth:') !== false) {
+              preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+
+              $old_product->dmeasurement = (int) $match[1];
+            }
+          }
+
+          $brand = Brand::find($product->brand_id);
+
+          $price = (int) preg_replace('/[\&euro;.]/', '', $product->price);
+          $old_product->price = $price;
+          $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
+
+          $old_product->price_inr = round($old_product->price_inr, -3);
+          $old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
+
+          $old_product->price_special = round($old_product->price_special, -3);
+
+          $old_product->save();
+        } else {
+          $new_product = new Product;
+          $new_product->sku = str_replace(' ', '', $product->sku);
+          $new_product->brand = $product->brand_id;
+          $new_product->supplier = 'Wise Boutique';
+          $new_product->name = $product->title;
+          $new_product->short_description = $product->description;
+          $new_product->supplier_link = $product->url;
+          $new_product->stage = 3;
+
+          $properties_array = $product->properties ?? [];
+
+
+          if (array_key_exists('1', $properties_array)) {
+            $new_product->composition = (string) $properties_array['1'];
+          }
+
+          if (array_key_exists('3', $properties_array)) {
+            $new_product->color = $properties_array['3'];
+          }
+
+          if (array_key_exists('2', $properties_array)) {
+            $sizes = $properties_array['2'];
+            if (strpos($sizes, 'Width:') !== false) {
+              preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+
+              $new_product->lmeasurement = (int) $match[1];
+              $new_product->measurement_size_type = 'measurement';
+            }
+
+            if (strpos($sizes, 'Height:') !== false) {
+              preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+
+              $new_product->hmeasurement = (int) $match[1];
+            }
+
+            if (strpos($sizes, 'Depth:') !== false) {
+              preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+
+              $new_product->dmeasurement = (int) $match[1];
+            }
+          }
+
+          $brand = Brand::find($product->brand_id);
+
+          $price = (int) preg_replace('/[\&euro;.]/', '', $product->price);
+          $new_product->price = $price;
+          $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
+
+          $new_product->price_inr = round($new_product->price_inr, -3);
+          $new_product->price_special = $new_product->price_inr - ($new_product->price_inr * $brand->deduction_percentage) / 100;
+
+          $new_product->price_special = round($new_product->price_special, -3);
+
+          $new_product->save();
+
+          foreach ($product->images as $image_name) {
+            $path = public_path('uploads') . '/social-media/' . $image_name;
+            $media = MediaUploader::fromSource($path)->upload();
+            $new_product->attachMedia($media,config('constants.media_tags'));
           }
         }
+      }
     }
 
     private function getProductDetails(ScrapEntries $scrapEntry)
@@ -108,7 +201,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
         } else {
           $product = new Product;
-          $product->sku = $image->sku;
+          $product->sku = str_replace(' ', '', $image->sku);
           $product->brand = $image->brand_id;
           $product->supplier = 'Wise Boutique';
           $product->name = $image->title;
@@ -151,7 +244,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
           $brand = Brand::find($image->brand_id);
 
-          $price = (int) preg_replace('/[\€]/', '', $image->price);
+          $price = (int) preg_replace('/[\&euro;.]/', '', $image->price);
           $product->price = $price;
           $product->price_inr = $brand->euro_to_inr * $product->price;
 
