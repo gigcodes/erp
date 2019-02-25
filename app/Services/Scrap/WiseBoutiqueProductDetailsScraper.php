@@ -150,6 +150,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
     private function getProductDetails(ScrapEntries $scrapEntry)
     {
+
         $content = $this->getContent($scrapEntry->url);
         if ($content === '') {
             $scrapEntry->delete();
@@ -311,6 +312,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $content[] = 'https://www.wiseboutique.com' . trim($image->getAttribute('href'));
         }
 
+
         return $this->downloadImages($content, 'gnb');
     }
 
@@ -345,6 +347,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $images = [];
         foreach ($data as $key=>$datum) {
             try {
+                $datum = $this->getImageUrl($datum);
                 $imgData = file_get_contents($datum);
             } catch (\Exception $exception) {
                 continue;
@@ -387,5 +390,18 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $propertiesData['category'] = $categoryTypes;
 
         return $propertiesData;
+    }
+
+    private function getImageUrl($url)
+    {
+        $content = $this->getContent($url);
+        if ($content === '') {
+            return '';
+        }
+
+        $c = new HtmlPageCrawler($content);
+
+        $imageUrl = $c->filter('img')->attr('src');
+        return $imageUrl;
     }
 }
