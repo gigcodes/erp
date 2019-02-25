@@ -260,6 +260,13 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             return;
         }
 
+        $image = ScrapedProducts::where('sku', $sku)->orWhere('url', $scrapEntry->url)->first();
+        if ($image) {
+            $scrapEntry->is_scraped = 1;
+            $scrapEntry->save();
+            return;
+        }
+
         $image = new ScrapedProducts();
         $image->brand_id = $brandId;
         $image->sku = $sku;
