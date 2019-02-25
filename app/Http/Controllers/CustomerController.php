@@ -291,6 +291,7 @@ class CustomerController extends Controller
         $brands = Brand::all()->toArray();
         $reply_categories = ReplyCategory::all();
         $instruction_categories = InstructionCategory::all();
+        $instruction_replies = Reply::where('model', 'Instruction')->get();
         $order_status_report = OrderStatuses::all();
 
         return view('customers.show', [
@@ -305,6 +306,7 @@ class CustomerController extends Controller
             'reply_categories'  => $reply_categories,
             'call_history' =>  $call_history,
             'instruction_categories' =>  $instruction_categories,
+            'instruction_replies' =>  $instruction_replies,
             'order_status_report' =>  $order_status_report
         ]);
     }

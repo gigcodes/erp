@@ -6,6 +6,7 @@ use App\Brand;
 use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\Product;
+use App\Setting;
 use Storage;
 use Validator;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
@@ -74,7 +75,10 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             $price = (int) preg_replace('/[\$,]/', '', $product->price);
             $old_product->price = $price * 1.22 * 0.88;
-            $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
+            if(!empty($brand->euro_to_inr))
+              $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
+            else
+              $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
 
     				$old_product->price_inr = round($old_product->price_inr, -3);
     				$old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
@@ -128,6 +132,12 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             $price = (int) preg_replace('/[\$,]/', '', $product->price);
             $new_product->price = $price * 1.22 * 0.88;
+
+            if(!empty($brand->euro_to_inr))
+              $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
+            else
+              $new_product->price_inr = Setting::get('euro_to_inr') * $new_product->price;
+
             $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
 
     				$new_product->price_inr = round($new_product->price_inr, -3);
@@ -306,7 +316,11 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
           $price = (int) preg_replace('/[\$,]/', '', $image->price);
           $product->price = $price * 1.22 * 0.88;
-          $product->price_inr = $brand->euro_to_inr * $product->price;
+
+          if(!empty($brand->euro_to_inr))
+            $product->price_inr = $brand->euro_to_inr * $product->price;
+          else
+            $product->price_inr = Setting::get('euro_to_inr') * $product->price;
 
           $product->price_inr = round($product->price_inr, -3);
           $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
