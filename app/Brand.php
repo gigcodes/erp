@@ -30,4 +30,8 @@ class Brand extends Model {
 		return $brandsArray;
 	}
 
+	public function scrapedProducts() {
+	    return $this->hasMany(ScrapedProducts::class, 'brand_id', 'id');
+    }
+
 }

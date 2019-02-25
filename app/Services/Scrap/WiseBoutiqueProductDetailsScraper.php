@@ -182,6 +182,10 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
         $brandId = $this->getBrandId($brand);
 
+        if (!$brandId) {
+            return;
+        }
+
         $image = new ScrapedProducts();
         $image->brand_id = $brandId;
         $image->sku = $sku;
@@ -344,11 +348,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $brand = Brand::where('name', $brandName)->first();
 
         if (!$brand) {
-            $brand = new Brand();
-            $brand->name = $brandName;
-            $brand->euro_to_inr = 0;
-            $brand->deduction_percentage = 0;
-            $brand->save();
+            return false;
         }
 
 
