@@ -354,7 +354,7 @@
 
                   <div class="form-group">
                     <strong>Instruction:</strong>
-                    <textarea type="text" class="form-control" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
+                    <textarea type="text" class="form-control" id="instruction-body" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
                     @if ($errors->has('instruction'))
                         <div class="alert alert-danger">{{$errors->first('instruction')}}</div>
                     @endif
@@ -363,6 +363,22 @@
                   <div class="form-group">
                     <input type="checkbox" name="send_whatsapp" id="sendWhatsappCheckbox">
                     <label for="sendWhatsappCheckbox">Send with Whatsapp</label>
+                  </div>
+
+                  <hr>
+
+                  <div class="form-group">
+                    <select name="quickComment" id="instructionComment" class="form-control">
+                      <option value="">Quick Reply</option>
+                      @foreach ($instruction_replies as $reply)
+                        <option value="{{ $reply->reply }}">{{ $reply->reply }}</option>
+                      @endforeach
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <textarea class="form-control" id="instruction_reply_field" name="reply" placeholder="Quick Reply">{{ old('reply') }}</textarea>
+                    <button type="button" class="btn btn-xs btn-secondary mt-3" id="createInstructionReplyButton">Create Quick Reply</button>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -2837,6 +2853,33 @@
           console.log(response);
           alert('Could not verify the instruction!');
         });
+      });
+
+      $('#createInstructionReplyButton').on('click', function(e) {
+       e.preventDefault();
+
+       var url = "{{ route('reply.store') }}";
+       var reply = $('#instruction_reply_field').val();
+
+       $.ajax({
+         type: 'POST',
+         url: url,
+         headers: {
+             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+         },
+         data: {
+           reply: reply,
+           category_id: 1,
+           model: 'Instruction'
+         },
+         success: function(reply) {
+           $('#instruction_reply_field').val('');
+           $('#instructionComment').append($('<option>', {
+             value: reply,
+             text: reply
+           }));
+         }
+       });
       });
   </script>
 @endsection

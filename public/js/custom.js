@@ -106,6 +106,10 @@ jQuery(document).ready(function () {
       $('#quickCommentInternal').on('change', function () {
           $('#internal-message-body').val($(this).val());
       });
+
+      $('#instructionComment').on('change', function () {
+          $('#instruction-body').val($(this).val());
+      });
     });
 
 
