@@ -6,6 +6,7 @@ use App\Brand;
 use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\Product;
+use App\Setting;
 use Storage;
 use Validator;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
@@ -75,7 +76,11 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
           $price = (int) preg_replace('/[\&euro;.]/', '', $product->price);
           $old_product->price = $price;
-          $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
+
+          if(!empty($brand->euro_to_inr))
+            $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
+          else
+            $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
 
           $old_product->price_inr = round($old_product->price_inr, -3);
           $old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
@@ -130,7 +135,11 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
           $price = (int) preg_replace('/[\&euro;.]/', '', $product->price);
           $new_product->price = $price;
-          $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
+
+          if(!empty($brand->euro_to_inr))
+            $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
+          else
+            $new_product->price_inr = Setting::get('euro_to_inr') * $new_product->price;
 
           $new_product->price_inr = round($new_product->price_inr, -3);
           $new_product->price_special = $new_product->price_inr - ($new_product->price_inr * $brand->deduction_percentage) / 100;
@@ -246,8 +255,12 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
           $price = (int) preg_replace('/[\&euro;.]/', '', $image->price);
           $product->price = $price;
-          $product->price_inr = $brand->euro_to_inr * $product->price;
 
+          if(!empty($brand->euro_to_inr))
+            $product->price_inr = $brand->euro_to_inr * $product->price;
+          else
+            $product->price_inr = Setting::get('euro_to_inr') * $product->price;
+            
           $product->price_inr = round($product->price_inr, -3);
           $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
