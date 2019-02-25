@@ -25,9 +25,23 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
     }
 
+    public function deleteProducts()
+    {
+        $products = ScrapedProducts::where('website', 'G&B')->get();
+        foreach ($products as $product) {
+          if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
+            $old_product->delete();
+          }
+
+          if ($old_product = Product::where('sku', $product->sku)->first()) {
+            $old_product->delete();
+          }
+        }
+    }
+
     public function createProducts()
     {
-        $products = ScrapedProducts::where('has_sku', 1)->where('website', 'GNB')->get();
+        $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
 
         foreach ($products as $product) {
           if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {

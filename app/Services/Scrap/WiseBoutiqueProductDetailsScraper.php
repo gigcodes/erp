@@ -25,6 +25,20 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         }
     }
 
+    public function deleteProducts()
+    {
+        $products = ScrapedProducts::where('website', 'Wiseboutique')->get();
+        foreach ($products as $product) {
+          if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
+            $old_product->delete();
+          }
+
+          if ($old_product = Product::where('sku', $product->sku)->first()) {
+            $old_product->delete();
+          }
+        }
+    }
+
     public function createProducts()
     {
       $products = ScrapedProducts::where('has_sku', 1)->where('website', 'Wiseboutique')->get();
@@ -265,7 +279,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $product->price_inr = $brand->euro_to_inr * $product->price;
           else
             $product->price_inr = Setting::get('euro_to_inr') * $product->price;
-            
+
           $product->price_inr = round($product->price_inr, -3);
           $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
