@@ -860,9 +860,9 @@ class OrderController extends Controller {
 			'soap_version' 				=> SOAP_1_2
 		);
 
-		$soap     = new SoapClient('https://netconnect.bluedart.com/Ver1.8/Demo/ShippingAPI/Waybill/WayBillGeneration.svc?wsdl', $options);
+		$soap     = new SoapClient('https://netconnect.bluedart.com/Ver1.8/ShippingAPI/Waybill/WayBillGeneration.svc?wsdl', $options);
 
-		$soap->__setLocation("https://netconnect.bluedart.com/Ver1.8/Demo/ShippingAPI/Waybill/WayBillGeneration.svc");
+		$soap->__setLocation("https://netconnect.bluedart.com/Ver1.8/ShippingAPI/Waybill/WayBillGeneration.svc");
 
 		$soap->sendRequest = true;
 		$soap->printRequest = false;
@@ -912,7 +912,8 @@ class OrderController extends Controller {
 						'PickupDate' => $pickup_date,
 						'PickupTime' => $pickup_time,
 						'PieceCount' => $piece_count,
-						'DeclaredValue'	=> $total_price,
+						// 'DeclaredValue'	=> $total_price,
+						'DeclaredValue'	=> 500,
 						'ProductCode' => 'A',
 						'ProductType' => 'Dutiables',
 
@@ -929,10 +930,10 @@ class OrderController extends Controller {
 					),
 					'Shipper' =>
 						array(
-							'CustomerAddress1' => 'Shipper Address 1',
-							'CustomerAddress2' => 'Shipper Address 2',
+							'CustomerAddress1' => '807, Hubtown Viva, Western Express Highway, Shankarwadi, Andheri East',
+							'CustomerAddress2' => 'Mumbai',
 							'CustomerCode' => '382200',
-							'CustomerMobile' => 'Shipper Mobile',
+							'CustomerMobile' => '022-62363488',
 							'CustomerName' => 'Solo Luxury',
 							'CustomerPincode' => '400060',
 							'IsToPayCustomer' => '',
@@ -942,8 +943,8 @@ class OrderController extends Controller {
 			'Profile' =>
 				 array(
 				 	'Api_type' => 'S',
-					'LicenceKey'=>'e2be31925a15e48125bfec50bfeb64a7',
-					'LoginID'=>'BOM07707',
+					'LicenceKey'=>env('BLUEDART_LICENSE_KEY'),
+					'LoginID'=>env('BLUEDART_LOGIN_ID'),
 					'Version'=>'1.3')
 					);
 
