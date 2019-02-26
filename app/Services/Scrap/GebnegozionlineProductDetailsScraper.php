@@ -269,8 +269,6 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $image->properties = $properties;
         $image->save();
 
-        unset($image);
-
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
 
