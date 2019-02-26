@@ -126,7 +126,6 @@
     {{-- </div> --}}
 
     {{-- {!! $leads->links() !!} --}}
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
     $(document).ready(function() {

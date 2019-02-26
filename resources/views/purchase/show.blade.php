@@ -537,7 +537,6 @@
   <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
 </div>
 
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
 <script type="text/javascript">
