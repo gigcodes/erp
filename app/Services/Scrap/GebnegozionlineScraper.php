@@ -154,6 +154,7 @@ class GebnegozionlineScraper extends Scraper
         }
 
         $link = str_replace('en_wr', 'en_it', $link);
+        $link = str_replace('en_us', 'en_it', $link);
 
         return $link;
     }
