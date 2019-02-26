@@ -14,6 +14,9 @@ use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\WiseboutiqueProductDetailScraper;
 use App\Console\Commands\WiseBoutiqueScraper;
+use App\Console\Commands\DeleteGnbProducts;
+use App\Console\Commands\DeleteWiseProducts;
+use App\Console\Commands\UpdateWiseProducts;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -43,7 +46,10 @@ class Kernel extends ConsoleKernel
         UpdateSkuInGnb::class,
         CreateScrapedProducts::class,
         WiseBoutiqueScraper::class,
-        WiseboutiqueProductDetailScraper::class
+        WiseboutiqueProductDetailScraper::class,
+        DeleteGnbProducts::class,
+        DeleteWiseProducts::class,
+        UpdateWiseProducts::class,
     ];
 
     /**
