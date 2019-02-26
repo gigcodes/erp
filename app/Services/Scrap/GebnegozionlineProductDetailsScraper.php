@@ -257,6 +257,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $brandId = $this->getBrandId($brand);
 
         if (!$brandId) {
+            $scrapEntry->delete();
             return;
         }
 

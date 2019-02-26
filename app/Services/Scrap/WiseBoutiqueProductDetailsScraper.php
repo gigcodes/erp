@@ -197,6 +197,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $brandId = $this->getBrandId($brand);
 
         if (!$brandId) {
+            $scrapEntry->delete();
             return;
         }
 

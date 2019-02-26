@@ -18,13 +18,13 @@ class DirectMessage {
         $this->instagram = $instagram;
         $username = env('IG_USERNAME');
         $password = env('IG_PASSWORD');
-//        $this->currentId = env('IG_CURRENT_USER_ID');
-//
-//        try {
-//            $this->instagram->login($username, $password);
-//        } catch (Exception $Exception) {
-//            Bugsnag::notifyException($Exception);
-//        }
+        $this->currentId = env('IG_CURRENT_USER_ID');
+
+        try {
+            $this->instagram->login($username, $password);
+        } catch (Exception $Exception) {
+            Bugsnag::notifyException($Exception);
+        }
     }
 
     public function getInbox() {
