@@ -45,7 +45,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
         foreach ($products as $product) {
           if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
-            $old_product->sku = $str_replace(' ', '', $product->sku);
+            $old_product->sku = str_replace(' ', '', $product->sku);
             $old_product->brand = $product->brand_id;
             $old_product->supplier = 'G & B Negozionline';
             $old_product->name = $product->title;
