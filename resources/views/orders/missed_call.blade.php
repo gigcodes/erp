@@ -5,7 +5,7 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Missed Call</h2>
-      
+
     </div>
 </div>
 
@@ -26,13 +26,19 @@
         </tr>
         @foreach ($callBusyMessages['data'] as $key => $callBusyMessage)
         <tr class="">
-            <td>{{ $callBusyMessage['twilio_call_sid'] }}</td>
+            <td>
+              @if(isset($callBusyMessage['customer_name']))
+                {{ $callBusyMessage['customer_name'] }}
+              @else
+                {{ $callBusyMessage['twilio_call_sid'] }}
+              @endif
+            </td>
             <td>{{ $callBusyMessage['message'] }}</td>
              <td><audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
   <p>Alas, your browser doesn't support html5 audio.</p>
 </audio> </td>
             <td>{{ $callBusyMessage['created_at'] }}</td>
-            
+
             <td>
                 @if(isset($callBusyMessage['customerid']))
                 <a class="btn btn-image" href="{{ route('customer.show',$callBusyMessage['customerid']) }}"><img src="/images/view.png" /></a>
@@ -49,12 +55,12 @@ jQuery(document).ready(function( $ ) {
   $('audio').on("play", function (me) {
     $('audio').each(function (i,e) {
       if (e !== me.currentTarget) {
-        this.pause(); 
+        this.pause();
       }
     });
   });
 })
-  
+
    </script>
 
 @endsection

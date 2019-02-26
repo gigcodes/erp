@@ -1123,10 +1123,11 @@ class OrderController extends Controller {
 
 			if (is_numeric($value['twilio_call_sid'])) {
 				# code...
-
-			$customer_array = Customer::where('phone', 'like',   str_replace('+91', '', $value['twilio_call_sid']))->get()->toArray();
+				$formatted_phone = str_replace('+91', '', $value['twilio_call_sid']);
+			$customer_array = Customer::where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
 				 if(!empty($customer_array)){
-				 	$callBusyMessages['data'][$key]['customerid'] = $customer_array[0]['id'];
+					 $callBusyMessages['data'][$key]['customerid'] = $customer_array[0]['id'];
+				 	$callBusyMessages['data'][$key]['customer_name'] = $customer_array[0]['name'];
 				 	if(!empty( $customer_array[0]['lead'])){
 				 	$callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
 				 }
