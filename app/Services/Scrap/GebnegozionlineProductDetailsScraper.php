@@ -256,6 +256,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
         $brandId = $this->getBrandId($brand);
 
+
         if (!$brandId) {
             $scrapEntry->delete();
             return;
@@ -336,9 +337,10 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             }
           }
 
-          $brand = Brand::find($product->brand_id);
+           $brand = Brand::find($image->brand_id);
 
-          $price = (int) preg_replace('/[\$,]/', '', $image->price);
+
+            $price = (int) preg_replace('/[\$,]/', '', $image->price);
           $product->price = $price * 1.22 * 0.88;
 
           if(!empty($brand->euro_to_inr))
