@@ -25,7 +25,6 @@ abstract class Scraper
             ]);
             $content = $response->getBody()->getContents();
         } catch (\Exception $exception) {
-            dd($exception);
             $content = '';
         }
 
