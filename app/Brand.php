@@ -34,4 +34,8 @@ class Brand extends Model {
 	    return $this->hasMany(ScrapedProducts::class, 'brand_id', 'id');
     }
 
+    public function products() {
+        return $this->hasMany(Product::class, 'brand', 'id');
+    }
+
 }
