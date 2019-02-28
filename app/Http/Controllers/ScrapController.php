@@ -46,9 +46,15 @@ class ScrapController extends Controller
             $googleData = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
         }
 
-        $data = array_merge($pinterestData, $googleData);
+        return view('scrap.extracted_images', compact( 'googleData', 'pinterestData'));
 
+    }
 
+    public function downloadImages(Request $request) {
+        $this->validate($request, [
+            'data' => 'required|array'
+        ]);
+        $data = $request->get('data');
 
         $images = [];
 
@@ -69,7 +75,10 @@ class ScrapController extends Controller
             $images[] = $fileName;
         }
 
-        return view('scrap.extracted_images', compact('images', 'googleData', 'pinterestData'));
+        $downloaded = true;
+
+
+        return view('scrap.extracted_images', compact( 'images', 'downloaded'));
 
     }
 

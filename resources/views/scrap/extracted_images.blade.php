@@ -3,24 +3,54 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h1>Extracted Images (<a href="{{ action('ScrapController@index') }}">Go Back</a>)</h1>
-            <p>The following images were extracted.</p>
+            @if (isset($downloaded))
+                <h1>Extracted Images Successful (<a href="{{ action('ScrapController@index') }}">Go Back</a>)</h1>
+            @else
+                <h1>Images To be Extracted (<a href="{{ action('ScrapController@index') }}">Go Back</a>)</h1>
+                <p>The following images will be extracted.</p>
+            @endif
         </div>
         <div class="col-md-12">
-            <div class="row">
-                <h2>Google Images</h2>
-                @foreach($googleData as $image)
-                    <div class="col-md-4 mb-2">
-                        <img src="{{ $image }}" class="img-responsive">
+            @if (isset($downloaded))
+                <div class="row">
+                    @foreach($images as $image)
+                        <div class="col-md-4 mb-2">
+                            <img src="{{ asset('uploads/social-media/'. $image) }}" class="img-responsive">
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <form action="{{ action('ScrapController@downloadImages') }}" method="post">
+                    @csrf
+                    <div class="row">
+                        <h2>Google Images</h2>
+                        <div class="row">
+                            @foreach($googleData as $key=>$image)
+                                <div class="col-md-4 mb-2">
+                                    <label for="google_{{$key}}">
+                                        <img src="{{ $image }}" class="img-responsive">
+                                        <input id="google_{{$key}}" type="checkbox" value="{{ $image }}" name="data[]">
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <h2>Pinterest Images</h2>
+                        <div class="row">
+                            @foreach($pinterestData as $key=>$image)
+                                <div class="col-md-4 mb-2">
+                                    <label for="pin_{{$key}}">
+                                        <img src="{{ $image }}" class="img-responsive">
+                                        <input id="pin_{{$key}}" type="checkbox" value="{{ $image }}" name="data[]">
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                @endforeach
-                <h2>Pinterest Images</h2>
-                @foreach($pinterestData as $image)
-                    <div class="col-md-4 mb-2">
-                        <img src="{{ $image }}" class="img-responsive">
+                    <div class="row">
+                        <button class="btn btn-lg btn-primary">Download Selected Images</button>
                     </div>
-                @endforeach
-            </div>
+                </form>
+            @endif
         </div>
     </div>
 @endsection
