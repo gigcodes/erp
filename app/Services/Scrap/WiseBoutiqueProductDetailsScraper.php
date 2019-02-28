@@ -352,7 +352,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         }
 
 
-        return $this->downloadImages($content, 'gnb');
+        return $this->downloadImages($content, 'wiseboutique');
     }
 
     private function getDesignerName(HtmlPageCrawler $c)
