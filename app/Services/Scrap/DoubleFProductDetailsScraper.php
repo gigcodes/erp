@@ -65,7 +65,7 @@ class DoubleFProductDetailsScraper extends Scraper
         $image = new ScrapedProducts();
         $image->brand_id = $brandId;
         $image->sku = $sku;
-        $image->website = 'Wiseboutique';
+        $image->website = 'DoubleF';
         $image->title = $title;
         $image->description = $description;
         $image->images = $images;

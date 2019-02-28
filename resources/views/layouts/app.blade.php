@@ -1137,6 +1137,7 @@
                                     <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'G&B') }}">G&B Product</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'Wiseboutique') }}">Wiseboutique Product</a>
+                                    <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'DoubleF') }}">TheDoubleF Product</a>
                                 </div>
 
 
