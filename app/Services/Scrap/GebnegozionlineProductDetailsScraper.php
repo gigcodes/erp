@@ -360,6 +360,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $media = MediaUploader::fromSource($path)->upload();
             $product->attachMedia($media,config('constants.media_tags'));
           }
+          unset($images);
         }
     }
 

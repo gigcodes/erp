@@ -107,8 +107,19 @@ class DoubleFProductDetailsScraper extends Scraper
 
     private function getSku(HtmlPageCrawler $c) {
         try {
-            $sku = preg_replace('/\s\s+/', '', $c->filter('div#tab1 .panel-body ul')->getIterator());
-            dd($sku);
+            $properties = $c->filter('div#tab1 ul li')->getIterator();
+            $sku = '';
+            foreach ($properties as $property) {
+                if (strpos($property->textContent, 'prodotto') !== false) {
+                    $sku = $property->textContent;
+                    $sku = explode(':', $sku);
+                    $sku = $sku[1];
+                    $sku = explode('/', $sku);
+                    $sku = $sku[0];
+                    $sku = str_replace(' ', '', preg_replace('/\s\s+/', '', $sku));
+                }
+            }
+
         } catch (\Exception $exception) {
             $sku = 'N/A';
         }
@@ -118,7 +129,7 @@ class DoubleFProductDetailsScraper extends Scraper
 
     private function getDescription(HtmlPageCrawler $c) {
         try {
-            $title = preg_replace('/\s\s+/', '', strip_tags($c->filter('div.descrizioniprodotto div')->getInnerHtml()));
+            $title = preg_replace('/\s\s+/', '', strip_tags($c->filter('div#tab1 p')->getInnerHtml()));
         } catch (\Exception $exception) {
             $title = '';
         }
@@ -182,25 +193,17 @@ class DoubleFProductDetailsScraper extends Scraper
     }
 
     private function getProperties(HtmlPageCrawler $c) {
-        $propertiesValues =  $c->filter('div.dettagliinterno div.clear .col9')->getIterator();
-        $propertiesData = [];
-
-        foreach ($propertiesValues as $key=>$property) {
-            $value = preg_replace('/\s\s+/', '\n', $property->textContent);
-            $propertiesData[] = $value;
-        }
-
-        $bread = $c->filter('ol.breadcrumb li')->filter('a span')->getIterator();
+        $bread = $c->filter('ul.breadcrumbs li a')->getIterator();
 
         $categoryTypes = [];
 
         foreach ($bread as $item) {
-            if (trim($item->textContent) != 'HOME') {
+            if (trim($item->textContent) != 'Home') {
                 $categoryTypes[] = trim($item->textContent);
             }
         }
 
-        if (in_array('DONNA', $categoryTypes, false) || in_array('WOMAN', $categoryTypes, false)) {
+        if (in_array('Donna', $categoryTypes, false) || in_array('Woman', $categoryTypes, false)) {
             $propertiesData['gender'] = 'Female';
         } else {
             $propertiesData['gender'] = 'Male';
@@ -208,6 +211,23 @@ class DoubleFProductDetailsScraper extends Scraper
 
         $propertiesData['category'] = $categoryTypes;
 
+        $allProperties = $c->filter('div#accordion ul li')->getIterator();
+
+        foreach ($allProperties as $property) {
+            $item = strip_tags($property->textContent);
+            if (strpos($item, 'Made') !== false) {
+                $propertiesData['Made In'] = str_replace('Made in ', '', $item);
+                continue;
+            }
+
+            $item = explode(':', $item);
+            if (count($item) !== 2 || strpos($item[0], 'prodotto') !== false) {
+                continue;
+            }
+
+            $propertiesData[$item[0]] = $item[1];
+
+        }
         return $propertiesData;
     }
 
