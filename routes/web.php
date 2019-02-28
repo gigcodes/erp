@@ -351,6 +351,10 @@ Route::get(
             ]
         );
 
+Route::get('exotel/outgoing', 'ExotelController@call')->name('exotel.call');
+Route::get('exotel/checkNumber', 'ExotelController@checkNumber');
+Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
+
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
