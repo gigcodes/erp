@@ -5,7 +5,7 @@
 {{ $order->customer->city }}, <br>
 <br>
 
-We here by confirm receipt of Rs {{ $total_cost }}/ - advance towards your order of {{ $product_names }}.
+We here by confirm receipt of Rs {{ $order->advance_detail }}/ - advance towards your order of {{ $product_names }}.
 
 <br><br>
 

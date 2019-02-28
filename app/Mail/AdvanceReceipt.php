@@ -13,7 +13,6 @@ class AdvanceReceipt extends Mailable
     use Queueable, SerializesModels;
 
     public $order;
-    public $total_cost = 0;
     public $product_names = '';
     /**
      * Create a new message instance.
@@ -26,8 +25,6 @@ class AdvanceReceipt extends Mailable
 
       $count = count($order->order_product);
       foreach ($order->order_product as $key => $order_product) {
-        $this->total_cost += $order_product->product_price;
-
         if ((($count - 1) == $key) && $key != 0) {
           $this->product_names .= ' and ' . $order_product->product->name;
         } elseif (((($count - 1) == $key) && $key == 0) || ((($count - 1) != $key) && $key == 0)) {
