@@ -228,7 +228,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
 
-        $data['sku'] = $sku;
+        $data['sku'] = str_replace(' ', '', $image->sku);
         $validator = Validator::make($data, [
           'sku' => 'unique:products,sku'
         ]);
