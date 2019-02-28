@@ -390,6 +390,8 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $sku = 'N/A';
         }
 
+        $sku = str_replace(' ', '', $sku);
+
         return $sku;
     }
 
