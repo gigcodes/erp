@@ -30,6 +30,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AdvanceReceipt;
 
 use App\Services\BlueDart\BlueDart;
 use App\DeliveryApproval;
@@ -730,6 +732,19 @@ class OrderController extends Controller {
 			}
 		}
 
+		if ($order->auto_emailed == 0) {
+			if ($order->order_status == 'Advance received' && $order->order_type == 'online') {
+				if (Auth::id() == 3 || Auth::id() == 56) {
+					Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
+
+					$order->update([
+						'auto_emailed' => 1,
+						'auto_emailed_date' => Carbon::now()
+					]);
+				}
+			}
+		}
+
 		if ($order->order_status == 'Refund to be processed') {
 			$refund = Refund::where('order_id', $order->id)->first();
 
@@ -834,6 +849,19 @@ class OrderController extends Controller {
 					'auto_messaged' => 1,
 					'auto_messaged_date' => Carbon::now()
 				]);
+			}
+		}
+
+		if ($order->auto_emailed == 0) {
+			if ($order->order_status == 'Advance received' && $order->order_type == 'online') {
+				if (Auth::id() == 3 || Auth::id() == 56) {
+					Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
+
+					$order->update([
+						'auto_emailed' => 1,
+						'auto_emailed_date' => Carbon::now()
+					]);
+				}
 			}
 		}
 
