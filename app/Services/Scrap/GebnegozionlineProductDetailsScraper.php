@@ -100,6 +100,14 @@ class GebnegozionlineProductDetailsScraper extends Scraper
     				$old_product->price_special = round($old_product->price_special, -3);
 
             $old_product->save();
+
+            $old_product->detachMediaTags(config('constants.media_tags'));
+
+            foreach ($product->images as $image_name) {
+              $path = public_path('uploads') . '/social-media/' . $image_name;
+              $media = MediaUploader::fromSource($path)->upload();
+              $old_product->attachMedia($media,config('constants.media_tags'));
+            }
           } else {
             $new_product = new Product;
             $new_product->sku = str_replace(' ', '', $product->sku);
