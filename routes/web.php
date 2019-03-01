@@ -384,6 +384,7 @@ Route::prefix('instagram')->group(function () {
     Route::get('scheduled/events', 'InstagramController@getScheduledEvents');
     Route::get('schedule/{scheduleId}', 'InstagramController@editSchedule');
     Route::post('schedule/{scheduleId}', 'InstagramController@updateSchedule');
+    Route::post('schedule/{scheduleId}/attach', 'InstagramController@attachMedia');
 });
 
 /*
