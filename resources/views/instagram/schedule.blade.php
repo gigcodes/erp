@@ -31,7 +31,7 @@
                     <div class="col-md-4">
                         <div class="card">
                             <div class="card-image">
-                                <img alt="Instagram Image" style="width: 100%;" src="{!! $image->filename ? asset('uploads/social-media') . '/' . $image->filename : 'http://lorempixel.com/555/300/black' !!}">
+                                <img alt="Instagram Image" style="width: 100%;" src="{!! file_exists(public_path().'/uploads/social-media/'.$image->filename) ? asset('uploads/social-media') . '/' . $image->filename : asset('uploads') .'/'. $image->filename !!}">
                             </div>
                             <div class="card-footer">
                                 <div class="form-group">
