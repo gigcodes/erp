@@ -97,6 +97,7 @@ class ProductSelectionController extends Controller
 
 		$productselection->save();
 
+		$productselection->detachMediaTags(config('constants.media_tags'));
 		$media = MediaUploader::fromSource($request->file('image'))->upload();
 		$productselection->attachMedia($media,config('constants.media_tags'));
 

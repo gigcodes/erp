@@ -34,7 +34,7 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	//Route::resource('/chat','ChatController@getmessages');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
-Route::group(['middleware'  => ['auth'] ], function (){
+Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::resource('roles','RoleController');
 	Route::get('users/logins', 'UserController@login')->name('users.login.index');
@@ -104,10 +104,6 @@ Route::group(['middleware'  => ['auth'] ], function (){
 	Route::get('/', 'TaskModuleController@index')->name('home');
 
 	Route::resource('refund', 'RefundController');
-
-});
-
-Route::middleware('auth')->group(function (){
 
 	Route::get('/notifications' , 'NotificaitonContoller@index')->name('notifications');
 	Route::get('/notificaitonsJson','NotificaitonContoller@json')->name('notificationJson');
@@ -252,55 +248,6 @@ Route::middleware('auth')->group(function (){
 
 	Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
 
-	/*Routes For Social */
-
-	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
-
-		// post creating routes define's here
-
-	Route::get('social/post/page','SocialController@index')->name('social.post.page');
-	Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
-
-		// Ad reports routes
-
-	Route::get('social/ad/report','SocialController@report')->name('social.report');
-	Route::post('social/ad/report/paginate','SocialController@paginateReport')->name('social.report.paginate');
-	Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');
-
-		// end to ad reports routes
-
-		// AdCreative reports routes
-
-	Route::get('social/adcreative/report','SocialController@adCreativereport')->name('social.adCreative.report');
-	Route::post('social/adcreative/report/paginate','SocialController@adCreativepaginateReport')->name('social.adCreative.paginate');
-
-
-		// end to ad reports routes
-
-
-	// Creating Ad Campaign Routes defines here
-
-
-	Route::get('social/ad/campaign/create','SocialController@createCampaign')->name('social.ad.campaign.create');
-
-	Route::post('social/ad/campaign/store','SocialController@storeCampaign')->name('social.ad.campaign.store');
-
-
-
-	// Creating Adset Routes define here
-
-	Route::get('social/ad/adset/create','SocialController@createAdset')->name('social.ad.adset.create');
-	Route::post('social/ad/adset/store','SocialController@storeAdset')->name('social.ad.adset.store');
-
-
-	// Creating Ad Routes define here
-
-	Route::get('social/ad/create','SocialController@createAd')->name('social.ad.create');
-	Route::post('social/ad/store','SocialController@storeAd')->name('social.ad.store');
-
-
-	// End of Routes for social
-
 	// Development
 	Route::get('development', 'DevelopmentController@index')->name('development.index');
 	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
@@ -323,13 +270,42 @@ Route::middleware('auth')->group(function (){
 	Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
 
 	/*Routes For Social */
-
 	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
 
-		// post creating routes define's here
-
+	// post creating routes define's here
 	Route::get('social/post/page','SocialController@index')->name('social.post.page');
 	Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
+
+	/*Routes For Social */
+	Route::any('social/get-post/page','SocialController@pagePost')->name('social.get-post.page');
+
+	// post creating routes define's here
+	Route::get('social/post/page','SocialController@index')->name('social.post.page');
+	Route::post('social/post/page/create','SocialController@createPost')->name('social.post.page.create');
+
+	// Ad reports routes
+	Route::get('social/ad/report','SocialController@report')->name('social.report');
+	Route::post('social/ad/report/paginate','SocialController@paginateReport')->name('social.report.paginate');
+	Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');
+	// end to ad reports routes
+
+	// AdCreative reports routes
+	Route::get('social/adcreative/report','SocialController@adCreativereport')->name('social.adCreative.report');
+	Route::post('social/adcreative/report/paginate','SocialController@adCreativepaginateReport')->name('social.adCreative.paginate');
+	// end to ad reports routes
+
+	// Creating Ad Campaign Routes defines here
+	Route::get('social/ad/campaign/create','SocialController@createCampaign')->name('social.ad.campaign.create');
+	Route::post('social/ad/campaign/store','SocialController@storeCampaign')->name('social.ad.campaign.store');
+
+	// Creating Adset Routes define here
+	Route::get('social/ad/adset/create','SocialController@createAdset')->name('social.ad.adset.create');
+	Route::post('social/ad/adset/store','SocialController@storeAdset')->name('social.ad.adset.store');
+
+	// Creating Ad Routes define here
+	Route::get('social/ad/create','SocialController@createAd')->name('social.ad.create');
+	Route::post('social/ad/store','SocialController@storeAd')->name('social.ad.store');
+	// End of Routes for social
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */

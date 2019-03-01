@@ -371,6 +371,7 @@ class ProductController extends Controller {
 
 		$product->save();
 
+		$product->detachMediaTags(config('constants.media_tags'));
 		$media = MediaUploader::fromSource($request->file('image'))->upload();
 		$product->attachMedia($media,config('constants.media_tags'));
 

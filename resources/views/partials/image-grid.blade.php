@@ -161,6 +161,9 @@
     $(document).ready(function() {
        $(".select-multiple").multiselect();
        $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+       $('.lazy').Lazy({
+         effect: 'fadeIn'
+       });
     });
       var searchSuggestions = {!! json_encode($search_suggestions) !!};
       var image_array = [];
