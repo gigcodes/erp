@@ -38,6 +38,7 @@
         <tr>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">ID</a></th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Date</a></th>
+            <th>Customer Names</th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Purchase Handler</a></th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Supplier Name</a></th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Status</a></th>
@@ -49,6 +50,15 @@
             <tr>
                 <td>{{ $purchase['id'] }}</td>
                 <td>{{ Carbon\Carbon::parse($purchase['created_at'])->format('d-m-Y') }}</td>
+                <td>
+                  <ul>
+                    @foreach ($purchase['products'] as $product)
+                      <li>
+                        {{ $product['orderproducts'] ? ($product['orderproducts'][0]['order'] ? ($product['orderproducts'][0]['order']['customer'] ? $product['orderproducts'][0]['order']['customer']['name'] : 'No Customer') : 'No Order') : 'No Order Product' }}
+                      </li>
+                    @endforeach
+                  </ul>
+                </td>
                 <td>{{ $purchase['purchase_handler'] ? $users[$purchase['purchase_handler']] : 'nil' }}</td>
                 <td>{{ $purchase['supplier'] }}</td>
                 <td>{{ $purchase['status']}}</td>

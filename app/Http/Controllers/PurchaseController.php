@@ -53,10 +53,16 @@ class PurchaseController extends Controller
   					 $sortby = 'communication';
   					break;
   			default :
-  					 $sortby = 'id';
+  					 $sortby = 'created_at';
   		}
 
-  		$purchases = ((new Purchase())->newQuery());
+  		$purchases = (new Purchase())->newQuery()->with(['Products' => function ($query) {
+        $query->with(['orderproducts' => function ($quer) {
+          $quer->with(['Order' => function ($q) {
+            $q->with('customer');
+          }]);
+        }]);
+      }]);
 
   		if ($sortby != 'communication') {
   			$purchases = $purchases->orderBy( $sortby, $orderby );
@@ -78,6 +84,7 @@ class PurchaseController extends Controller
   		$users  = Helpers::getUserArray( User::all() );
 
   		$purchases_array = $purchases->whereNull( 'deleted_at' )->get()->toArray();
+      // dd($purchases_array);
 
   		if ($sortby == 'communication') {
   			if ($orderby == 'asc') {
