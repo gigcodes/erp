@@ -838,19 +838,27 @@ class WhatsAppController extends FindByNumberController
     }
 
     if ($request->to_all) {
-      $data = Customer::whereNotNull('phone')->chunk(100, function ($customers) use ($content) {
+      $now = Carbon::now();
+      $minutes = 0;
+      $data = Customer::whereNotNull('phone')->chunk(10, function ($customers) use ($content, $now, &$minutes) {
         foreach ($customers as $customer) {
-          SendMessageToAll::dispatch(Auth::id(), $customer, $content);
+          SendMessageToAll::dispatch(Auth::id(), $customer, $content)
+                          ->delay($now->addMinutes($minutes));
         }
+
+        $minutes += 20;
       });
     } else {
+      $now = Carbon::now();
+      $minutes = 0;
       $array = Excel::toArray(new CustomerNumberImport, $request->file('file'));
 
       foreach ($array as $item) {
         foreach ($item as $it) {
           $number = (int)$it[0];
 
-          SendMessageToSelected::dispatch($number, $content);
+          SendMessageToSelected::dispatch($number, $content)->delay($now->addMinutes($minutes));
+          $minutes += 1;
         }
       }
     }
