@@ -154,8 +154,7 @@
 
 
 
-	<?php $stage = new \App\Stage(); ?>
-    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script> --}}
+	  <?php $stage = new \App\Stage(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
     $(document).ready(function() {
@@ -165,7 +164,6 @@
          effect: 'fadeIn'
        });
     });
-      var searchSuggestions = {!! json_encode($search_suggestions) !!};
       var image_array = [];
 
       // $('#product-search').autocomplete({
@@ -189,6 +187,9 @@
         }).done(function(data) {
           console.log(data);
           $('#productGrid').html(data.html);
+          $('.lazy').Lazy({
+            effect: 'fadeIn'
+          });
         }).fail(function() {
           alert('Error loading more products');
         });
@@ -239,6 +240,9 @@
           data: formData
         }).done(function(data) {
           $('#productGrid').html(data.html);
+          $('.lazy').Lazy({
+            effect: 'fadeIn'
+          });
         }).fail(function() {
           alert('Error searching for products');
         });
@@ -255,6 +259,9 @@
           data: formData
         }).done(function(data) {
           $('#productGrid').html(data.html);
+          $('.lazy').Lazy({
+            effect: 'fadeIn'
+          });
         }).fail(function() {
           alert('Error searching for products');
         });
