@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
-
 class ProductController extends Controller {
 	/**
 	 * Display a listing of the resource.
@@ -208,7 +207,6 @@ class ProductController extends Controller {
 			$selected_products = [];
 		}
 
-
 		if ($request->brand != '') {
 			$products = $products->where('brand', $request->brand);
 
@@ -223,14 +221,11 @@ class ProductController extends Controller {
 
 		$filtered_category = json_decode($request->category, true);
 
-		if ($filtered_category[0] != null) {
-			// Cache::put('filter-category', $filtered_category, 120);
-		} else {
+		if ($filtered_category[0] == null) {
 			if (Cache::has('filter-category-' . Auth::id())) {
 				$filtered_category[0] = Cache::get('filter-category-' . Auth::id());
 			}
 		}
-
 
 		if ($filtered_category[0] != null) {
 			$is_parent = Category::isParent($filtered_category[0]);
@@ -278,20 +273,7 @@ class ProductController extends Controller {
 			}
 		}
 
-
-		$products = $products->paginate(Setting::get('pagination'));
-
-		$search_suggestions = [];
-		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
-		$brand_suggestions = Brand::getAll();
-
-		foreach ($sku_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion['sku']);
-		}
-
-		foreach ($brand_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion);
-		}
+		$products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier'])->paginate(Setting::get('pagination'));
 
 		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
 		                                        ->selected($filtered_category)
@@ -303,7 +285,7 @@ class ProductController extends Controller {
 			return response()->json(['html' => $html]);
 		}
 
-		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'search_suggestions', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier') );
+		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier') );
 	}
 
 
