@@ -27,6 +27,8 @@ class Brand extends Model {
 		foreach ($brands as $brand)
 			$brandsArray[$brand->id] = $brand->name;
 
+		asort($brandsArray);
+
 		return $brandsArray;
 	}
 
