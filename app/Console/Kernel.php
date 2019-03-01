@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\EnrichWiseProducts;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
 use App\Console\Commands\MakeApprovedImagesSchedule;
@@ -50,6 +51,7 @@ class Kernel extends ConsoleKernel
         DeleteGnbProducts::class,
         DeleteWiseProducts::class,
         UpdateWiseProducts::class,
+        EnrichWiseProducts::class
     ];
 
     /**
@@ -104,6 +106,11 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('gebnegozionline:get-products-detail')
             ->hourly()
+            ->withoutOverlapping()
+        ;
+
+        $schedule->command('enrich:wiseboutique')
+            ->everyMinute()
             ->withoutOverlapping()
         ;
 
