@@ -7,6 +7,7 @@ use App\Category;
 use App\Customer;
 use App\Image;
 use App\ImageSchedule;
+use App\Product;
 use App\ScheduleGroup;
 use App\Services\Instagram\DirectMessage;
 use App\Services\Instagram\Instagram;
@@ -281,7 +282,6 @@ class InstagramController extends Controller
 
     public function postSchedules(Request $request) {
         $this->validate($request, [
-            'images' => 'required',
             'description' => 'required',
             'date' => 'required|date',
             'hour' => 'required|numeric|min:0|max:23',
@@ -289,7 +289,7 @@ class InstagramController extends Controller
         ]);
 
 
-        $images = $request->get('images');
+        $images = $request->get('images') ?? [];
         $descriptions = $request->get('description');
         $date = explode('-', $request->get('date'));
         $date = Carbon::create($date[0], $date[1], $date[2], $request->get('hour'), $request->get('minute'), 0);
@@ -387,6 +387,50 @@ class InstagramController extends Controller
         return view('instagram.schedule', compact('schedule'));
     }
 
+    public function attachMedia(Request $request, $scheduleId) {
+        $schedule = ScheduleGroup::find($scheduleId);
+
+        if ($request->has('save')) {
+            $selectedImages = $request->get('images') ?? [];
+            $selectedImages  = Product::whereIn('id', $selectedImages)->get();
+            $imagesIds = [];
+
+            foreach ($selectedImages as $selectedImage) {
+                $imageUrl = explode('/', $selectedImage->imageurl);
+                $image = new Image();
+                $image->brand = $selectedImage->brand;
+                $image->filename = $imageUrl[count($imageUrl)-1];
+                $image->is_scheduled = 1;
+                $image->status = 2;
+                $image->save();
+
+                $is = new ImageSchedule();
+                $is->image_id = $image->id;
+                $is->description = 'Auto Scheduled';
+                $is->scheduled_for = $schedule->scheduled_for;
+                $is->facebook = 1;
+                $is->instagram = 0;
+                $is->save();
+
+                $imagesIds[] = $image->id;
+            }
+
+            $schedule->images = $imagesIds;
+            $schedule->save();
+
+            return redirect()->action('InstagramController@editSchedule', $scheduleId);
+        }
+
+        $selectedImages = $request->get('images') ?? [];
+
+        $selectedImages  = Product::whereIn('id', $selectedImages)->get();
+
+        $products = Product::whereNotNull('sku')->whereNotIn('id', $selectedImages)->latest()->paginate(40);
+
+        return view('instagram.attach_image', compact('schedule', 'products', 'selectedImages', 'request'));
+
+    }
+
     public function updateSchedule($scheduleId, Request $request)
     {
         $schedule = ScheduleGroup::findOrFail($scheduleId);
@@ -397,8 +441,8 @@ class InstagramController extends Controller
         }
         $schedule->description = trim($request->get('description'));
 
-        $images = $request->get('images');
-        $selectedImages = $request->get('selected_images');
+        $images = $request->get('images') ?? [];
+        $selectedImages = $request->get('selected_images') ?? [];
 
         foreach ($images as $image)
         {

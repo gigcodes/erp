@@ -77,7 +77,11 @@ class Facebook {
         $data['caption']= $image->schedule->description;
         $data['published'] = 'false';
         $data['access_token']=$this->page_access_token;
-        $file = new File(public_path().'/uploads/social-media/'.$image->filename);
+        $file = public_path().'/uploads/social-media/'.$image->filename;
+        if (!file_exists($file)) {
+            $file = public_path().'/uploads/'.$image->filename;
+        }
+        $file = new File($file);
         $data['source'] = $this->facebook->fileToUpload($file);
 
         $mediaId = null;

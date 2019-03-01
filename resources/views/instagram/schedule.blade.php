@@ -56,6 +56,14 @@
                 <button class="btn btn-info btn-lg">Update Changes</button>
             </div>
         </form>
+        <div class="row">
+            <div class="col-md-12">
+                <form action="{{ action('InstagramController@attachMedia', $schedule->id) }}" method="post">
+                    @csrf
+                    <button href="{{ action('InstagramController@attachMedia', $schedule->id) }}" class="btn btn-primary">Add Product Images</button>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection
 
