@@ -40,15 +40,15 @@ class TwilioController extends FindByNumberController
      */
     public function createToken(Request $request)
     {
-      $client = $this->getTwilioClient();
+      // $client = $this->getTwilioClient();
       $user = \Auth::user();
       $agent = str_replace('-', '_', str_slug($user->name));
       $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
       $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
       $capability->allowClientIncoming($agent);
       $expiresIn = (3600*1);
-      $token = $capability->generateToken($expiresIn);
-      return response()->json(['twilio_token' => $token]);
+      $token = $capability->generateToken();
+      return response()->json(['twilio_token' => $token, 'agent' => $agent]);
     }
 
     /**
@@ -427,7 +427,7 @@ class TwilioController extends FindByNumberController
         if ($customer = Customer::where('phone', $request->phone_number)->first()) {
           $params = [
             'number'      => NULL,
-            'message'     => 'Greetings from Solo Luxury, our Solo Valets were trying to get in touch with you but were unable to get through, you can call us on 000800401700. Please do not use +91 when calling  as it does not connect to our toll free number.',
+            'message'     => 'Greetings from Solo Luxury, our Solo Valets were trying to get in touch with you but were unable to get through, you can call us on 000800401700. Please do not use +91 when calling  as it does not connect to our toll free number. Alternatively you can call us on 02262363488.',
             'customer_id' => $customer->id,
             'approved'    => 1,
             'status'      => 2
