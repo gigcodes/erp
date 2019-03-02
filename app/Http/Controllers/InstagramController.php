@@ -319,7 +319,7 @@ class InstagramController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('message', 'The images has been successfully scheduled for post!');
+        return redirect()->action('InstagramController@editSchedule', $scheduleGroup->id);
 
     }
 
