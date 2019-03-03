@@ -41,9 +41,9 @@ class ProductController extends Controller {
 	 */
 	public function index(Request $request) {
 		if ($request->archived == 'true') {
-			$products = Product::onlyTrashed()->latest();
+			$products = Product::onlyTrashed()->latest()->select(['id', 'sku', 'name']);
 		} else {
-			$products = Product::latest();
+			$products = Product::latest()->select(['id', 'sku', 'name']);
 		}
 		$term = $request->term;
 		$archived = $request->archived;
@@ -58,22 +58,10 @@ class ProductController extends Controller {
 			});
 		}
 
-		$products = $products->paginate( Setting::get( 'pagination' ) );
+		$products = $products->paginate(Setting::get('pagination'));
 
-		$search_suggestions = [];
-		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
-		$name_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('name')->select('name')->get()->toArray();
-
-		foreach ($sku_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion['sku']);
-		}
-
-		foreach ($name_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion['name']);
-		}
-
-		return view( 'products.index', compact( 'products', 'term', 'search_suggestions', 'archived' ) )
-			->with( 'i', ( request()->input( 'page', 1 ) - 1 ) * 10 );
+		return view('products.index', compact( 'products', 'term', 'archived'))
+			->with('i', (request()->input('page', 1) - 1) * 10);
 	}
 
 
