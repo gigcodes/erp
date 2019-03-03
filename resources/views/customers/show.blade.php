@@ -1095,6 +1095,7 @@
                                     <th style="width: 100px">Price</th>
                                     <th style="width: 100px">Size</th>
                                     <th style="width: 80px">Qty</th>
+                                    <th>Purchase Status</th>
                                     <th>Action</th>
                                   </thead>
                                   <tbody>
@@ -1146,6 +1147,18 @@
                                           </td>
                                           <td>
                                             <input class="form-control" type="number" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                          </td>
+                                          <td>
+                                            @if(isset($order_product->product) && count($order_product->product->purchases) > 0)
+                                              <select name="status" class="form-control">
+                                                 @foreach($purchase_status as $key => $value)
+                                                   @php $pur_status = isset($order_product->product->purchases) ? $order_product->product->purchases()->first()->status : '';  @endphp
+                                                  <option value="{{$value}}" {{ $value == $pur_status ? 'selected=selected' : '' }}>{{$key}}</option>
+                                                  @endforeach
+                                              </select>
+                                            @else
+                                              No Purchase
+                                            @endif
                                           </td>
                                           @if(isset($order_product->product))
                                             <td>

@@ -22,6 +22,7 @@ use App\ReplyCategory;
 use App\CallRecording;
 use App\InstructionCategory;
 use App\OrderStatus as OrderStatuses;
+use App\ReadOnly\PurchaseStatus;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends Controller
@@ -293,6 +294,7 @@ class CustomerController extends Controller
         $instruction_categories = InstructionCategory::all();
         $instruction_replies = Reply::where('model', 'Instruction')->get();
         $order_status_report = OrderStatuses::all();
+        $purchase_status = (new PurchaseStatus)->all();
 
         return view('customers.show', [
             'customers'  => $customers,
@@ -307,7 +309,8 @@ class CustomerController extends Controller
             'call_history' =>  $call_history,
             'instruction_categories' =>  $instruction_categories,
             'instruction_replies' =>  $instruction_replies,
-            'order_status_report' =>  $order_status_report
+            'order_status_report' =>  $order_status_report,
+            'purchase_status' =>  $purchase_status
         ]);
     }
 

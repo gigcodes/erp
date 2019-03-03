@@ -69,7 +69,7 @@ class Product extends Model
 
 	public function purchases()
   {
-    return $this->belongsToMany('App\Purchase', 'purchase_products', 'purchase_id', 'product_id');
+    return $this->belongsToMany('App\Purchase', 'purchase_products', 'product_id', 'purchase_id');
   }
 
 	public function orderproducts()
