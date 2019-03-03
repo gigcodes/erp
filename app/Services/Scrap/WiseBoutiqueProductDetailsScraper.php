@@ -60,29 +60,30 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $old_product->composition = (string) $properties_array['1'];
           }
 
-          if (array_key_exists('3', $properties_array)) {
-            $old_product->color = $properties_array['3'];
+          if (array_key_exists('Colors', $properties_array)) {
+            $old_product->color = $properties_array['Colors'];
           }
 
-          if (array_key_exists('2', $properties_array)) {
-            $sizes = $properties_array['2'];
-            if (strpos($sizes, 'Width:') !== false) {
-              preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+          foreach ($properties_array as $property) {
+            if (!is_array($property)) {
+              if (strpos($property, 'Width:') !== false) {
+                preg_match_all('/Width: ([\d]+)/', $property, $match);
 
-              $old_product->lmeasurement = (int) $match[1];
-              $old_product->measurement_size_type = 'measurement';
-            }
+                $old_product->lmeasurement = (int) $match[1];
+                $old_product->measurement_size_type = 'measurement';
+              }
 
-            if (strpos($sizes, 'Height:') !== false) {
-              preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+              if (strpos($property, 'Height:') !== false) {
+                preg_match_all('/Height: ([\d]+)/', $property, $match);
 
-              $old_product->hmeasurement = (int) $match[1];
-            }
+                $old_product->hmeasurement = (int) $match[1];
+              }
 
-            if (strpos($sizes, 'Depth:') !== false) {
-              preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+              if (strpos($property, 'Depth:') !== false) {
+                preg_match_all('/Depth: ([\d]+)/', $property, $match);
 
-              $old_product->dmeasurement = (int) $match[1];
+                $old_product->dmeasurement = (int) $match[1];
+              }
             }
           }
 
@@ -127,29 +128,30 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $new_product->composition = (string) $properties_array['1'];
           }
 
-          if (array_key_exists('3', $properties_array)) {
-            $new_product->color = $properties_array['3'];
+          if (array_key_exists('Colors', $properties_array)) {
+            $new_product->color = $properties_array['Colors'];
           }
 
-          if (array_key_exists('2', $properties_array)) {
-            $sizes = $properties_array['2'];
-            if (strpos($sizes, 'Width:') !== false) {
-              preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+          foreach ($properties_array as $property) {
+            if (!is_array($property)) {
+              if (strpos($property, 'Width:') !== false) {
+                preg_match_all('/Width: ([\d]+)/', $property, $match);
 
-              $new_product->lmeasurement = (int) $match[1];
-              $new_product->measurement_size_type = 'measurement';
-            }
+                $old_product->lmeasurement = (int) $match[1];
+                $old_product->measurement_size_type = 'measurement';
+              }
 
-            if (strpos($sizes, 'Height:') !== false) {
-              preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+              if (strpos($property, 'Height:') !== false) {
+                preg_match_all('/Height: ([\d]+)/', $property, $match);
 
-              $new_product->hmeasurement = (int) $match[1];
-            }
+                $old_product->hmeasurement = (int) $match[1];
+              }
 
-            if (strpos($sizes, 'Depth:') !== false) {
-              preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+              if (strpos($property, 'Depth:') !== false) {
+                preg_match_all('/Depth: ([\d]+)/', $property, $match);
 
-              $new_product->dmeasurement = (int) $match[1];
+                $old_product->dmeasurement = (int) $match[1];
+              }
             }
           }
 
@@ -260,29 +262,30 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $product->composition = (string) $properties_array['1'];
           }
 
-          if (array_key_exists('3', $properties_array)) {
-            $product->color = $properties_array['3'];
+          if (array_key_exists('Colors', $properties_array)) {
+            $product->color = $properties_array['Colors'];
           }
 
-          if (array_key_exists('2', $properties_array)) {
-            $sizes = $properties_array['2'];
-            if (strpos($sizes, 'Width:') !== false) {
-              preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+          foreach ($properties_array as $property) {
+            if (!is_array($property)) {
+              if (strpos($property, 'Width:') !== false) {
+                preg_match_all('/Width: ([\d]+)/', $property, $match);
 
-              $product->lmeasurement = (int) $match[1][0];
-              $product->measurement_size_type = 'measurement';
-            }
+                $product->lmeasurement = (int) $match[1];
+                $product->measurement_size_type = 'measurement';
+              }
 
-            if (strpos($sizes, 'Height:') !== false) {
-              preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+              if (strpos($property, 'Height:') !== false) {
+                preg_match_all('/Height: ([\d]+)/', $property, $match);
 
-              $product->hmeasurement = (int) $match[1][0];
-            }
+                $product->hmeasurement = (int) $match[1];
+              }
 
-            if (strpos($sizes, 'Depth:') !== false) {
-              preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+              if (strpos($property, 'Depth:') !== false) {
+                preg_match_all('/Depth: ([\d]+)/', $property, $match);
 
-              $product->dmeasurement = (int) $match[1][0];
+                $product->dmeasurement = (int) $match[1];
+              }
             }
           }
 
