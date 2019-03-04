@@ -334,10 +334,24 @@ class ProductController extends Controller {
 		$product->name = $request->name;
 		$product->sku = $request->sku;
 		$product->size = $request->size;
-		$product->price = $request->price;
 		$product->brand = $request->brand;
 		$product->color = $request->color;
 		$product->supplier = $request->supplier;
+		$product->price = $request->price;
+
+		$brand = Brand::find($request->brand);
+
+		if ($request->price) {
+			if(isset($request->brand) && !empty($brand->euro_to_inr))
+				$product->price_inr = $brand->euro_to_inr * $product->price;
+			else
+				$product->price_inr = Setting::get('euro_to_inr') * $product->price;
+
+			$product->price_inr = round($product->price_inr, -3);
+			$product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+
+			$product->price_special = round($product->price_special, -3);
+		}
 
 		$product->save();
 
@@ -352,7 +366,7 @@ class ProductController extends Controller {
 
 			$order_product->order_id = $request->order_id;
 			$order_product->sku = $request->sku;
-			$order_product->product_price = $request->price;
+			$order_product->product_price = $request->price_special;
 			$order_product->size = $request->size;
 			$order_product->color = $request->color;
 			$order_product->qty = $request->quantity;

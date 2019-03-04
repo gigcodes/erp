@@ -1402,11 +1402,20 @@
             </div>
 
             <div class="form-group">
-                <strong>Price:</strong>
-                <input type="number" class="form-control" name="price" placeholder="Price"
+                <strong>Price: (Euro)</strong>
+                <input type="number" class="form-control" name="price" placeholder="Price (Euro)"
                        value="{{ old('price') }}" step=".01"  id="product-price"/>
                 @if ($errors->has('price'))
                     <div class="alert alert-danger">{{$errors->first('price')}}</div>
+                @endif
+            </div>
+
+            <div class="form-group">
+                <strong>Price:</strong>
+                <input type="number" class="form-control" name="price_special" placeholder="Price"
+                       value="{{ old('price_special') }}" step=".01"  id="product-price-special"/>
+                @if ($errors->has('price_special'))
+                    <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
                 @endif
             </div>
 
@@ -1912,6 +1921,7 @@
           var color = $('#product-color').val();
           var brand = $('#product-brand').val();
           var price = $('#product-price').val();
+          var price_special = $('#product-price-special').val();
           var size = $('#product-size').val();
           var quantity = $('#product-quantity').val();
 
@@ -1924,6 +1934,7 @@
           form_data.append('color', color);
           form_data.append('brand', brand);
           form_data.append('price', price);
+          form_data.append('price_special', price_special);
           form_data.append('size', size);
           form_data.append('quantity', quantity);
 
@@ -1943,7 +1954,7 @@
                   product_row += '<td>' + response.product.sku + '</td>';
                   product_row += '<td>' + response.product.color + '</td>';
                   product_row += '<td>' + brands_array[response.product.brand] + '</td>';
-                  product_row += '<td><input class="table-input" type="text" value="' + response.product.price + '" name="order_products[' + response.order.id + '][product_price]"></td>';
+                  product_row += '<td><input class="table-input" type="text" value="' + response.order_product.product_price + '" name="order_products[' + response.order.id + '][product_price]"></td>';
                   // product_row += '<th>' + response.product.size + '</th>';
 
                   if (response.product.size != null) {
