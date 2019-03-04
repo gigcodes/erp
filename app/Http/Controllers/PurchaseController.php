@@ -131,7 +131,9 @@ class PurchaseController extends Controller
             $q->where('supplier', $supplier);
           })->get();
         } else {
-          $orders = OrderProduct::select('sku')->with('Product')->whereHas('Product', function($q) use ($supplier) {
+          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) {
+            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+          })->whereHas('Product', function($q) use ($supplier) {
             $q->where('supplier', $supplier);
           })->get();
         }
@@ -147,14 +149,18 @@ class PurchaseController extends Controller
             $q->where('brand', $brand);
           })->get();
         } else {
-          $orders = OrderProduct::select('sku')->with('Product')->whereHas('Product', function($q) use ($brand) {
+          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) {
+            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+          })->whereHas('Product', function($q) use ($brand) {
             $q->where('brand', $brand);
           })->get();
         }
       }
 
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
-        $orders = OrderProduct::select('sku')->get();
+        $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
+          $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+        })->select('sku')->get();
       }
 
       $new_orders = [];
