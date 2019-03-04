@@ -6,6 +6,7 @@ use App\Image;
 use App\ScrapedProducts;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
+use App\Services\Products\GnbProductsCreator;
 use Illuminate\Http\Request;
 use Storage;
 
@@ -13,11 +14,13 @@ class ScrapController extends Controller
 {
     private $googleImageScraper;
     private $pinterestScraper;
+    private $gnbCreator;
 
-    public function __construct(GoogleImageScraper $googleImageScraper, PinterestScraper $pinterestScraper)
+    public function __construct(GoogleImageScraper $googleImageScraper, PinterestScraper $pinterestScraper, GnbProductsCreator $gnbCreator)
     {
         $this->googleImageScraper = $googleImageScraper;
         $this->pinterestScraper = $pinterestScraper;
+        $this->gnbCreator = $gnbCreator;
     }
 
     public function index() {
@@ -103,6 +106,8 @@ class ScrapController extends Controller
         $product->fill($request->except(['sku', 'images']));
         $product->images = $this->downloadImagesForSites($request->get('images'), 'gnb');
         $product->save();
+
+        $this->gnbCreator->createGnbProducts($product);
 
         return response()->json([
             'status' => 'success',
