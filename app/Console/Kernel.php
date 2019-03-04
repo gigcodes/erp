@@ -99,15 +99,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
         $schedule->command('send:auto-reminder')->hourly();
 
-        $schedule->command('gebnegozionline:get-products-list')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
+//        $schedule->command('gebnegozionline:get-products-list')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
 
-        $schedule->command('gebnegozionline:get-products-detail')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
+//        $schedule->command('gebnegozionline:get-products-detail')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
 
         $schedule->command('enrich:wiseboutique')
             ->everyMinute()

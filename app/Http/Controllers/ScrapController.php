@@ -88,4 +88,46 @@ class ScrapController extends Controller
         $title = $name;
         return view('scrap.scraped_images', compact('products', 'title'));
     }
+
+    public function syncGnbProducts(Request $request) {
+        $this->validate($request, [
+            'sku' => 'required'
+        ]);
+
+        $product = ScrapedProducts::where('sku', $request->get('sku'))->first();
+
+        if (!$product) {
+            $product = new ScrapedProducts();
+        }
+
+        $product->fill($request->except(['sku', 'images']));
+        $product->images = $this->downloadImagesForSites($request->get('images'), 'gnb');
+        $product->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Created or Updated successfully!'
+        ]);
+
+    }
+
+    private function downloadImagesForSites($data, $prefix = 'img'): array
+    {
+
+        $images = [];
+        foreach ($data as $key=>$datum) {
+            try {
+                $imgData = file_get_contents($datum);
+            } catch (\Exception $exception) {
+                continue;
+            }
+
+            $fileName = $prefix . '_' . md5(time()).'.png';
+            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+
+            $images[] = $fileName;
+        }
+
+        return $images;
+    }
 }

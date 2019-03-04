@@ -11,6 +11,22 @@ class ScrapedProducts extends Model
         'properties' => 'array',
     ];
 
+    protected $fillable = [
+        'sku',
+        'website',
+        'images',
+        'properties',
+        'title',
+        'brand_id',
+        'description',
+        'url',
+        'is_properly_updated',
+        'is_price_updated',
+        'is_enriched',
+        'has_sku',
+        'price'
+    ];
+
     public function brand() {
         return $this->belongsTo(Brand::class);
     }
