@@ -25,7 +25,7 @@
             </div>
 
             <div class="pull-right mt-4">
-                @if (Auth::user()->hasRole('Admin'))
+                @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#importCustomersModal">Import Customers</button>
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Send Message to All</button>
                 @endif
