@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\DoubleFProductDetailScraper;
+use App\Console\Commands\DoubleFScraper;
 use App\Console\Commands\EnrichWiseProducts;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
@@ -51,7 +53,9 @@ class Kernel extends ConsoleKernel
         DeleteGnbProducts::class,
         DeleteWiseProducts::class,
         UpdateWiseProducts::class,
-        EnrichWiseProducts::class
+        EnrichWiseProducts::class,
+        DoubleFProductDetailScraper::class,
+        DoubleFScraper::class
     ];
 
     /**
@@ -116,6 +120,16 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('wiseboutique:get-product-details')
             ->hourly()
+            ->withoutOverlapping()
+        ;
+
+        $schedule->command('scrap:doublef-list')
+            ->everyFifteenMinutes()
+            ->withoutOverlapping()
+        ;
+
+        $schedule->command('doublef:get-product-details')
+            ->everyFifteenMinutes()
             ->withoutOverlapping()
         ;
 

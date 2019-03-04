@@ -525,7 +525,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
     private function updateProductOnServer(ScrapedProducts $image)
     {
         $client = new Client();
-        $response = $client->request('POST', 'http://sololux.local/api/sync-product', [
+        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
                 'sku' => $image->sku,
                 'website' => $image->website,
@@ -543,6 +543,8 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             ]
         ]);
 
-        dd($response->getBody()->getContents());
+        if (!$response) {
+            dd($response->getBody()->getContents());
+        }
     }
 }
