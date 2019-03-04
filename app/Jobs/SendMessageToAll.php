@@ -59,7 +59,7 @@ class SendMessageToAll implements ShouldQueue
 
       $chat_message = ChatMessage::create($params);
 
-      if (!$this->content['message']) {
+      if ($this->content['image']) {
         foreach ($this->content['image'] as $image) {
           $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 

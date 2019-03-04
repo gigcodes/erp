@@ -188,6 +188,7 @@ class ProductController extends Controller {
 		$products = Product::latest();
 		$filtered_category = '';
 		$brand = '';
+		$message_body = $request->message ? $request->message : '';
 
 		if (Order::find($model_id)) {
 			$selected_products = self::getSelectedProducts($model_type,$model_id);
@@ -273,7 +274,7 @@ class ProductController extends Controller {
 			return response()->json(['html' => $html]);
 		}
 
-		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier') );
+		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body') );
 	}
 
 

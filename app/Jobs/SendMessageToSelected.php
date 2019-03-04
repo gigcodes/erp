@@ -44,7 +44,7 @@ class SendMessageToSelected implements ShouldQueue
         app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, NULL, $message, false);
       }
 
-      if (!$this->content['message']) {
+      if ($this->content['image']) {
         foreach ($this->content['image'] as $image) {
           app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, NULL, $image['url'], false);
         }

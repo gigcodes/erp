@@ -210,7 +210,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <strong>Message</strong>
-                            <textarea name="message" rows="8" cols="80" class="form-control"></textarea>
+                            <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
                         </div>
 
                         <div class="form-group">
@@ -218,7 +218,7 @@
                         </div>
 
                         <div class="form-group">
-                          <a href="{{ route('attachImages', ['customers']) }}" class="btn btn-image"><img src="/images/attach.png" />Attach from Grid</a>
+                          <a href="#" class="btn btn-image attach-images-btn"><img src="/images/attach.png" />Attach from Grid</a>
                         </div>
 
                         <div class="form-group">
@@ -383,6 +383,10 @@
         </table>
     </div>
 
+    <form action="{{ route('attachImages', ['customers']) }}" id="attachImagesForm" method="GET">
+      <input type="hidden" name="message" id="attach_message" value="">
+    </form>
+
     {!! $customers->links() !!}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
@@ -439,6 +443,14 @@
                 console.log(response);
                 alert('There was error loading customers data');
             });
+        });
+
+        $(document).on('click', '.attach-images-btn', function(e) {
+          e.preventDefault();
+
+          $('#attach_message').val($('#message_to_all_field').val());
+
+          $('#attachImagesForm').submit();
         });
     </script>
 

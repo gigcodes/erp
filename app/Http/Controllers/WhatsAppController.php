@@ -833,8 +833,8 @@ class WhatsAppController extends FindByNumberController
     }
 
     if ($request->moduletype == 'customers') {
-      $content['message'] = NULL;
-      
+      $content['message'] = $request->body;
+
       foreach (json_decode($request->images) as $key => $image) {
         $media = Media::find($image);
 
@@ -842,15 +842,11 @@ class WhatsAppController extends FindByNumberController
         $content['image'][$key]['url'] = $media->getUrl();
       }
     } else {
-      if ($request->message) {
-        $content['message'] = $request->message;
-      } else {
-        $content['message'] = NULL;
-        foreach ($request->file('images') as $key => $image) {
-          $media = MediaUploader::fromSource($image)->upload();
-          $content['image'][$key]['key'] = $media->getKey();
-          $content['image'][$key]['url'] = $media->getUrl();
-        }
+      $content['message'] = $request->message;
+      foreach ($request->file('images') as $key => $image) {
+        $media = MediaUploader::fromSource($image)->upload();
+        $content['image'][$key]['key'] = $media->getKey();
+        $content['image'][$key]['url'] = $media->getUrl();
       }
     }
 
