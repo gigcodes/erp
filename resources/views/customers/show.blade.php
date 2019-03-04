@@ -1095,6 +1095,7 @@
                                     <th style="width: 100px">Price</th>
                                     <th style="width: 100px">Size</th>
                                     <th style="width: 80px">Qty</th>
+                                    <th>Purchase Status</th>
                                     <th>Action</th>
                                   </thead>
                                   <tbody>
@@ -1146,6 +1147,18 @@
                                           </td>
                                           <td>
                                             <input class="form-control" type="number" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                          </td>
+                                          <td>
+                                            @if(isset($order_product->product) && count($order_product->product->purchases) > 0)
+                                              <select name="status" class="form-control">
+                                                 @foreach($purchase_status as $key => $value)
+                                                   @php $pur_status = isset($order_product->product->purchases) ? $order_product->product->purchases()->first()->status : '';  @endphp
+                                                  <option value="{{$value}}" {{ $value == $pur_status ? 'selected=selected' : '' }}>{{$key}}</option>
+                                                  @endforeach
+                                              </select>
+                                            @else
+                                              No Purchase
+                                            @endif
                                           </td>
                                           @if(isset($order_product->product))
                                             <td>
@@ -1925,33 +1938,34 @@
               var brands_array = {!! json_encode(\App\Helpers::getUserArray(\App\Brand::all())) !!};
               var show_url = "{{ url('products') }}/" + response.product.id;
               var delete_url = "{{ url('deleteOrderProduct') }}/" + response.order.id;
-              var product_row = '<tr><th><img width="200" src="' + response.product_image + '" /></th>';
-                  product_row += '<th>' + response.product.name + '</th>';
-                  product_row += '<th>' + response.product.sku + '</th>';
-                  product_row += '<th>' + response.product.color + '</th>';
-                  product_row += '<th>' + brands_array[response.product.brand] + '</th>';
-                  product_row += '<th><input class="table-input" type="text" value="' + response.product.price + '" name="order_products[' + response.order.id + '][product_price]"></th>';
+              var product_row = '<tr><td><img width="200" src="' + response.product_image + '" /></td>';
+                  product_row += '<td>' + response.product.name + '</td>';
+                  product_row += '<td>' + response.product.sku + '</td>';
+                  product_row += '<td>' + response.product.color + '</td>';
+                  product_row += '<td>' + brands_array[response.product.brand] + '</td>';
+                  product_row += '<td><input class="table-input" type="text" value="' + response.product.price + '" name="order_products[' + response.order.id + '][product_price]"></td>';
                   // product_row += '<th>' + response.product.size + '</th>';
 
                   if (response.product.size != null) {
                     var exploded = response.product.size.split(',');
 
-                    product_row += '<th><select class="form-control" name="order_products[' + response.order.id + '][size]">';
+                    product_row += '<td><select class="form-control" name="order_products[' + response.order.id + '][size]">';
                     product_row += '<option selected="selected" value="">Select</option>';
 
                     $(exploded).each(function(index, value) {
                       product_row += '<option value="' + value + '">' + value + '</option>';
                     });
 
-                    product_row += '</select></th>';
+                    product_row += '</select></td>';
 
                   } else {
-                      product_row += '<th><select hidden class="form-control" name="order_products[' + response.order.id + '][size]"><option selected="selected" value=""></option></select>nil</th>';
+                      product_row += '<td><select hidden class="form-control" name="order_products[' + response.order.id + '][size]"><option selected="selected" value=""></option></select>nil</td>';
                   }
 
-                  product_row += '<th><input class="table-input" type="number" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></th>';
-                  product_row += '<th><a class="btn btn-image" href="' + show_url + '"><img src="/images/view.png" /></a>';
-                  product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></th>';
+                  product_row += '<td><input class="table-input" type="number" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></td>';
+                  product_row += '<td></td>';
+                  product_row += '<td><a class="btn btn-image" href="' + show_url + '"><img src="/images/view.png" /></a>';
+                  product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></td>';
                   product_row += '</tr>';
 
               $('#products-table-' + order_id).append(product_row);

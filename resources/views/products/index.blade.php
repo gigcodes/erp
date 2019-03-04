@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-
 @section('content')
 <div class="row">
   <div class="col-lg-12 margin-tb">
@@ -43,58 +42,52 @@
 
 <div class="table-responsive">
   <table class="table table-bordered">
-  <tr>
-    <th>No</th>
-    <th>Sku</th>
-    <th>Name</th>
-    <th width="280px">Action</th>
-  </tr>
-  @foreach ($products as $product)
-  <tr>
-    <td>{{ $product->id }}</td>
-    <td>{{ $product->sku }}</td>
-    <td>{{ $product->name }}</td>
-    <td>
-      <a class="btn btn-image" href="{{ route('products.show',$product->id) }}"><img src="/images/view.png" /></a>
-      <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
+    <tr>
+      <th>No</th>
+      <th>Image</th>
+      <th>Sku</th>
+      <th>Name</th>
+      <th width="280px">Action</th>
+    </tr>
+    @foreach ($products as $product)
+    <tr>
+      <td>{{ $product->id }}</td>
+      <td>
+        @if ($images = $product->getMedia(config('constants.media_tags')))
+          @foreach ($images as $image)
+            <img src="{{ $image->getUrl() }}" class="img-responsive" width="50px">
+          @endforeach
+        @endif
+      </td>
+      <td>{{ $product->sku }}</td>
+      <td>{{ $product->name }}</td>
+      <td>
+        <a class="btn btn-image" href="{{ route('products.show',$product->id) }}"><img src="/images/view.png" /></a>
+        <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
 
-      @if (isset($archived) && $archived == 'true')
-        {!! Form::open(['method' => 'POST','route' => ['products.restore', $product->id],'style'=>'display:inline']) !!}
-        <button type="submit" class="btn btn-xs btn-secondary">Restore</button>
-        {!! Form::close() !!}
-      @else
-        {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
-        <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-        {!! Form::close() !!}
-      @endif
+        @if (isset($archived) && $archived == 'true')
+          {!! Form::open(['method' => 'POST','route' => ['products.restore', $product->id],'style'=>'display:inline']) !!}
+          <button type="submit" class="btn btn-xs btn-secondary">Restore</button>
+          {!! Form::close() !!}
+        @else
+          {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
+          <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+          {!! Form::close() !!}
+        @endif
 
-      <form action="{{ route('products.destroy',$product->id) }}" method="POST" style="display:inline">
-        @csrf
-        @method('DELETE')
-        @can('product-delete')
-        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-        @endcan
-      </form>
-    </td>
-  </tr>
-  @endforeach
-</table>
+        <form action="{{ route('products.destroy',$product->id) }}" method="POST" style="display:inline">
+          @csrf
+          @method('DELETE')
+          @can('product-delete')
+          <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+          @endcan
+        </form>
+      </td>
+    </tr>
+    @endforeach
+  </table>
 </div>
 
-
 {!! $products->appends(Request::except('page'))->links() !!}
-
-<script type="text/javascript">
-  var searchSuggestions = {!! json_encode($search_suggestions) !!};
-
-  $('#product-search').autocomplete({
-    source: function(request, response) {
-      var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
-
-      response(results.slice(0, 10));
-    }
-  });
-</script>
-
 
 @endsection
