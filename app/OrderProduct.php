@@ -13,7 +13,8 @@ class OrderProduct extends Model
 	    'product_price',
 	    'size',
 	    'color',
-	    'qty',
+      'qty',
+	    'purchase_status',
     ];
 
     protected $appends = ['communication'];

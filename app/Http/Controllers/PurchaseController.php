@@ -316,6 +316,13 @@ class PurchaseController extends Controller
       $order->status = $request->status;
       $order->save();
 
+      foreach ($order->products as $product) {
+        foreach ($product->orderproducts as $order_product) {
+          $order_product->purchase_status = $request->status;
+          $order_product->save();
+        }
+      }
+
       return response($order->status);
     }
 

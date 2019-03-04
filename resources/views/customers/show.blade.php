@@ -1150,10 +1150,9 @@
                                           </td>
                                           <td>
                                             @if(isset($order_product->product) && count($order_product->product->purchases) > 0)
-                                              <select name="status" class="form-control">
+                                              <select name="order_products[{{$order_product->id}}][purchase_status]" class="form-control">
                                                  @foreach($purchase_status as $key => $value)
-                                                   @php $pur_status = isset($order_product->product->purchases) ? $order_product->product->purchases()->first()->status : '';  @endphp
-                                                  <option value="{{$value}}" {{ $value == $pur_status ? 'selected=selected' : '' }}>{{$key}}</option>
+                                                  <option value="{{$value}}" {{ $value == $order_product->purchase_status ? 'selected=selected' : '' }}>{{$key}}</option>
                                                   @endforeach
                                               </select>
                                             @else

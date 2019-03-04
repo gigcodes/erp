@@ -682,17 +682,15 @@ class OrderController extends Controller {
 		// }
 
 		if(!empty($request->input('order_products'))) {
-
-			foreach ( $request->input( 'order_products' ) as $key => $order_product_data ) {
-
+			foreach ($request->input('order_products') as $key => $order_product_data) {
 				$order_product = OrderProduct::findOrFail( $key );
-				$order_product->update( $order_product_data );
+				$order_product->update($order_product_data);
 			}
 		}
 
-		$data = $request->except(['_token', '_method', 'status']);
+		$data = $request->except(['_token', '_method', 'status', 'purchase_status']);
 		$data['order_status'] = $request->status;
-		$order->update($data );
+		$order->update($data);
 
 		$this->calculateBalanceAmount($order);
 		$order = Order::find($order->id);

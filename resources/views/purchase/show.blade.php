@@ -103,7 +103,10 @@
       <ul>
         @foreach ($order->products as $product)
           @foreach ($product->orderproducts as $order_product)
-            <li><a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a></li>
+            <li>
+              <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
+               - ({{ $order_product->purchase_status }})
+            </li>
           @endforeach
         @endforeach
       </ul>
