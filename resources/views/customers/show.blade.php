@@ -1953,7 +1953,7 @@
                   product_row += '<td>' + response.product.sku + '</td>';
                   product_row += '<td>' + response.product.color + '</td>';
                   product_row += '<td>' + brands_array[response.product.brand] + '</td>';
-                  product_row += '<td><input class="table-input" type="text" value="' + response.order_product.product_price + '" name="order_products[' + response.order.id + '][product_price]"></td>';
+                  product_row += '<td><input class="table-input" type="text" value="' + response.order.product_price + '" name="order_products[' + response.order.id + '][product_price]"></td>';
                   // product_row += '<th>' + response.product.size + '</th>';
 
                   if (response.product.size != null) {
