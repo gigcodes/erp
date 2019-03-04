@@ -918,6 +918,8 @@
                                     <a class="dropdown-item" href="{{ route('purchase.index') }}">Purchases</a>
 
                                     <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled') }}">Purchase Canceled Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'refunded') }}">Purchase Refunded Grid</a>
 
                                 </div>
 

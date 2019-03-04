@@ -111,7 +111,7 @@ class PurchaseController extends Controller
   		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users' ) );
     }
 
-    public function purchaseGrid(Request $request)
+    public function purchaseGrid(Request $request, $page = null)
     {
       if ($request->status[0] != null) {
         $status = $request->status;
@@ -131,9 +131,23 @@ class PurchaseController extends Controller
             $q->where('supplier', $supplier);
           })->get();
         } else {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) {
-            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
-          })->whereHas('Product', function($q) use ($supplier) {
+          $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
+
+          if ($page == 'canceled') {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereIn('order_status', ['Cancel']);
+            });
+          } elseif ($page == 'refunded') {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereIn('order_status', ['Refund to be processed']);
+            });
+          } else {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+            });
+          }
+
+          $orders = $orders->whereHas('Product', function($q) use ($supplier) {
             $q->where('supplier', $supplier);
           })->get();
         }
@@ -149,18 +163,44 @@ class PurchaseController extends Controller
             $q->where('brand', $brand);
           })->get();
         } else {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) {
-            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
-          })->whereHas('Product', function($q) use ($brand) {
+          $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
+
+          if ($page == 'canceled') {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereIn('order_status', ['Cancel']);
+            });
+          } elseif ($page == 'refunded') {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereIn('order_status', ['Refund to be processed']);
+            });
+          } else {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+            });
+          }
+
+          $orders = $orders->whereHas('Product', function($q) use ($brand) {
             $q->where('brand', $brand);
           })->get();
         }
       }
 
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
-        $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-          $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
-        })->select('sku')->get();
+        if ($page == 'canceled') {
+          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
+            $q->whereIn('order_status', ['Cancel']);
+          });
+        } elseif ($page == 'refunded') {
+          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
+            $q->whereIn('order_status', ['Refund to be processed']);
+          });
+        } else {
+          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
+            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+          });
+        }
+        
+        $orders = $orders->select('sku')->get()->toArray();
       }
 
       $new_orders = [];
@@ -216,7 +256,8 @@ class PurchaseController extends Controller
         'term'          => $term,
         'status'        => $status,
         'supplier'      => $supplier,
-        'brand'         => $brand
+        'brand'         => $brand,
+        'page'          => $page
       ]);
     }
 

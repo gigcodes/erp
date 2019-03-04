@@ -8,7 +8,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Purchase Grid</h2>
+            <h2 class="page-heading">Purchase {{ $page == 'canceled' ? 'Canceled' : ($page == 'refunded' ? 'Refunded' : '') }} Grid</h2>
         </div>
     </div>
 
@@ -21,15 +21,17 @@
                      placeholder="name, sku, supplier">
             </div>
 
-            <div class="form-group mr-3">
-              <select class="form-control select-multiple" name="status[]" multiple>
-                <optgroup label="Order Status">
-                  @foreach ($order_status as $key => $name)
-                    <option value="{{ $key }}" {{ !empty($status) && in_array($key, $status) ? 'selected' : '' }}>{{ $name }}</option>
-                  @endforeach
-              </optgroup>
-              </select>
-            </div>
+            @if (!$page)
+              <div class="form-group mr-3">
+                <select class="form-control select-multiple" name="status[]" multiple>
+                  <optgroup label="Order Status">
+                    @foreach ($order_status as $key => $name)
+                      <option value="{{ $key }}" {{ !empty($status) && in_array($key, $status) ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
+                </optgroup>
+                </select>
+              </div>
+            @endif
 
             <div class="form-group mr-3">
               {!! Form::select('supplier[]', $supplier_list, (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
