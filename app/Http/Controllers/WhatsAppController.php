@@ -821,23 +821,40 @@ class WhatsAppController extends FindByNumberController
         return response("success");
     }
 
-  public function sendToAll(Request $request)
+  public function sendToAll(Request $request, $validate = true)
   {
-    $this->validate($request, [
-      'message' => 'required_without:image',
-      'image'   => 'required_without:message',
-      'file'    => 'sometimes|mimes:xlsx,xls'
-    ]);
-
-    if ($request->message) {
-      $content['message'] = $request->message;
-    } else {
-      $content['message'] = NULL;
-      $content['image']['key'] = MediaUploader::fromSource($request->file('image'))->upload()->getKey();
-      $content['image']['url'] = MediaUploader::fromSource($request->file('image'))->upload()->getUrl();
+    if ($validate) {
+      $this->validate($request, [
+        'message'    => 'required_without:images',
+        'images'     => 'required_without:message',
+        'images.*'   => 'required_without:message',
+        'file'       => 'sometimes|mimes:xlsx,xls'
+      ]);
     }
 
-    if ($request->to_all) {
+    if ($request->moduletype == 'customers') {
+      $content['message'] = NULL;
+      
+      foreach (json_decode($request->images) as $key => $image) {
+        $media = Media::find($image);
+
+        $content['image'][$key]['key'] = $media->getKey();
+        $content['image'][$key]['url'] = $media->getUrl();
+      }
+    } else {
+      if ($request->message) {
+        $content['message'] = $request->message;
+      } else {
+        $content['message'] = NULL;
+        foreach ($request->file('images') as $key => $image) {
+          $media = MediaUploader::fromSource($image)->upload();
+          $content['image'][$key]['key'] = $media->getKey();
+          $content['image'][$key]['url'] = $media->getUrl();
+        }
+      }
+    }
+
+    if ($request->to_all || $request->moduletype == 'customers') {
       $now = Carbon::now();
       $minutes = 0;
       $data = Customer::whereNotNull('phone')->chunk(30, function ($customers) use ($content, $now, &$minutes) {
@@ -863,7 +880,7 @@ class WhatsAppController extends FindByNumberController
           $number = (int)$it[0];
 
           SendMessageToSelected::dispatch($number, $content)->delay($now->addMinutes($minutes));
-          
+
           $count++;
         }
       }

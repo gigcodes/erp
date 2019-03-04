@@ -214,7 +214,11 @@
                         </div>
 
                         <div class="form-group">
-                            <input type="file" name="image" />
+                            <input type="file" name="images[]" multiple />
+                        </div>
+
+                        <div class="form-group">
+                          <a href="{{ route('attachImages', ['customers']) }}" class="btn btn-image"><img src="/images/attach.png" />Attach from Grid</a>
                         </div>
 
                         <div class="form-group">
