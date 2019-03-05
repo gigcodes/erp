@@ -47,7 +47,7 @@ class SendMessageToAll implements ShouldQueue
         'user_id'     => $this->user_id,
         'customer_id' => $this->customer->id,
         'approved'    => 1,
-        'status'      => 2,
+        'status'      => 8,
       ];
 
       if ($this->content['message']) {
