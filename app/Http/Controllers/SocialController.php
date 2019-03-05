@@ -30,29 +30,56 @@ class SocialController extends Controller
         $ads = $account->getAds([
             AdFields::NAME,
             AdFields::UPDATED_TIME,
-            AdFields::DATE_FORMAT,
-            AdFields::ADLABELS,
-            AdFields::ACCOUNT_ID,
-            AdFields::ADLABELS,
-            AdFields::ADSET,
             AdFields::ADSET_ID,
-            AdFields::BID_AMOUNT,
-            AdFields::BID_INFO,
-            AdFields::BID_TYPE,
             AdFields::STATUS,
             AdFields::TARGETING,
-            AdFields::RECOMMENDATIONS,
             AdFields::PRIORITY,
             AdFields::CREATED_TIME,
-            AdFields::CAMPAIGN,
             AdFields::CAMPAIGN_ID,
-            AdFields::DEMOLINK_HASH,
-            AdFields::EFFECTIVE_STATUS,
         ]);
 
-        foreach ($ads as $ad) {
-            echo dd($ad->getData());
+        $ads = collect($ads)->map(function($ad) {
+            return [
+                'name' => $ad->name,
+                'updated_time' => $ad->updated_time,
+                'adset_id' => $ad->adset_id,
+                'status' => $ad->status,
+                'targeting' => $this->getPropertiesAfterFiltration($ad->targeting),
+                'priority' => $ad->priority,
+                'created_time' => $ad->created_time,
+                'campaign_id' => $ad->campaign_id,
+            ];
+        });
+
+        return view('social.ad_schedules', compact('ads'));
+
+    }
+
+    private function getPropertiesAfterFiltration($properties) {
+	    $propertiesToReturn = [];
+	    $genders = [
+	        '1' => 'Male',
+            '2' => 'Female'
+        ];
+
+	    foreach ($properties as $key => $property) {
+	        if (!is_array($property)) {
+	            $propertiesToReturn[$key] = $property;
+            }
+
+	        if ($key === 'genders') {
+	            $p = [];
+	            foreach ($property as $item) {
+	                if ($item === 0) {
+	                    continue;
+                    }
+	                $p[] = $genders[$item];
+                }
+	            $propertiesToReturn[$key] = implode(', ', $p);
+            }
         }
+
+	    return $propertiesToReturn;
     }
 
 	public function index()

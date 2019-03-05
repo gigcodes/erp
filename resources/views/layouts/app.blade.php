@@ -1330,6 +1330,10 @@
 
     </main>
 
+    <div class="col-md-10 col-md-offset-1">
+        @yield('large_content')
+    </div>
+
 </div>
 
 <!-- Scripts -->
