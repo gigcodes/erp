@@ -22,6 +22,10 @@ class SocialController extends Controller
 
 	}
 
+	public function getSchedules() {
+	    dd('here...');
+    }
+
 	public function index()
 	{
 		return view('social.post');

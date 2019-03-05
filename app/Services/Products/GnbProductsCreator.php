@@ -11,7 +11,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class GnbProductsCreator
 {
-    private function createGnbProducts($image)
+    public function createGnbProducts($image)
     {
        $data['sku'] = str_replace(' ', '', $image->sku);
        $validator = Validator::make($data, [
@@ -78,6 +78,8 @@ class GnbProductsCreator
          $product->price_special = round($product->price_special, -3);
 
          $product->save();
+
+         $images = $image->images;
 
          foreach ($images as $image_name) {
            $path = public_path('uploads') . '/social-media/' . $image_name;

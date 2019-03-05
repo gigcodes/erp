@@ -1197,6 +1197,8 @@
 
                                     </a>
 
+                                    <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
+
 
 
                             </div>
