@@ -34,6 +34,7 @@ class DoubleFProductDetailsScraper extends Scraper
             return;
         }
 
+
         $c = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
         $brand = $this->getDesignerName($c);
@@ -221,7 +222,6 @@ class DoubleFProductDetailsScraper extends Scraper
             $content[] = trim($image->getAttribute('href'));
         }
 
-
         return $this->downloadImages($content, 'doublef');
     }
 
@@ -308,14 +308,6 @@ class DoubleFProductDetailsScraper extends Scraper
 
     private function getImageUrl($url)
     {
-        $content = $this->getContent($url);
-        if ($content === '') {
-            return '';
-        }
-
-        $c = new HtmlPageCrawler($content);
-
-        $imageUrl = $c->filter('img')->attr('src');
-        return $imageUrl;
+        return $url;
     }
 }

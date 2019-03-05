@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use FacebookAds\Api;
+use FacebookAds\Object\AdAccount;
+use FacebookAds\Object\Fields\AdFields;
 use Illuminate\Http\Request;
 use Session;
 use Facebook\Facebook;
@@ -23,7 +26,33 @@ class SocialController extends Controller
 	}
 
 	public function getSchedules() {
-	    dd('here...');
+        $account = new AdAccount($this->ad_acc_id, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
+        $ads = $account->getAds([
+            AdFields::NAME,
+            AdFields::UPDATED_TIME,
+            AdFields::DATE_FORMAT,
+            AdFields::ADLABELS,
+            AdFields::ACCOUNT_ID,
+            AdFields::ADLABELS,
+            AdFields::ADSET,
+            AdFields::ADSET_ID,
+            AdFields::BID_AMOUNT,
+            AdFields::BID_INFO,
+            AdFields::BID_TYPE,
+            AdFields::STATUS,
+            AdFields::TARGETING,
+            AdFields::RECOMMENDATIONS,
+            AdFields::PRIORITY,
+            AdFields::CREATED_TIME,
+            AdFields::CAMPAIGN,
+            AdFields::CAMPAIGN_ID,
+            AdFields::DEMOLINK_HASH,
+            AdFields::EFFECTIVE_STATUS,
+        ]);
+
+        foreach ($ads as $ad) {
+            echo dd($ad->getData());
+        }
     }
 
 	public function index()
