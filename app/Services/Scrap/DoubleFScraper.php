@@ -8,8 +8,8 @@ use Wa72\HtmlPageDom\HtmlPageCrawler;
 class DoubleFScraper extends Scraper
 {
     private const URL = [
-        'woman' => 'https://www.thedoublef.com/it_it/donna/designer/',
-        'man' => 'https://www.thedoublef.com/it_it/uomo/designer/'
+        'woman' => 'https://www.thedoublef.com/it_en/woman/designer/',
+        'man' => 'https://www.thedoublef.com/it_en/man/designer/'
     ];
 
 

@@ -105,7 +105,22 @@ class DoubleFProductDetailsScraper extends Scraper
         $price = str_replace('&nbsp;', '', $price);
         $price = str_replace('&euro;', '€', $price);
 
-        return $price;
+        $default_price = $price;
+
+        try {
+            $price = preg_replace('/\s\s+/', '', $c->filter('div.price-box p.special-price span.price')->getInnerHtml());
+        } catch (\Exception $exception) {
+            $price = 'N/A';
+        }
+
+        $price = str_replace('&nbsp;', '', $price);
+        $price = str_replace('&euro;', '€', $price);
+
+        if ($price != 'N/A') {
+            return $price;
+        }
+
+        return $default_price;
     }
 
     private function getSku(HtmlPageCrawler $c) {
