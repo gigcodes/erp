@@ -372,6 +372,31 @@ class PurchaseController extends Controller
   		return view('purchase.product-show', $data)->withProduct($product);
     }
 
+    public function productReplace(Request $request)
+    {
+      $old_product = Product::find($request->moduleid);
+      $new_product = Product::find(json_decode($request->images)[0]);
+
+      foreach ($old_product->purchases as $purchase) {
+        $purchase->products()->detach($old_product);
+        $purchase->products()->attach($new_product);
+      }
+
+      foreach ($old_product->orderproducts as $order_product) {
+        $new_order = new OrderProduct;
+        $new_order->order_id = $order_product->order_id;
+        $new_order->sku = $new_product->sku;
+        $new_order->product_price = $new_product->price_special;
+        $new_order->size = $order_product->size;
+        $new_order->color = $order_product->color;
+        $new_order->save();
+
+        $order_product->delete();
+      }
+
+      return redirect()->route('purchase.index')->with('success', 'You have successfully replaced product!');
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

@@ -139,7 +139,7 @@
       @include('partials.image-load')
     </div>
 
-        <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($status != 9 ? route('message.store') : url('whatsapp/updateAndCreate'))) }}" method="POST" id="attachImageForm">
+        <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($model_type == 'purchase-replace' ? route('purchase.product.replace') : ($status != 9 ? route('message.store') : url('whatsapp/updateAndCreate')))) }}" method="POST" id="attachImageForm">
           @csrf
 
           <input type="hidden" name="images" id="images" value="">
@@ -308,6 +308,14 @@
             });
 
             $(document).on('click', '#sendImageMessage', function() {
+              @if ($model_type == 'purchase-replace')
+                if (image_array.length > 1) {
+                  alert('Please select only one product');
+
+                  return;
+                }
+              @endif
+
               if (image_array.length == 0) {
                 alert('Please select some images');
               } else {
