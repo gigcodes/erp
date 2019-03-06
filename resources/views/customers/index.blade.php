@@ -208,6 +208,18 @@
                 <form action="{{ route('customer.whatsapp.send.all') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
+                      @if ($queues_count > 0)
+                        <div class="form-group alert alert-success">
+                          <strong>Background Status:</strong>
+                          <br>
+                          {{ $queues_count }} customers are being processed
+                          <br>
+                          <a href="{{ route('customer.whatsapp.stop.all') }}" class="btn btn-xs btn-danger">STOP</a>
+                        </div>
+
+                        <hr>
+                      @endif
+
                         <div class="form-group">
                             <strong>Message</strong>
                             <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>

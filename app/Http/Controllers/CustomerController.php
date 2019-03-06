@@ -43,12 +43,18 @@ class CustomerController extends Controller
       }
 
       $customers_all = Customer::all();
+      $queues = DB::table('jobs')->take(5)->get();
+
+      // dd((string)$queues[0]->payload);
+
+      $queues_count = DB::table('jobs')->where('queue', 'sending')->count();
 
       return view('customers.index', [
         'customers' => $customers,
         'customers_all' => $customers_all,
         'term' => $term,
         'orderby' => $orderby,
+        'queues_count' => $queues_count,
       ]);
     }
 

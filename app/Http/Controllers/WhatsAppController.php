@@ -32,6 +32,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\Imports\CustomerNumberImport;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Support\Facades\DB;
 
 
 class WhatsAppController extends FindByNumberController
@@ -843,10 +844,13 @@ class WhatsAppController extends FindByNumberController
       }
     } else {
       $content['message'] = $request->message;
-      foreach ($request->file('images') as $key => $image) {
-        $media = MediaUploader::fromSource($image)->upload();
-        $content['image'][$key]['key'] = $media->getKey();
-        $content['image'][$key]['url'] = $media->getUrl();
+
+      if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $key => $image) {
+          $media = MediaUploader::fromSource($image)->upload();
+          $content['image'][$key]['key'] = $media->getKey();
+          $content['image'][$key]['url'] = $media->getUrl();
+        }
       }
     }
 
@@ -856,7 +860,8 @@ class WhatsAppController extends FindByNumberController
       $data = Customer::whereNotNull('phone')->chunk(30, function ($customers) use ($content, $now, &$minutes) {
         foreach ($customers as $customer) {
           SendMessageToAll::dispatch(Auth::id(), $customer, $content)
-                          ->delay($now->addMinutes($minutes));
+                          ->delay($now->addMinutes($minutes))
+                          ->onQueue('sending');
         }
 
         $minutes += 5;
@@ -875,7 +880,9 @@ class WhatsAppController extends FindByNumberController
           }
           $number = (int)$it[0];
 
-          SendMessageToSelected::dispatch($number, $content)->delay($now->addMinutes($minutes));
+          SendMessageToSelected::dispatch($number, $content)
+                                ->delay($now->addMinutes($minutes))
+                                ->onQueue('sending');
 
           $count++;
         }
@@ -883,6 +890,12 @@ class WhatsAppController extends FindByNumberController
     }
 
     return redirect()->route('customer.index')->with('success', 'Messages are being sent in the background!');
+  }
+
+  public function stopAll() {
+    DB::table('jobs')->where('queue', 'sending')->delete();
+
+    return redirect()->route('customer.index')->with('success', 'Messages stopped processing!');
   }
 
 	public function sendWithWhatsApp($number, $sendNumber, $text, $validation = true)
