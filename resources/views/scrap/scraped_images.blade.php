@@ -34,6 +34,7 @@
                                     </span>
                                 </div>
                                 <div class="card-action">
+                                    <p><a href="{{$product->url}}">Visit Product Page</a></p>
                                     <p>
                                         {!! $product->description !!}
                                     </p>

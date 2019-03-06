@@ -5,7 +5,7 @@
 <div class="row">
 	<div class="col-lg-12 margin-tb">
 		<div class="pull-left">
-			<h2 class="ml-4">Ad Reports <h2>
+			<h2 class="ml-4">Ad Reports </h2>
 			</div>
 		</div>
 	</div>

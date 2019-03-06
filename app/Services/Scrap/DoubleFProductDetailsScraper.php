@@ -44,6 +44,7 @@ class DoubleFProductDetailsScraper extends Scraper
         $description = $this->getDescription($c);
         $properties = $this->getProperties($c);
 
+
         if (!$images || !$title) {
             $scrapEntry->delete();
             return;
@@ -57,13 +58,12 @@ class DoubleFProductDetailsScraper extends Scraper
         }
 
         $image = ScrapedProducts::where('sku', $sku)->orWhere('url', $scrapEntry->url)->first();
-        if ($image) {
-            $scrapEntry->is_scraped = 1;
-            $scrapEntry->save();
-            return;
+        if (!$image) {
+            $image = new ScrapedProducts();
         }
 
-        $image = new ScrapedProducts();
+
+
         $image->brand_id = $brandId;
         $image->sku = $sku;
         $image->website = 'DoubleF';
@@ -105,7 +105,22 @@ class DoubleFProductDetailsScraper extends Scraper
         $price = str_replace('&nbsp;', '', $price);
         $price = str_replace('&euro;', '€', $price);
 
-        return $price;
+        $default_price = $price;
+
+        try {
+            $price = preg_replace('/\s\s+/', '', $c->filter('div.product-shop div.price-box p.special-price span.price')->getInnerHtml());
+        } catch (\Exception $exception) {
+            $price = 'N/A';
+        }
+
+        $price = str_replace('&nbsp;', '', $price);
+        $price = str_replace('&euro;', '€', $price);
+
+        if ($price) {
+            return $price;
+        }
+
+        return $default_price;
     }
 
     private function getSku(HtmlPageCrawler $c) {
@@ -113,7 +128,7 @@ class DoubleFProductDetailsScraper extends Scraper
             $properties = $c->filter('div#tab1 ul li')->getIterator();
             $sku = '';
             foreach ($properties as $property) {
-                if (strpos($property->textContent, 'prodotto') !== false) {
+                if (strpos($property->textContent, 'Product code') !== false) {
                     $sku = $property->textContent;
                     $sku = explode(':', $sku);
                     $sku = $sku[1];
@@ -213,7 +228,7 @@ class DoubleFProductDetailsScraper extends Scraper
 
         $propertiesData['category'] = $categoryTypes;
 
-        $allProperties = $c->filter('div#accordion ul li')->getIterator();
+        $allProperties = $c->filter('div#accordion li')->getIterator();
 
         foreach ($allProperties as $property) {
             $item = strip_tags($property->textContent);
@@ -222,14 +237,15 @@ class DoubleFProductDetailsScraper extends Scraper
                 continue;
             }
 
-            $item = explode(':', $item);
-            if (count($item) !== 2 || strpos($item[0], 'prodotto') !== false) {
+            $item = explode(':', $item, 2);
+            if (count($item) !== 2 || strpos($item[0], 'Product code') !== false) {
                 continue;
             }
 
-            $propertiesData[$item[0]] = $item[1];
+            $propertiesData[$item[0]] = trim($item[1]);
 
         }
+
         return $propertiesData;
     }
 

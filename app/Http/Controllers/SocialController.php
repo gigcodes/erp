@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use FacebookAds\Api;
+use FacebookAds\Object\Ad;
 use FacebookAds\Object\AdAccount;
 use FacebookAds\Object\Fields\AdFields;
+use FacebookAds\Object\Fields\AdsInsightsFields;
 use Illuminate\Http\Request;
 use Session;
 use Facebook\Facebook;
@@ -40,6 +42,7 @@ class SocialController extends Controller
 
         $ads = collect($ads)->map(function($ad) {
             return [
+                'id' => $ad->id,
                 'name' => $ad->name,
                 'updated_time' => $ad->updated_time,
                 'adset_id' => $ad->adset_id,
@@ -53,6 +56,18 @@ class SocialController extends Controller
 
         return view('social.ad_schedules', compact('ads'));
 
+    }
+
+    public function getAdInsights($adId) {
+	    $ad = new Ad($adId, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
+
+	    $insights = $ad->getInsights([
+	        AdsInsightsFields::CLICKS,
+	        AdsInsightsFields::ACCOUNT_ID,
+	        AdsInsightsFields::ACCOUNT_CURRENCY,
+        ]);
+
+	    dd($insights);
     }
 
     private function getPropertiesAfterFiltration($properties) {
