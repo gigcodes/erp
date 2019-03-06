@@ -257,6 +257,10 @@
                             </button>
                         </a>
 
+                        @if ($has_reference)
+                          <span class="badge">Has Reference</span>
+                        @endif
+
                         {{-- @can('supervisor-edit')
                             <form method="POST" action="{{ route('productsupervisor.approve',$id) }}"
                                   style="display: inline;">
