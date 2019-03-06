@@ -113,6 +113,15 @@ class PurchaseController extends Controller
 
     public function purchaseGrid(Request $request, $page = null)
     {
+      $purchases = Purchase::all();
+      $not_include_products = [];
+
+      foreach ($purchases as $purchase) {
+        foreach ($purchase->products as $product) {
+          $not_include_products[] = $product->sku;
+        }
+      }
+
       if ($request->status[0] != null) {
         $status = $request->status;
 
@@ -199,7 +208,7 @@ class PurchaseController extends Controller
             $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
           });
         }
-        
+
         $orders = $orders->select('sku')->get()->toArray();
       }
 
@@ -208,7 +217,9 @@ class PurchaseController extends Controller
         array_push($new_orders, $order['sku']);
       }
 
-      $products = Product::whereIn('sku', $new_orders);
+      $products = Product::with(['Orderproducts' => function($query) {
+        $query->with('Order');
+      }])->whereIn('sku', $new_orders)->whereNotIn('sku', $not_include_products);
       $term = $request->input('term');
       $status = isset($status) ? $status : '';
       $supplier = isset($supplier) ? $supplier : '';
@@ -228,7 +239,7 @@ class PurchaseController extends Controller
 	    }
 
       $new_products = [];
-      $products = $products->get()->sortBy('supplier');
+      $products = $products->select(['id', 'sku', 'supplier'])->get()->sortBy('supplier');
 
       foreach($products as $key => $product) {
         $new_products[$key]['id'] = $product->id;
