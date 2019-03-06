@@ -150,9 +150,15 @@ class PurchaseController extends Controller
             $orders = $orders->whereHas('Order', function($q) {
               $q->whereIn('order_status', ['Refund to be processed']);
             });
+          } elseif ($page == 'ordered') {
+
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereIn('order_status', ['Delivered']);
+            });
           } else {
             $orders = $orders->whereHas('Order', function($q) {
-              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
             });
           }
 
@@ -182,9 +188,15 @@ class PurchaseController extends Controller
             $orders = $orders->whereHas('Order', function($q) {
               $q->whereIn('order_status', ['Refund to be processed']);
             });
+          } elseif ($page == 'ordered') {
+
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereIn('order_status', ['Delivered']);
+            });
           } else {
             $orders = $orders->whereHas('Order', function($q) {
-              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
             });
           }
 
@@ -203,9 +215,15 @@ class PurchaseController extends Controller
           $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
             $q->whereIn('order_status', ['Refund to be processed']);
           });
+        } elseif ($page == 'ordered') {
+          $orders = OrderProduct::with('Order');
+        } elseif ($page == 'delivered') {
+          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
+            $q->whereIn('order_status', ['Delivered']);
+          });
         } else {
           $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
           });
         }
 
@@ -219,7 +237,16 @@ class PurchaseController extends Controller
 
       $products = Product::with(['Orderproducts' => function($query) {
         $query->with('Order');
-      }])->whereIn('sku', $new_orders)->whereNotIn('sku', $not_include_products);
+      }, 'Purchases'])->whereIn('sku', $new_orders);
+
+      if ($page == 'ordered') {
+        $products = $products->whereHas('Purchases', function ($query) {
+          $query->where('status', 'Ordered');
+        });
+      } else {
+        $products = $products->whereNotIn('sku', $not_include_products);
+      }
+
       $term = $request->input('term');
       $status = isset($status) ? $status : '';
       $supplier = isset($supplier) ? $supplier : '';

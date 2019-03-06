@@ -8,7 +8,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Purchase {{ $page == 'canceled' ? 'Canceled' : ($page == 'refunded' ? 'Refunded' : '') }} Grid</h2>
+            <h2 class="page-heading">Purchase {{ $page == 'canceled' ? 'Canceled' : ($page == 'refunded' ? 'Refunded' : ($page == 'delivered' ? 'Delivered' : ($page == 'ordered' ? 'Ordered' : ''))) }} Grid</h2>
         </div>
     </div>
 
