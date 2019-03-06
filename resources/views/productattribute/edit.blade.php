@@ -25,7 +25,7 @@
         @csrf
         @method('PUT')
         <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col-xs-12 col-sm-12 col-md-8">
                 <div class="form-group">
                     <strong>Details not found:</strong>
                     <input type="checkbox" class="" name="dnf" value="Details not found"
@@ -35,9 +35,7 @@
                         <div class="alert alert-danger">{{$errors->first('dnf')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Name:</strong>
                     <input type="text" class="form-control" name="name" placeholder="Name" value="{{old('name') ? old('name') : $name}}"/>
@@ -45,8 +43,7 @@
                         <div class="alert alert-danger">{{$errors->first('name')}}</div>
                     @endif
                 </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-12">
+
                 <div class="form-group">
                     <strong>Short Description:</strong>
 
@@ -57,8 +54,7 @@
                         <div class="alert alert-danger">{{$errors->first('short_description')}}</div>
                     @endif
                 </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-12">
+
                 <div class="form-group">
                     <strong>Mesaurement{{--/Size--}}</strong>
                     <div style="padding: 10px 0;">
@@ -115,10 +111,8 @@
                         </div>
                     @endif
                 </div>
-            </div>
 
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Size:</strong>
                     <input type="text" class="form-control" name="size" placeholder="Size" value="{{old('size') ? old('size') : $size }}"/>
@@ -126,9 +120,7 @@
                         <div class="alert alert-danger">{{$errors->first('size')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Composition :</strong>
                     <input type="text" class="form-control" name="composition" placeholder="Composition" value="{{ old('composition') ? old('composition') : $composition }}"/>
@@ -136,9 +128,7 @@
                         <div class="alert alert-danger">{{$errors->first('composition')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> SKU :</strong>
                     <input type="text" class="form-control" name="sku" placeholder="SKU" value="{{ old('sku') ? old('sku') : $sku }}"/>
@@ -146,16 +136,12 @@
                         <div class="alert alert-danger">{{$errors->first('sku')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> SKU+Color:</strong>
                     {{ $sku.$color }}
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Made In :</strong>
                     <input type="text" class="form-control" name="made_in" placeholder="Made In" value="{{ old('made_in') ? old('made_in') : $made_in }}"/>
@@ -163,9 +149,7 @@
                         <div class="alert alert-danger">{{$errors->first('made_in')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Brand :</strong>
 
@@ -177,9 +161,7 @@
                         <div class="alert alert-danger">{{$errors->first('brand')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Color :</strong>
                     <?php
@@ -190,9 +172,7 @@
                         <div class="alert alert-danger">{{$errors->first('color')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Price (in Euro):</strong>
                     <input type="number" class="form-control" name="price" placeholder="Price (in Euro)" value="{{ old('price') ? old('price') : $price }}"/>
@@ -200,9 +180,8 @@
                         <div class="alert alert-danger">{{$errors->first('price')}}</div>
                     @endif
                 </div>
-            </div>
 
-           {{-- <div class="col-xs-12 col-sm-12 col-md-12">
+           {{-- <div class="col-xs-12 col-sm-12 col-md-8">
                 <div class="form-group">
                     <strong>Euro to Inr (conversion):</strong>
                     <input type="number" class="form-control" name="euro_to_inr" placeholder="Leave the field blank to use default" value="{{ old('euro_to_inr') ? old('euro_to_inr') : $euro_to_inr }}"/>
@@ -210,30 +189,21 @@
             </div>--}}
 
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Price (in INR):</strong>
                     <input type="number" disabled class="form-control" placeholder="Price (in INR)" value="{{ $price_inr }}"/>
                 </div>
-            </div>
 
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Special Price:</strong>
                     <input type="number" disabled class="form-control" placeholder="Price (in Euro)" value="{{ $price_special }}"/>
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Category</strong>
                     <?php echo $category ?>
                 </div>
-            </div>
 
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Product Link :</strong>
                     <input type="text" class="form-control" name="product_link" placeholder="Product Link" value="{{ old('product_link') ? old('product_link') : $product_link }}"/>
@@ -241,9 +211,7 @@
                         <div class="alert alert-danger">{{$errors->first('product_link')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
               <div class="form-group">
                 <strong>Supplier</strong>
 
@@ -255,10 +223,7 @@
                   @endforeach
                 </select>
               </div>
-            </div>
 
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Supplier Link :</strong>
                     <input type="text" class="form-control" name="supplier_link" placeholder="Supplier Link" value="{{ old('supplier_link') ? old('supplier_link') : $supplier_link }}"/>
@@ -266,9 +231,7 @@
                         <div class="alert alert-danger">{{$errors->first('supplier_link')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Description Link :</strong>
                     <input type="text" class="form-control" name="description_link" placeholder="Description Link" value="{{ old('description_link') ? old('description_link') : $description_link }}"/>
@@ -276,7 +239,6 @@
                         <div class="alert alert-danger">{{$errors->first('description_link')}}</div>
                     @endif
                 </div>
-            </div>
 
             @if ($errors->has( 'image' ))
                 <div class="alert alert-danger">{{$errors->first('image')}}</div>
@@ -286,7 +248,6 @@
 
             @for(  ; $i < sizeof($images) ; $i++ )
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <strong>Image {{ $i+1 }}:</strong>
                 <div class="old-image{{$i}}" style="
                 @if ($errors->has('image.'.$i))
@@ -310,12 +271,10 @@
                         <div class="alert alert-danger">{{$errors->first('image.'.$i )}}</div>
                     @endif
                 </div>
-            </div>
 
             @endfor
 
             @for( ;  $i < 5 ; $i++  )
-                <div class="col-xs-12 col-sm-12 col-md-12">
                     <strong>Image {{ $i+1  }}:</strong>
 
                     <div class="form-group new-image">
@@ -325,13 +284,37 @@
                             <div class="alert alert-danger">{{$errors->first( 'image.'.($i) )}}</div>
                         @endif
                     </div>
-                </div>
             @endfor
 
-            <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                 <input type="text" hidden name="stage" value="2">
                 <button type="submit" class="btn btn-secondary">+</button>
             </div>
+
+            @if (!empty($reference))
+              <div class="col-xs-12 col-md-4">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Reference</h5>
+
+                    @foreach($reference as $key=>$property)
+                        <li><strong>{{ ucfirst($key) }}</strong>: <strong class="text-info">
+                                @if (is_array($property))
+                                    @foreach($property as $item)
+                                        @if ($loop->last)
+                                            {{ $item }}
+                                        @else
+                                            {{ $item . ', ' }}
+                                        @endif
+                                    @endforeach
+                                @else
+                                    {{ ucfirst($property)  }}
+                                @endif
+                            </strong></li>
+                    @endforeach
+                  </div>
+                </div>
+              </div>
+            @endif
 
         </div>
     </form>
