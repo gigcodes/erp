@@ -32,7 +32,7 @@
 			<th>Updated At</th>
 		</tr>
 		@foreach($ads as $key=>$ad)
-			<tr>
+			<tr data-adId="{{$ad['id']}}">
 				<td>{{ $key+1 }}</td>
 				<td>{{ $ad['adset_id'] }}</td>
 				<td>{{ $ad['name'] }}</td>

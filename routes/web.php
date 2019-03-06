@@ -286,6 +286,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Ad reports routes
 	Route::get('social/ad/report','SocialController@report')->name('social.report');
 	Route::get('social/ad/schedules','SocialController@getSchedules')->name('social.ads.schedules');
+	Route::get('social/ad/insight/{adId}','SocialController@getAdInsights')->name('social.ad.insight');
 	Route::post('social/ad/report/paginate','SocialController@paginateReport')->name('social.report.paginate');
 	Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');
 	// end to ad reports routes
