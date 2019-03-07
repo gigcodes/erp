@@ -87,6 +87,25 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             }
           }
 
+          if (array_key_exists('category', $properties_array)) {
+            $categories = Category::all();
+            $category_id = 1;
+
+            foreach ($properties_array['category'] as $cat) {
+              if ($cat == 'WOMAN') {
+                $cat = 'WOMEN';
+              }
+
+              foreach ($categories as $category) {
+                if (strtoupper($category->title) == $cat) {
+                  $category_id = $category->id;
+                }
+              }
+            }
+
+            $old_product->category = $category_id;
+          }
+
           $brand = Brand::find($product->brand_id);
 
           $price = (int) preg_replace('/[\&euro;.]/', '', $product->price);
@@ -137,22 +156,41 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
               if (strpos($property, 'Width:') !== false) {
                 preg_match_all('/Width: ([\d]+)/', $property, $match);
 
-                $old_product->lmeasurement = (int) $match[1];
-                $old_product->measurement_size_type = 'measurement';
+                $new_product->lmeasurement = (int) $match[1];
+                $new_product->measurement_size_type = 'measurement';
               }
 
               if (strpos($property, 'Height:') !== false) {
                 preg_match_all('/Height: ([\d]+)/', $property, $match);
 
-                $old_product->hmeasurement = (int) $match[1];
+                $new_product->hmeasurement = (int) $match[1];
               }
 
               if (strpos($property, 'Depth:') !== false) {
                 preg_match_all('/Depth: ([\d]+)/', $property, $match);
 
-                $old_product->dmeasurement = (int) $match[1];
+                $new_product->dmeasurement = (int) $match[1];
               }
             }
+          }
+
+          if (array_key_exists('category', $properties_array)) {
+            $categories = Category::all();
+            $category_id = 1;
+
+            foreach ($properties_array['category'] as $cat) {
+              if ($cat == 'WOMAN') {
+                $cat = 'WOMEN';
+              }
+
+              foreach ($categories as $category) {
+                if (strtoupper($category->title) == $cat) {
+                  $category_id = $category->id;
+                }
+              }
+            }
+
+            $new_product->category = $category_id;
           }
 
           $brand = Brand::find($product->brand_id);
@@ -287,6 +325,25 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 $product->dmeasurement = (int) $match[1];
               }
             }
+          }
+
+          if (array_key_exists('category', $properties_array)) {
+            $categories = Category::all();
+            $category_id = 1;
+
+            foreach ($properties_array['category'] as $cat) {
+              if ($cat == 'WOMAN') {
+                $cat = 'WOMEN';
+              }
+
+              foreach ($categories as $category) {
+                if (strtoupper($category->title) == $cat) {
+                  $category_id = $category->id;
+                }
+              }
+            }
+
+            $product->category = $category_id;
           }
 
           $brand = Brand::find($image->brand_id);
