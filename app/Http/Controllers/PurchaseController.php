@@ -142,13 +142,9 @@ class PurchaseController extends Controller
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
-          if ($page == 'canceled') {
+          if ($page == 'canceled-refunded') {
             $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Cancel']);
-            });
-          } elseif ($page == 'refunded') {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Refund to be processed']);
+              $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
             });
           } elseif ($page == 'ordered') {
 
@@ -180,13 +176,9 @@ class PurchaseController extends Controller
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
-          if ($page == 'canceled') {
+          if ($page == 'canceled-refunded') {
             $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Cancel']);
-            });
-          } elseif ($page == 'refunded') {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Refund to be processed']);
+              $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
             });
           } elseif ($page == 'ordered') {
 
@@ -207,13 +199,9 @@ class PurchaseController extends Controller
       }
 
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
-        if ($page == 'canceled') {
+        if ($page == 'canceled-refunded') {
           $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereIn('order_status', ['Cancel']);
-          });
-        } elseif ($page == 'refunded') {
-          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereIn('order_status', ['Refund to be processed']);
+            $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
           });
         } elseif ($page == 'ordered') {
           $orders = OrderProduct::with('Order');
