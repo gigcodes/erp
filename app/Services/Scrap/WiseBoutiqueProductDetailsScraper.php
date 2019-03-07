@@ -250,13 +250,10 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         }
 
         $image = ScrapedProducts::where('sku', $sku)->orWhere('url', $scrapEntry->url)->first();
-        if ($image) {
-            $scrapEntry->is_scraped = 1;
-            $scrapEntry->save();
-            return;
+        if (!$image) {
+            $image = new ScrapedProducts();
         }
 
-        $image = new ScrapedProducts();
         $image->brand_id = $brandId;
         $image->sku = $sku;
         $image->website = 'Wiseboutique';
