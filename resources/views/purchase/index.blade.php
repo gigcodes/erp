@@ -39,6 +39,7 @@
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">ID</a></th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Date</a></th>
             <th>Customer Names</th>
+            <th>Products</th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Purchase Handler</a></th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Supplier Name</a></th>
             <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}">Order Status</a></th>
@@ -58,6 +59,11 @@
                       </li>
                     @endforeach
                   </ul>
+                </td>
+                <td>
+                  @foreach ($purchase['products'] as $product)
+                    <img src="{{ $product['imageurl'] }}" class="img-responsive" width="50px">
+                  @endforeach
                 </td>
                 <td>{{ $purchase['purchase_handler'] ? $users[$purchase['purchase_handler']] : 'nil' }}</td>
                 <td>{{ $purchase['supplier'] }}</td>
