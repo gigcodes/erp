@@ -19,9 +19,9 @@ abstract class Scraper
         try {
             $response = $this->client->request($method, $url, [
                 'headers'=>[
-                    'User-Agent' => 'User-Agent\':"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36',
+                    'User-Agent' => 'User-Agent:"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36',
                 ],
-//                'allow_redirects' => false
+//                'allow_redirects' => false,
 //                'proxy' => $proxy
             ]);
             $content = $response->getBody()->getContents();
@@ -35,7 +35,7 @@ abstract class Scraper
     private function getProxy(string $country)
     {
         return [
-            'it' => 'http://109.73.184.39:8080'
+            'it' => 'https://212.237.16.88'
         ][$country];
     }
 }
