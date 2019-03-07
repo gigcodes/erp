@@ -940,7 +940,7 @@ class OrderController extends Controller {
 						'PieceCount' => $piece_count,
 						// 'DeclaredValue'	=> $total_price,
 						'DeclaredValue'	=> 500,
-						'ProductCode' => 'A',
+						'ProductCode' => 'D',
 						'ProductType' => 'Dutiables',
 
 						'Dimensions' =>

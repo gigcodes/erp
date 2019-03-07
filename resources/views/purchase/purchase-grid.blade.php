@@ -8,7 +8,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Purchase {{ $page == 'canceled' ? 'Canceled' : ($page == 'refunded' ? 'Refunded' : '') }} Grid</h2>
+            <h2 class="page-heading">Purchase {{ $page == 'canceled' ? 'Canceled' : ($page == 'refunded' ? 'Refunded' : ($page == 'delivered' ? 'Delivered' : ($page == 'ordered' ? 'Ordered' : ''))) }} Grid</h2>
         </div>
     </div>
 
@@ -81,7 +81,7 @@
         <div class="col-2">
             <div class="form-group">
                 Goto :
-                <select onchange="location.href = this.value;">
+                <select onchange="location.href = this.value;" class="form-control">
                     @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
                         <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
                     @endfor
@@ -117,7 +117,7 @@
         <div class="col-2">
             <div class="form-group">
                 Goto :
-                <select onchange="location.href = this.value;">
+                <select onchange="location.href = this.value;" class="form-control">
                     @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
                         <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
                     @endfor

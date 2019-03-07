@@ -8,6 +8,7 @@ use App\Category;
 use App\Order;
 use App\OrderProduct;
 use App\Product;
+use App\ScrapedProducts;
 use App\Sale;
 use App\Setting;
 use App\Sizes;
@@ -115,6 +116,8 @@ class ProductController extends Controller {
 		$data['images'] = $product->getMedia( config( 'constants.media_tags' ) );
 
 		$data['categories'] = $product->category ? CategoryController::getCategoryTree( $product->category ) : '';
+
+		$data['has_reference'] = ScrapedProducts::where('sku', $product->sku)->first() ? true : false;
 
 		return view( 'partials.show', $data );
 	}

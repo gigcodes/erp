@@ -30,7 +30,7 @@
             <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
             <p>Price : {{ $product->price_special }}</p>
           </a>
-          <a href="#" class="btn {{ in_array($image->getKey(), $selected_products) ? 'btn-success' : 'btn-secondary' }} attach-photo" data-image="{{ $image->getKey()  }}" data-attached="{{ in_array($image->getKey(), $selected_products) ? 1 : 0 }}">Attach</a>
+          <a href="#" class="btn {{ in_array($image->getKey(), $selected_products) ? 'btn-success' : 'btn-secondary' }} attach-photo" data-image="{{ $model_type == 'purchase-replace' ? $product->id : $image->getKey() }}" data-attached="{{ in_array($image->getKey(), $selected_products) ? 1 : 0 }}">Attach</a>
         </div>
       @endforeach
     @else

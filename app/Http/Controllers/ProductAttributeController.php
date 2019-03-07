@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\Image;
 use App\Product;
+use App\ScrapedProducts;
 use App\Setting;
 use App\Sizes;
 use App\Stage;
@@ -110,6 +111,7 @@ class ProductAttributeController extends Controller
 		$data['supplier'] = $productattribute->supplier;
 		$data['supplier_link'] = $productattribute->supplier_link;
 		$data['description_link'] = $productattribute->description_link;
+		$data['reference'] = ScrapedProducts::where('sku', $productattribute->sku)->first() ? ScrapedProducts::where('sku', $productattribute->sku)->first()->properties : [];
 
 		return view('productattribute.edit',$data);
 	}

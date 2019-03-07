@@ -113,6 +113,15 @@ class PurchaseController extends Controller
 
     public function purchaseGrid(Request $request, $page = null)
     {
+      $purchases = Purchase::all();
+      $not_include_products = [];
+
+      foreach ($purchases as $purchase) {
+        foreach ($purchase->products as $product) {
+          $not_include_products[] = $product->sku;
+        }
+      }
+
       if ($request->status[0] != null) {
         $status = $request->status;
 
@@ -141,9 +150,15 @@ class PurchaseController extends Controller
             $orders = $orders->whereHas('Order', function($q) {
               $q->whereIn('order_status', ['Refund to be processed']);
             });
+          } elseif ($page == 'ordered') {
+
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereIn('order_status', ['Delivered']);
+            });
           } else {
             $orders = $orders->whereHas('Order', function($q) {
-              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
             });
           }
 
@@ -173,9 +188,15 @@ class PurchaseController extends Controller
             $orders = $orders->whereHas('Order', function($q) {
               $q->whereIn('order_status', ['Refund to be processed']);
             });
+          } elseif ($page == 'ordered') {
+
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereHas('Order', function($q) {
+              $q->whereIn('order_status', ['Delivered']);
+            });
           } else {
             $orders = $orders->whereHas('Order', function($q) {
-              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
             });
           }
 
@@ -194,12 +215,18 @@ class PurchaseController extends Controller
           $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
             $q->whereIn('order_status', ['Refund to be processed']);
           });
+        } elseif ($page == 'ordered') {
+          $orders = OrderProduct::with('Order');
+        } elseif ($page == 'delivered') {
+          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
+            $q->whereIn('order_status', ['Delivered']);
+          });
         } else {
           $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed']);
+            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
           });
         }
-        
+
         $orders = $orders->select('sku')->get()->toArray();
       }
 
@@ -208,7 +235,18 @@ class PurchaseController extends Controller
         array_push($new_orders, $order['sku']);
       }
 
-      $products = Product::whereIn('sku', $new_orders);
+      $products = Product::with(['Orderproducts' => function($query) {
+        $query->with('Order');
+      }, 'Purchases'])->whereIn('sku', $new_orders);
+
+      if ($page == 'ordered') {
+        $products = $products->whereHas('Purchases', function ($query) {
+          $query->where('status', 'Ordered');
+        });
+      } else {
+        $products = $products->whereNotIn('sku', $not_include_products);
+      }
+
       $term = $request->input('term');
       $status = isset($status) ? $status : '';
       $supplier = isset($supplier) ? $supplier : '';
@@ -228,7 +266,7 @@ class PurchaseController extends Controller
 	    }
 
       $new_products = [];
-      $products = $products->get()->sortBy('supplier');
+      $products = $products->select(['id', 'sku', 'supplier'])->get()->sortBy('supplier');
 
       foreach($products as $key => $product) {
         $new_products[$key]['id'] = $product->id;
@@ -332,6 +370,31 @@ class PurchaseController extends Controller
       $data['order_details'] = OrderProduct::where('sku', $product->sku)->get(['order_id', 'size']);
 
   		return view('purchase.product-show', $data)->withProduct($product);
+    }
+
+    public function productReplace(Request $request)
+    {
+      $old_product = Product::find($request->moduleid);
+      $new_product = Product::find(json_decode($request->images)[0]);
+
+      foreach ($old_product->purchases as $purchase) {
+        $purchase->products()->detach($old_product);
+        $purchase->products()->attach($new_product);
+      }
+
+      foreach ($old_product->orderproducts as $order_product) {
+        $new_order = new OrderProduct;
+        $new_order->order_id = $order_product->order_id;
+        $new_order->sku = $new_product->sku;
+        $new_order->product_price = $new_product->price_special;
+        $new_order->size = $order_product->size;
+        $new_order->color = $order_product->color;
+        $new_order->save();
+
+        $order_product->delete();
+      }
+
+      return redirect()->route('purchase.index')->with('success', 'You have successfully replaced product!');
     }
 
     /**

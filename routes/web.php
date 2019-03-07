@@ -174,6 +174,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::delete('purchase/{id}/permanentDelete', 'PurchaseController@permanentDelete')->name('purchase.permanentDelete');
 	Route::get('purchaseGrid/{page?}', 'PurchaseController@purchaseGrid')->name('purchase.grid');
 	Route::post('purchaseGrid', 'PurchaseController@store')->name('purchase.store');
+	Route::post('purchase/product/replace', 'PurchaseController@productReplace')->name('purchase.product.replace');
 	Route::get('purchase/product/{id}', 'PurchaseController@productShow')->name('purchase.product.show');
 	Route::post('purchase/product/{id}', 'PurchaseController@updatePercentage')->name('purchase.product.percentage');
 
