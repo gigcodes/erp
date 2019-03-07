@@ -884,6 +884,7 @@
 
                                       <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
                                       <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
+                                      <a class="dropdown-item" href="{{ route('voucher.index') }}">Cash Vouchers</a>
 
 
 

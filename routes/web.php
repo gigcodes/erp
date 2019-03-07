@@ -179,6 +179,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('purchase/product/{id}', 'PurchaseController@productShow')->name('purchase.product.show');
 	Route::post('purchase/product/{id}', 'PurchaseController@updatePercentage')->name('purchase.product.percentage');
 
+	// Cash Vouchers
+	Route::resource('voucher', 'VoucherController');
+
 	//Comments
 	Route::post('doComment','CommentController@store')->name('doComment');
 	Route::post('deleteComment/{comment}','CommentController@destroy')->name('deleteComment');
