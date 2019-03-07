@@ -17,6 +17,7 @@ use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\WiseboutiqueProductDetailScraper;
 use App\Console\Commands\WiseBoutiqueScraper;
+use App\Console\Commands\UpdateGnbPrice;
 use App\Console\Commands\DeleteGnbProducts;
 use App\Console\Commands\DeleteWiseProducts;
 use App\Console\Commands\UpdateWiseProducts;
@@ -51,6 +52,7 @@ class Kernel extends ConsoleKernel
         CreateScrapedProducts::class,
         WiseBoutiqueScraper::class,
         WiseboutiqueProductDetailScraper::class,
+        UpdateGnbPrice::class,
         DeleteGnbProducts::class,
         DeleteWiseProducts::class,
         UpdateWiseProducts::class,
