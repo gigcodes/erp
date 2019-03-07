@@ -21,8 +21,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     public function scrap()
     {
-        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'GNB')->take(25)->get();
-
+        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'GNB')->take(250)->get();
         foreach ($products as $product) {
             $this->getProductDetails($product);
         }
@@ -244,11 +243,14 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
     private function getProductDetails(ScrapEntries $scrapEntry)
     {
-        $content = $this->getContent($scrapEntry->url);
+        $url = explode('/category', $scrapEntry->url);
+        $url = $url[0];
+        $content = $this->getContent($url);
         if ($content === '') {
             $scrapEntry->delete();
             return;
         }
+
 
         $c = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
@@ -274,13 +276,10 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
 
         $image = ScrapedProducts::where('sku', $sku)->orWhere('url', $scrapEntry->url)->first();
-        if ($image) {
-            $scrapEntry->is_scraped = 1;
-            $scrapEntry->save();
-            return;
+        if (!$image) {
+            $image = new ScrapedProducts();
         }
 
-        $image = new ScrapedProducts();
         $image->brand_id = $brandId;
         $image->sku = $sku;
         $image->website = 'G&B';
@@ -292,7 +291,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $image->has_sku = 1;
         }
         $image->is_price_updated = 1;
-        $image->url = $scrapEntry->url;
+        $image->url = $url;
         $image->properties = $properties;
         $image->save();
 
