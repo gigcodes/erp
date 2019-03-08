@@ -65,6 +65,10 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             return;
         }
 
+        if ($image->is_updated_on_server == 1) {
+            return;
+        }
+
         $this->updateProductOnServer($image);
 
 
@@ -78,8 +82,10 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
 
     private function updateProductOnServer(ScrapedProducts $image)
     {
+
+        $this->info('here saving to server');
         $client = new Client();
-        $response = $client->request('POST', 'http://sololux.local/api/sync-product', [
+        $response = $client->request('POST', 'http://erp.sololuxury.co.in/api/sync-product', [
 //        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
                 'sku' => $image->sku,
@@ -99,9 +105,12 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             ]
         ]);
 
-//        if (!$response) {
+        if (!$response) {
             dd($response->getBody()->getContents());
-//        }
+        }
+
+        $image->is_updated_on_server = 1;
+        $image->save();
     }
 
     private function setIP(): void

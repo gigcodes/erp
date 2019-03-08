@@ -38,16 +38,24 @@ class WebsiteEmulator
             $this->manager->browse($command, function ($browser) use ($url, $self) {
                 try {
 
+                    $price = '';
+
                     $sku = $browser->visit($url)
                         ->pause(500)
                         ->element('div.product-code div.value p.title')
                         ->getAttribute('innerHTML');
 
-                    $price = $browser->visit($url)
+                    if($browser->visit($url)
                         ->pause(500)
-                        ->element('span.price')
-                        ->getAttribute('innerHTML')
-                    ;
+                        ->element('span.price')) {
+
+                        $price = $browser->visit($url)
+                            ->pause(500)
+                            ->element('span.price')
+                            ->getAttribute('innerHTML')
+                        ;
+
+                    }
 
                     $sku = str_replace(' ', '', $sku);
                     $price = str_replace('&nbsp;', '', $price);

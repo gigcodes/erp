@@ -109,7 +109,7 @@ class ScrapController extends Controller
 //        $product->images = $this->downloadImagesForSites($request->get('images'), 'gnb');
         $product->save();
 
-        $this->gnbCreator->createGnbProducts($product);
+//        $this->gnbCreator->createGnbProducts($product);
 
         return response()->json([
             'status' => 'success',

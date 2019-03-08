@@ -79,13 +79,13 @@ class GnbProductsCreator
 
          $product->save();
 
-         $images = $image->images;
-
-         foreach ($images as $image_name) {
-           $path = public_path('uploads') . '/social-media/' . $image_name;
-           $media = MediaUploader::fromSource($path)->upload();
-           $product->attachMedia($media,config('constants.media_tags'));
-         }
+//         $images = $image->images;
+//
+//         foreach ($images as $image_name) {
+//           $path = public_path('uploads') . '/social-media/' . $image_name;
+//           $media = MediaUploader::fromSource($path)->upload();
+//           $product->attachMedia($media,config('constants.media_tags'));
+//         }
        }
     }
 }
