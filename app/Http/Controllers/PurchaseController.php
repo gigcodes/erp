@@ -270,6 +270,12 @@ class PurchaseController extends Controller
         $new_products[$key]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
       }
 
+      $new_products = array_values(array_sort($new_products, function ($value) {
+        return $value['order_date'];
+      }));
+
+      $new_products = array_reverse($new_products);
+
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination');
       $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
