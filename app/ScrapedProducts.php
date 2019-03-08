@@ -24,7 +24,8 @@ class ScrapedProducts extends Model
         'is_price_updated',
         'is_enriched',
         'has_sku',
-        'price'
+        'price',
+        'can_be_deleted'
     ];
 
     public function brand() {

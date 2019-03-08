@@ -27,29 +27,42 @@ class WebsiteEmulator
         ];
     }
 
+    private $data;
 
-    public function emulate($command, $url, $commands = null)
+
+    public function emulate($command, $url, $commands = null): ?array
     {
+        $this->data = ['', ''];
+        $self = $this;
         try {
-            $this->manager->browse($command, function ($browser) use ($url) {
-//                $browser->visit($url)
-//                    ->pause(500)
-//                    ->element('div.product-wrapper')
-//                ;
+            $this->manager->browse($command, function ($browser) use ($url, $self) {
+                try {
 
-                $data = $browser->visit($url)
-                    ->pause(500)
-                    ->element('span.price')
-                    ->getAttribute('innerHTML')
-                ;
+                    $sku = $browser->visit($url)
+                        ->pause(500)
+                        ->element('div.product-code div.value p.title')
+                        ->getAttribute('innerHTML');
 
-                dd($data);
+                    $price = $browser->visit($url)
+                        ->pause(500)
+                        ->element('span.price')
+                        ->getAttribute('innerHTML')
+                    ;
 
-                return $data;
+                    $sku = str_replace(' ', '', $sku);
+                    $price = str_replace('&nbsp;', '', $price);
+
+                    $self->data = [$price, $sku];
+
+                } catch (\Exception $exception) {
+                    $self->data = ['', ''];
+                }
             });
         } catch (\Exception $exception) {
-            return '';
+            $self->data = ['', ''];
         }
+
+        return $this->data;
     }
 
     public function prepare(): void
