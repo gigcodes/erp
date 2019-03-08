@@ -330,7 +330,7 @@
                                     @if( $task['assign_to'] == Auth::user()->id )
                                         <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
                                     @else
-                                        <td>Assign to  {{ $task['assign_to'] ? $users[$task['assign_to']] : 'Nil'}}</td>
+                                        <td>Assign to  {{ $task['assign_to'] ?? ($users[$task['assign_to']] ? $users[$task['assign_to']] : 'Nil')}}</td>
                                     @endif
                                     {{-- <td> --}}
                                       <!-- @include('task-module.partials.remark',$task)  -->
@@ -425,7 +425,7 @@
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                     <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                     <td>{{$users[$task['assign_from']]}}</td>
-                                    <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
+                                    <td>{{ $task['assign_to'] ?? ($users[$task['assign_to']] ? $users[$task['assign_to']] : 'Nil') }}</td>
                                     <td> @include('task-module.partials.remark',$task) </td>
                                     <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i') }}</td>
                                 </tr>
@@ -463,7 +463,7 @@
                                                 <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                                 <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                                 <td>{{ $users[$task['assign_from']]}}</td>
-                                                <td>{{ $task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
+                                                <td>{{ $task['assign_to'] ?? ($users[$task['assign_to']] ? $users[$task['assign_to']] : 'Nil') }}</td>
                                                 <td>{{ $task['recurring_type'] }}</td>
                                                 {{-- <td>{{ $task['recurring_day'] ?? 'nil' }}</td> --}}
                                                 <td> @include('task-module.partials.remark',$task) </td>
@@ -520,7 +520,7 @@
                                     <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
                                     <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i') }}</td>
                                     <td>{{$users[$task['assign_from']]}}</td>
-                                    <td>{{$task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
+                                    <td>{{ $task['assign_to'] ?? ($users[$task['assign_to']] ? $users[$task['assign_to']] : 'Nil') }}</td>
                                     <td> @include('task-module.partials.remark',$task) </td>
                                     <td>{{ Carbon\Carbon::parse($task['is_completed'])->format('d-m H:i') }}</td>
                                     <td>
