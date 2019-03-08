@@ -37,6 +37,7 @@
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="sku,brand,category,status,stage">
                                 <input hidden name="roletype" type="text" value="{{ $roletype }}">
+                                <input hidden name="model_type" type="text" value="{{ $model_type }}">
                                 {{--@if( $roletype == 'Sale' )
                                     <input hidden name="saleId" type="text" value="{{ $sale_id ?? '' }}">
                                 @endif--}}

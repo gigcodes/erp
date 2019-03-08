@@ -175,8 +175,12 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('purchaseGrid/{page?}', 'PurchaseController@purchaseGrid')->name('purchase.grid');
 	Route::post('purchaseGrid', 'PurchaseController@store')->name('purchase.store');
 	Route::post('purchase/product/replace', 'PurchaseController@productReplace')->name('purchase.product.replace');
+	Route::post('purchase/product/create/replace', 'PurchaseController@productCreateReplace')->name('purchase.product.create.replace');
 	Route::get('purchase/product/{id}', 'PurchaseController@productShow')->name('purchase.product.show');
 	Route::post('purchase/product/{id}', 'PurchaseController@updatePercentage')->name('purchase.product.percentage');
+
+	// Cash Vouchers
+	Route::resource('voucher', 'VoucherController');
 
 	//Comments
 	Route::post('doComment','CommentController@store')->name('doComment');

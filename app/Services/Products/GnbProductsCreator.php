@@ -64,7 +64,7 @@ class GnbProductsCreator
 
          $brand = Brand::find($image->brand_id);
 
-         $price = (int) preg_replace('/[\&euro;.]/', '', $image->price);
+         $price =  round(preg_replace('/[\&euro;,]/', '', $image->price));
          $product->price = $price;
 
          if(!empty($brand->euro_to_inr))

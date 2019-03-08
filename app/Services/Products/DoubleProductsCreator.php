@@ -4,6 +4,7 @@ namespace App\Services\Products;
 
 use App\Brand;
 use App\Product;
+use App\Category;
 use App\Setting;
 use Validator;
 use Plank\Mediable\Media;
@@ -32,41 +33,52 @@ class DoubleProductsCreator
 
         $properties_array = $image->properties ?? [];
 
-
-        if (array_key_exists('1', $properties_array)) {
-          $product->composition = (string) $properties_array['1'];
+        if (array_key_exists('Composition', $properties_array)) {
+          $product->composition = (string) $properties_array['Composition'];
         }
 
-        if (array_key_exists('Colors', $properties_array)) {
-          $product->color = $properties_array['Colors'];
+        if (array_key_exists('Color code', $properties_array)) {
+          $product->color = $properties_array['Color code'];
         }
 
-        foreach ($properties_array as $property) {
-          if (!is_array($property)) {
-            if (strpos($property, 'Width:') !== false) {
-              preg_match_all('/Width: ([\d]+)/', $property, $match);
+        if (array_key_exists('Made In', $properties_array)) {
+          $product->made_in = $properties_array['Made In'];
+        }
 
-              $product->lmeasurement = (int) $match[1];
-              $product->measurement_size_type = 'measurement';
+        if (array_key_exists('category', $properties_array)) {
+          $categories = Category::all();
+          $category_id = 1;
+
+          foreach ($properties_array['category'] as $cat) {
+            if ($cat == 'WOMAN') {
+              $cat = 'WOMEN';
             }
 
-            if (strpos($property, 'Height:') !== false) {
-              preg_match_all('/Height: ([\d]+)/', $property, $match);
-
-              $product->hmeasurement = (int) $match[1];
-            }
-
-            if (strpos($property, 'Depth:') !== false) {
-              preg_match_all('/Depth: ([\d]+)/', $property, $match);
-
-              $product->dmeasurement = (int) $match[1];
+            foreach ($categories as $category) {
+              if (strtoupper($category->title) == $cat) {
+                $category_id = $category->id;
+              }
             }
           }
+
+          $product->category = $category_id;
         }
 
         $brand = Brand::find($image->brand_id);
 
-        $price = (int) preg_replace('/[\&euro;.]/', '', $image->price);
+        if (strpos($image->price, ',') !== false) {
+          if (strpos($image->price, '.') !== false) {
+            if (strpos($image->price, ',') < strpos($image->price, '.')) {
+              $temp = str_replace(',', '-', $image->price);
+              $dot = str_replace('.', ',', $temp);
+              $final = str_replace('-', '.', $dot);
+              $price = round(preg_replace('/[\€.]/', '', $final));
+            }
+          }
+        } else {
+          $price = round(preg_replace('/[\€.]/', '', $image->price));
+        }
+
         $product->price = $price;
 
         if(!empty($brand->euro_to_inr))

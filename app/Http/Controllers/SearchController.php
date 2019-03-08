@@ -22,6 +22,7 @@ class SearchController extends Controller {
 		$data     = [];
 		$term     = $request->input( 'term' );
 		$roletype = $request->input( 'roletype' );
+		$model_type = $request->input( 'model_type' );
 
 		$data['term']     = $term;
 		$data['roletype'] = $roletype;
@@ -233,7 +234,7 @@ class SearchController extends Controller {
 		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
 
 		if ($request->ajax()) {
-			$html = view('partials.image-load', ['products' => $data['products'], 'data'	=> $data, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : [])])->render();
+			$html = view('partials.image-load', ['products' => $data['products'], 'data'	=> $data, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
 
 			return response()->json(['html' => $html]);
 		}

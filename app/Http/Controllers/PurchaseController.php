@@ -15,10 +15,13 @@ use App\Reply;
 use App\Message;
 use App\ReplyCategory;
 use App\Task;
+use App\Brand;
 use App\ReadOnly\OrderStatus as OrderStatus;
 use App\ReadOnly\SupplierList;
 use App\ReadOnly\PurchaseStatus;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class PurchaseController extends Controller
 {
@@ -142,13 +145,9 @@ class PurchaseController extends Controller
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
-          if ($page == 'canceled') {
+          if ($page == 'canceled-refunded') {
             $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Cancel']);
-            });
-          } elseif ($page == 'refunded') {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Refund to be processed']);
+              $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
             });
           } elseif ($page == 'ordered') {
 
@@ -180,13 +179,9 @@ class PurchaseController extends Controller
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
-          if ($page == 'canceled') {
+          if ($page == 'canceled-refunded') {
             $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Cancel']);
-            });
-          } elseif ($page == 'refunded') {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Refund to be processed']);
+              $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
             });
           } elseif ($page == 'ordered') {
 
@@ -207,13 +202,9 @@ class PurchaseController extends Controller
       }
 
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
-        if ($page == 'canceled') {
+        if ($page == 'canceled-refunded') {
           $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereIn('order_status', ['Cancel']);
-          });
-        } elseif ($page == 'refunded') {
-          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereIn('order_status', ['Refund to be processed']);
+            $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
           });
         } elseif ($page == 'ordered') {
           $orders = OrderProduct::with('Order');
@@ -395,6 +386,64 @@ class PurchaseController extends Controller
       }
 
       return redirect()->route('purchase.index')->with('success', 'You have successfully replaced product!');
+    }
+
+    public function productCreateReplace(Request $request)
+    {
+      $this->validate($request, [
+  			'sku' => 'required|unique:products'
+  		]);
+
+  		$product = new Product;
+
+  		$product->name = $request->name;
+  		$product->sku = $request->sku;
+  		$product->size = $request->size;
+  		$product->brand = $request->brand;
+  		$product->color = $request->color;
+  		$product->supplier = $request->supplier;
+  		$product->price = $request->price;
+
+  		$brand = Brand::find($request->brand);
+
+  		if ($request->price) {
+  			if(isset($request->brand) && !empty($brand->euro_to_inr))
+  				$product->price_inr = $brand->euro_to_inr * $product->price;
+  			else
+  				$product->price_inr = Setting::get('euro_to_inr') * $product->price;
+
+  			$product->price_inr = round($product->price_inr, -3);
+  			$product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+
+  			$product->price_special = round($product->price_special, -3);
+  		}
+
+  		$product->save();
+
+  		$product->detachMediaTags(config('constants.media_tags'));
+  		$media = MediaUploader::fromSource($request->file('image'))->upload();
+  		$product->attachMedia($media,config('constants.media_tags'));
+
+      $old_product = Product::find($request->product_id);
+
+      foreach ($old_product->purchases as $purchase) {
+        $purchase->products()->detach($old_product);
+        $purchase->products()->attach($product);
+      }
+
+      foreach ($old_product->orderproducts as $order_product) {
+        $new_order = new OrderProduct;
+        $new_order->order_id = $order_product->order_id;
+        $new_order->sku = $product->sku;
+        $new_order->product_price = $product->price_special;
+        $new_order->size = $order_product->size;
+        $new_order->color = $order_product->color;
+        $new_order->save();
+
+        $order_product->delete();
+      }
+
+      return redirect()->back()->with('success', 'You have successfully created and replaced product!');
     }
 
     /**

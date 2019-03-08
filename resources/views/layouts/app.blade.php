@@ -884,6 +884,7 @@
 
                                       <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
                                       <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
+                                      <a class="dropdown-item" href="{{ route('voucher.index') }}">Cash Vouchers</a>
 
 
 
@@ -918,8 +919,7 @@
                                     <a class="dropdown-item" href="{{ route('purchase.index') }}">Purchases</a>
 
                                     <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
-                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled') }}">Canceled Grid</a>
-                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'refunded') }}">Refunded Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Canc\Ref Grid</a>
                                     <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                     <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
 

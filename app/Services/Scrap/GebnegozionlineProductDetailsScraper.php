@@ -89,8 +89,8 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             $brand = Brand::find($product->brand_id);
 
-            $price = (int) preg_replace('/[\$,]/', '', $product->price);
-            $old_product->price = $price * 1.22 * 0.88;
+            $price = round(preg_replace('/[\&euro;,]/', '', $product->price));
+            $old_product->price = $price;
             if(!empty($brand->euro_to_inr))
               $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
             else
@@ -154,8 +154,8 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             $brand = Brand::find($product->brand_id);
 
-            $price = (int) preg_replace('/[\$,]/', '', $product->price);
-            $new_product->price = $price * 1.22 * 0.88;
+            $price = round(preg_replace('/[\&euro;,]/', '', $product->price));
+            $new_product->price = $price;
 
             if(!empty($brand->euro_to_inr))
               $new_product->price_inr = $brand->euro_to_inr * $new_product->price;

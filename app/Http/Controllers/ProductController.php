@@ -272,7 +272,7 @@ class ProductController extends Controller {
 		                                        ->renderAsDropdown();
 
 		if ($request->ajax()) {
-			$html = view('partials.image-load', ['products' => $products, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : [])])->render();
+			$html = view('partials.image-load', ['products' => $products, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
 
 			return response()->json(['html' => $html]);
 		}
