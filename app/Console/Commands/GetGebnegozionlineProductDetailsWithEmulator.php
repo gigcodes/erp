@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\Services\Bots\WebsiteEmulator;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 
 
@@ -40,6 +42,7 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
     {
         $url = explode('/category', $url);
         $url = $url[0];
+        $this->info($url);
         $duskShell = new WebsiteEmulator();
 //        $duskShell->setProxyList();
         $this->setCountry('IT');
@@ -48,16 +51,57 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
         try {
             $content = $duskShell->emulate($this, $url, '');
         } catch (\Exception $exception) {
-            $content = '';
+            $content = ['', ''];
         }
 
-        dd($content);
+        if ($content === ['', '']) {
+            return;
+        }
+
+        $image = ScrapedProducts::where('sku', $content[1])->first();
+        $image->price = $content[0];
+        $image->save();
+        if (!$image) {
+            return;
+        }
+
+        $this->updateProductOnServer($image);
+
+
     }
 
     private function setCountry(): void
     {
 
         $this->country = 'IT';
+    }
+
+    private function updateProductOnServer(ScrapedProducts $image)
+    {
+        $client = new Client();
+        $response = $client->request('POST', 'http://sololux.local/api/sync-product', [
+//        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
+            'form_params' => [
+                'sku' => $image->sku,
+                'website' => $image->website,
+                'has_sku' => $image->has_sku,
+                'title' => $image->title,
+                'brand_id' => $image->brand_id,
+                'description' => $image->description,
+//                'images' => $this->imagesToDownload,
+                'price' => $image->price,
+                'properties' => $image->properties,
+                'url' => $image->url,
+                'is_property_updated' => 0,
+                'is_price_updated' => 1,
+                'is_enriched' => 0,
+                'can_be_deleted' => 0
+            ]
+        ]);
+
+//        if (!$response) {
+            dd($response->getBody()->getContents());
+//        }
     }
 
     private function setIP(): void

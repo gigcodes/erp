@@ -104,7 +104,9 @@ class ScrapController extends Controller
         }
 
         $product->fill($request->except(['sku', 'images']));
-        $product->images = $this->downloadImagesForSites($request->get('images'), 'gnb');
+
+//        return $request->all();
+//        $product->images = $this->downloadImagesForSites($request->get('images'), 'gnb');
         $product->save();
 
         $this->gnbCreator->createGnbProducts($product);
