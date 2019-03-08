@@ -419,7 +419,7 @@
                       <td>
                         <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                       </td>
-                      <td>{{ $users_array[$instruction->assigned_to] }}</td>
+                      <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                       <td>{{ $instruction->category->name }}</td>
                       <td>{{ $instruction->instruction }}</td>
                       <td>
