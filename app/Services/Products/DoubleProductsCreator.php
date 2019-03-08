@@ -69,15 +69,16 @@ class DoubleProductsCreator
         if (strpos($image->price, ',') !== false) {
           if (strpos($image->price, '.') !== false) {
             if (strpos($image->price, ',') < strpos($image->price, '.')) {
-              $temp = str_replace(',', '-', $image->price);
-              $dot = str_replace('.', ',', $temp);
-              $final = str_replace('-', '.', $dot);
-              $price = round(preg_replace('/[\€.]/', '', $final));
+              $final_price = str_replace(',', '', $image->price);;
             }
+          } else {
+            $final_price = str_replace(',', '.', $image->price);
           }
         } else {
-          $price = round(preg_replace('/[\€.]/', '', $image->price));
+          $final_price = $image->price;
         }
+
+        $price = round(preg_replace('/[\€,]/', '', $final_price));
 
         $product->price = $price;
 

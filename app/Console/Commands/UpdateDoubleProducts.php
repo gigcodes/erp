@@ -96,15 +96,16 @@ class UpdateDoubleProducts extends Command
           if (strpos($product->price, ',') !== false) {
             if (strpos($product->price, '.') !== false) {
               if (strpos($product->price, ',') < strpos($product->price, '.')) {
-                $temp = str_replace(',', '-', $product->price);
-                $dot = str_replace('.', ',', $temp);
-                $final = str_replace('-', '.', $dot);
-                $price = round(preg_replace('/[\€.]/', '', $final));
+                $final_price = str_replace(',', '', $product->price);;
               }
+            } else {
+              $final_price = str_replace(',', '.', $product->price);
             }
           } else {
-            $price = round(preg_replace('/[\€.]/', '', $product->price));
+            $final_price = $product->price;
           }
+
+          $price = round(preg_replace('/[\€,]/', '', $final_price));
 
           $old_product->price = $price;
 
