@@ -25,8 +25,8 @@
     <tbody>
       @foreach ($calls as $call)
         <tr>
-          <td><a href="{{ route('customer.show', $call->customer->id) }}" target="_blank">{{ $call->customer->name }}</a></td>
-          <td>{{ $call->customer->phone }}</td>
+          <td><a href="{{ $call->customer ? route('customer.show', $call->customer->id) : '#' }}" target="_blank">{{ $call->customer ? $call->customer->name : 'Non Existing Customer' }}</a></td>
+          <td>{{ $call->customer ? $call->customer->phone : '' }}</td>
           <td>{{ $call->status }}</td>
           <td>{{ \Carbon\Carbon::parse($call->created_at)->format('H:i d-m') }}</td>
         </tr>

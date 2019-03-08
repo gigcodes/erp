@@ -75,7 +75,7 @@
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
                   </td>
-                  <td>{{ $users_array[$instruction['assigned_to']] }}</td>
+                  <td>{{ $users_array[$instruction['assigned_to']] ?? '' }}</td>
                   <td>{{ $instruction['category']['name'] }}</td>
                   <td>{{ $instruction['instruction'] }}</td>
                   <td>
@@ -129,7 +129,7 @@
                     <td>
                       <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer_id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
                     </td>
-                    <td>{{ $users_array[$instruction->assigned_to] }}</td>
+                    <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                     <td>{{ $instruction->category->name }}</td>
                     <td>{{ $instruction->instruction }}</td>
                     <td>
