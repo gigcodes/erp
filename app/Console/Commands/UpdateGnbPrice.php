@@ -48,7 +48,7 @@ class UpdateGnbPrice extends Command
         if ($old_product = Product::where('sku', $product->sku)->first()) {
           $brand = Brand::find($product->brand_id);
 
-          $price = round(preg_replace('/[\&euro;,]/', '', $product->price));
+          $price = round(preg_replace('/[\&euro;€.]/', '', $product->price));
           $old_product->price = $price;
           if(!empty($brand->euro_to_inr))
             $old_product->price_inr = $brand->euro_to_inr * $old_product->price;

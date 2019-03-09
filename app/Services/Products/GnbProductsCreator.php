@@ -33,7 +33,13 @@ class GnbProductsCreator
          $properties_array = $image->properties;
 
          if (array_key_exists('Details', $properties_array)) {
-           $product->composition = (string) $properties_array['Details'];
+           if (strpos($properties_array['Details'], 'Made in') !== false) {
+             $product->made_in = substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8);
+
+             $product->composition = substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in'));
+           } else {
+             $product->composition = (string) $properties_array['Details'];
+           }
          }
 
          if (array_key_exists('Color Code', $properties_array)) {
@@ -64,7 +70,7 @@ class GnbProductsCreator
 
          $brand = Brand::find($image->brand_id);
 
-         $price =  round(preg_replace('/[\&euro;,]/', '', $image->price));
+         $price =  round(preg_replace('/[\&euro;€.]/', '', $image->price));
          $product->price = $price;
 
          if(!empty($brand->euro_to_inr))

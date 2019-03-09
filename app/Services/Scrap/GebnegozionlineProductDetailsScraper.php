@@ -58,7 +58,13 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $properties_array = $product->properties;
 
             if (array_key_exists('Details', $properties_array)) {
-              $old_product->composition = (string) $properties_array['Details'];
+              if (strpos($properties_array['Details'], 'Made in') !== false) {
+                $old_product->made_in = substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8);
+
+                $old_product->composition = substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in'));
+              } else {
+                $old_product->composition = (string) $properties_array['Details'];
+              }
             }
 
             if (array_key_exists('Color Code', $properties_array)) {
@@ -89,7 +95,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             $brand = Brand::find($product->brand_id);
 
-            $price = round(preg_replace('/[\&euro;,]/', '', $product->price));
+            $price = round(preg_replace('/[\&euro;€.]/', '', $product->price));
             $old_product->price = $price;
             if(!empty($brand->euro_to_inr))
               $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
@@ -103,13 +109,13 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             $old_product->save();
 
-            $old_product->detachMediaTags(config('constants.media_tags'));
-
-            foreach ($product->images as $image_name) {
-              $path = public_path('uploads') . '/social-media/' . $image_name;
-              $media = MediaUploader::fromSource($path)->upload();
-              $old_product->attachMedia($media,config('constants.media_tags'));
-            }
+            // $old_product->detachMediaTags(config('constants.media_tags'));
+            //
+            // foreach ($product->images as $image_name) {
+            //   $path = public_path('uploads') . '/social-media/' . $image_name;
+            //   $media = MediaUploader::fromSource($path)->upload();
+            //   $old_product->attachMedia($media,config('constants.media_tags'));
+            // }
           } else {
             $new_product = new Product;
             $new_product->sku = str_replace(' ', '', $product->sku);
@@ -123,7 +129,13 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             $properties_array = $product->properties;
 
             if (array_key_exists('Details', $properties_array)) {
-              $new_product->composition = $properties_array['Details'];
+              if (strpos($properties_array['Details'], 'Made in') !== false) {
+                $new_product->made_in = substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8);
+
+                $new_product->composition = substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in'));
+              } else {
+                $new_product->composition = (string) $properties_array['Details'];
+              }
             }
 
             if (array_key_exists('Color Code', $properties_array)) {
@@ -154,7 +166,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             $brand = Brand::find($product->brand_id);
 
-            $price = round(preg_replace('/[\&euro;,]/', '', $product->price));
+            $price = round(preg_replace('/[\&euro;€.]/', '', $product->price));
             $new_product->price = $price;
 
             if(!empty($brand->euro_to_inr))
