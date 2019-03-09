@@ -149,7 +149,9 @@ class ProductController extends Controller {
 	public function attachProducts( $model_type, $model_id, $type = null, Request $request ) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
-		$products = Product::latest()->paginate( Setting::get( 'pagination' ) );
+		$products = Product::latest()
+												->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
+												->paginate( Setting::get( 'pagination' ) );
 
 		$doSelection = true;
 
@@ -165,24 +167,12 @@ class ProductController extends Controller {
 			$selected_products = [];
 		}
 
-		$search_suggestions = [];
-		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
-		$brand_suggestions = Brand::getAll();
-
-		foreach ($sku_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion['sku']);
-		}
-
-		foreach ($brand_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion);
-		}
-
 		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
 		                                        ->selected(1)
 		                                        ->renderAsDropdown();
 
 
-		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'search_suggestions', 'category_selection', 'attachImages' ) );
+		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'category_selection', 'attachImages' ) );
 	}
 
 	public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request) {
