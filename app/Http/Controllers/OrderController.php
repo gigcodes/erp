@@ -919,6 +919,8 @@ class OrderController extends Controller {
 
 		$piece_count = $order->order_product()->count();
 
+		$actual_weight = $request->box_width * $request->box_length * $request->box_height / 5000;
+
 		$params = array(
 		'Request' =>
 			array (
@@ -932,7 +934,7 @@ class OrderController extends Controller {
 					)	,
 				'Services' =>
 					array (
-						'ActualWeight' => $request->actual_weight,
+						'ActualWeight' => $actual_weight,
 
 						'CreditReferenceNo' => $order->id,
 						'PickupDate' => $pickup_date,
@@ -947,10 +949,10 @@ class OrderController extends Controller {
 							array (
 								'Dimension' =>
 									array (
-										'Breadth' => '1',
+										'Breadth' => $request->box_width,
 										'Count' => $piece_count,
-										'Height' => '1',
-										'Length' => '1'
+										'Height' => $request->box_height,
+										'Length' => $request->box_length
 									),
 							),
 					),
@@ -993,7 +995,10 @@ class OrderController extends Controller {
 			$waybill = new Waybill;
 			$waybill->order_id = $order->id;
 			$waybill->awb = $result->AWBNo;
-			$waybill->actual_weight = $request->actual_weight;
+			$waybill->box_width = $request->box_width;
+			$waybill->box_height = $request->box_height;
+			$waybill->box_length = $request->box_length;
+			$waybill->actual_weight = $actual_weight;
 			$waybill->package_slip = $order->id . '_package_slip.pdf';
 			$waybill->pickup_date = $request->pickup_time;
 			$waybill->save();

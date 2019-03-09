@@ -1436,9 +1436,32 @@
                 <input type="number" name="customer_pincode" class="form-control" value="{{ $customer->pincode }}" max="999999" required>
               </div>
 
-              <div class="form-group">
+              {{-- <div class="form-group">
                 <strong>Actual Weight:</strong>
                 <input type="number" name="actual_weight" class="form-control" value="1" step="0.01" required>
+              </div> --}}
+
+              <div class="row">
+                <div class="col">
+                  <div class="form-group">
+                    <strong>Length:</strong>
+                    <input type="number" name="box_length" class="form-control" placeholder="1.0" value="" step="0.1" max="1000" required>
+                  </div>
+                </div>
+
+                <div class="col">
+                  <div class="form-group">
+                    <strong>Width:</strong>
+                    <input type="number" name="box_width" class="form-control" placeholder="1.0" value="" step="0.1" max="1000" required>
+                  </div>
+                </div>
+
+                <div class="col">
+                  <div class="form-group">
+                    <strong>Height:</strong>
+                    <input type="number" name="box_height" class="form-control" placeholder="1.0" value="" step="0.1" max="1000" required>
+                  </div>
+                </div>
               </div>
 
               <div class="form-group">
