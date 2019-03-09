@@ -59,7 +59,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             if (array_key_exists('Details', $properties_array)) {
               if (strpos($properties_array['Details'], 'Made in') !== false) {
-                $old_product->made_in = substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8);
+                $old_product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
 
                 $old_product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
               } else {
@@ -130,9 +130,9 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
             if (array_key_exists('Details', $properties_array)) {
               if (strpos($properties_array['Details'], 'Made in') !== false) {
-                $new_product->made_in = substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8);
+                $new_product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
 
-                $new_product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));             
+                $new_product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
                } else {
                 $new_product->composition = (string) $properties_array['Details'];
               }
