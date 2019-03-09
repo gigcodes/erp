@@ -23,6 +23,8 @@ use App\Console\Commands\DeleteWiseProducts;
 use App\Console\Commands\UpdateWiseProducts;
 use App\Console\Commands\UpdateWiseCategory;
 use App\Console\Commands\UpdateDoubleProducts;
+
+use App\Console\Commands\SendHourlyReports;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -61,7 +63,8 @@ class Kernel extends ConsoleKernel
         UpdateDoubleProducts::class,
         EnrichWiseProducts::class,
         DoubleFProductDetailScraper::class,
-        DoubleFScraper::class
+        DoubleFScraper::class,
+        SendHourlyReports::class
     ];
 
     /**
@@ -152,6 +155,8 @@ class Kernel extends ConsoleKernel
 
 //        $schedule->command('sync:instagram-messages')
 //            ->everyMinute();
+
+        $schedule->command('send:hourly-reports')->twiceDaily(12, 17:30);
     }
 
     /**
