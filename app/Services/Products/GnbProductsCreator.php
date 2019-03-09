@@ -36,7 +36,7 @@ class GnbProductsCreator
            if (strpos($properties_array['Details'], 'Made in') !== false) {
              $product->made_in = substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8);
 
-             $product->composition = substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in'));
+             $product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
            } else {
              $product->composition = (string) $properties_array['Details'];
            }
