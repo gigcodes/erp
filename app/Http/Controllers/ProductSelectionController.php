@@ -30,27 +30,18 @@ class ProductSelectionController extends Controller
 
 	public function index(){
 
-		$products = Product::latest()->withMedia(config('constants.media_tags'))->paginate(Setting::get('pagination'));
+		$products = Product::latest()
+											->withMedia(config('constants.media_tags'))
+											->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
+											->paginate(Setting::get('pagination'));
 
 		$roletype = 'Selection';
-
-		$search_suggestions = [];
-		$sku_suggestions = ( new Product() )->newQuery()->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
-		$brand_suggestions = Brand::getAll();
-
-		foreach ($sku_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion['sku']);
-		}
-
-		foreach ($brand_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion);
-		}
 
 		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
 		                                        ->selected(1)
 		                                        ->renderAsDropdown();
 
-		return view('partials.grid',compact('products','roletype', 'search_suggestions', 'category_selection'))
+		return view('partials.grid',compact('products','roletype', 'category_selection'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 
 	}

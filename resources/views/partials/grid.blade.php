@@ -195,7 +195,7 @@
       format: 'YYYY-MM-DD'
     });
 
-    var searchSuggestions = {!! json_encode($search_suggestions) !!};
+
 
     // $('#product-search').autocomplete({
     //   source: function(request, response) {
