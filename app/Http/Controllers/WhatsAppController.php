@@ -26,6 +26,7 @@ use App\PushNotification;
 use App\NotificationQueue;
 use App\Purchase;
 use App\Customer;
+use App\MessageQueue;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -856,15 +857,24 @@ class WhatsAppController extends FindByNumberController
 
     if ($request->to_all || $request->moduletype == 'customers') {
       $now = Carbon::now();
-      $minutes = 0;
+      $minutes = 5;
       $data = Customer::whereNotNull('phone')->chunk(30, function ($customers) use ($content, $now, &$minutes) {
         foreach ($customers as $customer) {
-          SendMessageToAll::dispatch(Auth::id(), $customer, $content)
-                          ->delay($now->addMinutes($minutes))
-                          ->onQueue('sending');
+          // SendMessageToAll::dispatch(Auth::id(), $customer, $content)
+          //                 ->delay($now->addMinutes($minutes))
+          //                 ->onQueue('sending');
+
+          MessageQueue::create([
+            'user_id'       => Auth::id(),
+            'customer_id'   => $customer->id,
+            'phone'         => NULL,
+            'type'          => 'message_all',
+            'data'          => json_encode($content),
+            'sending_time'  => $now
+          ]);
         }
 
-        $minutes += 5;
+        $now->addMinutes($minutes);
       });
     } else {
       $now = Carbon::now();
@@ -875,25 +885,36 @@ class WhatsAppController extends FindByNumberController
       foreach ($array as $item) {
         foreach ($item as $it) {
           if ($count == 30) {
-            $minutes += 5;
+            // $minutes += 5;
+            $now->addMinutes(5);
             $count = 0;
           }
           $number = (int)$it[0];
 
-          SendMessageToSelected::dispatch($number, $content)
-                                ->delay($now->addMinutes($minutes))
-                                ->onQueue('sending');
+          MessageQueue::create([
+            'user_id'       => Auth::id(),
+            'customer_id'   => NULL,
+            'phone'         => $number,
+            'type'          => 'message_selected',
+            'data'          => json_encode($content),
+            'sending_time'  => $now
+          ]);
+
+          // SendMessageToSelected::dispatch($number, $content)
+          //                       ->delay($now->addMinutes($minutes))
+          //                       ->onQueue('sending');
 
           $count++;
         }
       }
     }
-
+    
     return redirect()->route('customer.index')->with('success', 'Messages are being sent in the background!');
   }
 
   public function stopAll() {
-    DB::table('jobs')->where('queue', 'sending')->delete();
+    // DB::table('jobs')->where('queue', 'sending')->delete();
+    MessageQueue::whereNotNull('sending_time')->delete();
 
     return redirect()->route('customer.index')->with('success', 'Messages stopped processing!');
   }

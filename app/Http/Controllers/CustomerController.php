@@ -20,6 +20,7 @@ use App\Reply;
 use App\Instruction;
 use App\ReplyCategory;
 use App\CallRecording;
+use App\MessageQueue;
 use App\InstructionCategory;
 use App\OrderStatus as OrderStatuses;
 use App\ReadOnly\PurchaseStatus;
@@ -47,7 +48,7 @@ class CustomerController extends Controller
 
       // dd((string)$queues[0]->payload);
 
-      $queues_count = DB::table('jobs')->where('queue', 'sending')->count();
+      $queues_count = MessageQueue::count();
 
       return view('customers.index', [
         'customers' => $customers,

@@ -25,6 +25,8 @@ use App\Console\Commands\UpdateWiseCategory;
 use App\Console\Commands\UpdateDoubleProducts;
 
 use App\Console\Commands\SendHourlyReports;
+use App\Console\Commands\RunMessageQueue;
+
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -64,7 +66,8 @@ class Kernel extends ConsoleKernel
         EnrichWiseProducts::class,
         DoubleFProductDetailScraper::class,
         DoubleFScraper::class,
-        SendHourlyReports::class
+        SendHourlyReports::class,
+        RunMessageQueue::class
     ];
 
     /**
@@ -157,6 +160,7 @@ class Kernel extends ConsoleKernel
 //            ->everyMinute();
 
         $schedule->command('send:hourly-reports')->twiceDaily(12, '17:30')->timezone('Asia/Kolkata');
+        $schedule->command('run:message-queues')->everyMinute();
     }
 
     /**

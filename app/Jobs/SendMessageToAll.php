@@ -46,7 +46,7 @@ class SendMessageToAll implements ShouldQueue
         'number'      => NULL,
         'user_id'     => $this->user_id,
         'customer_id' => $this->customer->id,
-        'approved'    => 1,
+        'approved'    => 0,
         'status'      => 8,
       ];
 
@@ -63,11 +63,15 @@ class SendMessageToAll implements ShouldQueue
         foreach ($this->content['image'] as $image) {
           $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
-          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, $image['url'], false);
+          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, str_replace(' ', '%20', $image['url']), false);
         }
 
         // $chat_message->update(['media_url' => $this->content['image']['url']]);
         // $message = $this->content['image']['url'];
       }
+
+      $chat_message->update([
+        'approved'  => 1
+      ]);
     }
 }
