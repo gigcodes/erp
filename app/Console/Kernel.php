@@ -156,7 +156,7 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('sync:instagram-messages')
 //            ->everyMinute();
 
-        $schedule->command('send:hourly-reports')->twiceDaily(12, 17:30);
+        $schedule->command('send:hourly-reports')->twiceDaily(12, '17:30')->timezone('Asia/Kolkata');
     }
 
     /**
