@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Order;
 
-class AdvanceReceipt extends Mailable
+class AdvanceReceiptPDF extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -44,6 +44,6 @@ class AdvanceReceipt extends Mailable
     {
         return $this->from('contact@sololuxury.co.in')
                     ->cc('customercare@sololuxury.co.in')
-                    ->markdown('emails.orders.advance-receipt');
+                    ->markdown('emails.orders.advance-receipt-pdf');
     }
 }
