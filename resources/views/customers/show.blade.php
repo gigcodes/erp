@@ -1077,6 +1077,16 @@
                           </div>
                         @endif
 
+                        @if ($order->auto_emailed == 1)
+                          <div class="form-group">
+                            <form action="" method="POST">
+                              @csrf
+
+                              <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
+                            </form>
+                          </div>
+                        @endif
+
                       </div>
 
                       <div class="col-xs-12">

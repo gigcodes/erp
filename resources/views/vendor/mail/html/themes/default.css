@@ -6,7 +6,7 @@ body, body *:not(html):not(style):not(br):not(tr):not(code) {
 }
 
 body {
-    background-color: #f5f8fa;
+    /* background-color: #f5f8fa; */
     color: #74787E;
     height: 100%;
     hyphens: auto;
@@ -119,8 +119,8 @@ img {
 
 .body {
     background-color: #FFFFFF;
-    border-bottom: 1px solid #EDEFF2;
-    border-top: 1px solid #EDEFF2;
+    /* border-bottom: 1px solid #EDEFF2;
+    border-top: 1px solid #EDEFF2; */
     margin: 0;
     padding: 0;
     width: 100%;

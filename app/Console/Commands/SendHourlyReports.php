@@ -43,14 +43,42 @@ class SendHourlyReports extends Command
      */
     public function handle()
     {
+      $now = Carbon::now();
       $date = Carbon::now()->format('Y-m-d');
-      $daily_activities = DailyActivity::where('for_date', $date)->get()->groupBy('user_id');
+      $nine = Carbon::parse('09:00');
+      $one = Carbon::parse('13:00');
+      $four = Carbon::parse('16:00');
+
+      if ($now->between($nine, $one)) {
+        $time_slots = [
+          '09:00am - 10:00am',
+          '10:00am - 11:00am',
+          '11:00am - 12:00pm',
+        ];
+      } elseif ($now->between($one, $four)) {
+        $time_slots = [
+          '12:00pm - 01:00pm',
+          '01:00pm - 02:00pm',
+          '02:00pm - 03:00pm',
+        ];
+      } else {
+        $time_slots = [
+          '03:00pm - 04:00pm',
+          '04:00pm - 05:00pm',
+          '05:00pm - 06:00pm',
+        ];
+      }
+
+      $daily_activities = DailyActivity::where('for_date', $date)
+                                        ->whereIn('time_slot', $time_slots)
+                                        ->get()->groupBy('user_id');
 
       if (count($daily_activities) > 0) {
         $path = "hourly_reports/" . $date . "_hourly_reports.xlsx";
-        Excel::store(new HourlyReportsExport($daily_activities), $path, 'uploads');
+        Excel::store(new HourlyReportsExport(), $path, 'uploads');
 
-        Mail::to('hr@sololuxury.co.in')->send(new HourlyReport($path));
+        Mail::to('hr@sololuxury.co.in')
+            ->send(new HourlyReport($path));
       }
 
     }

@@ -17,11 +17,13 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class ReportPerUserSheet implements FromQuery, WithTitle, WithHeadings, ShouldAutoSize, WithEvents
 {
     protected $user_id;
+    protected $time_slots;
     protected $users_array;
 
-    public function __construct(int $user_id)
+    public function __construct(int $user_id, array $time_slots)
     {
       $this->user_id = $user_id;
+      $this->time_slots = $time_slots;
       $this->users_array = Helpers::getUserArray(User::all());
     }
 
@@ -30,6 +32,7 @@ class ReportPerUserSheet implements FromQuery, WithTitle, WithHeadings, ShouldAu
       return DailyActivity::query()
                           ->where('user_id', $this->user_id)
                           ->where('for_date', Carbon::now()->format('Y-m-d'))
+                          ->whereIn('time_slot', $this->time_slots)
                           ->select(['time_slot', 'activity']);
 
     }

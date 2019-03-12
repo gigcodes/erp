@@ -11,6 +11,7 @@
         "bugsnag/bugsnag-laravel": "^2.0",
         "chumper/zipper": "^1.0",
         "doctrine/dbal": "^2.9",
+        "dompdf/dompdf": "^0.8.3",
         "facebook/graph-sdk": "~5.0",
         "facebook/php-business-sdk": "^3.2",
         "fideloper/proxy": "^4.0",

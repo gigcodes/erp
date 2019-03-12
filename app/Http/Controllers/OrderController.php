@@ -32,6 +32,8 @@ use App\CallHistory;
 use App\Setting;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AdvanceReceipt;
+use App\Mail\AdvanceReceiptPDF;
+use Dompdf\Dompdf;
 
 use App\Services\BlueDart\BlueDart;
 use App\DeliveryApproval;
@@ -768,6 +770,18 @@ class OrderController extends Controller {
 		}
 
 		return back()->with( 'message', 'Order updated successfully' );
+	}
+
+	public function printAdvanceReceipt($id)
+	{
+		$order = Order::find($id);
+
+		$view = (new AdvanceReceiptPDF($order))->render();
+
+		$pdf = new Dompdf;
+		$pdf->loadHtml($view);
+		$pdf->render();
+		$pdf->stream();
 	}
 
 	public function uploadForApproval(Request $request, $id) {
