@@ -54,16 +54,20 @@ class SendMessageToAll implements ShouldQueue
         $params['message'] = $this->content['message'];
         $message = $this->content['message'];
 
-        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, $message, false);
+        $chat_message = ChatMessage::create($params);
+
+        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, $message, false, $chat_message->id);
       }
 
-      $chat_message = ChatMessage::create($params);
-
       if (isset($this->content['image'])) {
+        if (!$chat_message) {
+          $chat_message = ChatMessage::create($params);
+        }
+
         foreach ($this->content['image'] as $image) {
           $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
-          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, str_replace(' ', '%20', $image['url']), false);
+          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
         }
 
         // $chat_message->update(['media_url' => $this->content['image']['url']]);
