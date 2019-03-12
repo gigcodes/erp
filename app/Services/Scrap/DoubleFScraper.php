@@ -39,6 +39,7 @@ class DoubleFScraper extends Scraper
         }
 
         $body = $this->getContent($url);
+
         $c = new HtmlPageCrawler($body);
         $links = $c->filter('div.designers-list')->filter('ul li a')->getIterator();
 

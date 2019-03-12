@@ -89,6 +89,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('order/{id}/uploadForApproval', 'OrderController@uploadForApproval')->name('order.upload.approval');
 	Route::post('order/{id}/deliveryApprove', 'OrderController@deliveryApprove')->name('order.delivery.approve');
 	Route::get('order/{id}/printAdvanceReceipt', 'OrderController@printAdvanceReceipt')->name('order.advance.receipt.print');
+	Route::post('order/{id}/createProductOnMagento', 'OrderController@createProductOnMagento')->name('order.create.magento.product');
 	Route::get('order/{id}/download/PackageSlip', 'OrderController@downloadPackageSlip')->name('order.download.package-slip');
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
 	Route::get('order/products/list', 'OrderController@products')->name('order.products');
@@ -293,6 +294,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Ad reports routes
 	Route::get('social/ad/report','SocialController@report')->name('social.report');
 	Route::get('social/ad/schedules','SocialController@getSchedules')->name('social.ads.schedules');
+	Route::get('social/ad/schedules/calendar','SocialController@getAdSchedules')->name('social.ads.schedules.calendar');
 	Route::get('social/ad/insight/{adId}','SocialController@getAdInsights')->name('social.ad.insight');
 	Route::post('social/ad/report/paginate','SocialController@paginateReport')->name('social.report.paginate');
 	Route::get('social/ad/report/{ad_id}/{status}/','SocialController@changeAdStatus')->name('social.report.ad.status');

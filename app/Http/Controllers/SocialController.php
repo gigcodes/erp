@@ -54,7 +54,40 @@ class SocialController extends Controller
             ];
         });
 
+
         return view('social.ad_schedules', compact('ads'));
+
+    }
+
+    public function getAdSchedules() {
+
+        $account = new AdAccount($this->ad_acc_id, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
+        $ads = $account->getAds([
+            AdFields::NAME,
+            AdFields::UPDATED_TIME,
+            AdFields::ADSET_ID,
+            AdFields::STATUS,
+            AdFields::TARGETING,
+            AdFields::PRIORITY,
+            AdFields::CREATED_TIME,
+            AdFields::CAMPAIGN_ID,
+        ]);
+
+        $ads = collect($ads)->map(function($ad) {
+            return [
+                'id' => $ad->id,
+                'title' => $ad->name,
+                'updated_time' => $ad->updated_time,
+                'adset_id' => $ad->adset_id,
+                'status' => $ad->status,
+                'targeting' => $this->getPropertiesAfterFiltration($ad->targeting),
+                'priority' => $ad->priority,
+                'start' => $ad->created_time,
+                'campaign_id' => $ad->campaign_id,
+            ];
+        });
+
+        return response()->json($ads);
 
     }
 
@@ -62,15 +95,14 @@ class SocialController extends Controller
 	    $ad = new Ad($adId, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
 
 	    $insights = $ad->getInsights([
-	        AdsInsightsFields::CLICKS,
-	        AdsInsightsFields::ACCOUNT_ID,
-	        AdsInsightsFields::ACCOUNT_CURRENCY,
+	        AdsInsightsFields::ACCOUNT_NAME
         ]);
 
-	    dd($insights);
+	    dd($insights->getResponse());
     }
 
-    private function getPropertiesAfterFiltration($properties) {
+    private function getPropertiesAfterFiltration($properties): array
+    {
 	    $propertiesToReturn = [];
 	    $genders = [
 	        '1' => 'Male',
