@@ -111,6 +111,12 @@ class PurchaseController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+      if ($request->ajax()) {
+  			$html = view('purchase.purchase-item', ['purchases_array' => $purchases_array, 'orderby' => $orderby, 'users'  => $users])->render();
+
+  			return response()->json(['html' => $html]);
+  		}
+
   		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users' ) );
     }
 
