@@ -139,6 +139,13 @@
 			</div>
 		</div>
 
+		<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+			<div class="form-group">
+				<input type="checkbox" name="do_not_disturb" id="do_not_disturb" {{ $customer->do_not_disturb ? 'checked' : '' }}>
+				<label for="do_not_disturb">Do Not Disturb</label>
+			</div>
+		</div>
+
 		<div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
 			<button type="submit" class="btn btn-secondary" id="submitButton">+</button>
 		</div>

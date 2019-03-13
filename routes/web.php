@@ -166,6 +166,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('customer/stop/message/all', 'WhatsAppController@stopAll')->name('customer.whatsapp.stop.all');
 	Route::get('customer/email/fetch', 'CustomerController@emailFetch')->name('customer.email.fetch');
 
+	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
+	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
+	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
+
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
 	Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');

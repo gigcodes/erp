@@ -145,6 +145,9 @@
 
           <input type="hidden" name="images" id="images" value="">
           <input type="hidden" name="body" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}">
+          @if ($model_type == 'customers')
+            <input type="hidden" name="sending_time" value="{{ $sending_time }}" />
+          @endif
           <input type="hidden" name="moduleid" value="{{ $model_id }}">
           <input type="hidden" name="moduletype" value="{{ $model_type }}">
           <input type="hidden" name="assigned_user" value="{{ $assigned_user }}" />

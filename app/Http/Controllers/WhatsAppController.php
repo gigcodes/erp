@@ -818,10 +818,11 @@ class WhatsAppController extends FindByNumberController
   {
     if ($validate) {
       $this->validate($request, [
-        'message'    => 'required_without:images',
-        'images'     => 'required_without:message',
-        'images.*'   => 'required_without:message',
-        'file'       => 'sometimes|mimes:xlsx,xls'
+        'message'       => 'required_without:images',
+        'images'        => 'required_without:message',
+        'images.*'      => 'required_without:message',
+        'file'          => 'sometimes|mimes:xlsx,xls',
+        'sending_time'  => 'required|date'
       ]);
     }
 
@@ -847,13 +848,17 @@ class WhatsAppController extends FindByNumberController
     }
 
     if ($request->to_all || $request->moduletype == 'customers') {
-      $now = Carbon::now();
+      $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
       $minutes = 5;
-      $data = Customer::whereNotNull('phone')->chunk(30, function ($customers) use ($content, $now, &$minutes) {
+      $max_group_id = MessageQueue::max('group_id') + 1;
+
+      $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0)->chunk(30, function ($customers) use ($content, $now, &$minutes, $max_group_id) {
         foreach ($customers as $customer) {
           // SendMessageToAll::dispatch(Auth::id(), $customer, $content)
           //                 ->delay($now->addMinutes($minutes))
           //                 ->onQueue('sending');
+
+
 
           MessageQueue::create([
             'user_id'       => Auth::id(),
@@ -861,16 +866,18 @@ class WhatsAppController extends FindByNumberController
             'phone'         => NULL,
             'type'          => 'message_all',
             'data'          => json_encode($content),
-            'sending_time'  => $now
+            'sending_time'  => $now,
+            'group_id'      => $max_group_id
           ]);
         }
 
         $now->addMinutes($minutes);
       });
     } else {
-      $now = Carbon::now();
+      $now = $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
       $minutes = 0;
       $count = 0;
+      $max_group_id = MessageQueue::max('group_id') + 1;
       $array = Excel::toArray(new CustomerNumberImport, $request->file('file'));
 
       foreach ($array as $item) {
@@ -888,7 +895,8 @@ class WhatsAppController extends FindByNumberController
             'phone'         => $number,
             'type'          => 'message_selected',
             'data'          => json_encode($content),
-            'sending_time'  => $now
+            'sending_time'  => $now,
+            'group_id'      => $max_group_id
           ]);
 
           // SendMessageToSelected::dispatch($number, $content)
@@ -904,8 +912,12 @@ class WhatsAppController extends FindByNumberController
   }
 
   public function stopAll() {
-    // DB::table('jobs')->where('queue', 'sending')->delete();
-    MessageQueue::whereNotNull('sending_time')->delete();
+    $message_queues = MessageQueue::where('sent', 0)->where('status', 0)->get();
+
+    foreach ($message_queues as $message_queue) {
+      $message_queue->status = 1;
+      $message_queue->save();
+    }
 
     return redirect()->route('customer.index')->with('success', 'Messages stopped processing!');
   }

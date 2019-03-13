@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\MessageQueue;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class SendMessageToSelected implements ShouldQueue
 
     protected $number;
     protected $content;
+    protected $message_queue_id;
 
     public $tries = 5;
 
@@ -25,10 +27,11 @@ class SendMessageToSelected implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(int $number, array $content)
+    public function __construct(int $number, array $content, int $message_queue_id)
     {
       $this->number = $number;
       $this->content = $content;
+      $this->message_queue_id = $message_queue_id;
     }
 
     /**
@@ -49,5 +52,9 @@ class SendMessageToSelected implements ShouldQueue
           app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, NULL, str_replace(' ', '%20', $image['url']), false);
         }
       }
+
+      $message_queue = MessageQueue::find($this->message_queue_id);
+      $message_queue->sent = 1;
+      $message_queue->save();
     }
 }
