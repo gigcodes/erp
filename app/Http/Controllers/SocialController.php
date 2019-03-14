@@ -31,33 +31,32 @@ class SocialController extends Controller
 	}
 
 	public function getSchedules() {
-        $account = new AdAccount($this->ad_acc_id, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
-        $ads = $account->getAds([
-            AdFields::NAME,
-            AdFields::UPDATED_TIME,
-            AdFields::ADSET_ID,
-            AdFields::STATUS,
-            AdFields::TARGETING,
-            AdFields::PRIORITY,
-            AdFields::CREATED_TIME,
-            AdFields::CAMPAIGN_ID,
-        ]);
-
         $schedules = AdsSchedules::all();
 
-        $ads = collect($ads)->map(function($ad) {
-            return [
-                'id' => $ad->id,
-                'name' => $ad->name,
-                'updated_time' => $ad->updated_time,
-                'adset_id' => $ad->adset_id,
-                'status' => $ad->status,
-                'targeting' => $this->getPropertiesAfterFiltration($ad->targeting),
-                'priority' => $ad->priority,
-                'created_time' => $ad->created_time,
-                'campaign_id' => $ad->campaign_id,
-            ];
+        $query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}}&limit=5000&access_token=".$this->user_access_token."";
+        // Call to Graph api here
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$query);
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_POST, 0);
+
+
+        $resp = curl_exec($ch);
+
+        $resp = collect(json_decode($resp)->data);
+
+        $ads = $resp->map(function($item) {
+            if (isset($item->ads)) {
+                return $this->getAdsFromArray($item->ads);
+            }
+
+            return [];
         });
+
 
 
         return view('social.ad_schedules', compact('ads', 'schedules'));
@@ -162,6 +161,33 @@ class SocialController extends Controller
 
     }
 
+    public function getAdInsights() {
+        $query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}}&limit=5&access_token=".$this->user_access_token."";
+        // Call to Graph api here
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$query);
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_POST, 0);
+
+
+        $resp = curl_exec($ch);
+
+        $resp = collect(json_decode($resp)->data);
+
+        $ads = $resp->map(function($item) {
+            if (isset($item->ads)) {
+                return $this->getAdsFromArray($item->ads);
+            }
+        });
+
+        return response()->json($ads);
+
+    }
+
     public function getAdSchedules() {
 
         $account = new AdAccount($this->ad_acc_id, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
@@ -204,15 +230,6 @@ class SocialController extends Controller
 
     }
 
-    public function getAdInsights($adId) {
-	    $ad = new Ad($adId, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), 'EAAD7Te0j0B8BAOsQZBPKnHZAENxBS9JQ6jYO4xgRoieWjWLJMhZBsJov4QqTnQZCFEWfVYfaAnKdlakA1dCbh9LgQnPooQdCTfMboBcOh6QGPebXg3bhysMu3bPkBMWQXSAdwBREsz4xFaqswrSwnPMtSPw0o3gnbAgJX02kwmD4G19R3YAszFCKVJp6D74ZD'));
-
-	    $insights = $ad->getInsights([
-	        AdsInsightsFields::ACCOUNT_NAME
-        ]);
-
-	    dd($insights->getResponse());
-    }
 
     private function getPropertiesAfterFiltration($properties): array
     {
@@ -476,13 +493,58 @@ class SocialController extends Controller
 
 	}
 
+    private function getAdsFromArray($ads) {
+	    $ads = collect($ads->data);
+
+	    $ads = $ads->map(function($ad) {
+	        return [
+	            'id' => $ad->id,
+	            'name' => $ad->name,
+	            'status' => $ad->status,
+	            'created_time' => $ad->created_time,
+                'adset_name' => $ad->adset->name,
+                'adset_id' => $ad->adset->id,
+                'ad_creatives' => $this->getAdCreative($ad->adcreatives->data),
+                'ad_insights' => $this->getInsights($ad),
+                'targeting' => $this->getPropertiesAfterFiltration($ad->targeting)
+            ];
+        });
+
+	    return $ads;
+    }
+
+    private function getAdCreative($adc) {
+	    return collect($adc)->map(function($item) {
+	        return $item->thumbnail_url;
+        });
+    }
+
+    private function getInsights($ad) {
+	    if (!isset($ad->insights)) {
+	        return [];
+        }
+
+	    $insights = $ad->insights->data[0];
+
+	    return [
+	        'campaign_name' => $insights->campaign_name,
+	        'account_id' => $insights->account_id,
+	        'reach' => $insights->reach,
+	        'impressions' => $insights->impressions,
+	        'spend' => $insights->spend,
+	        'date_start' => $insights->date_start,
+	        'date_stop' => $insights->date_stop,
+	        'clicks' => $insights->clicks,
+        ];
+    }
+
 	// Function for Getting Reports via curl
 	public function report()
 	{
 
 
 
-		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=30&access_token=".$this->user_access_token."";
+		$query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{id,name,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend}}&limit=3000&access_token=".$this->user_access_token."";
 
 
 			// Call to Graph api here
