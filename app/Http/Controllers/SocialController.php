@@ -128,57 +128,53 @@ class SocialController extends Controller
 
     }
 
-    public function storeMedia($id, Request $request) {
-
-    }
-
 
 
 
     public function getAdSchedules() {
 
-//        $account = new AdAccount($this->ad_acc_id, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
-//        $ads = $account->getAds([
-//            AdFields::NAME,
-//            AdFields::UPDATED_TIME,
-//            AdFields::ADSET_ID,
-//            AdFields::STATUS,
-//            AdFields::TARGETING,
-//            AdFields::PRIORITY,
-//            AdFields::CREATED_TIME,
-//            AdFields::CAMPAIGN_ID,
-//        ]);
-//
-//        $ads = collect($ads)->map(function($ad) {
-//            return [
-//                'id' => $ad->id,
-//                'title' => $ad->name,
-//                'updated_time' => $ad->updated_time,
-//                'adset_id' => $ad->adset_id,
-//                'status' => $ad->status,
-//                'targeting' => $this->getPropertiesAfterFiltration($ad->targeting),
-//                'priority' => $ad->priority,
-//                'start' => $ad->created_time,
-//                'campaign_id' => $ad->campaign_id,
-//            ];
-//        });
+        $account = new AdAccount($this->ad_acc_id, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
+        $ads = $account->getAds([
+            AdFields::NAME,
+            AdFields::UPDATED_TIME,
+            AdFields::ADSET_ID,
+            AdFields::STATUS,
+            AdFields::TARGETING,
+            AdFields::PRIORITY,
+            AdFields::CREATED_TIME,
+            AdFields::CAMPAIGN_ID,
+        ]);
 
-        $ads = AdsSchedules::all();
-
-        $ads = $ads->map(function($item) {
+        $ads = collect($ads)->map(function($ad) {
             return [
-                'id' => $item->id,
-                'title' => $item->name,
-                'satart' => substr($item->scheduled_for,0,10)
+                'id' => $ad->id,
+                'title' => $ad->name,
+                'updated_time' => $ad->updated_time,
+                'adset_id' => $ad->adset_id,
+                'status' => $ad->status,
+                'targeting' => $this->getPropertiesAfterFiltration($ad->targeting),
+                'priority' => $ad->priority,
+                'start' => $ad->created_time,
+                'campaign_id' => $ad->campaign_id,
             ];
         });
+
+//        $ads = AdsSchedules::all();
+//
+//        $ads = $ads->map(function($item) {
+//            return [
+//                'id' => $item->id,
+//                'title' => $item->name,
+//                'satart' => substr($item->scheduled_for,0,10)
+//            ];
+//        });
 
         return response()->json($ads);
 
     }
 
     public function getAdInsights($adId) {
-	    $ad = new Ad($adId, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
+	    $ad = new Ad($adId, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), 'EAAD7Te0j0B8BAMLJTGrVN0fUzYNiIQtjBSuCcrVyDGaQbmMkrNCDDrhPHVSXbBsJwSzUCWfwz8PrmKsMCNiZBAgZBZBcNBEaXdyRIgvnVAeeTFCmECIadWdZAuOOqtuH35SQWykRBiX8Y6JCh5563Mjo4ZAImpatviZA5ZCSWVGsrAk8JOPgcoq'));
 
 	    $insights = $ad->getInsights([
 	        AdsInsightsFields::ACCOUNT_NAME
