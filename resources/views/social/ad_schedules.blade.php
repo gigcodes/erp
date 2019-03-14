@@ -38,30 +38,54 @@
 						<tr>
 							<th>S.N</th>
 							<th>Ad Set #</th>
+							<th>Ad Set Name</th>
+							<th>Images</th>
 							<th>Name</th>
 							<th>Type Of Ad</th>
 							<th>Target Audience</th>
+							<th>Start Date</th>
+							<th>End Date</th>
+							<th>Spend</th>
+							<th>Number Of Clicks</th>
+							<th>Reach</th>
+							<th>Audience/Impressions</th>
 							<th>Status</th>
 							<th>Created At</th>
-							<th>Updated At</th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach($ads as $key=>$ad)
-							<tr data-adId="{{$ad['id']}}">
-								<td>{{ $key+1 }}</td>
-								<td>{{ $ad['adset_id'] }}</td>
-								<td>{{ $ad['name'] }}</td>
-								<td>N/A</td>
-								<td>
-									@foreach($ad['targeting'] as $key=>$value)
-										<span style="display:block"><strong>{{ucfirst($key)}}:</strong> {{title_case($value ?? 'N/A')}}</span>
-									@endforeach
-								</td>
-								<td>{{ $ad['status'] }}</td>
-								<td>{{ \Carbon\Carbon::createFromTimeString($ad['created_time'])->diffForHumans() }}</td>
-								<td>{{ \Carbon\Carbon::createFromTimeString($ad['updated_time'])->diffForHumans() }}</td>
-							</tr>
+					<?php $sn = 1; ?>
+						@foreach($ads as $key=>$ad_)
+							@foreach($ad_ as $ad)
+								<tr data-adId="{{$ad['id']}}">
+									<td>{{ $sn }}</td>
+									<td>{{ $ad['adset_id'] }}</td>
+									<td>{{ $ad['adset_name'] }}</td>
+									<td>
+										@foreach($ad['ad_creatives'] as $ad_cr)
+											<img src="{{ $ad_cr }}" />
+										@endforeach
+									</td>
+									<td>{{ $ad['name'] }}</td>
+									<td>N/A</td>
+									<td>
+										@foreach($ad['targeting'] as $key=>$value)
+											@if(!is_object($value))
+												<span style="display:block"><strong>{{ucfirst($key)}}:</strong> {{($value ?? 'N/A')}}</span>
+											@endif
+										@endforeach
+									</td>
+									<th>{{ $ad['ad_insights']['date_start'] ?? 'N/A' }}</th>
+									<th>{{ $ad['ad_insights']['date_start'] ?? 'N/A' }}</th>
+									<th>{{ $ad['ad_insights']['spend'] ?? 'N/A' }}</th>
+									<th>{{ $ad['ad_insights']['clicks'] ?? 'N/A' }}</th>
+									<th>{{ $ad['ad_insights']['reach'] ?? 'N/A' }}</th>
+									<th>{{ $ad['ad_insights']['impressions'] ?? 'N/A' }}</th>
+									<td>{{ $ad['status'] }}</td>
+									<td>{{ \Carbon\Carbon::createFromTimeString($ad['created_time'])->diffForHumans() }}</td>
+								</tr>
+								<?php $sn++; ?>
+							@endforeach
 						@endforeach
 					</tbody>
 				</table>
