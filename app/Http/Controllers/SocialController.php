@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\AdsSchedules;
+use App\Image;
 use FacebookAds\Api;
 use FacebookAds\Object\Ad;
 use FacebookAds\Object\AdAccount;
@@ -40,6 +42,8 @@ class SocialController extends Controller
             AdFields::CAMPAIGN_ID,
         ]);
 
+        $schedules = AdsSchedules::all();
+
         $ads = collect($ads)->map(function($ad) {
             return [
                 'id' => $ad->id,
@@ -55,35 +59,117 @@ class SocialController extends Controller
         });
 
 
-        return view('social.ad_schedules', compact('ads'));
+        return view('social.ad_schedules', compact('ads', 'schedules'));
 
     }
 
-    public function getAdSchedules() {
-
-        $account = new AdAccount($this->ad_acc_id, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
-        $ads = $account->getAds([
-            AdFields::NAME,
-            AdFields::UPDATED_TIME,
-            AdFields::ADSET_ID,
-            AdFields::STATUS,
-            AdFields::TARGETING,
-            AdFields::PRIORITY,
-            AdFields::CREATED_TIME,
-            AdFields::CAMPAIGN_ID,
+    public function createAdSchedule(Request $request) {
+	    $this->validate($request, [
+	        'name' => 'required',
+            'date' => 'required|date'
         ]);
 
-        $ads = collect($ads)->map(function($ad) {
+	    $ad = new AdsSchedules();
+	    $ad->name = $request->get('name');
+	    $ad->scheduled_for = $request->get('date');
+	    $ad->save();
+
+	    return redirect()->action('SocialController@showSchedule', $ad->id)->with('message', 'The ad has been scheduled successfully!');
+    }
+
+    public function showSchedule($id) {
+	    $ad = AdsSchedules::findOrFail($id);
+
+	    $images = \DB::table('ads_schedules_attachments')->where('ads_schedule_id', $ad->id)->get();
+
+	    $images = $images->map(function ($item) {
+	        return [
+	            'id' => $item->attachment_id,
+                'image' => $this->getImagesByType($item->attachment_id, $item->attachment_type)
+            ];
+        });
+
+	    return view('social.schedule', compact('ad', 'images'));
+
+    }
+
+    private function getImagesByType($aid, $type) {
+	    if ($type == 'image') {
+	        $img = Image::find($aid);
+
+	        return '/uploads/social-media/' . $img->filename;
+        }
+
+	    return '';
+    }
+
+    public function attachMedia($id, Request $request) {
+
+	    if ($request->has('images')) {
+	        $images = $request->get('images') ?? [];
+
+            \DB::table('ads_schedules_attachments')->where('ads_schedule_id', $id)->where('attachment_type', 'image')->delete();
+
+	        foreach ($images as $image) {
+	            \DB::table('ads_schedules_attachments')->insert([
+	                'ads_schedule_id' => $id,
+                    'attachment_id' => $image,
+                    'attachment_type' => 'image'
+                ]);
+            }
+        }
+
+
+        $selectedImages = \DB::table('ads_schedules_attachments')->where('ads_schedule_id', $id)->where('attachment_type', 'image')->get(['attachment_id'])->pluck('attachment_id');
+        $images = Image::where('status', 2)->whereNotIn('id', $selectedImages)->get();
+        $selectedImages = Image::whereIn('id', $selectedImages)->get();
+
+        return view('social.attach_image', compact('images', 'selectedImages', 'id'));
+
+    }
+
+    public function storeMedia($id, Request $request) {
+
+    }
+
+
+
+
+    public function getAdSchedules() {
+
+//        $account = new AdAccount($this->ad_acc_id, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), $this->page_access_token));
+//        $ads = $account->getAds([
+//            AdFields::NAME,
+//            AdFields::UPDATED_TIME,
+//            AdFields::ADSET_ID,
+//            AdFields::STATUS,
+//            AdFields::TARGETING,
+//            AdFields::PRIORITY,
+//            AdFields::CREATED_TIME,
+//            AdFields::CAMPAIGN_ID,
+//        ]);
+//
+//        $ads = collect($ads)->map(function($ad) {
+//            return [
+//                'id' => $ad->id,
+//                'title' => $ad->name,
+//                'updated_time' => $ad->updated_time,
+//                'adset_id' => $ad->adset_id,
+//                'status' => $ad->status,
+//                'targeting' => $this->getPropertiesAfterFiltration($ad->targeting),
+//                'priority' => $ad->priority,
+//                'start' => $ad->created_time,
+//                'campaign_id' => $ad->campaign_id,
+//            ];
+//        });
+
+        $ads = AdsSchedules::all();
+
+        $ads = $ads->map(function($item) {
             return [
-                'id' => $ad->id,
-                'title' => $ad->name,
-                'updated_time' => $ad->updated_time,
-                'adset_id' => $ad->adset_id,
-                'status' => $ad->status,
-                'targeting' => $this->getPropertiesAfterFiltration($ad->targeting),
-                'priority' => $ad->priority,
-                'start' => $ad->created_time,
-                'campaign_id' => $ad->campaign_id,
+                'id' => $item->id,
+                'title' => $item->name,
+                'satart' => substr($item->scheduled_for,0,10)
             ];
         });
 

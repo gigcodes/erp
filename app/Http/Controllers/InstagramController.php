@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AdsSchedules;
 use App\Brand;
 use App\Category;
 use App\Customer;
@@ -388,6 +389,7 @@ class InstagramController extends Controller
     }
 
     public function attachMedia(Request $request, $scheduleId) {
+
         $schedule = ScheduleGroup::find($scheduleId);
 
         if ($request->has('save')) {

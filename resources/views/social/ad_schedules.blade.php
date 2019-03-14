@@ -27,6 +27,8 @@
 			</li>
 			<li><a href="#2" data-toggle="tab">Calandar</a>
 			</li>
+			<li><a href="#3" data-toggle="tab">Schedules</a>
+			</li>
 		</ul>
 
 		<div class="tab-content ">
@@ -66,6 +68,56 @@
 			</div>
 			<div class="tab-pane" id="2">
 				<div id="calendar"></div>
+			</div>
+			<div class="tab-pane" id="3">
+				<h1>Add/Edit Ads Schedules</h1>
+				<p>
+					<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+						Create New Ad
+					</a>
+				</p>
+				<div class="collapse" id="collapseExample">
+					<div class="card card-body">
+						<form method="post" action="{{action('SocialController@createAdSchedule')}}">
+							@csrf
+							<div class="form-group">
+								<label for="name">Name</label>
+								<input type="text" class="form-control" name="name" id="name" placeholder="Ad Name">
+							</div>
+							<div class="form-group">
+								<label for="date">Scheduled For</label>
+								<input type="date" class="form-control" name="date" id="date">
+							</div>
+							<div class="form-group">
+								<button class="btn btn-info">Create Ad</button>
+							</div>
+						</form>
+					</div>
+				</div>
+				@if (count($schedules))
+					<table class="table table-striped">
+						<tr>
+							<th>SN</th>
+							<th>Name</th>
+							<th>Scheduled For</th>
+							<th>Edit</th>
+						</tr>
+						@foreach($schedules as $key=>$schedule)
+							<tr>
+								<td>{{ $key+1 }}</td>
+								<td>{{ $schedule->name }}</td>
+								<td>{{ $schedule->scheduled_for }}</td>
+								<td>
+									<a href="{{ action('SocialController@showSchedule', $schedule->id) }}">Edit</a>
+								</td>
+							</tr>
+						@endforeach
+					</table>
+				@else
+					<h2 class="text-center">
+						There are no schedules at the moment!
+					</h2>
+				@endif
 			</div>
 		</div>
 	</div>
