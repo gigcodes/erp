@@ -27,41 +27,97 @@
 			</li>
 			<li><a href="#2" data-toggle="tab">Calandar</a>
 			</li>
+			<li><a href="#3" data-toggle="tab">Schedules</a>
+			</li>
 		</ul>
 
 		<div class="tab-content ">
 			<div class="tab-pane active" id="1">
-				<table class="table mt-1">
-					<tr>
-						<th>S.N</th>
-						<th>Ad Set #</th>
-						<th>Name</th>
-						<th>Type Of Ad</th>
-						<th>Target Audience</th>
-						<th>Status</th>
-						<th>Created At</th>
-						<th>Updated At</th>
-					</tr>
-					@foreach($ads as $key=>$ad)
-						<tr data-adId="{{$ad['id']}}">
-							<td>{{ $key+1 }}</td>
-							<td>{{ $ad['adset_id'] }}</td>
-							<td>{{ $ad['name'] }}</td>
-							<td>N/A</td>
-							<td>
-								@foreach($ad['targeting'] as $key=>$value)
-									<span style="display:block"><strong>{{ucfirst($key)}}:</strong> {{title_case($value ?? 'N/A')}}</span>
-								@endforeach
-							</td>
-							<td>{{ $ad['status'] }}</td>
-							<td>{{ \Carbon\Carbon::createFromTimeString($ad['created_time'])->diffForHumans() }}</td>
-							<td>{{ \Carbon\Carbon::createFromTimeString($ad['updated_time'])->diffForHumans() }}</td>
+				<table class="table mt-1 table-striped" id="myTable">
+					<thead>
+						<tr>
+							<th>S.N</th>
+							<th>Ad Set #</th>
+							<th>Name</th>
+							<th>Type Of Ad</th>
+							<th>Target Audience</th>
+							<th>Status</th>
+							<th>Created At</th>
+							<th>Updated At</th>
 						</tr>
-					@endforeach
+					</thead>
+					<tbody>
+						@foreach($ads as $key=>$ad)
+							<tr data-adId="{{$ad['id']}}">
+								<td>{{ $key+1 }}</td>
+								<td>{{ $ad['adset_id'] }}</td>
+								<td>{{ $ad['name'] }}</td>
+								<td>N/A</td>
+								<td>
+									@foreach($ad['targeting'] as $key=>$value)
+										<span style="display:block"><strong>{{ucfirst($key)}}:</strong> {{title_case($value ?? 'N/A')}}</span>
+									@endforeach
+								</td>
+								<td>{{ $ad['status'] }}</td>
+								<td>{{ \Carbon\Carbon::createFromTimeString($ad['created_time'])->diffForHumans() }}</td>
+								<td>{{ \Carbon\Carbon::createFromTimeString($ad['updated_time'])->diffForHumans() }}</td>
+							</tr>
+						@endforeach
+					</tbody>
 				</table>
 			</div>
 			<div class="tab-pane" id="2">
 				<div id="calendar"></div>
+			</div>
+			<div class="tab-pane" id="3">
+				<h1>Add/Edit Ads Schedules</h1>
+				<p>
+					<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+						Create New Ad
+					</a>
+				</p>
+				<div class="collapse" id="collapseExample">
+					<div class="card card-body">
+						<form method="post" action="{{action('SocialController@createAdSchedule')}}">
+							@csrf
+							<div class="form-group">
+								<label for="name">Name</label>
+								<input type="text" class="form-control" name="name" id="name" placeholder="Ad Name">
+							</div>
+							<div class="form-group">
+								<label for="date">Scheduled For</label>
+								<input type="date" class="form-control" name="date" id="date">
+							</div>
+							<div class="form-group">
+								<button class="btn btn-info">Create Ad</button>
+							</div>
+						</form>
+					</div>
+				</div>
+				@if (count($schedules))
+					<table class="table table-striped">
+						<tr>
+							<th>SN</th>
+							<th>Name</th>
+							<th>Scheduled For</th>
+							<th>Edit</th>
+						</tr>
+						@foreach($schedules as $key=>$schedule)
+							<tr>
+								<td>{{ $key+1 }}</td>
+								<td>{{ $schedule->name }}</td>
+								<td>{{ $schedule->scheduled_for }}</td>
+								<td>
+									<a href="{{ action('SocialController@showSchedule', $schedule->id) }}">Edit</a>
+								</td>
+							</tr>
+						@endforeach
+					</table>
+				@else
+					<h2 class="text-center">
+						There are no schedules at the moment!
+					</h2>
+				@endif
 			</div>
 		</div>
 	</div>
@@ -71,6 +127,8 @@
 
 @section('scripts')
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 	<script>
 		$(document).ready(function() {
 			$('#calendar').fullCalendar({
@@ -79,6 +137,10 @@
 				},
 				events: '{{ action('SocialController@getAdSchedules') }}'
 			});
+
+			$(document).ready( function () {
+				$('#myTable').DataTable();
+			} );
 		});
 	</script>
 @endsection
