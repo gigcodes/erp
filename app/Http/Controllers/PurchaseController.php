@@ -340,27 +340,11 @@ class PurchaseController extends Controller
     public function export(Request $request)
     {
       $selected_purchases = json_decode($request->selected_purchases);
-
-      // $purchases = Purchase::whereIn('id', $selected_purchases)->get();
-      // $products_array = [];
-      // foreach ($purchases as $purchase) {
-      //   foreach ($purchase->products as $key => $product) {
-      //     $products_array[$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
-      //     $products_array[$key]['size'] = $product->size;
-      //     $products_array[$key]['sku'] = $product->sku;
-      //     $products_array[$key]['price'] = $product->price;
-      //     $products_array[$key]['discount'] = '20%';
-      //     $products_array[$key]['qty'] = '1';
-      //     $products_array[$key]['final_cost'] = '100';
-      //     $products_array[$key]['client_name'] = 'Client Name';
-      //   }
-      // }
-      // dd($products_array);
       $path = "purchase_exports/" . Carbon::now()->format('Y-m-d') . "_purchases_export.xlsx";
+
       Excel::store(new PurchasesExport($selected_purchases), $path, 'uploads');
 
-      Mail::to('vysniukass@gmail.com')->send(new PurchaseExport($path));
-      // dd('stap');
+      Mail::to('yogeshmordani@icloud.com')->send(new PurchaseExport($path));
 
       return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
     }
