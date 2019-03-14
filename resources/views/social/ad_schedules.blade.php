@@ -41,6 +41,13 @@
 							<th>Name</th>
 							<th>Type Of Ad</th>
 							<th>Target Audience</th>
+							<th>Start Date</th>
+							<th>End Date</th>
+							<th>Spend</th>
+							<th>Number Of Clicks</th>
+							<th>Reach</th>
+							<th>Ads Set</th>
+							<th>Audience</th>
 							<th>Status</th>
 							<th>Created At</th>
 							<th>Updated At</th>
@@ -58,6 +65,13 @@
 										<span style="display:block"><strong>{{ucfirst($key)}}:</strong> {{title_case($value ?? 'N/A')}}</span>
 									@endforeach
 								</td>
+								<th>N/A</th>
+								<th>N/A</th>
+								<th>N/A</th>
+								<th>N/A</th>
+								<th>N/A</th>
+								<th>N/A</th>
+								<th>N/A</th>
 								<td>{{ $ad['status'] }}</td>
 								<td>{{ \Carbon\Carbon::createFromTimeString($ad['created_time'])->diffForHumans() }}</td>
 								<td>{{ \Carbon\Carbon::createFromTimeString($ad['updated_time'])->diffForHumans() }}</td>
