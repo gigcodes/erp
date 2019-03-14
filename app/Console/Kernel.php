@@ -162,7 +162,7 @@ class Kernel extends ConsoleKernel
           $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
-        $schedule->command('run:message-queues')->everyMinute();
+        $schedule->command('run:message-queues')->everyMinute()->withoutOverlapping();
     }
 
     /**
