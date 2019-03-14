@@ -1,19 +1,23 @@
 <div class="table-responsive">
     <table class="table table-bordered">
     <tr>
-        <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">ID</a></th>
-        <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Date</a></th>
-        <th>Customer Names</th>
-        <th>Products</th>
-        <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Purchase Handler</a></th>
-        <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Supplier Name</a></th>
-        <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Order Status</a></th>
-        <th>Message Status</th>
-        <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Communication</a></th>
-        <th width="280px">Action</th>
+      <th></th>
+      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">ID</a></th>
+      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Date</a></th>
+      <th>Customer Names</th>
+      <th>Products</th>
+      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Purchase Handler</a></th>
+      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Supplier Name</a></th>
+      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Order Status</a></th>
+      <th>Message Status</th>
+      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'desc') ? '&orderby=asc' : '' }}" class="ajax-sort-link">Communication</a></th>
+      <th width="280px">Action</th>
     </tr>
     @foreach ($purchases_array as $key => $purchase)
         <tr>
+          <td>
+            <input type="checkbox" name="select" class="export-checkbox" data-id="{{ $purchase['id'] }}">
+          </td>
             <td>{{ $purchase['id'] }}</td>
             <td>{{ Carbon\Carbon::parse($purchase['created_at'])->format('d-m-Y') }}</td>
             <td>
