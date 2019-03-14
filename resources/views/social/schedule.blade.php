@@ -35,6 +35,10 @@
             <div class="col-md-12">
                 <form action="{{ action('SocialController@attachMedia', $ad->id) }}" method="post">
                     @csrf
+                    <button class="btn btn-primary">Add Approved Images</button>
+                </form>
+                <form action="{{ action('SocialController@attachProducts', $ad->id) }}" method="post">
+                    @csrf
                     <button class="btn btn-primary">Add Product Images</button>
                 </form>
             </div>

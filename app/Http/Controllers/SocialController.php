@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AdsSchedules;
 use App\Image;
+use App\Product;
 use FacebookAds\Api;
 use FacebookAds\Object\Ad;
 use FacebookAds\Object\AdAccount;
@@ -100,7 +101,9 @@ class SocialController extends Controller
 	        return '/uploads/social-media/' . $img->filename;
         }
 
-	    return '';
+	    $pro = Product::find($aid);
+
+	    return $pro->imageurl;
     }
 
     public function attachMedia($id, Request $request) {
@@ -128,8 +131,36 @@ class SocialController extends Controller
 
     }
 
+    public function attachProducts(Request $request, $scheduleId) {
+
+        $schedule = AdsSchedules::find($scheduleId);
+
+        if ($request->has('save')) {
+            $selectedImages = $request->get('images') ?? [];
+            $selectedImages  = Product::whereIn('id', $selectedImages)->get();
+
+            foreach ($selectedImages as $selectedImage) {
+                \DB::table('ads_schedules_attachments')->insert([
+                    'ads_schedule_id' => $scheduleId,
+                    'attachment_id' => $selectedImage->id,
+                    'attachment_type' => 'product'
+                ]);
+            }
+
+            return redirect()->action('SocialController@showSchedule', $scheduleId);
+        }
 
 
+
+        $selectedImages = $request->get('images') ?? [];
+
+        $selectedImages  = Product::whereIn('id', $selectedImages)->get();
+
+        $products = Product::whereNotNull('sku')->whereNotIn('id', $selectedImages)->latest()->paginate(40);
+
+        return view('social.attach_products', compact('schedule', 'products', 'selectedImages', 'request'));
+
+    }
 
     public function getAdSchedules() {
 
@@ -174,7 +205,7 @@ class SocialController extends Controller
     }
 
     public function getAdInsights($adId) {
-	    $ad = new Ad($adId, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), 'EAAD7Te0j0B8BAMLJTGrVN0fUzYNiIQtjBSuCcrVyDGaQbmMkrNCDDrhPHVSXbBsJwSzUCWfwz8PrmKsMCNiZBAgZBZBcNBEaXdyRIgvnVAeeTFCmECIadWdZAuOOqtuH35SQWykRBiX8Y6JCh5563Mjo4ZAImpatviZA5ZCSWVGsrAk8JOPgcoq'));
+	    $ad = new Ad($adId, null, Api::init($this->fb->getApp()->getId(), $this->fb->getApp()->getSecret(), 'EAAD7Te0j0B8BAOsQZBPKnHZAENxBS9JQ6jYO4xgRoieWjWLJMhZBsJov4QqTnQZCFEWfVYfaAnKdlakA1dCbh9LgQnPooQdCTfMboBcOh6QGPebXg3bhysMu3bPkBMWQXSAdwBREsz4xFaqswrSwnPMtSPw0o3gnbAgJX02kwmD4G19R3YAszFCKVJp6D74ZD'));
 
 	    $insights = $ad->getInsights([
 	        AdsInsightsFields::ACCOUNT_NAME
