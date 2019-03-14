@@ -63,7 +63,7 @@ class SendMessageToAll implements ShouldQueue
       }
 
       if (isset($this->content['image'])) {
-        if (!$chat_message) {
+        if (!isset($chat_message)) {
           $chat_message = ChatMessage::create($params);
         }
 
