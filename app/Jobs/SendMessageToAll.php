@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Customer;
 use App\ChatMessage;
+use App\MessageQueue;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ class SendMessageToAll implements ShouldQueue
     protected $user_id;
     protected $customer;
     protected $content;
+    protected $message_queue_id;
 
     public $tries = 5;
 
@@ -28,11 +30,12 @@ class SendMessageToAll implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(int $user_id, Customer $customer, array $content)
+    public function __construct(int $user_id, Customer $customer, array $content, int $message_queue_id)
     {
       $this->user_id = $user_id;
       $this->customer = $customer;
       $this->content = $content;
+      $this->message_queue_id = $message_queue_id;
     }
 
     /**
@@ -54,24 +57,30 @@ class SendMessageToAll implements ShouldQueue
         $params['message'] = $this->content['message'];
         $message = $this->content['message'];
 
-        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, $message, false);
+        $chat_message = ChatMessage::create($params);
+
+        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, $message, false, $chat_message->id);
       }
 
-      $chat_message = ChatMessage::create($params);
-
       if (isset($this->content['image'])) {
+        if (!$chat_message) {
+          $chat_message = ChatMessage::create($params);
+        }
+
         foreach ($this->content['image'] as $image) {
           $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
-          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, str_replace(' ', '%20', $image['url']), false);
+          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
         }
-
-        // $chat_message->update(['media_url' => $this->content['image']['url']]);
-        // $message = $this->content['image']['url'];
       }
 
       $chat_message->update([
         'approved'  => 1
       ]);
+
+      $message_queue = MessageQueue::find($this->message_queue_id);
+      $message_queue->chat_message_id = $chat_message->id;
+      $message_queue->sent = 1;
+      $message_queue->save();
     }
 }

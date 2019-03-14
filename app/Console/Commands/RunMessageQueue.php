@@ -42,20 +42,21 @@ class RunMessageQueue extends Command
      */
     public function handle()
     {
-      $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now());
+      $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now())->where('sent', 0)->where('status', '!=', 1);
 
       if (count($message_queues->get()) > 0) {
         foreach ($message_queues->get() as $message) {
           if ($message->type == 'message_all') {
             $customer = Customer::find($message->customer_id);
 
-            SendMessageToAll::dispatch($message->user_id, $customer, json_decode($message->data, true));
+            if ($customer->do_not_disturb == 0)
+              SendMessageToAll::dispatch($message->user_id, $customer, json_decode($message->data, true), $message->id);
           } else {
-            SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true));
+            SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true), $message->id);
           }
         }
 
-        $message_queues->delete();
+        // $message_queues->delete();
       }
     }
 }

@@ -1,8 +1,12 @@
 @extends('layouts.app')
 
+@section('styles')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+@endsection
+
 @section('content')
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -208,17 +212,32 @@
                 <form action="{{ route('customer.whatsapp.send.all') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
-                      @if ($queues_count > 0)
+                      @if ($queues_total_count > $queues_sent_count)
                         <div class="form-group alert alert-success">
                           <strong>Background Status:</strong>
                           <br>
-                          {{ $queues_count }} customers are being processed
+                          {{ $queues_sent_count }} of {{ $queues_total_count }} customers are processed
                           <br>
                           <a href="{{ route('customer.whatsapp.stop.all') }}" class="btn btn-xs btn-danger">STOP</a>
                         </div>
 
                         <hr>
                       @endif
+
+                      <div class="form-group">
+                        <strong>Schedule Date:</strong>
+                        <div class='input-group date' id='schedule-datetime'>
+                          <input type='text' class="form-control" name="sending_time" id="sending_time_field" value="{{ date('Y-m-d H:i') }}" required />
+
+                          <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                          </span>
+                        </div>
+
+                        @if ($errors->has('sending_time'))
+                            <div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
+                        @endif
+                      </div>
 
                         <div class="form-group">
                             <strong>Message</strong>
@@ -397,73 +416,82 @@
 
     <form action="{{ route('attachImages', ['customers']) }}" id="attachImagesForm" method="GET">
       <input type="hidden" name="message" id="attach_message" value="">
+      <input type="hidden" name="sending_time" id="attach_sending_time" value="">
     </form>
 
     {!! $customers->links() !!}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
-    <script type="text/javascript">
-        $('.load-customers').on('click', function() {
-            var thiss = $(this);
-            var first_customer = $('#first_customer').val();
-            var second_customer = $('#second_customer').val();
+@endsection
 
-            if (first_customer == second_customer) {
-                alert('You selected the same customers');
+@section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script type="text/javascript">
+      $('.load-customers').on('click', function() {
+          var thiss = $(this);
+          var first_customer = $('#first_customer').val();
+          var second_customer = $('#second_customer').val();
 
-                return;
-            }
+          if (first_customer == second_customer) {
+              alert('You selected the same customers');
 
-            $.ajax({
-                type: "GET",
-                url: "{{ route('customer.load') }}",
-                data: {
-                    first_customer: first_customer,
-                    second_customer: second_customer
-                },
-                beforeSend: function() {
-                    $(thiss).text('Loading...');
-                }
-            }).done(function(response) {
-                $('#first_customer_id').val(response.first_customer.id);
-                $('#second_customer_id').val(response.second_customer.id);
+              return;
+          }
 
-                $('#first_customer_name').val(response.first_customer.name);
-                $('#first_customer_email').val(response.first_customer.email);
-                $('#first_customer_phone').val(response.first_customer.phone ? (response.first_customer.phone).replace(/[\s+]/g, '') : '');
-                $('#first_customer_instahandler').val(response.first_customer.instahandler);
-                $('#first_customer_rating').val(response.first_customer.rating);
-                $('#first_customer_address').val(response.first_customer.address);
-                $('#first_customer_city').val(response.first_customer.city);
-                $('#first_customer_country').val(response.first_customer.country);
-                $('#first_customer_pincode').val(response.first_customer.pincode);
+          $.ajax({
+              type: "GET",
+              url: "{{ route('customer.load') }}",
+              data: {
+                  first_customer: first_customer,
+                  second_customer: second_customer
+              },
+              beforeSend: function() {
+                  $(thiss).text('Loading...');
+              }
+          }).done(function(response) {
+              $('#first_customer_id').val(response.first_customer.id);
+              $('#second_customer_id').val(response.second_customer.id);
 
-                $('#second_customer_name').val(response.second_customer.name);
-                $('#second_customer_email').val(response.second_customer.email);
-                $('#second_customer_phone').val(response.second_customer.phone ? (response.second_customer.phone).replace(/[\s+]/g, '') : '');
-                $('#second_customer_instahandler').val(response.second_customer.instahandler);
-                $('#second_customer_rating').val(response.second_customer.rating);
-                $('#second_customer_address').val(response.second_customer.address);
-                $('#second_customer_city').val(response.second_customer.city);
-                $('#second_customer_country').val(response.second_customer.country);
-                $('#second_customer_pincode').val(response.second_customer.pincode);
+              $('#first_customer_name').val(response.first_customer.name);
+              $('#first_customer_email').val(response.first_customer.email);
+              $('#first_customer_phone').val(response.first_customer.phone ? (response.first_customer.phone).replace(/[\s+]/g, '') : '');
+              $('#first_customer_instahandler').val(response.first_customer.instahandler);
+              $('#first_customer_rating').val(response.first_customer.rating);
+              $('#first_customer_address').val(response.first_customer.address);
+              $('#first_customer_city').val(response.first_customer.city);
+              $('#first_customer_country').val(response.first_customer.country);
+              $('#first_customer_pincode').val(response.first_customer.pincode);
 
-                $('#customers-data').show();
-                $('#mergeButton').prop('disabled', false);
-                $(thiss).text('Load Data');
-            }).fail(function(response) {
-                console.log(response);
-                alert('There was error loading customers data');
-            });
-        });
+              $('#second_customer_name').val(response.second_customer.name);
+              $('#second_customer_email').val(response.second_customer.email);
+              $('#second_customer_phone').val(response.second_customer.phone ? (response.second_customer.phone).replace(/[\s+]/g, '') : '');
+              $('#second_customer_instahandler').val(response.second_customer.instahandler);
+              $('#second_customer_rating').val(response.second_customer.rating);
+              $('#second_customer_address').val(response.second_customer.address);
+              $('#second_customer_city').val(response.second_customer.city);
+              $('#second_customer_country').val(response.second_customer.country);
+              $('#second_customer_pincode').val(response.second_customer.pincode);
 
-        $(document).on('click', '.attach-images-btn', function(e) {
-          e.preventDefault();
+              $('#customers-data').show();
+              $('#mergeButton').prop('disabled', false);
+              $(thiss).text('Load Data');
+          }).fail(function(response) {
+              console.log(response);
+              alert('There was error loading customers data');
+          });
+      });
 
-          $('#attach_message').val($('#message_to_all_field').val());
+      $(document).on('click', '.attach-images-btn', function(e) {
+        e.preventDefault();
 
-          $('#attachImagesForm').submit();
-        });
-    </script>
+        $('#attach_message').val($('#message_to_all_field').val());
+        $('#attach_sending_time').val($('#sending_time_field').val());
 
+        $('#attachImagesForm').submit();
+      });
+
+      $('#schedule-datetime').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm'
+      });
+  </script>
 @endsection

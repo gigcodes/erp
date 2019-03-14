@@ -108,7 +108,7 @@ class MagentoController extends Controller {
 
 		for ( $j = 0; $j < sizeof( $orderlist ); $j ++ ) {
 			$results = json_decode( json_encode( $proxy->salesOrderInfo( $sessionId, $orderlist[ $j ]->increment_id ) ), true );
-
+			
 			$atts = unserialize( $results['items'][0]['product_options'] );
 			if ( ! empty( $results['total_paid'] ) ) {
 				$paid = $results['total_paid'];
@@ -143,6 +143,7 @@ class MagentoController extends Controller {
 			} else {
 				$customer = new Customer;
 				$customer->name = $full_name;
+				$customer->email = $results['customer_email'];
 				$customer->address = $results['billing_address']['street'];
 				$customer->city = $results['billing_address']['city'];
 				$customer->country = $results['billing_address']['country_id'];

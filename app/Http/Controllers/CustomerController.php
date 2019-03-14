@@ -14,13 +14,13 @@ use App\Status;
 use App\Brand;
 use App\User;
 use App\ChatMessage;
+use App\MessageQueue;
 use App\Message;
 use App\Helpers;
 use App\Reply;
 use App\Instruction;
 use App\ReplyCategory;
 use App\CallRecording;
-use App\MessageQueue;
 use App\InstructionCategory;
 use App\OrderStatus as OrderStatuses;
 use App\ReadOnly\PurchaseStatus;
@@ -44,18 +44,17 @@ class CustomerController extends Controller
       }
 
       $customers_all = Customer::all();
-      $queues = DB::table('jobs')->take(5)->get();
 
-      // dd((string)$queues[0]->payload);
-
-      $queues_count = MessageQueue::count();
+      $queues_total_count = MessageQueue::where('status', '!=', 1)->count();
+      $queues_sent_count = MessageQueue::where('sent', 1)->count();
 
       return view('customers.index', [
         'customers' => $customers,
         'customers_all' => $customers_all,
         'term' => $term,
         'orderby' => $orderby,
-        'queues_count' => $queues_count,
+        'queues_total_count' => $queues_total_count,
+        'queues_sent_count' => $queues_sent_count,
       ]);
     }
 
@@ -363,12 +362,22 @@ class CustomerController extends Controller
         $customer->whatsapp_number = $request->whatsapp_number;
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
+        $customer->do_not_disturb = $request->do_not_disturb == 'on' ? 1 : 0;
         $customer->address = $request->address;
         $customer->city = $request->city;
         $customer->country = $request->country;
         $customer->pincode = $request->pincode;
 
         $customer->save();
+
+        if ($request->do_not_disturb == 'on') {
+          $message_queues = MessageQueue::where('customer_id', $customer->id)->get();
+
+          foreach ($message_queues as $message_queue) {
+            $message_queue->status = 1; // message stopped
+            $message_queue->save();
+          }
+        }
 
         return redirect()->route('customer.show', $id)->with('success', 'You have successfully updated the customer!');
     }

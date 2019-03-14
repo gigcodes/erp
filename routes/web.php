@@ -89,6 +89,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('order/{id}/uploadForApproval', 'OrderController@uploadForApproval')->name('order.upload.approval');
 	Route::post('order/{id}/deliveryApprove', 'OrderController@deliveryApprove')->name('order.delivery.approve');
 	Route::get('order/{id}/printAdvanceReceipt', 'OrderController@printAdvanceReceipt')->name('order.advance.receipt.print');
+	Route::post('order/{id}/createProductOnMagento', 'OrderController@createProductOnMagento')->name('order.create.magento.product');
 	Route::get('order/{id}/download/PackageSlip', 'OrderController@downloadPackageSlip')->name('order.download.package-slip');
 	Route::delete('order/permanentDelete/{order}','OrderController@permanentDelete')->name('order.permanentDelete');
 	Route::get('order/products/list', 'OrderController@products')->name('order.products');
@@ -164,6 +165,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('customer/send/message/all/{validate?}', 'WhatsAppController@sendToAll')->name('customer.whatsapp.send.all');
 	Route::get('customer/stop/message/all', 'WhatsAppController@stopAll')->name('customer.whatsapp.stop.all');
 	Route::get('customer/email/fetch', 'CustomerController@emailFetch')->name('customer.email.fetch');
+
+	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
+	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
+	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
 
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
