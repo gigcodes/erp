@@ -25,6 +25,7 @@ use App\InstructionCategory;
 use App\OrderStatus as OrderStatuses;
 use App\ReadOnly\PurchaseStatus;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Carbon\Carbon;
 
 class CustomerController extends Controller
 {
@@ -45,8 +46,8 @@ class CustomerController extends Controller
 
       $customers_all = Customer::all();
 
-      $queues_total_count = MessageQueue::where('status', '!=', 1)->count();
-      $queues_sent_count = MessageQueue::where('sent', 1)->count();
+      $queues_total_count = MessageQueue::where('status', '!=', 1)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->count();
+      $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->count();
 
       return view('customers.index', [
         'customers' => $customers,
