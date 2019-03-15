@@ -33,7 +33,8 @@ class SocialController extends Controller
 	public function getSchedules() {
         $schedules = AdsSchedules::all();
 
-        $query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights.level(adset){campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}}&limit=5000&access_token=".$this->user_access_token."";
+        $query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights{campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}}&limit=5000&access_token=".$this->user_access_token."";
+
         // Call to Graph api here
         $ch = curl_init();
         curl_setopt($ch,CURLOPT_URL,$query);
@@ -56,8 +57,6 @@ class SocialController extends Controller
 
             return [];
         });
-
-
 
         return view('social.ad_schedules', compact('ads', 'schedules'));
 
@@ -510,6 +509,7 @@ class SocialController extends Controller
             ];
         });
 
+
 	    return $ads;
     }
 
@@ -523,7 +523,6 @@ class SocialController extends Controller
 	    if (!isset($ad->insights)) {
 	        return [];
         }
-
 	    $insights = $ad->insights->data[0];
 
 	    return [

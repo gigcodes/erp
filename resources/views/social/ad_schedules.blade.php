@@ -41,7 +41,6 @@
 							<th>Ad Set Name</th>
 							<th>Images</th>
 							<th>Name</th>
-							<th>Type Of Ad</th>
 							<th>Target Audience</th>
 							<th>Start Date</th>
 							<th>End Date</th>
@@ -67,7 +66,6 @@
 										@endforeach
 									</td>
 									<td>{{ $ad['name'] }}</td>
-									<td>N/A</td>
 									<td>
 										@foreach($ad['targeting'] as $key=>$value)
 											@if(!is_object($value))
@@ -146,6 +144,11 @@
 		</div>
 	</div>
 </div>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 @endsection
 
