@@ -16,12 +16,20 @@ use App\Message;
 use App\ReplyCategory;
 use App\Task;
 use App\Brand;
+use App\File;
+use App\Mail\PurchaseExport;
+use Illuminate\Support\Facades\Mail;
+use App\Exports\PurchasesExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\ReadOnly\OrderStatus as OrderStatus;
 use App\ReadOnly\SupplierList;
 use App\ReadOnly\PurchaseStatus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Carbon\Carbon;
+use Storage;
 
 class PurchaseController extends Controller
 {
@@ -35,9 +43,9 @@ class PurchaseController extends Controller
       $term = $request->input('term');
 
   		if($request->input('orderby') == '')
-  				$orderby = 'desc';
+  				$orderby = 'DESC';
   		else
-  				$orderby = 'asc';
+  				$orderby = 'ASC';
 
   		switch ($request->input('sortby')) {
   			case 'date':
@@ -67,9 +75,9 @@ class PurchaseController extends Controller
         }]);
       }]);
 
-  		if ($sortby != 'communication') {
-  			$purchases = $purchases->orderBy( $sortby, $orderby );
-  		}
+      // $purchases_new = DB::table('purchases');
+
+
 
   		if(empty($term))
   			$purchases = $purchases->latest();
@@ -82,11 +90,28 @@ class PurchaseController extends Controller
                        ->orWhere('status','like','%'.$term.'%');
   		}
 
+      if ($sortby != 'communication') {
+  			$purchases = $purchases->orderBy( $sortby, $orderby );
+  		}
+
+      // $order_products = DB::table('order_products')->join(DB::raw('(SELECT sku as product_sku FROM `products`)'), 'order_products.sku', '=', 'products.product_sku', 'LEFT');
+      // dd($order_products->get());
+      // // dd(DB::raw('(SELECT product_id, purchase_id as FROM `purchase_products` GROUP BY purchase_id) as products'))->get();
+      // $purchases_new = $purchases_new->join(DB::raw('(SELECT products.id, products.name FROM purchase_products INNER JOIN products ON purchases.id=products.id'), 'purchase_products.purchase_id', '=', 'purchases.id', 'LEFT');
+      // dd($purchases_new->get());
+      // $purchases_new = $purchases_new->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.purchase_id as purid, MAX(chat_messages.created_at) as chat_message_created_at FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 GROUP BY chat_messages.purchase_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.purid', '=', 'purchases.id', 'LEFT');
+      // $purchases_new = $purchases_new->join(DB::raw('(SELECT MAX(id) as message_id, messages.moduleid as mcid, MAX(messages.created_at) as message_created_at FROM messages WHERE messages.moduletype = "purchase" GROUP BY messages.moduleid ORDER BY messages.created_at ' . $orderby . ') as messages'), 'messages.mcid', '=', 'purchases.id', 'LEFT');
+      //
+      // $purchases_new = $purchases_new->selectRaw('purchases.id, purchases.purchase_handler, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at,
+      // CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mmm.body FROM messages mmm WHERE mmm.id = message_id) ELSE (SELECT mm2.message FROM chat_messages mm2 WHERE mm2.id = chat_message_id) END AS message,
+      // CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm3.status FROM messages mm3 WHERE mm3.id = message_id) ELSE (SELECT mm4.status FROM chat_messages mm4 WHERE mm4.id = chat_message_id) END AS message_status')->paginate(24);
+      //
+      // dd($purchases_new);
 
 
-  		$users  = Helpers::getUserArray( User::all() );
+  		$users  = Helpers::getUserArray( User::all());
 
-  		$purchases_array = $purchases->whereNull( 'deleted_at' )->get()->toArray();
+  		$purchases_array = $purchases->select(['id', 'purchase_handler', 'supplier', 'status', 'created_at'])->get()->toArray();
       // dd($purchases_array);
 
   		if ($sortby == 'communication') {
@@ -312,6 +337,25 @@ class PurchaseController extends Controller
         //
     }
 
+    public function export(Request $request)
+    {
+      $selected_purchases = json_decode($request->selected_purchases);
+      $path = "purchase_exports/" . Carbon::now()->format('Y-m-d') . "_purchases_export.xlsx";
+
+      Excel::store(new PurchasesExport($selected_purchases), $path, 'uploads');
+
+      Mail::to('yogeshmordani@icloud.com')->send(new PurchaseExport($path));
+
+      return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
+    }
+
+    public function downloadFile(Request $request, $id)
+    {
+      $file = File::find($id);
+
+      return Storage::disk('uploads')->download('files/' . $file->filename);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -513,6 +557,27 @@ class PurchaseController extends Controller
       $purchase->supplier_phone = $request->supplier_phone;
       $purchase->whatsapp_number = $request->whatsapp_number;
       $purchase->save();
+
+      if ($request->hasFile('files')) {
+        foreach ($request->file('files') as $file) {
+          $original_name = $file->getClientOriginalName();
+          $filename = pathinfo($original_name, PATHINFO_FILENAME);
+          $extension = $file->getClientOriginalExtension();
+
+          $full_name = $filename . '.' . $extension;
+          // return response()->json(['data' => $full_name]);
+
+          $file->storeAs("files", $full_name, 'uploads');
+
+          $new_file = new File;
+          $new_file->filename = $full_name;
+          $new_file->model_id = $id;
+          $new_file->model_type = Purchase::class;
+          $new_file->save();
+        }
+      }
+
+      return response()->json(['data' => $request->all()]);
     }
 
     /**

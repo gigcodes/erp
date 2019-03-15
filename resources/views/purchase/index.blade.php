@@ -23,7 +23,15 @@
                 </form>
             </div>
             <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('purchase.grid') }}">+</a>
+              <form class="d-inline" action="{{ route('purchase.export') }}" id="purchaseExportForm" method="POST">
+                @csrf
+
+                <input type="hidden" name="selected_purchases" id="selected_purchases" value="">
+
+                <button type="submit" class="btn btn-secondary mr-3" id="purchaseExportButton">Export</button>
+              </form>
+
+              <a class="btn btn-secondary" href="{{ route('purchase.grid') }}">+</a>
             </div>
         </div>
     </div>
@@ -42,6 +50,8 @@
 
 @section('scripts')
   <script type="text/javascript">
+    var purchases_array = [];
+
     $(document).on('click', '.pagination a', function(e) {
       e.preventDefault();
       var url = $(this).attr('href');
@@ -81,6 +91,30 @@
       }).fail(function() {
         alert('Error searching for purchases');
       });
+    });
+
+    $('#purchaseExportButton').on('click', function(e) {
+      e.preventDefault();
+
+      if (purchases_array.length > 0) {
+        $('#selected_purchases').val(JSON.stringify(purchases_array));
+        $('#purchaseExportForm').submit();
+      } else {
+        alert('Please select atleast 1 purchase');
+      }
+    });
+
+    $(document).on('click', '.export-checkbox', function() {
+      var checked = $(this).prop('checked');
+      var id = $(this).data('id');
+
+      if (checked) {
+        purchases_array.push(id);
+      } else {
+        purchases_array.splice(purchases_array.indexOf(id), 1);
+      }
+
+      console.log(purchases_array);
     });
   </script>
 @endsection

@@ -3,4 +3,6 @@
 !/trash
 !/waybills
 !/hourly_reports
+!/files
+!/purchase_exports
 !.gitignore

@@ -53,34 +53,38 @@ class SendMessageToAll implements ShouldQueue
         'status'      => 8,
       ];
 
-      if ($this->content['message']) {
-        $params['message'] = $this->content['message'];
-        $message = $this->content['message'];
+      if (is_numeric($this->customer->phone)) {
+        $send_number = $this->customer->whatsapp_number ?? NULL;
 
-        $chat_message = ChatMessage::create($params);
+        if ($this->content['message']) {
+          $params['message'] = $this->content['message'];
+          $message = $this->content['message'];
 
-        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, $message, false, $chat_message->id);
-      }
-
-      if (isset($this->content['image'])) {
-        if (!isset($chat_message)) {
           $chat_message = ChatMessage::create($params);
+
+          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
         }
 
-        foreach ($this->content['image'] as $image) {
-          $chat_message->attachMedia($image['key'], config('constants.media_tags'));
+        if (isset($this->content['image'])) {
+          if (!isset($chat_message)) {
+            $chat_message = ChatMessage::create($params);
+          }
 
-          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, NULL, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+          foreach ($this->content['image'] as $image) {
+            $chat_message->attachMedia($image['key'], config('constants.media_tags'));
+
+            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+          }
         }
+
+        $chat_message->update([
+          'approved'  => 1
+        ]);
+
+        $message_queue = MessageQueue::find($this->message_queue_id);
+        $message_queue->chat_message_id = $chat_message->id;
+        $message_queue->sent = 1;
+        $message_queue->save();
       }
-
-      $chat_message->update([
-        'approved'  => 1
-      ]);
-
-      $message_queue = MessageQueue::find($this->message_queue_id);
-      $message_queue->chat_message_id = $chat_message->id;
-      $message_queue->sent = 1;
-      $message_queue->save();
     }
 }

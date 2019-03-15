@@ -102,6 +102,28 @@
         </Select>
     </div>
 
+    @if ($order->files)
+      <div class="form-group">
+        <strong>Uploaded Files:</strong>
+        <ul>
+          @foreach ($order->files as $file)
+            <li>
+              <form action="{{ route('purchase.file.download', $file->id) }}" method="POST">
+                @csrf
+
+                <button type="submit" class="btn-link">{{ $file->filename }}</button>
+              </form>
+            </li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
+    <div class="form-group">
+      <strong>Upload Files:</strong>
+      <input type="file" name="files[]" id="uploaded_files" multiple>
+    </div>
+
     <div class="form-group">
       <a href="#" class="btn btn-secondary save-bill">Save</a>
       <span id="save_status" class="text-success" style="display: none;">Successfully saved!</span>
@@ -1442,28 +1464,44 @@
     $(document).on('click', '.save-bill', function(e) {
       e.preventDefault();
 
+      var data = new FormData();
       var thiss = $(this);
+      var id = {{ $order->id }};
       var token = "{{ csrf_token() }}";
       var supplier = $('select[name="supplier"]').val();
       var bill_number = $('input[name="bill_number"]').val();
       var supplier_phone = $('input[name="supplier_phone"]').val();
       var whatsapp_number = $('select[name="whatsapp_number"]').val();
-      var id = {{ $order->id }};
+      var files = $("#uploaded_files").prop("files");
+
+
+      if (files && files.length > 0) {
+        for (var i = 0; i != files.length; i++) {
+          data.append("files[]", files[i]);
+        }
+      }
+
+      data.append("_token", token);
+      data.append("bill_number", bill_number);
+      data.append("supplier", supplier);
+      data.append("supplier_phone", supplier_phone);
+      data.append("whatsapp_number", whatsapp_number);
+
+      console.log(files);
+      // console.log(files_array);
 
       $.ajax({
         url: '/purchase/' + id + '/saveBill',
         type: 'POST',
-        data: {
-          _token: token,
-          bill_number: bill_number,
-          supplier: supplier,
-          supplier_phone: supplier_phone,
-          whatsapp_number: whatsapp_number
-        },
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: data,
         beforeSend: function() {
           $(thiss).text('Saving');
         }
-      }).done( function() {
+      }).done( function(response) {
+        console.log(response);
         $(thiss).text('Save');
 
         $('#save_status').fadeIn(400);

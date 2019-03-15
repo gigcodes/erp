@@ -172,10 +172,12 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
+	Route::post('purchase/export', 'PurchaseController@export')->name('purchase.export');
 	Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');
 	Route::get('purchase/{id}/edit', 'PurchaseController@edit')->name('purchase.edit');
 	Route::post('purchase/{id}/changestatus', 'PurchaseController@updateStatus');
 	Route::post('purchase/{id}/saveBill', 'PurchaseController@saveBill');
+	Route::post('purchase/{id}/downloadFile', 'PurchaseController@downloadFile')->name('purchase.file.download');
 	Route::delete('purchase/{id}/delete', 'PurchaseController@destroy')->name('purchase.destroy');
 	Route::delete('purchase/{id}/permanentDelete', 'PurchaseController@permanentDelete')->name('purchase.permanentDelete');
 	Route::get('purchaseGrid/{page?}', 'PurchaseController@purchaseGrid')->name('purchase.grid');
