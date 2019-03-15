@@ -12,11 +12,10 @@ use Carbon\Carbon;
 
 class VoucherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct() {
+      $this->middleware('permission:voucher');
+    }
+
     public function index(Request $request)
     {
       $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();

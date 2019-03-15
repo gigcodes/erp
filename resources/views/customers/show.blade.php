@@ -1256,11 +1256,13 @@
                             @endif
                           </td>
                           <td>
-                            @if ($order->delivery_approval->voucher)
-                              <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
-                            @else
-                              <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
-                            @endif
+                            @can('voucher')
+                              @if ($order->delivery_approval->voucher)
+                                <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
+                              @else
+                                <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
+                              @endif
+                            @endcan
                           </td>
                         </tr>
                       </tbody>
