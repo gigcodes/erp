@@ -381,7 +381,8 @@
                             @elseif ($customer->message_status == 6)
                                 Replied
                             @elseif ($customer->message_status == 1)
-                                <span>Awaiting Approval</span>
+                              <span>Waiting for Approval</span>
+                              <button type="button" class="btn btn-xs btn-secondary approve-message" data-id="{{ $customer->message_id }}" data-type="{{ $customer->message_type }}">Approve</button>
                             @elseif ($customer->message_status == 2)
                                 Approved
                             @elseif ($customer->message_status == 0)
@@ -492,6 +493,41 @@
 
       $('#schedule-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
+      });
+
+      $(document).on('click', '.approve-message', function() {
+        var thiss = $(this);
+        var id = $(this).data('id');
+        var type = $(this).data('type');
+
+        if (isNaN(type)) {
+          $.ajax({
+            url: "{{ url('whatsapp/updateAndCreate') }}",
+            type: 'POST',
+            data: {
+              _token: "{{ csrf_token() }}",
+              moduletype: "customer",
+              message_id: id
+            },
+            beforeSend: function() {
+              $(thiss).text('Approving...');
+            }
+          }).done( function(response) {
+            $(thiss).parent().html('Approved');
+          }).fail(function(errObj) {
+            $(thiss).text('Approve');
+            console.log(errObj);
+            alert("Could not create whatsapp message");
+          });
+        } else {
+          $.post("/whatsapp/approve/customer", {messageId: id})
+            .done(function(data) {
+              $(thiss).parent().html('Approved');
+            }).fail(function(response) {
+              console.log(response);
+              alert(response.responseJSON.message);
+            });
+        }
       });
   </script>
 @endsection

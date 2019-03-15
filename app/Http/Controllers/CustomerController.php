@@ -38,7 +38,7 @@ class CustomerController extends Controller
     {
       $customers = $this->getCustomersIndex($request);
       $term = $request->input('term');
-
+      
       $orderby = 'desc';
       if($request->orderby == '') {
          $orderby = 'asc';
@@ -114,7 +114,9 @@ class CustomerController extends Controller
 
         $customers = $customers->selectRaw('customers.id, customers.name, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at,
         CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mmm.body FROM messages mmm WHERE mmm.id = message_id) ELSE (SELECT mm2.message FROM chat_messages mm2 WHERE mm2.id = chat_message_id) END AS message,
-        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm3.status FROM messages mm3 WHERE mm3.id = message_id) ELSE (SELECT mm4.status FROM chat_messages mm4 WHERE mm4.id = chat_message_id) END AS message_status')->paginate(24);
+        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm3.status FROM messages mm3 WHERE mm3.id = message_id) ELSE (SELECT mm4.status FROM chat_messages mm4 WHERE mm4.id = chat_message_id) END AS message_status,
+        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm5.id FROM messages mm5 WHERE mm5.id = message_id) ELSE (SELECT mm6.id FROM chat_messages mm6 WHERE mm6.id = chat_message_id) END AS message_id,
+        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm7.moduletype FROM messages mm7 WHERE mm7.id = message_id) ELSE (SELECT mm8.sent FROM chat_messages mm8 WHERE mm8.id = chat_message_id) END AS message_type')->paginate(24);
         return $customers;
     }
 
