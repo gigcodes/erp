@@ -603,146 +603,146 @@ class WhatsAppController extends FindByNumberController
 
     public function pollMessagesCustomer(Request $request)
     {
-       $params = [];
-       // if ($context == "leads") {
-       //      $id = $request->get("leadId");
-       //      $model_type = 'leads';
-       //      $params['lead_id'] = $id;
-	     //    $messages = ChatMessage::where('lead_id', '=', $id);
-       // } elseif ($context == "orders") {
-       //      $id = $request->get("orderId");
-       //      $model_type = 'order';
-       //      $params['order_id'] = $id;
-	     //    $messages = ChatMessage::where('order_id', '=', $id);
-       //  }
-        $messages = ChatMessage::where('customer_id', $request->customerId);
-        if ($request->get("elapse")) {
-            $elapse = (int) $request->get("elapse");
-           $date = new \DateTime;
-           $date->modify(sprintf("-%s seconds", $elapse));
-           $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
+      $params = [];
+      $result = [];
+      $messages = ChatMessage::where('customer_id', $request->customerId)->latest()->limit(30);
+
+      if ($request->get("elapse")) {
+        $elapse = (int) $request->get("elapse");
+        $date = new \DateTime;
+        $date->modify(sprintf("-%s seconds", $elapse));
+        $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
+      }
+
+      foreach ($messages->get() as $message) {
+        $received = false;
+
+        if (!is_null($message['number'])) {
+          $received = true;
         }
-	   $result = [];
-	   foreach ($messages->get() as $message) {
-         $received = false;
-         if (!is_null($message['number'])) {
-            $received = true;
-         }
-         $messageParams = [
-                'id' => $message['id'],
-                'received' =>$received,
-                'number' => $message['number'],
-                'created_at' => Carbon::parse($message['created_at'])->format('Y-m-d H:i:s'),
-                // 'date' => $this->formatChatDate( $message['created_at'] ),
-                'approved' => $message['approved'],
-                'status'  => $message['status'],
-                'user_id' => $message['user_id'],
-                'sent'    => $message['sent']
-         ];
-         if ($message['media_url']) {
-            $messageParams['media_url'] = $message['media_url'];
-            $headers = get_headers($message['media_url'], 1);
-            $messageParams['content_type'] = $headers["Content-Type"][1];
-         }
-         if ($message['message']) {
-            $messageParams['message'] = $message['message'];
-         }
 
-         if ($message->getMedia(config('constants.media_tags'))->first()) {
-           $images_array = [];
-           foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
-             $temp_image = [
-               'key'          => $image->getKey(),
-               'image'        => $image->getUrl(),
-               'product_id'   => '',
-               'special_price'=> '',
-               'size'         => ''
-             ];
+        $messageParams = [
+          'id' => $message['id'],
+          'received' => $received,
+          'number' => $message['number'],
+          'created_at' => Carbon::parse($message['created_at'])->format('Y-m-d H:i:s'),
+          'approved' => $message['approved'],
+          'status'  => $message['status'],
+          'user_id' => $message['user_id'],
+          'sent'    => $message['sent']
+        ];
 
-             $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-                                 $q->where('media.id', $image->getKey());
-                               })->first();
-             if ($product_image) {
-               $temp_image['product_id'] = $product_image->id;
-               $temp_image['special_price'] = $product_image->price_special;
+        if ($message['media_url']) {
+          $messageParams['media_url'] = $message['media_url'];
+          $headers = get_headers($message['media_url'], 1);
+          $messageParams['content_type'] = $headers["Content-Type"][1];
+        }
 
-               $string = $product_image->supplier;
-               $expr = '/(?<=\s|^)[a-z]/i';
-               preg_match_all($expr, $string, $matches);
-               $supplier_initials = implode('', $matches[0]);
-               $temp_image['supplier_initials'] = strtoupper($supplier_initials);
+        if ($message['message']) {
+          $messageParams['message'] = $message['message'];
+        }
 
-               if ($product_image->size != NULL) {
-                 $temp_image['size'] = $product_image->size;
-               } else {
-                 $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
-               }
-             }
+        if ($message->getMedia(config('constants.media_tags'))->first()) {
+          $images_array = [];
 
-             array_push($images_array, $temp_image);
-           }
+          foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
+            $temp_image = [
+              'key'          => $image->getKey(),
+              'image'        => $image->getUrl(),
+              'product_id'   => '',
+              'special_price'=> '',
+              'size'         => ''
+            ];
 
-           $messageParams['images'] = $images_array;
-         }
+            $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
+               $q->where('media.id', $image->getKey());
+            })->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
-	     $result[] = array_merge($params, $messageParams);
-	   }
+            if ($product_image) {
+              $temp_image['product_id'] = $product_image->id;
+              $temp_image['special_price'] = $product_image->price_special;
 
-     $messages = Message::where('customer_id', $request->customerId)->orderBy("created_at", 'desc')->get();
-     foreach ($messages->toArray() as $key => $message) {
-       $images_array = [];
-       if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
-         foreach ($images as $image) {
-           $temp_image = [
-             'key'          => $image->getKey(),
-             'image'        => $image->getUrl(),
-             'product_id'   => '',
-             'special_price'=> '',
-             'size'         => ''
-           ];
+              $string = $product_image->supplier;
+              $expr = '/(?<=\s|^)[a-z]/i';
+              preg_match_all($expr, $string, $matches);
+              $supplier_initials = implode('', $matches[0]);
+              $temp_image['supplier_initials'] = strtoupper($supplier_initials);
 
-           $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-                               $q->where('media.id', $image->getKey());
-                             })->first();
-           if ($product_image) {
-             $temp_image['product_id'] = $product_image->id;
-             $temp_image['special_price'] = $product_image->price_special;
+              if ($product_image->size != NULL) {
+                $temp_image['size'] = $product_image->size;
+              } else {
+                $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
+              }
+            }
 
-             $string = $product_image->supplier;
-             $expr = '/(?<=\s|^)[a-z]/i';
-             preg_match_all($expr, $string, $matches);
-             $supplier_initials = implode('', $matches[0]);
-             $temp_image['supplier_initials'] = strtoupper($supplier_initials);
+            array_push($images_array, $temp_image);
+          }
 
-             if ($product_image->size != NULL) {
-               $temp_image['size'] = $product_image->size;
-             } else {
-               $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
-             }
-           }
+          $messageParams['images'] = $images_array;
+        }
 
-           array_push($images_array, $temp_image);
-         }
-       }
+        $result[] = array_merge($params, $messageParams);
+      }
 
-       $message['images'] = $images_array;
-       array_push($result, $message);
-     }
+      $messages = Message::where('customer_id', $request->customerId)->orderBy("created_at", 'desc')->select(['customer_id', 'created_at'])->limit(30)->get();
 
-     $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
-     $currentPage = LengthAwarePaginator::resolveCurrentPage();
-     $perPage = 10;
+      foreach ($messages->toArray() as $key => $message) {
+        $images_array = [];
 
-     if ($request->page) {
-       $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
-     } else {
-       $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
-     }
+        if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
+          foreach ($images as $image) {
+            $temp_image = [
+            'key'          => $image->getKey(),
+            'image'        => $image->getUrl(),
+            'product_id'   => '',
+            'special_price'=> '',
+            'size'         => ''
+            ];
 
-     $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
-       'path'	=> LengthAwarePaginator::resolveCurrentPath()
-     ]);
-       return response()->json($result);
+            $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
+              $q->where('media.id', $image->getKey());
+            })->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+
+            if ($product_image) {
+              $temp_image['product_id'] = $product_image->id;
+              $temp_image['special_price'] = $product_image->price_special;
+
+              $string = $product_image->supplier;
+              $expr = '/(?<=\s|^)[a-z]/i';
+              preg_match_all($expr, $string, $matches);
+              $supplier_initials = implode('', $matches[0]);
+              $temp_image['supplier_initials'] = strtoupper($supplier_initials);
+
+              if ($product_image->size != NULL) {
+                $temp_image['size'] = $product_image->size;
+              } else {
+                $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
+              }
+            }
+
+            array_push($images_array, $temp_image);
+          }
+        }
+
+        $message['images'] = $images_array;
+        array_push($result, $message);
+      }
+
+      $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      $perPage = 10;
+
+      if ($request->page) {
+        $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+      } else {
+        $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+      }
+
+      $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
+        'path'	=> LengthAwarePaginator::resolveCurrentPath()
+      ]);
+
+      return response()->json($result);
     }
 
     public function approveMessage($context, Request $request)
