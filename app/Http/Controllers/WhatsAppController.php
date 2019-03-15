@@ -852,7 +852,7 @@ class WhatsAppController extends FindByNumberController
       $minutes = 5;
       $max_group_id = MessageQueue::max('group_id') + 1;
 
-      $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0)->chunk(30, function ($customers) use ($content, $now, &$minutes, $max_group_id) {
+      $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0)->chunk(10, function ($customers) use ($content, $now, &$minutes, $max_group_id) {
         foreach ($customers as $customer) {
           // SendMessageToAll::dispatch(Auth::id(), $customer, $content)
           //                 ->delay($now->addMinutes($minutes))
@@ -882,7 +882,7 @@ class WhatsAppController extends FindByNumberController
 
       foreach ($array as $item) {
         foreach ($item as $it) {
-          if ($count == 30) {
+          if ($count == 10) {
             // $minutes += 5;
             $now->addMinutes(5);
             $count = 0;
