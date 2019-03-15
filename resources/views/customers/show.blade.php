@@ -928,7 +928,7 @@
                   Order {{ $key + 1 }}
                   <a href="{{ route('order.show', $order->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
                   <span class="ml-3">
-                    @if (isset($order->delivery_approval) && $order->delivery_approval->approved == 0)
+                    @if (isset($order->delivery_approval) && ($order->delivery_approval->approved == 0 || $order->delivery_approval->approved == 1))
                       <span class="badge">Waiting for Delivery Approval</span>
                     @endif
                   </span>
@@ -1087,6 +1087,10 @@
                           </div>
                         @endif
 
+                        {{-- <div class="form-group">
+                          <a href="#" class="btn btn-secondary create-magento-product" data-id="{{ $order->id }}">Create Magento Product</a>
+                        </div> --}}
+
                       </div>
 
                       <div class="col-xs-12">
@@ -1211,26 +1215,26 @@
                   <button type="submit" class="btn btn-xs btn-secondary ml-3">Upload for Approval</button>
                 </form>
 
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Uploaded Photos</th>
-                        <th>Approved</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          @if (isset($order->delivery_approval))
+                @if (isset($order->delivery_approval))
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Uploaded Photos</th>
+                          <th>Approved</th>
+                          <th>Approved</th>
+                          <th>Voucher</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
                             @foreach ($order->delivery_approval->getMedia(config('constants.media_tags')) as $image)
                               <img width="150" src="{{ $image->getUrl() }}" />
                             @endforeach
-                          @endif
-                        </td>
-                        <td>
-                          @if (isset($order->delivery_approval))
-                            @if ($order->delivery_approval->approved == 1)
+                          </td>
+                          <td>
+                            @if ($order->delivery_approval->approved == 1 || $order->delivery_approval->approved == 2)
                               Approved
                             @else
                               <form action="{{ route('order.delivery.approve', $order->delivery_approval->id) }}" method="POST">
@@ -1239,12 +1243,30 @@
                                 <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
                               </form>
                             @endif
-                          @endif
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                          </td>
+                          <td>
+                            @if ($order->delivery_approval->approved == 2)
+                              Approved
+                            @else
+                              <form action="{{ route('order.delivery.approve', $order->delivery_approval->id) }}" method="POST">
+                                @csrf
+
+                                <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                              </form>
+                            @endif
+                          </td>
+                          <td>
+                            @if ($order->delivery_approval->voucher)
+                              <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
+                            @else
+                              <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
+                            @endif
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                @endif
 
                 <div id="generateAWBMODAL{{ $order->id }}" class="modal fade" role="dialog">
                   <div class="modal-dialog">
@@ -1373,6 +1395,48 @@
         </div>
 
       </div>
+    </div>
+
+    <div id="editVoucherModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <form action="" method="POST" id="editVoucherForm">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="type" value="partial">
+
+            <div class="modal-header">
+              <h4 class="modal-title">Update Voucher</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <strong>Travel Type:</strong>
+                <select class="form-control" name="travel_type" id="voucher_travel_field">
+                  <option value="">Select Travel type</option>
+        					<option value="flight">Flight</option>
+        					<option value="train">Train</option>
+        					<option value="taxi">Taxi</option>
+        					<option value="auto">Auto</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <strong>Amount:</strong>
+                <input type="number" name="amount" id="voucher_amount_field" class="form-control" value="">
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
 
     <div id="productModal" class="modal fade" role="dialog">
@@ -1756,6 +1820,12 @@
   </div>
 </div>
 
+<form action="index.html" method="POST" id="createMagentoProductForm">
+  @csrf
+
+
+</form>
+
 @endsection
 
 @section('scripts')
@@ -1773,6 +1843,17 @@
   });
   });
   })
+
+  $(document).on('click', '.create-magento-product', function(e) {
+    e.preventDefault();
+
+    var form = $('#createMagentoProductForm');
+    var id = $(this).data('id');
+    var url = "{{ url('order') }}/" + id + "/createProductOnMagento";
+
+    form.attr('action', url);
+    form.submit();
+  });
 
     $('#date, #report-completion-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
@@ -2943,6 +3024,50 @@
            }));
          }
        });
+      });
+
+      $(document).on('click', '.create-voucher', function() {
+        var id = $(this).data('id');
+        var thiss = $(this);
+        var description = "Delivery to {{ $customer->name }} at {{ $customer->address }}, {{ $customer->city }}";
+        var date = moment().add(5, 'days').format('YYYY-MM-DD');
+
+        $.ajax({
+          url: "{{ route('voucher.store') }}",
+          type: "POST",
+          data: {
+            _token: "{{ csrf_token() }}",
+            user_id: {{ Auth::id() }},
+            delivery_approval_id: id,
+            description: description,
+            date: date
+          },
+          beforeSend: function() {
+            $(thiss).text('Creating...');
+          }
+        }).done(function(response) {
+          var edit_button = '<button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="' + response.id + '" data-amount="" data-travel="">Edit Voucher</button>';
+          $(thiss).parent().html($(edit_button));
+
+        }).fail(function(response) {
+          $(thiss).text('Create Voucher');
+
+          console.log(response);
+          alert('There was an error creating voucher');
+        });
+      });
+
+      $(document).on('click', '.edit-voucher', function() {
+        var id = $(this).data('id');
+        var amount = $(this).data('amount');
+        var travel = $(this).data('travel');
+        var url = "{{ url('voucher') }}/" + id;
+        var form = $('#editVoucherForm');
+        var travel_select = $('option[value="' + travel + '"]');
+
+        form.attr('action', url);
+        travel_select.attr('selected', true);
+        $('#voucher_amount_field').val(amount);
       });
   </script>
 @endsection

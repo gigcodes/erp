@@ -46,10 +46,33 @@
 			</div>
 
 			<div class="form-group">
+				<strong>Travel type:</strong>
+				<select class="form-control" name="travel_type">
+					<option value="">Select Travel Type</option>
+					<option value="flight" {{ old('travel_type') == 'flight' ? 'selected' : '' }}>Flight</option>
+					<option value="train" {{ old('travel_type') == 'train' ? 'selected' : '' }}>Train</option>
+					<option value="taxi" {{ old('travel_type') == 'taxi' ? 'selected' : '' }}>Taxi</option>
+					<option value="auto" {{ old('travel_type') == 'auto' ? 'selected' : '' }}>Auto</option>
+				</select>
+
+				@if ($errors->has('travel_type'))
+					<div class="alert alert-danger">{{$errors->first('travel_type')}}</div>
+				@endif
+			</div>
+
+			<div class="form-group">
 				<strong>Amount:</strong>
-				<input type="number" class="form-control" name="amount" placeholder="10000" value="{{ old('amount') }}" required />
+				<input type="number" class="form-control" name="amount" placeholder="10000" value="{{ old('amount') }}" />
 				@if ($errors->has('amount'))
 					<div class="alert alert-danger">{{$errors->first('amount')}}</div>
+				@endif
+			</div>
+
+			<div class="form-group">
+				<strong>Paid:</strong>
+				<input type="number" class="form-control" name="paid" placeholder="10000" value="{{ old('paid') }}" />
+				@if ($errors->has('paid'))
+					<div class="alert alert-danger">{{$errors->first('paid')}}</div>
 				@endif
 			</div>
 

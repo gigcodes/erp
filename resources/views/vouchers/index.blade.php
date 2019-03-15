@@ -61,7 +61,10 @@
         <tr>
           <th>User Name</th>
           <th>Description</th>
+          <th>Travel Type</th>
           <th>Amount</th>
+          <th>Paid</th>
+          <th>Credit</th>
           <th>Date</th>
           <th class="text-center">Action</th>
         </tr>
@@ -69,7 +72,12 @@
             <tr>
               <td>{{ $voucher->user->name }}</td>
               <td>{{ $voucher->description }}</td>
+              <td>{{ ucwords($voucher->travel_type) }}</td>
               <td>{{ $voucher->amount }}</td>
+              <td>{{ $voucher->paid }}</td>
+              <td>
+                {{ ($voucher->amount - $voucher->paid) * -1 }}
+              </td>
               <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
               <td>
                 <a class="btn btn-image" href="{{ route('voucher.edit', $voucher->id) }}"><img src="/images/edit.png" /></a>

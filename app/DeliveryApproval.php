@@ -8,4 +8,9 @@ use Plank\Mediable\Mediable;
 class DeliveryApproval extends Model
 {
   use Mediable;
+
+  public function voucher()
+  {
+    return $this->hasOne('App\Voucher');
+  }
 }

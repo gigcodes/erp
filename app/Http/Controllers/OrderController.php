@@ -30,6 +30,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
+use App\Category;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AdvanceReceipt;
 use App\Mail\AdvanceReceiptPDF;
@@ -810,7 +811,12 @@ class OrderController extends Controller {
 	public function deliveryApprove(Request $request, $id)
 	{
 		$delivery_approval = DeliveryApproval::find($id);
-		$delivery_approval->approved = 1;
+
+		if ($delivery_approval->approved == 1) {
+			$delivery_approval->approved = 2;
+		} else {
+			$delivery_approval->approved = 1;
+		}
 		$delivery_approval->save();
 
 		return redirect()->back()->with('success', 'You have successfully approved delivery!');
@@ -1190,6 +1196,162 @@ public function callsHistory() {
 	return view('orders.call_history', [
 		'calls'	=> $calls
 	]);
+}
+
+public function createProductOnMagento(Request $request, $id){
+	$order = Order::find($id);
+	$total_special_price = 0;
+
+	foreach ($order->order_product as $order_product) {
+		$total_special_price += $order_product->product_price;
+
+		if ($order_product->product->category != 1) {
+			$category = Category::find($order_product->product->category);
+			$url_structure = [];
+			$category_id = $category->magento_id;
+
+			if ($category->parent) {
+				$parent = $category->parent;
+				$url_structure[0] = $parent->title;
+				$category_id = $parent->magento_id;
+
+				if ($parent->parent) {
+					$second_parent = $parent->parent;
+					$url_structure[0] = $second_parent->title;
+					$url_structure[1] = $parent->title;
+				}
+			}
+		}
+
+		// $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
+	}
+
+	dd($url_structure, $category_id);
+
+	// dd($order->order_product);
+
+	$options = array(
+		'trace' => true,
+		'connection_timeout' => 120,
+		'wsdl_cache' => WSDL_CACHE_NONE,
+	);
+
+	$proxy = new \SoapClient(config('magentoapi.url'), $options);
+	$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+
+	// $sku = $product->sku . $product->color;
+	// $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
+	//
+	// $brand= $product->brands()->get();
+	// array_push($categories,$brand[0]->magento_id);
+	//
+	// $associated_skus = [];
+	// $sizes_array = explode( ',', $product->size );
+	//
+	// foreach ( $sizes_array as $size ) {
+	//
+	// 	$productData = array(
+	// 		'categories'            => $categories,
+	// 		'name'                  => $product->name,
+	// 		'description'           => '<p></p>',
+	// 		'short_description'     => $product->short_description,
+	// 		'website_ids'           => array(1),
+	// 		// Id or code of website
+	// 		'status'                => 2,
+	// 		// 1 = Enabled, 2 = Disabled
+	// 		'visibility'            => 1,
+	// 		// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+	// 		'tax_class_id'          => 2,
+	// 		// Default VAT
+	// 		'weight'                => 0,
+	// 		'stock_data' => array(
+	// 			'use_config_manage_stock' => 1,
+	// 			'manage_stock' => 1,
+	// 		),
+	// 		'price'                 => $product->price_inr,
+	// 		// Same price than configurable product, no price change
+	// 		'special_price'         => $product->price_special,
+	// 		'additional_attributes' => array(
+	// 			'single_data' => array(
+	// 				array( 'key' => 'composition', 'value' => $product->composition, ),
+	// 				array( 'key' => 'color', 'value' => $product->color, ),
+	// 				array( 'key' => 'sizes', 'value' => $size, ),
+	// 				array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+	// 				array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+	// 			),
+	// 		),
+	// 	);
+	// 	// Creation of product simple
+	// 	$result            = $proxy->catalogProductCreate( $sessionId, 'simple', 14, $sku . '-' . $size, $productData );
+	// 	$associated_skus[] = $sku . '-' . $size;
+	// }
+
+	/**
+	 * Configurable product
+	 */
+	$productData = array(
+		'categories'              => $category_id,
+		'name'                    => 'Test Product from ERP',
+		'description'             => '<p></p>',
+		'short_description'       => 'Short Test Description from ERP',
+		'website_ids'             => array(1),
+		// Id or code of website
+		'status'                  => 1,
+		// 1 = Enabled, 2 = Disabled
+		'visibility'              => 1,
+		// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+		'tax_class_id'            => 2,
+		// Default VAT
+		'weight'                  => 0,
+		'stock_data' => array(
+			'use_config_manage_stock' => 1,
+			'manage_stock' => 1,
+		),
+		'price'                   => $total_special_price,
+		// Same price than configurable product, no price change
+		'special_price'           => '',
+		'associated_skus'         => "",
+		// Simple products to associate
+		'configurable_attributes' => array( 155 ),
+		// 'additional_attributes'   => array(
+		// 	'single_data' => array(
+		// 		array( 'key' => 'composition', 'value' => $product->composition, ),
+		// 		array( 'key' => 'color', 'value' => $product->color, ),
+		// 		array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+		// 		array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+		// 	),
+		// ),
+	);
+	// Creation of configurable product
+	$result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, "CUSTOMPRO$order->id", $productData);
+
+
+	// $images = $product->getMedia(config('constants.media_tags'));
+	//
+	// $i = 0;
+	// $productId = $result;
+	//
+	// foreach ($images as $image){
+	//
+	// 	$image->getUrl();
+	//
+	// 	$file = array(
+	// 		'name' => $image->getBasenameAttribute(),
+	// 		'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
+	// 		'mime' => mime_content_type($image->getAbsolutePath())
+	// 	);
+	//
+	// 	$types = $i ? array('') : array('size_guide','image','small_image','thumbnail','hover_image');
+	//
+	// 	$result = $proxy->catalogProductAttributeMediaCreate(
+	// 		$sessionId,
+	// 		$productId,
+	// 		array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
+	// 	);
+	// }
+	$product_url = "https://www.sololuxury.co.in/$url_structure[0]/$url_structure[1]/show-all/test-product-from-erp-$result.html";
+	dd($product_url, $result);
+	return $result;
 }
 
 }
