@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Customer extends Model
 {
   use SoftDeletes;
-  protected $appends = ['communication'];
+  // protected $appends = ['communication'];
   protected $fillable = [
     'name', 'phone', 'city', 'whatsapp_number'
   ];
