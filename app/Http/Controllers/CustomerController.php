@@ -38,13 +38,14 @@ class CustomerController extends Controller
     {
       $customers = $this->getCustomersIndex($request);
       $term = $request->input('term');
-      
+
       $orderby = 'desc';
       if($request->orderby == '') {
          $orderby = 'asc';
       }
 
       $customers_all = Customer::all();
+      $users_array = Helpers::getUserArray(User::all());
 
       $queues_total_count = MessageQueue::where('status', '!=', 1)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->count();
       $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->count();
@@ -52,6 +53,7 @@ class CustomerController extends Controller
       return view('customers.index', [
         'customers' => $customers,
         'customers_all' => $customers_all,
+        'users_array' => $users_array,
         'term' => $term,
         'orderby' => $orderby,
         'queues_total_count' => $queues_total_count,
