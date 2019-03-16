@@ -410,11 +410,11 @@
                   <th>Assigned to</th>
                   <th>Category</th>
                   <th>Instructions</th>
-                  <th colspan="2" class="text-center">Action</th>
+                  <th colspan="3" class="text-center">Action</th>
                   <th>Created at</th>
                   <th>Remark</th>
                 </tr>
-                @foreach ($customer->instructions()->whereNull('completed_at')->get() as $instruction)
+                @foreach ($customer->instructions()->where('verified', 0)->get() as $instruction)
                     <tr>
                       <td>
                         <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
@@ -438,6 +438,15 @@
                           @else
                             Pending
                           @endif
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction->verified == 1)
+                          <span class="badge">Verified</span>
+                        @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                          <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                        @else
+                          <span class="badge">Not Verified</span>
                         @endif
                       </td>
                       <td>{{ $instruction->created_at->diffForHumans() }}</td>
@@ -464,7 +473,7 @@
                   <th>Created at</th>
                   <th>Remark</th>
                 </tr>
-                @foreach ($customer->instructions()->whereNotNull('completed_at')->get() as $instruction)
+                @foreach ($customer->instructions()->where('verified', 1)->get() as $instruction)
                     <tr>
                       <td>
                         <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
@@ -2805,17 +2814,9 @@
           }
         }).done( function(response) {
           // $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
-          $(thiss).closest('tr').remove();
+          $(thiss).parent().html('Completed');
 
-          if (assigned_from == current_user) {
-            var verify_button = '<a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="' + id + '">Verify</a>';
-          } else {
-            var verify_button = '<span class="badge">Not Verified</span>';
-          }
 
-          var row = '<tr><td></td><td></td><td></td><td>' + response.instruction + '</td><td>' + moment(response.time).format('DD-MM HH:mm') + '</td><td>Completed</td><td>' + verify_button + '</td><td></td><td></td></tr>';
-
-          $('#5 tbody').append($(row));
         }).fail(function(errObj) {
           console.log(errObj);
           alert("Could not mark as completed");
@@ -2991,9 +2992,19 @@
             $(thiss).text('Verifying...');
           }
         }).done(function(response) {
-          $(thiss).parent().html('<span class="badge">Verified</span>');
+          // $(thiss).parent().html('<span class="badge">Verified</span>');
 
-          $(thiss).remove();
+          $(thiss).closest('tr').remove();
+
+          if (assigned_from == current_user) {
+            var verify_button = '<a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="' + id + '">Verify</a>';
+          } else {
+            var verify_button = '<span class="badge">Not Verified</span>';
+          }
+
+          var row = '<tr><td></td><td></td><td></td><td>' + response.instruction + '</td><td>' + moment(response.time).format('DD-MM HH:mm') + '</td><td>Completed</td><td>' + verify_button + '</td><td></td><td></td></tr>';
+
+          $('#5 tbody').append($(row));
         }).fail(function(response) {
           $(thiss).text('Verify');
           console.log(response);

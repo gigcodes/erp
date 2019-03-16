@@ -57,20 +57,29 @@
     <div class="tab-content ">
       <div class="tab-pane active mt-3" id="4">
 
+        <div class="form-group ml-3">
+          <input type="checkbox" name="" value="" id="select-all-instructions">
+          <label for="select-all-instructions">Select All</label>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-bordered">
             <tr>
+              <th>#</th>
               <th>Client Name</th>
               <th>Number</th>
               <th>Assigned to</th>
               <th>Category</th>
               <th>Instructions</th>
-              <th colspan="2" class="text-center">Action</th>
+              <th colspan="3" class="text-center">Action</th>
               <th>Created at</th>
               <th>Remark</th>
             </tr>
             @foreach ($instructions as $instruction)
                 <tr>
+                  <td>
+                    <input type="checkbox" name="selected_instructions[]" class="select-instruction">
+                  </td>
                   <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
@@ -94,6 +103,15 @@
                       @else
                         Pending
                       @endif
+                    @endif
+                  </td>
+                  <td>
+                    @if ($instruction['verified'] == 1)
+                      <span class="badge">Verified</span>
+                    @elseif ($instruction['assigned_from'] == Auth::id() && $instruction['verified'] == 0)
+                      <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction['id'] }}">Verify</a>
+                    @else
+                      <span class="badge">Not Verified</span>
                     @endif
                   </td>
                   <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
