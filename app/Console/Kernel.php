@@ -26,6 +26,7 @@ use App\Console\Commands\UpdateDoubleProducts;
 
 use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\RunMessageQueue;
+use App\Console\Commands\SendVoucherReminder;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -67,7 +68,8 @@ class Kernel extends ConsoleKernel
         DoubleFProductDetailScraper::class,
         DoubleFScraper::class,
         SendHourlyReports::class,
-        RunMessageQueue::class
+        RunMessageQueue::class,
+        SendVoucherReminder::class,
     ];
 
     /**
@@ -163,6 +165,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
         $schedule->command('run:message-queues')->everyMinute()->withoutOverlapping();
+
+        // Voucher Reminders
+        $schedule->command('send:voucher-reminder')->daily();
     }
 
     /**

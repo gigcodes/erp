@@ -12,11 +12,10 @@ use Carbon\Carbon;
 
 class VoucherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct() {
+      $this->middleware('permission:voucher');
+    }
+
     public function index(Request $request)
     {
       $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
@@ -62,14 +61,20 @@ class VoucherController extends Controller
     {
       $this->validate($request, [
         'description' => 'required|min:3',
-        'amount'      => 'required|numeric',
+        'travel_type' => 'sometimes|nullable|string',
+        'amount'      => 'sometimes|nullable|numeric',
+        'paid'        => 'sometimes|nullable|numeric',
         'date'        => 'required|date',
       ]);
 
       $data = $request->except('_token');
       $data['user_id'] = Auth::id();
 
-      Voucher::create($data);
+      $voucher = Voucher::create($data);
+
+      if ($request->ajax()) {
+        return response()->json(['id' => $voucher->id]);
+      }
 
       return redirect()->route('voucher.index')->with('success', 'You have successfully created cash voucher');
     }
@@ -107,15 +112,28 @@ class VoucherController extends Controller
      */
     public function update(Request $request, $id)
     {
-      $this->validate($request, [
-        'description' => 'required|min:3',
-        'amount'      => 'required|numeric',
-        'date'        => 'required|date',
-      ]);
+      if ($request->type == "partial") {
+        $this->validate($request, [
+          'travel_type' => 'sometimes|nullable|string',
+          'amount'      => 'sometimes|nullable|numeric',
+        ]);
+      } else {
+        $this->validate($request, [
+          'description' => 'required|min:3',
+          'travel_type' => 'sometimes|nullable|string',
+          'amount'      => 'sometimes|nullable|numeric',
+          'paid'        => 'sometimes|nullable|numeric',
+          'date'        => 'required|date',
+        ]);
+      }
 
       $data = $request->except('_token');
 
       Voucher::find($id)->update($data);
+
+      if ($request->type == "partial") {
+        return redirect()->back()->with('success', 'You have successfully updated cash voucher');
+      }
 
       return redirect()->route('voucher.index')->with('success', 'You have successfully updated cash voucher');
     }

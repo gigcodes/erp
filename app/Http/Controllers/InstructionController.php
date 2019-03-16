@@ -25,15 +25,15 @@ class InstructionController extends Controller
     {
       if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
         if ($request->user[0] != null) {
-          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->whereNull('completed_at')->whereIn('assigned_to', $request->user)->latest()->get()->toArray();
-          $completed_instructions = Instruction::whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->whereIn('assigned_to', $request->user)->latest()->get()->toArray();
+          $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         } else {
-          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->whereNull('completed_at')->latest()->get()->toArray();
-          $completed_instructions = Instruction::whereNotNull('completed_at')->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->latest()->get()->toArray();
+          $completed_instructions = Instruction::where('verified', 1)->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         }
       } else {
-        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->whereNull('completed_at')->where('assigned_to', Auth::id())->latest()->get()->toArray();
-        $completed_instructions = Instruction::whereNotNull('completed_at')->where('assigned_to', Auth::id())->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('assigned_to', Auth::id())->latest()->get()->toArray();
+        $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id())->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
       }
 
       $users_array = Helpers::getUserArray(User::all());
