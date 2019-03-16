@@ -442,14 +442,34 @@
                         @endif
                     </td>
                     <td>
-                      <button type="button" class="btn btn-image create-shortcut" data-toggle="modal" data-target="#shortcutModal" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button>
-                      <button type="button" class="btn btn-image create-shortcut" data-toggle="modal" data-target="#shortcutModal" data-id="{{ $customer->id }}" data-instruction="Send price">$</button>
+                      {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
+                      {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send price">$</button> --}}
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                        <input type="hidden" name="instruction" value="Ali call this client">
+                        <input type="hidden" name="instruction" value="Send images">
                         <input type="hidden" name="category_id" value="1">
-                        <input type="hidden" name="assigned_to" value="23">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('image_shortcut') }}">
+
+                        <button type="submit" class="btn btn-image"><img src="/images/attach.png" /></button>
+                      </form>
+
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="instruction" value="Send price">
+                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
+
+                        <button type="submit" class="btn btn-image">$</button>
+                      </form>
+
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
+                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
                         <button type="submit" class="btn btn-image"><img src="/images/call.png" /></button>
                       </form>
