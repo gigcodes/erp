@@ -168,6 +168,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
+	Route::post('broadcast/restart', 'BroadcastMessageController@restart')->name('broadcast.restart');
 	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
 
 
