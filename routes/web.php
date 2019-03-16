@@ -402,6 +402,8 @@ Route::prefix('comments')->group(function () {
 });
 
 Route::prefix('scrap')->group(function () {
+    Route::get('/excel', 'ScrapController@excel_import');
+    Route::post('/excel', 'ScrapController@excel_store');
     Route::get('/google/images', 'ScrapController@index');
     Route::post('/google/images', 'ScrapController@scrapGoogleImages');
     Route::post('/google/images/download', 'ScrapController@downloadImages');

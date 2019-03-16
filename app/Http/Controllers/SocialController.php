@@ -30,11 +30,18 @@ class SocialController extends Controller
 
 	}
 
-	public function getSchedules() {
+	public function getSchedules(Request $request) {
         $schedules = AdsSchedules::all();
 
-        $query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/campaigns?fields=ads{id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights{campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}}&limit=5000&access_token=".$this->user_access_token."";
+        $p = '';
 
+//        if ($request->has('date_from') && $request->has('date_to')) {
+//            $p = "&created_time[since]=$request->date_from&created_time[until]=$request->date_to";
+//        }
+
+        $query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/ads?fields=id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights{campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}&limit=1000&access_token=".$this->user_access_token.$p;
+
+//        dd($query);
         // Call to Graph api here
         $ch = curl_init();
         curl_setopt($ch,CURLOPT_URL,$query);
@@ -50,12 +57,9 @@ class SocialController extends Controller
 
         $resp = collect(json_decode($resp)->data);
 
-        $ads = $resp->map(function($item) {
-            if (isset($item->ads)) {
-                return $this->getAdsFromArray($item->ads);
-            }
 
-            return [];
+        $ads = $resp->map(function($item) {
+            return $this->getAdsFromArray($item);
         });
 
         return view('social.ad_schedules', compact('ads', 'schedules'));
@@ -492,10 +496,8 @@ class SocialController extends Controller
 
 	}
 
-    private function getAdsFromArray($ads) {
-	    $ads = collect($ads->data);
+    private function getAdsFromArray($ad) {
 
-	    $ads = $ads->map(function($ad) {
 	        return [
 	            'id' => $ad->id,
 	            'name' => $ad->name,
@@ -507,11 +509,7 @@ class SocialController extends Controller
                 'ad_insights' => $this->getInsights($ad),
                 'targeting' => $this->getPropertiesAfterFiltration($ad->targeting)
             ];
-        });
-
-
-	    return $ads;
-    }
+	}
 
     private function getAdCreative($adc) {
 	    return collect($adc)->map(function($item) {

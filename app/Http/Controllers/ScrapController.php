@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
 use App\Image;
+use App\Imports\ProductsImport;
 use App\ScrapedProducts;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Storage;
 
 class ScrapController extends Controller
@@ -136,5 +141,160 @@ class ScrapController extends Controller
         }
 
         return $images;
+    }
+
+
+
+    public function excel_import() {
+        $products = ScrapedProducts::where('website', 'EXCEL_IMPORT_TYPE_1')->paginate(25);
+        return view('scrap.excel', compact('products'));
+    }
+
+    public function excel_store(Request $request) {
+        $this->validate($request, [
+            'file' => 'required|file'
+        ]);
+
+        $file = $request->file('file');
+
+        if ($file->getClientOriginalExtension() == 'xlsx') {
+            $reader = new Xlsx();
+        } else if ($file->getClientOriginalExtension() == 'xls') {
+            $reader = new Xls();
+        }
+
+        $spreadsheet = $reader->load($file->getPathname());
+        $cells = [];
+
+
+        $i = 0;
+        foreach ($spreadsheet->getActiveSheet()->getDrawingCollection() as $drawing) {
+            if ($drawing instanceof \PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing) {
+                ob_start();
+                call_user_func(
+                    $drawing->getRenderingFunction(),
+                    $drawing->getImageResource()
+                );
+                $imageContents = ob_get_contents();
+                ob_end_clean();
+                switch ($drawing->getMimeType()) {
+                    case \PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing::MIMETYPE_PNG :
+                        $extension = 'png';
+                        break;
+                    case \PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing::MIMETYPE_GIF:
+                        $extension = 'gif';
+                        break;
+                    case \PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing::MIMETYPE_JPEG :
+                        $extension = 'jpg';
+                        break;
+                }
+            } else {
+                $zipReader = fopen($drawing->getPath(),'r');
+                $imageContents = '';
+                while (!feof($zipReader)) {
+                    $imageContents .= fread($zipReader,1024);
+                }
+                fclose($zipReader);
+                $extension = $drawing->getExtension();
+            }
+
+            $myFileName = '00_Image_'.++$i.'.'.$extension;
+            file_put_contents('uploads/social-media/'.$myFileName,$imageContents);
+            $cells[substr($drawing->getCoordinates(), 2)][] = $myFileName;
+        }
+
+        $cells_new = [];
+        $c = 0;
+        foreach ($cells as $cell) {
+            $cells_new[$c] = $cell;
+            $c++;
+        }
+
+        $files = Excel::toArray(new ProductsImport(), $file);
+        $th = [];
+
+        foreach ($files[0] as $key=>$file) {
+            if (
+                in_array('MODELLO', $file)
+                + in_array('VARIANTE', $file)
+                + in_array('COLORE', $file)
+                + in_array('GRUPPO', $file)
+                + in_array('SETTORE', $file)
+                + in_array('DESCRIZIONE', $file)
+                + in_array('BRAND', $file)
+                + in_array('PR. ACQUISTO', $file)
+                + in_array('TESSUTO', $file)
+                + in_array('PR. VENDITA', $file)
+                + in_array('COD. FOTO', $file)
+             >= 4) {
+                $th = $file;
+                unset($files[0][$key]);
+                break;
+            }
+            unset($files[0][$key]);
+        }
+
+        $fields_only_with_keys = [];
+
+        foreach ($th as $key=>$file) {
+            if ($file) {
+                $fields_only_with_keys[$key] = $file;
+            }
+        }
+
+        $dataToSave = [];
+
+        foreach ($files[0] as $pkey=>$row) {
+            $null_count = 0;
+            foreach ($row as $item) {
+                if ($item===null) $null_count++;
+            }
+            if ($null_count > 30) unset($files[0][$pkey]);
+        }
+
+        $c = 0;
+        foreach ($files[0] as $pkey=>$row) {
+            foreach ($fields_only_with_keys as $key=>$item) {
+                $dataToSave[$pkey][$item] = $row[$key];
+                if ($item == 'COD. FOTO') {
+                    $dataToSave[$pkey][$item] = $cells_new[$c];
+                }
+            }
+            $c++;
+        }
+
+        foreach ($dataToSave as $item) {
+            $sku = $item['MODELLO VARIANTE COLORE'] ?? null;
+            if (!$sku) {
+                continue;
+            }
+
+            $brand = Brand::where('name', $item['BRAND'] ?? 'UNKNOWN_BRAND_FROM_FILE')->first();
+
+            if (!$brand) {
+                continue;
+            }
+
+            $sp = new ScrapedProducts();
+            $sp->website = 'EXCEL_IMPORT_TYPE_1';
+            $sp->sku = $sku;
+            $sp->has_sku = 1;
+            $sp->brand_id = $brand->id;
+            $sp->title = $sku;
+            $sp->description = $item['description'] ?? null;
+            $sp->images = $item['COD. FOTO'] ?? [];
+            $sp->price = 'N/A';
+            $sp->properties = $item;
+            $sp->url = 'N/A';
+            $sp->is_property_updated = 0;
+            $sp->is_price_updated = 0;
+            $sp->is_enriched = 0;
+            $sp->can_be_deleted = 0;
+            $sp->save();
+        }
+
+        return redirect()->back()->with('message', 'Excel Imported Successfully!');
+
+
     }
 }

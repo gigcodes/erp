@@ -31,7 +31,12 @@
 			</li>
 		</ul>
 
-		<div class="tab-content ">
+		<div class="tab-content">
+			<br>
+			<div>
+				From <input type="text" value="" name="date_from" id="min">
+				To <input type="text" value="" name="date_to" id="max">
+			</div>
 			<div class="tab-pane active" id="1">
 				<table class="table mt-1 table-striped" id="myTable">
 					<thead>
@@ -54,8 +59,7 @@
 					</thead>
 					<tbody>
 					<?php $sn = 1; ?>
-						@foreach($ads as $key=>$ad_)
-							@foreach($ad_ as $ad)
+						@foreach($ads as $key=>$ad)
 								<tr data-adId="{{$ad['id']}}">
 									<td>{{ $sn }}</td>
 									<td>{{ $ad['adset_id'] }}</td>
@@ -73,17 +77,16 @@
 											@endif
 										@endforeach
 									</td>
-									<th>{{ $ad['ad_insights']['date_start'] ?? 'N/A' }}</th>
-									<th>{{ $ad['ad_insights']['date_start'] ?? 'N/A' }}</th>
-									<th>{{ $ad['ad_insights']['spend'] ?? 'N/A' }}</th>
-									<th>{{ $ad['ad_insights']['clicks'] ?? 'N/A' }}</th>
-									<th>{{ $ad['ad_insights']['reach'] ?? 'N/A' }}</th>
-									<th>{{ $ad['ad_insights']['impressions'] ?? 'N/A' }}</th>
+									<td>{{ $ad['ad_insights']['date_start'] ?? 'N/A' }}</td>
+									<td>{{ $ad['ad_insights']['date_start'] ?? 'N/A' }}</td>
+									<td>{{ $ad['ad_insights']['spend'] ?? 'N/A' }}</td>
+									<td>{{ $ad['ad_insights']['clicks'] ?? 'N/A' }}</td>
+									<td>{{ $ad['ad_insights']['reach'] ?? 'N/A' }}</td>
+									<td>{{ $ad['ad_insights']['impressions'] ?? 'N/A' }}</td>
 									<td>{{ $ad['status'] }}</td>
-									<td>{{ \Carbon\Carbon::createFromTimeString($ad['created_time'])->diffForHumans() }}</td>
+									<td>{{ \Carbon\Carbon::createFromTimeString($ad['created_time'])->format('Y/m/d') }}</td>
 								</tr>
 								<?php $sn++; ?>
-							@endforeach
 						@endforeach
 					</tbody>
 				</table>
@@ -165,9 +168,31 @@
 				events: '{{ action('SocialController@getAdSchedules') }}'
 			});
 
-			$(document).ready( function () {
-				$('#myTable').DataTable();
-			} );
+		});
+
+		$(document).ready(function(){
+			$.fn.dataTable.ext.search.push(
+				function (settings, data, dataIndex) {
+					var min = $('#min').datepicker("getDate");
+					var max = $('#max').datepicker("getDate");
+					var startDate = new Date(data[13]);
+					if (min == null && max == null) { return true; }
+					if (min == null && startDate <= max) { return true;}
+					if(max == null && startDate >= min) {return true;}
+					if (startDate <= max && startDate >= min) { return true; }
+					return false;
+				}
+			);
+
+
+			$("#min").datepicker({ onSelect: function () { table.draw(); }, changeMonth: true, changeYear: true });
+			$("#max").datepicker({ onSelect: function () { table.draw(); }, changeMonth: true, changeYear: true });
+			var table = $('#myTable').DataTable();
+
+			// Event listener to the two range filtering inputs to redraw on input
+			$('#min, #max').change(function () {
+				table.draw();
+			});
 		});
 	</script>
 @endsection
