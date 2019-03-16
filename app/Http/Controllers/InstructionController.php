@@ -23,29 +23,37 @@ class InstructionController extends Controller
      */
     public function index(Request $request)
     {
+      $orderby = 'desc';
+
+      if($request->orderby == '') {
+        $orderby = 'asc';
+      }
+
       if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
         if ($request->user[0] != null) {
-          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->whereIn('assigned_to', $request->user)->latest()->get()->toArray();
-          $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->get()->toArray();
+          $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         } else {
-          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->latest()->get()->toArray();
-          $completed_instructions = Instruction::where('verified', 1)->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->orderBy('created_at', $orderby)->get()->toArray();
+          $completed_instructions = Instruction::where('verified', 1)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         }
       } else {
-        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('assigned_to', Auth::id())->latest()->get()->toArray();
-        $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id())->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->get()->toArray();
+        $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
       }
 
       $users_array = Helpers::getUserArray(User::all());
       $user = $request->user ? $request->user : [];
 
-			$instructions = array_values(array_sort($instructions, function ($value) {
-        if ($value['remarks']) {
-          return $value['remarks'][0]['created_at'];
-        }
+      if ($request->sortby != 'created_at') {
+        $instructions = array_values(array_sort($instructions, function ($value) {
+          if ($value['remarks']) {
+            return $value['remarks'][0]['created_at'];
+          }
 
-        return NULL;
-			}));
+          return NULL;
+  			}));
+      }
 
       $instructions = array_reverse($instructions);
 
@@ -61,7 +69,8 @@ class InstructionController extends Controller
         'instructions'            => $instructions,
         'completed_instructions'  => $completed_instructions,
         'users_array'             => $users_array,
-        'user'                    => $user
+        'user'                    => $user,
+        'orderby'                 => $orderby
       ]);
     }
 
