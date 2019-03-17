@@ -7,6 +7,7 @@ use App\Benchmark;
 use App\User;
 use App\Leads;
 use App\Order;
+use App\ScrapedProducts;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -225,6 +226,13 @@ class ActivityConroller extends Controller {
 
 		$data['leads'] = $leads;
 		$data['orders'] = $orders;
+
+		$data['scraped_gnb_count'] = ScrapedProducts::where('website', 'G&B')->get()->count();
+		$data['scraped_wise_count'] = ScrapedProducts::where('website', 'Wiseboutique')->get()->count();
+		$data['scraped_double_count'] = ScrapedProducts::where('website', 'DoubleF')->get()->count();
+		$data['scraped_gnb_product_count'] = ScrapedProducts::with('Product')->where('website', 'G&B')->whereHas('Product')->get()->count();
+		$data['scraped_wise_product_count'] = ScrapedProducts::with('Product')->where('website', 'Wiseboutique')->whereHas('Product')->get()->count();
+		$data['scraped_double_product_count'] = ScrapedProducts::with('Product')->where('website', 'DoubleF')->whereHas('Product')->get()->count();
 
 		return view( 'activity.index', $data );
 	}

@@ -31,4 +31,9 @@ class ScrapedProducts extends Model
     public function brand() {
         return $this->belongsTo(Brand::class);
     }
+
+    public function product()
+    {
+      return $this->hasOne('App\Product', 'sku');
+    }
 }

@@ -187,6 +187,60 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Scraped G&B</strong>
+                                    <div class="count-number">{{ $scraped_gnb_count }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Scraped Wise Boutique</strong>
+                                    <div class="count-number">{{ $scraped_wise_count }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Scraped Double F</strong>
+                                    <div class="count-number">{{ $scraped_double_count }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Scraped G&B Products</strong>
+                                    <div class="count-number">{{ $scraped_gnb_product_count }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Scraped Wise Boutique Products</strong>
+                                    <div class="count-number">{{ $scraped_wise_product_count }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Scraped Double F Products</strong>
+                                    <div class="count-number">{{ $scraped_double_product_count }}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
