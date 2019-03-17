@@ -1216,13 +1216,17 @@
                           </div>
                         @endif
 
-                        @if ($order->auto_emailed == 1)
+                        @if ($order->order_status == 'Advance received' && $order->auto_emailed == 0)
                           <div class="form-group">
-                            <form action="" method="POST">
-                              @csrf
+                            <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
+                          </div>
+                        @elseif ($order->auto_emailed == 1)
+                          Advance Receipt was emailed
+                        @endif
 
-                              <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
-                            </form>
+                        @if ($order->order_status == 'Advance received' && $order->auto_emailed == 0)
+                          <div class="form-group">
+                            <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
                           </div>
                         @endif
 

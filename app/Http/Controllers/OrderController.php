@@ -733,19 +733,6 @@ class OrderController extends Controller {
 			}
 		}
 
-		if ($order->auto_emailed == 0) {
-			if ($order->order_status == 'Advance received' && $order->order_type == 'online') {
-				if (Auth::id() == 3 || Auth::id() == 56) {
-					Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
-
-					$order->update([
-						'auto_emailed' => 1,
-						'auto_emailed_date' => Carbon::now()
-					]);
-				}
-			}
-		}
-
 		if ($order->order_status == 'Refund to be processed') {
 			$refund = Refund::where('order_id', $order->id)->first();
 
@@ -783,6 +770,24 @@ class OrderController extends Controller {
 		$pdf->loadHtml($view);
 		$pdf->render();
 		$pdf->stream();
+	}
+
+	public function emailAdvanceReceipt($id)
+	{
+		$order = Order::find($id);
+
+		if ($order->auto_emailed == 0) {
+			if ($order->order_status == 'Advance received') {
+				Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
+
+				$order->update([
+					'auto_emailed' => 1,
+					'auto_emailed_date' => Carbon::now()
+				]);
+			}
+		}
+
+		return redirect()->back()->withSuccess('Advance Receipt was successfully emailed!');
 	}
 
 	public function uploadForApproval(Request $request, $id) {
@@ -867,19 +872,6 @@ class OrderController extends Controller {
 					'auto_messaged' => 1,
 					'auto_messaged_date' => Carbon::now()
 				]);
-			}
-		}
-
-		if ($order->auto_emailed == 0) {
-			if ($order->order_status == 'Advance received' && $order->order_type == 'online') {
-				if (Auth::id() == 3 || Auth::id() == 56) {
-					Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
-
-					$order->update([
-						'auto_emailed' => 1,
-						'auto_emailed_date' => Carbon::now()
-					]);
-				}
 			}
 		}
 
