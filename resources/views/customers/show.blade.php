@@ -1067,7 +1067,7 @@
                   Order {{ $key + 1 }}
                   <a href="{{ route('order.show', $order->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
                   <span class="ml-3">
-                    @if (isset($order->delivery_approval) && ($order->delivery_approval->approved == 0 || $order->delivery_approval->approved == 1))
+                    @if (isset($order->delivery_approval) && $order->delivery_approval->approved == 0)
                       <span class="badge">Waiting for Delivery Approval</span>
                     @endif
                   </span>
@@ -1365,7 +1365,6 @@
                         <tr>
                           <th>Uploaded Photos</th>
                           <th>Approved</th>
-                          <th>Approved</th>
                           <th>Voucher</th>
                         </tr>
                       </thead>
@@ -1377,7 +1376,7 @@
                             @endforeach
                           </td>
                           <td>
-                            @if ($order->delivery_approval->approved == 1 || $order->delivery_approval->approved == 2)
+                            @if ($order->delivery_approval->approved == 1)
                               Approved
                             @else
                               <form action="{{ route('order.delivery.approve', $order->delivery_approval->id) }}" method="POST">
@@ -1387,7 +1386,7 @@
                               </form>
                             @endif
                           </td>
-                          <td>
+                          {{-- <td>
                             @if ($order->delivery_approval->approved == 2)
                               Approved
                             @else
@@ -1397,7 +1396,7 @@
                                 <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
                               </form>
                             @endif
-                          </td>
+                          </td> --}}
                           <td>
                             @can('voucher')
                               @if ($order->delivery_approval->voucher)

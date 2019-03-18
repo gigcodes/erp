@@ -138,6 +138,21 @@ class VoucherController extends Controller
       return redirect()->route('voucher.index')->with('success', 'You have successfully updated cash voucher');
     }
 
+    public function approve(Request $request, $id)
+    {
+      $voucher = Voucher::find($id);
+
+      if ($voucher->approved == 1) {
+        $voucher->approved = 2;
+      } else {
+        $voucher->approved = 1;
+      }
+
+      $voucher->save();
+
+      return redirect()->route('voucher.index')->withSuccess('You have successfully updated the voucher!');
+    }
+
     /**
      * Remove the specified resource from storage.
      *

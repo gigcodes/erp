@@ -817,11 +817,11 @@ class OrderController extends Controller {
 	{
 		$delivery_approval = DeliveryApproval::find($id);
 
-		if ($delivery_approval->approved == 1) {
-			$delivery_approval->approved = 2;
-		} else {
+		// if ($delivery_approval->approved == 1) {
+		// 	$delivery_approval->approved = 2;
+		// } else {
 			$delivery_approval->approved = 1;
-		}
+		// }
 		$delivery_approval->save();
 
 		return redirect()->back()->with('success', 'You have successfully approved delivery!');

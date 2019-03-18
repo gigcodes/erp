@@ -66,7 +66,7 @@
           <th>Paid</th>
           <th>Credit</th>
           <th>Date</th>
-          <th class="text-center">Action</th>
+          <th colspan="3" class="text-center">Action</th>
         </tr>
         @foreach ($vouchers as $voucher)
             <tr>
@@ -79,6 +79,36 @@
                 {{ ($voucher->amount - $voucher->paid) * -1 }}
               </td>
               <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
+              <td>
+                @if ($voucher->approved > 0)
+                  Approved
+                @else
+                  @if (Auth::id() == 49 || Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                    <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
+                      @csrf
+
+                      <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                    </form>
+                  @else
+                    Not approved
+                  @endif
+                @endif
+              </td>
+              <td>
+                @if ($voucher->approved == 2)
+                  Approved
+                @else
+                  @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                    <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
+                      @csrf
+
+                      <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                    </form>
+                  @else
+                    Not approved
+                  @endif
+                @endif
+              </td>
               <td>
                 <a class="btn btn-image" href="{{ route('voucher.edit', $voucher->id) }}"><img src="/images/edit.png" /></a>
 

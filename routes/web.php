@@ -190,6 +190,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/product/{id}', 'PurchaseController@updatePercentage')->name('purchase.product.percentage');
 
 	// Cash Vouchers
+	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');
 	Route::resource('voucher', 'VoucherController');
 
 	//Comments
