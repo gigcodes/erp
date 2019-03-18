@@ -29,7 +29,7 @@ class InstructionController extends Controller
         $orderby = 'asc';
       }
 
-      if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
+      if (Auth::user()->hasRole('Admin')) {
         if ($request->user[0] != null) {
           $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->get()->toArray();
           $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
