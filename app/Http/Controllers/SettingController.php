@@ -27,6 +27,7 @@ class SettingController extends Controller
 		$data['image_shortcut'] = Setting::get('image_shortcut');
 		$data['price_shortcut'] = Setting::get('price_shortcut');
 		$data['call_shortcut'] = Setting::get('call_shortcut');
+		$data['screenshot_shortcut'] = Setting::get('screenshot_shortcut');
 
 		return view('setting.index',$data);
 	}
@@ -50,6 +51,7 @@ class SettingController extends Controller
 		Setting::add('image_shortcut', $request->image_shortcut, 'tinyint');
 		Setting::add('price_shortcut', $request->price_shortcut, 'tinyint');
 		Setting::add('call_shortcut', $request->call_shortcut, 'tinyint');
+		Setting::add('screenshot_shortcut', $request->screenshot_shortcut, 'tinyint');
 
 		return redirect()->back()->with('status', 'Settings has been saved.');
 	}

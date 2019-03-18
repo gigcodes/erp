@@ -372,8 +372,9 @@
             @endif --}}
             <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=rating{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Rating</a></th>
             <th width="10%">Lead/Order Status</th>
-            <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
-            <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th>
+            <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
+            <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th>
+            <th width="10%">Instruction</th>
             <th width="10%">Message Status</th>
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
             <th>Shortcuts</th>
@@ -413,6 +414,30 @@
                         @if ($customer->order_status)
                             {{ $customer->order_created }}
                         @endif
+                    </td>
+                    <td class="{{ $customer->instruction_completed ? 'text-success' : ($customer->instruction_pending == 1 ? 'text-danger' : '') }}">
+                      @if ($customer->instruction_assigned_to)
+                        {{ $users_array[$customer->instruction_assigned_to] }} -
+
+
+                        {{ $customer->instruction }}
+
+                        @if ($customer->instruction_completed)
+                          {{ Carbon\Carbon::parse($customer->instruction_completed)->format('d-m H:i') }}
+                        @else
+                          <a href="#" class="btn-link complete-call" data-id="{{ $customer->instruction_id }}">Complete</a>
+                        @endif
+
+                        @if ($customer->instruction_completed)
+                          Completed
+                        @else
+                          @if ($customer->instruction_pending == 0)
+                            <a href="#" class="btn-link pending-call" data-id="{{ $customer->instruction_id }}">Mark as Pending</a>
+                          @else
+                            Pending
+                          @endif
+                        @endif
+                      @endif
                     </td>
                     <td>
                         @if (!empty($customer->message))
@@ -472,6 +497,16 @@
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
                         <button type="submit" class="btn btn-image"><img src="/images/call.png" /></button>
+                      </form>
+
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="instruction" value="Attach image or screenshot physically">
+                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
+
+                        <button type="submit" class="btn btn-image"><img src="/images/upload.png" /></button>
                       </form>
                     </td>
                     <td>
@@ -609,6 +644,60 @@
 
         $('#customer_id_field').val(id);
         $('#instruction_field').val(instruction);
+      });
+
+      $(document).on('click', '.complete-call', function(e) {
+        e.preventDefault();
+
+        var thiss = $(this);
+        var token = "{{ csrf_token() }}";
+        var url = "{{ route('instruction.complete') }}";
+        var id = $(this).data('id');
+
+        $.ajax({
+          type: 'POST',
+          url: url,
+          data: {
+            _token: token,
+            id: id
+          },
+          beforeSend: function() {
+            $(thiss).text('Loading');
+          }
+        }).done( function(response) {
+          $(thiss).parent().append(moment(response.time).format('DD-MM HH:mm'));
+          $(thiss).remove();
+        }).fail(function(errObj) {
+          console.log(errObj);
+          alert("Could not mark as completed");
+        });
+      });
+
+      $(document).on('click', '.pending-call', function(e) {
+        e.preventDefault();
+
+        var thiss = $(this);
+        var token = "{{ csrf_token() }}";
+        var url = "{{ route('instruction.pending') }}";
+        var id = $(this).data('id');
+
+        $.ajax({
+          type: 'POST',
+          url: url,
+          data: {
+            _token: token,
+            id: id
+          },
+          beforeSend: function() {
+            $(thiss).text('Loading');
+          }
+        }).done( function(response) {
+          $(thiss).parent().append('Pending');
+          $(thiss).remove();
+        }).fail(function(errObj) {
+          console.log(errObj);
+          alert("Could not mark as completed");
+        });
       });
   </script>
 @endsection

@@ -111,6 +111,19 @@
                                         <div class="alert alert-danger">{{$errors->first('call_shortcut')}}</div>
                                     @endif
                                 </div>
+
+                                <div class="form-group">
+                                    <strong>User for Attach Image Physically Shortcut:</strong>
+                                    <select class="selectpicker form-control" data-live-search="true" data-size="15" name="screenshot_shortcut" title="Choose a User" required>
+                                        @foreach ($users_array as $index => $user)
+                                            <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}" {{ $index == $screenshot_shortcut ? 'selected' : '' }}>{{ $user }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    @if ($errors->has('screenshot_shortcut'))
+                                        <div class="alert alert-danger">{{$errors->first('screenshot_shortcut')}}</div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
