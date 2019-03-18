@@ -43,7 +43,7 @@ class RunMessageQueue extends Command
     public function handle()
     {
       $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now())->where('sent', 0)->where('status', '!=', 1)->limit(10);
-
+      
       if (count($message_queues->get()) > 0) {
         foreach ($message_queues->get() as $message) {
           if ($message->type == 'message_all') {

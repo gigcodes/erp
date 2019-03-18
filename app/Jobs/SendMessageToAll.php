@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Customer;
 use App\ChatMessage;
 use App\MessageQueue;
+use Carbon\Carbon;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Http\Request;
@@ -85,6 +86,8 @@ class SendMessageToAll implements ShouldQueue
         $message_queue->chat_message_id = $chat_message->id;
         $message_queue->sent = 1;
         $message_queue->save();
+      } else {
+        MessageQueue::where('customer_id', $this->customer->id)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->delete();
       }
     }
 }
