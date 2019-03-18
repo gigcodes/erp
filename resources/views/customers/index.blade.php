@@ -415,7 +415,7 @@
                             {{ $customer->order_created }}
                         @endif
                     </td>
-                    <td class="{{ $customer->instruction_completed ? 'text-success' : ($customer->instruction_pending == 1 ? 'text-danger' : '') }}">
+                    <td class="{{ $customer->instruction_completed ? 'text-success' : 'text-danger' }}">
                       @if ($customer->instruction_assigned_to)
                         {{ $users_array[$customer->instruction_assigned_to] }} -
 
