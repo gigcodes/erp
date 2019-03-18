@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Instruction extends Model
 {
+  protected $fillable = ['start_time', 'end_time'];
+
   public function customer()
   {
     return $this->belongsTo('App\Customer');

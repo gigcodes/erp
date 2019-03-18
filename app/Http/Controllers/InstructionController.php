@@ -174,7 +174,11 @@ class InstructionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+      $data = $request->except(['_token', '_method']);
+
+      Instruction::find($id)->update($data);
+
+      return redirect()->route('instruction.index')->withSuccess('You have successfully updated instruction!');
     }
 
     public function complete(Request $request)

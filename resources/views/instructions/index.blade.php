@@ -2,6 +2,7 @@
 
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
 
 @section('content')
@@ -65,15 +66,22 @@
         <div class="table-responsive">
             <table class="table table-bordered">
             <tr>
-              <th>#</th>
-              <th>Client Name</th>
-              <th>Number</th>
-              <th>Assigned to</th>
-              <th>Category</th>
-              <th>Instructions</th>
-              <th colspan="3" class="text-center">Action</th>
-              <th><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
-              <th>Remark</th>
+              <th rowspan="2">#</th>
+              <th rowspan="2">Client Name</th>
+              <th rowspan="2">Number</th>
+              <th rowspan="2">Assigned to</th>
+              <th rowspan="2">Category</th>
+              <th rowspan="2">Instructions</th>
+              <th rowspan="2" colspan="3" class="text-center">Action</th>
+              <th colspan="3" class="text-center">Timing</th>
+              <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
+              <th rowspan="2">Remark</th>
+            </tr>
+
+            <tr>
+              <th>Start</th>
+              <th>End</th>
+              <th>Action</th>
             </tr>
             @foreach ($instructions as $instruction)
                 <tr>
@@ -114,6 +122,19 @@
                       <span class="badge">Not Verified</span>
                     @endif
                   </td>
+                  <td>
+                    @if ($instruction['start_time'])
+                      {{ \Carbon\Carbon::parse($instruction['start_time'])->format('H:i d-m') }}
+                    @endif
+                  </td>
+                  <td>
+                    @if ($instruction['end_time'])
+                      {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
+                    @endif
+                  </td>
+                  <td>
+                    <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
+                  </td>
                   <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
                   <td>
                     <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction['id'] }}">Add</a>
@@ -132,14 +153,21 @@
           <div class="table-responsive">
               <table class="table table-bordered">
               <tr>
-                <th>Client Name</th>
-                <th>Number</th>
-                <th>Assigned to</th>
-                <th>Category</th>
-                <th>Instructions</th>
-                <th colspan="3" class="text-center">Action</th>
-                <th><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
-                <th>Remark</th>
+                <th rowspan="2">Client Name</th>
+                <th rowspan="2">Number</th>
+                <th rowspan="2">Assigned to</th>
+                <th rowspan="2">Category</th>
+                <th rowspan="2">Instructions</th>
+                <th rowspan="2" colspan="3" class="text-center">Action</th>
+                <th colspan="3">Timing</th>
+                <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
+                <th rowspan="2">Remark</th>
+              </tr>
+
+              <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Action</th>
               </tr>
               @foreach ($completed_instructions as $instruction)
                   <tr>
@@ -176,6 +204,19 @@
                       @else
                         <span class="badge">Not Verified</span>
                       @endif
+                    </td>
+                    <td>
+                      @if ($instruction['start_time'])
+                        {{ \Carbon\Carbon::parse($instruction['start_time'])->format('H:i d-m') }}
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['end_time'])
+                        {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
+                      @endif
+                    </td>
+                    <td>
+                      <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
                     </td>
                     <td>{{ $instruction->created_at->diffForHumans() }}</td>
                     <td>
@@ -243,13 +284,72 @@
       </div>
     </div>
 
+    <div id="instructionEditModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Edit Instruction Timing</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <form action="" id="instructionEditForm" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div class="modal-body">
+              <div class="form-group">
+                <strong>Start Time:</strong>
+                <div class='input-group date instruction-start-time'>
+                  <input type='text' class="form-control" name="start_time" id="instruction_start_time" value="{{ date('Y-m-d H:i') }}" />
+
+                  <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+
+                @if ($errors->has('start_time'))
+                <div class="alert alert-danger">{{$errors->first('start_time')}}</div>
+                @endif
+              </div>
+
+              <div class="form-group">
+                <strong>End Time:</strong>
+                <div class='input-group date instruction-end-time'>
+                  <input type='text' class="form-control" name="end_time" id="instruction_end_time" value="{{ date('Y-m-d H:i') }}" />
+
+                  <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+
+                @if ($errors->has('end_time'))
+                <div class="alert alert-danger">{{$errors->first('end_time')}}</div>
+                @endif
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Update</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
        $(".select-multiple").multiselect();
+       $('.instruction-start-time').datetimepicker({
+         format: 'YYYY-MM-DD HH:mm'
+       });
     });
 
     $(document).on('click', '.complete-call', function(e) {
@@ -386,6 +486,18 @@
         console.log(response);
         alert('Could not verify the instruction!');
       });
+    });
+
+    $(document).on('click', '.instruction-edit-button', function() {
+      var id = $(this).data('id');
+      var start = $(this).data('start');
+      var end = $(this).data('end');
+      var url = "{{ url('instruction') }}/" + id;
+
+      $('#instructionEditForm').attr('action', url);
+
+      $('#instruction_start_time').val(start.length > 0 ? start : moment().format('YYYY-MM-DD HH:mm'));
+      $('#instruction_end_time').val(end.length > 0 ? end : moment().format('YYYY-MM-DD HH:mm'));
     });
   </script>
 @endsection
