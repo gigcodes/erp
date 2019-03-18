@@ -34,12 +34,18 @@ class SocialController extends Controller
         $schedules = AdsSchedules::all();
 
         $p = '';
+        if ($request->has('date_from') && $request->has('date_to')) {
+            $p = "&time_range={'since':'$request->date_form','until':'$request->date_to'}";
+        }
 
-//        if ($request->has('date_from') && $request->has('date_to')) {
-//            $p = "&created_time[since]=$request->date_from&created_time[until]=$request->date_to";
-//        }
+        $query= 'https://graph.facebook.com/v3.2/' .$this->ad_acc_id. '/ads?fields=id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights{campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}&limit=10&access_token=' .$this->user_access_token;
 
-        $query="https://graph.facebook.com/v3.2/".$this->ad_acc_id."/ads?fields=id,name,targeting,status,created_time,adcreatives{thumbnail_url},adset{name},insights{campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks}&limit=1000&access_token=".$this->user_access_token.$p;
+        if ($request->has('previous')) {
+            $query = $request->get('prev');
+        }
+        if ($request->has('next')) {
+            $query = $request->get('nxt');
+        }
 
 //        dd($query);
         // Call to Graph api here
@@ -54,15 +60,20 @@ class SocialController extends Controller
 
 
         $resp = curl_exec($ch);
+        $resp = json_decode($resp);
 
-        $resp = collect(json_decode($resp)->data);
+        $pagination = $resp->paging;
+        $previous = $pagination->previous ?? '';
+        $next = $pagination->next ?? '';
+
+        $resp = collect($resp->data);
 
 
-        $ads = $resp->map(function($item) {
-            return $this->getAdsFromArray($item);
+        $ads = $resp->map(function($item) use ($p) {
+            return $this->getAdsFromArray($item, $p);
         });
 
-        return view('social.ad_schedules', compact('ads', 'schedules'));
+        return view('social.ad_schedules', compact('ads', 'schedules', 'previous', 'next', 'request'));
 
     }
 
@@ -80,7 +91,7 @@ class SocialController extends Controller
 	    return redirect()->action('SocialController@showSchedule', $ad->id)->with('message', 'The ad has been scheduled successfully!');
     }
 
-    public function showSchedule($id) {
+    public function showSchedule($id, Request $request) {
 	    $ad = AdsSchedules::findOrFail($id);
 
 	    $images = \DB::table('ads_schedules_attachments')->where('ads_schedule_id', $ad->id)->get();
@@ -496,7 +507,7 @@ class SocialController extends Controller
 
 	}
 
-    private function getAdsFromArray($ad) {
+    private function getAdsFromArray($ad, $p) {
 
 	        return [
 	            'id' => $ad->id,
@@ -506,7 +517,7 @@ class SocialController extends Controller
                 'adset_name' => $ad->adset->name,
                 'adset_id' => $ad->adset->id,
                 'ad_creatives' => $this->getAdCreative($ad->adcreatives->data),
-                'ad_insights' => $this->getInsights($ad),
+                'ad_insights' => $this->getInsights($ad, $p),
                 'targeting' => $this->getPropertiesAfterFiltration($ad->targeting)
             ];
 	}
@@ -517,22 +528,28 @@ class SocialController extends Controller
         });
     }
 
-    private function getInsights($ad) {
-	    if (!isset($ad->insights)) {
-	        return [];
-        }
-	    $insights = $ad->insights->data[0];
+    private function getInsights($ad, $p) {
+	    $adId = $ad->id;
+	    $url = "https://graph.facebook.com/v3.2/$adId/insights?fields=campaign_name,account_id,reach,impressions,cost_per_unique_click,actions,spend,clicks&access_token=EAAD7Te0j0B8BAJKziYXYZCNZB0i6B9JMBvYULH5kIeH5qm6N9E3DZBoQyZCZC0bxZB4c4Rl5gifAqVa788DRaCWXQ2fNPtKFVnEoKvb5Nm1ufMG5cZCTTzKZAM8qUyaDtT0mmyC0zjhv5S9IJt70tQBpDMRHk9XNYoPTtmBedrvevtPIRPEUKns8feYJMkqHS6EZD".$p;
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_POST, 0);
 
-	    return [
-	        'campaign_name' => $insights->campaign_name,
-	        'account_id' => $insights->account_id,
-	        'reach' => $insights->reach,
-	        'impressions' => $insights->impressions,
-	        'spend' => $insights->spend,
-	        'date_start' => $insights->date_start,
-	        'date_stop' => $insights->date_stop,
-	        'clicks' => $insights->clicks,
-        ];
+
+        $resp = curl_exec($ch);
+
+        $resp = json_decode($resp, true);
+
+        $insights = collect($resp['data']);
+
+        foreach ($insights as $insight)
+
+	    return $insight;
     }
 
 	// Function for Getting Reports via curl

@@ -33,10 +33,21 @@
 
 		<div class="tab-content">
 			<br>
-			<div>
-				From <input type="text" value="" name="date_from" id="min">
-				To <input type="text" value="" name="date_to" id="max">
-			</div>
+			<form method="post" action="{{ action('SocialController@getSchedules') }}">
+				@csrf
+				From <input type="text" value="{{ $request->date_from ?? '' }}" name="date_from" id="min">
+				To <input type="text" value="{{ $request->date_to ?? '' }}" name="date_to" id="max"> &nbsp; <button class="btn btn-sm btn-primary">Go</button>
+				<div class="text-center">
+					@if($previous)
+						<input type="hidden" value="{{ $previous }}" name="prev">
+						<input value="Previous" name="previous" class="btn btn-primary" type="submit">
+					@endif
+					@if($next)
+						<input type="hidden" value="{{ $next }}" name="nxt">
+						<input value="Next" name="next" class="btn btn-primary" type="submit" >
+					@endif
+				</div>
+			</form>
 			<div class="tab-pane active" id="1">
 				<table class="table mt-1 table-striped" id="myTable">
 					<thead>
@@ -171,28 +182,32 @@
 		});
 
 		$(document).ready(function(){
-			$.fn.dataTable.ext.search.push(
-				function (settings, data, dataIndex) {
-					var min = $('#min').datepicker("getDate");
-					var max = $('#max').datepicker("getDate");
-					var startDate = new Date(data[13]);
-					if (min == null && max == null) { return true; }
-					if (min == null && startDate <= max) { return true;}
-					if(max == null && startDate >= min) {return true;}
-					if (startDate <= max && startDate >= min) { return true; }
-					return false;
-				}
-			);
+			// $.fn.dataTable.ext.search.push(
+			// 	function (settings, data, dataIndex) {
+			// 		var min = $('#min').datepicker("getDate");
+			// 		var max = $('#max').datepicker("getDate");
+			// 		var startDate = new Date(data[13]);
+			// 		if (min == null && max == null) { return true; }
+			// 		if (min == null && startDate <= max) { return true;}
+			// 		if(max == null && startDate >= min) {return true;}
+			// 		if (startDate <= max && startDate >= min) { return true; }
+			// 		return false;
+			// 	}
+			// );
 
 
-			$("#min").datepicker({ onSelect: function () { table.draw(); }, changeMonth: true, changeYear: true });
-			$("#max").datepicker({ onSelect: function () { table.draw(); }, changeMonth: true, changeYear: true });
+			$("#min").datepicker({
+				dateFormat: 'yy-mm-dd'
+			});
+			$("#max").datepicker({
+				dateFormat: 'yy-mm-dd'
+			});
 			var table = $('#myTable').DataTable();
 
 			// Event listener to the two range filtering inputs to redraw on input
-			$('#min, #max').change(function () {
-				table.draw();
-			});
+			// $('#min, #max').change(function () {
+			// 	table.draw();
+			// });
 		});
 	</script>
 @endsection

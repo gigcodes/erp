@@ -300,6 +300,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Ad reports routes
 	Route::get('social/ad/report','SocialController@report')->name('social.report');
 	Route::get('social/ad/schedules','SocialController@getSchedules')->name('social.ads.schedules');
+	Route::post('social/ad/schedules','SocialController@getSchedules')->name('social.ads.schedules.p');
 	Route::get('social/ad/schedules/calendar','SocialController@getAdSchedules')->name('social.ads.schedules.calendar');
 	Route::post('social/ad/schedules/','SocialController@createAdSchedule')->name('social.ads.schedules.create');
 	Route::post('social/ad/schedules/attach-images/{id}','SocialController@attachMedia')->name('social.ads.schedules.attach_images');

@@ -19,6 +19,7 @@
                     <label for="query">Select Excel File</label>
                     <input class="form-control" type="file" id="file" name="file" placeholder="Select File...">
                 </div>
+
                 <div class="form-group">
                     <button class="btn btn-primary">Import</button>
                 </div>
