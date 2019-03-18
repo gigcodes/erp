@@ -63,7 +63,11 @@ class ProductInventoryController extends Controller
 											 ->whereNull('dnf')
 											 ->where('stock', '>=', 1)->get()
 											 ->groupBy([function ($query) use ($brands_array) {
-												 return $brands_array[$query->brand];
+												 if (isset($brands_array[$query->brand])) {
+													 return $brands_array[$query->brand];
+												 }
+
+												 return 'Unknown Brand';
 											 }, 'supplier', 'category']);
 
 		// dd($products_brands);
