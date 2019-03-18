@@ -14,10 +14,21 @@ class BroadcastMessageController extends Controller
   {
     $date = $request->sending_time ? $request->sending_time : Carbon::now()->format('Y-m-d');
     $message_queues = MessageQueue::latest()->where('sending_time', 'LIKE', "%$date%")->paginate(Setting::get('pagination'));
+    $last_group_id = MessageQueue::max('group_id');
+    $last_set_completed = MessageQueue::where('group_id', $last_group_id)->where('sent', 1)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+    $last_set_stopped_count = MessageQueue::where('group_id', $last_group_id)->where('status', 1)->count();
+
+    if ($last_set_stopped_count > 0) {
+      $last_stopped = true;
+    } else {
+      $last_stopped = false;
+    }
 
     return view('customers.broadcast', [
-      'message_queues'  => $message_queues,
-      'date'            => $date
+      'message_queues'     => $message_queues,
+      'date'               => $date,
+      'last_set_completed' => $last_set_completed,
+      'last_stopped'       => $last_stopped
     ]);
   }
 
@@ -49,5 +60,19 @@ class BroadcastMessageController extends Controller
     return view('customers.broadcast-calendar', [
       'message_queues'  => $filtered_messages
     ]);
+  }
+
+  public function restart(Request $request)
+  {
+    $last_group_id = MessageQueue::max('group_id');
+
+    $last_set_stopped = MessageQueue::where('group_id', $last_group_id)->where('status', 1)->get();
+
+    foreach ($last_set_stopped as $set) {
+      $set->status = 0;
+      $set->save();
+    }
+
+    return redirect()->route('broadcast.index')->withSuccess('You have successfully restarted last set!');
   }
 }

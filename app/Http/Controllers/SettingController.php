@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Setting;
+use App\Helpers;
+use App\User;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
@@ -21,6 +23,10 @@ class SettingController extends Controller
 //		$data['special_price_discount'] = Setting::get('special_price_discount');
 		$data['pagination'] = Setting::get('pagination');
 		$data['incoming_calls'] = Setting::get('incoming_calls');
+		$data['users_array'] = Helpers::getUserArray(User::all());
+		$data['image_shortcut'] = Setting::get('image_shortcut');
+		$data['price_shortcut'] = Setting::get('price_shortcut');
+		$data['call_shortcut'] = Setting::get('call_shortcut');
 
 		return view('setting.index',$data);
 	}
@@ -41,6 +47,9 @@ class SettingController extends Controller
 //		Setting::add('special_price_discount', $special_price_discount, 'int');
 		Setting::add('pagination', $pagination, 'int');
 		Setting::add('incoming_calls', $incoming_calls, 'tinyint');
+		Setting::add('image_shortcut', $request->image_shortcut, 'tinyint');
+		Setting::add('price_shortcut', $request->price_shortcut, 'tinyint');
+		Setting::add('call_shortcut', $request->call_shortcut, 'tinyint');
 
 		return redirect()->back()->with('status', 'Settings has been saved.');
 	}

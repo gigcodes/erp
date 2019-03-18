@@ -404,7 +404,7 @@
 
           <div class="tab-pane active mt-3" id="4">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered m-0">
                 <tr>
                   <th>Number</th>
                   <th>Assigned to</th>
@@ -414,7 +414,7 @@
                   <th>Created at</th>
                   <th>Remark</th>
                 </tr>
-                @foreach ($customer->instructions()->where('verified', 0)->get() as $instruction)
+                @foreach ($customer->instructions()->where('verified', 0)->latest()->limit(3)->get() as $instruction)
                     <tr>
                       <td>
                         <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
@@ -459,11 +459,76 @@
                 @endforeach
             </table>
             </div>
+
+            <div id="instructionAccordion">
+                <div class="card mb-5">
+                  <div class="card-header" id="headingInstruction">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionAcc" aria-expanded="false" aria-controls="">
+                        Rest of Instructions
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="instructionAcc" class="collapse collapse-element" aria-labelledby="headingInstruction" data-parent="#instructionAccordion">
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <tbody>
+                            @foreach ($customer->instructions()->where('verified', 0)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
+                              <tr>
+                                <td>
+                                  <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                                </td>
+                                <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
+                                <td>{{ $instruction->category->name }}</td>
+                                <td>{{ $instruction->instruction }}</td>
+                                <td>
+                                  @if ($instruction->completed_at)
+                                    {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                                  @else
+                                    <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
+                                  @endif
+                                </td>
+                                <td>
+                                  @if ($instruction->completed_at)
+                                    Completed
+                                  @else
+                                    @if ($instruction->pending == 0)
+                                      <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                                    @else
+                                      Pending
+                                    @endif
+                                  @endif
+                                </td>
+                                <td>
+                                  @if ($instruction->verified == 1)
+                                    <span class="badge">Verified</span>
+                                  @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                                    <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                                  @else
+                                    <span class="badge">Not Verified</span>
+                                  @endif
+                                </td>
+                                <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                                <td>
+                                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                                  <span> | </span>
+                                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                                </td>
+                              </tr>
+                            @endforeach
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
           </div>
 
           <div class="tab-pane mt-3" id="5">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered m-0">
                 <tr>
                   <th>Number</th>
                   <th>Assigned to</th>
@@ -473,7 +538,7 @@
                   <th>Created at</th>
                   <th>Remark</th>
                 </tr>
-                @foreach ($customer->instructions()->where('verified', 1)->get() as $instruction)
+                @foreach ($customer->instructions()->where('verified', 1)->latest()->limit(3)->get() as $instruction)
                     <tr>
                       <td>
                         <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
@@ -517,6 +582,71 @@
                     </tr>
                 @endforeach
             </table>
+            </div>
+
+            <div id="instructionCompletedAccordion">
+                <div class="card mb-5">
+                  <div class="card-header" id="headingInstruction">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionCompletedAcc" aria-expanded="false" aria-controls="">
+                        Rest of Instructions
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="instructionCompletedAcc" class="collapse collapse-element" aria-labelledby="headingInstruction" data-parent="#instructionCompletedAccordion">
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <tbody>
+                            @foreach ($customer->instructions()->where('verified', 1)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
+                              <tr>
+                                <td>
+                                  <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                                </td>
+                                <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
+                                <td>{{ $instruction->category->name }}</td>
+                                <td>{{ $instruction->instruction }}</td>
+                                <td>
+                                  @if ($instruction->completed_at)
+                                    {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                                  @else
+                                    <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
+                                  @endif
+                                </td>
+                                <td>
+                                  @if ($instruction->completed_at)
+                                    Completed
+                                  @else
+                                    @if ($instruction->pending == 0)
+                                      <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                                    @else
+                                      Pending
+                                    @endif
+                                  @endif
+                                </td>
+                                <td>
+                                  @if ($instruction->verified == 1)
+                                    <span class="badge">Verified</span>
+                                  @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                                    <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                                  @else
+                                    <span class="badge">Not Verified</span>
+                                  @endif
+                                </td>
+                                <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                                <td>
+                                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                                  <span> | </span>
+                                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                                </td>
+                              </tr>
+                            @endforeach
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
             </div>
           </div>
         </div>
@@ -1086,13 +1216,17 @@
                           </div>
                         @endif
 
-                        @if ($order->auto_emailed == 1)
+                        @if ($order->order_status == 'Advance received' && $order->auto_emailed == 0)
                           <div class="form-group">
-                            <form action="" method="POST">
-                              @csrf
+                            <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
+                          </div>
+                        @elseif ($order->auto_emailed == 1)
+                          Advance Receipt was emailed
+                        @endif
 
-                              <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
-                            </form>
+                        @if ($order->order_status == 'Advance received' && $order->auto_emailed == 0)
+                          <div class="form-group">
+                            <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
                           </div>
                         @endif
 

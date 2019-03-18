@@ -72,7 +72,7 @@
               <th>Category</th>
               <th>Instructions</th>
               <th colspan="3" class="text-center">Action</th>
-              <th>Created at</th>
+              <th><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
               <th>Remark</th>
             </tr>
             @foreach ($instructions as $instruction)
@@ -138,7 +138,7 @@
                 <th>Category</th>
                 <th>Instructions</th>
                 <th colspan="3" class="text-center">Action</th>
-                <th>Created at</th>
+                <th><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
                 <th>Remark</th>
               </tr>
               @foreach ($completed_instructions as $instruction)

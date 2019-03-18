@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('styles')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+@endsection
 
 @section('content')
 
@@ -69,6 +72,45 @@
                                         <div class="alert alert-danger">{{$errors->first('incoming_calls')}}</div>
                                     @endif
                                 </div>
+
+                                <div class="form-group">
+                                    <strong>User for Image Shortcut:</strong>
+                                    <select class="selectpicker form-control" data-live-search="true" data-size="15" name="image_shortcut" title="Choose a User" required>
+                                        @foreach ($users_array as $index => $user)
+                                            <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}" {{ $index == $image_shortcut ? 'selected' : '' }}>{{ $user }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    @if ($errors->has('image_shortcut'))
+                                        <div class="alert alert-danger">{{$errors->first('image_shortcut')}}</div>
+                                    @endif
+                                </div>
+
+                                <div class="form-group">
+                                    <strong>User for Price Shortcut:</strong>
+                                    <select class="selectpicker form-control" data-live-search="true" data-size="15" name="price_shortcut" title="Choose a User" required>
+                                        @foreach ($users_array as $index => $user)
+                                            <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}" {{ $index == $price_shortcut ? 'selected' : '' }}>{{ $user }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    @if ($errors->has('price_shortcut'))
+                                        <div class="alert alert-danger">{{$errors->first('price_shortcut')}}</div>
+                                    @endif
+                                </div>
+
+                                <div class="form-group">
+                                    <strong>User for Call Shortcut:</strong>
+                                    <select class="selectpicker form-control" data-live-search="true" data-size="15" name="call_shortcut" title="Choose a User" required>
+                                        @foreach ($users_array as $index => $user)
+                                            <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}" {{ $index == $call_shortcut ? 'selected' : '' }}>{{ $user }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    @if ($errors->has('call_shortcut'))
+                                        <div class="alert alert-danger">{{$errors->first('call_shortcut')}}</div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -85,4 +127,8 @@
         </div>
     </div>
 
+@endsection
+
+@section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 @endsection
