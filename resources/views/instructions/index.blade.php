@@ -63,16 +63,9 @@
 
     <div class="tab-content ">
       <div class="tab-pane active mt-3" id="4">
-
-        <div class="form-group ml-3">
-          <input type="checkbox" name="" value="" id="select-all-instructions">
-          <label for="select-all-instructions">Select All</label>
-        </div>
-
         <div class="table-responsive">
-            <table class="table table-bordered">
+            <table class="table table-bordered table-hover">
             <tr>
-              <th rowspan="2">#</th>
               <th rowspan="2">Client Name</th>
               <th rowspan="2">Number</th>
               <th rowspan="2">Assigned to</th>
@@ -91,9 +84,6 @@
             </tr>
             @foreach ($instructions as $instruction)
                 <tr>
-                  <td>
-                    <input type="checkbox" name="selected_instructions[]" class="select-instruction">
-                  </td>
                   <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
@@ -158,7 +148,6 @@
         <div class="table-responsive">
             <table class="table table-bordered">
             <tr>
-              <th rowspan="2">#</th>
               <th rowspan="2">Client Name</th>
               <th rowspan="2">Number</th>
               <th rowspan="2">Assigned to</th>
@@ -177,9 +166,6 @@
             </tr>
             @foreach ($pending_instructions as $instruction)
                 <tr>
-                  <td>
-                    <input type="checkbox" name="selected_instructions[]" class="select-instruction">
-                  </td>
                   <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
@@ -241,7 +227,21 @@
       </div>
 
       <div class="tab-pane mt-3" id="verify-instructions">
-        <div class="table-responsive">
+        <div class="form-group ml-3 mb-3 d-inline">
+          <input type="checkbox" name="" value="" id="select-all-instructions">
+          <label for="select-all-instructions">Select All</label>
+        </div>
+
+        <div class="form-group ml-3 mb-3s d-inline">
+          <form class="form-inline d-inline" action="{{ route('instruction.verify.selected') }}" method="POST" id="verifySelectedForm">
+            @csrf
+            <input type="hidden" name="selected_instructions" id="selected_instructions" value="">
+
+            <button type="submit" class="btn btn-xs btn-secondary" id="verifySelectedButton">Verify</button>
+          </form>
+        </div>
+
+        <div class="table-responsive mt-3">
             <table class="table table-bordered">
             <tr>
               <th rowspan="2">#</th>
@@ -264,7 +264,7 @@
             @foreach ($verify_instructions as $instruction)
                 <tr>
                   <td>
-                    <input type="checkbox" name="selected_instructions[]" class="select-instruction">
+                    <input type="checkbox" name="selected_instructions[]" class="select-instruction" data-id="{{ $instruction['id'] }}">
                   </td>
                   <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
                   <td>
@@ -676,6 +676,51 @@
 
       $('#instruction_start_time').val(start.length > 0 ? start : moment().format('YYYY-MM-DD HH:mm'));
       $('#instruction_end_time').val(end.length > 0 ? end : moment().format('YYYY-MM-DD HH:mm'));
+    });
+
+    var instructions_array = [];
+
+    $(document).on('click', '.select-instruction', function() {
+      var id = $(this).data('id');
+
+      if ($(this).prop('checked')) {
+        instructions_array.push(id);
+      } else {
+        instructions_array.splice(instructions_array.indexOf(id), 1);
+      }
+
+      console.log(instructions_array);
+    });
+
+    $(document).on('click', '#select-all-instructions', function() {
+      if ($(this).prop('checked')) {
+        $('.select-instruction').each(function(index, instruction) {
+          $(instruction).prop('checked', true);
+          var id = $(instruction).data('id');
+
+          instructions_array.push(id);
+        });
+      } else {
+        $('.select-instruction').each(function(index, instruction) {
+          $(instruction).prop('checked', false);
+
+          instructions_array = [];
+        });
+      }
+    });
+
+    $('#verifySelectedButton').on('click', function(e) {
+      e.preventDefault();
+
+      if (instructions_array.length > 0) {
+        $('#selected_instructions').val(JSON.stringify(instructions_array));
+      } else {
+        alert('Please select atleast 1 instruction');
+
+        return;
+      }
+
+      $('#verifySelectedForm').submit();
     });
   </script>
 @endsection

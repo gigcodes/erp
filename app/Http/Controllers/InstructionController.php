@@ -221,6 +221,22 @@ class InstructionController extends Controller
       return response("success");
     }
 
+    public function verifySelected(Request $request)
+    {
+      $selected_instructions = json_decode($request->selected_instructions);
+
+      foreach ($selected_instructions as $selection) {
+        $instruction = Instruction::find($selection);
+
+        if ($instruction['assigned_from'] == Auth::id() || Auth::user()->hasRole('Admin')) {
+          $instruction->verified = 1;
+          $instruction->save();
+        }
+      }
+
+      return redirect()->route('instruction.index')->withSuccess('You have successfully verified instructions');
+    }
+
     public function completeAlert(Request $request)
     {
       $instruction = Instruction::find($request->id);

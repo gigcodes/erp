@@ -81,6 +81,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
 	Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
 	Route::post('instruction/verify', 'InstructionController@verify')->name('instruction.verify');
+	Route::post('instruction/verifySelected', 'InstructionController@verifySelected')->name('instruction.verify.selected');
 	Route::get('instruction/complete/alert', 'InstructionController@completeAlert')->name('instruction.complete.alert');
 	Route::post('instruction/category/store', 'InstructionController@categoryStore')->name('instruction.category.store');
 
