@@ -189,9 +189,9 @@ class ProductAttributeController extends Controller
 
 		$productattribute->save();
 
-		// if ($productattribute->isFinal == 1) {
-		// 	$result = $this->magentoProductUpdate($productattribute);
-		// }
+		if ($productattribute->isUploaded == 1) {
+			$result = $this->magentoProductUpdate($productattribute);
+		}
 
 
 		NotificaitonContoller::store( 'has added attribute', ['Supervisors'], $productattribute->id );
