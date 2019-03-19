@@ -87,7 +87,7 @@ class SendMessageToAll implements ShouldQueue
         $message_queue->sent = 1;
         $message_queue->save();
       } else {
-        MessageQueue::where('customer_id', $this->customer->id)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->delete();
+        MessageQueue::where('customer_id', $this->customer->id)->delete();
       }
     }
 }
