@@ -605,7 +605,7 @@ class WhatsAppController extends FindByNumberController
     {
       $params = [];
       $result = [];
-      $messages = ChatMessage::where('customer_id', $request->customerId)->latest()->limit(30);
+      $messages = ChatMessage::where('customer_id', $request->customerId)->latest();
 
       if ($request->get("elapse")) {
         $elapse = (int) $request->get("elapse");
@@ -684,7 +684,7 @@ class WhatsAppController extends FindByNumberController
         $result[] = array_merge($params, $messageParams);
       }
 
-      $messages = Message::where('customer_id', $request->customerId)->orderBy("created_at", 'desc')->limit(30)->get();
+      $messages = Message::where('customer_id', $request->customerId)->orderBy("created_at", 'desc')->get();
 
       foreach ($messages->toArray() as $key => $message) {
         $images_array = [];
