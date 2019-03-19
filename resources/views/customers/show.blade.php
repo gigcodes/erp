@@ -3,6 +3,7 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
 
   <style>
       .inbox_people {
@@ -1740,71 +1741,82 @@
 
 <div class="row mt-5">
   <div class="col-xs-12 col-sm-6">
-    <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
+    <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+      <div class="d-flex">
         @csrf
 
         <div class="form-group">
           <div class="upload-btn-wrapper btn-group">
-            <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-            <input type="file" name="image" />
+            {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+            <input type="file" name="image" /> --}}
+
             <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
           </div>
         </div>
 
         <div class="form-group flex-fill">
-          <textarea  class="form-control" name="body" placeholder="Received from Customer"></textarea>
+          <textarea  class="form-control mb-3" name="body" placeholder="Received from Customer"></textarea>
+          <input type="file" class="dropify" name="image" data-height="100" />
 
           <input type="hidden" name="moduletype" value="customer" />
           <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
           <input type="hidden" name="assigned_user" value="{{ Auth::id() }}" />
           <input type="hidden" name="status" value="0" />
         </div>
+      </div>
+
 
      </form>
    </div>
 
    <div class="col-xs-12 col-sm-6">
-     <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
-        @csrf
+     <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+       <div class="d-flex">
+         @csrf
 
-          <div class="form-group">
-            <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-              <input type="file" name="image" />
+           <div class="form-group">
+             <div class="upload-btn-wrapper btn-group pr-0 d-flex">
+               {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+               <input type="file" name="image" /> --}}
 
-              <a href="{{ route('attachImages', ['customer', $customer->id, 1, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
-              <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-            </div>
-          </div>
+               <a href="{{ route('attachImages', ['customer', $customer->id, 1, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+               <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+             </div>
+           </div>
 
-            <div class="form-group flex-fill">
-              <textarea id="message-body" class="form-control mb-3" name="body" placeholder="Send for approval"></textarea>
+             <div class="form-group flex-fill">
+               <textarea id="message-body" class="form-control mb-3" name="body" placeholder="Send for approval"></textarea>
+               <input type="file" class="dropify" name="image" data-height="100" />
 
-              <input type="hidden" name="moduletype" value="customer" />
-              <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
-              <input type="hidden" name="assigned_user" value="{{ Auth::id() }}" />
-              <input type="hidden" name="status" value="1" />
+               <input type="hidden" name="moduletype" value="customer" />
+               <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
+               <input type="hidden" name="assigned_user" value="{{ Auth::id() }}" />
+               <input type="hidden" name="status" value="1" />
 
-              <p class="pb-4" style="display: block;">
-                <select name="quickCategory" id="quickCategory" class="form-control mb-3">
-                  <option value="">Select Category</option>
-                  @foreach($reply_categories as $category)
-                      <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                  @endforeach
-                </select>
+               <p class="pb-4 mt-3" style="display: block;">
+                 <select name="quickCategory" id="quickCategory" class="form-control mb-3">
+                   <option value="">Select Category</option>
+                   @foreach($reply_categories as $category)
+                       <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                   @endforeach
+                 </select>
 
-                  <select name="quickComment" id="quickComment" class="form-control">
-                      <option value="">Quick Reply</option>
-                      {{-- @foreach($approval_replies as $reply )
-                          <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                      @endforeach --}}
-                  </select>
-              </p>
-              <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
-            </div>
+                   <select name="quickComment" id="quickComment" class="form-control">
+                       <option value="">Quick Reply</option>
+                       {{-- @foreach($approval_replies as $reply )
+                           <option value="{{$reply->reply}}">{{$reply->reply}}</option>
+                       @endforeach --}}
+                   </select>
+               </p>
+               <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
+             </div>
+       </div>
+
 
      </form>
    </div>
+
+   <hr>
 
    <div id="ReplyModal" class="modal fade" role="dialog">
      <div class="modal-dialog">
@@ -1847,56 +1859,61 @@
      </div>
    </div>
 
-   <div class="col-xs-12 col-sm-6">
-       <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
-          @csrf
+   <div class="col-xs-12 col-sm-6 mt-3">
+       <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+         <div class="d-flex">
+           @csrf
 
-            <div class="form-group">
-              <div class="upload-btn-wrapper btn-group">
-                 <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-                  <input type="file" name="image" />
-                  <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-                </div>
-            </div>
+             <div class="form-group">
+               <div class="upload-btn-wrapper btn-group">
+                  {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                   <input type="file" name="image" /> --}}
+                   <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+                 </div>
+             </div>
 
-            <div class="form-group flex-fill">
-              <textarea class="form-control mb-3" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
+             <div class="form-group flex-fill">
+               <textarea class="form-control mb-3" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
+               <input type="file" class="dropify mb-3" name="image" data-height="100" />
 
-              <input type="hidden" name="moduletype" value="customer" />
-              <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
-              <input type="hidden" name="status" value="4" />
+               <input type="hidden" name="moduletype" value="customer" />
+               <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
+               <input type="hidden" name="status" value="4" />
 
-              <strong>Assign to</strong>
-              <select name="assigned_user" class="form-control mb-3" required>
-                <option value="">Select User</option>
-                @foreach($users as $user)
-                  <option value="{{$user['id']}}">{{$user['name']}}</option>
-                @endforeach
-              </select>
+               <strong>Assign to</strong>
+               <select name="assigned_user" class="form-control mb-3" required>
+                 <option value="">Select User</option>
+                 @foreach($users as $user)
+                   <option value="{{$user['id']}}">{{$user['name']}}</option>
+                 @endforeach
+               </select>
 
-              <p class="pb-4" style="display: block;">
-                <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
-                  <option value="">Select Category</option>
-                  @foreach($reply_categories as $category)
-                      <option value="{{ $category->internal_leads }}">{{ $category->name }}</option>
-                  @endforeach
-                </select>
+               <p class="pb-4" style="display: block;">
+                 <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
+                   <option value="">Select Category</option>
+                   @foreach($reply_categories as $category)
+                       <option value="{{ $category->internal_leads }}">{{ $category->name }}</option>
+                   @endforeach
+                 </select>
 
-                  <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
-                      <option value="">Quick Reply</option>
-                      {{-- @foreach($internal_replies as $reply)
-                          <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                      @endforeach --}}
-                  </select>
-              </p>
+                   <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
+                       <option value="">Quick Reply</option>
+                       {{-- @foreach($internal_replies as $reply)
+                           <option value="{{$reply->reply}}">{{$reply->reply}}</option>
+                       @endforeach --}}
+                   </select>
+               </p>
 
-              <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
-            </div>
+               <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
+             </div>
+         </div>
+
+
 
        </form>
      </div>
 
-  <div class="col-xs-12 col-sm-6">
+  <div class="col-xs-12 col-sm-6 mt-3">
     <div class="d-flex">
       <div class="form-group">
         {{-- <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a> --}}
@@ -1905,12 +1922,14 @@
       </div>
 
       <div class="form-group flex-fill">
-        <textarea id="waNewMessage" class="form-control" placeholder="Whatsapp message"></textarea>
+        <textarea id="waNewMessage" class="form-control mb-3" placeholder="Whatsapp message"></textarea>
+        <input type="file" id="waMessageMedia" class="dropify" name="image" data-height="100" />
       </div>
     </div>
 
-    <label>Attach Media</label>
-    <input id="waMessageMedia" type="file" name="media" />
+    {{-- <label>Attach Media</label>
+    <input id="waMessageMedia" type="file" name="media" /> --}}
+
   </div>
 </div>
 
@@ -1976,16 +1995,19 @@
   {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script> --}}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
 
   <script type="text/javascript">
   jQuery(document).ready(function( $ ) {
-  $('audio').on("play", function (me) {
-  $('audio').each(function (i,e) {
-    if (e !== me.currentTarget) {
-      this.pause();
-    }
-  });
-  });
+    $('audio').on("play", function (me) {
+      $('audio').each(function (i,e) {
+        if (e !== me.currentTarget) {
+          this.pause();
+        }
+      });
+    });
+
+    $('.dropify').dropify();
   })
 
   $(document).on('click', '.create-magento-product', function(e) {
@@ -2623,8 +2645,9 @@
                      "processData" : false,
                      "data": data
           }).done( function(response) {
-             $('#waNewMessage').val('');
-             pollMessages();
+              $('#waNewMessage').val('');
+              $('#waNewMessage').closest('.form-group').find('.dropify-clear').click();
+              pollMessages();
             // console.log("message was sent");
           }).fail(function(errObj) {
             alert("Could not send message");
@@ -2668,6 +2691,7 @@
              }).done(function() {
                pollMessages();
                $(thiss).closest('form').find('textarea').val('');
+               $(thiss).closest('form').find('.dropify-clear').click();
              }).fail(function(response) {
                console.log(response);
                alert('Error sending a message');
