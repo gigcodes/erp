@@ -133,7 +133,10 @@ class ProductAttributeController extends Controller
 			$productattribute->price_special = $this->calculateSpecialDiscount( $productattribute->price_inr, $productattribute->brand );
 		}
 
-		$productattribute->stage = $stage->get('Attribute');
+		if ($productattribute->stage < $stage->get('Attribute')) {
+			$productattribute->stage = $stage->get('Attribute');
+		}
+
 		$productattribute->category = $request->input('category');
 		$productattribute->product_link = $request->input('product_link');
 		$productattribute->supplier = $request->input('supplier');
