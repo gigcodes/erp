@@ -171,13 +171,14 @@ class WhatsAppController extends FindByNumberController
           $model_id = $lead->id;
       }
     } else {
-      \Log::info($data);
       $custom_data = json_decode($data['custom_data'], true);
-      \Log::info($custom_data);
 
       $chat_message = ChatMessage::find($custom_data['chat_message_id']);
-      $chat_message->sent = 1;
-      $chat_message->save();
+
+      if ($chat_message) {
+        $chat_message->sent = 1;
+        $chat_message->save();
+      }
     }
 
     return response("");
