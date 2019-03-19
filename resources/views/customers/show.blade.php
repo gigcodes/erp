@@ -3175,7 +3175,7 @@
       $(document).on('click', '.create-voucher', function() {
         var id = $(this).data('id');
         var thiss = $(this);
-        var description = "Delivery to {{ $customer->name }} at {{ $customer->address }}, {{ $customer->city }}";
+        var description = "Delivery to {{ $customer->name }} at {{ preg_replace('/\s+/', ' ', $customer->address) }}, {{ $customer->city }}";
         var date = moment().add(5, 'days').format('YYYY-MM-DD');
 
         $.ajax({
