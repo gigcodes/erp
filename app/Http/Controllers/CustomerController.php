@@ -71,15 +71,16 @@ class CustomerController extends Controller
         $orderWhereClause = '';
 
         if(!empty($term)) {
-            $customers = $customers->latest()
-                ->orWhere('customers.name', 'LIKE', "%$term%")
-                ->orWhere('customers.phone', 'LIKE', "%$term%")
-                ->orWhere('customers.instahandler', 'LIKE', "%$term%");
+            $customers = $customers->latest()->where(function($query) use ($term) {
+              $query->orWhere('customers.name', 'LIKE', "%$term%")
+              ->orWhere('customers.phone', 'LIKE', "%$term%")
+              ->orWhere('customers.instahandler', 'LIKE', "%$term%");
+            });
 
             $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
         }
 
-
+        $customers = $customers->whereNull('deleted_at');
 
         $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'LEFT');
         $customers = $customers->join(DB::raw('(SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, MAX(leads.created_at) as lead_created, leads.status as lead_status FROM `leads` GROUP BY customer_id) as leads'), 'customers.id', '=', 'leads.lcid', 'LEFT');
