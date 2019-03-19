@@ -375,7 +375,7 @@
             <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
             <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th>
             <th width="10%">Instruction</th>
-            <th width="10%">Message Status</th>
+            {{--<th width="10%">Message Status</th>--}}
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
             <th>Shortcuts</th>
             <th width="15%">Action</th>
@@ -415,30 +415,30 @@
                             {{ $customer->order_created }}
                         @endif
                     </td>
-                    <td class="{{ $customer->instruction_completed ? 'text-success' : 'text-danger' }}">
-                      @if ($customer->instruction_assigned_to)
-                        {{ $users_array[$customer->instruction_assigned_to] }} -
+                    {{--<td class="{{ $customer->instruction_completed ? 'text-success' : 'text-danger' }}">--}}
+                      {{--@if ($customer->instruction_assigned_to)--}}
+                        {{--{{ $users_array[$customer->instruction_assigned_to] }} ---}}
 
 
-                        {{ $customer->instruction }}
+                        {{--{{ $customer->instruction }}--}}
 
-                        @if ($customer->instruction_completed)
-                          {{ Carbon\Carbon::parse($customer->instruction_completed)->format('d-m H:i') }}
-                        @else
-                          <a href="#" class="btn-link complete-call" data-id="{{ $customer->instruction_id }}">Complete</a>
-                        @endif
+                        {{--@if ($customer->instruction_completed)--}}
+                          {{--{{ Carbon\Carbon::parse($customer->instruction_completed)->format('d-m H:i') }}--}}
+                        {{--@else--}}
+                          {{--<a href="#" class="btn-link complete-call" data-id="{{ $customer->instruction_id }}">Complete</a>--}}
+                        {{--@endif--}}
 
-                        @if ($customer->instruction_completed)
-                          Completed
-                        @else
-                          @if ($customer->instruction_pending == 0)
-                            <a href="#" class="btn-link pending-call" data-id="{{ $customer->instruction_id }}">Mark as Pending</a>
-                          @else
-                            Pending
-                          @endif
-                        @endif
-                      @endif
-                    </td>
+                        {{--@if ($customer->instruction_completed)--}}
+                          {{--Completed--}}
+                        {{--@else--}}
+                          {{--@if ($customer->instruction_pending == 0)--}}
+                            {{--<a href="#" class="btn-link pending-call" data-id="{{ $customer->instruction_id }}">Mark as Pending</a>--}}
+                          {{--@else--}}
+                            {{--Pending--}}
+                          {{--@endif--}}
+                        {{--@endif--}}
+                      {{--@endif--}}
+                    {{--</td>--}}
                     <td>
                         @if (!empty($customer->message))
                             @if ($customer->message_status == 5)
@@ -492,7 +492,7 @@
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                        <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
+                        {{--<input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">--}}
                         <input type="hidden" name="category_id" value="1">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
