@@ -932,6 +932,12 @@ class WhatsAppController extends FindByNumberController
       }
     }
 
+    foreach (\Config::get("apiwha.api_keys") as $config_key) {
+      if ($config_key['number'] == $number) {
+        return;
+      }
+    }
+
         $curl = curl_init();
         if (is_null($sendNumber)) {
             $keys = \Config::get("apiwha.api_keys");

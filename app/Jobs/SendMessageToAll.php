@@ -63,7 +63,11 @@ class SendMessageToAll implements ShouldQueue
 
           $chat_message = ChatMessage::create($params);
 
-          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
+          try {
+            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
+          } catch {
+
+          }
         }
 
         if (isset($this->content['image'])) {
@@ -74,7 +78,11 @@ class SendMessageToAll implements ShouldQueue
           foreach ($this->content['image'] as $image) {
             $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
-            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+            try {
+              app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+            } catch {
+
+            }
           }
         }
 
