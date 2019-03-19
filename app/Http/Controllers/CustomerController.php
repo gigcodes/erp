@@ -47,8 +47,11 @@ class CustomerController extends Controller
       $customers_all = Customer::all();
       $users_array = Helpers::getUserArray(User::all());
 
-      $queues_total_count = MessageQueue::where('status', '!=', 1)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->count();
-      $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->count();
+      $last_set_id = MessageQueue::max('group_id');
+      // $queues_total_count = MessageQueue::where('status', '!=', 1)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->count();
+      // $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('sending_time', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->count();
+      $queues_total_count = MessageQueue::where('status', '!=', 1)->where('group_id', $last_set_id)->count();
+      $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('group_id', $last_set_id)->count();
 
       return view('customers.index', [
         'customers' => $customers,
