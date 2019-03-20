@@ -30,7 +30,7 @@
         </tr>
         @foreach ($refunds as $refund)
           <tr>
-            <td>{{ $refund->customer->name }}</td>
+            <td>{{ $refund->customer->name ?? 'No Customer' }}</td>
             <td><a href="{{ route('order.show', $refund->order->id) }}">{{ $refund->order->order_id }}</a></td>
             <td>{{ $refund->date_of_request ? \Carbon\Carbon::parse($refund->date_of_request)->format('d-m') : '' }}</td>
             <td>{{ $refund->date_of_issue ? \Carbon\Carbon::parse($refund->date_of_issue)->format('d-m') : '' }}</td>
