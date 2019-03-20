@@ -7,6 +7,7 @@ use App\Setting;
 use App\Stage;
 use App\Brand;
 use App\Category;
+use App\Helpers;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryImport;
@@ -323,10 +324,101 @@ class ProductInventoryController extends Controller
 	public function import(Request $request)
 	{
 		$this->validate($request, [
-			'file'	=> 'required|mimes:xlsx,xls'
+			'file'	=> 'required'
 		]);
 
-		Excel::import(new InventoryImport, $request->file('file'));
+		$array = (new InventoryImport)->toArray($request->file('file'));
+
+		$new_array = [];
+		$brands_array = Helpers::getUserArray(Brand::all());
+
+		foreach ($array[0] as $key => $item) {
+			$new_array[$item['modellovariante']][] = $item;
+		}
+
+		foreach ($new_array as $sku => $items) {
+			$formatted_sku = str_replace(' ', '', $sku);
+
+			if ($product = Product::where('sku', $formatted_sku)->first()) {
+				if (in_array($items[0]['brand'], $brands_array)) {
+					if (count($items) > 1) {
+						$sizes = '';
+						$product->stock = 1;
+
+						foreach ($items as $key => $item) {
+							$size = str_replace('½', '.5', $item['taglia']);
+
+							if ($key == 0) {
+								$sizes .= $size;
+							} else {
+								$sizes .= "," . $size;
+							}
+						}
+
+						if (!preg_match('/UNI/', $sizes)) {
+							$product->size = $sizes;
+						}
+
+						$product->save();
+					} else {
+						$product->stock = 1;
+
+						foreach ($items as $key => $item) {
+							$size = str_replace('½', '.5', $item['taglia']);
+						}
+
+						if (!preg_match('/UNI/', $size)) {
+							$product->size = $size;
+						}
+
+						$product->save();
+					}
+				}
+			} else {
+				if (in_array($items[0]['brand'], $brands_array)) {
+					if (count($items) > 1) {
+						$sizes = '';
+						$product = new Product;
+						$product->sku = $formatted_sku;
+						$product->brand = array_search($items[0]['brand'], $brands_array);
+						$product->stage = 3;
+						$product->stock = 1;
+
+						foreach ($items as $key => $item) {
+							$size = str_replace('½', '.5', $item['taglia']);
+
+							if ($key == 0) {
+								$sizes .= $size;
+							} else {
+								$sizes .= "," . $size;
+							}
+						}
+
+						if (!preg_match('/UNI/', $sizes)) {
+							$product->size = $sizes;
+						}
+
+						$product->save();
+					} else {
+						$product = new Product;
+						$product->sku = $formatted_sku;
+						$product->brand = array_search($items[0]['brand'], $brands_array);
+						$product->stage = 3;
+						$product->stock = 1;
+
+						foreach ($items as $key => $item) {
+							$size = str_replace('½', '.5', $item['taglia']);
+						}
+
+						if (!preg_match('/UNI/', $size)) {
+							$product->size = $sizes;
+						}
+
+						$product->save();
+					}
+				}
+			}
+		}
 
 		return back()->with('success', 'You have successfully imported Inventory');
 	}
