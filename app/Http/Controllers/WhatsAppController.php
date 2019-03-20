@@ -991,10 +991,10 @@ class WhatsAppController extends FindByNumberController
         foreach ($numbers as $number) {
             if ($number['number'] == $target) {
                 return $number;
-            } else {
-              return $numbers[0];
             }
         }
+
+        return $numbers[0];
     }
     private function formatChatDate($date)
     {
