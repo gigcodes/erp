@@ -415,30 +415,34 @@
                             {{ $customer->order_created }}
                         @endif
                     </td>
-                    {{--<td class="{{ $customer->instruction_completed ? 'text-success' : 'text-danger' }}">--}}
-                      {{--@if ($customer->instruction_assigned_to)--}}
-                        {{--{{ $users_array[$customer->instruction_assigned_to] }} ---}}
+                    @if (array_key_exists($customer->id, $instructions))
+                    <td class="{{ $instructions[$customer->id][0]['completed_at'] ? 'text-success' : 'text-danger' }}">
+                        @if ($instructions[$customer->id][0]['assigned_to'])
+                          {{ $users_array[$instructions[$customer->id][0]['assigned_to']] }} -
 
 
-                        {{--{{ $customer->instruction }}--}}
+                          {{ $instructions[$customer->id][0]['instruction'] }}
 
-                        {{--@if ($customer->instruction_completed)--}}
-                          {{--{{ Carbon\Carbon::parse($customer->instruction_completed)->format('d-m H:i') }}--}}
-                        {{--@else--}}
-                          {{--<a href="#" class="btn-link complete-call" data-id="{{ $customer->instruction_id }}">Complete</a>--}}
-                        {{--@endif--}}
+                          @if ($instructions[$customer->id][0]['completed_at'])
+                            {{ Carbon\Carbon::parse($instructions[$customer->id][0]['completed_at'])->format('d-m H:i') }}
+                          @else
+                            <a href="#" class="btn-link complete-call" data-id="{{ $instructions[$customer->id][0]['id'] }}">Complete</a>
+                          @endif
 
-                        {{--@if ($customer->instruction_completed)--}}
-                          {{--Completed--}}
-                        {{--@else--}}
-                          {{--@if ($customer->instruction_pending == 0)--}}
-                            {{--<a href="#" class="btn-link pending-call" data-id="{{ $customer->instruction_id }}">Mark as Pending</a>--}}
-                          {{--@else--}}
-                            {{--Pending--}}
-                          {{--@endif--}}
-                        {{--@endif--}}
-                      {{--@endif--}}
-                    {{--</td>--}}
+                          @if ($instructions[$customer->id][0]['completed_at'])
+                            Completed
+                          @else
+                            @if ($instructions[$customer->id][0]['pending'] == 0)
+                              <a href="#" class="btn-link pending-call" data-id="{{ $instructions[$customer->id][0]['id'] }}">Mark as Pending</a>
+                            @else
+                              Pending
+                            @endif
+                          @endif
+                        @endif
+                    </td>
+                  @else
+                    <td></td>
+                  @endif
                     <td>
                         @if (!empty($customer->message))
                             @if ($customer->message_status == 5)
