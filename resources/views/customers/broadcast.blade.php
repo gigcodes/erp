@@ -12,6 +12,16 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Broadcast Messages</h2>
+
+            <div class="row mb-3">
+              <div class="col">
+                <h3>Last Set Sent: <span class="font-weight-bold">{{ $last_set_completed_count }}</span></h3>
+              </div>
+              <div class="col">
+                <h3>Last Set Received: <span class="font-weight-bold">{{ $last_set_received_count }}</span></h3>
+              </div>
+            </div>
+
             <div class="pull-left">
                 <form action="/broadcast/" method="GET">
                     <div class="form-group">

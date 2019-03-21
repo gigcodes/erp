@@ -12,11 +12,15 @@ class BroadcastMessageController extends Controller
 {
   public function index(Request $request)
   {
-    $date = $request->sending_time ? $request->sending_time : Carbon::now()->format('Y-m-d');
+    $date = $request->sending_time ?? Carbon::now()->format('Y-m-d');
     $message_queues = MessageQueue::latest()->where('sending_time', 'LIKE', "%$date%")->paginate(Setting::get('pagination'));
     $last_group_id = MessageQueue::max('group_id');
-    $last_set_completed = MessageQueue::where('group_id', $last_group_id)->where('sent', 1)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+    $last_set_completed = MessageQueue::where('group_id', $last_group_id)->where('sent', 1);
     $last_set_stopped_count = MessageQueue::where('group_id', $last_group_id)->where('status', 1)->count();
+    $last_set_completed_count = $last_set_completed->count();
+    $last_set_received_count = MessageQueue::with('chat_message')->where('group_id', $last_group_id)->whereHas('chat_message', function ($query) {
+      $query->where('sent', 1);
+    })->count();
 
     if ($last_set_stopped_count > 0) {
       $last_stopped = true;
@@ -24,11 +28,15 @@ class BroadcastMessageController extends Controller
       $last_stopped = false;
     }
 
+    $last_set_completed = $last_set_completed->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+
     return view('customers.broadcast', [
-      'message_queues'     => $message_queues,
-      'date'               => $date,
-      'last_set_completed' => $last_set_completed,
-      'last_stopped'       => $last_stopped
+      'message_queues'            => $message_queues,
+      'date'                      => $date,
+      'last_set_completed'        => $last_set_completed,
+      'last_stopped'              => $last_stopped,
+      'last_set_completed_count'  => $last_set_completed_count,
+      'last_set_received_count'   => $last_set_received_count
     ]);
   }
 
