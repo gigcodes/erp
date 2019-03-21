@@ -7,6 +7,7 @@ use App\Benchmark;
 use App\User;
 use App\Leads;
 use App\Order;
+use App\Product;
 use App\ScrapedProducts;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -227,12 +228,15 @@ class ActivityConroller extends Controller {
 		$data['leads'] = $leads;
 		$data['orders'] = $orders;
 
-		$data['scraped_gnb_count'] = ScrapedProducts::where('website', 'G&B')->get()->count();
-		$data['scraped_wise_count'] = ScrapedProducts::where('website', 'Wiseboutique')->get()->count();
-		$data['scraped_double_count'] = ScrapedProducts::where('website', 'DoubleF')->get()->count();
-		$data['scraped_gnb_product_count'] = ScrapedProducts::with('Product')->where('website', 'G&B')->whereHas('Product')->get()->count();
-		$data['scraped_wise_product_count'] = ScrapedProducts::with('Product')->where('website', 'Wiseboutique')->whereHas('Product')->get()->count();
-		$data['scraped_double_product_count'] = ScrapedProducts::with('Product')->where('website', 'DoubleF')->whereHas('Product')->get()->count();
+		$data['scraped_gnb_count'] = ScrapedProducts::where('website', 'G&B')->whereBetween('created_at', [$start, $end])->get()->count();
+		$data['scraped_wise_count'] = ScrapedProducts::where('website', 'Wiseboutique')->whereBetween('created_at', [$start, $end])->get()->count();
+		$data['scraped_double_count'] = ScrapedProducts::where('website', 'DoubleF')->whereBetween('created_at', [$start, $end])->get()->count();
+		// $data['scraped_gnb_product_count'] = ScrapedProducts::with('Product')->where('website', 'G&B')->whereHas('Product')->get()->count();
+		// $data['scraped_wise_product_count'] = ScrapedProducts::with('Product')->where('website', 'Wiseboutique')->whereHas('Product')->get()->count();
+		// $data['scraped_double_product_count'] = ScrapedProducts::with('Product')->where('website', 'DoubleF')->whereHas('Product')->get()->count();
+		$data['scraped_gnb_product_count'] = Product::where('supplier', 'G & B Negozionline')->where('status', 1)->whereBetween('created_at', [$start, $end])->get()->count();
+		$data['scraped_wise_product_count'] = Product::where('supplier', 'Wise Boutique')->where('status', 1)->whereBetween('created_at', [$start, $end])->get()->count();
+		$data['scraped_double_product_count'] = Product::where('supplier', 'Double F')->where('status', 1)->whereBetween('created_at', [$start, $end])->get()->count();
 
 		return view( 'activity.index', $data );
 	}

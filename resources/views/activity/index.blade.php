@@ -265,7 +265,7 @@
                     </tr>
                     @foreach ($results as $key => $item)
                         <tr>
-                            <td>{{ $users[$key] }}</td>
+                            <td>{{ $users[$key] ?? 'Unknown' }}</td>
                             <td>{{ isset( $item['selection'] ) ? $item['selection'] : 0 }}</td>
                             <td>{{ isset( $item['searcher'] ) ? $item['searcher'] : 0 }}</td>
                             <td>{{ isset( $item['attribute'] ) ? $item['attribute'] : 0 }}</td>
