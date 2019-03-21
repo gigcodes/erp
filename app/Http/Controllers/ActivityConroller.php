@@ -238,6 +238,11 @@ class ActivityConroller extends Controller {
 		$data['scraped_wise_product_count'] = Product::where('supplier', 'Wise Boutique')->where('status', 1)->whereBetween('created_at', [$start, $end])->get()->count();
 		$data['scraped_double_product_count'] = Product::where('supplier', 'Double F')->where('status', 1)->whereBetween('created_at', [$start, $end])->get()->count();
 
+		$data['import_created_product_count'] = Product::where('status', 2)->whereBetween('import_date', [$start, $end])->get()->count();
+		$data['import_updated_product_count'] = Product::where('status', 3)->whereBetween('import_date', [$start, $end])->get()->count();
+		$data['import_total_created_product_count'] = Product::where('status', 2)->get()->count();
+		$data['import_total_updated_product_count'] = Product::where('status', 3)->get()->count();
+
 		return view( 'activity.index', $data );
 	}
 

@@ -241,6 +241,26 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Import Created Products</strong>
+                                    <div class="count-number">{{ $import_created_product_count }}</div>
+                                    <span>Out of {{ $import_total_created_product_count }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Import Updated Products</strong>
+                                    <div class="count-number">{{ $import_updated_product_count }}</div>
+                                    <span>Out of {{ $import_total_updated_product_count }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -344,6 +344,8 @@ class ProductInventoryController extends Controller
 					if (count($items) > 1) {
 						$sizes = '';
 						$product->stock = 1;
+						$product->import_date = Carbon::now();
+						$product->status = 3; // Import Update status
 
 						foreach ($items as $key => $item) {
 							$size = str_replace('½', '.5', $item['taglia']);
@@ -362,6 +364,8 @@ class ProductInventoryController extends Controller
 						$product->save();
 					} else {
 						$product->stock = 1;
+						$product->import_date = Carbon::now();
+						$product->status = 3; // Import Update status
 
 						foreach ($items as $key => $item) {
 							$size = str_replace('½', '.5', $item['taglia']);
@@ -383,6 +387,8 @@ class ProductInventoryController extends Controller
 						$product->brand = array_search($items[0]['brand'], $brands_array);
 						$product->stage = 3;
 						$product->stock = 1;
+						$product->import_date = Carbon::now();
+						$product->status = 2; // Import Create status
 
 						foreach ($items as $key => $item) {
 							$size = str_replace('½', '.5', $item['taglia']);
@@ -405,6 +411,8 @@ class ProductInventoryController extends Controller
 						$product->brand = array_search($items[0]['brand'], $brands_array);
 						$product->stage = 3;
 						$product->stock = 1;
+						$product->import_date = Carbon::now();
+						$product->status = 2; // Import Create status
 
 						foreach ($items as $key => $item) {
 							$size = str_replace('½', '.5', $item['taglia']);
