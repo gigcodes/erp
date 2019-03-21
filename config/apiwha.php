@@ -11,6 +11,10 @@ return [
             'key' => 'Z802FWHI8E2OP0X120QR'
         ],
         [
+            'number' => '912262363488',
+            'key' => 'CPUSYTU2T2H281BD1256'
+        ],
+        [
             'number' => '918291352520',
             'key' => 'Z7L28163M51W0PSO2H1M'
         ],
