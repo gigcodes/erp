@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\ScrapedProducts;
+use App\Product;
+use App\Brand;
+use App\Setting;
 use App\ScrapEntries;
 use App\Services\Bots\WebsiteEmulator;
 use Carbon\Carbon;
@@ -125,5 +128,23 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
         //get product by sku...
         //now in scraped images its in euros, update that price...
         //
+        if ($product = Product::where('sku', $image->sku)->first()) {
+          $brand = Brand::find($image->brand_id);
+
+          $price =  round(preg_replace('/[\&euro;€.]/', '', $image->price));
+          $product->price = $price;
+
+          if(!empty($brand->euro_to_inr))
+            $product->price_inr = $brand->euro_to_inr * $product->price;
+          else
+            $product->price_inr = Setting::get('euro_to_inr') * $product->price;
+
+          $product->price_inr = round($product->price_inr, -3);
+          $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+
+          $product->price_special = round($product->price_special, -3);
+
+          $product->save();
+        }
     }
 }
