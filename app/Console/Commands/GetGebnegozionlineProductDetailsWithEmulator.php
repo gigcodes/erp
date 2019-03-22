@@ -69,7 +69,7 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             return;
         }
 
-        $this->updateProductOnServer($image);
+        $this->updateDataOnProductsTable($image);
 
 
     }
@@ -105,6 +105,8 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             ]
         ]);
 
+
+
         if (!$response) {
             dd($response->getBody()->getContents());
         }
@@ -116,5 +118,12 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
     private function setIP(): void
     {
         $this->IP = '5.61.4.70	' . ':' . '8080';
+    }
+
+    private function updateDataOnProductsTable($image)
+    {
+        //get product by sku...
+        //now in scraped images its in euros, update that price...
+        //
     }
 }
