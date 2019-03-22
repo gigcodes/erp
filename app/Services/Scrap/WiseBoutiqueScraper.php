@@ -15,14 +15,15 @@ class WiseBoutiqueScraper extends Scraper
     ];
 
     private $paginationData = [
-        'man' => 24,
-        'woman' => 41
+        'man' => 31,
+        'woman' => 54
     ];
 
 
     public function scrap($key): void
     {
         $this->scrapKey = $key;
+
         $this->scrapPage(self::URL[$key]);
     }
 
@@ -71,7 +72,6 @@ class WiseBoutiqueScraper extends Scraper
 
         $products = $c->filter('.contfoto .cotienifoto a:first-child')->getIterator();
 
-
         foreach ($products as $product) {
             $title = $product->getAttribute('title');
             $link = self::URL['HOMEPAGE'] . '/' . $product->getAttribute('href');
@@ -103,7 +103,6 @@ class WiseBoutiqueScraper extends Scraper
             $scrapEntry->pagination = $this->getPaginationData($pageNumber);
             $scrapEntry->save();
         }
-
     }
 
     private function getPaginationData($default = 1): array
