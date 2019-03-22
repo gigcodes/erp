@@ -510,24 +510,20 @@ class GebnegozionlineProductDetailsScraper extends Scraper
     }
 
     private function getProperties(HtmlPageCrawler $c) {
-        $properties =  $c->filter('table#product-attribute-specs-table tbody')->children()->getIterator();
+        $keys =  $c->filter('table#product-attribute-specs-table tbody th')->getIterator();
+        $values =  $c->filter('table#product-attribute-specs-table tbody td')->getIterator()->getArrayCopy();
 
         $propertiesData = [];
 
-        foreach ($properties as $property) {
-            $tag = '';
-            $value = '';
-            foreach ($property->childNodes as $key=>$childNode) {
-                if ($key === 0) {
-                    $tag = trim($childNode->textContent);
-                    continue;
-                }
-                if ($key === 2) {
-                    $value = preg_replace('/\s\s+/', '\n', $childNode->textContent);
-                    break;
-                }
+        foreach ($values as $index=>$property) {
+            $propertiesData[]  = preg_replace('/\s\s+/', '\n', strip_tags($property->textContent));
+        }
+
+        foreach ($keys as $index=>$property) {
+            $propertiesData[trim($property->textContent)]  = $propertiesData[$index] ?? '';
+            if (isset($propertiesData[$index])) {
+                unset($propertiesData[$index]);
             }
-            $propertiesData[$tag] = $value;
         }
 
         return $propertiesData;
