@@ -34,7 +34,8 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
 
     public function handle(): void
     {
-        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'GNB')->take(250)->get();
+//        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'GNB')->take(250)->get();
+        $products = ScrapedProducts::where('website', 'GNB')->get();
         foreach ($products as $product) {
             $this->runFakeTraffic($product->url);
         }
