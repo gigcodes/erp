@@ -28,10 +28,6 @@ class GebnegozionlineScraper extends Scraper
             $scrapEntry->save();
         }
 
-        if ($scrapEntry->is_scraped) {
-            return;
-        }
-
         if ($hasProduct) {
             $this->getProducts($scrapEntry);
             return;
