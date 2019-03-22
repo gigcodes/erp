@@ -20,7 +20,7 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
      *
      * @var string
      */
-    protected $signature = 'fake:traffic-new';
+    protected $signature = 'gnb:update-price-via-dusk';
 
     /**
      * The console command description.

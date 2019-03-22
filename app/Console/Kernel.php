@@ -6,6 +6,7 @@ use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
 use App\Console\Commands\EnrichWiseProducts;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
+use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
 use App\Console\Commands\MakeApprovedImagesSchedule;
 use App\Console\Commands\PostScheduledMedia;
@@ -70,6 +71,7 @@ class Kernel extends ConsoleKernel
         SendHourlyReports::class,
         RunMessageQueue::class,
         SendVoucherReminder::class,
+        GetGebnegozionlineProductDetailsWithEmulator::class
     ];
 
     /**
@@ -123,6 +125,11 @@ class Kernel extends ConsoleKernel
         ;
 
         $schedule->command('gebnegozionline:get-products-detail')
+            ->hourly()
+            ->withoutOverlapping()
+        ;
+
+        $schedule->command('gnb:update-price-via-dusk')
             ->hourly()
             ->withoutOverlapping()
         ;
