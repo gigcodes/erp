@@ -34,6 +34,6 @@ class ScrapedProducts extends Model
 
     public function product()
     {
-      return $this->hasOne('App\Product', 'sku');
+      return $this->hasOne('App\Product', 'sku', 'sku');
     }
 }

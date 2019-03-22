@@ -289,7 +289,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
           $product->short_description = $image->description;
           $product->supplier_link = $image->url;
           $product->stage = 3;
-          $product->status = 1;
+          $product->is_scraped = 1;
 
           $properties_array = $image->properties ?? [];
 
