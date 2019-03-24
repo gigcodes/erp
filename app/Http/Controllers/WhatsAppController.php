@@ -942,7 +942,7 @@ class WhatsAppController extends FindByNumberController
         $curl = curl_init();
         if (is_null($sendNumber)) {
             $keys = \Config::get("apiwha.api_keys");
-            $key = $keys[3]['key'];
+            $key = $keys[0]['key'];
         } else {
             $config = $this->getWhatsAppNumberConfig($sendNumber);
             $key = $config['key'];
@@ -994,7 +994,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-        return $numbers[3];
+        return $numbers[0];
     }
     private function formatChatDate($date)
     {
