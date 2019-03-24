@@ -255,6 +255,9 @@ class SearchController extends Controller {
 		                   ->whereNull( 'deleted_at' )
 		                   ->paginate( Setting::get( 'pagination' ) );
 
-		return view( 'partials.grid', compact( 'products', 'roletype' ) );
+		 $category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+			                                        ->renderAsDropdown();
+
+		return view( 'partials.grid', compact( 'products', 'roletype', 'category_selection' ) );
 	}
 }
