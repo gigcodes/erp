@@ -115,23 +115,25 @@ class TwilioController extends FindByNumberController
           $response->play( \Config::get("app.url")."/end_work_ring.mp3");
         } else {
           $response->play( \Config::get("app.url")."/intro_ring.mp3");
+
+          $dial = $response->dial([
+                             'record' => 'true',
+                             'recordingStatusCallback' =>$url,
+                             'action' => $actionurl,
+                             'timeout' => '26'
+
+                 ]);
+
+         $clients = $this->getConnectedClients();
+
+         Log::info('Client for callings: '.implode(',', $clients));
+         foreach ($clients as $client) {
+             $dial->client( $client);
+         }
         }
 // $response->say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
 
-         $dial = $response->dial([
-                            'record' => 'true',
-                            'recordingStatusCallback' =>$url,
-                            'action' => $actionurl,
-                            'timeout' => '26'
 
-                ]);
-
-        $clients = $this->getConnectedClients();
-
-        Log::info('Client for callings: '.implode(',', $clients));
-        foreach ($clients as $client) {
-            $dial->client( $client);
-        }
 
         /*--------------------------------------------------------*/
 
