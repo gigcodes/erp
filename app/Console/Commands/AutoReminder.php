@@ -40,7 +40,6 @@ class AutoReminder extends Command
      */
     public function handle()
     {
-      $time_to_send = false;
       $params = [
         'number'  => NULL,
         'status'  => 1,
@@ -55,8 +54,9 @@ class AutoReminder extends Command
 
       foreach ($customers as $customer) {
         foreach ($customer['orders'] as $order) {
+          $time_to_send = false;
           $time_diff = Carbon::parse($order['auto_messaged_date'])->diffInHours(Carbon::now());
-          
+
           if ($time_diff == 24) {
             $params['customer_id'] = $customer['id'];
             $params['message'] = 'Reminder about COD after 24 hours';
@@ -65,14 +65,21 @@ class AutoReminder extends Command
 
           if ($time_diff == 72) {
             $params['customer_id'] = $customer['id'];
-            $params['message'] = 'Reminder about COD after 72 hours';
+            $params['message'] = 'Please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.';
             $time_to_send = true;
           }
 
           if ($time_to_send) {
-            $chat_message = ChatMessage::where('customer_id', $customer['id'])->latest()->first();
+            $chat_messages = ChatMessage::where('customer_id', $customer['id'])->whereBetween('created_at', [$order['auto_messaged_date'], Carbon::now()])->latest()->get();
+            $received_count = false;
 
-            if (empty($chat_message->number)) {
+            foreach ($chat_messages as $chat_message) {
+              if ($chat_message->number) {
+                $received_count = true;
+              }
+            }
+
+            if (!$received_count) {
               $chat_message = ChatMessage::create($params);
             }
           }
