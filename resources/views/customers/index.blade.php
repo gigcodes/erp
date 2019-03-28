@@ -18,7 +18,7 @@
                             <div class="col-md-12">
                                 <input name="term" type="text" class="form-control"
                                        value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search">
+                                       placeholder="Search" id="customer-search">
                             </div>
                             <div class="col-md-4">
                                 <button hidden type="submit" class="btn btn-primary">Submit</button>
@@ -539,7 +539,20 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script type="text/javascript">
+    var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
+
+    $(document).ready(function() {
+      $('#customer-search').autocomplete({
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+
+          response(results.slice(0, 10));
+        }
+      });
+    });
+
       $('.load-customers').on('click', function() {
           var thiss = $(this);
           var first_customer = $('#first_customer').val();

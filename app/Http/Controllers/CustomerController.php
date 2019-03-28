@@ -47,6 +47,12 @@ class CustomerController extends Controller
       }
 
       $customers_all = Customer::all();
+      $customer_names = Customer::select(['name'])->get()->toArray();
+
+      foreach ($customer_names as $name) {
+        $search_suggestions[] = $name['name'];
+      }
+      
       $users_array = Helpers::getUserArray(User::all());
 
       $last_set_id = MessageQueue::max('group_id');
@@ -63,6 +69,7 @@ class CustomerController extends Controller
         'orderby' => $orderby,
         'queues_total_count' => $queues_total_count,
         'queues_sent_count' => $queues_sent_count,
+        'search_suggestions' => $search_suggestions,
       ]);
     }
 
