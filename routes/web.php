@@ -156,6 +156,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Customers
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
+	Route::get('customer/export', 'CustomerController@export')->name('customer.export');
 	Route::post('customer/merge', 'CustomerController@merge')->name('customer.merge');
 	Route::post('customer/import', 'CustomerController@import')->name('customer.import');
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');

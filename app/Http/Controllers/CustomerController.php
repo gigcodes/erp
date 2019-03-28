@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Imports\CustomerImport;
+use App\Exports\CustomersExport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Customer;
@@ -133,6 +134,13 @@ class CustomerController extends Controller
         CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm7.moduletype FROM messages mm7 WHERE mm7.id = message_id) ELSE (SELECT mm8.sent FROM chat_messages mm8 WHERE mm8.id = chat_message_id) END AS message_type')->paginate(24);
 
         return $customers;
+    }
+
+    public function export()
+    {
+      $customers = Customer::select(['name', 'phone'])->get()->toArray();
+
+      return Excel::download(new CustomersExport($customers), 'customers.xlsx');
     }
 
     public function load(Request $request)
