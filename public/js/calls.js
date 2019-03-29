@@ -1,6 +1,7 @@
 (function() {
+	var device;
 	var notifs = [];
-	var applicationSid = "AP3219d6e242854380b4fa67e6cb7e2305";
+	// var applicationSid = "AP3219d6e242854380b4fa67e6cb7e2305";
 	var remotePhoneNumber = "";
 
 	var defaultNotifOpts={
@@ -18,18 +19,17 @@
   }
 
   function loadTwilioDevice(token) {
-    Twilio.Device.setup(token, {debug: true});
-    Twilio.Device.ready(function () {
-		$("*[data-twilio-call]").each(function() {
-			var number = $( this ).text();
-            if ( $( this ).is(":input") ) {
-                number = $( this ).val();
-            }
-            var context = $(this).attr("data-context");
-            var id= $(this).attr("data-id");
-			// if ($('#twillio_call_button').length) {
-			//
-			// } else {
+		device = new Twilio.Device(token, {debug: true});
+    // Twilio.Device.setup(token, {debug: true});
+    device.on('ready', function () {
+			$("*[data-twilio-call]").each(function() {
+				var number = $( this ).text();
+        if ( $( this ).is(":input") ) {
+            number = $( this ).val();
+        }
+        var context = $(this).attr("data-context");
+        var id= $(this).attr("data-id");
+
 				var call = $("<button class='btn btn-primary' type='button' id='twillio_call_button'>Call</button>");
 				call.click( function() {
 	                var numberToCall = number;
@@ -39,56 +39,62 @@
 					callNumber( numberToCall, context, id  );
 				} );
 				call.insertAfter( this );
-			// }
-
-		} );
+			} );
     });
-    Twilio.Device.error(function (error) {
+
+    device.on('error', function (error) {
       console.error("twilio device error ", error);
       showError("Error in Twilio Device");
     });
-    Twilio.Device.connect(function (conn) {
+
+    device.on('connect', function (conn) {
       console.log("twilio device connected ", conn);
       currentCallSid = conn.parameters.CallSid;
       showNotifTimer("Call with " +remotePhoneNumber);
     });
-    Twilio.Device.disconnect(function (conn) {
+
+    device.on('disconnect', function (conn) {
       cleanup();
     });
-    Twilio.Device.incoming(function (conn) {
 
-		$.getJSON("/twilio/getLeadByNumber?number="+ encodeURIComponent(conn.parameters.From), function( data ) {
-            if (data.found) {
-              console.log(JSON.stringify(data));
-              var name = data.name;
-              var number = data.number;
-              var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + conn.parameters.From + " would you like to answer call?");
+    device.on('incoming', function (conn) {
+
+			$.getJSON("/twilio/getLeadByNumber?number="+ encodeURIComponent(conn.parameters.From), function( data ) {
+        if (data.found) {
+          console.log(JSON.stringify(data));
+          var name = data.name;
+          var number = data.number;
+          var confirmed = window.confirm("Incoming call from: "+ name + " on number :" + conn.parameters.From + " would you like to answer call?");
 
 
-            } else {
-                var confirmed = window.confirm("Incoming call from: " + number + " would you like to answer call?");
-            }
+        } else {
+            var confirmed = window.confirm("Incoming call from: " + number + " would you like to answer call?");
+        }
 
-			if (confirmed) {
-				if (data.found) {
-					var win = window.open(data.customer_url);
-					if (win) {
-							//Browser has allowed it to be opened
-							win.focus();
-					} else {
-							//Browser has blocked it
-							alert('Please allow popups for this website');
+				if (confirmed) {
+					if (data.found) {
+						var win = window.open(data.customer_url);
+						if (win) {
+								//Browser has allowed it to be opened
+								win.focus();
+						} else {
+								//Browser has blocked it
+								alert('Please allow popups for this website');
+						}
 					}
+					conn.accept();
+				} else {
+					conn.reject();
 				}
-				conn.accept();
-			} else {
-				conn.reject();
-			}
-		} );
+			} );
     });
-    Twilio.Device.offline(function() {
+
+    device.on('offline', function () {
+
     });
-    Twilio.Device.cancel(function() {
+
+    device.on('cancel', function () {
+
     });
   }
 
@@ -102,10 +108,10 @@
 
   function callerHangup() {
      showError("Call terminated");
-     Twilio.Device.disconnectAll();
+     device.disconnectAll();
   }
   function callerMute(number) {
-      var conn = Twilio.Device.activeConnection();
+      var conn = device.activeConnection();
       var el = $(".muter");
       Mute = !bMute;
 
@@ -118,7 +124,7 @@
       }
   }
   function callNumber(number, context, id) {
-    var conn = Twilio.Device.activeConnection();
+    var conn = device.activeConnection();
     if (conn) {
       alert("Please hangup current call before dialing new number..");
       return;
@@ -132,7 +138,7 @@
 		showWarning(callingText, longNotifOpts);
 		var params = {"PhoneNumber": number, "context": context, "internalId": id};
     console.log("Dialer_StartCall call params", params);
-		Twilio.Device.connect(params);
+		device.connect(params);
   }
 
   function closeNotifs(dontClose) {
