@@ -119,7 +119,7 @@ class MagentoController extends Controller {
 
 			$full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
 
-			$customer_phone = str_replace(' ', '', $results['billing_address']['telephone']);
+			$customer_phone = (int) str_replace(' ', '', $results['billing_address']['telephone']);
 			$final_phone = '';
 
 			if ($customer_phone != null) {
