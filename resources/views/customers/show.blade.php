@@ -272,8 +272,19 @@
           </div>
 
           <div class="form-group">
-            <strong>Whatsapp Number:</strong> {{ $customer->whatsapp_number }}
-          </div>
+    				<strong>Whatsapp Number:</strong>
+    				<select name="whatsapp_number" class="form-control" id="whatsapp_change">
+    					<option value>None</option>
+    					@foreach ($solo_numbers as $number => $name)
+    						<option value="{{ $number }}" {{ $customer->whatsapp_number == $number ? 'selected' : '' }}>{{ $name }}</option>
+    					@endforeach
+    				</select>
+    				@if ($errors->has('whatsapp_number'))
+    						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
+    				@endif
+
+            <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
+    			</div>
         @endif
 
         <div class="form-group">
@@ -2188,6 +2199,31 @@
               $(thiss).siblings('.change_status_message').fadeOut(400);
             }, 2000);
           }).fail(function(errObj) {
+            alert("Could not change status");
+          });
+        });
+
+        $('#whatsapp_change').on('change', function() {
+          var thiss = $(this);
+          var token = "{{ csrf_token() }}";
+          var number = $(this).val();
+          var customer_id = {{ $customer->id }};
+          var url = "{{ url('customer') }}/" + customer_id + "/updateNumber";
+
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              _token: token,
+              whatsapp_number: number
+            }
+          }).done( function(response) {
+            $(thiss).siblings('.change_status_message').fadeIn(400);
+
+            setTimeout(function () {
+              $(thiss).siblings('.change_status_message').fadeOut(400);
+            }, 2000);
+          }).fail(function(response) {
             alert("Could not change status");
           });
         });

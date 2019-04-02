@@ -164,6 +164,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
 	Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
 	Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
+	Route::post('customer/{id}/updateNumber', 'CustomerController@updateNumber')->name('customer.update.number');
 	Route::delete('customer/{id}/destroy', 'CustomerController@destroy')->name('customer.destroy');
 	Route::post('customer/send/message/all/{validate?}', 'WhatsAppController@sendToAll')->name('customer.whatsapp.send.all');
 	Route::get('customer/stop/message/all', 'WhatsAppController@stopAll')->name('customer.whatsapp.stop.all');

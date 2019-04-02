@@ -25,6 +25,7 @@ use App\CallRecording;
 use App\InstructionCategory;
 use App\OrderStatus as OrderStatuses;
 use App\ReadOnly\PurchaseStatus;
+use App\ReadOnly\SoloNumbers;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 use Webklex\IMAP\Client;
@@ -250,7 +251,11 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view('customers.create');
+      $solo_numbers = (new SoloNumbers)->all();
+
+      return view('customers.create', [
+        'solo_numbers'  => $solo_numbers
+      ]);
     }
 
     /**
@@ -334,6 +339,7 @@ class CustomerController extends Controller
         $instruction_replies = Reply::where('model', 'Instruction')->get();
         $order_status_report = OrderStatuses::all();
         $purchase_status = (new PurchaseStatus)->all();
+        $solo_numbers = (new SoloNumbers)->all();
 
         return view('customers.show', [
             'customers'  => $customers,
@@ -350,6 +356,7 @@ class CustomerController extends Controller
             'instruction_replies' =>  $instruction_replies,
             'order_status_report' =>  $order_status_report,
             'purchase_status' =>  $purchase_status,
+            'solo_numbers' =>  $solo_numbers,
             'emails'          => $emails
         ]);
     }
@@ -414,8 +421,12 @@ class CustomerController extends Controller
     public function edit($id)
     {
         $customer = Customer::find($id);
+        $solo_numbers = (new SoloNumbers)->all();
 
-        return view('customers.edit')->withCustomer($customer);
+        return view('customers.edit', [
+          'customer'      => $customer,
+          'solo_numbers'  => $solo_numbers
+        ]);
     }
 
     /**
@@ -465,6 +476,16 @@ class CustomerController extends Controller
         }
 
         return redirect()->route('customer.show', $id)->with('success', 'You have successfully updated the customer!');
+    }
+
+    public function updateNumber(Request $request, $id)
+    {
+      $customer = Customer::find($id);
+
+      $customer->whatsapp_number = $request->whatsapp_number;
+      $customer->save();
+
+      return response('success');
     }
 
     /**
