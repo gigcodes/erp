@@ -388,7 +388,7 @@
                 {{ ($customer->order_status && ($customer->order_status != 'Cancel' && $customer->order_status != 'Delivered')) ? 'text-success' : '' }}
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
-                    <td>{{ $customer->name }}</td>
+                    <td><a href="{{ route('customer.show', $customer->id) }}">{{ $customer->name }}</a></td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                       <td>{{ $customer['email'] }}</td>
                       <td>{{ $customer['phone'] }}</td>
