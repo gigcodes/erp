@@ -429,7 +429,7 @@ class TwilioController extends FindByNumberController
         if ($customer = Customer::where('phone', $request->phone_number)->first()) {
           $params = [
             'number'      => NULL,
-            'message'     => 'Greetings from Solo Luxury, our Solo Valets were trying to get in touch with you but were unable to get through, you can call us on 000800401700. Please do not use +91 when calling  as it does not connect to our toll free number. Alternatively you can call us on 02262363488.',
+            'message'     => 'Greetings from Solo Luxury, our Solo Valets were trying to get in touch with you but were unable to get through, you can call us on 0008000401700. Please do not use +91 when calling  as it does not connect to our toll free number.',
             'customer_id' => $customer->id,
             'approved'    => 1,
             'status'      => 2
