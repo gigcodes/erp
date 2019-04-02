@@ -536,7 +536,7 @@ class OrderController extends Controller {
 				'auto_messaged_date' => Carbon::now()
 			]);
 		} elseif ($order->order_status == 'Prepaid') {
-			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
 			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
@@ -717,7 +717,7 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
 			} elseif ($order->order_status == 'Prepaid') {
-				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 				$requestData = new Request();
 				$requestData->setMethod('POST');
 				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
@@ -859,7 +859,7 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
 			} elseif ($order->order_status == 'Prepaid') {
-				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 				$requestData = new Request();
 				$requestData->setMethod('POST');
 				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
