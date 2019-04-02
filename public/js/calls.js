@@ -19,7 +19,7 @@
   }
 
   function loadTwilioDevice(token) {
-		device = new Twilio.Device(token, {debug: true});
+		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true});
     // Twilio.Device.setup(token, {debug: true});
     device.on('ready', function () {
 			$("*[data-twilio-call]").each(function() {
