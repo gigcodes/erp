@@ -147,27 +147,17 @@
 
 
 
-    <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
+    {{-- <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
 
     <script>
+      // Enable pusher logging - don't include this in production
+      Pusher.logToConsole = true;
 
-
-
-        // Enable pusher logging - don't include this in production
-
-        Pusher.logToConsole = true;
-
-
-
-        var pusher = new Pusher('df4fad9e0f54a365c85c', {
-
-            cluster: 'ap2',
-
-            forceTLS: true
-
-        });
-
-    </script>
+      var pusher = new Pusher('df4fad9e0f54a365c85c', {
+          cluster: 'ap2',
+          forceTLS: true
+      });
+    </script> --}}
 
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
@@ -179,9 +169,9 @@
 
     @endif
 
-    <script src="{{ asset('js/pusher.chat.js') }}"></script>
+    {{-- <script src="{{ asset('js/pusher.chat.js') }}"></script>
 
-    <script src="{{ asset('js/chat.js') }}"></script>
+    <script src="{{ asset('js/chat.js') }}"></script> --}}
 
 
 
@@ -1354,7 +1344,7 @@
 
 <!-- Scripts -->
 
-@include('partials.chat')
+{{-- @include('partials.chat') --}}
 
 
 
