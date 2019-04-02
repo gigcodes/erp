@@ -2841,7 +2841,6 @@
       });
 
       $(document).ready(function() {
-        console.log('Tooltip');
         $("body").tooltip({ selector: '[data-toggle=tooltip]' });
       });
 
