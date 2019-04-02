@@ -168,6 +168,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('customer/send/message/all/{validate?}', 'WhatsAppController@sendToAll')->name('customer.whatsapp.send.all');
 	Route::get('customer/stop/message/all', 'WhatsAppController@stopAll')->name('customer.whatsapp.stop.all');
 	Route::get('customer/email/fetch', 'CustomerController@emailFetch')->name('customer.email.fetch');
+	Route::get('customer/email/all', 'CustomerController@emailAll')->name('customer.email.all');
 
 	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');

@@ -233,6 +233,9 @@
     <li>
       <a href="#suggestion_tab" data-toggle="tab">Suggestions</a>
     </li>
+    <li>
+      <a href="#email_tab" data-toggle="tab" data-customerid="{{ $customer->id }}">Emails</a>
+    </li>
   </ul>
 </div>
 
@@ -1737,6 +1740,10 @@
       <div class="col-12" id="suggestion-container"></div>
     </div>
   </div>
+
+  <div class="tab-pane mt-3" id="email_tab">
+    @include('customers.email')
+  </div>
 </div>
 
 <div class="row mt-5">
@@ -3238,6 +3245,68 @@
         form.attr('action', url);
         travel_select.attr('selected', true);
         $('#voucher_amount_field').val(amount);
+      });
+
+      $(document).on('click', '.email-fetch', function(e) {
+        e.preventDefault();
+
+        var uid = $(this).data('uid');
+
+        $.ajax({
+          type: "GET",
+          url: "{{ route('customer.email.fetch') }}",
+          data: {
+            uid: uid
+          },
+          beforeSend: function() {
+            $('#email-content .card').html('Loading...');
+          }
+        }).done(function(response) {
+          $('#email-content .card').html(response.email);
+        }).fail(function(response) {
+          $('#email-content .card').html();
+
+          alert('Could not fetch an email');
+          console.log(response);
+        })
+      });
+
+      $('a[href="#email_tab"]').on('click', function() {
+        var customer_id = $(this).data('customerid');
+
+        $.ajax({
+          url: "{{ route('customer.email.all') }}",
+          type: "GET",
+          data: {
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $('#email_tab .card').html('Loading emails');
+          }
+        }).done(function(response) {
+          $('#email_tab').html(response.emails);
+        }).fail(function(response) {
+          $('#email_tab .card').html();
+
+          alert('Could not fetch emails');
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.pagination a', function(e) {
+        e.preventDefault();
+
+        var url = $(this).attr('href');
+
+        $.ajax({
+          url: url,
+          type: "GET"
+        }).done(function(response) {
+          $('#email_tab').html(response.emails);
+        }).fail(function(response) {
+          alert('Could not load emails');
+          console.log(response);
+        });
       });
   </script>
 @endsection

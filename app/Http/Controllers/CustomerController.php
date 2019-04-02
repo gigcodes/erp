@@ -27,6 +27,7 @@ use App\OrderStatus as OrderStatuses;
 use App\ReadOnly\PurchaseStatus;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
+use Webklex\IMAP\Client;
 
 class CustomerController extends Controller
 {
@@ -52,7 +53,7 @@ class CustomerController extends Controller
       foreach ($customer_names as $name) {
         $search_suggestions[] = $name['name'];
       }
-      
+
       $users_array = Helpers::getUserArray(User::all());
 
       $last_set_id = MessageQueue::max('group_id');
@@ -323,8 +324,7 @@ class CustomerController extends Controller
             $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orWhere('customer_id', $customer->id)->orderBy('created_at', 'DESC')->get()->toArray();
         }
 
-
-        // $leads = Leads::find($id);
+        $emails = [];
         $status = (New status)->all();
         $users = User::all()->toArray();
         $users_array = Helpers::getUserArray(User::all());
@@ -349,7 +349,8 @@ class CustomerController extends Controller
             'instruction_categories' =>  $instruction_categories,
             'instruction_replies' =>  $instruction_replies,
             'order_status_report' =>  $order_status_report,
-            'purchase_status' =>  $purchase_status
+            'purchase_status' =>  $purchase_status,
+            'emails'          => $emails
         ]);
     }
 
@@ -359,6 +360,57 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    public function emailAll(Request $request)
+    {
+      $imap = new Client([
+          'host'          => env('IMAP_HOST'),
+          'port'          => env('IMAP_PORT'),
+          'encryption'    => env('IMAP_ENCRYPTION'),
+          'validate_cert' => env('IMAP_VALIDATE_CERT'),
+          'username'      => env('IMAP_USERNAME'),
+          'password'      => env('IMAP_PASSWORD'),
+          'protocol'      => env('IMAP_PROTOCOL')
+      ]);
+
+      $imap->connect();
+
+      $customer = Customer::find($request->customer_id);
+
+
+      $inbox = $imap->getFolder('INBOX');
+      $emails = $inbox->messages()->from($customer->email)
+                      ->setFetchFlags(false)
+                      ->setFetchBody(false)
+                      ->setFetchAttachment(false)->get()->sortByDesc('date')->paginate(10);
+
+      $view = view('customers.email', [
+        'emails'  => $emails
+      ])->render();
+
+      return response()->json(['emails' => $view]);
+    }
+
+    public function emailFetch(Request $request)
+    {
+      $imap = new Client([
+          'host'          => env('IMAP_HOST'),
+          'port'          => env('IMAP_PORT'),
+          'encryption'    => env('IMAP_ENCRYPTION'),
+          'validate_cert' => env('IMAP_VALIDATE_CERT'),
+          'username'      => env('IMAP_USERNAME'),
+          'password'      => env('IMAP_PASSWORD'),
+          'protocol'      => env('IMAP_PROTOCOL')
+      ]);
+
+      $imap->connect();
+
+      $inbox = $imap->getFolder('INBOX');
+      $email = $inbox->getMessage($uid = $request->uid, NULL, NULL, TRUE, TRUE, TRUE);
+
+      return response()->json(['email' => $email->getHTMLBody()]);
+    }
+
     public function edit($id)
     {
         $customer = Customer::find($id);
