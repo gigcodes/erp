@@ -100,7 +100,7 @@
 
   function initializeTwilio() {
     $.getJSON("/twilio/token", function( result ) {
-      console.log("Received Twilio Token", result);
+      console.log("Received Twilio Token - agent " + result.agent);
       var token = result.twilio_token;
       loadTwilioDevice( token );
      });
