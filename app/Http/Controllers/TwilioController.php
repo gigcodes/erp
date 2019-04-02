@@ -119,8 +119,8 @@ class TwilioController extends FindByNumberController
           $dial = $response->dial([
                              'record' => 'true',
                              'recordingStatusCallback' =>$url,
-                             'action' => $actionurl,
-                             'timeout' => '26'
+                             'action' => $actionurl
+                             // 'timeout' => '26'
 
                  ]);
 
