@@ -560,20 +560,6 @@ class OrderController extends Controller {
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
-
-			$product_names = '';
-			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
-				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
-			}
-
-			$auto_message = "Greetings from Solo Luxury Ref: order number #$order->order_id for $product_names we have initiated the refund process you should receive the refund within 7-10 days by the method that you made the payment.";
-			$requestData = new Request();
-			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-
-			Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
 		}
 
 		// NotificationQueueController::createNewNotification([
@@ -760,20 +746,6 @@ class OrderController extends Controller {
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
-
-			$product_names = '';
-			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
-				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
-			}
-
-			$auto_message = "Greetings from Solo Luxury Ref: order number #$order->order_id for $product_names we have initiated the refund process you should receive the refund within 7-10 days by the method that you made the payment.";
-			$requestData = new Request();
-			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-
-			Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
 		}
 
 		if ($order->order_status == 'Delivered') {
@@ -916,21 +888,28 @@ class OrderController extends Controller {
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
-
-			$product_names = '';
-			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
-				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
-			}
-
-			$auto_message = "Greetings from Solo Luxury Ref: order number #$order->order_id for $product_names we have initiated the refund process you should receive the refund within 7-10 days by the method that you made the payment.";
-			$requestData = new Request();
-			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-
-			Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
 		}
+	}
+
+	public function sendRefund(Request $request, $id)
+	{
+		$order = Order::find($id);
+
+		$product_names = '';
+		foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+			$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+		}
+
+		$auto_message = "Greetings from Solo Luxury Ref: order number #$order->order_id for $product_names we have initiated the refund process you should receive the refund within 7-10 days by the method that you made the payment.";
+		$requestData = new Request();
+		$requestData->setMethod('POST');
+		$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+		app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+		Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
+
+		return response('success');
 	}
 
 	public function generateAWB(Request $request) {

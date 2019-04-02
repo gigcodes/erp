@@ -87,6 +87,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
+	Route::post('order/{id}/sendRefund', 'OrderController@sendRefund');
 	Route::post('order/{id}/uploadForApproval', 'OrderController@uploadForApproval')->name('order.upload.approval');
 	Route::post('order/{id}/deliveryApprove', 'OrderController@deliveryApprove')->name('order.delivery.approve');
 	Route::get('order/{id}/printAdvanceReceipt', 'OrderController@printAdvanceReceipt')->name('order.advance.receipt.print');

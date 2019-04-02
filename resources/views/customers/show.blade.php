@@ -1245,6 +1245,11 @@
                           </div>
                         @endif
 
+                        <div class="form-group">
+                          <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
+                          <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
+                        </div>
+
                         {{-- <div class="form-group">
                           <a href="#" class="btn btn-secondary create-magento-product" data-id="{{ $order->id }}">Create Magento Product</a>
                         </div> --}}
@@ -2225,6 +2230,30 @@
             }, 2000);
           }).fail(function(response) {
             alert("Could not change status");
+          });
+        });
+
+        $('.send-refund').on('click', function() {
+          var thiss = $(this);
+          var token = "{{ csrf_token() }}";
+          var order_id = $(this).data('id');
+          var url = "{{ url('order') }}/" + order_id + "/sendRefund";
+
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              _token: token
+            }
+          }).done( function(response) {
+            $(thiss).siblings('.send-refund-message').fadeIn(400);
+
+            setTimeout(function () {
+              $(thiss).siblings('.send-refund-message').fadeOut(400);
+            }, 2000);
+          }).fail(function(response) {
+            alert("Could not send refund messages!");
+            console.log(response);
           });
         });
 
