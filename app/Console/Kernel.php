@@ -108,8 +108,8 @@ class Kernel extends ConsoleKernel
 	    	NotificationQueueController::deQueueNotficationNew();
 	    })->everyMinute();
 
-         $schedule->call(function () {
-//            MagentoController::get_magento_orders();
+        $schedule->call(function () {
+          MagentoController::get_magento_orders();
         })->hourly();
 
         $schedule->command('post:scheduled-media')
@@ -171,7 +171,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
-        $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
+        // $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
 
         // Voucher Reminders
         $schedule->command('send:voucher-reminder')->daily();
