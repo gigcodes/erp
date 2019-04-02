@@ -1183,7 +1183,7 @@ class OrderController extends Controller {
 }
 
 public function callsHistory() {
-	$calls = CallHistory::paginate(Setting::get('pagination'));
+	$calls = CallHistory::latest()->paginate(Setting::get('pagination'));
 
 	return view('orders.call_history', [
 		'calls'	=> $calls
