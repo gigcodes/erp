@@ -1248,6 +1248,10 @@
 
                                 @endcan
 
+                                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56)
+                                  <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
+                                @endif
+
                                 @can('category-edit')
 
                                     <a class="dropdown-item" href="{{route('category')}}">Category</a>

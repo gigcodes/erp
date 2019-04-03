@@ -337,6 +337,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('social/ad/create','SocialController@createAd')->name('social.ad.create');
 	Route::post('social/ad/store','SocialController@storeAd')->name('social.ad.store');
 	// End of Routes for social
+
+	// Paswords Manager
+	Route::get('passwords', 'PasswordController@index')->name('password.index');
+	Route::post('password/store', 'PasswordController@store')->name('password.store');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
