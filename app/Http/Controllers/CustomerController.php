@@ -7,6 +7,8 @@ use App\Imports\CustomerImport;
 use App\Exports\CustomersExport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Mail\CustomerEmail;
+use Illuminate\Support\Facades\Mail;
 use App\Customer;
 use App\Setting;
 use App\Leads;
@@ -368,7 +370,7 @@ class CustomerController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function emailAll(Request $request)
+    public function emailInbox(Request $request)
     {
       $imap = new Client([
           'host'          => env('IMAP_HOST'),
@@ -384,15 +386,22 @@ class CustomerController extends Controller
 
       $customer = Customer::find($request->customer_id);
 
+      if ($request->type == 'inbox') {
+        $inbox = $imap->getFolder('INBOX');
+        $emails = $inbox->messages()->from($customer->email);
+      } else {
+        $inbox = $imap->getFolder('INBOX.Sent');
+        $emails = $inbox->messages()->to($customer->email);
+      }
 
-      $inbox = $imap->getFolder('INBOX');
-      $emails = $inbox->messages()->from($customer->email)
-                      ->setFetchFlags(false)
+      $emails = $emails->setFetchFlags(false)
                       ->setFetchBody(false)
-                      ->setFetchAttachment(false)->get()->sortByDesc('date')->paginate(10);
+                      ->setFetchAttachment(false)->get()
+                      ->sortByDesc('date')->paginate(10);
 
       $view = view('customers.email', [
-        'emails'  => $emails
+        'emails'  => $emails,
+        'type'    => $request->type
       ])->render();
 
       return response()->json(['emails' => $view]);
@@ -412,10 +421,36 @@ class CustomerController extends Controller
 
       $imap->connect();
 
-      $inbox = $imap->getFolder('INBOX');
+      if ($request->type == 'inbox') {
+        $inbox = $imap->getFolder('INBOX');
+      } else {
+        $inbox = $imap->getFolder('INBOX.Sent');
+        $inbox->query();
+      }
+
       $email = $inbox->getMessage($uid = $request->uid, NULL, NULL, TRUE, TRUE, TRUE);
 
-      return response()->json(['email' => $email->getHTMLBody()]);
+      if ($email->hasHTMLBody()) {
+        $content = $email->getHTMLBody();
+      } else {
+        $content = $email->getTextBody();
+      }
+
+      return response()->json(['email' => $content]);
+    }
+
+    public function emailSend(Request $request)
+    {
+      $this->validate($request, [
+        'subject' => 'required|min:3|max:255',
+        'message' => 'required'
+      ]);
+
+      $customer = Customer::find($request->customer_id);
+
+      Mail::to($customer->email)->send(new CustomerEmail($request->subject, $request->message));
+
+      return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully sent an email!');
     }
 
     public function edit($id)

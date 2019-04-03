@@ -234,7 +234,7 @@
       <a href="#suggestion_tab" data-toggle="tab">Suggestions</a>
     </li>
     <li>
-      <a href="#email_tab" data-toggle="tab" data-customerid="{{ $customer->id }}">Emails</a>
+      <a href="#email_tab" data-toggle="tab" data-customerid="{{ $customer->id }}" data-type="inbox">Emails</a>
     </li>
   </ul>
 </div>
@@ -1758,7 +1758,58 @@
   </div>
 
   <div class="tab-pane mt-3" id="email_tab">
-    @include('customers.email')
+    <div id="exTab3" class="container mb-3">
+      <ul class="nav nav-tabs">
+        <li class="active">
+          <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-customerid="{{ $customer->id }}" data-type="inbox">Inbox</a>
+        </li>
+        <li>
+          <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-customerid="{{ $customer->id }}" data-type="sent">Sent</a>
+        </li>
+        <li class="nav-item ml-auto">
+          <button type="button" class="btn btn-image" data-toggle="modal" data-target="#emailSendModal"><img src="{{ asset('images/filled-sent.png') }}" /></button>
+        </li>
+      </ul>
+    </div>
+
+    <div id="email-container">
+      @include('customers.email')
+    </div>
+  </div>
+</div>
+
+<div id="emailSendModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Send an Email</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <form action="{{ route('customer.email.send') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+
+        <div class="modal-body">
+          <div class="form-group">
+            <strong>Subject</strong>
+            <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" required>
+          </div>
+
+          <div class="form-group">
+            <strong>Message</strong>
+            <textarea name="message" class="form-control" rows="8" cols="80" required>{{ old('message') }}</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary">Send</button>
+        </div>
+      </form>
+    </div>
+
   </div>
 </div>
 
@@ -3315,12 +3366,14 @@
         e.preventDefault();
 
         var uid = $(this).data('uid');
+        var type = $(this).data('type');
 
         $.ajax({
           type: "GET",
           url: "{{ route('customer.email.fetch') }}",
           data: {
-            uid: uid
+            uid: uid,
+            type: type
           },
           beforeSend: function() {
             $('#email-content .card').html('Loading...');
@@ -3335,22 +3388,24 @@
         })
       });
 
-      $('a[href="#email_tab"]').on('click', function() {
+      $('a[href="#email_tab"], #email-inbox-tab, #email-sent-tab').on('click', function() {
         var customer_id = $(this).data('customerid');
+        var type = $(this).data('type');
 
         $.ajax({
-          url: "{{ route('customer.email.all') }}",
+          url: "{{ route('customer.email.inbox') }}",
           type: "GET",
           data: {
-            customer_id: customer_id
+            customer_id: customer_id,
+            type: type
           },
           beforeSend: function() {
-            $('#email_tab .card').html('Loading emails');
+            $('#email_tab #email-container .card').html('Loading emails');
           }
         }).done(function(response) {
-          $('#email_tab').html(response.emails);
+          $('#email_tab #email-container').html(response.emails);
         }).fail(function(response) {
-          $('#email_tab .card').html();
+          $('#email_tab #email-container .card').html();
 
           alert('Could not fetch emails');
           console.log(response);
@@ -3366,7 +3421,7 @@
           url: url,
           type: "GET"
         }).done(function(response) {
-          $('#email_tab').html(response.emails);
+          $('#email_tab #email-container').html(response.emails);
         }).fail(function(response) {
           alert('Could not load emails');
           console.log(response);

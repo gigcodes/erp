@@ -5,7 +5,7 @@
         <ul class="list-group list-group-flush">
           @foreach ($emails as $email)
             <li class="list-group-item">
-              <a href="#" class="email-fetch" data-uid="{{ $email->getUid() }}">
+              <a href="#" class="email-fetch" data-uid="{{ $email->getUid() }}" data-type="{{ $type }}">
                 <strong>{{ $email->getSubject() }}</strong>
               </a>
               <br>
