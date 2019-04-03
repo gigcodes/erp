@@ -23,7 +23,7 @@ class ProductApproverController extends Controller
 		$products = Product::latest()
 		                   ->where('stage','>=',$stage->get('Lister'))
 		                   ->whereNull('dnf')
-											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
+											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
 		                   ->paginate(Setting::get('pagination'));
 
 		$roletype = 'Approver';

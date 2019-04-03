@@ -14,6 +14,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Storage;
+use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ScrapController extends Controller
 {
@@ -88,6 +90,61 @@ class ScrapController extends Controller
 
         return view('scrap.extracted_images', compact( 'images', 'downloaded'));
 
+    }
+
+    public function activity()
+    {
+      $scraped_gnb_count = ScrapedProducts::where('website', 'G&B')->select(['website', 'created_at'])->get()->groupBy(function ($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d');
+      });
+
+      $scraped_wise_count = ScrapedProducts::where('website', 'Wiseboutique')->select(['website', 'created_at'])->get()->groupBy(function ($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d');
+      });
+
+      $scraped_double_count = ScrapedProducts::where('website', 'DoubleF')->select(['website', 'created_at'])->get()->groupBy(function ($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d');
+      });
+
+      $data = [];
+
+      foreach ($scraped_gnb_count as $date => $item) {
+        $data[$date]['G&B'] = count($item);
+        $data[$date]['Wise Boutique'] = 0;
+        $data[$date]['Double F'] = 0;
+      }
+
+      foreach ($scraped_wise_count as $date => $item) {
+        $data[$date]['G&B'] = $data[$date]['G&B'] ?? 0;
+        $data[$date]['Wise Boutique'] = count($item);
+        $data[$date]['Double F'] = 0;
+      }
+
+      foreach ($scraped_double_count as $date => $item) {
+        $data[$date]['G&B'] = $data[$date]['G&B'] ?? 0;
+        $data[$date]['Wise Boutique'] = $data[$date]['Wise Boutique'] ?? 0;
+        $data[$date]['Double F'] = count($item);
+      }
+
+      ksort($data);
+
+      $data = array_reverse($data);
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		$perPage = 24;
+  		$currentItems = array_slice($data, $perPage * ($currentPage - 1), $perPage);
+
+  		$data = new LengthAwarePaginator($currentItems, count($data), $perPage, $currentPage, [
+  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		]);
+
+  		// $data['scraped_gnb_product_count'] = Product::where('supplier', 'G & B Negozionline')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
+  		// $data['scraped_wise_product_count'] = Product::where('supplier', 'Wise Boutique')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
+  		// $data['scraped_double_product_count'] = Product::where('supplier', 'Double F')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
+
+      return view('scrap.activity', [
+        'data'  => $data
+      ]);
     }
 
 

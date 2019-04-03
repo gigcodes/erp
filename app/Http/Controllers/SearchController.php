@@ -162,6 +162,35 @@ class SearchController extends Controller {
 			Cache::forget('filter-date-' . Auth::id());
 		}
 
+		if ($request->type[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '' || trim($request->date) != '') {
+				if (count($request->type) > 1) {
+					$productQuery = $productQuery->where('is_scraped', 1)->orWhere('status', 2);
+				} else {
+					if ($request->type[0] == 'scraped') {
+						$productQuery = $productQuery->where('is_scraped', 1);
+					} else {
+						$productQuery = $productQuery->where('status', 2);
+					}
+				}
+			} else {
+				if (count($request->type) > 1) {
+					$productQuery = ( new Product() )->newQuery()
+																				 ->latest()->where('is_scraped', 1)->orWhere('status', 2);
+				} else {
+					if ($request->type[0] == 'scraped') {
+						$productQuery = ( new Product() )->newQuery()
+																					 ->latest()->where('is_scraped', 1);
+					} else {
+						$productQuery = ( new Product() )->newQuery()
+																					 ->latest()->where('status', 2);
+					}
+				}
+			}
+
+			$data['type'] = $request->type[0];
+		}
+
 		if ($request->quick_product === 'true') {
 				$productQuery = ( new Product() )->newQuery()
 				                                 ->latest()->where('quick_product', 1);
@@ -203,7 +232,7 @@ class SearchController extends Controller {
 				$productQuery = $productQuery->whereNull( 'dnf' );
 			}
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == 1 && $request->price == "0,10000000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '') {
+			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == 1 && $request->price == "0,10000000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type == null) {
 				$productQuery = ( new Product() )->newQuery()->latest();
 			}
 		}
@@ -231,7 +260,7 @@ class SearchController extends Controller {
 		                                        ->selected($selected_categories)
 		                                        ->renderAsDropdown();
 
-		$data['products'] = $productQuery->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])->paginate( Setting::get( 'pagination' ) );
+		$data['products'] = $productQuery->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->paginate( Setting::get( 'pagination' ) );
 
 		if ($request->ajax()) {
 			$html = view('partials.image-load', ['products' => $data['products'], 'data'	=> $data, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
@@ -255,6 +284,9 @@ class SearchController extends Controller {
 		                   ->whereNull( 'deleted_at' )
 		                   ->paginate( Setting::get( 'pagination' ) );
 
-		return view( 'partials.grid', compact( 'products', 'roletype' ) );
+		 $category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+			                                        ->renderAsDropdown();
+
+		return view( 'partials.grid', compact( 'products', 'roletype', 'category_selection' ) );
 	}
 }

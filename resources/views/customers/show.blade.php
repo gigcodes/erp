@@ -233,6 +233,9 @@
     <li>
       <a href="#suggestion_tab" data-toggle="tab">Suggestions</a>
     </li>
+    <li>
+      <a href="#email_tab" data-toggle="tab" data-customerid="{{ $customer->id }}">Emails</a>
+    </li>
   </ul>
 </div>
 
@@ -269,8 +272,19 @@
           </div>
 
           <div class="form-group">
-            <strong>Whatsapp Number:</strong> {{ $customer->whatsapp_number }}
-          </div>
+    				<strong>Whatsapp Number:</strong>
+    				<select name="whatsapp_number" class="form-control" id="whatsapp_change">
+    					<option value>None</option>
+    					@foreach ($solo_numbers as $number => $name)
+    						<option value="{{ $number }}" {{ $customer->whatsapp_number == $number ? 'selected' : '' }}>{{ $name }}</option>
+    					@endforeach
+    				</select>
+    				@if ($errors->has('whatsapp_number'))
+    						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
+    				@endif
+
+            <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
+    			</div>
         @endif
 
         <div class="form-group">
@@ -1231,6 +1245,11 @@
                           </div>
                         @endif
 
+                        <div class="form-group">
+                          <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
+                          <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
+                        </div>
+
                         {{-- <div class="form-group">
                           <a href="#" class="btn btn-secondary create-magento-product" data-id="{{ $order->id }}">Create Magento Product</a>
                         </div> --}}
@@ -1737,6 +1756,10 @@
       <div class="col-12" id="suggestion-container"></div>
     </div>
   </div>
+
+  <div class="tab-pane mt-3" id="email_tab">
+    @include('customers.email')
+  </div>
 </div>
 
 <div class="row mt-5">
@@ -2182,6 +2205,55 @@
             }, 2000);
           }).fail(function(errObj) {
             alert("Could not change status");
+          });
+        });
+
+        $('#whatsapp_change').on('change', function() {
+          var thiss = $(this);
+          var token = "{{ csrf_token() }}";
+          var number = $(this).val();
+          var customer_id = {{ $customer->id }};
+          var url = "{{ url('customer') }}/" + customer_id + "/updateNumber";
+
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              _token: token,
+              whatsapp_number: number
+            }
+          }).done( function(response) {
+            $(thiss).siblings('.change_status_message').fadeIn(400);
+
+            setTimeout(function () {
+              $(thiss).siblings('.change_status_message').fadeOut(400);
+            }, 2000);
+          }).fail(function(response) {
+            alert("Could not change status");
+          });
+        });
+
+        $('.send-refund').on('click', function() {
+          var thiss = $(this);
+          var token = "{{ csrf_token() }}";
+          var order_id = $(this).data('id');
+          var url = "{{ url('order') }}/" + order_id + "/sendRefund";
+
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              _token: token
+            }
+          }).done( function(response) {
+            $(thiss).siblings('.send-refund-message').fadeIn(400);
+
+            setTimeout(function () {
+              $(thiss).siblings('.send-refund-message').fadeOut(400);
+            }, 2000);
+          }).fail(function(response) {
+            alert("Could not send refund messages!");
+            console.log(response);
           });
         });
 
@@ -2834,7 +2906,6 @@
       });
 
       $(document).ready(function() {
-        console.log('Tooltip');
         $("body").tooltip({ selector: '[data-toggle=tooltip]' });
       });
 
@@ -3238,6 +3309,68 @@
         form.attr('action', url);
         travel_select.attr('selected', true);
         $('#voucher_amount_field').val(amount);
+      });
+
+      $(document).on('click', '.email-fetch', function(e) {
+        e.preventDefault();
+
+        var uid = $(this).data('uid');
+
+        $.ajax({
+          type: "GET",
+          url: "{{ route('customer.email.fetch') }}",
+          data: {
+            uid: uid
+          },
+          beforeSend: function() {
+            $('#email-content .card').html('Loading...');
+          }
+        }).done(function(response) {
+          $('#email-content .card').html(response.email);
+        }).fail(function(response) {
+          $('#email-content .card').html();
+
+          alert('Could not fetch an email');
+          console.log(response);
+        })
+      });
+
+      $('a[href="#email_tab"]').on('click', function() {
+        var customer_id = $(this).data('customerid');
+
+        $.ajax({
+          url: "{{ route('customer.email.all') }}",
+          type: "GET",
+          data: {
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $('#email_tab .card').html('Loading emails');
+          }
+        }).done(function(response) {
+          $('#email_tab').html(response.emails);
+        }).fail(function(response) {
+          $('#email_tab .card').html();
+
+          alert('Could not fetch emails');
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.pagination a', function(e) {
+        e.preventDefault();
+
+        var url = $(this).attr('href');
+
+        $.ajax({
+          url: url,
+          type: "GET"
+        }).done(function(response) {
+          $('#email_tab').html(response.emails);
+        }).fail(function(response) {
+          alert('Could not load emails');
+          console.log(response);
+        });
       });
   </script>
 @endsection

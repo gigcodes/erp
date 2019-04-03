@@ -92,6 +92,15 @@
                             </div>
 
                             <div class="form-group mr-3">
+                              <select class="form-control select-multiple" name="type[]" multiple>
+                                <optgroup label="Type">
+                                  <option value="scraped" {{ isset($type) && $type == 'scraped' ? 'selected' : '' }}>Scraped</option>
+                                  <option value="imported" {{ isset($type) && $type == 'imported' ? 'selected' : '' }}>Imported</option>
+                              </optgroup>
+                              </select>
+                            </div>
+
+                            <div class="form-group mr-3">
                               <input name="size" type="text" class="form-control"
                                      value="{{ isset($size) ? $size : '' }}"
                                      placeholder="Size">
@@ -264,6 +273,8 @@
               'link': '{{ $link }}',
               'isApproved': '{{ $product->isApproved }}',
               'stage': '{{ $stage->getNameById( $product->stage )}}',
+              'is_scraped': {{ $product->is_scraped }},
+              'is_imported': {{ $product->status == 2 ? 1 : 0 }},
 
               @if( isset($doSelection) )
               'isAttached': '{{ in_array($product->id, $selected_products) ? 1 : 0 }}',
@@ -281,6 +292,8 @@
               let html = '<h4>' + getTodayYesterdayDate(key) + '</h4><div class="row">';
 
               groupedByTime[key].forEach(function (product) {
+                var is_scraped = product['is_scraped'] == 1 ? '<p><span class="badge">Scraped</span></p>' : '';
+                var is_imported = product['is_imported'] == 1 ? '<p><span class="badge">Imported</span></p>' : '';
 
                   html += `
                       <div class="col-md-3 col-xs-6 text-center mb-5">
@@ -292,6 +305,7 @@
                                           <p>Price : ` + product['price'] + `</p>
                                           <!--<p>Brand : ` + product['brand'] + `</p>-->
                                           <p>Status : ` + product['stage'] + `</p>
+                                          ` + is_scraped + is_imported + `
                                            {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
                                                                   'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
                           {{--@can('supervisor-edit')

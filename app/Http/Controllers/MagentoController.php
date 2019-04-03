@@ -108,7 +108,7 @@ class MagentoController extends Controller {
 
 		for ( $j = 0; $j < sizeof( $orderlist ); $j ++ ) {
 			$results = json_decode( json_encode( $proxy->salesOrderInfo( $sessionId, $orderlist[ $j ]->increment_id ) ), true );
-			
+
 			$atts = unserialize( $results['items'][0]['product_options'] );
 			if ( ! empty( $results['total_paid'] ) ) {
 				$paid = $results['total_paid'];
@@ -119,7 +119,7 @@ class MagentoController extends Controller {
 
 			$full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
 
-			$customer_phone = str_replace(' ', '', $results['billing_address']['telephone']);
+			$customer_phone = (int) str_replace(' ', '', $results['billing_address']['telephone']);
 			$final_phone = '';
 
 			if ($customer_phone != null) {
@@ -237,7 +237,7 @@ class MagentoController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
 		} elseif ($order->order_status == 'Prepaid' && ($results['state'] == 'processing' || $results['state'] == 'pending')) {
-			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
 			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);

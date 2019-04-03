@@ -87,6 +87,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
+	Route::post('order/{id}/sendRefund', 'OrderController@sendRefund');
 	Route::post('order/{id}/uploadForApproval', 'OrderController@uploadForApproval')->name('order.upload.approval');
 	Route::post('order/{id}/deliveryApprove', 'OrderController@deliveryApprove')->name('order.delivery.approve');
 	Route::get('order/{id}/printAdvanceReceipt', 'OrderController@printAdvanceReceipt')->name('order.advance.receipt.print');
@@ -156,6 +157,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Customers
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
+	Route::get('customer/export', 'CustomerController@export')->name('customer.export');
 	Route::post('customer/merge', 'CustomerController@merge')->name('customer.merge');
 	Route::post('customer/import', 'CustomerController@import')->name('customer.import');
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
@@ -163,10 +165,12 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
 	Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
 	Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
+	Route::post('customer/{id}/updateNumber', 'CustomerController@updateNumber')->name('customer.update.number');
 	Route::delete('customer/{id}/destroy', 'CustomerController@destroy')->name('customer.destroy');
 	Route::post('customer/send/message/all/{validate?}', 'WhatsAppController@sendToAll')->name('customer.whatsapp.send.all');
 	Route::get('customer/stop/message/all', 'WhatsAppController@stopAll')->name('customer.whatsapp.stop.all');
 	Route::get('customer/email/fetch', 'CustomerController@emailFetch')->name('customer.email.fetch');
+	Route::get('customer/email/all', 'CustomerController@emailAll')->name('customer.email.all');
 
 	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
@@ -407,6 +411,7 @@ Route::prefix('comments')->group(function () {
 });
 
 Route::prefix('scrap')->group(function () {
+		Route::get('/activity', 'ScrapController@activity')->name('scrap.activity');
     Route::get('/excel', 'ScrapController@excel_import');
     Route::post('/excel', 'ScrapController@excel_store');
     Route::get('/google/images', 'ScrapController@index');

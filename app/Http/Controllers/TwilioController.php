@@ -115,23 +115,25 @@ class TwilioController extends FindByNumberController
           $response->play( \Config::get("app.url")."/end_work_ring.mp3");
         } else {
           $response->play( \Config::get("app.url")."/intro_ring.mp3");
+
+          $dial = $response->dial([
+                             'record' => 'true',
+                             'recordingStatusCallback' =>$url,
+                             'action' => $actionurl
+                             // 'timeout' => '26'
+
+                 ]);
+
+         $clients = $this->getConnectedClients();
+
+         Log::info('Client for callings: '.implode(',', $clients));
+         foreach ($clients as $client) {
+             $dial->client( $client);
+         }
         }
 // $response->say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
 
-         $dial = $response->dial([
-                            'record' => 'true',
-                            'recordingStatusCallback' =>$url,
-                            'action' => $actionurl,
-                            'timeout' => '26'
 
-                ]);
-
-        $clients = $this->getConnectedClients();
-
-        Log::info('Client for callings: '.implode(',', $clients));
-        foreach ($clients as $client) {
-            $dial->client( $client);
-        }
 
         /*--------------------------------------------------------*/
 
@@ -427,7 +429,7 @@ class TwilioController extends FindByNumberController
         if ($customer = Customer::where('phone', $request->phone_number)->first()) {
           $params = [
             'number'      => NULL,
-            'message'     => 'Greetings from Solo Luxury, our Solo Valets were trying to get in touch with you but were unable to get through, you can call us on 000800401700. Please do not use +91 when calling  as it does not connect to our toll free number. Alternatively you can call us on 02262363488.',
+            'message'     => 'Greetings from Solo Luxury, our Solo Valets were trying to get in touch with you but were unable to get through, you can call us on 0008000401700. Please do not use +91 when calling  as it does not connect to our toll free number.',
             'customer_id' => $customer->id,
             'approved'    => 1,
             'status'      => 2

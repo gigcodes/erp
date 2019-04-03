@@ -45,7 +45,7 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.5/twilio.min.js"></script>
+    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.6/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
@@ -147,27 +147,17 @@
 
 
 
-    <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
+    {{-- <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
 
     <script>
+      // Enable pusher logging - don't include this in production
+      Pusher.logToConsole = true;
 
-
-
-        // Enable pusher logging - don't include this in production
-
-        Pusher.logToConsole = true;
-
-
-
-        var pusher = new Pusher('df4fad9e0f54a365c85c', {
-
-            cluster: 'ap2',
-
-            forceTLS: true
-
-        });
-
-    </script>
+      var pusher = new Pusher('df4fad9e0f54a365c85c', {
+          cluster: 'ap2',
+          forceTLS: true
+      });
+    </script> --}}
 
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
@@ -179,9 +169,9 @@
 
     @endif
 
-    <script src="{{ asset('js/pusher.chat.js') }}"></script>
+    {{-- <script src="{{ asset('js/pusher.chat.js') }}"></script>
 
-    <script src="{{ asset('js/chat.js') }}"></script>
+    <script src="{{ asset('js/chat.js') }}"></script> --}}
 
 
 
@@ -1141,7 +1131,8 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
-                                    <a class="dropdown-item" href="{{ action('ScrapController@excel_import') }}">Import Excel Document Type 1</a>
+                                  <a class="dropdown-item" href="{{ action('ScrapController@excel_import') }}">Import Excel Document Type 1</a>
+                                    <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap Activity</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'G&B') }}">G&B Product</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'Wiseboutique') }}">Wiseboutique Product</a>
@@ -1353,7 +1344,7 @@
 
 <!-- Scripts -->
 
-@include('partials.chat')
+{{-- @include('partials.chat') --}}
 
 
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Imports\CustomerImport;
+use App\Exports\CustomersExport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Customer;
@@ -24,8 +25,10 @@ use App\CallRecording;
 use App\InstructionCategory;
 use App\OrderStatus as OrderStatuses;
 use App\ReadOnly\PurchaseStatus;
+use App\ReadOnly\SoloNumbers;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
+use Webklex\IMAP\Client;
 
 class CustomerController extends Controller
 {
@@ -46,6 +49,12 @@ class CustomerController extends Controller
       }
 
       $customers_all = Customer::all();
+      $customer_names = Customer::select(['name'])->get()->toArray();
+
+      foreach ($customer_names as $name) {
+        $search_suggestions[] = $name['name'];
+      }
+
       $users_array = Helpers::getUserArray(User::all());
 
       $last_set_id = MessageQueue::max('group_id');
@@ -62,6 +71,7 @@ class CustomerController extends Controller
         'orderby' => $orderby,
         'queues_total_count' => $queues_total_count,
         'queues_sent_count' => $queues_sent_count,
+        'search_suggestions' => $search_suggestions,
       ]);
     }
 
@@ -133,6 +143,13 @@ class CustomerController extends Controller
         CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm7.moduletype FROM messages mm7 WHERE mm7.id = message_id) ELSE (SELECT mm8.sent FROM chat_messages mm8 WHERE mm8.id = chat_message_id) END AS message_type')->paginate(24);
 
         return $customers;
+    }
+
+    public function export()
+    {
+      $customers = Customer::select(['name', 'phone'])->get()->toArray();
+
+      return Excel::download(new CustomersExport($customers), 'customers.xlsx');
     }
 
     public function load(Request $request)
@@ -234,7 +251,11 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view('customers.create');
+      $solo_numbers = (new SoloNumbers)->all();
+
+      return view('customers.create', [
+        'solo_numbers'  => $solo_numbers
+      ]);
     }
 
     /**
@@ -308,8 +329,7 @@ class CustomerController extends Controller
             $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orWhere('customer_id', $customer->id)->orderBy('created_at', 'DESC')->get()->toArray();
         }
 
-
-        // $leads = Leads::find($id);
+        $emails = [];
         $status = (New status)->all();
         $users = User::all()->toArray();
         $users_array = Helpers::getUserArray(User::all());
@@ -319,6 +339,7 @@ class CustomerController extends Controller
         $instruction_replies = Reply::where('model', 'Instruction')->get();
         $order_status_report = OrderStatuses::all();
         $purchase_status = (new PurchaseStatus)->all();
+        $solo_numbers = (new SoloNumbers)->all();
 
         return view('customers.show', [
             'customers'  => $customers,
@@ -334,7 +355,9 @@ class CustomerController extends Controller
             'instruction_categories' =>  $instruction_categories,
             'instruction_replies' =>  $instruction_replies,
             'order_status_report' =>  $order_status_report,
-            'purchase_status' =>  $purchase_status
+            'purchase_status' =>  $purchase_status,
+            'solo_numbers' =>  $solo_numbers,
+            'emails'          => $emails
         ]);
     }
 
@@ -344,11 +367,66 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    public function emailAll(Request $request)
+    {
+      $imap = new Client([
+          'host'          => env('IMAP_HOST'),
+          'port'          => env('IMAP_PORT'),
+          'encryption'    => env('IMAP_ENCRYPTION'),
+          'validate_cert' => env('IMAP_VALIDATE_CERT'),
+          'username'      => env('IMAP_USERNAME'),
+          'password'      => env('IMAP_PASSWORD'),
+          'protocol'      => env('IMAP_PROTOCOL')
+      ]);
+
+      $imap->connect();
+
+      $customer = Customer::find($request->customer_id);
+
+
+      $inbox = $imap->getFolder('INBOX');
+      $emails = $inbox->messages()->from($customer->email)
+                      ->setFetchFlags(false)
+                      ->setFetchBody(false)
+                      ->setFetchAttachment(false)->get()->sortByDesc('date')->paginate(10);
+
+      $view = view('customers.email', [
+        'emails'  => $emails
+      ])->render();
+
+      return response()->json(['emails' => $view]);
+    }
+
+    public function emailFetch(Request $request)
+    {
+      $imap = new Client([
+          'host'          => env('IMAP_HOST'),
+          'port'          => env('IMAP_PORT'),
+          'encryption'    => env('IMAP_ENCRYPTION'),
+          'validate_cert' => env('IMAP_VALIDATE_CERT'),
+          'username'      => env('IMAP_USERNAME'),
+          'password'      => env('IMAP_PASSWORD'),
+          'protocol'      => env('IMAP_PROTOCOL')
+      ]);
+
+      $imap->connect();
+
+      $inbox = $imap->getFolder('INBOX');
+      $email = $inbox->getMessage($uid = $request->uid, NULL, NULL, TRUE, TRUE, TRUE);
+
+      return response()->json(['email' => $email->getHTMLBody()]);
+    }
+
     public function edit($id)
     {
         $customer = Customer::find($id);
+        $solo_numbers = (new SoloNumbers)->all();
 
-        return view('customers.edit')->withCustomer($customer);
+        return view('customers.edit', [
+          'customer'      => $customer,
+          'solo_numbers'  => $solo_numbers
+        ]);
     }
 
     /**
@@ -398,6 +476,16 @@ class CustomerController extends Controller
         }
 
         return redirect()->route('customer.show', $id)->with('success', 'You have successfully updated the customer!');
+    }
+
+    public function updateNumber(Request $request, $id)
+    {
+      $customer = Customer::find($id);
+
+      $customer->whatsapp_number = $request->whatsapp_number;
+      $customer->save();
+
+      return response('success');
     }
 
     /**

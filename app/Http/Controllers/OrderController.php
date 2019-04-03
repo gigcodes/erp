@@ -31,9 +31,10 @@ use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
 use App\Category;
-use Illuminate\Support\Facades\Mail;
+use App\Mail\RefundProcessed;
 use App\Mail\AdvanceReceipt;
 use App\Mail\AdvanceReceiptPDF;
+use Illuminate\Support\Facades\Mail;
 use Dompdf\Dompdf;
 
 use App\Services\BlueDart\BlueDart;
@@ -536,7 +537,7 @@ class OrderController extends Controller {
 				'auto_messaged_date' => Carbon::now()
 			]);
 		} elseif ($order->order_status == 'Prepaid') {
-			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
 			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
@@ -717,7 +718,7 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
 			} elseif ($order->order_status == 'Prepaid') {
-				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 				$requestData = new Request();
 				$requestData->setMethod('POST');
 				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
@@ -859,7 +860,7 @@ class OrderController extends Controller {
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
 			} elseif ($order->order_status == 'Prepaid') {
-				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 02262363488. Thank you.";
+				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 				$requestData = new Request();
 				$requestData->setMethod('POST');
 				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
@@ -888,6 +889,27 @@ class OrderController extends Controller {
 				]);
 			}
 		}
+	}
+
+	public function sendRefund(Request $request, $id)
+	{
+		$order = Order::find($id);
+
+		$product_names = '';
+		foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+			$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+		}
+
+		$auto_message = "Greetings from Solo Luxury Ref: order number #$order->order_id for $product_names we have initiated the refund process you should receive the refund within 7-10 days by the method that you made the payment.";
+		$requestData = new Request();
+		$requestData->setMethod('POST');
+		$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+		app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+		Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
+
+		return response('success');
 	}
 
 	public function generateAWB(Request $request) {
@@ -1183,7 +1205,7 @@ class OrderController extends Controller {
 }
 
 public function callsHistory() {
-	$calls = CallHistory::paginate(Setting::get('pagination'));
+	$calls = CallHistory::latest()->paginate(Setting::get('pagination'));
 
 	return view('orders.call_history', [
 		'calls'	=> $calls
