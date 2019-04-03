@@ -43,12 +43,23 @@ class FixDoubleFSku extends Command
         foreach ($products as $product) {
             $sku = $product->sku;
             $properties = $product->properties;
-            if (!isset($properties['Color code'])) {
-                continue;
+            $colorCode = null;
+            if (isset($properties['Color code'])) {
+                $colorCode = explode('-', $properties['Color code']);
+                if (count($colorCode) !== 2) {
+                    continue;
+                }
             }
-            $colorCode = explode('-', $properties['Color code']);
-            if (count($colorCode) !== 2) {
-                continue;
+
+            if (isset($properties['Codice colore'])) {
+                $colorCode = explode('-', $properties['Codice colore']);
+                if (count($colorCode) !== 2) {
+                    continue;
+                }
+            }
+
+            if ($colorCode === null) {
+                return;
             }
 
             $colorCode = $colorCode[1];
