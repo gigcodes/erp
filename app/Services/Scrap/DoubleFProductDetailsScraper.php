@@ -79,6 +79,21 @@ class DoubleFProductDetailsScraper extends Scraper
         $image->properties = $properties;
         $image->save();
 
+        $properties = $image->properties;
+        if (!isset($properties['Color code'])) {
+            return;
+        }
+        $colorCode = explode('-', $properties['Color code']);
+        if (count($colorCode) !== 2) {
+            return;
+        }
+
+        $colorCode = $colorCode[1];
+        $sku2 = $image->sku.$colorCode;
+        $image->sku = $sku2;
+
+        $image->save();
+
 
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
