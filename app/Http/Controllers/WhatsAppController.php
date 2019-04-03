@@ -750,6 +750,27 @@ class WhatsAppController extends FindByNumberController
 	{
         $user = \Auth::user();
         $message = ChatMessage::findOrFail($request->get("messageId"));
+        $today_date = Carbon::now()->format('Y-m-d');
+
+        if ($context == "customer") {
+          $chat_messages_count = ChatMessage::where('customer_id', $message->customer_id)->where('created_at', 'LIKE', "%$today_date%")->whereNull('number')->count();
+
+          if ($chat_messages_count == 1) {
+            $customer = Customer::find($message->customer_id);
+            $params = [
+               'number'       => NULL,
+               'user_id'      => Auth::id(),
+               'approved'     => 1,
+               'status'       => 2,
+               'customer_id'  => $message->customer_id,
+               'message'      => 'This Number is just for whats app messages and NOT CALLS , for calls pls. use our toll free number 0008000401700 - ( care to be taken not to dial with 91 or  + 91 ). Pls. leave a message if you cannot connect to our toll free number and we will call you back at the earliest.'
+             ];
+
+            $additional_message = ChatMessage::create($params);
+
+            $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
+          }
+        }
 
         $send = $message->message;
         if (is_null($send)) {
