@@ -24,7 +24,6 @@ class GnbProductsCreator
          $product = new Product;
        }
 
-
        $product->sku = str_replace(' ', '', $image->sku);
        $product->brand = $image->brand_id;
        $product->supplier = 'G & B Negozionline';
@@ -89,7 +88,9 @@ class GnbProductsCreator
 
        $product->save();
 
-       if (!$validator->fails()) {
+       if ($validator->fails()) {
+
+       } else {
          $images = $image->images;
 
          foreach ($images as $image_name) {

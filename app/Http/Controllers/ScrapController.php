@@ -149,7 +149,7 @@ class ScrapController extends Controller
 
 
     public function showProducts($name) {
-        $products = ScrapedProducts::where('website', $name)->paginate(20);
+        $products = ScrapedProducts::where('website', $name)->latest()->paginate(20);
         $title = $name;
         return view('scrap.scraped_images', compact('products', 'title'));
     }
