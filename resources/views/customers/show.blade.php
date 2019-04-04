@@ -1242,6 +1242,11 @@
                         @endif
 
                         <div class="form-group">
+                          <a href="{{ route('order.generate.invoice', $order->id) }}" class="btn btn-secondary">Generate Invoice</a>
+                          <a href="{{ route('settings.index') }}" class="btn-link" target="_blank">Edit Consignor Details</a>
+                        </div>
+
+                        <div class="form-group">
                           <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
                           <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
                         </div>

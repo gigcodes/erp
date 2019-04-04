@@ -28,6 +28,11 @@ class SettingController extends Controller
 		$data['price_shortcut'] = Setting::get('price_shortcut');
 		$data['call_shortcut'] = Setting::get('call_shortcut');
 		$data['screenshot_shortcut'] = Setting::get('screenshot_shortcut');
+		$data['consignor_name'] = Setting::get('consignor_name');
+		$data['consignor_address'] = Setting::get('consignor_address');
+		$data['consignor_city'] = Setting::get('consignor_city');
+		$data['consignor_country'] = Setting::get('consignor_country');
+		$data['consignor_phone'] = Setting::get('consignor_phone');
 
 		return view('setting.index',$data);
 	}
@@ -52,6 +57,11 @@ class SettingController extends Controller
 		Setting::add('price_shortcut', $request->price_shortcut, 'tinyint');
 		Setting::add('call_shortcut', $request->call_shortcut, 'tinyint');
 		Setting::add('screenshot_shortcut', $request->screenshot_shortcut, 'tinyint');
+		Setting::add('consignor_name', $request->consignor_name, 'string');
+		Setting::add('consignor_address', $request->consignor_address, 'string');
+		Setting::add('consignor_city', $request->consignor_city, 'string');
+		Setting::add('consignor_country', $request->consignor_country, 'string');
+		Setting::add('consignor_phone', $request->consignor_phone, 'string');
 
 		return redirect()->back()->with('status', 'Settings has been saved.');
 	}

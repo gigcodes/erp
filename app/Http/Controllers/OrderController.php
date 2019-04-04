@@ -34,6 +34,7 @@ use App\Category;
 use App\Mail\RefundProcessed;
 use App\Mail\AdvanceReceipt;
 use App\Mail\AdvanceReceiptPDF;
+use App\Mail\OrderInvoicePDF;
 use Illuminate\Support\Facades\Mail;
 use Dompdf\Dompdf;
 
@@ -789,6 +790,28 @@ class OrderController extends Controller {
 		}
 
 		return redirect()->back()->withSuccess('Advance Receipt was successfully emailed!');
+	}
+
+	public function generateInvoice($id)
+	{
+		$order = Order::find($id);
+		$consignor = [
+			'name'		=> Setting::get('consignor_name'),
+			'address'	=> Setting::get('consignor_address'),
+			'city'		=> Setting::get('consignor_city'),
+			'country'	=> Setting::get('consignor_country'),
+			'phone'		=> Setting::get('consignor_phone')
+		];
+
+		$view = view('emails.orders.invoice-pdf', [
+			'order'			=> $order,
+			'consignor'	=> $consignor
+		])->render();
+
+		$pdf = new Dompdf;
+		$pdf->loadHtml($view);
+		$pdf->render();
+		$pdf->stream();
 	}
 
 	public function uploadForApproval(Request $request, $id) {

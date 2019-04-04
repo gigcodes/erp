@@ -65,6 +65,8 @@
                                     @endif
                                 </div>
 
+                                <hr>
+
                                 <div class="form-group">
                                     <input type="checkbox" name="incoming_calls" id="incoming_calls" {{ $incoming_calls ? 'checked' : '' }} />
                                     <label for="incoming_calls">Incoming Calls for Yogesh:</label>
@@ -72,6 +74,8 @@
                                         <div class="alert alert-danger">{{$errors->first('incoming_calls')}}</div>
                                     @endif
                                 </div>
+
+                                <hr>
 
                                 <div class="form-group">
                                     <strong>User for Image Shortcut:</strong>
@@ -123,6 +127,53 @@
                                     @if ($errors->has('screenshot_shortcut'))
                                         <div class="alert alert-danger">{{$errors->first('screenshot_shortcut')}}</div>
                                     @endif
+                                </div>
+
+                                <hr>
+
+                                <div class="form-group">
+                                  <strong>Consignor Name:</strong>
+                                  <input type="text" class="form-control" name="consignor_name" value="{{ $consignor_name }}" required>
+
+                                  @if ($errors->has('consignor_name'))
+                                    <div class="alert alert-danger">{{$errors->first('consignor_name')}}</div>
+                                  @endif
+                                </div>
+
+                                <div class="form-group">
+                                  <strong>Consignor Address:</strong>
+                                  <input type="text" class="form-control" name="consignor_address" value="{{ $consignor_address }}" required>
+
+                                  @if ($errors->has('consignor_address'))
+                                    <div class="alert alert-danger">{{$errors->first('consignor_address')}}</div>
+                                  @endif
+                                </div>
+
+                                <div class="form-group">
+                                  <strong>Consignor City:</strong>
+                                  <input type="text" class="form-control" name="consignor_city" value="{{ $consignor_city }}" required>
+
+                                  @if ($errors->has('consignor_city'))
+                                    <div class="alert alert-danger">{{$errors->first('consignor_city')}}</div>
+                                  @endif
+                                </div>
+
+                                <div class="form-group">
+                                  <strong>Consignor Country:</strong>
+                                  <input type="text" class="form-control" name="consignor_country" value="{{ $consignor_country }}" required>
+
+                                  @if ($errors->has('consignor_country'))
+                                    <div class="alert alert-danger">{{$errors->first('consignor_country')}}</div>
+                                  @endif
+                                </div>
+
+                                <div class="form-group">
+                                  <strong>Consignor Phone:</strong>
+                                  <input type="text" class="form-control" name="consignor_phone" value="{{ $consignor_phone }}" required>
+
+                                  @if ($errors->has('consignor_phone'))
+                                    <div class="alert alert-danger">{{$errors->first('consignor_phone')}}</div>
+                                  @endif
                                 </div>
                             </div>
                         </div>
