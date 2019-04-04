@@ -343,6 +343,12 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Paswords Manager
 	Route::get('passwords', 'PasswordController@index')->name('password.index');
 	Route::post('password/store', 'PasswordController@store')->name('password.store');
+
+	// Documents Manager
+	Route::get('documents', 'DocumentController@index')->name('document.index');
+	Route::post('document/store', 'DocumentController@store')->name('document.store');
+	Route::get('document/{id}/download', 'DocumentController@download')->name('document.download');
+	Route::delete('document/{id}/destroy', 'DocumentController@destroy')->name('document.destroy');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */

@@ -5,4 +5,5 @@
 !/hourly_reports
 !/files
 !/purchase_exports
+!/documents
 !.gitignore
