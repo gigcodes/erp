@@ -166,6 +166,16 @@
                 </div>
             </div>
 
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Location :</strong>
+                    <input disabled type="text" class="form-control" name="location" placeholder="Location" value="{{ old('location') ? old('location') : $location }}"/>
+                    @if ($errors->has('location'))
+                        <div class="alert alert-danger">{{$errors->first('location')}}</div>
+                    @endif
+                </div>
+            </div>
+
 
         @if ($errors->has( 'image' ))
                 <div class="alert alert-danger">{{$errors->first('image')}}</div>

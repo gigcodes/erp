@@ -64,6 +64,7 @@ class ProductCropperController extends Controller
 		$data['sku'] = $productimagecropper->sku;
 //		$data['supplier_link'] = $productimagecropper->supplier_link;
 		$data['description_link'] = $productimagecropper->description_link;
+		$data['location'] = $productimagecropper->location;
 		$data['product_link'] = $productimagecropper->product_link;
 
 		$data['measurement_size_type'] = $productimagecropper->measurement_size_type;

@@ -76,6 +76,16 @@
                 </div>
             </div>
 
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Location :</strong>
+                    <input type="text" class="form-control" name="location" placeholder="Location" value="{{ old('location') ? old('location') : $productselection->location }}"/>
+                    @if ($errors->has('location'))
+                        <div class="alert alert-danger">{{$errors->first('location')}}</div>
+                    @endif
+                </div>
+            </div>
+
       {{--      <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Description Link :</strong>

@@ -112,6 +112,7 @@ class ProductController extends Controller {
 		$data['supplier']    = $product->supplier;
 		$data['supplier_link']    = $product->supplier_link;
 		$data['description_link'] = $product->description_link;
+		$data['location'] = $product->location;
 
 		$data['images'] = $product->getMedia( config( 'constants.media_tags' ) );
 

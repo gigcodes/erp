@@ -240,6 +240,14 @@
                     @endif
                 </div>
 
+                <div class="form-group">
+                    <strong>Location :</strong>
+                    <input type="text" class="form-control" name="location" placeholder="Location" value="{{ old('location') ? old('location') : $location }}"/>
+                    @if ($errors->has('location'))
+                        <div class="alert alert-danger">{{$errors->first('location')}}</div>
+                    @endif
+                </div>
+
             @if ($errors->has( 'image' ))
                 <div class="alert alert-danger">{{$errors->first('image')}}</div>
             @endif

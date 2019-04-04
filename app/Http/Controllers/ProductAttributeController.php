@@ -35,7 +35,7 @@ class ProductAttributeController extends Controller
 		$products = Product::latest()
 		                   ->where('stage','>=',$stage->get('Searcher'))
 						   		 		 ->whereNull('dnf')
-											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
+											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
 		                   ->paginate(Setting::get('pagination'));
 		$roletype = 'Attribute';
 
@@ -100,6 +100,7 @@ class ProductAttributeController extends Controller
 		$data['supplier'] = $productattribute->supplier;
 		$data['supplier_link'] = $productattribute->supplier_link;
 		$data['description_link'] = $productattribute->description_link;
+		$data['location'] = $productattribute->location;
 		$data['reference'] = ScrapedProducts::where('sku', $productattribute->sku)->first() ? ScrapedProducts::where('sku', $productattribute->sku)->first()->properties : [];
 
 		return view('productattribute.edit',$data);
@@ -142,6 +143,7 @@ class ProductAttributeController extends Controller
 		$productattribute->supplier = $request->input('supplier');
 		$productattribute->supplier_link = $request->input('supplier_link');
 		$productattribute->description_link = $request->input('description_link');
+		$productattribute->location = $request->input('location');
 		$productattribute->last_attributer = Auth::id();
 
 		$validations  = [
