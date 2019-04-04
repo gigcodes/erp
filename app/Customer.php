@@ -58,6 +58,11 @@ class Customer extends Model
 		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest()->first();
 	}
 
+  public function call_recordings()
+	{
+		return $this->hasMany('App\CallRecording', 'customer_id')->latest();
+	}
+
   public function whatsapps_all()
 	{
 		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest();

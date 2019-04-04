@@ -306,34 +306,12 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        $customer = Customer::find($id);
-        $customers = Customer::all();
-        $call_history = [];
-
-        if($customer->phone != ''){
-            $phone_number = str_replace('+', '', $customer->phone);
-            if (strlen($phone_number) > 10) {
-                $customer_number = str_replace('91', '', $phone_number);
-            }else{
-                $customer_number = $phone_number;
-            }
-
-            $lead_ids = [];
-            $order_ids = [];
-            foreach ($customer->leads as $lead) {
-                $lead_ids[] = $lead->id;
-            }
-            foreach ($customer->orders as $order) {
-                $order_ids[] = $order->id;
-            }
-
-            // $call_history = CallRecording::where('customer_number','LIKE', "%$customer_number%")->orderBy('created_at', 'DESC')->get()->toArray();
-            $call_history = CallRecording::whereIn('lead_id', $lead_ids)->orWhereIn('order_id', $order_ids)->orWhere('customer_id', $customer->id)->orderBy('created_at', 'DESC')->get()->toArray();
-        }
+        $customer = Customer::with(['call_recordings', 'orders', 'leads'])->where('id', $id)->first();
+        // dd($customer);
+        $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
 
         $emails = [];
         $status = (New status)->all();
-        $users = User::all()->toArray();
         $users_array = Helpers::getUserArray(User::all());
         $brands = Brand::all()->toArray();
         $reply_categories = ReplyCategory::all();
@@ -344,16 +322,12 @@ class CustomerController extends Controller
         $solo_numbers = (new SoloNumbers)->all();
 
         return view('customers.show', [
-            'customers'  => $customers,
             'customer'  => $customer,
+            'customers'  => $customers,
             'status'    => $status,
             'brands'    => $brands,
-            'users'     => $users,
             'users_array'     => $users_array,
-            // 'approval_replies'     => $approval_replies,
-            // 'internal_replies'     => $internal_replies,
             'reply_categories'  => $reply_categories,
-            'call_history' =>  $call_history,
             'instruction_categories' =>  $instruction_categories,
             'instruction_replies' =>  $instruction_replies,
             'order_status_report' =>  $order_status_report,

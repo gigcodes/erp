@@ -794,21 +794,17 @@
             <th style="width: 50%">Message</th>
             <th style="width: 50%">Call Time</th>
         </tr>
-  @if (count($call_history) > 0)
-@foreach ($call_history as $history_val)
-
-        <tr class="">
-
-<td><audio src="{{$history_val['recording_url']}}" controls preload="metadata">
-  <p>Alas, your browser doesn't support html5 audio.</p>
-</audio> </td>
-<td>{{$history_val['message']}}</td>
-<td>{{$history_val['created_at']}}</td>
-
-        </tr>
-
-         @endforeach
-  @endif
+        @if (count($customer->call_recordings) > 0)
+          @foreach ($customer->call_recordings as $history_val)
+            <tr class="">
+              <td><audio src="{{$history_val['recording_url']}}" controls preload="metadata">
+              <p>Alas, your browser doesn't support html5 audio.</p>
+              </audio> </td>
+              <td>{{$history_val['message']}}</td>
+              <td>{{$history_val['created_at']}}</td>
+            </tr>
+          @endforeach
+        @endif
     </table>
     </div>
   </div>
@@ -1012,8 +1008,8 @@
                       <strong>Assigned To:</strong>
                       <Select name="assigned_user" class="form-control">
 
-                        @foreach($users as $user)
-                          <option value="{{$user['id']}}" {{$user['id']== $lead->assigned_user ? 'Selected=Selected':''}}>{{$user['name']}}</option>
+                        @foreach($users_array as $id => $user)
+                          <option value="{{ $id }}" {{ $id == $lead->assigned_user ? 'Selected=Selected':''}}>{{ $user }}</option>
                         @endforeach
                       </Select>
                     </div>
@@ -1957,8 +1953,8 @@
                <strong>Assign to</strong>
                <select name="assigned_user" class="form-control mb-3" required>
                  <option value="">Select User</option>
-                 @foreach($users as $user)
-                   <option value="{{$user['id']}}">{{$user['name']}}</option>
+                 @foreach($users_array as $id => $user)
+                   <option value="{{ $id }}">{{ $user }}</option>
                  @endforeach
                </select>
 
