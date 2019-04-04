@@ -275,6 +275,7 @@
               'stage': '{{ $stage->getNameById( $product->stage )}}',
               'is_scraped': {{ $product->is_scraped }},
               'is_imported': {{ $product->status == 2 ? 1 : 0 }},
+              'supplier' : "{{ $product->supplier }}",
 
               @if( isset($doSelection) )
               'isAttached': '{{ in_array($product->id, $selected_products) ? 1 : 0 }}',
@@ -305,6 +306,7 @@
                                           <p>Price : ` + product['price'] + `</p>
                                           <!--<p>Brand : ` + product['brand'] + `</p>-->
                                           <p>Status : ` + product['stage'] + `</p>
+                                          <p>Supplier : ` + product['supplier'] + `</p>
                                           ` + is_scraped + is_imported + `
                                            {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
                                                                   'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
