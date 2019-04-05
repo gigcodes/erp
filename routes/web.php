@@ -349,6 +349,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('document/store', 'DocumentController@store')->name('document.store');
 	Route::get('document/{id}/download', 'DocumentController@download')->name('document.download');
 	Route::delete('document/{id}/destroy', 'DocumentController@destroy')->name('document.destroy');
+
+	// Cash Flow Module
+	Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
+	Route::resource('cashflow', 'CashFlowController');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
