@@ -358,6 +358,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Cash Flow Module
 	Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
 	Route::resource('cashflow', 'CashFlowController');
+	Route::resource('dailycashflow', 'DailyCashFlowController');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
