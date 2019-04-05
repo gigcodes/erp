@@ -1228,6 +1228,7 @@
                               @endcan
 
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
+                              <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
                             </div>
                           </li>
                         @endcan

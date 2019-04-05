@@ -200,6 +200,11 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');
 	Route::resource('voucher', 'VoucherController');
 
+	// Budget
+	Route::resource('budget', 'BudgetController');
+	Route::post('budget/category/store', 'BudgetController@categoryStore')->name('budget.category.store');
+	Route::post('budget/subcategory/store', 'BudgetController@subCategoryStore')->name('budget.subcategory.store');
+
 	//Comments
 	Route::post('doComment','CommentController@store')->name('doComment');
 	Route::post('deleteComment/{comment}','CommentController@destroy')->name('deleteComment');
