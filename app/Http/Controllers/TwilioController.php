@@ -105,11 +105,12 @@ class TwilioController extends FindByNumberController
         $response = new Twiml();
 
         $time = Carbon::now();
+        $saturday = Carbon::now()->endOfWeek()->subDay();
         $sunday = Carbon::now()->endOfWeek();
         $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-        if ($time == $sunday) { // If Sunday or Holiday
+        if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
           $response->play( \Config::get("app.url")."/holiday_ring.mp3");
         } elseif (!$time->between($morning, $evening, true)) {
           $response->play( \Config::get("app.url")."/end_work_ring.mp3");
@@ -119,8 +120,8 @@ class TwilioController extends FindByNumberController
           $dial = $response->dial([
                              'record' => 'true',
                              'recordingStatusCallback' =>$url,
-                             'action' => $actionurl
-                             // 'timeout' => '26'
+                             'action' => $actionurl,
+                             'timeout' => '60'
 
                  ]);
 
