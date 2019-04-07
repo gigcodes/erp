@@ -107,7 +107,7 @@ class TwilioController extends FindByNumberController
         $time = Carbon::now();
         $saturday = Carbon::now()->endOfWeek()->subDay();
         $sunday = Carbon::now()->endOfWeek();
-        $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
+        $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
         if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
