@@ -174,6 +174,7 @@ class WhatsAppController extends FindByNumberController
       // Auto Respond
       $today_date = Carbon::now()->format('Y-m-d');
       $chat_messages_count = ChatMessage::where('customer_id', $params['customer_id'])->where('created_at', 'LIKE', "%$today_date%")->whereNotNull('number')->count();
+      $chat_messages_evening_count = ChatMessage::where('customer_id', $params['customer_id'])->where('created_at', '>', "$today_date 17:30")->whereNotNull('number')->count();
 
       if ($chat_messages_count == 1) {
         $time = Carbon::now();
@@ -198,6 +199,22 @@ class WhatsAppController extends FindByNumberController
         $additional_message = ChatMessage::create($params);
 
         $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
+      }
+
+      if ($chat_messages_evening_count == 1) {
+        $customer = Customer::find($params['customer_id']);
+        $params = [
+           'number'       => NULL,
+           'user_id'      => 6,
+           'approved'     => 1,
+           'status'       => 2,
+           'customer_id'  => $params['customer_id'],
+           'message'      => 'Our office is currently closed - we work between 10 - 5.30 - Monday - Friday -  - if an associate is available - your messaged will be responded within 60 minutes or on the next working day -since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate shall respond accordingly.'
+         ];
+
+         $additional_message = ChatMessage::create($params);
+
+         $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
       }
     } else {
       $custom_data = json_decode($data['custom_data'], true);
