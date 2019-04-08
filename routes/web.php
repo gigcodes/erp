@@ -359,6 +359,17 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
 	Route::resource('cashflow', 'CashFlowController');
 	Route::resource('dailycashflow', 'DailyCashFlowController');
+
+	// Reviews Module
+	Route::post('review/{id}/updateStatus', 'ReviewController@updateStatus');
+	Route::resource('review', 'ReviewController');
+	Route::post('review/schedule/create', 'ReviewController@scheduleStore')->name('review.schedule.store');
+	Route::put('review/schedule/{id}', 'ReviewController@scheduleUpdate')->name('review.schedule.update');
+	Route::post('review/schedule/{id}/status', 'ReviewController@scheduleUpdateStatus')->name('review.schedule.updateStatus');
+	Route::delete('review/schedule/{id}/destroy', 'ReviewController@scheduleDestroy')->name('review.schedule.destroy');
+	Route::post('account/create', 'ReviewController@accountStore')->name('account.store');
+	Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
+	Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
