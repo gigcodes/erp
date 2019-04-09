@@ -41,14 +41,16 @@ class TwilioController extends FindByNumberController
     public function createToken(Request $request)
     {
       // $client = $this->getTwilioClient();
-      $user = \Auth::user();
-      $agent = str_replace('-', '_', str_slug($user->name));
-      $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
-      $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
-      $capability->allowClientIncoming($agent);
-      $expiresIn = (3600*1);
-      $token = $capability->generateToken();
-      return response()->json(['twilio_token' => $token, 'agent' => $agent]);
+      if (\Auth::check()) {
+        $user = \Auth::user();
+        $agent = str_replace('-', '_', str_slug($user->name));
+        $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
+        $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
+        $capability->allowClientIncoming($agent);
+        $expiresIn = (3600*1);
+        $token = $capability->generateToken();
+        return response()->json(['twilio_token' => $token, 'agent' => $agent]);
+      }
     }
 
     /**
@@ -270,7 +272,7 @@ class TwilioController extends FindByNumberController
           $customer = new Customer;
 
           $customer->name = 'Customer from Call';
-          $customer->phone = $number;
+          $customer->phone = str_replace("+", "", $number);
           $customer->rating = 1;
 
           $customer->save();
