@@ -66,7 +66,7 @@
           <div id="review-container">
             <div class="form-group">
               <strong>Review:</strong>
-              <input type="text" name="review[]" class="form-control" value="{{ old('review') }}" required>
+              <input type="text" name="review[]" class="form-control" value="{{ old('review') }}">
 
               @if ($errors->has('review'))
                 <div class="alert alert-danger">{{$errors->first('review')}}</div>

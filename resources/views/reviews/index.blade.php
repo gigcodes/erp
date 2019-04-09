@@ -198,6 +198,12 @@
       $('#review-container').append(review_html);
     });
 
+    $('#add-edit-review-button').on('click', function() {
+      var review_html = '<div class="form-group"><strong>Review:</strong><input type="text" name="review[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+
+      $('#edit-review-container').append(review_html);
+    });
+
     $(document).on('click', '.remove-review-button', function() {
       $(this).closest('.form-group').remove();
     });

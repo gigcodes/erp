@@ -80,8 +80,8 @@ class ReviewController extends Controller
 
       $review_schedule = ReviewSchedule::create($data);
 
-      if (count($request->review) > 0) {
-        foreach ($request->review as $review) {
+      foreach ($request->review as $review) {
+        if ($review) {
           $new_review = new Review;
           $new_review->review_schedule_id = $review_schedule->id;
           $new_review->review = $review;
@@ -167,12 +167,12 @@ class ReviewController extends Controller
       $review_schedule = ReviewSchedule::find($id);
       $review_schedule->update($data);
 
-      if (count($request->review) > 0) {
-        foreach ($review_schedule->reviews as $review) {
-          $review->delete();
-        }
+      foreach ($review_schedule->reviews as $review) {
+        $review->delete();
+      }
 
-        foreach ($request->review as $review) {
+      foreach ($request->review as $review) {
+        if ($review) {
           $new_review = new Review;
           $new_review->review_schedule_id = $review_schedule->id;
           $new_review->review = $review;
