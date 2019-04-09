@@ -446,7 +446,7 @@ class ActivityConroller extends Controller {
 		$activity->create( [
 			'subject_id'   => $subject_id,
 			'subject_type' => $subject_type,
-			'causer_id'    => \Auth::id(),
+			'causer_id'    => \Auth::id() ?? 0,
 			'description'  => $description
 		] );
 
