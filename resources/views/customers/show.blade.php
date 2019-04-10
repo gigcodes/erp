@@ -245,6 +245,9 @@
       <div class="col-md-6">
         <div class="form-group">
           <strong>Name:</strong> {{ $customer->name }}
+          @if ($customer->is_blocked == 1)
+            <span class="badge">Blocked</span>
+          @endif
         </div>
 
         @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))

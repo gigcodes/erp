@@ -468,6 +468,7 @@ class CustomerController extends Controller
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->do_not_disturb = $request->do_not_disturb == 'on' ? 1 : 0;
+        $customer->is_blocked = $request->is_blocked == 'on' ? 1 : 0;
         $customer->address = $request->address;
         $customer->city = $request->city;
         $customer->country = $request->country;

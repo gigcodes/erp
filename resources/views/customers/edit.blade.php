@@ -141,6 +141,13 @@
 			</div>
 		</div>
 
+		<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+			<div class="form-group">
+				<input type="checkbox" name="is_blocked" id="is_blocked" {{ $customer->is_blocked ? 'checked' : '' }}>
+				<label for="is_blocked">Add to Blocked List</label>
+			</div>
+		</div>
+
 		<div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
 			<button type="submit" class="btn btn-secondary" id="submitButton">+</button>
 		</div>

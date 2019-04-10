@@ -112,28 +112,33 @@ class TwilioController extends FindByNumberController
         $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-        if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
-          $response->play( \Config::get("app.url")."/holiday_ring.mp3");
-        } elseif (!$time->between($morning, $evening, true)) {
-          $response->play( \Config::get("app.url")."/end_work_ring.mp3");
+        if ($context == "customers" && $object->is_blocked == 1) {
+          $response = $response->reject();
         } else {
-          $response->play( \Config::get("app.url")."/intro_ring.mp3");
+          if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
+            $response->play( \Config::get("app.url")."/holiday_ring.mp3");
+          } elseif (!$time->between($morning, $evening, true)) {
+            $response->play( \Config::get("app.url")."/end_work_ring.mp3");
+          } else {
+            $response->play( \Config::get("app.url")."/intro_ring.mp3");
 
-          $dial = $response->dial([
-                             'record' => 'true',
-                             'recordingStatusCallback' =>$url,
-                             'action' => $actionurl,
-                             'timeout' => '60'
+            $dial = $response->dial([
+                               'record' => 'true',
+                               'recordingStatusCallback' =>$url,
+                               'action' => $actionurl,
+                               'timeout' => '60'
+           ]);
 
-                 ]);
+           $clients = $this->getConnectedClients();
 
-         $clients = $this->getConnectedClients();
-
-         Log::info('Client for callings: '.implode(',', $clients));
-         foreach ($clients as $client) {
-             $dial->client( $client);
-         }
+           Log::info('Client for callings: '.implode(',', $clients));
+           foreach ($clients as $client) {
+               $dial->client( $client);
+           }
+          }
         }
+
+
 // $response->say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
 
 
@@ -324,26 +329,25 @@ class TwilioController extends FindByNumberController
     }
     private function getConnectedClients($role="")
     {
-        // $users = User::get();
-        $admins = Helpers::getUsersByRoleName('Admin');
-        $hods = Helpers::getUsersByRoleName('HOD of CRM');
-        $andy = User::find(56);
-        $yogesh = User::find(6);
+      // $admins = Helpers::getUsersByRoleName('Admin');
+      $hods = Helpers::getUsersByRoleName('HOD of CRM');
+      $andy = User::find(56);
+      $yogesh = User::find(6);
+      $clients = [];
 
-        $clients = [];
-        // foreach ($admins as $admin) {
-        //     $clients[] = $admin->id;
-        // }
-        foreach ($hods as $hod) {
-          $clients[] = str_replace('-', '_', str_slug($hod->name));
-        }
+      foreach ($hods as $hod) {
+        $clients[] = str_replace('-', '_', str_slug($hod->name));
+      }
 
+      if (Setting::get('incoming_calls_andy') == 1) {
         $clients[] = str_replace('-', '_', str_slug($andy->name));
+      }
 
-        if (Setting::get('incoming_calls') == 1) {
-          $clients[] = str_replace('-', '_', str_slug($yogesh->name));
-        }
-        return $clients;
+      if (Setting::get('incoming_calls_yogesh') == 1) {
+        $clients[] = str_replace('-', '_', str_slug($yogesh->name));
+      }
+
+      return $clients;
     }
     private function dialAllClients($response, $role="sales", $context=NULL, $object=NULL , $number = "")
     {
