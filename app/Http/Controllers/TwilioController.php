@@ -41,14 +41,16 @@ class TwilioController extends FindByNumberController
     public function createToken(Request $request)
     {
       // $client = $this->getTwilioClient();
-      $user = \Auth::user();
-      $agent = str_replace('-', '_', str_slug($user->name));
-      $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
-      $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
-      $capability->allowClientIncoming($agent);
-      $expiresIn = (3600*1);
-      $token = $capability->generateToken();
-      return response()->json(['twilio_token' => $token, 'agent' => $agent]);
+      if (\Auth::check()) {
+        $user = \Auth::user();
+        $agent = str_replace('-', '_', str_slug($user->name));
+        $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
+        $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
+        $capability->allowClientIncoming($agent);
+        $expiresIn = (3600*1);
+        $token = $capability->generateToken();
+        return response()->json(['twilio_token' => $token, 'agent' => $agent]);
+      }
     }
 
     /**
@@ -105,11 +107,12 @@ class TwilioController extends FindByNumberController
         $response = new Twiml();
 
         $time = Carbon::now();
+        $saturday = Carbon::now()->endOfWeek()->subDay();
         $sunday = Carbon::now()->endOfWeek();
-        $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
+        $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-        if ($time == $sunday) { // If Sunday or Holiday
+        if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
           $response->play( \Config::get("app.url")."/holiday_ring.mp3");
         } elseif (!$time->between($morning, $evening, true)) {
           $response->play( \Config::get("app.url")."/end_work_ring.mp3");
@@ -119,8 +122,8 @@ class TwilioController extends FindByNumberController
           $dial = $response->dial([
                              'record' => 'true',
                              'recordingStatusCallback' =>$url,
-                             'action' => $actionurl
-                             // 'timeout' => '26'
+                             'action' => $actionurl,
+                             'timeout' => '60'
 
                  ]);
 
@@ -269,7 +272,7 @@ class TwilioController extends FindByNumberController
           $customer = new Customer;
 
           $customer->name = 'Customer from Call';
-          $customer->phone = $number;
+          $customer->phone = str_replace("+", "", $number);
           $customer->rating = 1;
 
           $customer->save();

@@ -1,3 +1,7 @@
+.row:before, .row:after {
+  display: none !important;
+}
+
 #productGrid h4{
     border-bottom: 1px solid #6f6767;
     padding: 15px 5px;
