@@ -21,6 +21,8 @@ class DirectMessage {
         $verification_method = 0;
         $this->currentId = env('IG_CURRENT_USER_ID');
 
+        $this->instagram->login($username, $password);
+
         // try {
         // 	$loginResponse = $this->instagram->login($username, $password);
         // 	$user_id       = $this->instagram->account_id;
@@ -86,19 +88,19 @@ class DirectMessage {
         // }
     }
 
-    public function changeUser( $username, $password ) {
-  		$this->instagram->_setUser( $username, $password );
-  	}
+//    public function changeUser( $username, $password ) {
+//  		$this->instagram->_setUser( $username, $password );
+//  	}
 
-    function readln( $prompt ) {
-    	if ( PHP_OS === 'WINNT' ) {
-    		echo "$prompt ";
-
-    		return trim( (string) stream_get_line( STDIN, 6, "\n" ) );
-    	}
-
-    	return trim( (string) readline( "$prompt " ) );
-    }
+//    function readln( $prompt ) {
+//    	if ( PHP_OS === 'WINNT' ) {
+//    		echo "$prompt ";
+//
+//    		return trim( (string) stream_get_line( STDIN, 6, "\n" ) );
+//    	}
+//
+//    	return trim( (string) readline( "$prompt " ) );
+//    }
 
     public function getInbox() {
         $inbox = $this->instagram->direct->getInbox();

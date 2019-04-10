@@ -2109,7 +2109,7 @@
                   updateThreadInChatBox(response);
               },
               error: function() {
-                  // alert("We could not load Instagram messages at the moment");
+                  alert("We could not load Instagram messages at the moment");
               }
           });
       }

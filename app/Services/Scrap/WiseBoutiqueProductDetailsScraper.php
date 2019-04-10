@@ -25,6 +25,25 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         }
     }
 
+    public function doesProductExist($url) {
+        $content = $this->getContent($url);
+        if ($content === '') {
+            return false;
+        }
+        
+
+
+        $c = new HtmlPageCrawler($content);
+        $title = $this->getTitle($c);
+
+
+        if ($title !== '' && strlen($title) > 2) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function deleteProducts()
     {
         $products = ScrapedProducts::where('website', 'Wiseboutique')->get();

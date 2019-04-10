@@ -14,6 +14,7 @@ use App\Console\Commands\CheckLogins;
 use App\Console\Commands\AutoInterestMessage;
 use App\Console\Commands\AutoReminder;
 //use App\Console\Commands\SyncInstagramMessage;
+use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\WiseboutiqueProductDetailScraper;
@@ -71,7 +72,8 @@ class Kernel extends ConsoleKernel
         SendHourlyReports::class,
         RunMessageQueue::class,
         SendVoucherReminder::class,
-        GetGebnegozionlineProductDetailsWithEmulator::class
+        GetGebnegozionlineProductDetailsWithEmulator::class,
+        UpdateInventory::class
     ];
 
     /**
@@ -162,6 +164,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('image:create-schedule')->dailyAt(14);
         $schedule->command('image:create-schedule')->dailyAt(17);
         $schedule->command('image:create-schedule')->dailyAt(20);
+        $schedule->command('inventory:refresh-stock')->dailyAt(12);
         $schedule->command('gnb:get-sku')->everyMinute();
         // $schedule->command('create:scraped-products')->everyMinute();
 

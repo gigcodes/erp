@@ -11,6 +11,7 @@ use App\Services\Bots\WebsiteEmulator;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
+use Wa72\HtmlPageDom\HtmlPageCrawler;
 
 
 class GetGebnegozionlineProductDetailsWithEmulator extends Command
@@ -41,12 +42,29 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
         }
     }
 
+    public function doesProductExist($url) {
+        $duskShell = new WebsiteEmulator();
+        $this->setCountry('IT');
+        $duskShell->prepare();
+
+        try {
+            $content = $duskShell->emulate($this, $url, '');
+        } catch (Exception $exception) {
+            $content = ['', ''];
+        }
+
+        if (strlen($content[0]) > 3 && strlen($content[1]) > 4) {
+            return true;
+        }
+
+        return false;
+    }
+
 
     private function runFakeTraffic($url): void
     {
         $url = explode('/category', $url);
         $url = $url[0];
-        $this->info($url);
         $duskShell = new WebsiteEmulator();
 //        $duskShell->setProxyList();
         $this->setCountry('IT');
