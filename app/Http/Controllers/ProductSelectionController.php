@@ -9,6 +9,7 @@ use App\Setting;
 use App\Stage;
 use App\Brand;
 use App\Category;
+use App\ReadOnly\LocationList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
@@ -57,7 +58,11 @@ class ProductSelectionController extends Controller
 
 	public function create()
 	{
-		return view('productselection.create');
+		$locations = (new LocationList)->all();
+
+		return view('productselection.create', [
+			'locations'	=> $locations
+		]);
 	}
 
 
@@ -106,7 +111,9 @@ class ProductSelectionController extends Controller
 		if( $productselection->isApproved == 1)
 			return redirect(route('products.show',$productselection->id));
 
-		return view('productselection.edit',compact('productselection'));
+		$locations = (new LocationList)->all();
+
+		return view('productselection.edit',compact('productselection', 'locations'));
 	}
 
 	public function update(Request $request, Product $productselection)

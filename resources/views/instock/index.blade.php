@@ -54,6 +54,16 @@
             </select>
           </div>
 
+          <div class="form-group mr-3">
+            <select class="form-control select-multiple" name="location[]" multiple>
+              <optgroup label="Locations">
+                @foreach ($locations as $name)
+                  <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+              </optgroup>
+            </select>
+          </div>
+
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
         </form>
 
@@ -193,7 +203,6 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script>
-    var searchSuggestions = {!!json_encode($search_suggestions) !!};
     var product_array = [];
 
     $(document).ready(function() {

@@ -14,6 +14,7 @@ use App\Setting;
 use App\Sizes;
 use App\Brand;
 use App\Stock;
+use App\ReadOnly\LocationList;
 use Cache;
 use Auth;
 use Illuminate\Http\Request;
@@ -263,13 +264,15 @@ class ProductController extends Controller {
 		                                        ->selected($filtered_category)
 		                                        ->renderAsDropdown();
 
+		$locations = (new LocationList)->all();
+
 		if ($request->ajax()) {
 			$html = view('partials.image-load', ['products' => $products, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
 
 			return response()->json(['html' => $html]);
 		}
 
-		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time') );
+		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations') );
 	}
 
 

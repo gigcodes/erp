@@ -7,6 +7,7 @@ use App\Product;
 use App\Setting;
 use App\Category;
 use App\Brand;
+use App\ReadOnly\LocationList;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -59,7 +60,19 @@ class QuickSellController extends Controller
 
   			$category = $request->category;
   		}
-      if ($request->brand[0] == null && ($request->category == null || $request->category == 1)) {
+
+      if ($request->location[0] != null) {
+        if ($request->brand[0] != null || $request->category != 1) {
+  				$products = $products->whereIn('location', $request->location);
+  			} else {
+  				$products = (new Product())->newQuery()
+  				                                 ->latest()->where('quick_product', 1)->whereIn('location', $request->location);
+  			}
+
+  			$location = $request->location[0];
+      }
+
+      if ($request->brand[0] == null && ($request->category == null || $request->category == 1) && $request->location[0] == null) {
         $products = (new Product())->newQuery()
                                          ->latest()->where('quick_product', 1);
       }
@@ -87,6 +100,8 @@ class QuickSellController extends Controller
   		                                        ->selected($selected_categories)
   		                                        ->renderAsDropdown();
 
+      $locations = (new LocationList)->all();
+
       return view('quicksell.index', [
         'products'  => $products,
         'brands'  => $brands,
@@ -94,7 +109,9 @@ class QuickSellController extends Controller
         'category_selection'  => $category_selection,
         'brand'         => $brand,
         'category'      => $category,
-        'filter_categories_selection'  => $filter_categories_selection
+        'location'      => $location ?? '',
+        'filter_categories_selection'  => $filter_categories_selection,
+        'locations'  => $locations
       ]);
     }
 
@@ -184,6 +201,7 @@ class QuickSellController extends Controller
       $product->price = $request->price;
       $product->size = $request->size;
       $product->brand = $request->brand;
+      $product->location = $request->location;
       $product->category = $request->category;
       $product->save();
 

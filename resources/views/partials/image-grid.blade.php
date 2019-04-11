@@ -91,6 +91,16 @@
                             </div>
 
                             <div class="form-group mr-3">
+                              <select class="form-control select-multiple" name="location[]" multiple>
+                                <optgroup label="Locations">
+                                  @foreach ($locations as $name)
+                                    <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+                                  @endforeach
+                              </optgroup>
+                              </select>
+                            </div>
+
+                            <div class="form-group mr-3">
                               <input name="size" type="text" class="form-control"
                                      value="{{ isset($size) ? $size : '' }}"
                                      placeholder="Size">

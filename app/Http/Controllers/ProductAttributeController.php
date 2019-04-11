@@ -10,6 +10,7 @@ use App\Setting;
 use App\Sizes;
 use App\Stage;
 use App\Brand;
+use App\ReadOnly\LocationList;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -102,6 +103,7 @@ class ProductAttributeController extends Controller
 		$data['description_link'] = $productattribute->description_link;
 		$data['location'] = $productattribute->location;
 		$data['reference'] = ScrapedProducts::where('sku', $productattribute->sku)->first() ? ScrapedProducts::where('sku', $productattribute->sku)->first()->properties : [];
+		$data['locations'] = (new LocationList)->all();
 
 		return view('productattribute.edit',$data);
 	}

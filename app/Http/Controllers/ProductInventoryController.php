@@ -8,6 +8,7 @@ use App\Stage;
 use App\Brand;
 use App\Category;
 use App\Helpers;
+use App\ReadOnly\LocationList;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryImport;
@@ -186,7 +187,7 @@ class ProductInventoryController extends Controller
 			if ($request->brand[0] != null || $request->color[0] != null) {
 				$productQuery = $productQuery->where('supplier', 'In-stock')->whereIn('category', $category_children);
 			} else {
-				$productQuery = ( new Product() )->newQuery()->where('supplier', 'In-stock')
+				$productQuery = (new Product())->newQuery()->where('supplier', 'In-stock')
 				                                 ->latest()->whereIn('category', $category_children);
 			}
 
@@ -198,15 +199,27 @@ class ProductInventoryController extends Controller
 			$min = $exploded[0];
 			$max = $exploded[1];
 
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
-				$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
-			} else {
-				$productQuery = ( new Product() )->newQuery()->where('supplier', 'In-stock')
-				                                 ->latest()->whereBetween('price_special', [$min, $max]);
+			if ($min != '0' || $max != '10000000') {
+				if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
+					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+				} else {
+					$productQuery = ( new Product() )->newQuery()->where('supplier', 'In-stock')
+					                                 ->latest()->whereBetween('price_special', [$min, $max]);
+				}
 			}
 
 			$data['price'][0] = $min;
 			$data['price'][1] = $max;
+		}
+		if ($request->location[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
+				$productQuery = $productQuery->whereIn('location', $request->location);
+
+			} else {
+				$productQuery = ( new Product() )->newQuery()->latest()->where('supplier', 'In-stock')
+				                                 ->whereIn('location', $request->location);
+			}
+			$data['location'] = $request->location[0];
 		}
 
 		if (trim($term) != '') {
@@ -236,7 +249,7 @@ class ProductInventoryController extends Controller
 			}
 
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == null && $request->price[0] == null) {
+			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == null && $request->price[0] == null && $request->location[0] == null) {
 				$productQuery = ( new Product() )->newQuery()
 																				 ->where('supplier', 'In-stock')
 				                                 ->latest();
@@ -244,22 +257,22 @@ class ProductInventoryController extends Controller
 			}
 		}
 
-		$search_suggestions = [];
-
-		 $sku_suggestions = ( new Product() )->newQuery()->where('supplier', 'In-stock')
-																			 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
-
-		$brand_suggestions = Brand::getAll();
-
-		foreach ($sku_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion['sku']);
-		}
-
-		foreach ($brand_suggestions as $key => $suggestion) {
-			array_push($search_suggestions, $suggestion);
-		}
-
-		$data['search_suggestions'] = $search_suggestions;
+		// $search_suggestions = [];
+		//
+		// $sku_suggestions = ( new Product() )->newQuery()->where('supplier', 'In-stock')
+		// 																	 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+		//
+		// $brand_suggestions = Brand::getAll();
+		//
+		// foreach ($sku_suggestions as $key => $suggestion) {
+		// 	array_push($search_suggestions, $suggestion['sku']);
+		// }
+		//
+		// foreach ($brand_suggestions as $key => $suggestion) {
+		// 	array_push($search_suggestions, $suggestion);
+		// }
+		//
+		// $data['search_suggestions'] = $search_suggestions;
 
 		$selected_categories = $request->category ? $request->category : 1;
 
@@ -273,6 +286,8 @@ class ProductInventoryController extends Controller
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
+
+		$data['locations'] = (new LocationList)->all();
 
 		if ($request->ajax()) {
 			$html = view('instock.product-items', $data)->render();

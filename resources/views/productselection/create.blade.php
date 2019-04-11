@@ -91,7 +91,12 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Location :</strong>
-                    <input type="text" class="form-control" name="location" placeholder="Location" value="{{ old('location') }}"/>
+                    <select class="form-control" name="location">
+                      <option value="">Select a Location</option>
+                      @foreach ($locations as $location)
+                        <option value="{{ $location }}" {{ $location == old('location') ? 'selected' : '' }}>{{ $location }}</option>
+                      @endforeach
+                    </select>
                     @if ($errors->has('location'))
                         <div class="alert alert-danger">{{$errors->first('location')}}</div>
                     @endif
