@@ -370,12 +370,13 @@
               <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=phone{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Phone</a></th>
               <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=instagram{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Instagram</a></th>
             @endif --}}
-            <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=rating{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Rating</a></th>
+            {{-- <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=rating{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Rating</a></th> --}}
             <th width="10%">Lead/Order Status</th>
-            <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
-            <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th>
+            {{-- <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
+            <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th> --}}
             <th width="10%">Instruction</th>
-            {{--<th width="10%">Message Status</th>--}}
+            <th width="10%">Message Status</th>
+            <th width="20%">Send Message</th>
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
             <th>Shortcuts</th>
             <th width="15%">Action</th>
@@ -394,9 +395,9 @@
                       <td>{{ $customer['phone'] }}</td>
                       <td>{{ $customer['instahandler'] }}</td>
                     @endif --}}
-                    <td>
+                    {{-- <td>
                         {{ $customer->rating ?? 'N/A' }}
-                    </td>
+                    </td> --}}
                     <td>
                         @if ($customer->lead_status)
                             @php $status = array_flip((new \App\Status)->all()); @endphp
@@ -407,14 +408,14 @@
                             {{ $customer->order_status }}
                         @endif
                     </td>
-                    <td>
+                    {{-- <td>
                         {{ $customer->lead_created }}
                     </td>
                     <td>
                         @if ($customer->order_status)
                             {{ $customer->order_created }}
                         @endif
-                    </td>
+                    </td> --}}
                     @if (array_key_exists($customer->id, $instructions))
                     <td class="{{ $instructions[$customer->id][0]['completed_at'] ? 'text-success' : 'text-danger' }}">
                         @if ($instructions[$customer->id][0]['assigned_to'])
@@ -458,6 +459,12 @@
                                 Unread
                             @endif
                         @endif
+                    </td>
+                    <td>
+                      <div class="d-inline">
+                        <input type="text" class="form-control" name="message" placeholder="Message" value="">
+                        <button class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png" /></button>
+                      </div>
                     </td>
                     <td>
                         @if (isset($customer->message))
@@ -715,6 +722,42 @@
           console.log(errObj);
           alert("Could not mark as completed");
         });
+      });
+
+      $(document).on('click', '.send-message', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var customer_id = $(this).data('customerid');
+        var message = $(this).siblings('input').val();
+
+        data.append("customer_id", customer_id);
+        data.append("message", message);
+
+        if (message.length > 0) {
+          $.ajax({
+            url: '/whatsapp/sendMessage/customer',
+            type: 'POST',
+           "dataType"    : 'json',           // what to expect back from the PHP script, if anything
+           "cache"       : false,
+           "contentType" : false,
+           "processData" : false,
+           "data": data
+         }).done( function(response) {
+            $(thiss).siblings('input').val('');
+            $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+              .done(function( data ) {
+
+              }).fail(function(response) {
+                console.log(response);
+                alert(response.responseJSON.message);
+              });
+          }).fail(function(errObj) {
+            alert("Could not send message");
+            console.log(errObj);
+          });
+        } else {
+          alert('Please enter a message first');
+        }
       });
   </script>
 @endsection
