@@ -76,20 +76,22 @@
                 </div>
             </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>Location :</strong>
-                    <select class="form-control" name="location">
-                      <option value="">Select a Location</option>
-                      @foreach ($locations as $location)
-                        <option value="{{ $location }}" {{ $location == $productselection->location ? 'selected' : '' }}>{{ $location }}</option>
-                      @endforeach
-                    </select>
-                    @if ($errors->has('location'))
-                        <div class="alert alert-danger">{{$errors->first('location')}}</div>
-                    @endif
-                </div>
-            </div>
+            @if (Auth::user()->hasRole('Admin'))
+              <div class="col-xs-12 col-sm-12 col-md-12">
+                  <div class="form-group">
+                      <strong>Location :</strong>
+                      <select class="form-control" name="location">
+                        <option value="">Select a Location</option>
+                        @foreach ($locations as $location)
+                          <option value="{{ $location }}" {{ $location == $productselection->location ? 'selected' : '' }}>{{ $location }}</option>
+                        @endforeach
+                      </select>
+                      @if ($errors->has('location'))
+                          <div class="alert alert-danger">{{$errors->first('location')}}</div>
+                      @endif
+                  </div>
+              </div>
+            @endif
 
       {{--      <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">

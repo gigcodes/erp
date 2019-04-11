@@ -76,15 +76,17 @@
       </select>
     </div>
 
-    <div class="form-group mr-3">
-      <select class="form-control select-multiple" name="location[]" multiple>
-        <optgroup label="Locations">
-          @foreach ($locations as $name)
-            <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
-          @endforeach
-        </optgroup>
-      </select>
-    </div>
+    @if (Auth::user()->hasRole('Admin'))
+      <div class="form-group mr-3">
+        <select class="form-control select-multiple" name="location[]" multiple>
+          <optgroup label="Locations">
+            @foreach ($locations as $name)
+              <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+            @endforeach
+          </optgroup>
+        </select>
+      </div>
+    @endif
 
     <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
   </form>
@@ -191,18 +193,20 @@
             @endif
           </div>
 
-          <div class="form-group">
-            <strong>Location:</strong>
-            <select name="location" class="form-control" id="location_field">
-              <option value="">Select a Location</option>
-              @foreach ($locations as $name)
-              <option value="{{ $name }}">{{ $name }}</option>
-              @endforeach
-            </select>
-            @if ($errors->has('location'))
-            <div class="alert alert-danger">{{$errors->first('location')}}</div>
-            @endif
-          </div>
+          @if (Auth::user()->hasRole('Admin'))
+            <div class="form-group">
+              <strong>Location:</strong>
+              <select name="location" class="form-control" id="location_field">
+                <option value="">Select a Location</option>
+                @foreach ($locations as $name)
+                <option value="{{ $name }}">{{ $name }}</option>
+                @endforeach
+              </select>
+              @if ($errors->has('location'))
+              <div class="alert alert-danger">{{$errors->first('location')}}</div>
+              @endif
+            </div>
+          @endif
 
           <div class="form-group">
             <strong>Category:</strong>
@@ -239,7 +243,9 @@
       $('#price_field').val(product.price);
       $('#size_field').val(product.size);
       $('#brand_field').val(product.brand);
-      $('#location_field').val(product.location);
+      @if (Auth::user()->hasRole('Admin'))
+        $('#location_field').val(product.location);
+      @endif
       $('#category_selection').val(product.category);
     });
   </script>
