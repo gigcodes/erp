@@ -371,13 +371,13 @@
               <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=instagram{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Instagram</a></th>
             @endif --}}
             {{-- <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=rating{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Rating</a></th> --}}
-            <th width="10%">Lead/Order Status</th>
+            {{-- <th width="10%">Lead/Order Status</th> --}}
             {{-- <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
             <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th> --}}
             <th width="10%">Instruction</th>
             <th width="10%">Message Status</th>
-            <th width="20%">Send Message</th>
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
+            <th width="30%">Send Message</th>
             <th>Shortcuts</th>
             <th width="15%">Action</th>
             </thead>
@@ -398,7 +398,7 @@
                     {{-- <td>
                         {{ $customer->rating ?? 'N/A' }}
                     </td> --}}
-                    <td>
+                    {{-- <td>
                         @if ($customer->lead_status)
                             @php $status = array_flip((new \App\Status)->all()); @endphp
                             {{ $status[$customer->lead_status] }}
@@ -407,7 +407,7 @@
                         @if ($customer->order_status)
                             {{ $customer->order_status }}
                         @endif
-                    </td>
+                    </td> --}}
                     {{-- <td>
                         {{ $customer->lead_created }}
                     </td>
@@ -461,12 +461,6 @@
                         @endif
                     </td>
                     <td>
-                      <div class="d-inline">
-                        <input type="text" class="form-control" name="message" placeholder="Message" value="">
-                        <button class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png" /></button>
-                      </div>
-                    </td>
-                    <td>
                         @if (isset($customer->message))
                             @if (strpos($customer->message, '<br>') !== false)
                                 {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
@@ -476,6 +470,25 @@
                         @else
                             {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
                         @endif
+                    </td>
+                    <td>
+                      <div class="d-inline">
+                        <input type="text" class="form-control" name="message" placeholder="Message" value="">
+                        <button class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png" /></button>
+                      </div>
+
+                      <p class="pb-4 mt-3" style="display: block;">
+                        <select name="quickCategory" class="form-control mb-3 quickCategory">
+                          <option value="">Select Category</option>
+                          @foreach($reply_categories as $category)
+                              <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                          @endforeach
+                        </select>
+
+                        <select name="quickComment" class="form-control quickComment">
+                          <option value="">Quick Reply</option>}}
+                        </select>
+                      </p>
                     </td>
                     <td>
                       {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
@@ -758,6 +771,29 @@
         } else {
           alert('Please enter a message first');
         }
+      });
+
+      $(document).on('change', '.quickCategory', function() {
+        var replies = JSON.parse($(this).val());
+        var thiss = $(this);
+
+        $(this).siblings('.quickComment').empty();
+
+        $(this).siblings('.quickComment').append($('<option>', {
+          value: '',
+          text: 'Quick Reply'
+        }));
+
+        replies.forEach(function(reply) {
+          $(thiss).siblings('.quickComment').append($('<option>', {
+            value: reply.reply,
+            text: reply.reply
+          }));
+        });
+      });
+
+      $(document).on('change', '.quickComment', function () {
+          $(this).closest('td').find('input').val($(this).val());
       });
   </script>
 @endsection

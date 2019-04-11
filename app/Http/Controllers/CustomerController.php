@@ -44,6 +44,7 @@ class CustomerController extends Controller
       $instructions = Instruction::latest()->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $customers = $this->getCustomersIndex($request);
       $term = $request->input('term');
+      $reply_categories = ReplyCategory::all();
 
       $orderby = 'desc';
       if($request->orderby == '') {
@@ -74,6 +75,7 @@ class CustomerController extends Controller
         'queues_total_count' => $queues_total_count,
         'queues_sent_count' => $queues_sent_count,
         'search_suggestions' => $search_suggestions,
+        'reply_categories' => $reply_categories,
       ]);
     }
 
