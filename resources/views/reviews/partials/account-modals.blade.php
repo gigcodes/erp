@@ -31,7 +31,7 @@
 
           <div class="form-group">
             <strong>Email:</strong>
-            <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
+            <input type="email" name="email" class="form-control" value="{{ old('email') }}">
 
             @if ($errors->has('email'))
               <div class="alert alert-danger">{{$errors->first('email')}}</div>
@@ -149,7 +149,7 @@
 
           <div class="form-group">
             <strong>Email:</strong>
-            <input type="email" name="email" class="form-control" value="" id="account_email" required>
+            <input type="email" name="email" class="form-control" value="" id="account_email">
 
             @if ($errors->has('email'))
               <div class="alert alert-danger">{{$errors->first('email')}}</div>
