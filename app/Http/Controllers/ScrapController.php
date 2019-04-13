@@ -6,6 +6,7 @@ use App\Brand;
 use App\Image;
 use App\Imports\ProductsImport;
 use App\ScrapedProducts;
+use App\ScrapActivity;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
@@ -94,36 +95,48 @@ class ScrapController extends Controller
 
     public function activity()
     {
-      $scraped_gnb_count = ScrapedProducts::where('website', 'G&B')->select(['website', 'created_at'])->get()->groupBy(function ($query) {
+      $scraped_count = ScrapedProducts::select(['website', 'created_at'])->get()->groupBy(['website', function ($query) {
         return Carbon::parse($query->created_at)->format('Y-m-d');
-      });
+      }]);
 
-      $scraped_wise_count = ScrapedProducts::where('website', 'Wiseboutique')->select(['website', 'created_at'])->get()->groupBy(function ($query) {
-        return Carbon::parse($query->created_at)->format('Y-m-d');
-      });
 
-      $scraped_double_count = ScrapedProducts::where('website', 'DoubleF')->select(['website', 'created_at'])->get()->groupBy(function ($query) {
+      $products_count = ScrapedProducts::select(['website', 'created_at'])->whereHas('Product')->get()->groupBy(['website', function ($query) {
         return Carbon::parse($query->created_at)->format('Y-m-d');
-      });
+      }]);
+
+
+      $activity_data_removed = ScrapActivity::where('status', 0)->get()->groupBy(['website', function ($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d');
+      }]);
+
+      $activity_data_inventory = ScrapActivity::where('status', 1)->get()->groupBy(['website', function ($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d');
+      }]);
 
       $data = [];
 
-      foreach ($scraped_gnb_count as $date => $item) {
-        $data[$date]['G&B'] = count($item);
-        $data[$date]['Wise Boutique'] = 0;
-        $data[$date]['Double F'] = 0;
+      foreach ($scraped_count as $website => $dates) {
+        foreach ($dates as $date => $item) {
+          $data[$date][$website]['scraped'] = count($item);
+        }
       }
 
-      foreach ($scraped_wise_count as $date => $item) {
-        $data[$date]['G&B'] = $data[$date]['G&B'] ?? 0;
-        $data[$date]['Wise Boutique'] = count($item);
-        $data[$date]['Double F'] = 0;
+      foreach ($products_count as $website => $dates) {
+        foreach ($dates as $date => $item) {
+          $data[$date][$website]['created'] = count($item);
+        }
       }
 
-      foreach ($scraped_double_count as $date => $item) {
-        $data[$date]['G&B'] = $data[$date]['G&B'] ?? 0;
-        $data[$date]['Wise Boutique'] = $data[$date]['Wise Boutique'] ?? 0;
-        $data[$date]['Double F'] = count($item);
+      foreach ($activity_data_removed as $website => $dates) {
+        foreach ($dates as $date => $item) {
+          $data[$date][$website]['removed'] = count($item);
+        }
+      }
+
+      foreach ($activity_data_inventory as $website => $dates) {
+        foreach ($dates as $date => $item) {
+          $data[$date][$website]['inventory'] = count($item);
+        }
       }
 
       ksort($data);
