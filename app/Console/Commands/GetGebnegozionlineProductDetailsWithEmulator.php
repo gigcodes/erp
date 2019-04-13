@@ -150,7 +150,20 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
         if ($product = Product::where('sku', $image->sku)->first()) {
           $brand = Brand::find($image->brand_id);
 
-          $price =  round(preg_replace('/[\&euro;€.]/', '', $image->price));
+          if (strpos($image->price, ',') !== false) {
+            if (strpos($image->price, '.') !== false) {
+              if (strpos($image->price, ',') < strpos($image->price, '.')) {
+                $final_price = str_replace(',', '', $image->price);;
+              }
+            } else {
+              $final_price = str_replace(',', '.', $image->price);
+            }
+          } else {
+            $final_price = $image->price;
+          }
+
+          $price =  round(preg_replace('/[\&euro;€,]/', '', $final_price));
+
           $product->price = $price;
 
           if(!empty($brand->euro_to_inr))
