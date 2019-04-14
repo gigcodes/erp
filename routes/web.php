@@ -452,3 +452,5 @@ Route::prefix('scrap')->group(function () {
     Route::post('/google/images/download', 'ScrapController@downloadImages');
     Route::get('/{name}', 'ScrapController@showProducts');
 });
+
+Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
