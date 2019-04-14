@@ -14,7 +14,7 @@ use NunoMaduro\LaravelConsoleDusk\Contracts\Drivers\DriverContract;
 class Chrome implements DriverContract
 {
 
-    use ChromeOptions;
+    use SupportsChrome;
 
     private $proxy;
 
