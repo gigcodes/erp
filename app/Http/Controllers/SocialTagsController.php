@@ -56,7 +56,9 @@ class SocialTagsController extends Controller
      */
     public function show($id)
     {
-        //
+        $tag = SocialTags::findOrFail($id);
+
+        return view('socialtags.scraped_images', compact('tag'));
     }
 
     /**
