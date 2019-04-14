@@ -44,6 +44,7 @@ class CustomerController extends Controller
       $instructions = Instruction::latest()->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $customers = $this->getCustomersIndex($request);
       $term = $request->input('term');
+      $reply_categories = ReplyCategory::all();
 
       $orderby = 'desc';
       if($request->orderby == '') {
@@ -74,6 +75,7 @@ class CustomerController extends Controller
         'queues_total_count' => $queues_total_count,
         'queues_sent_count' => $queues_sent_count,
         'search_suggestions' => $search_suggestions,
+        'reply_categories' => $reply_categories,
       ]);
     }
 
@@ -468,6 +470,7 @@ class CustomerController extends Controller
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->do_not_disturb = $request->do_not_disturb == 'on' ? 1 : 0;
+        $customer->is_blocked = $request->is_blocked == 'on' ? 1 : 0;
         $customer->address = $request->address;
         $customer->city = $request->city;
         $customer->country = $request->country;

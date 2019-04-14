@@ -71,6 +71,9 @@
                 <th>Password</th>
                 <th>DOB</th>
                 <th>Platform</th>
+                <th>Followers</th>
+                <th>Posts</th>
+                <th>DP</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -83,6 +86,9 @@
                   <td>{{ $account->password }}</td>
                   <td>{{ $account->dob }}</td>
                   <td>{{ ucwords($account->platform) }}</td>
+                  <td> {{ $account->followers_count }}</td>
+                  <td> {{ $account->posts_count }}</td>
+                  <td> {{ $account->dp_count }}</td>
                   <td>
                     <button type="button" class="btn btn-image edit-account" data-toggle="modal" data-target="#accountEditModal" data-account="{{ $account }}"><img src="/images/edit.png" /></button>
 
@@ -189,6 +195,9 @@
       $('#account_email').val(account.email);
       $('#account_password').val(account.password);
       $('#account_platform').val(account.platform);
+      $('#account_followers').val(account.followers_count);
+      $('#account_posts').val(account.posts_count);
+      $('#account_dp').val(account.dp_count);
       $('#account_birthday').val(account.dob);
     });
 

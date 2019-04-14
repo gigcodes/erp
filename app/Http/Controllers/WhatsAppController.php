@@ -331,7 +331,7 @@ class WhatsAppController extends FindByNumberController
         }
 
 
-       return response($message);
+       return response()->json(['message' => $message]);
     }
 
     public function sendMultipleMessages(Request $request)

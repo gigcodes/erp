@@ -1,53 +1,58 @@
 @extends('layouts.app')
 
+@section("styles")
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+@endsection
 
 @section('content')
 <div class="row">
-  <div class="col-lg-6 margin-tb">
-    <h2>Quick Sell</h2>
+  <div class="col">
+    <h2 class="page-heading">Quick Sell</h2>
   </div>
-  <div class="col-lg-6 margin-tb text-right">
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button>
+</div>
 
-    <div id="imageModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
+  <div id="imageModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Upload Images</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-
-          <form action="{{ route('quicksell.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-
-            <div class="modal-body text-left">
-              <div class="form-group">
-                <input type="file" name="images[]" multiple required />
-                @if ($errors->has('images'))
-                <div class="alert alert-danger">{{$errors->first('images')}}</div>
-                @endif
-              </div>
-
-              <div class="form-group">
-                <strong>SKU:</strong>
-                <input type="text" name="sku" class="form-control" />
-                @if ($errors->has('sku'))
-                <div class="alert alert-danger">{{$errors->first('sku')}}</div>
-                @endif
-              </div>
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary">Upload</button>
-            </div>
-          </form>
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Upload Images</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
 
+        <form action="{{ route('quicksell.store') }}" method="POST" enctype="multipart/form-data">
+          @csrf
+
+          <div class="modal-body text-left">
+            <div class="form-group">
+              <input type="file" name="images[]" multiple required />
+              @if ($errors->has('images'))
+              <div class="alert alert-danger">{{$errors->first('images')}}</div>
+              @endif
+            </div>
+
+            <div class="form-group">
+              <strong>SKU:</strong>
+              <input type="text" name="sku" class="form-control" />
+              @if ($errors->has('sku'))
+              <div class="alert alert-danger">{{$errors->first('sku')}}</div>
+              @endif
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary">Upload</button>
+          </div>
+        </form>
       </div>
+
     </div>
+  </div>
+
+  <div class="pull-right">
+    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button>
   </div>
 
   <form action="{{ route('quicksell.index') }}" method="GET" class="form-inline align-items-start mb-5">
@@ -62,12 +67,31 @@
     <div class="form-group mr-3">
       @php $brands_select = \App\Brand::getAll();
       @endphp
-      {!! Form::select('brand[]',$brands_select, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control', 'multiple' => true]) !!}
+      <select class="form-control select-multiple" name="brand[]" multiple>
+        <optgroup label="Brands">
+          @foreach ($brands_select as $id => $name)
+            <option value="{{ $id }}" {{ isset($brand) && $brand == $name ? 'selected' : '' }}>{{ $name }}</option>
+          @endforeach
+        </optgroup>
+      </select>
     </div>
+
+    @if (Auth::user()->hasRole('Admin'))
+      <div class="form-group mr-3">
+        <select class="form-control select-multiple" name="location[]" multiple>
+          <optgroup label="Locations">
+            @foreach ($locations as $name)
+              <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+            @endforeach
+          </optgroup>
+        </select>
+      </div>
+    @endif
 
     <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
   </form>
-</div>
+
+
 
 @if ($message = Session::get('success'))
 <div class="alert alert-success">
@@ -169,6 +193,21 @@
             @endif
           </div>
 
+          @if (Auth::user()->hasRole('Admin'))
+            <div class="form-group">
+              <strong>Location:</strong>
+              <select name="location" class="form-control" id="location_field">
+                <option value="">Select a Location</option>
+                @foreach ($locations as $name)
+                <option value="{{ $name }}">{{ $name }}</option>
+                @endforeach
+              </select>
+              @if ($errors->has('location'))
+              <div class="alert alert-danger">{{$errors->first('location')}}</div>
+              @endif
+            </div>
+          @endif
+
           <div class="form-group">
             <strong>Category:</strong>
             {!! $category_selection !!}
@@ -188,18 +227,26 @@
   </div>
 </div>
 
-<script type="text/javascript">
-  $(document).on('click', '.edit-modal-button', function() {
-    var product = $(this).data('product');
-    var url = 'quickSell/' + product.id + '/edit';
+@endsection
 
-    $('#updateForm').attr('action', url);
-    $('#supplier_select').val(product.supplier);
-    $('#price_field').val(product.price);
-    $('#size_field').val(product.size);
-    $('#brand_field').val(product.brand);
-    $('#category_selection').val(product.category);
-  });
-</script>
+@section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script type="text/javascript">
+    $(".select-multiple").multiselect();
 
+    $(document).on('click', '.edit-modal-button', function() {
+      var product = $(this).data('product');
+      var url = 'quickSell/' + product.id + '/edit';
+
+      $('#updateForm').attr('action', url);
+      $('#supplier_select').val(product.supplier);
+      $('#price_field').val(product.price);
+      $('#size_field').val(product.size);
+      $('#brand_field').val(product.brand);
+      @if (Auth::user()->hasRole('Admin'))
+        $('#location_field').val(product.location);
+      @endif
+      $('#category_selection').val(product.category);
+    });
+  </script>
 @endsection

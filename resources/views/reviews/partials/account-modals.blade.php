@@ -64,6 +64,33 @@
           </div>
 
           <div class="form-group">
+            <strong>Number of Followers:</strong>
+            <input type="number" name="followers_count" class="form-control" value="{{ old('followers_count') }}">
+
+            @if ($errors->has('followers_count'))
+              <div class="alert alert-danger">{{$errors->first('followers_count')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Number of Posts:</strong>
+            <input type="number" name="posts_count" class="form-control" value="{{ old('posts_count') }}">
+
+            @if ($errors->has('posts_count'))
+              <div class="alert alert-danger">{{$errors->first('posts_count')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Number of DP:</strong>
+            <input type="number" name="dp_count" class="form-control" value="{{ old('dp_count') }}">
+
+            @if ($errors->has('dp_count'))
+              <div class="alert alert-danger">{{$errors->first('dp_count')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Date of Birth:</strong>
             <div class='input-group date' id='birthday-datetime'>
               <input type='text' class="form-control" name="dob" value="{{ date('Y-m-d') }}" />
@@ -151,6 +178,33 @@
 
             @if ($errors->has('platform'))
               <div class="alert alert-danger">{{$errors->first('platform')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Number of Followers:</strong>
+            <input type="number" name="followers_count" class="form-control" value="{{ old('followers_count') }}" id="account_followers">
+
+            @if ($errors->has('followers_count'))
+              <div class="alert alert-danger">{{$errors->first('followers_count')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Number of Posts:</strong>
+            <input type="number" name="posts_count" class="form-control" value="{{ old('posts_count') }}" id="account_posts">
+
+            @if ($errors->has('posts_count'))
+              <div class="alert alert-danger">{{$errors->first('posts_count')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Number of DP:</strong>
+            <input type="number" name="dp_count" class="form-control" value="{{ old('dp_count') }}" id="account_dp">
+
+            @if ($errors->has('dp_count'))
+              <div class="alert alert-danger">{{$errors->first('dp_count')}}</div>
             @endif
           </div>
 

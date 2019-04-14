@@ -68,10 +68,18 @@
                                 <hr>
 
                                 <div class="form-group">
-                                    <input type="checkbox" name="incoming_calls" id="incoming_calls" {{ $incoming_calls ? 'checked' : '' }} />
-                                    <label for="incoming_calls">Incoming Calls for Yogesh:</label>
-                                    @if ($errors->has('incoming_calls'))
-                                        <div class="alert alert-danger">{{$errors->first('incoming_calls')}}</div>
+                                    <input type="checkbox" name="incoming_calls_yogesh" id="incoming_calls_yogesh" {{ $incoming_calls_yogesh ? 'checked' : '' }} />
+                                    <label for="incoming_calls_yogesh">Incoming Calls for Yogesh:</label>
+                                    @if ($errors->has('incoming_calls_yogesh'))
+                                        <div class="alert alert-danger">{{$errors->first('incoming_calls_yogesh')}}</div>
+                                    @endif
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="checkbox" name="incoming_calls_andy" id="incoming_calls_andy" {{ $incoming_calls_andy ? 'checked' : '' }} />
+                                    <label for="incoming_calls_andy">Incoming Calls for Andy:</label>
+                                    @if ($errors->has('incoming_calls_andy'))
+                                        <div class="alert alert-danger">{{$errors->first('incoming_calls_andy')}}</div>
                                     @endif
                                 </div>
 

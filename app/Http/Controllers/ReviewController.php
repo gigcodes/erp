@@ -15,6 +15,10 @@ class ReviewController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct() {
+   		$this->middleware('permission:review-view');
+   	}
+
     public function index()
     {
       $accounts = Account::latest()->paginate(Setting::get('pagination'));
@@ -52,12 +56,15 @@ class ReviewController extends Controller
     public function accountStore(Request $request)
     {
       $this->validate($request, [
-        'first_name'  => 'sometimes|nullable|string',
-        'last_name'   => 'sometimes|nullable|string',
-        'email'       => 'required|email',
-        'password'    => 'required|min:3',
-        'dob'         => 'sometimes|nullable|date',
-        'platform'    => 'required|string'
+        'first_name'      => 'sometimes|nullable|string',
+        'last_name'       => 'sometimes|nullable|string',
+        'email'           => 'required|email',
+        'password'        => 'required|min:3',
+        'dob'             => 'sometimes|nullable|date',
+        'platform'        => 'required|string',
+        'followers_count' => 'sometimes|nullable|numeric',
+        'posts_count'     => 'sometimes|nullable|numeric',
+        'dp_count'        => 'sometimes|nullable|numeric'
       ]);
 
       $data = $request->except('_token');
@@ -138,12 +145,15 @@ class ReviewController extends Controller
     public function accountUpdate(Request $request, $id)
     {
       $this->validate($request, [
-        'first_name'  => 'sometimes|nullable|string',
-        'last_name'   => 'sometimes|nullable|string',
-        'email'       => 'required|email',
-        'password'    => 'required|min:3',
-        'dob'         => 'sometimes|nullable|date',
-        'platform'    => 'required|string'
+        'first_name'      => 'sometimes|nullable|string',
+        'last_name'       => 'sometimes|nullable|string',
+        'email'           => 'required|email',
+        'password'        => 'required|min:3',
+        'dob'             => 'sometimes|nullable|date',
+        'platform'        => 'required|string',
+        'followers_count' => 'sometimes|nullable|numeric',
+        'posts_count'     => 'sometimes|nullable|numeric',
+        'dp_count'        => 'sometimes|nullable|numeric'
       ]);
 
       $data = $request->except(['_token', '_method']);

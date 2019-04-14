@@ -240,13 +240,21 @@
                     @endif
                 </div>
 
-                <div class="form-group">
-                    <strong>Location :</strong>
-                    <input type="text" class="form-control" name="location" placeholder="Location" value="{{ old('location') ? old('location') : $location }}"/>
-                    @if ($errors->has('location'))
-                        <div class="alert alert-danger">{{$errors->first('location')}}</div>
-                    @endif
-                </div>
+                @if (Auth::user()->hasRole('Admin'))
+                  <div class="form-group">
+                      <strong>Location :</strong>
+                      <select class="form-control" name="location">
+                        <option value="">Select a Location</option>
+                        @foreach ($locations as $name)
+                          <option value="{{ $name }}" {{ (old('location') ?? $location) == $name ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
+                      </select>
+
+                      @if ($errors->has('location'))
+                          <div class="alert alert-danger">{{$errors->first('location')}}</div>
+                      @endif
+                  </div>
+                @endif
 
             @if ($errors->has( 'image' ))
                 <div class="alert alert-danger">{{$errors->first('image')}}</div>
