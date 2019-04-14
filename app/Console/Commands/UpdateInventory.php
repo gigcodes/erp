@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Product;
 use App\ScrapedProducts;
+use App\ScrapActivity;
 use App\Services\Scrap\DoubleFProductDetailsScraper;
 use App\Services\Scrap\WiseBoutiqueProductDetailsScraper;
 use Illuminate\Console\Command;
@@ -55,21 +56,39 @@ class UpdateInventory extends Command
             if ($scraped_product->website == 'G&B') {
                 continue;
 //                $status = $this->GNBCommand->doesProductExist($scraped_product->url);
+                $params = [
+                  'website'             => 'G&B',
+                  'scraped_product_id'  => $scraped_product->id,
+                  'status'              => $status ? 1 : 0
+                ];
             }
 
             if ($scraped_product->website == 'Wiseboutique') {
                 $status = $this->wiseScrapService->doesProductExist($scraped_product->url);
 
+                $params = [
+                  'website'             => 'Wiseboutique',
+                  'scraped_product_id'  => $scraped_product->id,
+                  'status'              => $status ? 1 : 0
+                ];
             }
 
             if ($scraped_product->website == 'DoubleF') {
                 $status = $this->doubleFScrapService->doesProductExist($scraped_product->url);
+
+                $params = [
+                  'website'             => 'DoubleF',
+                  'scraped_product_id'  => $scraped_product->id,
+                  'status'              => $status ? 1 : 0
+                ];
             }
 
             $sku = $scraped_product->sku;
             Product::where('sku', $sku)->update([
                 'stock' => $status ? 1 : 0
             ]);
+
+            ScrapActivity::create($params);
         }
     }
 }

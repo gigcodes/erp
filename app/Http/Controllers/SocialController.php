@@ -28,6 +28,7 @@ class SocialController extends Controller
 		$this->page_id= '507935072915757';
 		$this->ad_acc_id= 'act_128125721296439';
 
+		$this->middleware('permission:social-view');
 	}
 
 	public function getSchedules(Request $request) {
@@ -292,7 +293,7 @@ class SocialController extends Controller
 
 
 
-			
+
 		}
 		elseif($request->input('previous') && !empty($request->input('previous')))
 		{
@@ -430,9 +431,9 @@ class SocialController extends Controller
 			}
 			$resp = $this->fb->post('/me/feed',$multiPhotoPost)->getGraphNode()->asArray();
 			if(isset($resp->error->message))
-				Session::flash('message',$resp->error->message); 
+				Session::flash('message',$resp->error->message);
 			else
-				Session::flash('message',"Content Posted successfully"); 
+				Session::flash('message',"Content Posted successfully");
 
 
 			return redirect()->route('social.post.page');
@@ -469,9 +470,9 @@ class SocialController extends Controller
 			$resp= $this->fb->post('/me/videos', $data,$this->page_access_token)->getGraphNode()->asArray()['id'];
 
 			if(isset($resp->error->message))
-				Session::flash('message',$resp->error->message); 
+				Session::flash('message',$resp->error->message);
 			else
-				Session::flash('message',"Content Posted successfully"); 
+				Session::flash('message',"Content Posted successfully");
 
 
 			return redirect()->route('social.post.page');
@@ -495,9 +496,9 @@ class SocialController extends Controller
 			$resp = $this->fb->post('/me/feed',$data)->getGraphNode()->asArray();
 
 			if(isset($resp->error->message))
-				Session::flash('message',$resp->error->message); 
+				Session::flash('message',$resp->error->message);
 			else
-				Session::flash('message',"Content Posted successfully"); 
+				Session::flash('message',"Content Posted successfully");
 
 
 			return redirect()->route('social.post.page');
@@ -577,9 +578,9 @@ class SocialController extends Controller
 
 		curl_close($ch);
 		if(isset($resp->error->error_user_msg))
-			Session::flash('message',$resp->error->error_user_msg); 
+			Session::flash('message',$resp->error->error_user_msg);
 		elseif(isset($resp->error->message))
-			Session::flash('message',$resp->error->message); 
+			Session::flash('message',$resp->error->message);
 
 
 		return view('social.reports',['resp'=>$resp]);
@@ -590,13 +591,13 @@ class SocialController extends Controller
 
 	// Get pagination Report()
 
-	public function paginateReport(Request $request) 
+	public function paginateReport(Request $request)
 	{
 		if($request->has('next'))
 			$query=$request->input('next');
 		elseif($request->has('previous'))
 			$query=$request->input('previous');
-		else 
+		else
 			return redirect()->route('social.report');
 
 
@@ -619,9 +620,9 @@ class SocialController extends Controller
 		$resp = json_decode($resp);
 		curl_close($ch);
 		if(isset($resp->error->error_user_msg))
-			Session::flash('message',$resp->error->error_user_msg); 
+			Session::flash('message',$resp->error->error_user_msg);
 		elseif(isset($resp->error->message))
-			Session::flash('message',$resp->error->message); 
+			Session::flash('message',$resp->error->message);
 
 
 		return view('social.reports',['resp'=>$resp]);
@@ -655,9 +656,9 @@ class SocialController extends Controller
 		$resp = json_decode($resp);
 		curl_close($ch);
 		if(isset($resp->error->error_user_msg))
-			Session::flash('message',$resp->error->error_user_msg); 
+			Session::flash('message',$resp->error->error_user_msg);
 		elseif(isset($resp->error->message))
-			Session::flash('message',$resp->error->message); 
+			Session::flash('message',$resp->error->message);
 
 
 		return view('social.adcreative-reports',['resp'=>$resp]);
@@ -666,13 +667,13 @@ class SocialController extends Controller
 
 
 	// paginate ad creative report
-	public function adCreativepaginateReport(Request $request) 
+	public function adCreativepaginateReport(Request $request)
 	{
 		if($request->has('next'))
 			$query=$request->input('next');
 		elseif($request->has('previous'))
 			$query=$request->input('previous');
-		else 
+		else
 			return redirect()->route('social.report');
 
 
@@ -695,16 +696,16 @@ class SocialController extends Controller
 		$resp = json_decode($resp);
 		curl_close($ch);
 		if(isset($resp->error->error_user_msg))
-			Session::flash('message',$resp->error->error_user_msg); 
+			Session::flash('message',$resp->error->error_user_msg);
 		elseif(isset($resp->error->message))
-			Session::flash('message',$resp->error->message); 
+			Session::flash('message',$resp->error->message);
 
 
 		return view('social.adcreative-reports',['resp'=>$resp]);
 	}
 
 	// end of paginate ad  creative report
-	
+
 
 
 
@@ -733,9 +734,9 @@ class SocialController extends Controller
 		$resp = json_decode($resp);
 		curl_close($curl);
 		if(isset($resp->error->message))
-			Session::flash('message',$resp->error->message); 
+			Session::flash('message',$resp->error->message);
 		else
-			Session::flash('message',"Status changed successfully"); 
+			Session::flash('message',"Status changed successfully");
 
 
 		return redirect()->route('social.report');
@@ -801,16 +802,16 @@ class SocialController extends Controller
 			$resp = json_decode($resp);
 			curl_close($curl);
 			if(isset($resp->error->message))
-				Session::flash('message',$resp->error->message); 
+				Session::flash('message',$resp->error->message);
 			else
-				Session::flash('message',"Campaign created  successfully"); 
+				Session::flash('message',"Campaign created  successfully");
 
 
 			return redirect()->route('social.ad.campaign.create');
 		}
 		catch(Exception $e)
 		{
-			Session::flash('message',$e); 
+			Session::flash('message',$e);
 			return redirect()->route('social.ad.campaign.create');
 		}
 
@@ -842,7 +843,7 @@ class SocialController extends Controller
 
 		curl_close($ch);
 		if(isset($resp->error->error_user_msg))
-			Session::flash('message',$resp->error->error_user_msg); 
+			Session::flash('message',$resp->error->error_user_msg);
 		elseif(isset($resp->error->message))
 			Session::flash('message',$resp->error->message);
 
@@ -911,18 +912,18 @@ class SocialController extends Controller
 
 			curl_close($curl);
 			if(isset($resp->error->error_user_msg))
-				Session::flash('message',$resp->error->error_user_msg); 
+				Session::flash('message',$resp->error->error_user_msg);
 			elseif(isset($resp->error->message))
-				Session::flash('message',$resp->error->message); 
+				Session::flash('message',$resp->error->message);
 			else
-				Session::flash('message',"Adset created  successfully"); 
+				Session::flash('message',"Adset created  successfully");
 
 
 			return redirect()->route('social.ad.adset.create');
 		}
 		catch(Exception $e)
 		{
-			Session::flash('message',$e); 
+			Session::flash('message',$e);
 			return redirect()->route('social.ad.adset.create');
 		}
 
@@ -955,7 +956,7 @@ class SocialController extends Controller
 
 		curl_close($ch);
 		if(isset($resp->error->message))
-			Session::flash('message',$resp->error->message); 
+			Session::flash('message',$resp->error->message);
 
 		return view('social.ad',['adsets'=>$resp->adsets->data,'adcreatives'=>$resp->adcreatives->data]);
 	}
@@ -1005,18 +1006,18 @@ class SocialController extends Controller
 			curl_close($curl);
 
 			if(isset($resp->error->error_user_msg))
-				Session::flash('message',$resp->error->error_user_msg); 
+				Session::flash('message',$resp->error->error_user_msg);
 			elseif(isset($resp->error->message))
-				Session::flash('message',$resp->error->error_user_msg); 
+				Session::flash('message',$resp->error->error_user_msg);
 			else
-				Session::flash('message',"Adset created  successfully"); 
+				Session::flash('message',"Adset created  successfully");
 
 
 			return redirect()->route('social.ad.create');
 		}
 		catch(Exception $e)
 		{
-			Session::flash('message',$e); 
+			Session::flash('message',$e);
 			return redirect()->route('social.ad.create');
 		}
 
@@ -1024,5 +1025,3 @@ class SocialController extends Controller
 
 
 }
-
-

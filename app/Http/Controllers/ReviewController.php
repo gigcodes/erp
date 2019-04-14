@@ -58,7 +58,7 @@ class ReviewController extends Controller
       $this->validate($request, [
         'first_name'      => 'sometimes|nullable|string',
         'last_name'       => 'sometimes|nullable|string',
-        'email'           => 'required|email',
+        'email'           => 'sometimes|nullable|email',
         'password'        => 'required|min:3',
         'dob'             => 'sometimes|nullable|date',
         'platform'        => 'required|string',
@@ -147,7 +147,7 @@ class ReviewController extends Controller
       $this->validate($request, [
         'first_name'      => 'sometimes|nullable|string',
         'last_name'       => 'sometimes|nullable|string',
-        'email'           => 'required|email',
+        'email'           => 'sometimes|nullable|email',
         'password'        => 'required|min:3',
         'dob'             => 'sometimes|nullable|date',
         'platform'        => 'required|string',

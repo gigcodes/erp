@@ -64,20 +64,20 @@
           @foreach ($data as $date => $item)
             <tr>
               <td>{{ \Carbon\Carbon::parse($date)->format('d-m') }}</td>
-              <td>{{ $item['G&B'] }}</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
+              <td>{{ $item['G&B']['scraped'] ?? 0 }}</td>
+              <td>{{ $item['G&B']['created'] ?? 0 }}</td>
+              <td>{{ $item['G&B']['inventory'] ?? 0 }}</td>
+              <td>{{ $item['G&B']['removed'] ?? 0 }}</td>
 
-              <td>{{ $item['Wise Boutique'] }}</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
+              <td>{{ $item['Wiseboutique']['scraped'] ?? 0 }}</td>
+              <td>{{ $item['Wiseboutique']['created'] ?? 0 }}</td>
+              <td>{{ $item['Wiseboutique']['inventory'] ?? 0 }}</td>
+              <td>{{ $item['Wiseboutique']['removed'] ?? 0 }}</td>
 
-              <td>{{ $item['Double F'] }}</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
+              <td>{{ $item['DoubleF']['scraped'] ?? 0 }}</td>
+              <td>{{ $item['DoubleF']['created'] ?? 0 }}</td>
+              <td>{{ $item['DoubleF']['inventory'] ?? 0 }}</td>
+              <td>{{ $item['DoubleF']['removed'] ?? 0 }}</td>
             </tr>
           @endforeach
         </tbody>
