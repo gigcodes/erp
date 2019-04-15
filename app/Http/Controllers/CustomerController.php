@@ -42,12 +42,13 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
       $instructions = Instruction::latest()->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'created_at'])->get()->groupBy('customer_id')->toArray();
+      $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $customers = $this->getCustomersIndex($request);
       $term = $request->input('term');
       $reply_categories = ReplyCategory::all();
 
       $orderby = 'desc';
-      if($request->orderby == '') {
+      if ($request->orderby == '') {
          $orderby = 'asc';
       }
 
@@ -76,6 +77,7 @@ class CustomerController extends Controller
         'queues_sent_count' => $queues_sent_count,
         'search_suggestions' => $search_suggestions,
         'reply_categories' => $reply_categories,
+        'orders' => $orders,
       ]);
     }
 

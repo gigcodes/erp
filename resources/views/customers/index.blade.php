@@ -376,6 +376,7 @@
             <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th> --}}
             <th width="10%">Instruction</th>
             <th width="10%">Message Status</th>
+            <th>Order Status</th>
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
             <th width="30%">Send Message</th>
             <th>Shortcuts</th>
@@ -459,6 +460,26 @@
                                 Unread
                             @endif
                         @endif
+                    </td>
+                    <td>
+                      @if (array_key_exists($customer->id, $orders))
+                        @if (count($orders[$customer->id]) == 1)
+                          <div class="form-group">
+                            <strong>status:</strong>
+                            <select name="status" class="form-control change_status order_status" data-orderid="{{ $orders[$customer->id][0]['id'] }}">
+                                 @php $order_status = (new \App\ReadOnly\OrderStatus)->all(); @endphp
+                                 @foreach($order_status as $key => $value)
+                                  <option value="{{$value}}" {{$value == $orders[$customer->id][0]['order_status'] ? 'selected' : '' }}>{{ $key }}</option>
+                                  @endforeach
+                            </select>
+                            <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
+                          </div>
+                        @else
+                          Multiple Orders
+                        @endif
+                      @else
+                        No Orders
+                      @endif
                     </td>
                     <td>
                         @if (isset($customer->message))
@@ -794,6 +815,42 @@
 
       $(document).on('change', '.quickComment', function () {
           $(this).closest('td').find('input').val($(this).val());
+      });
+
+      $('.change_status').on('change', function() {
+        var thiss = $(this);
+        var token = "{{ csrf_token() }}";
+        var status = $(this).val();
+
+
+        if ($(this).hasClass('order_status')) {
+          var id = $(this).data('orderid');
+          var url = '/order/' + id + '/changestatus';
+        } else {
+          var id = $(this).data('leadid');
+          var url = '/leads/' + id + '/changestatus';
+        }
+
+        $.ajax({
+          url: url,
+          type: 'POST',
+          data: {
+            _token: token,
+            status: status
+          }
+        }).done( function(response) {
+          if ($(thiss).hasClass('order_status') && status == 'Product shiped to Client') {
+            $('#tracking-wrapper-' + id).css({'display' : 'block'});
+          }
+
+          $(thiss).siblings('.change_status_message').fadeIn(400);
+
+          setTimeout(function () {
+            $(thiss).siblings('.change_status_message').fadeOut(400);
+          }, 2000);
+        }).fail(function(errObj) {
+          alert("Could not change status");
+        });
       });
   </script>
 @endsection
