@@ -195,6 +195,21 @@ class InstructionController extends Controller
       $instruction->completed_at = Carbon::now();
       $instruction->save();
 
+      $myRequest = new Request();
+      $myRequest->setMethod('POST');
+      $myRequest->request->add([
+        'moduletype' => (string) 'customer',
+        'moduleid' => (int) $instruction->customer_id,
+        'status' => (int) 4,
+        'userid' => (int) Auth::id(),
+        'assigned_user' => (int) $instruction->assigned_to,
+        'body' => (string) 'Instruction Complete!'
+      ]);
+
+      // return response($myRequest);
+
+      app('App\Http\Controllers\MessageController')->store($myRequest);
+
       NotificationQueue::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
       PushNotification::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
 

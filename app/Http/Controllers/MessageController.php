@@ -47,7 +47,7 @@ class MessageController extends Controller
      */
     public function store(Request $request)
     {
-        $message = $this->validate(request(), [
+        $message = $this->validate($request, [
               'body' => 'required',
               'moduleid' => 'required',
               'moduletype' => 'required',
