@@ -129,14 +129,23 @@ class RefundController extends Controller
 			'type'				=> 'required|string'
 		]);
 
+		$order = Order::find($request->order_id);
+
 		$data = $request->except('_token', '_method');
 		if (!$request->dispatched) {
 			$data['dispatch_date'] = null;
 			$data['awb'] = '';
+		} else {
+			$order->order_status = 'Refund Dispatched';
 		}
 
-		if ($request->credited)
+		if ($request->credited) {
 			$data['credited'] = 1;
+
+			$order->order_status = 'Refund Credited';
+		}
+
+		$order->save();
 
 		$data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
 

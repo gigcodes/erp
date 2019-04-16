@@ -117,6 +117,12 @@ class CustomerController extends Controller
               $status_array = $delivery_status;
             } else if ($request->type == 'Refund to be processed') {
               $status_array = [$request->type];
+            } else {
+              $status_array = [
+                'Delivered',
+                'Refund Dispatched',
+                'Refund Credited'
+              ];
             }
 
             $imploded = implode("','", $status_array);
@@ -136,6 +142,12 @@ class CustomerController extends Controller
             $status_array = $delivery_status;
           } else if ($request->type == 'Refund to be processed') {
             $status_array = [$request->type];
+          } else {
+            $status_array = [
+              'Delivered',
+              'Refund Dispatched',
+              'Refund Credited'
+            ];
           }
 
           $imploded = implode("','", $status_array);
@@ -145,7 +157,7 @@ class CustomerController extends Controller
 
         $customers = $customers->whereNull('deleted_at');
 
-        if ($request->type != null && $request->type != 'new') {
+        if ($request->type != null) {
           $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'RIGHT');
         } else {
           $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'LEFT');
