@@ -3284,18 +3284,15 @@
           }
         }).done(function(response) {
           // $(thiss).parent().html('<span class="badge">Verified</span>');
+          var current_user = {{ Auth::id() }};
 
           $(thiss).closest('tr').remove();
 
-          if (assigned_from == current_user) {
-            var verify_button = '<a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="' + id + '">Verify</a>';
-          } else {
-            var verify_button = '<span class="badge">Not Verified</span>';
-          }
-
-          var row = '<tr><td></td><td></td><td></td><td>' + response.instruction + '</td><td>' + moment(response.time).format('DD-MM HH:mm') + '</td><td>Completed</td><td>' + verify_button + '</td><td></td><td></td></tr>';
-
-          $('#5 tbody').append($(row));
+          // var row = '<tr><td></td><td></td><td></td><td>' + response.instruction + '</td><td>' + moment(response.completed_at).format('DD-MM HH:mm') + '</td><td>Completed</td><td>' + verify_button + '</td><td></td><td></td></tr>';
+          // console.log(row);
+          //
+          // $('#5 tbody').append($(row));
+          window.location.reload();
         }).fail(function(response) {
           $(thiss).text('Verify');
           console.log(response);
