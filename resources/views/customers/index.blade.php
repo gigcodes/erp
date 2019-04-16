@@ -3,6 +3,7 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 @endsection
 
 @section('content')
@@ -12,20 +13,23 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Customers List</h2>
             <div class="pull-left">
-                <form action="/customers/" method="GET">
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search" id="customer-search">
-                            </div>
-                            <div class="col-md-4">
-                                <button hidden type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+              <form action="/customers/" method="GET" class="form-inline">
+                <input name="term" type="text" class="form-control"
+                       value="{{ isset($term) ? $term : '' }}"
+                       placeholder="Search" id="customer-search">
+
+                <div class="form-group ml-3">
+                  <select class="form-control select-multiple" name="type">
+                    <optgroup label="Type">
+                      <option value="new" {{ isset($type) && $type == 'new' ? 'selected' : '' }}>New</option>
+                      <option value="delivery" {{ isset($type) && $type == 'delivery' ? 'selected' : '' }}>Delivery</option>
+                      <option value="Refund to be processed" {{ isset($type) && $type == 'Refund to be processed' ? 'selected' : '' }}>Refund</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+              </form>
             </div>
 
             <div class="pull-right mt-4">
@@ -580,9 +584,14 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script type="text/javascript">
     var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
+
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
+    });
 
     $(document).ready(function() {
       $('#customer-search').autocomplete({
