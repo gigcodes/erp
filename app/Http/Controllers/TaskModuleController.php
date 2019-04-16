@@ -440,8 +440,8 @@ class TaskModuleController extends Controller {
 			$completed_tasks = $completed_tasks->where('created_at', 'LIKE', "%$request->date%");
 		}
 
-		$pending_tasks = $pending_tasks->latest()->paginate(Setting::get('pagination'));
-		$completed_tasks = $completed_tasks->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+		$pending_tasks = $pending_tasks->oldest()->paginate(Setting::get('pagination'));
+		$completed_tasks = $completed_tasks->orderBy('is_completed', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
 		$users = Helpers::getUserArray(User::all());
 		$user = $request->user ?? [];
