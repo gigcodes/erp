@@ -1337,6 +1337,7 @@
 
         $pending_tasks_count = $tasks_query->whereNull('is_completed')->count();
         $completed_tasks_count = $tasks_query->whereNotNull('is_completed')->count();
+        $other_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_from', Auth::id())->whereNull('is_completed')->count();
       @endphp
 
       <a href="/#1">
@@ -1345,6 +1346,10 @@
 
       <a href="/#3">
         <span class="badge badge-task-completed">{{ $completed_tasks_count }}</span>
+      </a>
+
+      <a href="{{ route('task.list') }}">
+        <span class="badge badge-task-other">{{ $other_pending_tasks_count }}</span>
       </a>
       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
     </div>

@@ -1154,3 +1154,10 @@ form.display-inline{
   right: -15px;
   background-color: green !important;
 }
+
+.badge-task-other {
+  position: absolute;
+  bottom: -10px;
+  left: -15px;
+  background-color: red !important;
+}
