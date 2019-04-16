@@ -1254,6 +1254,14 @@
                           <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
                         </div>
 
+                        @if ($order->auto_emailed == 0)
+                          <div class="form-group">
+                            <a href="{{ route('order.send.confirmation.email', $order->id) }}" class="btn btn-secondary">Send Confirmation Email</a>
+                          </div>
+                        @else
+                          Email sent
+                        @endif
+
                         {{-- <div class="form-group">
                           <a href="#" class="btn btn-secondary create-magento-product" data-id="{{ $order->id }}">Create Magento Product</a>
                         </div> --}}

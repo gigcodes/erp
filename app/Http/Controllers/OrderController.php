@@ -815,6 +815,24 @@ class OrderController extends Controller {
 		return redirect()->back()->withSuccess('Advance Receipt was successfully emailed!');
 	}
 
+	public function sendConfirmation($id)
+	{
+		$order = Order::find($id);
+
+		if ($order->auto_emailed == 0) {
+			if ($order->order_type == 'offline') {
+				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+
+				$order->update([
+					'auto_emailed' => 1,
+					'auto_emailed_date' => Carbon::now()
+				]);
+			}
+		}
+
+		return redirect()->back()->withSuccess('You have successfully sent confirmation email!');
+	}
+
 	public function generateInvoice($id)
 	{
 		$order = Order::find($id);

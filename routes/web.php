@@ -86,6 +86,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('instruction/category/store', 'InstructionController@categoryStore')->name('instruction.category.store');
 
 
+	Route::get('order/{id}/send/confirmationEmail', 'OrderController@sendConfirmation')->name('order.send.confirmation.email');
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
 	Route::post('order/{id}/sendRefund', 'OrderController@sendRefund');
 	Route::post('order/{id}/uploadForApproval', 'OrderController@uploadForApproval')->name('order.upload.approval');
