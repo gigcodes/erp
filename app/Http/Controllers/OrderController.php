@@ -35,6 +35,7 @@ use App\Mail\RefundProcessed;
 use App\Mail\AdvanceReceipt;
 use App\Mail\AdvanceReceiptPDF;
 use App\Mail\OrderInvoicePDF;
+use App\Mail\OrderConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Dompdf\Dompdf;
 
@@ -563,6 +564,17 @@ class OrderController extends Controller {
 			}
 		}
 
+		if ($order->auto_emailed == 0) {
+			if ($order->order_type == 'offline') {
+				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+
+				$order->update([
+					'auto_emailed' => 1,
+					'auto_emailed_date' => Carbon::now()
+				]);
+			}
+		}
+
 		// NotificationQueueController::createNewNotification([
 		// 	'type' => 'button',
 		// 	'message' => $data['client_name'],
@@ -731,6 +743,17 @@ class OrderController extends Controller {
 				$order->update([
 					'auto_messaged' => 1,
 					'auto_messaged_date' => Carbon::now()
+				]);
+			}
+		}
+
+		if ($order->auto_emailed == 0) {
+			if ($order->order_type == 'offline') {
+				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+
+				$order->update([
+					'auto_emailed' => 1,
+					'auto_emailed_date' => Carbon::now()
 				]);
 			}
 		}
