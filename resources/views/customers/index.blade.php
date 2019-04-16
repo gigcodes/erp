@@ -421,7 +421,18 @@
                             {{ $customer->order_created }}
                         @endif
                     </td> --}}
+                    @php
+                      $remark_last_time = '';
+                      $remark_message = '';
+                    @endphp
+
                     @if (array_key_exists($customer->id, $instructions))
+                      @if (!empty($instructions[$customer->id][0]['remarks']))
+                        @php
+                          $remark_last_time = $instructions[$customer->id][0]['remarks'][0]['created_at'];
+                          $remark_message = $instructions[$customer->id][0]['remarks'][0]['remark'];
+                        @endphp
+                      @endif
                     <td class="{{ $instructions[$customer->id][0]['completed_at'] ? 'text-success' : 'text-danger' }}">
                         @if ($instructions[$customer->id][0]['assigned_to'])
                           {{ $users_array[$instructions[$customer->id][0]['assigned_to']] }} -
@@ -450,6 +461,7 @@
                     <td></td>
                   @endif
                     <td>
+                      @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at)
                         @if (!empty($customer->message))
                             @if ($customer->message_status == 5)
                                 Read
@@ -464,6 +476,7 @@
                                 Unread
                             @endif
                         @endif
+                      @endif
                     </td>
                     <td>
                       @if (array_key_exists($customer->id, $orders))
@@ -486,6 +499,7 @@
                       @endif
                     </td>
                     <td>
+                      @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at)
                         @if (isset($customer->message))
                             @if (strpos($customer->message, '<br>') !== false)
                                 {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
@@ -495,6 +509,9 @@
                         @else
                             {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
                         @endif
+                      @else
+                        {{ $remark_message }}
+                      @endif
                     </td>
                     <td>
                       <div class="d-inline">
