@@ -91,13 +91,11 @@ class ToryDetailsScraper extends Scraper
         $image->url = $scrapEntry->url;
         $image->properties = $properties;
         $image->save();
-        $image->save();
-
 
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
 
-//        app('App\Services\Products\DoubleProductsCreator')->createDoubleProducts($image);
+       app('App\Services\Products\ToryProductsCreator')->createProduct($image);
     }
 
     private function getTitle(HtmlPageCrawler $c) {
