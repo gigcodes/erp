@@ -6,6 +6,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 
     {{-- <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" /> --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -113,14 +114,14 @@
                             @csrf
                             <div class="form-group">
                                 <strong>Task Subject:</strong>
-                                <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" />
+                                <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" value="{{ old('task_subject') }}" required />
                                 @if ($errors->has('task_subject'))
                                     <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
                                 @endif
                             </div>
                             <div class="form-group">
                                 <strong>Task Details:</strong>
-                                <textarea class="form-control" name="task_details" placeholder="Task Details"></textarea>
+                                <textarea class="form-control" name="task_details" placeholder="Task Details" required>{{ old('task_details') }}</textarea>
                                 @if ($errors->has('task_details'))
                                     <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
                                 @endif
@@ -159,15 +160,14 @@
                             </div>
                             <div class="form-group">
                                 <strong>Assigned To:</strong>
-                                <select name="assign_to[]" class="form-control" multiple>
-
-                                    @foreach($data['users'] as $user)
-                                        <option value="{{$user['id']}}">{{$user['name']}}</option>
-                                    @endforeach
+                                <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" required>
+                                  @foreach ($data['users'] as $user)
+                                    <option data-tokens="{{ $user['name'] }} {{ $user['email'] }}" value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
+                                  @endforeach
                                 </select>
 
                                 @if ($errors->has('assign_to'))
-                                    <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                                  <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
                                 @endif
                             </div>
 
@@ -573,12 +573,21 @@
         </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <style type="text/css">
         .nav-tabs > li{
             width:33.33%;
         }
     </style>
     <script>
+
+    $(document).ready(function() {
+      var hash = window.location.hash.substr(1);
+
+      if (hash == '3') {
+        $('a[href="#3"]').click();
+      }
+    });
 
       $(document).on('click', '.task-subject', function() {
         if ($(this).data('switch') == 0) {

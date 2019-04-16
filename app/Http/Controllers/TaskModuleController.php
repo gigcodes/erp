@@ -119,6 +119,17 @@ class TaskModuleController extends Controller {
 										})
 		                               ->get()->toArray();
 
+																	//  $tasks_query = Task::where('is_statutory', 0)
+															 		// 												->where('assign_to', Auth::id());
+																	//
+															 		// $pending_tasks_count = Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->get();
+															 		// $completed_tasks_count = $tasks_query->whereNull('is_completed')->count();
+																	// dd($pending_tasks_count);
+
+																	// $tasks_query = Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
+																	//
+																	// dd($tasks_query);
+
 
 		$users                     = User::oldest()->get()->toArray();
 		$data['users']             = $users;
