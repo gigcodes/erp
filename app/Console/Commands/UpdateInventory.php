@@ -6,6 +6,7 @@ use App\Product;
 use App\ScrapedProducts;
 use App\ScrapActivity;
 use App\Services\Scrap\DoubleFProductDetailsScraper;
+use App\Services\Scrap\ToryDetailsScraper;
 use App\Services\Scrap\WiseBoutiqueProductDetailsScraper;
 use Illuminate\Console\Command;
 
@@ -27,18 +28,26 @@ class UpdateInventory extends Command
 
     private $wiseScrapService;
     private $doubleFScrapService;
+    private $toryScrapService;
     private $GNBCommand;
 
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param WiseBoutiqueProductDetailsScraper $boutiqueProductDetailsScraper
+     * @param DoubleFProductDetailsScraper $doubleFProductDetailsScraper
+     * @param GetGebnegozionlineProductDetailsWithEmulator $getGebnegozionlineProductDetailsWithEmulatorm
+     * @param ToryDetailsScraper $toryDetailsScraper
      */
-    public function __construct(WiseBoutiqueProductDetailsScraper $boutiqueProductDetailsScraper, DoubleFProductDetailsScraper $doubleFProductDetailsScraper, GetGebnegozionlineProductDetailsWithEmulator $getGebnegozionlineProductDetailsWithEmulator)
+    public function __construct(WiseBoutiqueProductDetailsScraper $boutiqueProductDetailsScraper,
+                                DoubleFProductDetailsScraper $doubleFProductDetailsScraper,
+                                GetGebnegozionlineProductDetailsWithEmulator $getGebnegozionlineProductDetailsWithEmulator,
+                                ToryDetailsScraper $toryDetailsScraper)
     {
         $this->wiseScrapService = $boutiqueProductDetailsScraper;
         $this->doubleFScrapService = $doubleFProductDetailsScraper;
         $this->GNBCommand = $getGebnegozionlineProductDetailsWithEmulator;
+        $this->toryScrapService = $toryDetailsScraper;
         parent::__construct();
     }
 
@@ -80,6 +89,16 @@ class UpdateInventory extends Command
                   'website'             => 'DoubleF',
                   'scraped_product_id'  => $scraped_product->id,
                   'status'              => $status ? 1 : 0
+                ];
+            }
+
+            if ($scraped_product->website == 'Tory') {
+                $status = $this->toryScrapService->doesProductExist($scraped_product->url);
+
+                $params = [
+                    'website'             => 'Tory',
+                    'scraped_product_id'  => $scraped_product->id,
+                    'status'              => $status ? 1 : 0
                 ];
             }
 
