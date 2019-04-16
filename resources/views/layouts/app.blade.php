@@ -837,6 +837,7 @@
                                     <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
                                     <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
                                     <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
+                                    <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
 
                                     @can('lead-create')
 

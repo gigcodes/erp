@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Helpers;
 use App\User;
 use App\Task;
+use App\Setting;
 use App\Remark;
 use App\DeveloperTask;
 use App\NotificationQueue;
@@ -271,7 +272,7 @@ class TaskModuleController extends Controller {
 
 	}
 
-	public function complete( $taskid ) {
+	public function complete(Request $request, $taskid ) {
 
 		$task               = Task::find( $taskid );
 		// $task->is_completed = date( 'Y-m-d H:i:s' );
@@ -312,6 +313,10 @@ class TaskModuleController extends Controller {
 		// ] );
 
 		// $notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\Task')->delete();
+
+		if ($request->ajax()) {
+			return response('success');
+		}
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task marked as completed.' );
@@ -418,6 +423,37 @@ class TaskModuleController extends Controller {
 
 
 		return response()->json(['remark' => $remark ],200);
+	}
+
+	public function list(Request $request)
+	{
+		$pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed')->where('assign_from', Auth::id());
+		$completed_tasks = Task::where('is_statutory', 0)->whereNotNull('is_completed')->where('assign_from', Auth::id());
+
+		if ($request->user[0] != null) {
+			$pending_tasks = $pending_tasks->whereIn('assign_to', $request->user);
+			$completed_tasks = $completed_tasks->whereIn('assign_to', $request->user);
+		}
+
+		if ($request->date != null) {
+			$pending_tasks = $pending_tasks->where('created_at', 'LIKE', "%$request->date%");
+			$completed_tasks = $completed_tasks->where('created_at', 'LIKE', "%$request->date%");
+		}
+
+		$pending_tasks = $pending_tasks->latest()->paginate(Setting::get('pagination'));
+		$completed_tasks = $completed_tasks->latest()->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+
+		$users = Helpers::getUserArray(User::all());
+		$user = $request->user ?? [];
+		$date = $request->date ?? '';
+
+		return view('task-module.list', [
+			'pending_tasks'		=> $pending_tasks,
+			'completed_tasks'	=> $completed_tasks,
+			'users'						=> $users,
+			'user'						=> $user,
+			'date'						=> $date
+		]);
 	}
 
 	public function getremark( Request $request ) {
