@@ -6,6 +6,7 @@ use App\Brand;
 use App\Image;
 use App\Imports\ProductsImport;
 use App\ScrapedProducts;
+use App\ScrapEntries;
 use App\ScrapActivity;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
@@ -95,6 +96,11 @@ class ScrapController extends Controller
 
     public function activity()
     {
+      $links_count = ScrapEntries::select(['site_name', 'created_at'])->get()->groupBy(['site_name', function ($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d');
+      }]);
+
+
       $scraped_count = ScrapedProducts::select(['website', 'created_at'])->get()->groupBy(['website', function ($query) {
         return Carbon::parse($query->created_at)->format('Y-m-d');
       }]);
@@ -114,6 +120,16 @@ class ScrapController extends Controller
       }]);
 
       $data = [];
+
+      foreach ($links_count as $website => $dates) {
+        if ($website == 'GNB') {
+          $website = 'G&B';
+        }
+        
+        foreach ($dates as $date => $item) {
+          $data[$date][$website]['links'] = count($item);
+        }
+      }
 
       foreach ($scraped_count as $website => $dates) {
         foreach ($dates as $date => $item) {
