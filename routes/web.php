@@ -372,6 +372,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('account/create', 'ReviewController@accountStore')->name('account.store');
 	Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
 	Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
+
+	// Vendor Module
+	Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
+	Route::resource('vendor', 'VendorController');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
