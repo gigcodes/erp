@@ -1,6 +1,28 @@
 
 jQuery(document).ready(function () {
 
+  $('#quickTaskSubmit').on('click', function(e) {
+    e.preventDefault();
+
+    var form = $('#quickTaskForm');
+    var data = form.serialize();
+
+    $.ajax({
+      type: "POST",
+      url: "/task",
+      data: data
+    }).done(function() {
+      $('#quick_task_subject').val('');
+      $('#quick_task_details').val('');
+      $('#quick_task_assign_to').val('');
+
+      form.find('.close').click();
+    }).fail(function(response) {
+      alert('Could not create quick task!');
+      console.log(response);
+    });
+  });
+
     jQuery('li.notification-dropdown .dropdown-toggle').on('click', function (event) {
         event.preventDefault();
         jQuery(this).parent().toggleClass('show');

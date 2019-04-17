@@ -35,6 +35,7 @@ use App\Mail\RefundProcessed;
 use App\Mail\AdvanceReceipt;
 use App\Mail\AdvanceReceiptPDF;
 use App\Mail\OrderInvoicePDF;
+use App\Mail\OrderConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Dompdf\Dompdf;
 
@@ -563,6 +564,17 @@ class OrderController extends Controller {
 			}
 		}
 
+		if ($order->auto_emailed == 0) {
+			if ($order->order_type == 'offline') {
+				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+
+				$order->update([
+					'auto_emailed' => 1,
+					'auto_emailed_date' => Carbon::now()
+				]);
+			}
+		}
+
 		// NotificationQueueController::createNewNotification([
 		// 	'type' => 'button',
 		// 	'message' => $data['client_name'],
@@ -735,6 +747,17 @@ class OrderController extends Controller {
 			}
 		}
 
+		if ($order->auto_emailed == 0) {
+			if ($order->order_type == 'offline') {
+				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+
+				$order->update([
+					'auto_emailed' => 1,
+					'auto_emailed_date' => Carbon::now()
+				]);
+			}
+		}
+
 		if ($order->order_status == 'Refund to be processed') {
 			$refund = Refund::where('order_id', $order->id)->first();
 
@@ -790,6 +813,24 @@ class OrderController extends Controller {
 		}
 
 		return redirect()->back()->withSuccess('Advance Receipt was successfully emailed!');
+	}
+
+	public function sendConfirmation($id)
+	{
+		$order = Order::find($id);
+
+		if ($order->auto_emailed == 0) {
+			if ($order->order_type == 'offline') {
+				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+
+				$order->update([
+					'auto_emailed' => 1,
+					'auto_emailed_date' => Carbon::now()
+				]);
+			}
+		}
+
+		return redirect()->back()->withSuccess('You have successfully sent confirmation email!');
 	}
 
 	public function generateInvoice($id)

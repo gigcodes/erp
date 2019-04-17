@@ -16,6 +16,7 @@ class OrderStatus extends ReadOnlyBase {
 	protected $data = [
 //		'Order' => 'Order',
 //		'Advance' => 'Advance',
+		'Follow up for advance' => 'Follow up for advance',
 		'Proceed without Advance' => 'Proceed without Advance',
 		'Advance received' => 'Advance received',
 		'Cancel' => 'Cancel',
@@ -25,7 +26,8 @@ class OrderStatus extends ReadOnlyBase {
 		'Product shiped to Client' => 'Product shiped to Client',
 		'Delivered' => 'Delivered',
 		'Refund to be processed' => 'Refund to be processed',
-		'Follow up for advance' => 'Follow up for advance',
+		'Refund Dispatched' => 'Refund Dispatched',
+		'Refund Credited' => 'Refund Credited',
 		'VIP'	=> 'VIP',
 		'HIGH PRIORITY'	=> 'HIGH PRIORITY'
 	];

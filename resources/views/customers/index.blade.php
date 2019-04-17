@@ -3,6 +3,7 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 @endsection
 
 @section('content')
@@ -12,20 +13,23 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Customers List</h2>
             <div class="pull-left">
-                <form action="/customers/" method="GET">
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search" id="customer-search">
-                            </div>
-                            <div class="col-md-4">
-                                <button hidden type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+              <form action="/customers/" method="GET" class="form-inline">
+                <input name="term" type="text" class="form-control"
+                       value="{{ isset($term) ? $term : '' }}"
+                       placeholder="Search" id="customer-search">
+
+                <div class="form-group ml-3">
+                  <select class="form-control select-multiple" name="type">
+                    <optgroup label="Type">
+                      <option value="new" {{ isset($type) && $type == 'new' ? 'selected' : '' }}>New</option>
+                      <option value="delivery" {{ isset($type) && $type == 'delivery' ? 'selected' : '' }}>Delivery</option>
+                      <option value="Refund to be processed" {{ isset($type) && $type == 'Refund to be processed' ? 'selected' : '' }}>Refund</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+              </form>
             </div>
 
             <div class="pull-right mt-4">
@@ -417,7 +421,18 @@
                             {{ $customer->order_created }}
                         @endif
                     </td> --}}
+                    @php
+                      $remark_last_time = '';
+                      $remark_message = '';
+                    @endphp
+
                     @if (array_key_exists($customer->id, $instructions))
+                      @if (!empty($instructions[$customer->id][0]['remarks']))
+                        @php
+                          $remark_last_time = $instructions[$customer->id][0]['remarks'][0]['created_at'];
+                          $remark_message = $instructions[$customer->id][0]['remarks'][0]['remark'];
+                        @endphp
+                      @endif
                     <td class="{{ $instructions[$customer->id][0]['completed_at'] ? 'text-success' : 'text-danger' }}">
                         @if ($instructions[$customer->id][0]['assigned_to'])
                           {{ $users_array[$instructions[$customer->id][0]['assigned_to']] }} -
@@ -446,6 +461,7 @@
                     <td></td>
                   @endif
                     <td>
+                      @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at)
                         @if (!empty($customer->message))
                             @if ($customer->message_status == 5)
                                 Read
@@ -460,6 +476,7 @@
                                 Unread
                             @endif
                         @endif
+                      @endif
                     </td>
                     <td>
                       @if (array_key_exists($customer->id, $orders))
@@ -482,6 +499,7 @@
                       @endif
                     </td>
                     <td>
+                      @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at)
                         @if (isset($customer->message))
                             @if (strpos($customer->message, '<br>') !== false)
                                 {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
@@ -491,6 +509,9 @@
                         @else
                             {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
                         @endif
+                      @else
+                        {{ $remark_message }}
+                      @endif
                     </td>
                     <td>
                       <div class="d-inline">
@@ -580,9 +601,14 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script type="text/javascript">
     var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
+
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
+    });
 
     $(document).ready(function() {
       $('#customer-search').autocomplete({

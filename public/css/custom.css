@@ -1133,3 +1133,31 @@ form.display-inline{
 .btn.btn-image {
   background-color: transparent;
 }
+
+.float-container {
+  position: fixed;
+  bottom: 30px;
+  right: 20px;
+  z-index: 10;
+}
+
+.badge-task-pending {
+  position: absolute;
+  top: -10px;
+  left: -15px;
+  background-color: red !important;
+}
+
+.badge-task-completed {
+  position: absolute;
+  top: -10px;
+  right: -15px;
+  background-color: green !important;
+}
+
+.badge-task-other {
+  position: absolute;
+  bottom: -10px;
+  left: -15px;
+  background-color: red !important;
+}

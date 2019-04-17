@@ -1254,6 +1254,14 @@
                           <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
                         </div>
 
+                        @if ($order->auto_emailed == 0)
+                          <div class="form-group">
+                            <a href="{{ route('order.send.confirmation.email', $order->id) }}" class="btn btn-secondary">Send Confirmation Email</a>
+                          </div>
+                        @else
+                          Email sent
+                        @endif
+
                         {{-- <div class="form-group">
                           <a href="#" class="btn btn-secondary create-magento-product" data-id="{{ $order->id }}">Create Magento Product</a>
                         </div> --}}
@@ -3276,18 +3284,15 @@
           }
         }).done(function(response) {
           // $(thiss).parent().html('<span class="badge">Verified</span>');
+          var current_user = {{ Auth::id() }};
 
           $(thiss).closest('tr').remove();
 
-          if (assigned_from == current_user) {
-            var verify_button = '<a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="' + id + '">Verify</a>';
-          } else {
-            var verify_button = '<span class="badge">Not Verified</span>';
-          }
-
-          var row = '<tr><td></td><td></td><td></td><td>' + response.instruction + '</td><td>' + moment(response.time).format('DD-MM HH:mm') + '</td><td>Completed</td><td>' + verify_button + '</td><td></td><td></td></tr>';
-
-          $('#5 tbody').append($(row));
+          // var row = '<tr><td></td><td></td><td></td><td>' + response.instruction + '</td><td>' + moment(response.completed_at).format('DD-MM HH:mm') + '</td><td>Completed</td><td>' + verify_button + '</td><td></td><td></td></tr>';
+          // console.log(row);
+          //
+          // $('#5 tbody').append($(row));
+          window.location.reload();
         }).fail(function(response) {
           $(thiss).text('Verify');
           console.log(response);

@@ -42,4 +42,9 @@ class Task extends Model {
 			$results = DB::select('select * from remarks where taskid = :taskid order by created_at DESC', ['taskid' => $taskid]);
 			return json_decode(json_encode($results),true);
 	}
+
+	public function remarks()
+	{
+		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
+	}
 }

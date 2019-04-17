@@ -41,11 +41,13 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-      $instructions = Instruction::latest()->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'created_at'])->get()->groupBy('customer_id')->toArray();
+      $instructions = Instruction::with('remarks')->latest()->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $customers = $this->getCustomersIndex($request);
       $term = $request->input('term');
       $reply_categories = ReplyCategory::all();
+
+      $type = $request->type ?? '';
 
       $orderby = 'desc';
       if ($request->orderby == '') {
@@ -73,6 +75,7 @@ class CustomerController extends Controller
         'instructions' => $instructions,
         'term' => $term,
         'orderby' => $orderby,
+        'type' => $type,
         'queues_total_count' => $queues_total_count,
         'queues_sent_count' => $queues_sent_count,
         'search_suggestions' => $search_suggestions,
@@ -84,23 +87,87 @@ class CustomerController extends Controller
     public function getCustomersIndex(Request $request) {
         $term = $request->input('term');
         $customers = DB::table('customers');
+        $delivery_status = [
+          'Follow up for advance',
+      		'Proceed without Advance',
+      		'Advance received',
+      		'Cancel',
+      		'Prepaid',
+      		'Product Shiped form Italy',
+      		'In Transist from Italy',
+      		'Product shiped to Client',
+      		'Delivered'
+        ];
 
         $orderWhereClause = '';
 
         if(!empty($term)) {
-            $customers = $customers->latest()->where(function($query) use ($term) {
-              $query->orWhere('customers.name', 'LIKE', "%$term%")
-              ->orWhere('customers.phone', 'LIKE', "%$term%")
-              ->orWhere('customers.instahandler', 'LIKE', "%$term%");
-            });
+          $customers = $customers->latest()->where(function($query) use ($term) {
+            $query->orWhere('customers.name', 'LIKE', "%$term%")
+            ->orWhere('customers.phone', 'LIKE', "%$term%")
+            ->orWhere('customers.instahandler', 'LIKE', "%$term%");
+          });
 
+          if ($request->type != null) {
+            $status_array = [];
+
+            if ($request->type == 'delivery') {
+              array_push($delivery_status, 'VIP', 'HIGH PRIORITY');
+
+              $status_array = $delivery_status;
+            } else if ($request->type == 'Refund to be processed') {
+              $status_array = [$request->type];
+            } else {
+              $status_array = [
+                'Delivered',
+                'Refund Dispatched',
+                'Refund Credited'
+              ];
+            }
+
+            $imploded = implode("','", $status_array);
+
+            $orderWhereClause = "WHERE orders.order_id LIKE '%$term%' AND orders.order_status IN ('" . $imploded . "')";
+          } else {
             $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
+          }
+        }
+
+        if (empty($term) && $request->type != null) {
+          $status_array = [];
+
+          if ($request->type == 'delivery') {
+            array_push($delivery_status, 'VIP', 'HIGH PRIORITY');
+
+            $status_array = $delivery_status;
+          } else if ($request->type == 'Refund to be processed') {
+            $status_array = [$request->type];
+          } else {
+            $status_array = [
+              'Delivered',
+              'Refund Dispatched',
+              'Refund Credited'
+            ];
+          }
+
+          $imploded = implode("','", $status_array);
+
+          $orderWhereClause = "WHERE orders.order_status IN ('" . $imploded . "')";
         }
 
         $customers = $customers->whereNull('deleted_at');
 
-        $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'LEFT');
-        $customers = $customers->join(DB::raw('(SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, MAX(leads.created_at) as lead_created, leads.status as lead_status FROM `leads` GROUP BY customer_id) as leads'), 'customers.id', '=', 'leads.lcid', 'LEFT');
+        if ($request->type != null) {
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'RIGHT');
+        } else {
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'LEFT');
+        }
+
+        if ($request->type != null && $request->type == 'new') {
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, MAX(leads.created_at) as lead_created, leads.status as lead_status FROM `leads` GROUP BY customer_id) as leads'), 'customers.id', '=', 'leads.lcid', 'RIGHT');
+        } else {
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, MAX(leads.created_at) as lead_created, leads.status as lead_status FROM `leads` GROUP BY customer_id) as leads'), 'customers.id', '=', 'leads.lcid', 'LEFT');
+        }
         // $customers = $customers->leftJoin(DB::raw('(SELECT * FROM (SELECT instructions.id, instructions.instruction, instructions.pending, instructions.verified, instructions.assigned_to, instructions.completed_at, MAX(instructions.created_at) as created_at, instructions.customer_id FROM `instructions` GROUP BY customer_id) as latest_instructions) as final_instructions INNER JOIN instructions ON instructions.customer_id = final_instructions.customer_id AND instructions.created_at = final_instructions.created_at'), function($join) {
         //   $join->on('customers.id', '=', 'final_instructions.customer_id');
         //   // $join->on('instructions.created_at', '=', 'instructions.instruction_created');
@@ -132,7 +199,6 @@ class CustomerController extends Controller
         if ($sortby !== 'communication') {
             $customers = $customers->orderBy($sortby, $orderby);
         }
-
 
         $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
         $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, MAX(messages.created_at) as message_created_at FROM messages GROUP BY messages.customer_id ORDER BY messages.created_at ' . $orderby . ') as messages'), 'messages.mcid', '=', 'customers.id', 'LEFT');
