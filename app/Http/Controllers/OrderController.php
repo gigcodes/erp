@@ -20,6 +20,7 @@ use App\Purchase;
 use App\Customer;
 use App\ReplyCategory;
 use App\Refund;
+use App\ChatMessage;
 use App\CommunicationHistory;
 use Auth;
 use Cache;
@@ -949,6 +950,133 @@ class OrderController extends Controller {
 		$waybill = Waybill::find($id);
 
 		return Storage::disk('uploads')->download('waybills/' . $waybill->package_slip);
+	}
+
+	public function refundAnswer(Request $request, $id)
+	{
+		$order = Order::find($id);
+
+		$order->refund_answer = $request->answer;
+		$order->refund_answer_date = Carbon::now();
+
+		$order->save();
+
+		return response('success');
+	}
+
+	public function sendSuggestion(Request $request, $id)
+	{
+		// dd($request->all());
+
+		$params = [
+			'number'  => NULL,
+			'status'  => 1, // message status for auto messaging
+			'user_id' => 6,
+		];
+
+		$order = Order::with(['Order_Product' => function ($query) {
+			$query->with('Product');
+			$query;
+		}])->where('id', $id)->first();
+
+		// dd($order);
+
+		// $customers_orders = Customer::with(['Orders' => function ($query) {
+		// 	$query->with(['Order_Product' => function ($order_product_query) {
+		// 		$order_product_query->with(['Product' => function ($product_query) {
+		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+		// 		}])->whereHas('Product', function ($product_query) {
+		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+		// 		});
+		// 	}])->whereHas('Order_Product', function ($order_product_query) {
+		// 		$order_product_query->with(['Product' => function ($product_query) {
+		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+		// 		}])->whereHas('Product', function ($product_query) {
+		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+		// 		});
+		// 	});
+		// }])->whereHas('Orders', function($query) {
+		// 	$query->with(['Order_Product' => function ($order_product_query) {
+		// 		$order_product_query->with(['Product' => function ($product_query) {
+		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+		// 		}])->whereHas('Product', function ($product_query) {
+		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+		// 		});
+		// 	}])->whereHas('Order_Product', function ($order_product_query) {
+		// 		$order_product_query->with(['Product' => function ($product_query) {
+		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+		// 		}])->whereHas('Product', function ($product_query) {
+		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
+		// 		});
+		// 	});
+		// })->get()->toArray();
+
+		// foreach ($customers_orders as $customer) {
+		if (count($order->order_product) > 0) {
+			$order_products_count = count($order->order_product);
+			$limit = 20 < $order_products_count ? 1 : (int) round(20 / $order_products_count);
+			// dd($limit);
+
+			foreach ($order->order_product as $order_product) {
+				$brand = (int) $order_product->product->brand;
+				$category = (int) $order_product->product->category;
+
+				if ($category != 0 && $category != 1 && $category != 2 && $category != 3) {
+					$is_parent = Category::isParent($category);
+					$category_children = [];
+
+					if ($is_parent) {
+						$children = Category::find($category)->childs()->get();
+
+						foreach ($children as $child) {
+							array_push($category_children, $child->id);
+						}
+					} else {
+						$children = Category::find($category)->parent->childs;
+
+						foreach ($children as $child) {
+							array_push($category_children, $child->id);
+						}
+
+						if (($key = array_search($category, $category_children)) !== false) {
+							unset($category_children[$key]);
+						}
+					}
+				}
+
+				if ($brand && $category != 1) {
+					$products = Product::where('brand', $brand)->whereIn('category', $category_children)->latest()->take($limit)->get();
+				} elseif ($brand) {
+					$products = Product::where('brand', $brand)->latest()->take($limit)->get();
+				} elseif ($category != 1) {
+					$products = Product::where('category', $category)->latest()->take($limit)->get();
+				}
+
+				if (count($products) > 0) {
+					$params['customer_id'] = $order->customer_id;
+
+					$chat_message = ChatMessage::create($params);
+
+					foreach ($products as $product) {
+						$chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
+					}
+				}
+			}
+		}
+
+		$order->refund_answer = 'yes';
+		$order->refund_answer_date = Carbon::now();
+		$order->save();
+
+		return redirect()->back()->withSuccess('You have successfully sent suggestions!');
+
+
+
+
+
+
+
+		// }
 	}
 
 	public function updateStatus(Request $request, $id)
