@@ -62,9 +62,8 @@ class WiseBoutiqueScraper extends Scraper
         $totalPageNumber = $this->paginationData[$this->scrapKey];
 
         if ($pageNumber > $totalPageNumber) {
-            $scrapEntry->is_scraped = 1;
+            $scrapEntry->pagination = $this->getPaginationData();
             $scrapEntry->save();
-            return;
         }
 
         $body = $this->getContent($scrapEntry->url . '?page=' . $pageNumber);
