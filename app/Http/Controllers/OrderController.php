@@ -20,6 +20,7 @@ use App\Purchase;
 use App\Customer;
 use App\ReplyCategory;
 use App\Refund;
+use App\CommunicationHistory;
 use Auth;
 use Cache;
 use Validator;
@@ -534,9 +535,16 @@ class OrderController extends Controller {
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
 
-			$order->update([
-				'auto_messaged' => 1,
-				'auto_messaged_date' => Carbon::now()
+			// $order->update([
+			// 	'auto_messaged' => 1,
+			// 	'auto_messaged_date' => Carbon::now()
+			// ]);
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'initial-advance',
+				'method'			=> 'whatsapp'
 			]);
 		} elseif ($order->order_status == 'Prepaid') {
 			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
@@ -546,9 +554,16 @@ class OrderController extends Controller {
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
-			$order->update([
-				'auto_messaged' => 1,
-				'auto_messaged_date' => Carbon::now()
+			// $order->update([
+			// 	'auto_messaged' => 1,
+			// 	'auto_messaged_date' => Carbon::now()
+			// ]);
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'online-confirmation',
+				'method'			=> 'whatsapp'
 			]);
 		} elseif ($order->order_status == 'Refund to be processed') {
 			$refund = Refund::where('order_id', $order->id)->first();
@@ -564,13 +579,21 @@ class OrderController extends Controller {
 			}
 		}
 
-		if ($order->auto_emailed == 0) {
+		// if ($order->auto_emailed == 0) {
+		if (!$order->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
 				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
 
-				$order->update([
-					'auto_emailed' => 1,
-					'auto_emailed_date' => Carbon::now()
+				// $order->update([
+				// 	'auto_emailed' => 1,
+				// 	'auto_emailed_date' => Carbon::now()
+				// ]);
+
+				CommunicationHistory::create([
+					'model_id'		=> $order->id,
+					'model_type'	=> Order::class,
+					'type'				=> 'offline-confirmation',
+					'method'			=> 'email'
 				]);
 			}
 		}
@@ -712,48 +735,61 @@ class OrderController extends Controller {
 		$this->calculateBalanceAmount($order);
 		$order = Order::find($order->id);
 
-		if ($order->auto_messaged == 0) {
-			if ($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
-				$product_names = '';
-				foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
-					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
-				}
-
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F')) . '.';
-				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
-				$requestData = new Request();
-				$requestData2 = new Request();
-				$requestData->setMethod('POST');
-				$requestData2->setMethod('POST');
-				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-				$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
-
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
-			} elseif ($order->order_status == 'Prepaid') {
-				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
-				$requestData = new Request();
-				$requestData->setMethod('POST');
-				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+		if (!$order->is_sent_initial_advance() && $order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
+			$product_names = '';
+			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 			}
 
-			if (($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') || $order->order_status == 'Prepaid') {
-				$order->update([
-					'auto_messaged' => 1,
-					'auto_messaged_date' => Carbon::now()
-				]);
-			}
+			$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F')) . '.';
+			$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
+			$requestData = new Request();
+			$requestData2 = new Request();
+			$requestData->setMethod('POST');
+			$requestData2->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'initial-advance',
+				'method'			=> 'whatsapp'
+			]);
+		} elseif (!$order->is_sent_online_confirmation() && $order->order_status == 'Prepaid') {
+			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'online-confirmation',
+				'method'			=> 'whatsapp'
+			]);
 		}
 
-		if ($order->auto_emailed == 0) {
+		// if ($order->auto_emailed == 0) {
+		if (!$offline->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
 				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
 
-				$order->update([
-					'auto_emailed' => 1,
-					'auto_emailed_date' => Carbon::now()
+				// $order->update([
+				// 	'auto_emailed' => 1,
+				// 	'auto_emailed_date' => Carbon::now()
+				// ]);
+
+				CommunicationHistory::create([
+					'model_id'		=> $order->id,
+					'model_type'	=> Order::class,
+					'type'				=> 'offline-confirmation',
+					'method'			=> 'email'
 				]);
 			}
 		}
@@ -801,13 +837,21 @@ class OrderController extends Controller {
 	{
 		$order = Order::find($id);
 
-		if ($order->auto_emailed == 0) {
+		if (true) {
+		// if ($order->auto_emailed == 0) {
 			if ($order->order_status == 'Advance received') {
 				Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
 
-				$order->update([
-					'auto_emailed' => 1,
-					'auto_emailed_date' => Carbon::now()
+				// $order->update([
+				// 	'auto_emailed' => 1,
+				// 	'auto_emailed_date' => Carbon::now()
+				// ]);
+
+				CommunicationHistory::create([
+					'model_id'		=> $order->id,
+					'model_type'	=> Order::class,
+					'type'				=> 'advance-receipt',
+					'method'			=> 'email'
 				]);
 			}
 		}
@@ -819,13 +863,21 @@ class OrderController extends Controller {
 	{
 		$order = Order::find($id);
 
-		if ($order->auto_emailed == 0) {
+		// if ($order->auto_emailed == 0) {
+		if (!$order->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
 				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
 
-				$order->update([
-					'auto_emailed' => 1,
-					'auto_emailed_date' => Carbon::now()
+				// $order->update([
+				// 	'auto_emailed' => 1,
+				// 	'auto_emailed_date' => Carbon::now()
+				// ]);
+
+				CommunicationHistory::create([
+					'model_id'		=> $order->id,
+					'model_type'	=> Order::class,
+					'type'				=> 'offline-confirmation',
+					'method'			=> 'email'
 				]);
 			}
 		}
@@ -905,39 +957,45 @@ class OrderController extends Controller {
 		$order->order_status = $request->status;
 		$order->save();
 
-		if ($order->auto_messaged == 0) {
-			if ($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
-				$product_names = '';
-				foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
-					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
-				}
-
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F')) . '.';
-				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
-				$requestData = new Request();
-				$requestData2 = new Request();
-				$requestData->setMethod('POST');
-				$requestData2->setMethod('POST');
-				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-				$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
-
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
-			} elseif ($order->order_status == 'Prepaid') {
-				$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
-				$requestData = new Request();
-				$requestData->setMethod('POST');
-				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+		// if ($order->auto_messaged == 0) {
+		if (!$order->is_sent_initial_advance() && $order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
+			$product_names = '';
+			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 			}
 
-			if (($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') || $order->order_status == 'Prepaid') {
-				$order->update([
-					'auto_messaged' => 1,
-					'auto_messaged_date' => Carbon::now()
-				]);
-			}
+			$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F')) . '.';
+			$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
+			$requestData = new Request();
+			$requestData2 = new Request();
+			$requestData->setMethod('POST');
+			$requestData2->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'initial-advance',
+				'method'			=> 'whatsapp'
+			]);
+		} elseif (!$order->is_sent_online_confirmation() && $order->order_status == 'Prepaid') {
+			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'online-confirmation',
+				'method'			=> 'whatsapp'
+			]);
 		}
 
 		if ($order->order_status == 'Refund to be processed') {
@@ -959,19 +1017,35 @@ class OrderController extends Controller {
 	{
 		$order = Order::find($id);
 
-		$product_names = '';
-		foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
-			$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+		if (!$order->is_sent_refund_initiated()) {
+			$product_names = '';
+			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+			}
+
+			$auto_message = "Greetings from Solo Luxury Ref: order number #$order->order_id for $product_names we have initiated the refund process you should receive the refund within 7-10 days by the method that you made the payment.";
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'refund-initiated',
+				'method'			=> 'whatsapp'
+			]);
+
+			Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'refund-initiated',
+				'method'			=> 'email'
+			]);
 		}
-
-		$auto_message = "Greetings from Solo Luxury Ref: order number #$order->order_id for $product_names we have initiated the refund process you should receive the refund within 7-10 days by the method that you made the payment.";
-		$requestData = new Request();
-		$requestData->setMethod('POST');
-		$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-
-		app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-
-		Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
 
 		return response('success');
 	}

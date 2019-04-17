@@ -91,6 +91,34 @@ class Order extends Model {
 		return $this->hasOne('App\Waybill');
 	}
 
+	public function is_sent_initial_advance()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'initial-advance')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
+	public function is_sent_online_confirmation()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'online-confirmation')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
+	public function is_sent_refund_initiated()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'refund-initiated')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
+	public function is_sent_offline_confirmation()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'offline-confirmation')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
 	public function getCommunicationAttribute()
 	{
 		$message = $this->messages();

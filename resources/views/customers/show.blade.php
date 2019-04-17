@@ -1230,15 +1230,17 @@
                           </div>
                         @endif
 
-                        @if ($order->order_status == 'Advance received' && $order->auto_emailed == 0)
+                        @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
                           <div class="form-group">
                             <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
                           </div>
-                        @elseif ($order->auto_emailed == 1)
-                          Advance Receipt was emailed
+                        @elseif ($order->is_sent_initial_advance())
+                          <div class="form-group">
+                            Advance Receipt was emailed
+                          </div>
                         @endif
 
-                        @if ($order->order_status == 'Advance received' && $order->auto_emailed == 0)
+                        @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
                           <div class="form-group">
                             <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
                           </div>
@@ -1249,17 +1251,31 @@
                           <a href="{{ route('settings.index') }}" class="btn-link" target="_blank">Edit Consignor Details</a>
                         </div>
 
-                        <div class="form-group">
-                          <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
-                          <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
-                        </div>
+                        @if (!$order->is_sent_refund_initiated())
+                          <div class="form-group">
+                            <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
+                            <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
+                          </div>
+                        @else
+                          <div class="form-group">
+                            Refund Initiated Email was Sent
+                          </div>
+                        @endif
 
-                        @if ($order->auto_emailed == 0)
+                        @if ($order->order_type == 'offline' && !$order->is_sent_offline_confirmation())
                           <div class="form-group">
                             <a href="{{ route('order.send.confirmation.email', $order->id) }}" class="btn btn-secondary">Send Confirmation Email</a>
                           </div>
-                        @else
-                          Email sent
+                        @elseif ($order->is_sent_offline_confirmation())
+                          <div class="form-group">
+                            Offline Confirmation Email was sent
+                          </div>
+                        @endif
+
+                        @if ($order->is_sent_online_confirmation())
+                          <div class="form-group">
+                            Online Confirmation Email was sent
+                          </div>
                         @endif
 
                         {{-- <div class="form-group">
