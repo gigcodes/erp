@@ -86,11 +86,19 @@ class ProductSelectionController extends Controller
 		$productselection->supplier = $request->input('supplier');
 		$productselection->supplier_link = $request->input('supplier_link');
 		$productselection->location = $request->input('location');
+		$productselection->brand = $request->input('brand');
 //		$productselection->description_link = $request->input('description_link');
 //		$productselection->image = Image::newImage();
 		$productselection->last_selector = Auth::id();
 
 		$productselection->stage = $stage->get('Selection');
+
+		if(!empty($productselection->brand)) {
+			$productselection->price_inr     = $this->euroToInr($productselection->price, $productselection->brand);
+			$productselection->price_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
+		} else {
+			$productselection->price_special = $request->price_special;
+		}
 
 		$productselection->save();
 
@@ -133,8 +141,16 @@ class ProductSelectionController extends Controller
 		$productselection->supplier = $request->input('supplier');
 		$productselection->supplier_link = $request->input('supplier_link');
 		$productselection->location = $request->input('location');
+		$productselection->brand = $request->input('brand');
 //		$productselection->description_link = $request->input('description_link');
 		$productselection->last_selector = Auth::id();
+
+		if(!empty($productselection->brand)) {
+			$productselection->price_inr     = $this->euroToInr($productselection->price, $productselection->brand);
+			$productselection->price_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
+		} else {
+			$productselection->price_special = $request->price_special;
+		}
 
 		if ($request->oldImage > 0) {
 			self::replaceImage($request,$productselection);
@@ -172,5 +188,27 @@ class ProductSelectionController extends Controller
 			}
 		}
 
+	}
+
+	public function euroToInr($price,$brand){
+
+		$euro_to_inr =  BrandController::getEuroToInr($brand);
+
+		if(!empty($euro_to_inr))
+			$inr = $euro_to_inr*$price;
+		else
+			$inr = Setting::get('euro_to_inr')*$price;
+
+		return round($inr,-3);
+	}
+
+	public function calculateSpecialDiscount($price,$brand) {
+
+//		$dis_per = Setting::get('special_price_discount');
+		$dis_per = BrandController::getDeductionPercentage($brand);
+
+		$dis_price = $price - ($price * $dis_per)/100;
+
+		return round($dis_price,-3);
 	}
 }
