@@ -122,7 +122,7 @@ class ScrapController extends Controller
 
       $data = [];
 
-      $data['link_entries'] = ScrapCounts::orderBy('created_at', 'DESC')->get();
+      $link_entries = ScrapCounts::orderBy('created_at', 'DESC')->get();
 
       foreach ($links_count as $website => $dates) {
         if ($website == 'GNB') {
@@ -175,7 +175,8 @@ class ScrapController extends Controller
   		// $data['scraped_double_product_count'] = Product::where('supplier', 'Double F')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
 
       return view('scrap.activity', [
-        'data'  => $data
+        'data'  => $data,
+        'link_entries'  => $link_entries
       ]);
     }
 
