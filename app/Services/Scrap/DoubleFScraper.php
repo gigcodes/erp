@@ -61,7 +61,7 @@ class DoubleFScraper extends Scraper
     private function getProducts(ScrapEntries $scrapEntriy ): void
     {
         $date = date('Y-m-d');
-        $allLinks = ScrapCounts::where('date', $date)->where('website', 'Wiseboutique')->first();
+        $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'Wiseboutique')->first();
         if (!$allLinks) {
             $allLinks = new ScrapCounts();
             $allLinks->scraped_date = $date;
