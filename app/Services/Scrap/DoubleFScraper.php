@@ -29,10 +29,6 @@ class DoubleFScraper extends Scraper
             $scrapEntry->save();
         }
 
-        if ($scrapEntry->is_scraped) {
-            return;
-        }
-
         if ($hasProduct) {
             $this->getProducts($scrapEntry);
             return;
@@ -111,10 +107,10 @@ class DoubleFScraper extends Scraper
 
         if ($pageNumber >= $totalPageNumber) {
             $scrapEntriy->pagination = [
-                'current_page_number' => $totalPageNumber,
+                'current_page_number' => 1,
                 'total_pages' => $totalPageNumber
             ];
-            $scrapEntriy->is_scraped = 1;
+            $scrapEntriy->is_scraped = 0;
             $scrapEntriy->save();
         }
 
@@ -159,7 +155,7 @@ class DoubleFScraper extends Scraper
         $maxPageNumber = $text[count($text)-1];
 
         $options = [
-            'current_page_number' => 1,
+            'current_page_number' => 0,
             'total_pages' => $maxPageNumber
         ];
 
