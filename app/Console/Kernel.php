@@ -122,7 +122,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:auto-reminder')->hourly();
 
         $schedule->command('gebnegozionline:get-products-list')
-            ->hourly()
+            ->everyFiveMinutes()
             ->withoutOverlapping()
         ;
 
@@ -147,7 +147,7 @@ class Kernel extends ConsoleKernel
         ;
 
         $schedule->command('scrap:doublef-list')
-            ->everyFifteenMinutes()
+            ->everyFiveMinutes()
             ->withoutOverlapping()
         ;
 
@@ -157,12 +157,12 @@ class Kernel extends ConsoleKernel
         ;
 
         $schedule->command('scrap:wiseboutique-list')
-            ->hourly()
+            ->everyFiveMinutes()
             ->withoutOverlapping()
         ;
 
         $schedule->command('scrap:tory-list')
-            ->hourly()
+            ->everyFiveMinutes()
             ->withoutOverlapping()
         ;
 
