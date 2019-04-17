@@ -43,6 +43,10 @@ class ToryDetailsScraper extends Scraper
         return false;
     }
 
+    /**
+     * @param ScrapEntries $scrapEntry
+     * @throws \Exception
+     */
     private function getProductDetails(ScrapEntries $scrapEntry): void
     {
         $content = $this->getContent($scrapEntry->url);
@@ -66,6 +70,15 @@ class ToryDetailsScraper extends Scraper
         }
 
         $brandId = $this->getBrandId($brand);
+
+        $color = $properties['color'] ?? '';
+        $color = str_replace(' ', '', $color);
+        $color = str_replace('/', '', $color);
+        $color = str_replace('\\', '', $color);
+
+        $sku .= $color;
+
+
 
         if (!$brandId) {
             $scrapEntry->delete();
@@ -199,6 +212,11 @@ class ToryDetailsScraper extends Scraper
     private function getProperties(HtmlPageCrawler $c) {
         $properties = [];
         $propertiesRaw = $c->filter('div#longDescription ul li')->getIterator();
+        $colorData = $c->filter('div#pdpATCDivsubProductDiv div.variation-attributes div.swatches div.swatches__disp-name')->getInnerHtml();
+
+        if ($colorData) {
+            $properties['color'] = trim($colorData);
+        }
 
         foreach ($propertiesRaw as $p)
         {
