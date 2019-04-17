@@ -76,15 +76,25 @@
             <tr>
               <th width="10%">Date</th>
               <th width="10%">Category</th>
-              <th width="60%">Task</th>
+              <th width="50%">Task</th>
               <th width="10%">Assigned To</th>
               <th width="10%">Status</th>
+              <th width="10%">Action</th>
             </tr>
             @foreach ($pending_tasks as $task)
               <tr>
                 <td>{{ \Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                 <td>{{ $categories[$task->category] ?? '' }}</td>
-                <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
+                <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">
+                  <span class="task-container">
+                    {{ $task['task_subject'] ?? 'Task Details' }}
+                  </span>
+                  <br>
+
+                  <span class="text-danger">
+                    {{ $task->remarks()->first()->remark ?? '' }}
+                  </span>
+                </td>
                 <td>{{ $users[$task->assign_to] ?? 'Unknown User' }}</td>
                 <td>
                   @if ($task->is_completed)
@@ -92,6 +102,11 @@
                   @else
                     <button type="button" class="btn btn-xs btn-secondary task-complete" data-id="{{ $task->id }}">Complete</button>
                   @endif
+                </td>
+                <td>
+                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $task->id }}">Add</a>
+                  <span> | </span>
+                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
                 </td>
               </tr>
             @endforeach
@@ -107,15 +122,25 @@
             <tr>
               <th width="10%">Date</th>
               <th width="10%">Category</th>
-              <th width="60%">Task</th>
+              <th width="50%">Task</th>
               <th width="10%">Assigned To</th>
               <th width="10%">Status</th>
+              <th width="10%">Action</th>
             </tr>
             @foreach ($completed_tasks as $task)
               <tr>
                 <td>{{ \Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                 <td>{{ $categories[$task->category] ?? '' }}</td>
-                <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
+                <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">
+                  <span class="task-container">
+                    {{ $task['task_subject'] ?? 'Task Details' }}
+                  </span>
+                  <br>
+
+                  <span class="text-danger">
+                    {{ $task->remarks()->first()->remark ?? '' }}
+                  </span>
+                </td>
                 <td>{{ $users[$task->assign_to] ?? 'Unknown User' }}</td>
                 <td>
                   @if ($task->is_completed)
@@ -123,6 +148,11 @@
                   @else
                     <button type="button" class="btn btn-xs btn-secondary task-complete" data-id="{{ $task->id }}">Complete</button>
                   @endif
+                </td>
+                <td>
+                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $task->id }}">Add</a>
+                  <span> | </span>
+                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
                 </td>
               </tr>
             @endforeach
@@ -183,61 +213,6 @@
       </div>
     </div>
 
-    <div id="instructionEditModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Edit Instruction Timing</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-
-          <form action="" id="instructionEditForm" method="POST">
-            @csrf
-            @method('PUT')
-
-            <div class="modal-body">
-              <div class="form-group">
-                <strong>Start Time:</strong>
-                <div class='input-group date instruction-start-time'>
-                  <input type='text' class="form-control" name="start_time" id="instruction_start_time" value="{{ date('Y-m-d H:i') }}" />
-
-                  <span class="input-group-addon">
-                      <span class="glyphicon glyphicon-calendar"></span>
-                  </span>
-                </div>
-
-                @if ($errors->has('start_time'))
-                <div class="alert alert-danger">{{$errors->first('start_time')}}</div>
-                @endif
-              </div>
-
-              <div class="form-group">
-                <strong>End Time:</strong>
-                <div class='input-group date instruction-end-time'>
-                  <input type='text' class="form-control" name="end_time" id="instruction_end_time" value="{{ date('Y-m-d H:i') }}" />
-
-                  <span class="input-group-addon">
-                      <span class="glyphicon glyphicon-calendar"></span>
-                  </span>
-                </div>
-
-                @if ($errors->has('end_time'))
-                <div class="alert alert-danger">{{$errors->first('end_time')}}</div>
-                @endif
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary">Update</button>
-            </div>
-          </form>
-        </div>
-
-      </div>
-    </div>
-
 @endsection
 
 @section('scripts')
@@ -246,10 +221,10 @@
   <script type="text/javascript">
     $(document).on('click', '.task-subject', function() {
       if ($(this).data('switch') == 0) {
-        $(this).text($(this).data('details'));
+        $(this).find('.task-container').text($(this).data('details'));
         $(this).data('switch', 1);
       } else {
-        $(this).text($(this).data('subject'));
+        $(this).find('.task-container').text($(this).data('subject'));
         $(this).data('switch', 0);
       }
     });
@@ -285,60 +260,6 @@
        });
     });
 
-    $(document).on('click', '.complete-call', function(e) {
-      e.preventDefault();
-
-      var thiss = $(this);
-      var token = "{{ csrf_token() }}";
-      var url = "{{ route('instruction.complete') }}";
-      var id = $(this).data('id');
-
-      $.ajax({
-        type: 'POST',
-        url: url,
-        data: {
-          _token: token,
-          id: id
-        },
-        beforeSend: function() {
-          $(thiss).text('Loading');
-        }
-      }).done( function(response) {
-        $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
-        $(thiss).remove();
-        window.location.href = response.url;
-      }).fail(function(errObj) {
-        console.log(errObj);
-        alert("Could not mark as completed");
-      });
-    });
-
-    $(document).on('click', '.pending-call', function(e) {
-      e.preventDefault();
-
-      var thiss = $(this);
-      var token = "{{ csrf_token() }}";
-      var url = "{{ route('instruction.pending') }}";
-      var id = $(this).data('id');
-
-      $.ajax({
-        type: 'POST',
-        url: url,
-        data: {
-          _token: token,
-          id: id
-        },
-        beforeSend: function() {
-          $(thiss).text('Loading');
-        }
-      }).done( function(response) {
-        $(thiss).parent().html('Pending');
-        $(thiss).remove();
-      }).fail(function(errObj) {
-        console.log(errObj);
-        alert("Could not mark as completed");
-      });
-    });
 
     $('.add-task').on('click', function(e) {
       e.preventDefault();
@@ -359,7 +280,7 @@
           data: {
             id:id,
             remark:remark,
-            module_type: 'instruction'
+            module_type: 'task'
           },
       }).done(response => {
           alert('Remark Added Success!')
@@ -381,7 +302,7 @@
             url: '{{ route('task.gettaskremark') }}',
             data: {
               id:id,
-              module_type: "instruction"
+              module_type: "task"
             },
         }).done(response => {
             var html='';
