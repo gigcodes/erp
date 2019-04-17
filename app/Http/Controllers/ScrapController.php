@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Brand;
 use App\Image;
 use App\Imports\ProductsImport;
+use App\ScrapCounts;
 use App\ScrapedProducts;
 use App\ScrapActivity;
 use App\Services\Scrap\GoogleImageScraper;
@@ -114,6 +115,8 @@ class ScrapController extends Controller
       }]);
 
       $data = [];
+
+      $data['link_entries'] = ScrapCounts::orderBy('created_at', 'DESC')->get();
 
       foreach ($scraped_count as $website => $dates) {
         foreach ($dates as $date => $item) {
