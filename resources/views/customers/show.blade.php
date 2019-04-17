@@ -1108,7 +1108,7 @@
                         </div>
 
                         <div class="form-group">
-                            <strong> Payment Mode :</strong>
+                            <strong>Payment Mode :</strong>
                       <?php
                       $paymentModes = new \App\ReadOnly\PaymentModes();
 
@@ -1230,15 +1230,17 @@
                           </div>
                         @endif
 
-                        @if ($order->order_status == 'Advance received' && $order->auto_emailed == 0)
+                        @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
                           <div class="form-group">
                             <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
                           </div>
-                        @elseif ($order->auto_emailed == 1)
-                          Advance Receipt was emailed
+                        @elseif ($order->is_sent_initial_advance())
+                          <div class="form-group">
+                            Advance Receipt was emailed
+                          </div>
                         @endif
 
-                        @if ($order->order_status == 'Advance received' && $order->auto_emailed == 0)
+                        @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
                           <div class="form-group">
                             <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
                           </div>
@@ -1249,17 +1251,31 @@
                           <a href="{{ route('settings.index') }}" class="btn-link" target="_blank">Edit Consignor Details</a>
                         </div>
 
-                        <div class="form-group">
-                          <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
-                          <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
-                        </div>
+                        @if (!$order->is_sent_refund_initiated())
+                          <div class="form-group">
+                            <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
+                            <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
+                          </div>
+                        @else
+                          <div class="form-group">
+                            Refund Initiated Email was Sent
+                          </div>
+                        @endif
 
-                        @if ($order->auto_emailed == 0)
+                        @if ($order->order_type == 'offline' && !$order->is_sent_offline_confirmation())
                           <div class="form-group">
                             <a href="{{ route('order.send.confirmation.email', $order->id) }}" class="btn btn-secondary">Send Confirmation Email</a>
                           </div>
-                        @else
-                          Email sent
+                        @elseif ($order->is_sent_offline_confirmation())
+                          <div class="form-group">
+                            Offline Confirmation Email was sent
+                          </div>
+                        @endif
+
+                        @if ($order->is_sent_online_confirmation())
+                          <div class="form-group">
+                            Online Confirmation Email was sent
+                          </div>
                         @endif
 
                         {{-- <div class="form-group">
@@ -2096,6 +2112,92 @@
     $('.dropify').dropify();
   })
 
+  var selected_product_images = [];
+
+  $(document).on('click', '.select-product-image', function() {
+    var checked = $(this).prop('checked');
+    var id = $(this).data('id');
+
+    if (checked) {
+      selected_product_images.push(id);
+    } else {
+      var index = selected_product_images.indexOf(id);
+
+      selected_product_images.splice(index, 1);
+    }
+
+    console.log(selected_product_images);
+  });
+
+  $(document).on('click', '.create-product-lead', function(e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+
+    if (selected_product_images.length > 0) {
+      var customer_id = {{ $customer->id }};
+      var created_at = moment().format('YYYY-MM-DD HH:mm');
+
+      $.ajax({
+        type: 'POST',
+        url: "{{ route('leads.store') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          customer_id: customer_id,
+          rating: 1,
+          status: 1,
+          assigned_user: "{{ Auth::id() }}",
+          selected_product: selected_product_images,
+          created_at: created_at
+        },
+        beforeSend: function() {
+          $(thiss).text('Creating...');
+        },
+        success: function() {
+          location.reload();
+        }
+      }).fail(function(error) {
+        console.log(error);
+        alert('There was an error creating a lead');
+      });
+    } else {
+      alert('Please select at least 1 product first');
+    }
+  });
+
+  $(document).on('click', '.create-product-order', function(e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+
+    if (selected_product_images.length > 0) {
+      var customer_id = {{ $customer->id }};
+
+      $.ajax({
+        type: 'POST',
+        url: "{{ route('order.store') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          customer_id: customer_id,
+          order_type: "offline",
+          convert_order: 'convert_order',
+          selected_product: selected_product_images
+        },
+        beforeSend: function() {
+          $(thiss).text('Creating...');
+        },
+        success: function() {
+          location.reload();
+        }
+      }).fail(function(error) {
+        console.log(error);
+        alert('There was an error creating a order');
+      });
+    } else {
+      alert('Please select at least 1 product first');
+    }
+  });
+
   $(document).on('click', '.create-magento-product', function(e) {
     e.preventDefault();
 
@@ -2505,11 +2607,17 @@
                }
 
                var images = '';
+               var has_product_image = false;
+
                if (message.images !== null) {
                  message.images.forEach(function (image) {
                    images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
                    images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image.key + '">x</span></div>';
-                   images += image.product_id !== '' ? '</a>' : '';
+                   images += image.product_id !== '' ? '<input type="checkbox" name="product" class="d-block mx-auto select-product-image" data-id="' + image.product_id + '" /></a>' : '';
+
+                   if (image.product_id !== '') {
+                     has_product_image = true;
+                   }
                  });
                  images += '<br>';
                }
@@ -2565,7 +2673,7 @@
                  } else {
                    row.prependTo(container);
                  }
-               } else {
+               } else { // APPROVAL MESSAGE
                  var row = $("<div class='talk-bubble' data-messageid='" + message.id + "'></div>");
                  var body = $("<span id='message_body_" + message.id + "'></span>");
                  var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.body + '</textarea>');
@@ -2578,6 +2686,11 @@
                  if (message.status == 1 && (is_admin == true || is_hod_crm == true)) {
                    meta += '<a href data-url="/message/updatestatus?status=2&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status wa_send_message" data-messageid="' + message.id + '">Approve</a>';
                    meta += ' <a href="#" style="font-size: 9px" class="edit-message" data-messageid="' + message.id + '">Edit</a>';
+                 }
+
+                 if (has_product_image) {
+                   meta += '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>';
+                   meta += '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order">+ Order</a>';
                  }
 
                  meta += "</em>";
@@ -2607,7 +2720,7 @@
                    row.prependTo(container);
                  }
                }
-             } else {
+             } else { // CHAT MESSAGES
                var row = $("<div class='talk-bubble'></div>");
                var body = $("<span id='message_body_" + message.id + "'></span>");
                var text = $("<div class='talktext'></div>");
@@ -2652,12 +2765,18 @@
                    }
                }
 
+               var has_product_image = false;
+
                if (message.images) {
                  var images = '';
                  message.images.forEach(function (image) {
                    images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
                    images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
-                   images += image.product_id !== '' ? '</a>' : '';
+                   images += image.product_id !== '' ? '<input type="checkbox" name="product" class="d-block mx-auto select-product-image" data-id="' + image.product_id + '" /></a>' : '';
+
+                   if (image.product_id !== '') {
+                     has_product_image = true;
+                   }
                  });
                  images += '<br>';
                  $(images).appendTo(text);
@@ -2693,7 +2812,18 @@
                }
 
                var forward = $('<button class="btn btn-xs btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '">Forward >></button>');
+
+               if (has_product_image) {
+                 var create_lead = $('<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>');
+                 var create_order = $('<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order">+ Order</a>');
+               }
+
                forward.appendTo(meta);
+
+               if (has_product_image) {
+                 create_lead.appendTo(meta);
+                 create_order.appendTo(meta);
+               }
 
                text.appendTo( row );
 

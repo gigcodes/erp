@@ -32,7 +32,7 @@ class TaskModuleController extends Controller {
 
 		$data['task'] = [];
 
-		$data['task']['pending']      = Task::where( 'is_statutory', '=', 0 )
+		$data['task']['pending']      = Task::with('remarks')->where( 'is_statutory', '=', 0 )
 		                               ->where( 'is_completed', '=', null )
 										->where( function ($query ) use ($userid) {
 											return $query->orWhere( 'assign_from', '=', $userid )

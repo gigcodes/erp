@@ -338,7 +338,7 @@
                                     <td>
                                         <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
                                         <span> | </span>
-                                        <a href id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
+                                        <a href id="view-remark-list-btn" class="view-remark  {{ $task['remarks'] ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
                                       <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
                                     </td>
                                 </tr>
@@ -610,7 +610,7 @@
                   'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
               },
               url: '{{ route('task.addRemark') }}',
-              data: {id:id,remark:remark},
+              data: {id:id,remark:remark,module_type: "task"},
           }).done(response => {
               alert('Remark Added Success!')
               // $('#add-new-remark').modal('hide');
@@ -696,7 +696,7 @@
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
                 url: '{{ route('task.gettaskremark') }}',
-                data: {id:taskId},
+                data: {id:taskId,module_type:"task"},
             }).done(response => {
                 console.log(response);
 

@@ -31,6 +31,8 @@
       <p>Size : {{ $product->size}}</p>
       <p>Price : {{ $product->price_special }}</p>
 
+      <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
+
       @if ($type == 'private_viewing')
       <a href="#" class="btn btn-secondary select-product" data-id="{{ $product->id }}" data-attached="0">Select</a>
       @endif

@@ -54,6 +54,32 @@
 
             <div class="col-xs-12 col-sm-12 col-md-12">
               <div class="form-group">
+                  <strong> Brand :</strong>
+
+                <?php
+                $brands = \App\Brand::getAll();
+                echo Form::select('brand',$brands,  (old('brand') ? old('brand') : $productselection->brand), ['placeholder' => 'Select a brand','class' => 'form-control']);?>
+                  {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
+                  @if ($errors->has('brand'))
+                      <div class="alert alert-danger">{{$errors->first('brand')}}</div>
+                  @endif
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="form-group">
+                <strong>Special Price (INR):</strong>
+
+                <input type="number" class="form-control" name="price_special" value="{{ old('price_special') ? old('price_special') : $productselection->price_special }}">
+
+                @if ($errors->has('price_special'))
+                    <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
+                @endif
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="form-group">
                 <strong>Supplier</strong>
 
                 @php $supplier_list = (new \App\ReadOnly\SupplierList)->all(); @endphp
