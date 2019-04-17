@@ -2,6 +2,7 @@
 
 namespace App\Services\Scrap;
 
+use App\ScrapCounts;
 use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
@@ -38,11 +39,22 @@ class ToryScraper extends Scraper
 
     private function getProducts(ScrapEntries $scrapEntriy ): void
     {
+
+        $date = date('Y-m-d');
+        $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'Tory')->first();
+        if (!$allLinks) {
+            $allLinks = new ScrapCounts();
+            $allLinks->scraped_date = $date;
+            $allLinks->website = 'GNB';
+            $allLinks->save();
+        }
         $body = $this->getContent($scrapEntriy->url);
         $c = new HtmlPageCrawler($body);
 
         $products = $c->filter('a.product-tile__name');
         foreach ($products as $product) {
+            $allLinks->link_count = $allLinks->link_count + 1;
+            $allLinks->save();
             $title = $this->getTitleFromProduct($product);
             $link = $this->getLinkFromProduct($product);
 
