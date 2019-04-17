@@ -92,4 +92,23 @@
 
     {!! $data->appends(Request::except('page'))->links() !!}
 
+    <hr>
+
+    <h1>Monitor Lnks</h1>
+
+    <table class="table table-striped">
+        <tr>
+            <th>Date</th>
+            <th>Scanned Link</th>
+            <th>Website</th>
+        </tr>
+        @foreach($link_entries as $entry)
+            <tr>
+                <td>{{ $entry->scraped_date }}</td>
+                <td>{{ $entry->link_count }}</td>
+                <td>{{ $entry->website }}</td>
+            </tr>
+        @endforeach
+    </table>
+
 @endsection

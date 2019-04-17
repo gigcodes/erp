@@ -36,7 +36,7 @@ class UpdateInventory extends Command
      *
      * @param WiseBoutiqueProductDetailsScraper $boutiqueProductDetailsScraper
      * @param DoubleFProductDetailsScraper $doubleFProductDetailsScraper
-     * @param GetGebnegozionlineProductDetailsWithEmulator $getGebnegozionlineProductDetailsWithEmulatorm
+     * @param GetGebnegozionlineProductDetailsWithEmulator $getGebnegozionlineProductDetailsWithEmulator
      * @param ToryDetailsScraper $toryDetailsScraper
      */
     public function __construct(WiseBoutiqueProductDetailsScraper $boutiqueProductDetailsScraper,
@@ -58,13 +58,13 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
+//        $scraped_products = ScrapedProducts::where('website', '==', 'G&B')->get();
         $scraped_products = ScrapedProducts::where('website', '!=', 'EXCEL_IMPORT_TYPE_1')->get();
 
         foreach ($scraped_products as $scraped_product) {
             $status = false;
             if ($scraped_product->website == 'G&B') {
-                continue;
-//                $status = $this->GNBCommand->doesProductExist($scraped_product->url);
+                $status = $this->GNBCommand->doesProductExist($scraped_product->url);
                 $params = [
                   'website'             => 'G&B',
                   'scraped_product_id'  => $scraped_product->id,

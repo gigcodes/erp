@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Brand;
 use App\Image;
 use App\Imports\ProductsImport;
+use App\ScrapCounts;
 use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\ScrapActivity;
@@ -121,11 +122,13 @@ class ScrapController extends Controller
 
       $data = [];
 
+      $data['link_entries'] = ScrapCounts::orderBy('created_at', 'DESC')->get();
+
       foreach ($links_count as $website => $dates) {
         if ($website == 'GNB') {
           $website = 'G&B';
         }
-        
+
         foreach ($dates as $date => $item) {
           $data[$date][$website]['links'] = count($item);
         }
