@@ -161,6 +161,16 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
         ;
 
+        $schedule->command('scrap:tory-list')
+            ->hourly()
+            ->withoutOverlapping()
+        ;
+
+        $schedule->command('tory:get-product-details')
+            ->hourly()
+            ->withoutOverlapping()
+        ;
+
         $schedule->command('image:create-schedule')->dailyAt(14);
         $schedule->command('image:create-schedule')->dailyAt(17);
         $schedule->command('image:create-schedule')->dailyAt(20);
