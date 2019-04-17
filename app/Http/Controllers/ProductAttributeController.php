@@ -150,9 +150,9 @@ class ProductAttributeController extends Controller
 
 		$validations  = [
 			'sku'   => 'required_without:dnf|unique:products,sku,'.$productattribute->id,
-			'name'   => 'required_without:dnf',
-			'short_description' => 'required_without:dnf',
-			'composition' => 'required_without:dnf',
+			// 'name'   => 'required_without:dnf',
+			// 'short_description' => 'required_without:dnf',
+			// 'composition' => 'required_without:dnf',
 		];
 
 		if($request->input('measurement_size_type') == 'size')
