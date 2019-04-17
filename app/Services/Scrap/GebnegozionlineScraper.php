@@ -2,6 +2,7 @@
 
 namespace App\Services\Scrap;
 
+use App\ScrapCounts;
 use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
@@ -58,6 +59,14 @@ class GebnegozionlineScraper extends Scraper
 
     private function getProducts(ScrapEntries $scrapEntriy ): void
     {
+        $date = date('Y-m-d');
+        $allLinks = ScrapCounts::where('date', $date)->where('website', 'Wiseboutique')->first();
+        if (!$allLinks) {
+            $allLinks = new ScrapCounts();
+            $allLinks->scraped_date = $date;
+            $allLinks->website = 'GNB';
+            $allLinks->save();
+        }
 
         $paginationData = $scrapEntriy->pagination;
         if (!$paginationData)
@@ -81,6 +90,8 @@ class GebnegozionlineScraper extends Scraper
         $products = $c->filter('.product-item')->getIterator();
 
         foreach ($products as $product) {
+            $allLinks->link_count = $allLinks->link_count + 1;
+            $allLinks->save();
             $images = $this->getImagesFromProduct($product);
             $title = $this->getTitleFromProduct($product);
             $link = $this->getLinkFromProduct($product);

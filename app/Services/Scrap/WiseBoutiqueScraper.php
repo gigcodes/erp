@@ -2,6 +2,7 @@
 
 namespace App\Services\Scrap;
 
+use App\ScrapCounts;
 use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
@@ -51,6 +52,15 @@ class WiseBoutiqueScraper extends Scraper
     private function getProducts(ScrapEntries $scrapEntry ): void
     {
 
+        $date = date('Y-m-d');
+        $allLinks = ScrapCounts::where('date', $date)->where('website', 'Wiseboutique')->first();
+        if (!$allLinks) {
+            $allLinks = new ScrapCounts();
+            $allLinks->scraped_date = $date;
+            $allLinks->website = 'Wiseboutique';
+            $allLinks->save();
+        }
+
         $paginationData = $scrapEntry->pagination;
         if (!$paginationData)
         {
@@ -72,6 +82,8 @@ class WiseBoutiqueScraper extends Scraper
         $products = $c->filter('.contfoto .cotienifoto a:first-child')->getIterator();
 
         foreach ($products as $product) {
+            $allLinks->link_count = $allLinks->link_count + 1;
+            $allLinks->save();
             $title = $product->getAttribute('title');
             $link = self::URL['HOMEPAGE'] . '/' . $product->getAttribute('href');
 
@@ -85,6 +97,7 @@ class WiseBoutiqueScraper extends Scraper
             ;
 
             if ($entry) {
+
                 continue;
             }
 
