@@ -124,6 +124,20 @@ class ProductController extends Controller {
 		return view( 'partials.show', $data );
 	}
 
+	public function bulkUpdate(Request $request)
+	{
+		$selected_products = json_decode($request->selected_products, true);
+		$category = $request->category[0];
+
+		foreach ($selected_products as $id) {
+			$product = Product::find($id);
+			$product->category = $category;
+			$product->save();
+		}
+
+		return redirect()->back()->withSuccess('You have successfully bulk updated products!');
+	}
+
 	public function archive($id) {
 		$product = Product::find($id);
 		$product->delete();
