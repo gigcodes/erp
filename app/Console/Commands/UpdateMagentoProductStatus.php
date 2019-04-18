@@ -68,9 +68,7 @@ class UpdateMagentoProductStatus extends Command
           $product->isFinal = 0;
 
           dump("$key Does not Exist");
-        }
-
-        if (isset($magento_product)) {
+        } else {
           $product->isUploaded = 1;
 
           $visibility = $magento_product['visibility'];
@@ -80,7 +78,7 @@ class UpdateMagentoProductStatus extends Command
             $product->isFinal = 0;
 
             dump("$key Not Visible");
-          } else {
+          } elseif ($visibility == 2 || $visibility == 3 || $visibility == 4) {
             $product->isFinal = 1;
 
             dump("$key Visible");
