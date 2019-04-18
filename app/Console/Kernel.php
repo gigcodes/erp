@@ -127,7 +127,7 @@ class Kernel extends ConsoleKernel
         ;
 
         $schedule->command('gebnegozionline:get-products-detail')
-            ->hourly()
+            ->everyFiveMinutes()
             ->withoutOverlapping()
         ;
 
