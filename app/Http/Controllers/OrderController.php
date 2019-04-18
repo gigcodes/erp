@@ -966,8 +966,6 @@ class OrderController extends Controller {
 
 	public function sendSuggestion(Request $request, $id)
 	{
-		// dd($request->all());
-
 		$params = [
 			'number'  => NULL,
 			'status'  => 1, // message status for auto messaging
@@ -979,43 +977,9 @@ class OrderController extends Controller {
 			$query;
 		}])->where('id', $id)->first();
 
-		// dd($order);
-
-		// $customers_orders = Customer::with(['Orders' => function ($query) {
-		// 	$query->with(['Order_Product' => function ($order_product_query) {
-		// 		$order_product_query->with(['Product' => function ($product_query) {
-		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
-		// 		}])->whereHas('Product', function ($product_query) {
-		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
-		// 		});
-		// 	}])->whereHas('Order_Product', function ($order_product_query) {
-		// 		$order_product_query->with(['Product' => function ($product_query) {
-		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
-		// 		}])->whereHas('Product', function ($product_query) {
-		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
-		// 		});
-		// 	});
-		// }])->whereHas('Orders', function($query) {
-		// 	$query->with(['Order_Product' => function ($order_product_query) {
-		// 		$order_product_query->with(['Product' => function ($product_query) {
-		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
-		// 		}])->whereHas('Product', function ($product_query) {
-		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
-		// 		});
-		// 	}])->whereHas('Order_Product', function ($order_product_query) {
-		// 		$order_product_query->with(['Product' => function ($product_query) {
-		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
-		// 		}])->whereHas('Product', function ($product_query) {
-		// 			$product_query->whereNotNull('brand')->orWhere('category', '!=', 1)->latest();
-		// 		});
-		// 	});
-		// })->get()->toArray();
-
-		// foreach ($customers_orders as $customer) {
 		if (count($order->order_product) > 0) {
 			$order_products_count = count($order->order_product);
 			$limit = 20 < $order_products_count ? 1 : (int) round(20 / $order_products_count);
-			// dd($limit);
 
 			foreach ($order->order_product as $order_product) {
 				$brand = (int) $order_product->product->brand;
@@ -1060,6 +1024,13 @@ class OrderController extends Controller {
 					foreach ($products as $product) {
 						$chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
 					}
+
+					// CommunicationHistory::create([
+					// 	'model_id'		=> $order->id,
+					// 	'model_type'	=> Order::class,
+					// 	'type'				=> 'order-suggestion',
+					// 	'method'			=> 'whatsapp'
+					// ]);
 				}
 			}
 		}
@@ -1067,6 +1038,8 @@ class OrderController extends Controller {
 		$order->refund_answer = 'yes';
 		$order->refund_answer_date = Carbon::now();
 		$order->save();
+
+
 
 		return redirect()->back()->withSuccess('You have successfully sent suggestions!');
 
