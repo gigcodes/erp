@@ -39,7 +39,6 @@ class DoubleFScraper extends Command
      */
     public function handle()
     {
-        $this->scraper->scrap('man');
-        $this->scraper->scrap('woman');
+        $this->scraper->scrap();
     }
 }

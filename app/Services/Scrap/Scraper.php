@@ -2,6 +2,7 @@
 
 namespace App\Services\Scrap;
 
+use Exception;
 use GuzzleHttp\Client;
 
 abstract class Scraper
@@ -13,29 +14,23 @@ abstract class Scraper
         $this->client = $client;
     }
 
-    public function getContent($url, $method = 'GET', $country = 'it', $authorization = false): string
+    public function getContent($url, $method = 'GET', $country = 'it', $headers = true): string
     {
-        $proxy = $this->getProxy($country);
+        $requestHeaders = [];
+        if ($headers) {
+            $requestHeaders = [
+                    'User-Agent' => 'User-Agent:"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36',
+            ];
+        }
         try {
             $response = $this->client->request($method, $url, [
-                'headers'=> [
-                    'User-Agent' => 'User-Agent:"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36',
-                ],
-//                'allow_redirects' => false,
-//                'proxy' => $proxy
+                'headers'=> $requestHeaders
             ]);
             $content = $response->getBody()->getContents();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $content = '';
         }
 
         return $content;
-    }
-
-    private function getProxy(string $country)
-    {
-        return [
-            'it' => 'https://212.237.16.88'
-        ][$country];
     }
 }
