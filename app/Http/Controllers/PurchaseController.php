@@ -34,7 +34,6 @@ use Storage;
 class PurchaseController extends Controller
 {
     public function __construct() {
-
       $this->middleware( 'permission:purchase');
     }
 
@@ -79,19 +78,16 @@ class PurchaseController extends Controller
 
 
 
-  		if(empty($term))
-  			$purchases = $purchases->latest();
-  		else{
-
-  			$purchases = $purchases->latest()
-  			               ->orWhere('id','like','%'.$term.'%')
-  			               ->orWhere('purchase_handler',Helpers::getUserIdByName($term))
-  			               ->orWhere('supplier','like','%'.$term.'%')
-                       ->orWhere('status','like','%'.$term.'%');
-  		}
+  		if(!empty($term)) {
+        $purchases = $purchases
+        ->orWhere('id','like','%'.$term.'%')
+        ->orWhere('purchase_handler',Helpers::getUserIdByName($term))
+        ->orWhere('supplier','like','%'.$term.'%')
+        ->orWhere('status','like','%'.$term.'%');
+      }
 
       if ($sortby != 'communication') {
-  			$purchases = $purchases->orderBy( $sortby, $orderby );
+  			$purchases = $purchases->orderBy($sortby, $orderby);
   		}
 
       // $order_products = DB::table('order_products')->join(DB::raw('(SELECT sku as product_sku FROM `products`)'), 'order_products.sku', '=', 'products.product_sku', 'LEFT');
@@ -112,7 +108,6 @@ class PurchaseController extends Controller
   		$users  = Helpers::getUserArray( User::all());
 
   		$purchases_array = $purchases->select(['id', 'purchase_handler', 'supplier', 'status', 'created_at'])->get()->toArray();
-      // dd($purchases_array);
 
   		if ($sortby == 'communication') {
   			if ($orderby == 'asc') {
