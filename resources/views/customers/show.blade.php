@@ -3021,6 +3021,7 @@
 
                          if (page) {
                            $('#load-more-messages').text('Load More');
+                           can_load_more = true;
                          }
 
                          if ( anyNewMessages ) {
@@ -3118,6 +3119,27 @@
              $(this).closest('form')[0].reportValidity();
            }
 
+         });
+
+         var can_load_more = true;
+
+         $(window).scroll(function() {
+           var top = $(window).scrollTop();
+           var document_height = $(document).height();
+           var window_height = $(window).height();
+
+           if (top >= (document_height - window_height - 200)) {
+             if (can_load_more) {
+               var current_page = $('#load-more-messages').data('nextpage');
+               $('#load-more-messages').data('nextpage', current_page + 1);
+               var next_page = $('#load-more-messages').data('nextpage');
+               $('#load-more-messages').text('Loading...');
+
+               can_load_more = false;
+
+               pollMessages(next_page, true);
+             }
+           }
          });
 
          $(document).on('click', '#load-more-messages', function() {
