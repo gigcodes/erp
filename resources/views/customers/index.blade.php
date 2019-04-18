@@ -517,7 +517,7 @@
                     </td>
                     <td>
                       <div class="d-inline">
-                        <input type="text" class="form-control" name="message" placeholder="Message" value="">
+                        <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
                         <button class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png" /></button>
                       </div>
 
@@ -610,6 +610,9 @@
   <script type="text/javascript">
     var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
+    var cached_suggestions = localStorage['message_suggestions'];
+    var suggestions = [];
+
     $(document).ready(function() {
       $('ul.pagination').hide();
       $(function() {
@@ -634,6 +637,14 @@
       $('#customer-search').autocomplete({
         source: function(request, response) {
           var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+
+          response(results.slice(0, 10));
+        }
+      });
+
+      $('.quick-message-field').autocomplete({
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(JSON.parse(cached_suggestions), request.term);
 
           response(results.slice(0, 10));
         }
@@ -824,6 +835,30 @@
            "data": data
          }).done( function(response) {
             $(thiss).siblings('input').val('');
+
+            if (cached_suggestions) {
+              suggestions = JSON.parse(cached_suggestions);
+
+              if (suggestions.length == 10) {
+                suggestions.push(message);
+                suggestions.splice(0, 1);
+              } else {
+                suggestions.push(message);
+              }
+              localStorage['message_suggestions'] = JSON.stringify(suggestions);
+              cached_suggestions = localStorage['message_suggestions'];
+
+              console.log('EXISTING');
+              console.log(suggestions);
+            } else {
+              suggestions.push(message);
+              localStorage['message_suggestions'] = JSON.stringify(suggestions);
+              cached_suggestions = localStorage['message_suggestions'];
+
+              console.log('NOT');
+              console.log(suggestions);
+            }
+
             $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
               .done(function( data ) {
 
