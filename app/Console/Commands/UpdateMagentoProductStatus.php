@@ -54,7 +54,7 @@ class UpdateMagentoProductStatus extends Command
 
       $products = Product::select(['sku', 'isUploaded', 'isFinal'])->get();
 
-      foreach ($products as $product) {
+      foreach ($products as $key => $product) {
         $error_message = '';
 
         try {
@@ -66,6 +66,8 @@ class UpdateMagentoProductStatus extends Command
         if ($error_message == 'Product not exists.') {
           $product->isUploaded = 0;
           $product->isFinal = 0;
+
+          dump("$key Does not Exist");
         }
 
         if (isset($magento_product)) {
@@ -76,8 +78,12 @@ class UpdateMagentoProductStatus extends Command
 
           if ($visibility == 1) {
             $product->isFinal = 0;
+
+            dump("$key Not Visible");
           } else {
             $product->isFinal = 1;
+
+            dump("$key Visible");
           }
         }
 
