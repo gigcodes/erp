@@ -1239,52 +1239,54 @@
                           </div>
                         @endif
 
-                        @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
-                          <div class="form-group">
-                            <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
-                          </div>
-                        @elseif ($order->is_sent_initial_advance())
-                          <div class="form-group">
-                            Advance Receipt was emailed
-                          </div>
-                        @endif
+                        @if (isset($order))
+                          @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
+                            <div class="form-group">
+                              <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
+                            </div>
+                          @elseif ($order->is_sent_initial_advance())
+                            <div class="form-group">
+                              Advance Receipt was emailed
+                            </div>
+                          @endif
 
-                        @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
-                          <div class="form-group">
-                            <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
-                          </div>
-                        @endif
+                          @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
+                            <div class="form-group">
+                              <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
+                            </div>
+                          @endif
 
-                        <div class="form-group">
-                          <a href="{{ route('order.generate.invoice', $order->id) }}" class="btn btn-secondary">Generate Invoice</a>
-                          <a href="{{ route('settings.index') }}" class="btn-link" target="_blank">Edit Consignor Details</a>
-                        </div>
+                          <div class="form-group">
+                            <a href="{{ route('order.generate.invoice', $order->id) }}" class="btn btn-secondary">Generate Invoice</a>
+                            <a href="{{ route('settings.index') }}" class="btn-link" target="_blank">Edit Consignor Details</a>
+                          </div>
 
-                        @if (!$order->is_sent_refund_initiated())
-                          <div class="form-group">
-                            <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
-                            <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
-                          </div>
-                        @else
-                          <div class="form-group">
-                            Refund Initiated Email was Sent
-                          </div>
-                        @endif
+                          @if (!$order->is_sent_refund_initiated())
+                            <div class="form-group">
+                              <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
+                              <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
+                            </div>
+                          @else
+                            <div class="form-group">
+                              Refund Initiated Email was Sent
+                            </div>
+                          @endif
 
-                        @if ($order->order_type == 'offline' && !$order->is_sent_offline_confirmation())
-                          <div class="form-group">
-                            <a href="{{ route('order.send.confirmation.email', $order->id) }}" class="btn btn-secondary">Send Confirmation Email</a>
-                          </div>
-                        @elseif ($order->is_sent_offline_confirmation())
-                          <div class="form-group">
-                            Offline Confirmation Email was sent
-                          </div>
-                        @endif
+                          @if ($order->order_type == 'offline' && !$order->is_sent_offline_confirmation())
+                            <div class="form-group">
+                              <a href="{{ route('order.send.confirmation.email', $order->id) }}" class="btn btn-secondary">Send Confirmation Email</a>
+                            </div>
+                          @elseif ($order->is_sent_offline_confirmation())
+                            <div class="form-group">
+                              Offline Confirmation Email was sent
+                            </div>
+                          @endif
 
-                        @if ($order->is_sent_online_confirmation())
-                          <div class="form-group">
-                            Online Confirmation Email was sent
-                          </div>
+                          @if ($order->is_sent_online_confirmation())
+                            <div class="form-group">
+                              Online Confirmation Email was sent
+                            </div>
+                          @endif
                         @endif
 
                         {{-- <div class="form-group">
@@ -2115,33 +2117,35 @@
   </div>
 </div>
 
-<div id="yesModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+@if (isset($order))
+  <div id="yesModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
-    <!-- Modal content-->
-    <div class="modal-content">
-      <form action="{{ route('whatsapp.forward') }}" method="POST">
-        @csrf
+      <!-- Modal content-->
+      <div class="modal-content">
+        <form action="{{ route('whatsapp.forward') }}" method="POST">
+          @csrf
 
-        <div class="modal-header">
-          <h4 class="modal-title">Choose your next action</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <div class="modal-body text-center">
-          <form action="{{ route('order.send.suggestion', $order->id) }}" method="POST">
-            @csrf
+          <div class="modal-header">
+            <h4 class="modal-title">Choose your next action</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body text-center">
+            <form action="{{ route('order.send.suggestion', $order->id) }}" method="POST">
+              @csrf
 
-            <button type="submit" class="btn btn-secondary">Send Images</button>
-          </form>
-          <button type="button" class="btn btn-secondary" id="create_refund_instruction">Create Instruction</button>
+              <button type="submit" class="btn btn-secondary">Send Images</button>
+            </form>
+            <button type="button" class="btn btn-secondary" id="create_refund_instruction">Create Instruction</button>
 
-          <input type="hidden" name="order_id" id="refund_instruction_order_id" value="">
-        </div>
-      </form>
+            <input type="hidden" name="order_id" id="refund_instruction_order_id" value="">
+          </div>
+        </form>
+      </div>
+
     </div>
-
   </div>
-</div>
+@endif
 
 <form action="index.html" method="POST" id="createMagentoProductForm">
   @csrf
