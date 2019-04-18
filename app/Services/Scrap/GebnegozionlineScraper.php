@@ -2,6 +2,7 @@
 
 namespace App\Services\Scrap;
 
+use App\Brand;
 use App\ScrapCounts;
 use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
@@ -10,13 +11,24 @@ class GebnegozionlineScraper extends Scraper
 {
     private const URL = [
         'homepage' => 'https://www.gebnegozionline.com/it_it/',
-        'designers' => 'https://www.gebnegozionline.com/it_it/women/designers'
+        'woman' => 'https://www.gebnegozionline.com/en_it/women/designers/',
+        'man' => 'https://www.gebnegozionline.com/en_it/men/designers/',
     ];
 
 
     public function scrap(): void
     {
-        $this->scrapPage(self::URL['homepage'], false);
+//        $this->scrapPage(self::URL['homepage'], false);
+        $brands = Brand::all();
+        foreach ($brands as $brand) {
+            if ($brand->name === 'ALEXANDER McQUEEN') {
+                $brand->name = 'ALEXANDER Mc QUEEN';
+            } else {
+                continue;
+            }
+            $this->scrapPage(self::URL['woman'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '.html');
+            $this->scrapPage(self::URL['man'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '.html');
+        }
     }
 
     private function scrapPage($url, $hasProduct=true): void
@@ -105,24 +117,28 @@ class GebnegozionlineScraper extends Scraper
                 ->first()
             ;
 
-            if ($entry) {
-                continue;
+            if (!$entry) {
+                $entry = new ScrapEntries();
+                $entry->title = $title;
+                $entry->url = $link;
+                $entry->is_product_page = 1;
+                $entry->save();
             }
-
-            $entry = new ScrapEntries();
-            $entry->title = $title;
-            $entry->url = $link;
-            $entry->is_product_page = 1;
-            $entry->save();
-
         }
 
         if ($pageNumber >= $totalPageNumber) {
             $scrapEntriy->pagination = [
-                'current_page_number' => $totalPageNumber,
+                'current_page_number' => 0,
                 'total_pages' => $totalPageNumber
             ];
-            $scrapEntriy->is_scraped = 1;
+            $scrapEntriy->is_scraped = 0;
+            $scrapEntriy->save();
+        } else {
+            $scrapEntriy->pagination = [
+                'current_page_number' => $pageNumber,
+                'total_pages' => $totalPageNumber
+            ];
+            $scrapEntriy->is_scraped = 0;
             $scrapEntriy->save();
         }
 
@@ -160,8 +176,8 @@ class GebnegozionlineScraper extends Scraper
             $link = '';
         }
 
-        $link = str_replace('en_wr', 'it_it', $link);
-        $link = str_replace('en_us', 'it_it', $link);
+        $link = str_replace('en_wr', 'en_it', $link);
+        $link = str_replace('en_us', 'en_it', $link);
 
         return $link;
     }
@@ -180,7 +196,7 @@ class GebnegozionlineScraper extends Scraper
         }
 
         $options = [
-            'current_page_number' => 1,
+            'current_page_number' => 0,
             'total_pages' => $maxPageNumber
         ];
 
