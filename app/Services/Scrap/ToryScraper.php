@@ -45,7 +45,7 @@ class ToryScraper extends Scraper
         if (!$allLinks) {
             $allLinks = new ScrapCounts();
             $allLinks->scraped_date = $date;
-            $allLinks->website = 'GNB';
+            $allLinks->website = 'Tory';
             $allLinks->save();
         }
         $body = $this->getContent($scrapEntriy->url);
