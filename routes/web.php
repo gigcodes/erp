@@ -40,6 +40,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('users/logins', 'UserController@login')->name('users.login.index');
 	Route::resource('users','UserController');
 	Route::resource('products','ProductController');
+	Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
 	Route::post('products/{id}/archive','ProductController@archive')->name('products.archive');
 	Route::post('products/{id}/restore','ProductController@restore')->name('products.restore');
 	Route::resource('productselection','ProductSelectionController');
@@ -87,6 +88,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 
 	Route::get('order/{id}/send/confirmationEmail', 'OrderController@sendConfirmation')->name('order.send.confirmation.email');
+	Route::post('order/{id}/refund/answer', 'OrderController@refundAnswer')->name('order.refund.answer');
+	Route::post('order/{id}/send/suggestion', 'OrderController@sendSuggestion')->name('order.send.suggestion');
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
 	Route::post('order/{id}/sendRefund', 'OrderController@sendRefund');
 	Route::post('order/{id}/uploadForApproval', 'OrderController@uploadForApproval')->name('order.upload.approval');

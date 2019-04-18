@@ -1073,7 +1073,16 @@
   @if (count($customer->orders) > 0)
     <div class="tab-pane mt-3" id="3">
       <div id="orderAccordion">
+        @php
+          $refunded_orders = [];
+        @endphp
         @foreach ($customer->orders as $key => $order)
+          @if ($order->order_status == 'Refund to be processed')
+            @php
+              array_push($refunded_orders, $order);
+            @endphp
+          @endif
+
           <div class="card">
             <div class="card-header" id="headingOrder{{ $key + 1 }}">
               <h5 class="mb-0">
@@ -2036,6 +2045,27 @@
 </div>
 
 <h2>Messages</h2>
+@if (isset($refunded_orders) && count($refunded_orders) > 0)
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <h3>Refund Orders Status</h3>
+
+      <div class="form-group">
+        <select class="form-control refund-orders" name="">
+          <option value="">Select Order</option>
+          @foreach ($refunded_orders as $order)
+            <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div class="d-inline">
+        <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
+        <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
+      </div>
+    </div>
+  </div>
+@endif
 <div class="row">
   <div class="col-12" id="message-container"></div>
 
@@ -2085,6 +2115,34 @@
   </div>
 </div>
 
+<div id="yesModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <form action="{{ route('whatsapp.forward') }}" method="POST">
+        @csrf
+
+        <div class="modal-header">
+          <h4 class="modal-title">Choose your next action</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body text-center">
+          <form action="{{ route('order.send.suggestion', $order->id) }}" method="POST">
+            @csrf
+
+            <button type="submit" class="btn btn-secondary">Send Images</button>
+          </form>
+          <button type="button" class="btn btn-secondary" id="create_refund_instruction">Create Instruction</button>
+
+          <input type="hidden" name="order_id" id="refund_instruction_order_id" value="">
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
 <form action="index.html" method="POST" id="createMagentoProductForm">
   @csrf
 
@@ -2112,6 +2170,57 @@
     $('.dropify').dropify();
   })
 
+  $(document).on('change', '.refund-orders', function() {
+    var answer = $(this).find(':selected').data('answer');
+
+    if (answer == 'no') {
+      $('#refund_answer_no').hide();
+      $('#refund_answer_yes').hide();
+    } else {
+      $('#refund_answer_no').show();
+      $('#refund_answer_yes').show();
+    }
+  });
+
+  $(document).on('click', '.customer-refund-answer', function() {
+    var thiss = $(this);
+    var answer = $(this).data('answer');
+    var selected_order = $(this).parent().parent().find('select').val();
+    var selected_answer = $(this).parent().parent().find(':selected').data('answer');
+
+    if (selected_order.length > 0) {
+      if (answer == 'yes') {
+        var url = "{{ url('order') }}/" + selected_order + "/send/suggestion";
+
+        $('#refund_instruction_order_id').val(selected_order);
+        $('#yesModal form').attr('action', url);
+
+        $('#yesModal').modal();
+      } else {
+        $.ajax({
+          type: "POST",
+          url: "{{ url('order') }}/" + selected_order + "/refund/answer",
+          data: {
+            _token: "{{ csrf_token() }}",
+            answer: "no"
+          },
+          beforeSend: function() {
+            $(thiss).text('Loading...');
+          }
+        }).done(function() {
+          window.location.reload();
+        }).fail(function(response) {
+          $(thiss).text('No');
+
+          alert('Could not say No!');
+          console.log(response);
+        });
+      }
+    } else {
+      alert('Please select Order first!');
+    }
+  });
+
   var selected_product_images = [];
 
   $(document).on('click', '.select-product-image', function() {
@@ -2127,6 +2236,46 @@
     }
 
     console.log(selected_product_images);
+  });
+
+  $('#create_refund_instruction').on('click', function () {
+    var thiss = $(this);
+    var order_id = $('#refund_instruction_order_id').val();
+
+    $.ajax({
+      type: "POST",
+      url: "{{ route('instruction.store') }}",
+      data: {
+        _token: "{{ csrf_token() }}",
+        customer_id: "{{ $customer->id }}",
+        instruction: "Send images",
+        category_id: 1,
+        assigned_to: "{{ \App\Setting::get('image_shortcut') }}"
+      },
+      beforeSend: function() {
+        $(thiss).text('Loading...');
+      }
+    }).done(function() {
+      $.ajax({
+        type: "POST",
+        url: "{{ url('order') }}/" + order_id + "/refund/answer",
+        data: {
+          _token: "{{ csrf_token() }}",
+          answer: "yes"
+        }
+      }).done(function() {
+        window.location.reload();
+      }).fail(function(response) {
+        alert('Could not say Yes to refund!');
+
+        console.log(response);
+      })
+    }).fail(function(response) {
+      $(thiss).text('Create Instruction');
+
+      alert('Could not create instruction');
+      console.log(response);
+    });
   });
 
   $(document).on('click', '.create-product-lead', function(e) {
