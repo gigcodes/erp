@@ -2,6 +2,7 @@
 
 namespace App\Services\Scrap;
 
+use App\Brand;
 use App\ScrapCounts;
 use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
@@ -14,9 +15,18 @@ class DoubleFScraper extends Scraper
     ];
 
 
-    public function scrap($key): void
+    public function scrap(): void
     {
-        $this->scrapPage(self::URL[$key], false);
+        $brands = Brand::whereNull('deleted_at')->get();
+        foreach ($brands as $brand) {
+            if (trim($brand->name) == 'DOLCE & GABBANA') {
+                $brand->name = 'DOLCE E GABBANA';
+            }
+            $brand->name = str_replace('&amp;', 'E', $brand->name);
+            $brand->name = str_replace('&', 'E', $brand->name);
+            $this->scrapPage(self::URL['woman'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '?limit=1000');
+            $this->scrapPage(self::URL['man'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '?limit=1000');
+        }
     }
 
     private function scrapPage($url, $hasProduct=true): void
@@ -69,23 +79,24 @@ class DoubleFScraper extends Scraper
             $allLinks->save();
         }
 
-        $paginationData = $scrapEntriy->pagination;
-        if (!$paginationData)
-        {
-            $body = $this->getContent($scrapEntriy->url);
-            $c = new HtmlPageCrawler($body);
-            $scrapEntriy->pagination =  $this->getPaginationData($c);
-            $scrapEntriy->save();
-        }
+//        $paginationData = $scrapEntriy->pagination;
+//        if (!$paginationData)
+//        {
+//            $body = $this->getContent($scrapEntriy->url);
+//            $c = new HtmlPageCrawler($body);
+//            $scrapEntriy->pagination =  $this->getPaginationData($c);
+//            $scrapEntriy->save();
+//        }
+//
+//        $pageNumber = $scrapEntriy->pagination['current_page_number'];
+//        $totalPageNumber = $scrapEntriy->pagination['total_pages'];
+//
+//        if ($pageNumber < $totalPageNumber) {
+//            $pageNumber++;
+//        }
 
-        $pageNumber = $scrapEntriy->pagination['current_page_number'];
-        $totalPageNumber = $scrapEntriy->pagination['total_pages'];
+        $body = $this->getContent($scrapEntriy->url, 'GET', 'it', false);
 
-        if ($pageNumber < $totalPageNumber) {
-            $pageNumber++;
-        }
-
-        $body = $this->getContent($scrapEntriy->url . '?p=' . $pageNumber);
         $c = new HtmlPageCrawler($body);
 
         $products = $c->filter('.products-grid div.box');
@@ -94,6 +105,8 @@ class DoubleFScraper extends Scraper
             $allLinks->save();
             $title = $this->getTitleFromProduct($product);
             $link = $this->getLinkFromProduct($product);
+
+            echo "$link \n";
 
             if (!$title || !$link) {
                 continue;
@@ -117,14 +130,14 @@ class DoubleFScraper extends Scraper
 
         }
 
-        if ($pageNumber >= $totalPageNumber) {
-            $scrapEntriy->pagination = [
-                'current_page_number' => 1,
-                'total_pages' => $totalPageNumber
-            ];
-            $scrapEntriy->is_scraped = 0;
-            $scrapEntriy->save();
-        }
+//        if ($pageNumber >= $totalPageNumber) {
+//            $scrapEntriy->pagination = [
+//                'current_page_number' => 1,
+//                'total_pages' => $totalPageNumber
+//            ];
+//            $scrapEntriy->is_scraped = 0;
+//            $scrapEntriy->save();
+//        }
 
     }
 
