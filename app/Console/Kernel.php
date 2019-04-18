@@ -30,6 +30,8 @@ use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\RunMessageQueue;
 use App\Console\Commands\SendVoucherReminder;
 
+use App\Console\Commands\UpdateMagentoProductStatus;
+
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -73,7 +75,8 @@ class Kernel extends ConsoleKernel
         RunMessageQueue::class,
         SendVoucherReminder::class,
         GetGebnegozionlineProductDetailsWithEmulator::class,
-        UpdateInventory::class
+        UpdateInventory::class,
+        UpdateMagentoProductStatus::class
     ];
 
     /**
@@ -113,6 +116,8 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
           MagentoController::get_magento_orders();
         })->hourly();
+
+        $schedule->command('update:magento-product-status')->dailyAt(03);
 
         $schedule->command('post:scheduled-media')
             ->everyMinute();
