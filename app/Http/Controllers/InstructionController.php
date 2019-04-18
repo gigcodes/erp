@@ -115,15 +115,15 @@ class InstructionController extends Controller
 
       $instruction->save();
 
-      NotificationQueueController::createNewNotification([
-        'message' => 'Reminder for Instructions',
-        'timestamps' => ['+10 minutes'],
-        'model_type' => Instruction::class,
-        'model_id' =>  $instruction->id,
-        'user_id' => Auth::id(),
-        'sent_to' => $instruction->assigned_to,
-        'role' => '',
-      ]);
+      // NotificationQueueController::createNewNotification([
+      //   'message' => 'Reminder for Instructions',
+      //   'timestamps' => ['+10 minutes'],
+      //   'model_type' => Instruction::class,
+      //   'model_id' =>  $instruction->id,
+      //   'user_id' => Auth::id(),
+      //   'sent_to' => $instruction->assigned_to,
+      //   'role' => '',
+      // ]);
 
       if ($request->send_whatsapp) {
   			$user = User::find($instruction->assigned_to);
@@ -258,15 +258,15 @@ class InstructionController extends Controller
 
       PushNotification::where('model_type', 'App\Instruction')->where('model_id', $request->id)->delete();
 
-      NotificationQueueController::createNewNotification([
-        'message' => 'Reminder for Instructions',
-        'timestamps' => ['+10 minutes'],
-        'model_type' => Instruction::class,
-        'model_id' =>  $instruction->id,
-        'user_id' => Auth::id(),
-        'sent_to' => $instruction->assigned_to,
-        'role' => '',
-      ]);
+      // NotificationQueueController::createNewNotification([
+      //   'message' => 'Reminder for Instructions',
+      //   'timestamps' => ['+10 minutes'],
+      //   'model_type' => Instruction::class,
+      //   'model_id' =>  $instruction->id,
+      //   'user_id' => Auth::id(),
+      //   'sent_to' => $instruction->assigned_to,
+      //   'role' => '',
+      // ]);
 
       return redirect()->route('instruction.index');
     }
