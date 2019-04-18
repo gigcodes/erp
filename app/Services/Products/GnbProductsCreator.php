@@ -4,6 +4,7 @@ namespace App\Services\Products;
 
 use App\Brand;
 use App\Product;
+use App\ScrapActivity;
 use App\Setting;
 use Validator;
 use Plank\Mediable\Media;
@@ -20,6 +21,14 @@ class GnbProductsCreator
 
        if ($validator->fails()) {
          $product = Product::where('sku', $image->sku)->first();
+           $params = [
+               'website'             => 'Tory',
+               'scraped_product_id'  => $image->id,
+               'status'              => 1
+           ];
+
+           ScrapActivity::create($params);
+
        } else {
          $product = new Product;
        }

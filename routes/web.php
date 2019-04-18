@@ -453,7 +453,8 @@ Route::prefix('comments')->group(function () {
 });
 
 Route::prefix('scrap')->group(function () {
-		Route::get('/activity', 'ScrapController@activity')->name('scrap.activity');
+    Route::get('/products', 'ScrapController@showProductStat');
+    Route::get('/activity', 'ScrapController@activity')->name('scrap.activity');
     Route::get('/excel', 'ScrapController@excel_import');
     Route::post('/excel', 'ScrapController@excel_store');
     Route::get('/google/images', 'ScrapController@index');
