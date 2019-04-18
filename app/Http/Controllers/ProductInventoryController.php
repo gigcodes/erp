@@ -160,7 +160,7 @@ class ProductInventoryController extends Controller
 			$data['color'] = $request->color[0];
 		}
 
-		if ($request->category[0] != 1) {
+		if (isset($request->category) && $request->category[0] != 1) {
 			$is_parent = Category::isParent($request->category[0]);
 			$category_children = [];
 
@@ -194,7 +194,7 @@ class ProductInventoryController extends Controller
 			$data['category'] = $request->category[0];
 		}
 
-		if ($request->price != null) {
+		if (isset($request->price) && $request->price != null) {
 			$exploded = explode(',', $request->price);
 			$min = $exploded[0];
 			$max = $exploded[1];
@@ -211,6 +211,7 @@ class ProductInventoryController extends Controller
 			$data['price'][0] = $min;
 			$data['price'][1] = $max;
 		}
+
 		if ($request->location[0] != null) {
 			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
 				$productQuery = $productQuery->whereIn('location', $request->location);
@@ -220,6 +221,17 @@ class ProductInventoryController extends Controller
 				                                 ->whereIn('location', $request->location);
 			}
 			$data['location'] = $request->location[0];
+		}
+
+		if ($request->no_locations) {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->location[0] != null) {
+				$productQuery = $productQuery->whereNull('location');
+
+			} else {
+				$productQuery = ( new Product() )->newQuery()->latest()->where('supplier', 'In-stock')
+				                                 ->whereNull('location');
+			}
+			$data['no_locations'] = true;
 		}
 
 		if (trim($term) != '') {
@@ -249,7 +261,7 @@ class ProductInventoryController extends Controller
 			}
 
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == null && $request->price[0] == null && $request->location[0] == null) {
+			if ($request->brand[0] == null && $request->color[0] == null && (!isset($request->category) || $request->category[0] == 1) && (!isset($request->price) || $request->price == "0,10000000") && $request->location[0] == null && !isset($request->no_locations)) {
 				$productQuery = ( new Product() )->newQuery()
 																				 ->where('supplier', 'In-stock')
 				                                 ->latest();

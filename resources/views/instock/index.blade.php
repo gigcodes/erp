@@ -65,6 +65,11 @@
                 </optgroup>
               </select>
             </div>
+
+            <div class="form-group mr-3">
+              <input type="checkbox" name="no_locations" id="no_locations" {{ isset($no_locations) ? 'checked' : '' }}>
+              <label for="no_locations">With no Locations</label>
+            </div>
           @endif
 
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
