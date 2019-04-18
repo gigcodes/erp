@@ -7,11 +7,11 @@
             <form action="{{ action('ScrapController@showProductStat') }}" method="get">
                 <div class="form-group">
                     <label for="start_date">Start Date</label>
-                    <input type="text" name="start_date" id="start_date" class="form-control date-type">
+                    <input value="{{$request->get('start_date')}}" type="text" name="start_date" id="start_date" class="form-control date-type">
                 </div>
                 <div class="form-group">
                     <label for="end_date">End Date</label>
-                    <input type="text" name="end_date" id="end_date" class="form-control date-type">
+                    <input value="{{$request->get('end_date')}}" type="text" name="end_date" id="end_date" class="form-control date-type">
                 </div>
                 <div class="form-group">
                     <button class="btn btn-primary btn-block">Filter</button>

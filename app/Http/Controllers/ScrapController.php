@@ -199,7 +199,7 @@ class ScrapController extends Controller
             }
         }
 
-        return view('scrap.scraped_product_data', compact('products'));
+        return view('scrap.scraped_product_data', compact('products', 'request'));
 
 
     }
