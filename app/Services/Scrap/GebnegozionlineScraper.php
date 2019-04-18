@@ -33,6 +33,7 @@ class GebnegozionlineScraper extends Scraper
 
     private function scrapPage($url, $hasProduct=true): void
     {
+        echo $url;
         $scrapEntry = ScrapEntries::where('url', $url)->first();
         if (!$scrapEntry) {
             $scrapEntry = new ScrapEntries();
