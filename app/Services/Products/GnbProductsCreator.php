@@ -115,7 +115,7 @@ class GnbProductsCreator
        $product->detachMediaTags(config('constants.media_tags'));
 
        foreach ($images as $image_name) {
-         Storage::disk('uploads')->delete('/social-media/' . $image_name);
+         // Storage::disk('uploads')->delete('/social-media/' . $image_name);
 
          $path = public_path('uploads') . '/social-media/' . $image_name;
          $media = MediaUploader::fromSource($path)->upload();
