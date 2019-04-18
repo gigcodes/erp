@@ -94,6 +94,13 @@ class AutoMessager extends Command
           // $chat_message->update([
           //   'approved'  => 1
           // ]);
+
+          // CommunicationHistory::create([
+    			// 	'model_id'		=> $order->id,
+    			// 	'model_type'	=> Order::class,
+    			// 	'type'				=> 'refund-inprocess',
+    			// 	'method'			=> 'whatsapp'
+    			// ]);
         }
 
         if ($time_diff == 72) {
@@ -111,6 +118,13 @@ class AutoMessager extends Command
           // $chat_message->update([
           //   'approved'  => 1
           // ]);
+
+          // CommunicationHistory::create([
+    			// 	'model_id'		=> $order->id,
+    			// 	'model_type'	=> Order::class,
+    			// 	'type'				=> 'products-suggestion',
+    			// 	'method'			=> 'whatsapp'
+    			// ]);
         }
       }
     }
