@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
+use App\Category;
 use App\Image;
 use App\Imports\ProductsImport;
 use App\ScrapCounts;
@@ -13,6 +14,7 @@ use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
@@ -178,6 +180,22 @@ class ScrapController extends Controller
         'data'  => $data,
         'link_entries'  => $link_entries
       ]);
+    }
+
+    public function showProductStat() {
+        $brands = Brand::whereNull('deleted_at')->get();
+        $products = [];
+        $suppliers = DB::table('scraped_products')->selectRaw('DISTINCT(`website`)')->pluck('website');
+
+        foreach ($suppliers as $supplier) {
+            foreach ($brands as $brand) {
+                $products[$supplier][$brand->name] = ScrapedProducts::where('website', $supplier)->where('brand_id', $brand->id)->count();
+            }
+        }
+
+        return view('scrap.scraped_product_data', compact('products'));
+
+
     }
 
 
