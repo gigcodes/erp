@@ -6,6 +6,7 @@ use App\Brand;
 use App\Product;
 use App\Setting;
 use Validator;
+use Storage;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -107,16 +108,16 @@ class ToryProductsCreator
 
        $product->save();
 
-       if ($validator->fails()) {
+       $images = $image->images;
 
-       } else {
-         $images = $image->images;
+       $product->detachMediaTags(config('constants.media_tags'));
 
-         foreach ($images as $image_name) {
-           $path = public_path('uploads') . '/social-media/' . $image_name;
-           $media = MediaUploader::fromSource($path)->upload();
-           $product->attachMedia($media,config('constants.media_tags'));
-         }
+       foreach ($images as $image_name) {
+         Storage::disk('uploads')->delete('/social-media/' . $image_name);
+
+         $path = public_path('uploads') . '/social-media/' . $image_name;
+         $media = MediaUploader::fromSource($path)->upload();
+         $product->attachMedia($media,config('constants.media_tags'));
        }
 
     }

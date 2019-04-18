@@ -148,22 +148,8 @@ class SearchController extends Controller {
 			Cache::forget('filter-size-' . Auth::id());
 		}
 
-		if ($request->date != '') {
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '') {
-				$productQuery = $productQuery->where('created_at', 'LIKE', "%$request->date%");
-			} else {
-				$productQuery = ( new Product() )->newQuery()
-																			 ->latest()->where('created_at', 'LIKE', "%$request->date%");
-			}
-
-			$data['date'] = $request->date;
-			Cache::put('filter-date-' . Auth::id(), $data['date'], 120);
-		} else {
-			Cache::forget('filter-date-' . Auth::id());
-		}
-
 		if ($request->location[0] != null) {
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '' || $request->date != '') {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '') {
 				$productQuery = $productQuery->whereIn('location', $request->location);
 			} else {
 				$productQuery = ( new Product() )->newQuery()
@@ -174,7 +160,7 @@ class SearchController extends Controller {
 		}
 
 		if ($request->type[0] != null) {
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '' || trim($request->date) != '' || $request->location[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null) {
 				if (count($request->type) > 1) {
 					$productQuery = $productQuery->where('is_scraped', 1)->orWhere('status', 2);
 				} else {
@@ -205,6 +191,24 @@ class SearchController extends Controller {
 			}
 
 			$data['type'] = $request->type[0];
+		}
+
+		if ($request->date != '') {
+			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null || $request->type[0] != null) {
+				if ($request->type[0] != null && $request->type[0] == 'uploaded') {
+					$productQuery = $productQuery->where('is_uploaded_date', 'LIKE', "%$request->date%");
+				} else {
+					$productQuery = $productQuery->where('created_at', 'LIKE', "%$request->date%");
+				}
+			} else {
+				$productQuery = ( new Product() )->newQuery()
+																			 ->latest()->where('created_at', 'LIKE', "%$request->date%");
+			}
+
+			$data['date'] = $request->date;
+			Cache::put('filter-date-' . Auth::id(), $data['date'], 120);
+		} else {
+			Cache::forget('filter-date-' . Auth::id());
 		}
 
 		if ($request->quick_product === 'true') {
@@ -251,6 +255,11 @@ class SearchController extends Controller {
 			if ($request->brand[0] == null && $request->color[0] == null && $request->category[0] == 1 && $request->price == "0,10000000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type == null && $request->location[0] == null) {
 				$productQuery = ( new Product() )->newQuery()->latest();
 			}
+		}
+
+		if ($request->ids[0] != null) {
+			$productQuery = ( new Product() )->newQuery()
+																		 ->latest()->whereIn('id', $request->ids);
 		}
 
 		// $search_suggestions = [];

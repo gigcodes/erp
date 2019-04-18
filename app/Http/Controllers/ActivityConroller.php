@@ -102,6 +102,22 @@ class ActivityConroller extends Controller {
 		$data['range_start'] = $request->input( 'range_start' );
 		$data['range_end']   = $request->input( 'range_end' );
 
+		$product_ids = Activity::select(['subject_id', 'subject_type', 'causer_id', 'description', 'created_at'])
+														->where('subject_type', 'lister')
+														->whereIn('causer_id', $request->selected_user ?? [])
+														->where('description', 'create')
+														->where('created_at', 'LIKE', "%$request->range_start%")->get();
+
+		$data['filtered_product_ids'] = '';
+		if (count($product_ids) > 0) {
+			foreach ($product_ids as $id) {
+				$data['filtered_product_ids'] .= "&ids%5B%5D=" . $id->subject_id;
+				// array_push($data['filtered_product_ids'], $id->subject_id);
+			}
+
+			// dd($filtered_product_ids);
+		}
+
 
 		if ( ! $request->has( 'range_start' ) && ! $request->has( 'range_end' ) ) {
 			$end   = date( 'Y-m-d H:i:s' );

@@ -8,6 +8,7 @@ use App\Setting;
 use App\Stage;
 use App\Category;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ProductListerController extends Controller
 {
@@ -53,6 +54,7 @@ class ProductListerController extends Controller
 
 			$product->isUploaded = 1;
 			$product->stage = $stage->get('Lister');
+			$product->is_uploaded_date = Carbon::now();
 			$product->save();
 
 			NotificaitonContoller::store('has Uploaded',['Approvers'],$product->id);

@@ -152,7 +152,7 @@
                             <div class="wrapper count-title d-flex">
                                 <div class="icon"><i class="icon-list-1"></i></div>
                                 <div class="name"><strong class="text-uppercase">Listings</strong>
-                                  <a href="/search?term=&roletype=Approver&category%5B%5D=1&type%5B%5D=uploaded&size=&price=0%2C10000000&date={{ $range_end }}">
+                                  <a href="/search?term=&roletype=Approver&category%5B%5D=1&type%5B%5D=&size=&price=0%2C10000000&date={{ $filtered_product_ids }}">
                                     <div class="count-number {{ ( $total_data['lister'] < $benchmark['lister'] ) ? 'red' : '' }} ">{{ $total_data['lister'] }}</div>
                                   </a>
                                     <span>Out of {{ $benchmark['lister'] }}</span>
