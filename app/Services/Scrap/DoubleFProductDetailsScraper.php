@@ -51,6 +51,8 @@ class DoubleFProductDetailsScraper extends Scraper
             return;
         }
 
+        echo "$scrapEntry->url \n";
+
 
         $c = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
@@ -115,7 +117,7 @@ class DoubleFProductDetailsScraper extends Scraper
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
 
-        app('App\Services\Products\DoubleProductsCreator')->createDoubleProducts($image);
+//        app('App\Services\Products\DoubleProductsCreator')->createDoubleProducts($image);
     }
 
     private function getTitle(HtmlPageCrawler $c) {
