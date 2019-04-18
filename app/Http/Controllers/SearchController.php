@@ -180,8 +180,10 @@ class SearchController extends Controller {
 				} else {
 					if ($request->type[0] == 'scraped') {
 						$productQuery = $productQuery->where('is_scraped', 1);
-					} else {
+					} elseif ($request->type[0] == 'imported') {
 						$productQuery = $productQuery->where('status', 2);
+					} else {
+						$productQuery = $productQuery->where('isUploaded', 1);
 					}
 				}
 			} else {
@@ -192,9 +194,12 @@ class SearchController extends Controller {
 					if ($request->type[0] == 'scraped') {
 						$productQuery = ( new Product() )->newQuery()
 																					 ->latest()->where('is_scraped', 1);
-					} else {
+					} elseif ($request->type[0] == 'imported') {
 						$productQuery = ( new Product() )->newQuery()
 																					 ->latest()->where('status', 2);
+					} else {
+						$productQuery = ( new Product() )->newQuery()
+																					 ->latest()->where('isUploaded', 1);
 					}
 				}
 			}
