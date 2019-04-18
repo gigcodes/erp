@@ -334,7 +334,7 @@
 
     $('#bulk-update-btn').on('click', function(e) {
       if (select_products_edit_array.length == 0) {
-        e.preventDefault();
+        e.stopPropagation();
 
         alert('Please select atleast 1 product!');
       }

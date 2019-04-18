@@ -126,7 +126,7 @@
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
 
-
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateBulkProductModal" id="bulk-update-btn">Update Products</button>
             </div>
         </div>
     </div>
@@ -188,6 +188,42 @@
         </div>
     </div>
 
+    <div id="updateBulkProductModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Update Bulk</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <form action="{{ route('products.bulk.update') }}" method="POST" enctype="multipart/form-data">
+
+
+          <div class="modal-body">
+            @csrf
+            <input type="hidden" name="selected_products" id="selected_products" value="">
+
+            <div class="form-group">
+                <strong>Category:</strong>
+                {!! $category_selection !!}
+                @if ($errors->has('category'))
+                    <div class="alert alert-danger">{{$errors->first('category')}}</div>
+                @endif
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary" id="bulkUpdateButton">Update</button>
+          </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
 	<?php $stage = new \App\Stage(); ?>
 
 @endsection
@@ -203,6 +239,36 @@
 
     $('#filter-date').datetimepicker({
       format: 'YYYY-MM-DD'
+    });
+
+    var select_products_edit_array = [];
+
+    $(document).on('click', '.select-product-edit', function() {
+      var id = $(this).data('id');
+
+      if ($(this).prop('checked')) {
+        select_products_edit_array.push(id);
+      } else {
+        var index = select_products_edit_array.indexOf(id);
+
+        select_products_edit_array.splice(index, 1);
+      }
+
+      console.log(select_products_edit_array);
+    });
+
+    $('#bulk-update-btn').on('click', function(e) {
+      if (select_products_edit_array.length == 0) {
+        e.stopPropagation();
+
+        alert('Please select atleast 1 product!');
+      }
+    });
+
+    $('#bulkUpdateButton').on('click', function() {
+      $('#selected_products').val(JSON.stringify(select_products_edit_array));
+
+      $(this).closest('form').submit();
     });
 
 
@@ -309,6 +375,8 @@
                                           <p>Status : ` + product['stage'] + `</p>
                                           <p>Supplier : ` + product['supplier'] + `</p>
                                           ` + is_scraped + is_imported + `
+
+                                          <input type="checkbox" class="select-product-edit" name="product_id" data-id="` + product['id'] + `}">
                                            {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
                                                                   'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
                           {{--@can('supervisor-edit')
