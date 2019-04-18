@@ -515,6 +515,24 @@
 
                                     </li>
 
+                                    <li class="nav-item dropdown dropdown-submenu">
+
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+
+                                           aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                            In Stock<span class="caret"></span>
+
+                                        </a>
+
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                          <a class="dropdown-item" href="{{ route('productinventory.instock') }}">In stock</a>
+
+                                        </ul>
+
+                                    </li>
+
 
 
                                     <li class="nav-item dropdown dropdown-submenu">
@@ -535,9 +553,7 @@
 
                                             <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
 
-                                            <a class="dropdown-item" href="{{ route('productinventory.instock') }}">In
 
-                                                stock</a>
 
                                         </ul>
 
