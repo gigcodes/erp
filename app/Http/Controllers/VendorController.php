@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Vendor;
+use App\VendorProduct;
 use App\Setting;
 use Illuminate\Http\Request;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class VendorController extends Controller
 {
@@ -24,7 +27,13 @@ class VendorController extends Controller
 
     public function product()
     {
-      return view('vendors.product');
+      $products = VendorProduct::with('vendor')->latest()->paginate(Setting::get('pagination'));
+      $vendors = Vendor::select(['id', 'name'])->get();
+
+      return view('vendors.product', [
+        'products'  => $products,
+        'vendors'  => $vendors
+      ]);
     }
 
     /**
@@ -59,6 +68,36 @@ class VendorController extends Controller
       Vendor::create($data);
 
       return redirect()->route('vendor.index')->withSuccess('You have successfully saved a vendor!');
+    }
+
+    public function productStore(Request $request)
+    {
+      $this->validate($request, [
+        'vendor_id'       => 'required|numeric',
+        'images.*'        => 'sometimes|nullable|image',
+        'date_of_order'   => 'required|date',
+        'name'            => 'required|string|max:255',
+        'qty'             => 'sometimes|nullable|numeric',
+        'price'           => 'sometimes|nullable|numeric',
+        'payment_terms'   => 'sometimes|nullable|string',
+        'delivery_date'   => 'sometimes|nullable|date',
+        'received_by'     => 'sometimes|nullable|string',
+        'approved_by'     => 'sometimes|nullable|string',
+        'payment_details' => 'sometimes|nullable|string'
+      ]);
+
+      $data = $request->except('_token');
+
+      $product = VendorProduct::create($data);
+
+      if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+          $media = MediaUploader::fromSource($image)->upload();
+          $product->attachMedia($media,config('constants.media_tags'));
+        }
+      }
+
+      return redirect()->route('vendor.product.index')->withSuccess('You have successfully saved a vendor product!');
     }
 
     /**
@@ -108,6 +147,37 @@ class VendorController extends Controller
       return redirect()->route('vendor.index')->withSuccess('You have successfully updated a vendor!');
     }
 
+    public function productUpdate(Request $request, $id)
+    {
+      $this->validate($request, [
+        'vendor_id'       => 'required|numeric',
+        'images.*'        => 'sometimes|nullable|image',
+        'date_of_order'   => 'required|date',
+        'name'            => 'required|string|max:255',
+        'qty'             => 'sometimes|nullable|numeric',
+        'price'           => 'sometimes|nullable|numeric',
+        'payment_terms'   => 'sometimes|nullable|string',
+        'delivery_date'   => 'sometimes|nullable|date',
+        'received_by'     => 'sometimes|nullable|string',
+        'approved_by'     => 'sometimes|nullable|string',
+        'payment_details' => 'sometimes|nullable|string'
+      ]);
+
+      $data = $request->except('_token');
+
+      $product = VendorProduct::find($id);
+      $product->update($data);
+
+      if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+          $media = MediaUploader::fromSource($image)->upload();
+          $product->attachMedia($media,config('constants.media_tags'));
+        }
+      }
+
+      return redirect()->route('vendor.product.index')->withSuccess('You have successfully updated a vendor product!');
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -118,8 +188,23 @@ class VendorController extends Controller
     {
       $vendor = Vendor::find($id);
 
+      foreach ($vendor->products as $product) {
+        $product->detachMediaTags(config('constants.media_tags'));
+      }
+
+      $vendor->products()->delete();
       $vendor->delete();
 
       return redirect()->route('vendor.index')->withSuccess('You have successfully deleted a vendor');
+    }
+
+    public function productDestroy($id)
+    {
+      $product = VendorProduct::find($id);
+
+      $product->detachMediaTags(config('constants.media_tags'));
+      $product->delete();
+
+      return redirect()->route('vendor.product.index')->withSuccess('You have successfully deleted a vendor product!');
     }
 }
