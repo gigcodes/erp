@@ -66,6 +66,8 @@ class UpdateMagentoProductStatus extends Command
         if ($error_message == 'Product not exists.') {
           $product->isUploaded = 0;
           $product->isFinal = 0;
+
+          dump('Does not Exist');
         }
 
         if (isset($magento_product)) {
@@ -76,8 +78,12 @@ class UpdateMagentoProductStatus extends Command
 
           if ($visibility == 1) {
             $product->isFinal = 0;
+
+            dump('Not Visible');
           } else {
             $product->isFinal = 1;
+
+            dump('Visible');
           }
         }
 
