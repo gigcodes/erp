@@ -106,7 +106,6 @@ class DoubleFScraper extends Scraper
             $title = $this->getTitleFromProduct($product);
             $link = $this->getLinkFromProduct($product);
 
-            echo "$link \n";
 
             if (!$title || !$link) {
                 continue;
@@ -120,6 +119,9 @@ class DoubleFScraper extends Scraper
             if ($entry) {
                 continue;
             }
+
+            echo "$link \n";
+
 
             $entry = new ScrapEntries();
             $entry->title = $title;

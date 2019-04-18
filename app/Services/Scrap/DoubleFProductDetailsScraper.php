@@ -18,7 +18,7 @@ class DoubleFProductDetailsScraper extends Scraper
 
     public function scrap()
     {
-        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'DoubleF')->take(25)->get();
+        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'DoubleF')->take(500)->get();
 
         foreach ($products as $product) {
             $this->getProductDetails($product);
@@ -26,7 +26,7 @@ class DoubleFProductDetailsScraper extends Scraper
     }
 
     public function doesProductExist($url) {
-        $content = $this->getContent($url);
+        $content = $this->getContent($url, 'GET', 'it', false);
         if ($content === '') {
             return false;
         }
@@ -45,7 +45,7 @@ class DoubleFProductDetailsScraper extends Scraper
     private function getProductDetails(ScrapEntries $scrapEntry)
     {
 
-        $content = $this->getContent($scrapEntry->url);
+        $content = $this->getContent($scrapEntry->url, 'GET', 'it', false);
         if ($content === '') {
             $scrapEntry->delete();
             return;
