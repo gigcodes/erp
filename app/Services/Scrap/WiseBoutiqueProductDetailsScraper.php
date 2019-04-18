@@ -19,7 +19,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
     public function scrap()
     {
-        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'Wiseboutique')->take(250)->get();
+        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'Wiseboutique')->take(5000)->get();
 
         foreach ($products as $product) {
             $this->getProductDetails($product);
