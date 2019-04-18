@@ -13,4 +13,4 @@ pipelines:
         script:
           - apt-get update
           - apt-get -qq install git-ftp
-          - git ftp init --user erp_amour@erp.amourint.com --passwd mcn]_CTBS9nS ftp://ftp.sololuxury.co.in
+          - git ftp push --user erp_amour@erp.amourint.com --passwd mcn]_CTBS9nS ftp://ftp.sololuxury.co.in
