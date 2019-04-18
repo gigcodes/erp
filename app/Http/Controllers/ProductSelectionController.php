@@ -93,7 +93,7 @@ class ProductSelectionController extends Controller
 
 		$productselection->stage = $stage->get('Selection');
 
-		if(!empty($productselection->brand)) {
+		if(!empty($productselection->brand) && !empty($productselection->price)) {
 			$productselection->price_inr     = $this->euroToInr($productselection->price, $productselection->brand);
 			$productselection->price_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
 		} else {
@@ -145,7 +145,7 @@ class ProductSelectionController extends Controller
 //		$productselection->description_link = $request->input('description_link');
 		$productselection->last_selector = Auth::id();
 
-		if(!empty($productselection->brand)) {
+		if(!empty($productselection->brand) && !empty($productselection->price)) {
 			$productselection->price_inr     = $this->euroToInr($productselection->price, $productselection->brand);
 			$productselection->price_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
 		} else {
