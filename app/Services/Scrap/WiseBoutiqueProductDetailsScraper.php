@@ -3,6 +3,7 @@
 namespace App\Services\Scrap;
 
 use App\Brand;
+use App\Category;
 use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\Product;
@@ -18,7 +19,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
     public function scrap()
     {
-        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'Wiseboutique')->take(25)->get();
+        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'Wiseboutique')->take(250)->get();
 
         foreach ($products as $product) {
             $this->getProductDetails($product);
@@ -273,6 +274,9 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $image = new ScrapedProducts();
         }
 
+        $sku = str_replace(' ', '', $sku);
+        $sku = str_replace('/', '', $sku);
+
         $image->brand_id = $brandId;
         $image->sku = $sku;
         $image->website = 'Wiseboutique';
@@ -524,6 +528,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $c = new HtmlPageCrawler($content);
 
         $imageUrl = $c->filter('img')->attr('src');
+        $imageUrl = str_replace(' ', '%20', $imageUrl);
         return $imageUrl;
     }
 }
