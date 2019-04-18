@@ -366,7 +366,8 @@
             </ul>
         </div>
     @endif
-    <div class="table-responsive mt-3">
+    <div class="infinite-scroll">
+      <div class="table-responsive mt-3">
         <table class="table table-bordered">
             <thead>
             <th width="15%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=name{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Name</a></th>
@@ -596,6 +597,7 @@
     </form>
 
     {!! $customers->links() !!}
+  </div>
 
 @endsection
 
@@ -604,8 +606,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript">
     var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
+
+    $(document).ready(function() {
+      $('ul.pagination').hide();
+      $(function() {
+          $('.infinite-scroll').jscroll({
+              autoTrigger: true,
+              loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+              padding: 2500,
+              nextSelector: '.pagination li.active + li a',
+              contentSelector: 'div.infinite-scroll',
+              callback: function() {
+                  $('ul.pagination').remove();
+              }
+          });
+      });
+    });
 
     $(document).ready(function() {
        $(".select-multiple").multiselect();

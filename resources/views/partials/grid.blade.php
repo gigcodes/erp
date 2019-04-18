@@ -96,6 +96,7 @@
                                 <optgroup label="Type">
                                   <option value="scraped" {{ isset($type) && $type == 'scraped' ? 'selected' : '' }}>Scraped</option>
                                   <option value="imported" {{ isset($type) && $type == 'imported' ? 'selected' : '' }}>Imported</option>
+                                  <option value="uploaded" {{ isset($type) && $type == 'uploaded' ? 'selected' : '' }}>Uploaded</option>
                               </optgroup>
                               </select>
                             </div>
