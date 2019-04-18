@@ -19,13 +19,15 @@ class GebnegozionlineScraper extends Scraper
     public function scrap(): void
     {
 //        $this->scrapPage(self::URL['homepage'], false);
-        $brands = Brand::all();
+        $brands = Brand::whereNull('deleted_at')->get();
         foreach ($brands as $brand) {
             if ($brand->name === 'ALEXANDER McQUEEN') {
                 $brand->name = 'ALEXANDER Mc QUEEN';
             } else {
                 continue;
             }
+            $brand->name = str_replace(' &amp; ', ' ', $brand->name);
+            $brand->name = str_replace('&amp;', '', $brand->name);
             $this->scrapPage(self::URL['woman'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '.html');
             $this->scrapPage(self::URL['man'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '.html');
         }
