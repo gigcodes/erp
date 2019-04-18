@@ -3,6 +3,7 @@
 namespace App\Services\Scrap;
 
 use App\Brand;
+use App\Category;
 use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\Product;
