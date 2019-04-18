@@ -273,6 +273,9 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $image = new ScrapedProducts();
         }
 
+        $sku = str_replace(' ', '', $sku);
+        $sku = str_replace('/', '', $sku);
+
         $image->brand_id = $brandId;
         $image->sku = $sku;
         $image->website = 'Wiseboutique';
@@ -524,6 +527,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $c = new HtmlPageCrawler($content);
 
         $imageUrl = $c->filter('img')->attr('src');
+        $imageUrl = str_replace(' ', '%20', $imageUrl);
         return $imageUrl;
     }
 }
