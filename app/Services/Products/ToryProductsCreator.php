@@ -79,6 +79,10 @@ class ToryProductsCreator
          // }
        }
 
+       if (array_key_exists('color', $properties_array)) {
+         $product->color = $properties_array['color'];
+       }
+
        $brand = Brand::find($image->brand_id);
 
        if (strpos($image->price, ',') !== false) {
