@@ -2,6 +2,7 @@
 
 namespace App\Services\Scrap;
 
+use App\Brand;
 use App\ScrapCounts;
 use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
@@ -15,21 +16,21 @@ class WiseBoutiqueScraper extends Scraper
         'HOMEPAGE' => 'https://www.wiseboutique.com/en',
     ];
 
-    private $paginationData = [
-        'man' => 31,
-        'woman' => 54
-    ];
 
-
-    public function scrap($key): void
+    public function scrap(): void
     {
-        $this->scrapKey = $key;
-
-        $this->scrapPage(self::URL[$key]);
+        $brands = Brand::whereNull('deleted_at')->get();
+        foreach ($brands as $brand) {
+            $brand->name = str_replace(' &amp; ', '&', $brand->name);
+            $brand->name = str_replace('&amp;', '&', $brand->name);
+            $this->scrapPage(self::URL['woman'] . '-' . strtolower(str_replace(' ', '+', trim($brand->name))) . '?n=120');
+            $this->scrapPage(self::URL['man'] . '-' . strtolower(str_replace(' ', '+', trim($brand->name))) . '?n=120');
+        }
     }
 
     private function scrapPage($url, $hasProduct=true): void
     {
+        echo $url . ' ';
         $scrapEntry = ScrapEntries::where('url', $url)->first();
         if (!$scrapEntry) {
             $scrapEntry = new ScrapEntries();
@@ -37,10 +38,6 @@ class WiseBoutiqueScraper extends Scraper
             $scrapEntry->url = $url;
             $scrapEntry->site_name = 'Wiseboutique';
             $scrapEntry->save();
-        }
-
-        if ($scrapEntry->is_scraped) {
-            return;
         }
 
         if ($hasProduct) {
@@ -61,22 +58,7 @@ class WiseBoutiqueScraper extends Scraper
             $allLinks->save();
         }
 
-        $paginationData = $scrapEntry->pagination;
-        if (!$paginationData)
-        {
-            $scrapEntry->pagination =  $this->getPaginationData(1);
-            $scrapEntry->save();
-        }
-
-        $pageNumber = $scrapEntry->pagination['current_page_number'];
-        $totalPageNumber = $this->paginationData[$this->scrapKey];
-
-        if ($pageNumber > $totalPageNumber) {
-            $scrapEntry->pagination = $this->getPaginationData();
-            $scrapEntry->save();
-        }
-
-        $body = $this->getContent($scrapEntry->url . '?page=' . $pageNumber);
+        $body = $this->getContent($scrapEntry->url);
         $c = new HtmlPageCrawler($body);
 
         $products = $c->filter('.contfoto .cotienifoto a:first-child')->getIterator();
@@ -108,21 +90,5 @@ class WiseBoutiqueScraper extends Scraper
             $entry->site_name = 'Wiseboutique';
             $entry->save();
         }
-
-
-        if ($pageNumber <= $totalPageNumber) {
-            ++$pageNumber;
-            $scrapEntry->pagination = $this->getPaginationData($pageNumber);
-            $scrapEntry->save();
-        }
-    }
-
-    private function getPaginationData($default = 1): array
-    {
-        $options = [
-            'current_page_number' => $default
-        ];
-
-        return $options;
     }
 }
