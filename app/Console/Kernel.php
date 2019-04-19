@@ -117,7 +117,8 @@ class Kernel extends ConsoleKernel
           MagentoController::get_magento_orders();
         })->hourly();
 
-        $schedule->command('update:magento-product-status')->dailyAt(03);
+        // Updates Magento Products status on ERP
+        // $schedule->command('update:magento-product-status')->dailyAt(03);
 
         $schedule->command('post:scheduled-media')
             ->everyMinute();

@@ -20,7 +20,7 @@ class UpdateMagentoProductStatus extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Updates Magento Product status on ERP';
 
     private $scraper;
 
@@ -52,7 +52,7 @@ class UpdateMagentoProductStatus extends Command
 
       // $magento_products = $proxy->catalogProductList($sessionId);
 
-      $products = Product::select(['sku', 'isUploaded', 'isFinal'])->get();
+      $products = Product::all();
 
       foreach ($products as $key => $product) {
         $error_message = '';
