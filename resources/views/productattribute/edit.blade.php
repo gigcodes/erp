@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('styles')
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+@endsection
 
 @section('content')
     <div class="row">
@@ -112,13 +115,21 @@
                     @endif
                 </div>
 
+                <div class="form-group">
+                    <strong>Category</strong>
+                    <?php echo $category ?>
+                </div>
 
                 <div class="form-group">
-                    <strong>Size:</strong>
-                    <input type="text" class="form-control" name="size" placeholder="Size" value="{{old('size') ? old('size') : $size }}"/>
-                    @if ($errors->has('size'))
-                        <div class="alert alert-danger">{{$errors->first('size')}}</div>
-                    @endif
+                  <strong>Size:</strong>
+                  {{-- <input type="text" class="form-control" name="size" placeholder="Size" value="{{old('size') ? old('size') : $size }}"/> --}}
+                  <select class="form-control select-multiple" name="size[]" id="size-selection" multiple>
+                    <option value="">Select Category</option>
+                  </select>
+
+                  @if ($errors->has('size'))
+                      <div class="alert alert-danger">{{$errors->first('size')}}</div>
+                  @endif
                 </div>
 
                 <div class="form-group">
@@ -197,11 +208,6 @@
                 <div class="form-group">
                     <strong> Special Price:</strong>
                     <input type="number" disabled class="form-control" placeholder="Price (in Euro)" value="{{ $price_special }}"/>
-                </div>
-
-                <div class="form-group">
-                    <strong>Category</strong>
-                    <?php echo $category ?>
                 </div>
 
                 <div class="form-group">
@@ -336,4 +342,114 @@
     </form>
 
 
+@endsection
+
+@section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script type="text/javascript">
+    // $(document).ready(function() {
+    //    $(".select-multiple").multiselect();
+    // });
+
+    var category_tree = {!! json_encode($category_tree) !!};
+    var categories_array = {!! json_encode($categories_array) !!};
+    var old_category = {{ $old_category }};
+    var selected_sizes = {!! json_encode($size) !!};
+
+    console.log(selected_sizes);
+
+    var id_list = {
+      41: ['34', '34.5', '35', '35.5', '36', '36.5', '37', '37.5', '38', '38.5', '39', '39.5', '40', '40.5', '41', '41.5', '42'], // Women Shoes
+      5: ['34', '34.5', '35', '35.5', '36', '36.5', '37', '37.5', '38', '38.5', '39', '39.5', '40', '40.5', '41', '41.5', '42'], // Men Shoes
+      40: ['36-36S', '38-38S', '40-40S', '42-42S', '44-44S', '46-46S', '48-48S', '50-50S'], // Women Clothing
+      12: ['36-36S', '38-38S', '40-40S', '42-42S', '44-44S', '46-46S', '48-48S', '50-50S'], // Men Clothing
+      63: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'], // Women T-Shirt
+      31: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'], // Men T-Shirt
+      120: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Sweat Pants
+      123: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Pants
+      128: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Denim
+      130: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Men Denim
+      131: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Men Sweat Pants
+      42: ['60', '65', '70', '75', '80', '85', '90', '95', '100', '105', '110', '115', '120'], // Women Belts
+      14: ['60', '65', '70', '75', '80', '85', '90', '95', '100', '105', '110', '115', '120'], // Men Belts
+    };
+
+    updateSizes(old_category);
+
+    selected_sizes.forEach(function(index) {
+      $('#size-selection option[value=' + index + ']').attr('selected', 'selected');
+    });
+
+    $('#product-category').on('change', function() {
+      updateSizes($(this).val());
+    });
+
+    function updateSizes(category_value) {
+      var found_id = 0;
+      var found_everything = false;
+      var category_id = category_value;
+
+      $('#size-selection').empty();
+
+      $('#size-selection').append($('<option>', {
+        value: '',
+        text: 'Select Category'
+      }));
+
+      if (categories_array[category_id] != 0) {
+
+        Object.keys(id_list).forEach(function(id) {
+          if (id == category_id) {
+            $('#size-selection').empty();
+
+            $('#size-selection').append($('<option>', {
+              value: '',
+              text: 'Select Category'
+            }));
+
+            id_list[id].forEach(function(value) {
+              $('#size-selection').append($('<option>', {
+                value: value,
+                text: value
+              }));
+            });
+
+            found_everything = true;
+          }
+        });
+
+        if (!found_everything) {
+          Object.keys(category_tree).forEach(function(key) {
+            Object.keys(category_tree[key]).forEach(function(index) {
+              if (index == categories_array[category_id]) {
+                found_id = index;
+
+                return;
+              }
+            });
+          });
+
+          if (found_id != 0) {
+            Object.keys(id_list).forEach(function(id) {
+              if (id == found_id) {
+                $('#size-selection').empty();
+
+                $('#size-selection').append($('<option>', {
+                  value: '',
+                  text: 'Select Category'
+                }));
+
+                id_list[id].forEach(function(value) {
+                  $('#size-selection').append($('<option>', {
+                    value: value,
+                    text: value
+                  }));
+                });
+              }
+            });
+          }
+        }
+      }
+    }
+  </script>
 @endsection
