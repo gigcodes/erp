@@ -313,7 +313,7 @@ class LeadsController extends Controller
 	    // ]);
 
       if ($request->ajax()) {
-        return response('success');
+        return response()->json(['lead' => $lead]);
       }
 
         return redirect()->route('leads.create')
@@ -506,6 +506,49 @@ class LeadsController extends Controller
 
 
         return redirect()->back()->with('success','Lead has been updated');
+    }
+
+    public function sendPrices(Request $request)
+    {
+      $params = [
+        'number'      => NULL,
+        'user_id'     => 6,
+        'approved'    => 0,
+        'status'      => 1,
+      ];
+
+      $customer = Customer::find($request->customer_id);
+      $lead = Customer::find($request->lead_id);
+      $message = 'This is prices for selected products: ';
+
+      foreach ($request->selected_product as $product_id) {
+        $product = Product::find($product_id);
+        $message .= "$product->name" . ' - ' . "$product->price_special; ";
+      }
+
+      $params['customer_id'] = $customer->id;
+      $params['message'] = $message;
+
+      $chat_message = ChatMessage::create($params);
+
+      // try {
+      // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $message, false, $chat_message->id);
+      // } catch {
+      //   // ok
+      // }
+      //
+      // $chat_message->update([
+      //   'approved'  => 1
+      // ]);
+
+      // CommunicationHistory::create([
+      // 	'model_id'		=> $lead->id,
+      // 	'model_type'	=> Leads::class,
+      // 	'type'				=> 'lead-prices',
+      // 	'method'			=> 'whatsapp'
+      // ]);
+
+      return response('success');
     }
 
     public function removeImage($old_image){

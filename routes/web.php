@@ -71,6 +71,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// adding lead routes
 	Route::get('leads/imageGrid', 'LeadsController@imageGrid')->name('leads.image.grid');
+	Route::post('leads/sendPrices', 'LeadsController@sendPrices')->name('leads.send.prices');
 	Route::resource('leads','LeadsController');
 	Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
 	Route::delete('leads/permanentDelete/{leads}','LeadsController@permanentDelete')->name('leads.permanentDelete');
@@ -89,6 +90,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::get('order/{id}/send/confirmationEmail', 'OrderController@sendConfirmation')->name('order.send.confirmation.email');
 	Route::post('order/{id}/refund/answer', 'OrderController@refundAnswer')->name('order.refund.answer');
+	Route::post('order/send/Delivery', 'OrderController@sendDelivery')->name('order.send.delivery');
 	Route::post('order/{id}/send/suggestion', 'OrderController@sendSuggestion')->name('order.send.suggestion');
 	Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
 	Route::post('order/{id}/sendRefund', 'OrderController@sendRefund');
@@ -163,6 +165,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Customers
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
+	Route::post('customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup')->name('customer.initiate.followup');
 	Route::get('customer/export', 'CustomerController@export')->name('customer.export');
 	Route::post('customer/merge', 'CustomerController@merge')->name('customer.merge');
 	Route::post('customer/import', 'CustomerController@import')->name('customer.import');
