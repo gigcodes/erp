@@ -125,6 +125,11 @@ class AutoMessager extends Command
     			// 	'type'				=> 'products-suggestion',
     			// 	'method'			=> 'whatsapp'
     			// ]);
+
+          sleep(5);
+
+          $params['message'] = 'This is transfer enter amount [AMOUNT], now ok, [ADDRESS]. Finish!';
+          $chat_message = ChatMessage::create($params);
         }
       }
     }
