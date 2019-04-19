@@ -98,6 +98,8 @@ class GetImagesBySku extends Scraper
                     return;
                 }
 
+                echo "Updated fendi \ng";
+
                 $c2 = new HtmlPageCrawler($productContent);
                 $images = $this->getImagesForFendi($c2);
 
