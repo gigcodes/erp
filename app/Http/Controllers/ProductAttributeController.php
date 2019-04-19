@@ -283,7 +283,7 @@ class ProductAttributeController extends Controller
 			foreach ( $sizes_array as $size ) {
 
 				$productData = array(
-					// 'categories'            => $categories,
+					'categories'            => $categories,
 					'name'                  => $product->name,
 					'description'           => '<p></p>',
 					'short_description'     => $product->short_description,
