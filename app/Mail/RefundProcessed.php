@@ -28,6 +28,7 @@ class RefundProcessed extends Mailable
     public function build()
     {
         return $this->from('contact@sololuxury.co.in')
+                    ->cc('customercare@sololuxury.co.in')
                     ->subject('Refund Processed')
                     ->markdown('emails.orders.refund');
     }

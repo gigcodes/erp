@@ -33,6 +33,7 @@ class VoucherReminder extends Mailable
     public function build()
     {
       return $this->from('contact@sololuxury.co.in')
+                  ->cc('customercare@sololuxury.co.in')
                   ->subject('Voucher Reminder')
                   ->markdown('emails.vouchers.reminder');
     }
