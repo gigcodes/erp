@@ -28,7 +28,7 @@ class GetImagesBySku extends Scraper
 
     public function scrap()
     {
-        $products = Product::where('brand', 11)->get();
+        $products = Product::where('brand', 18)->get();
 
         foreach ($products as $product) {
             if ($product->hasMedia(config('constants.media_tags'))) {
@@ -59,6 +59,10 @@ class GetImagesBySku extends Scraper
     private function getProductDetails($product, $brand): void
     {
 
+        if ($product->hasMedia(config('constants.media_tags'))) {
+            return;
+        }
+
 
         $sku = $product->sku;
         if (!$sku) {
@@ -66,6 +70,9 @@ class GetImagesBySku extends Scraper
         }
 
         $sku = str_replace(' ', '', $sku);
+
+        $sku = $this->decorateSku($sku, $product->brand);
+
         $url = str_replace('{QUERY}', $sku, $this->supportedBrands[$brand]);
 
         $content = $this->getContent($url);
@@ -98,8 +105,6 @@ class GetImagesBySku extends Scraper
                     return;
                 }
 
-                echo "Updated fendi \ng";
-
                 $c2 = new HtmlPageCrawler($productContent);
                 $images = $this->getImagesForFendi($c2);
 
@@ -108,7 +113,6 @@ class GetImagesBySku extends Scraper
                 $media = MediaUploader::fromSource($path)->upload();
                 $product->attachMedia($media,config('constants.media_tags'));
             }
-
             case 'farfetch':
             default:
                 break;
@@ -176,5 +180,44 @@ class GetImagesBySku extends Scraper
     private function getImageUrl($url)
     {
         return $url;
+    }
+
+    private function decorateSku($sku, $brandId)
+    {
+        if ($brandId !== 18) {
+            return $sku;
+        }
+
+        if (strlen($sku) === 19) {
+            $skuArray = [];
+            $skuArray[0] = substr($sku, 0, 6);
+            $skuArray[1] = substr($sku, 10, 4);
+            $skuArray[2] = substr($sku, 14, 5);
+            $skuArray[3] = substr($sku, 6, 1);
+            $skuArray[4] = substr($sku, 7, 3);
+
+            return implode('_', $skuArray);
+        }
+
+        if (strlen($sku) === 14) {
+            $skuArray = [];
+            $skuArray[0] = substr($sku, 0, 6);
+            $skuArray[1] = substr($sku, 6, 3);
+            $skuArray[2] = substr($sku, 9, 5);
+
+            return implode('_', $skuArray);
+        }
+
+        if (strlen($sku) === 20) {
+            $skuArray = [];
+            $skuArray[0] = substr($sku, 0, 6);
+            $skuArray[1] = substr($sku, 11, 4);
+            $skuArray[2] = substr($sku, 15, 5);
+            $skuArray[3] = substr($sku, 6, 1);
+            $skuArray[4] = substr($sku, 7, 4);
+
+            return implode('_', $skuArray);
+        }
+
     }
 }

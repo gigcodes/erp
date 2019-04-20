@@ -20,3 +20,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
 Route::post('sync-product', 'ScrapController@syncGnbProducts');
+Route::post('scrap-products/add', 'ScrapController@syncProductsFromNodeApp');
