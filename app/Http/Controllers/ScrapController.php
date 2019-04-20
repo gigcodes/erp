@@ -237,6 +237,62 @@ class ScrapController extends Controller
 
     }
 
+    public function syncProductsFromNodeApp(Request $request) {
+        $this->validate($request, [
+            'sku' => 'required|min:5',
+            'url' => 'required',
+            'images' => 'required|array',
+            'properties' => 'required',
+            'website' => 'required',
+            'price' => 'required',
+            'brand' => 'required'
+        ]);
+
+        $images = $request->get('images') ?? [];
+        $images = $this->downloadImagesForSites($images, strtolower($request->get('website')));
+
+        $brand = Brand::where('name', $request->get('brand'))->first();
+
+        if  (!$brand) {
+            return response()->json([
+                'status' => 'invalid_brand'
+            ]);
+        }
+
+        $scrapEntry = ScrapEntries::where('url', $request->get('url'))->first();
+        if (!$scrapEntry) {
+            $scrapEntry = new ScrapEntries();
+        }
+
+        $scrapEntry->url = $request->get('url');
+        $scrapEntry->title = $request->get('title') ?? 'N/A';
+        $scrapEntry->site_name = $request->get('website');
+        $scrapEntry->is_product_page = 1;
+        $scrapEntry->save();
+
+        $product = ScrapedProducts::where('sku', $request->get('sku'))->first();
+        if (!$product) {
+            $product = new ScrapedProducts();
+        }
+
+        $product->sku = $request->get('sku');
+        $product->has_sku = 1;
+        $product->url = $request->get('url');
+        $product->title = $request->get('title') ?? 'N/A';
+        $product->description = $request->get('description');
+        $product->properties = $request->get('properties');
+        $product->price = $request->get('price');
+        $product->website = $request->get('website');
+        $product->brand_id = $brand->id;
+        $product->images = $images;
+        $product->save();
+
+        return response()->json([
+            'status' => 'Added items successfuly!'
+        ]);
+
+    }
+
     private function downloadImagesForSites($data, $prefix = 'img'): array
     {
 

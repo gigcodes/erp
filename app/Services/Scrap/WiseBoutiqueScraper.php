@@ -79,7 +79,6 @@ class WiseBoutiqueScraper extends Scraper
             ;
 
             if ($entry) {
-
                 continue;
             }
 
