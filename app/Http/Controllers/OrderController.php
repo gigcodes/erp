@@ -622,7 +622,7 @@ class OrderController extends Controller {
 		// ]);
 
 		if ($request->ajax()) {
-			return response('success');
+			return response()->json(['order' => $order]);
 		}
 
 		return redirect()->route( 'order.index' )
@@ -1050,6 +1050,53 @@ class OrderController extends Controller {
 
 
 		// }
+	}
+
+	public function sendDelivery(Request $request)
+	{
+		$params = [
+			'number'      => NULL,
+			'user_id'     => 6,
+			'approved'    => 0,
+			'status'      => 1,
+		];
+
+		$customer = Customer::find($request->customer_id);
+		$message = 'We offer these shipping times: ';
+
+		foreach ($request->selected_product as $product_id) {
+			$product = Product::find($product_id);
+
+			if ($product->supplier == 'In-stock') {
+				$message .= "$product->name - within 3 days in India with additional cost; ";
+			} else {
+				$message .= "$product->name - minimum 10 days - no additional cost; ";
+			}
+		}
+
+		$params['customer_id'] = $customer->id;
+		$params['message'] = $message;
+
+		$chat_message = ChatMessage::create($params);
+
+		// try {
+		// app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $message, false, $chat_message->id);
+		// } catch {
+		//   // ok
+		// }
+		//
+		// $chat_message->update([
+		//   'approved'  => 1
+		// ]);
+
+		// CommunicationHistory::create([
+		// 	'model_id'		=> $request->order_id,
+		// 	'model_type'	=> Order::class,
+		// 	'type'				=> 'order-delivery-info',
+		// 	'method'			=> 'whatsapp'
+		// ]);
+
+		return response('success');
 	}
 
 	public function updateStatus(Request $request, $id)

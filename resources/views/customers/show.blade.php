@@ -2047,6 +2047,19 @@
 </div>
 
 <h2>Messages</h2>
+
+<div class="row">
+  <div class="col">
+    <div class="form-group">
+      <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
+        @csrf
+
+        <button type="submit" class="btn btn-secondary">Initiate Follow Up Sequence</button>
+      </form>
+    </div>
+  </div>
+</div>
+
 @if (isset($refunded_orders) && count($refunded_orders) > 0)
   <div class="row mb-3">
     <div class="col-md-4">
@@ -2306,8 +2319,22 @@
         beforeSend: function() {
           $(thiss).text('Creating...');
         },
-        success: function() {
-          location.reload();
+        success: function(response) {
+          $.ajax({
+            type: "POST",
+            url: "{{ route('leads.send.prices') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              customer_id: customer_id,
+              lead_id: response.lead.id,
+              selected_product: selected_product_images
+            }
+          }).done(function() {
+            location.reload();
+          }).fail(function(response) {
+            console.log(response);
+            alert('Could not send product prices to customer!');
+          });
         }
       }).fail(function(error) {
         console.log(error);
@@ -2339,8 +2366,22 @@
         beforeSend: function() {
           $(thiss).text('Creating...');
         },
-        success: function() {
-          location.reload();
+        success: function(response) {
+          $.ajax({
+            type: "POST",
+            url: "{{ route('order.send.delivery') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              customer_id: customer_id,
+              order_id: response.order.id,
+              selected_product: selected_product_images
+            }
+          }).done(function() {
+            location.reload();
+          }).fail(function(response) {
+            console.log(response);
+            alert('Could not send delivery message to customer!');
+          });
         }
       }).fail(function(error) {
         console.log(error);

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Order;
+use App\Customer;
 use App\ChatMessage;
 use App\CommunicationHistory;
 use Illuminate\Console\Command;
@@ -73,6 +74,70 @@ class AutoMessager extends Command
         }
       }
 
+      // Follow Up Sequence
+      $follow_ups = CommunicationHistory::where('type', 'initiate-followup')->where('model_type', 'App\Customer')->where('method', 'whatsapp')->get();
+      $now = Carbon::now();
+
+      foreach ($follow_ups as $follow_up) {
+        $time_diff = Carbon::parse($follow_up->created_at)->diffInHours($now);
+
+        if ($time_diff == 24) {
+          $customer = Customer::find($follow_up->model_id);
+          $params['customer_id'] = $customer->id;
+          $params['message'] = 'This is follow up after 24 hours';
+
+          $chat_message = ChatMessage::create($params);
+
+          // try {
+          // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
+          // } catch {
+          //   // ok
+          // }
+
+          // $chat_message->update([
+          //   'approved'  => 1
+          // ]);
+        }
+
+        if ($time_diff == 48) {
+          $customer = Customer::find($follow_up->model_id);
+          $params['customer_id'] = $customer->id;
+          $params['message'] = 'This is follow up after 48 hours';
+
+          $chat_message = ChatMessage::create($params);
+
+          // try {
+          // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
+          // } catch {
+          //   // ok
+          // }
+
+          // $chat_message->update([
+          //   'approved'  => 1
+          // ]);
+        }
+
+        if ($time_diff == 72) {
+          $customer = Customer::find($follow_up->model_id);
+          $params['customer_id'] = $customer->id;
+          $params['message'] = 'This is follow up after 72 hours';
+
+          $chat_message = ChatMessage::create($params);
+
+          // try {
+          // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
+          // } catch {
+          //   // ok
+          // }
+
+          // $chat_message->update([
+          //   'approved'  => 1
+          // ]);
+        }
+      }
+
+      // Refunds Workflow
+
       $refunded_orders = Order::where('refund_answer', 'no')->get();
       $now = Carbon::now();
 
@@ -125,6 +190,11 @@ class AutoMessager extends Command
     			// 	'type'				=> 'products-suggestion',
     			// 	'method'			=> 'whatsapp'
     			// ]);
+
+          sleep(5);
+
+          $params['message'] = 'This is transfer enter amount [AMOUNT], now ok, [ADDRESS]. Finish!';
+          $chat_message = ChatMessage::create($params);
         }
       }
     }

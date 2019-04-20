@@ -24,6 +24,7 @@ use App\Reply;
 use App\Instruction;
 use App\ReplyCategory;
 use App\CallRecording;
+use App\CommunicationHistory;
 use App\InstructionCategory;
 use App\OrderStatus as OrderStatuses;
 use App\ReadOnly\PurchaseStatus;
@@ -215,6 +216,20 @@ class CustomerController extends Controller
         CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm7.moduletype FROM messages mm7 WHERE mm7.id = message_id) ELSE (SELECT mm8.sent FROM chat_messages mm8 WHERE mm8.id = chat_message_id) END AS message_type')->paginate(24);
 
         return $customers;
+    }
+
+    public function initiateFollowup(Request $request, $id)
+    {
+      $customer = Customer::find($id);
+
+      CommunicationHistory::create([
+      	'model_id'		=> $id,
+      	'model_type'	=> Customer::class,
+      	'type'				=> 'initiate-followup',
+      	'method'			=> 'whatsapp'
+      ]);
+
+      return redirect()->route('customer.show', $id)->with('success', 'You have successfully initiated follow up sequence!');
     }
 
     public function export()

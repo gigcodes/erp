@@ -74,7 +74,7 @@ class ProductAttributeController extends Controller
 		$data['hmeasurement'] = $productattribute->hmeasurement;
 		$data['dmeasurement'] = $productattribute->dmeasurement;
 
-		$data['size'] = $productattribute->size;
+		$data['size'] = $productattribute->size ? explode(',', $productattribute->size) : [];
 
 		$data['size_value'] = $productattribute->size_value;
 		$data['sizes_array'] = $sizes->all();
@@ -94,9 +94,27 @@ class ProductAttributeController extends Controller
 
 		$data['images']  = $productattribute->getMedia(config('constants.media_tags'));
 
-		$data['category'] = Category::attr(['name' => 'category','class' => 'form-control'])
+		$data['category'] = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
 		                                        ->selected($productattribute->category)
 		                                        ->renderAsDropdown();
+
+    $data['old_category'] = $productattribute->category;
+		$data['category_tree'] = [];
+		$data['categories_array'] = [];
+
+		foreach (Category::all() as $category) {
+			if ($category->parent_id != 0) {
+				$parent = $category->parent;
+				if ($parent->parent_id != 0) {
+					$data['category_tree'][$parent->parent_id][$parent->id][$category->id];
+				} else {
+					$data['category_tree'][$parent->id][$category->id] = $category->id;
+				}
+			}
+
+			$data['categories_array'][$category->id] = $category->parent_id;
+		}
+
 		$data['product_link'] = $productattribute->product_link;
 		$data['supplier'] = $productattribute->supplier;
 		$data['supplier_link'] = $productattribute->supplier_link;
@@ -110,7 +128,6 @@ class ProductAttributeController extends Controller
 
 	public function update(Request $request,Guard $auth, Product $productattribute,Stage $stage)
 	{
-
 		$productattribute->dnf = $request->input('dnf');
 		$productattribute->name = $request->input('name');
 		$productattribute->short_description = $request->input('short_description');
@@ -120,7 +137,7 @@ class ProductAttributeController extends Controller
 		$productattribute->hmeasurement = $request->input('hmeasurement');
 		$productattribute->dmeasurement = $request->input('dmeasurement');
 
-		$productattribute->size = $request->input('size');
+		$productattribute->size = $request->size ? implode(',', $request->size) : '';
 
 		$productattribute->size_value = $request->input('size_value');
 
@@ -283,7 +300,7 @@ class ProductAttributeController extends Controller
 			foreach ( $sizes_array as $size ) {
 
 				$productData = array(
-					// 'categories'            => $categories,
+					'categories'            => $categories,
 					'name'                  => $product->name,
 					'description'           => '<p></p>',
 					'short_description'     => $product->short_description,
