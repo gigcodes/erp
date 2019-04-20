@@ -38,12 +38,12 @@
         <thead>
           <tr>
             <th rowspan="2">Date</th>
-            <th colspan="4" class="text-center">G&B</th>
-            <th colspan="4" class="text-center">Wise Boutique</th>
-            <th colspan="4" class="text-center">Double F</th>
+            <th colspan="5" class="text-center">G&B</th>
+            <th colspan="5" class="text-center">Wise Boutique</th>
+            <th colspan="5" class="text-center">Double F</th>
           </tr>
           <tr>
-            <td>Links</td>
+            <th>Links</th>
             <th>Scraped</th>
             <th>New</th>
             <th>Inventory</th>
