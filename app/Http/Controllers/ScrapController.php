@@ -287,6 +287,8 @@ class ScrapController extends Controller
         $product->images = $images;
         $product->save();
 
+        app('App\Services\Products\LidiaProductsCreator')->createProduct($product);
+
         return response()->json([
             'status' => 'Added items successfuly!'
         ]);
