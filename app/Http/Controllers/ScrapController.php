@@ -259,14 +259,22 @@ class ScrapController extends Controller
             ]);
         }
 
-        $scrapEntry = new ScrapEntries();
+        $scrapEntry = ScrapEntries::where('url', $request->get('url'))->first();
+        if (!$scrapEntry) {
+            $scrapEntry = new ScrapEntries();
+        }
+
         $scrapEntry->url = $request->get('url');
         $scrapEntry->title = $request->get('title') ?? 'N/A';
         $scrapEntry->site_name = $request->get('website');
         $scrapEntry->is_product_page = 1;
         $scrapEntry->save();
 
-        $product = new ScrapedProducts();
+        $product = ScrapedProducts::where('sku', $request->get('sku'))->first();
+        if (!$product) {
+            $product = new ScrapedProducts();
+        }
+
         $product->sku = $request->get('sku');
         $product->has_sku = 1;
         $product->url = $request->get('url');
