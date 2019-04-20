@@ -127,6 +127,8 @@
                     <option value="">Select Category</option>
                   </select>
 
+                  <input type="text" name="size[]" class="form-control mt-3 hidden" id="size-manual-input" placeholder="Manual Size" value="{{ !empty($size) ? $size[0] : '' }}">
+
                   @if ($errors->has('size'))
                       <div class="alert alert-danger">{{$errors->first('size')}}</div>
                   @endif
@@ -377,7 +379,7 @@
     updateSizes(old_category);
 
     selected_sizes.forEach(function(index) {
-      $('#size-selection option[value=' + index + ']').attr('selected', 'selected');
+      $('#size-selection option[value="' + index + '"]').attr('selected', 'selected');
     });
 
     $('#product-category').on('change', function() {
@@ -386,6 +388,7 @@
 
     function updateSizes(category_value) {
       var found_id = 0;
+      var found_final = false;
       var found_everything = false;
       var category_id = category_value;
 
@@ -395,7 +398,7 @@
         value: '',
         text: 'Select Category'
       }));
-
+      console.log('PARENT ID', categories_array[category_id]);
       if (categories_array[category_id] != 0) {
 
         Object.keys(id_list).forEach(function(id) {
@@ -415,6 +418,7 @@
             });
 
             found_everything = true;
+            $('#size-manual-input').addClass('hidden');
           }
         });
 
@@ -428,6 +432,8 @@
               }
             });
           });
+
+          console.log('FOUND ID', found_id);
 
           if (found_id != 0) {
             Object.keys(id_list).forEach(function(id) {
@@ -445,9 +451,16 @@
                     text: value
                   }));
                 });
+
+                $('#size-manual-input').addClass('hidden');
+                found_final = true;
               }
             });
           }
+        }
+
+        if (!found_final) {
+          $('#size-manual-input').removeClass('hidden');
         }
       }
     }
