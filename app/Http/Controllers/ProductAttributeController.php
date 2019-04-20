@@ -128,6 +128,8 @@ class ProductAttributeController extends Controller
 
 	public function update(Request $request,Guard $auth, Product $productattribute,Stage $stage)
 	{
+		$old_sizes = $productattribute->size;
+
 		$productattribute->dnf = $request->input('dnf');
 		$productattribute->name = $request->input('name');
 		$productattribute->short_description = $request->input('short_description');
@@ -210,8 +212,14 @@ class ProductAttributeController extends Controller
 
 		$productattribute->save();
 
+		$success_message = 'Attribute updated successfully. ';
+
 		if ($productattribute->isUploaded == 1) {
-			$result = $this->magentoProductUpdate($productattribute);
+			$result = $this->magentoProductUpdate($productattribute, $old_sizes);
+			
+			if (!$result[1]) {
+				$success_message .= "Not everything was updated correctly. Check product on Magento";
+			}
 		}
 
 
@@ -219,7 +227,7 @@ class ProductAttributeController extends Controller
 		ActivityConroller::create($productattribute->id,'attribute','create');
 
 		return redirect()->route( 'productattribute.index' )
-		                 ->with( 'success', 'Attribute updated successfully.' );
+		                 ->with( 'success', $success_message);
 	}
 
 	public function calculateSpecialDiscount($price,$brand) {
@@ -276,29 +284,43 @@ class ProductAttributeController extends Controller
 				->count();
 	}
 
-	public function magentoProductUpdate($product){
-
+	public function magentoProductUpdate($product, $old_sizes) {
 		$options = array(
 			'trace' => true,
 			'connection_timeout' => 120,
 			'wsdl_cache' => WSDL_CACHE_NONE,
 		);
+
 		$proxy = new \SoapClient(config('magentoapi.url'), $options);
 		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
 		$sku = $product->sku . $product->color;
 		$categories = CategoryController::getCategoryTreeMagentoIds($product->category);
-
 		$brand= $product->brands()->get();
+
 		array_push($categories,$brand[0]->magento_id);
 
+		// DELETES OLD SIMPLE PRODUCTS
+		$deleted_count = 0;
+		if(!empty($old_sizes)) {
+			$sizes_array = explode(',', $old_sizes);
+
+			foreach ($sizes_array as $size) {
+				try {
+					$result = $proxy->catalogProductDelete($sessionId, $sku . "-" . $size);
+
+					$deleted_count++;
+				} catch (\Exception $e) {
+					$error_message = $e->getMessage();
+				}
+			}
+		}
+
 		if(!empty($product->size)) {
-
 			$associated_skus = [];
-			$sizes_array = explode( ',', $product->size );
+			$sizes_array = explode(',', $product->size);
 
-			foreach ( $sizes_array as $size ) {
-
+			foreach ($sizes_array as $size) {
 				$productData = array(
 					'categories'            => $categories,
 					'name'                  => $product->name,
@@ -306,17 +328,17 @@ class ProductAttributeController extends Controller
 					'short_description'     => $product->short_description,
 					'website_ids'           => array(1),
 					// Id or code of website
-					// 'status'                => 2,
+					'status'                => $product->isFinal ?? 2,
 					// 1 = Enabled, 2 = Disabled
-					// 'visibility'            => 1,
+					'visibility'            => 1,
 					// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-					// 'tax_class_id'          => 2,
+					'tax_class_id'          => 2,
 					// Default VAT
-					// 'weight'                => 0,
-					// 'stock_data' => array(
-					// 	'use_config_manage_stock' => 1,
-					// 	'manage_stock' => 1,
-					// ),
+					'weight'                => 0,
+					'stock_data' => array(
+						'use_config_manage_stock' => 1,
+						'manage_stock' => 1,
+					),
 					'price'                 => $product->price_inr,
 					// Same price than configurable product, no price change
 					'special_price'         => $product->price_special,
@@ -330,8 +352,9 @@ class ProductAttributeController extends Controller
 						),
 					),
 				);
+
 				// Creation of product simple
-				$result            = $proxy->catalogProductUpdate( $sessionId, $sku . '-' . $size, $productData );
+				$result            = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
 				$associated_skus[] = $sku . '-' . $size;
 			}
 
@@ -339,7 +362,7 @@ class ProductAttributeController extends Controller
 			 * Configurable product
 			 */
 			$productData = array(
-				// 'categories'              => $categories,
+				'categories'              => $categories,
 				'name'                    => $product->name,
 				'description'             => '<p></p>',
 				'short_description'       => $product->short_description,
@@ -371,15 +394,14 @@ class ProductAttributeController extends Controller
 					),
 				),
 			);
-			// Creation of configurable product
-			$result = $proxy->catalogProductUpdate( $sessionId, $sku, $productData );
-		}
-		else{
 
+			// Creation of configurable product
+			$result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+		} else {
 			$measurement = 'L-'.$product->lmeasurement.',H-'.$product->hmeasurement.',D-'.$product->dmeasurement;
 
 			$productData = array(
-				// 'categories'            => $categories,
+				'categories'            => $categories,
 				'name'                  => $product->name,
 				'description'           => '<p></p>',
 				'short_description'     => $product->short_description,
@@ -410,8 +432,132 @@ class ProductAttributeController extends Controller
 				),
 			);
 			// Creation of product simple
-			$result  = $proxy->catalogProductUpdate( $sessionId, $sku, $productData );
+			$result  = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
 		}
+
+
+
+
+
+
+		// if(!empty($product->size)) {
+		// 	$associated_skus = [];
+		// 	$sizes_array = explode( ',', $product->size );
+		//
+		// 	foreach ( $sizes_array as $size ) {
+		// 		$productData = array(
+		// 			'categories'            => $categories,
+		// 			'name'                  => $product->name,
+		// 			'description'           => '<p></p>',
+		// 			'short_description'     => $product->short_description,
+		// 			'website_ids'           => array(1),
+		// 			// Id or code of website
+		// 			// 'status'                => 2,
+		// 			// 1 = Enabled, 2 = Disabled
+		// 			// 'visibility'            => 1,
+		// 			// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+		// 			// 'tax_class_id'          => 2,
+		// 			// Default VAT
+		// 			// 'weight'                => 0,
+		// 			// 'stock_data' => array(
+		// 			// 	'use_config_manage_stock' => 1,
+		// 			// 	'manage_stock' => 1,
+		// 			// ),
+		// 			'price'                 => $product->price_inr,
+		// 			// Same price than configurable product, no price change
+		// 			'special_price'         => $product->price_special,
+		// 			'additional_attributes' => array(
+		// 				'single_data' => array(
+		// 					array( 'key' => 'composition', 'value' => $product->composition, ),
+		// 					array( 'key' => 'color', 'value' => $product->color, ),
+		// 					array( 'key' => 'sizes', 'value' => $size, ),
+		// 					array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+		// 					array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+		// 				),
+		// 			),
+		// 		);
+		// 		// Creation of product simple
+		// 		$result            = $proxy->catalogProductUpdate( $sessionId, $sku . '-' . $size, $productData );
+		// 		$associated_skus[] = $sku . '-' . $size;
+		// 	}
+		//
+		// 	/**
+		// 	 * Configurable product
+		// 	 */
+		// 	$productData = array(
+		// 		'categories'              => $categories,
+		// 		'name'                    => $product->name,
+		// 		'description'             => '<p></p>',
+		// 		'short_description'       => $product->short_description,
+		// 		'website_ids'             => array(1),
+		// 		// Id or code of website
+		// 		// 'status'                  => 2,
+		// 		// 1 = Enabled, 2 = Disabled
+		// 		// 'visibility'              => 4,
+		// 		// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+		// 		// 'tax_class_id'            => 2,
+		// 		// Default VAT
+		// 		// 'weight'                  => 0,
+		// 		// 'stock_data' => array(
+		// 		// 	'use_config_manage_stock' => 1,
+		// 		// 	'manage_stock' => 1,
+		// 		// ),
+		// 		'price'                   => $product->price_inr,
+		// 		// Same price than configurable product, no price change
+		// 		'special_price'           => $product->price_special,
+		// 		'associated_skus'         => $associated_skus,
+		// 		// Simple products to associate
+		// 		// 'configurable_attributes' => array( 155 ),
+		// 		'additional_attributes'   => array(
+		// 			'single_data' => array(
+		// 				array( 'key' => 'composition', 'value' => $product->composition, ),
+		// 				array( 'key' => 'color', 'value' => $product->color, ),
+		// 				array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+		// 				array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+		// 			),
+		// 		),
+		// 	);
+		// 	// Creation of configurable product
+		// 	$result = $proxy->catalogProductUpdate( $sessionId, $sku, $productData );
+		// }
+		// else{
+		//
+		// 	$measurement = 'L-'.$product->lmeasurement.',H-'.$product->hmeasurement.',D-'.$product->dmeasurement;
+		//
+		// 	$productData = array(
+		// 		'categories'            => $categories,
+		// 		'name'                  => $product->name,
+		// 		'description'           => '<p></p>',
+		// 		'short_description'     => $product->short_description,
+		// 		'website_ids'           => array(1),
+		// 		// Id or code of website
+		// 		// 'status'                => 2,
+		// 		// 1 = Enabled, 2 = Disabled
+		// 		// 'visibility'            => 4,
+		// 		// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+		// 		// 'tax_class_id'          => 2,
+		// 		// Default VAT
+		// 		// 'weight'                => 0,
+		// 		// 'stock_data' => array(
+		// 		// 	'use_config_manage_stock' => 1,
+		// 		// 	'manage_stock' => 1,
+		// 		// ),
+		// 		'price'                 => $product->price_inr,
+		// 		// Same price than configurable product, no price change
+		// 		'special_price'         => $product->price_special,
+		// 		'additional_attributes' => array(
+		// 			'single_data' => array(
+		// 				array( 'key' => 'composition', 'value' => $product->composition, ),
+		// 				array( 'key' => 'color', 'value' => $product->color, ),
+		// 				array( 'key' => 'measurement', 'value' => $measurement, ),
+		// 				array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+		// 				array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+		// 			),
+		// 		),
+		// 	);
+		// 	// Creation of product simple
+		// 	$result  = $proxy->catalogProductUpdate( $sessionId, $sku, $productData );
+		// }
 
 		$images = $product->getMedia(config('constants.media_tags'));
 
@@ -437,7 +583,11 @@ class ProductAttributeController extends Controller
 		// 	);
 		// }
 
-		return $result;
+		if (count(explode(',', $old_sizes)) != $deleted_count) {
+			return [$result, FALSE];
+		} else {
+			return [$result, TRUE];
+		}
 	}
 
 }
