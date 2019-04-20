@@ -32,6 +32,7 @@ class PurchaseExport extends Mailable
     public function build()
     {
       return $this->from('contact@sololuxury.co.in')
+                  ->cc('customercare@sololuxury.co.in')
                   ->subject('Purchases Export')
                   ->markdown('emails.purchases.export')
                   ->attachFromStorageDisk('uploads', $this->path);

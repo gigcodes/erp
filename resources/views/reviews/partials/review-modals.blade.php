@@ -66,7 +66,7 @@
           <div id="review-container">
             <div class="form-group">
               <strong>Review:</strong>
-              <input type="text" name="review[]" class="form-control" value="{{ old('review') }}">
+              <input type="text" name="review[]" class="form-control review-input-field" value="{{ old('review') }}">
 
               @if ($errors->has('review'))
                 <div class="alert alert-danger">{{$errors->first('review')}}</div>
@@ -175,6 +175,8 @@
                 <div class="alert alert-danger">{{$errors->first('review')}}</div>
               @endif
             </div>
+
+            <div id="review-container-extra"></div>
           </div>
 
           <button type="button" class="btn btn-xs btn-secondary" id="add-edit-review-button">Add Review</button>
@@ -190,6 +192,45 @@
 
             @if ($errors->has('status'))
               <div class="alert alert-danger">{{$errors->first('status')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Posted Date:</strong>
+            <div class='input-group date' id='edit_posted_date'>
+              <input type='text' class="form-control" name="posted_date" value="{{ date('Y-m-d') }}" />
+
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+
+            @if ($errors->has('posted_date'))
+              <div class="alert alert-danger">{{$errors->first('posted_date')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Review Link</strong>
+            <input type="text" name="review_link" class="form-control" id="edit_review_link" value="">
+
+            @if ($errors->has('review_link'))
+              <div class="alert alert-danger">{{$errors->first('review_link')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Account</strong>
+            <select class="form-control" name="account_id" id="edit_review_account">
+              <option value="">Select Account</option>
+
+              @foreach ($accounts as $account)
+                <option value="{{ $account->id }}">{{ $account->email }} ({{ ucwords($account->platform) }})</option>
+              @endforeach
+            </select>
+
+            @if ($errors->has('account_id'))
+              <div class="alert alert-danger">{{$errors->first('account_id')}}</div>
             @endif
           </div>
         </div>

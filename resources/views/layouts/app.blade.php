@@ -302,7 +302,7 @@
 
 
 
-                        <li class="nav-item dropdown" data-count="
+                        {{-- <li class="nav-item dropdown" data-count="
 
                              {{ \App\Http\Controllers\NotificaitonContoller::salesCount() }}">
 
@@ -322,7 +322,7 @@
 
                             </div>
 
-                        </li>
+                        </li> --}}
 
 
 

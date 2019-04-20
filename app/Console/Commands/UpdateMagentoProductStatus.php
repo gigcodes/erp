@@ -54,6 +54,7 @@ class UpdateMagentoProductStatus extends Command
 
       // $magento_products = $proxy->catalogProductList($sessionId);
 
+      // $products = Product::skip(15934)->take(2558)->get();
       $products = Product::all();
 
       // $product = Product::where('sku', 'RR3MJ00GNXU0N0')->first();
@@ -103,7 +104,7 @@ class UpdateMagentoProductStatus extends Command
           // END OF NO CONFIGURABLE PRODUCT
         } else {
             // THERE IS A CONFIGURABLE PRODUCT
-            dump("$key CONFIGURABLE PRODUCT");
+            dump("$key CONFIGURABLE PRODUCT - $product->sku");
 
             $product->isUploaded = 1;
 

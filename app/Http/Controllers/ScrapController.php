@@ -114,11 +114,11 @@ class ScrapController extends Controller
       }]);
 
 
-      $activity_data_removed = ScrapActivity::where('status', 0)->get()->groupBy(['website', function ($query) {
+      $activity_data_removed = ScrapActivity::select(['website', 'status', 'created_at'])->where('status', 0)->get()->groupBy(['website', function ($query) {
         return Carbon::parse($query->created_at)->format('Y-m-d');
       }]);
 
-      $activity_data_inventory = ScrapActivity::where('status', 1)->get()->groupBy(['website', function ($query) {
+      $activity_data_inventory = ScrapActivity::select(['website', 'status', 'created_at'])->where('status', 1)->get()->groupBy(['website', function ($query) {
         return Carbon::parse($query->created_at)->format('Y-m-d');
       }]);
 
@@ -285,6 +285,8 @@ class ScrapController extends Controller
         $product->website = $request->get('website');
         $product->brand_id = $brand->id;
         $product->save();
+
+        app('App\Services\Products\LidiaProductsCreator')->createProduct($product);
 
         return response()->json([
             'status' => 'Added items successfuly!'

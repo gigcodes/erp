@@ -119,6 +119,13 @@ class Order extends Model {
 		return $count > 0 ? TRUE : FALSE;
 	}
 
+	public function is_sent_order_delivered()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'order-delivered')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
 	public function getCommunicationAttribute()
 	{
 		$message = $this->messages();

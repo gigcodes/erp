@@ -28,11 +28,7 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-      <div class="alert alert-success">
-        <p>{{ $message }}</p>
-      </div>
-    @endif
+    @include('partials.flash_messages')
 
     <div class="table-responsive mt-3">
         <table class="table table-bordered">
@@ -41,7 +37,8 @@
           <th>Products</th>
           <th>Date</th>
           <th>Delivery Images</th>
-          <th width="280px">Action</th>
+          <th>Status</th>
+          <th>Action</th>
         </tr>
         @foreach ($private_views as $key => $view)
             <tr class="{{ \Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d') ? 'row-highlight' : '' }}">
@@ -59,7 +56,9 @@
                         <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
                       </a>
                     @endforeach
-                  @elseif (\Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d'))
+                  @endif
+
+                  @if (\Carbon\Carbon::parse($view->date)->format('Y-m-d') <= date('Y-m-d'))
                     <form action="{{ route('stock.private.viewing.upload') }}" method="POST" enctype="multipart/form-data">
                       @csrf
                       <div class="form-group">
@@ -72,15 +71,24 @@
                   @endif
                 </td>
                 <td>
-                  {{-- <a class="btn btn-image" href="{{ route('stock.show', $stock->id) }}"><img src="/images/view.png" /></a>
+                  <select class="form-control status-change" name="status" data-id="{{ $view->id }}">
+                    <option value="">Select Status</option>
+                    <option value="delivered" {{ 'delivered' == $view->status ? 'selected' : '' }}>Delivered</option>
+                    <option value="returned" {{ 'returned' == $view->status ? 'selected' : '' }}>Returned</option>
+                  </select>
 
-                  {!! Form::open(['method' => 'DELETE','route' => ['stock.destroy', $stock->id],'style'=>'display:inline']) !!}
+                  <span class="text-success change_status_message" style="display: none;">Successfully updated status</span>
+                </td>
+                <td>
+                  {{-- <a class="btn btn-image" href="{{ route('stock.show', $stock->id) }}"><img src="/images/view.png" /></a> --}}
+
+                  {{-- {!! Form::open(['method' => 'DELETE','route' => ['stock.destroy', $stock->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-                  {!! Form::close() !!}
-
-                  {!! Form::open(['method' => 'DELETE','route' => ['stock.permanentDelete', $stock->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                   {!! Form::close() !!} --}}
+
+                  {!! Form::open(['method' => 'DELETE','route' => ['stock.private.viewing.destroy', $view->id],'style'=>'display:inline']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                  {!! Form::close() !!}
                 </td>
             </tr>
         @endforeach
@@ -88,4 +96,34 @@
     </div>
 
     {!! $private_views->appends(Request::except('page'))->links() !!}
+@endsection
+
+@section('scripts')
+  <script type="text/javascript">
+    $(document).on('change', '.status-change', function() {
+      var status = $(this).val();
+      var id = $(this).data('id');
+      var thiss = $(this);
+
+      $.ajax({
+        type: "POST",
+        url: "{{ url('stock/private/viewing') }}/" + id + "/updateStatus",
+        data: {
+          _token: "{{ csrf_token() }}",
+          status: status
+        }
+      }).done(function(response) {
+        console.log(response);
+
+        $(thiss).parent().find('.change_status_message').fadeIn(400);
+
+        setTimeout(function () {
+          $(thiss).parent().find('.change_status_message').fadeOut(400);
+        }, 2000);
+      }).fail(function(response) {
+        console.log(response);
+        alert('Could not update the status');
+      });
+    });
+  </script>
 @endsection

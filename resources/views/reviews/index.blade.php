@@ -10,20 +10,38 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Reviews</h2>
             <div class="pull-left">
-              {{-- <form action="/order/" method="GET">
-                  <div class="form-group">
-                      <div class="row">
-                          <div class="col-md-12">
-                              <input name="term" type="text" class="form-control"
-                                     value="{{ isset($term) ? $term : '' }}"
-                                     placeholder="Search">
-                          </div>
-                          <div class="col-md-4">
-                              <button hidden type="submit" class="btn btn-primary">Submit</button>
-                          </div>
-                      </div>
+              <form action="{{ route('review.index') }}" method="GET">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <select class="form-control" name="platform">
+                        <option value="">Select Platform</option>
+                        <option value="instagram" {{ 'instagram' == $filter_platform ? 'selected' : '' }}>Instagram</option>
+                        <option value="facebook" {{ 'facebook' == $filter_platform ? 'selected' : '' }}>Facebook</option>
+                        <option value="sitejabber" {{ 'sitejabber' == $filter_platform ? 'selected' : '' }}>Sitejabber</option>
+                        <option value="google" {{ 'google' == $filter_platform ? 'selected' : '' }}>Google</option>
+                        <option value="trustpilot" {{ 'trustpilot' == $filter_platform ? 'selected' : '' }}>Trustpilot</option>
+                      </select>
+                    </div>
                   </div>
-              </form> --}}
+
+                  <div class="col">
+                    <div class="form-group ml-3">
+                      <div class='input-group date' id='filter_posted_date'>
+                        <input type='text' class="form-control" name="posted_date" value="{{ $filter_posted_date }}" />
+
+                        <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                  </div>
+                </div>
+              </form>
+
             </div>
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#accountCreateModal">Create Account</a>
@@ -32,22 +50,7 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     <div id="exTab2" class="container mt-3">
       <ul class="nav nav-tabs">
@@ -56,6 +59,9 @@
         </li>
         <li>
           <a href="#reviews_tab" data-toggle="tab">Reviews</a>
+        </li>
+        <li>
+          <a href="#posted_tab" data-toggle="tab">Posted Reviews</a>
         </li>
       </u>
     </div>
@@ -130,7 +136,17 @@
                       <ul>
                         @foreach ($schedule->reviews as $review)
                           <li class="{{ $review->status == 1 ? 'text-success' : ($review->status == 2 ? 'text-danger' : '') }}">
-                            {{ $review->review }}
+                            @php
+                              preg_match_all('/(#\w*)/', $review->review, $match);
+
+                              $new_review = $review->review;
+                              foreach ($match[0] as $hashtag) {
+                                $exploded_review = explode($hashtag, $new_review);
+                                $new_hashtag = "<a target='_new' href='https://www.instagram.com/explore/tags/" . str_replace('#', '', $hashtag) . "'>" . $hashtag . "</a> ";
+                                $new_review = implode($new_hashtag, $exploded_review);
+                              }
+                            @endphp
+                            {!! $new_review !!}
                             @if ($review->status == 0)
                                -
                               <a href="#" class="btn-link review-approve-button" data-status="1" data-id="{{ $review->id }}">Approve</a>
@@ -168,6 +184,88 @@
 
         {!! $review_schedules->appends(Request::except('review-page'))->links() !!}
       </div>
+
+      <div class="tab-pane mt-3" id="posted_tab">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Posted Date</th>
+                <th>Account</th>
+                <th>Platform</th>
+                <th>Number of Reviews</th>
+                <th>Reviews for Approval</th>
+                <th>Review Link</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @foreach ($posted_reviews as $review)
+                <tr>
+                  <td>{{ \Carbon\Carbon::parse($review->date)->format('d-m') }}</td>
+                  <td>{{ $review->posted_date ? \Carbon\Carbon::parse($review->posted_date)->format('d-m') : '' }}</td>
+                  <td>{{ $review->account->email ?? '' }} ({{ ucwords($review->account->platform ?? '') }})</td>
+                  <td>{{ ucwords($review->platform) }}</td>
+                  <td>{{ $review->review_count }}</td>
+                  <td>
+                    @if ($review->reviews)
+                      <ul>
+                        @foreach ($review->reviews as $rev)
+                          <li class="{{ $rev->status == 1 ? 'text-success' : ($rev->status == 2 ? 'text-danger' : '') }}">
+                            @php
+                              preg_match_all('/(#\w*)/', $rev->review, $match);
+
+                              $new_review = $rev->review;
+                              foreach ($match[0] as $hashtag) {
+                                $exploded_review = explode($hashtag, $new_review);
+                                $new_hashtag = "<a target='_new' href='https://www.instagram.com/explore/tags/" . str_replace('#', '', $hashtag) . "'>" . $hashtag . "</a> ";
+                                $new_review = implode($new_hashtag, $exploded_review);
+                              }
+                            @endphp
+                            {!! $new_review !!}
+                            @if ($rev->status == 0)
+                               -
+                              <a href="#" class="btn-link review-approve-button" data-status="1" data-id="{{ $rev->id }}">Approve</a>
+                              <a href="#" class="btn-link review-approve-button" data-status="2" data-id="{{ $rev->id }}">Reject</a>
+                            @endif
+                          </li>
+                        @endforeach
+                      </ul>
+                    @endif
+                  </td>
+                  <td>
+                    <a href="{{ $review->review_link }}" target="_blank">{{ $review->review_link }}</a>
+                  </td>
+                  <td>
+                    <div class="form-group">
+                      <select class="form-control update-schedule-status" name="status" data-id="{{ $review->id }}" required>
+                        <option value="prepare" {{ 'prepare' == $review->status ? 'selected' : '' }}>Prepare</option>
+                        <option value="prepared" {{ 'prepared' == $review->status ? 'selected' : '' }}>Prepared</option>
+                        <option value="posted" {{ 'posted' == $review->status ? 'selected' : '' }}>Posted</option>
+                        <option value="pending" {{ 'pending' == $review->status ? 'selected' : '' }}>Pending</option>
+                      </select>
+
+                      <span class="text-success change_status_message" style="display: none;">Successfully changed schedule status</span>
+                    </div>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $review }}" data-reviews="{{ $review->reviews }}"><img src="/images/edit.png" /></button>
+
+                    {!! Form::open(['method' => 'DELETE','route' => ['review.schedule.destroy', $review->id],'style'=>'display:inline']) !!}
+                      <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                    {!! Form::close() !!}
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+
+        {!! $posted_reviews->appends(Request::except('posted-page'))->links() !!}
+      </div>
     </div>
 
     @include('reviews.partials.account-modals')
@@ -180,7 +278,7 @@
 
   <script type="text/javascript">
     $(document).ready(function() {
-      $('#birthday-datetime, #account_birthday, #review_date, #edit_review_date').datetimepicker({
+      $('#birthday-datetime, #account_birthday, #review_date, #edit_review_date, #edit_posted_date, #filter_posted_date').datetimepicker({
         format: 'YYYY-MM-DD'
       });
     });
@@ -218,29 +316,7 @@
     });
 
     $(document).on('click', '.edit-schedule', function() {
-      var schedule = $(this).data('schedule');
-      var reviews = $(this).data('reviews');
-      var url = "{{ url('review/schedule') }}/" + schedule.id;
-
-      $('#scheduleEditModal form').attr('action', url);
-      $('#edit_review_date').val(schedule.date);
-      $('#schedule_platform').val(schedule.platform);
-      $('#schedule_review_count').val(schedule.review_count);
-      $('#schedule_status').val(schedule.status);
-
-      console.log(reviews);
-
-      if (reviews.length > 0) {
-        Object.keys(reviews).forEach(function (index) {
-          if (index == 0) {
-            $('#edit_schedule_review').val(reviews[index].review);
-          } else {
-            var html = '<div class="form-group"><strong>Review:</strong><input type="text" name="review[]" class="form-control" value="' + reviews[index].review + '"><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
-
-            $('#edit-review-container').append(html);
-          }
-        });
-      }
+      fillEditSchedule(this);
     });
 
     $(document).on('change', '.update-schedule-status', function() {
@@ -265,6 +341,10 @@
         alert('Could not change the status');
         console.log(response);
       });
+
+      if (status == 'posted') {
+        $('#scheduleReviewModal').modal();
+      }
     });
 
     $(document).on('click', '.review-approve-button', function(e) {
@@ -308,6 +388,49 @@
           $(thiss).text('Reject');
         }
       });
+    });
+
+    function fillEditSchedule(thiss) {
+      var schedule = $(thiss).data('schedule');
+      var reviews = $(thiss).data('reviews');
+      var url = "{{ url('review/schedule') }}/" + schedule.id;
+
+      $('#scheduleEditModal form').attr('action', url);
+      $('#edit_review_date').val(schedule.date);
+      $('#schedule_platform').val(schedule.platform);
+      $('#schedule_review_count').val(schedule.review_count);
+      $('#schedule_status  option[value="' + schedule.status + '"]').prop('selected', true);
+      $('#edit_posted_date input').val(schedule.posted_date);
+      $('#edit_review_link').val(schedule.review_link);
+      $('#edit_review_account option[value="' + schedule.account_id + '"]').prop('selected', true);
+
+      console.log($('#schedule_status  option[value="' + schedule.status + '"]'));
+
+      if (reviews.length > 0) {
+        console.log(reviews);
+        $('#edit-review-container #review-container-extra').empty();
+
+        Object.keys(reviews).forEach(function (index) {
+          if (index == 0) {
+            $('#edit_schedule_review').val(reviews[index].review);
+          } else {
+            var html = '<div class="form-group"><strong>Review:</strong><input type="text" name="review[]" class="form-control" value="' + reviews[index].review + '"><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+
+            $('#edit-review-container #review-container-extra').append(html);
+          }
+        });
+      } else {
+        $('#edit_schedule_review').val('');
+        $('#edit-review-container #review-container-extra').empty();
+      }
+    }
+
+    $(document).on('keyup', '.review-input-field', function() {
+      if (/(#\w*)/.test($(this).val())) {
+        console.log('yra');
+      } else {
+        // console.log();
+      }
     });
   </script>
 @endsection

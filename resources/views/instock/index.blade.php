@@ -239,7 +239,7 @@
     @csrf
     <input type="hidden" name="date" value="{{ $date }}">
     <input type="hidden" name="customer_id" value="{{ $customer_id }}">
-    <input type="hidden" name="products" id="selected_products" value="">
+    <input type="hidden" name="products" id="selected_products_private_viewing" value="">
   </form>
 
 @endsection
@@ -308,6 +308,8 @@
         product_array.splice(index, 1);
       }
 
+      console.log(product_array);
+
       $(this).toggleClass('btn-success');
       $(this).toggleClass('btn-secondary');
     });
@@ -316,7 +318,7 @@
       if (product_array.length == 0) {
         alert('Please select some products');
       } else {
-        $('#selected_products').val(JSON.stringify(product_array));
+        $('#selected_products_private_viewing').val(JSON.stringify(product_array));
         $('#selectProductForm').submit();
       }
     });

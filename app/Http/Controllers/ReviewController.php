@@ -19,14 +19,43 @@ class ReviewController extends Controller
    		$this->middleware('permission:review-view');
    	}
 
-    public function index()
+    public function index(Request $request)
     {
-      $accounts = Account::latest()->paginate(Setting::get('pagination'));
-      $review_schedules = ReviewSchedule::latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
+      $filter_platform = $request->platform ?? '';
+      $filter_posted_date = $request->posted_date ?? '';
+
+      if ($request->platform != null) {
+        $accounts = Account::where('platform', $request->platform)->latest()->paginate(Setting::get('pagination'));
+        $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('platform', $request->platform);
+        $posted_reviews = ReviewSchedule::where('status', 'posted')->where('platform', $request->platform);
+      } else {
+        $accounts = Account::latest()->paginate(Setting::get('pagination'));
+      }
+
+      if ($request->posted_date != null) {
+        if ($request->platform != null) {
+          $review_schedules = $review_schedules->where('posted_date', $request->posted_date);
+          $posted_reviews = $posted_reviews->where('posted_date', $request->posted_date);
+        } else {
+          $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('posted_date', $request->posted_date);
+          $posted_reviews = ReviewSchedule::where('status', 'posted')->where('posted_date', $request->posted_date);
+        }
+      }
+
+      if ($request->platform == null && $request->posted_date == null) {
+        $review_schedules = ReviewSchedule::where('status', '!=', 'posted');
+        $posted_reviews = ReviewSchedule::where('status', 'posted');
+      }
+
+      $review_schedules = $review_schedules->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
+      $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
 
       return view('reviews.index', [
-        'accounts'          => $accounts,
-        'review_schedules'  => $review_schedules
+        'accounts'            => $accounts,
+        'review_schedules'    => $review_schedules,
+        'posted_reviews'      => $posted_reviews,
+        'filter_platform'     => $filter_platform,
+        'filter_posted_date'  => $filter_posted_date
       ]);
     }
 
@@ -84,6 +113,12 @@ class ReviewController extends Controller
       ]);
 
       $data = $request->except(['_token', 'review']);
+
+      // dd($request->review[0]);
+
+      // preg_match_all('/(#\w*)/', $request->review[0], $match);
+      //
+      // dd($match);
 
       $review_schedule = ReviewSchedule::create($data);
 
@@ -166,9 +201,12 @@ class ReviewController extends Controller
     public function scheduleUpdate(Request $request, $id)
     {
       $this->validate($request, [
+        'account_id'    => 'sometimes|nullable|numeric',
         'date'          => 'required|date',
+        'posted_date'   => 'sometimes|nullable|date',
         'platform'      => 'sometimes|nullable|string',
         'review_count'  => 'sometimes|nullable|numeric',
+        'review_link'   => 'sometimes|nullable|string',
         'status'        => 'required|string',
       ]);
 
