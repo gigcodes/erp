@@ -205,6 +205,35 @@ class StockController extends Controller
       return redirect()->back()->with('success', 'You have successfully uploaded images!');
     }
 
+    public function privateViewingUpdateStatus(Request $request, $id)
+    {
+      $private_view = PrivateView::find($id);
+
+      $private_view->status = $request->status;
+
+      $private_view->save();
+
+      if ($request->status == 'delivered') {
+        $private_view->products[0]->supplier = '';
+        $private_view->products[0]->save();
+      } elseif ($request->status == 'returned') {
+        // $private_view->products[0]->supplier = '';
+      }
+
+      return response('success');
+    }
+
+    public function privateViewingDestroy($id)
+    {
+      $private_view = PrivateView::find($id);
+
+      $private_view->products()->detach();
+
+      $private_view->delete();
+
+      return redirect()->route('stock.private.viewing')->withSuccess('You have successfully deleted private viewing record!');
+    }
+
     /**
      * Remove the specified resource from storage.
      *

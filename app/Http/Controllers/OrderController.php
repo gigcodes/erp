@@ -777,7 +777,7 @@ class OrderController extends Controller {
 		}
 
 		// if ($order->auto_emailed == 0) {
-		if (!$offline->is_sent_offline_confirmation()) {
+		if (!$order->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
 				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
 
@@ -810,6 +810,33 @@ class OrderController extends Controller {
 		}
 
 		if ($order->order_status == 'Delivered') {
+			if ($order->order_product) {
+				foreach ($order->order_product as $order_product) {
+					if ($order_product->product) {
+						if ($order_product->product->supplier == 'In-stock') {
+							$order_product->product->supplier = '';
+							$order_product->product->save();
+						}
+					}
+				}
+			}
+
+			if (!$order->is_sent_order_delivered()) {
+				$message = "Your Order has been delivered!";
+				$requestData = new Request();
+				$requestData->setMethod('POST');
+				$requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message]);
+
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+				CommunicationHistory::create([
+					'model_id'		=> $order->id,
+					'model_type'	=> Order::class,
+					'type'				=> 'order-delivered',
+					'method'			=> 'whatsapp'
+				]);
+			}
+
 			$order->delete();
 
 			if ($request->type != 'customer') {

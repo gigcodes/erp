@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Order;
 use App\Customer;
 use App\ChatMessage;
+use App\PrivateView;
 use App\CommunicationHistory;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
@@ -195,6 +196,39 @@ class AutoMessager extends Command
 
           $params['message'] = 'This is transfer enter amount [AMOUNT], now ok, [ADDRESS]. Finish!';
           $chat_message = ChatMessage::create($params);
+        }
+      }
+
+
+      // PRIVATE VIEWING ALERT
+      $now = Carbon::now();
+      $private_views = PrivateView::whereNull('status')->get();
+
+      foreach ($private_views as $private_view) {
+        $time_diff = Carbon::parse($private_view->date)->diffInHours($now);
+        dump($time_diff);
+        if ($time_diff == 24) {
+          $params['customer_id'] = $private_view->customer_id;
+          $params['message'] = 'After 24 hours - Alert about private viewing';
+
+          $chat_message = ChatMessage::create($params);
+
+          // try {
+          // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($private_view->customer->phone, $private_view->customer->whatsapp_number, $params['message'], false, $chat_message->id);
+          // } catch {
+          //   // ok
+          // }
+
+          // $chat_message->update([
+          //   'approved'  => 1
+          // ]);
+
+          // CommunicationHistory::create([
+    			// 	'model_id'		=> $private_view->id,
+    			// 	'model_type'	=> PrivateView::class,
+    			// 	'type'				=> 'private-viewing-alert',
+    			// 	'method'			=> 'whatsapp'
+    			// ]);
         }
       }
     }

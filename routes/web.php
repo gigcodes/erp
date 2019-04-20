@@ -59,7 +59,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::delete('stock/{id}/permanentDelete', 'StockController@permanentDelete')->name('stock.permanentDelete');
 	Route::post('stock/privateViewing/create', 'StockController@privateViewingStore')->name('stock.privateViewing.store');
 	Route::get('stock/private/viewing', 'StockController@privateViewing')->name('stock.private.viewing');
+	Route::delete('stock/private/viewing/{id}', 'StockController@privateViewingDestroy')->name('stock.private.viewing.destroy');
 	Route::post('stock/private/viewing/upload', 'StockController@privateViewingUpload')->name('stock.private.viewing.upload');
+	Route::post('stock/private/viewing/{id}/updateStatus', 'StockController@privateViewingUpdateStatus')->name('stock.private.viewing.updateStatus');
 //	Route::resource('activity','ActivityConroller');
 	Route::resource('brand','BrandController');
 	Route::resource('reply','ReplyController');
