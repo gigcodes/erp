@@ -41,8 +41,15 @@
             <th colspan="5" class="text-center">G&B</th>
             <th colspan="5" class="text-center">Wise Boutique</th>
             <th colspan="5" class="text-center">Double F</th>
+            <th colspan="5" class="text-center">Lidia</th>
           </tr>
           <tr>
+            <th>Links</th>
+            <th>Scraped</th>
+            <th>New</th>
+            <th>Inventory</th>
+            <th>Removed</th>
+
             <th>Links</th>
             <th>Scraped</th>
             <th>New</th>
@@ -84,6 +91,12 @@
               <td>{{ $item['DoubleF']['created'] ?? 0 }}</td>
               <td>{{ $item['DoubleF']['inventory'] ?? 0 }}</td>
               <td>{{ $item['DoubleF']['removed'] ?? 0 }}</td>
+
+              <td>{{ $item['lidiashopping']['links'] ?? 0 }}</td>
+              <td>{{ $item['lidiashopping']['scraped'] ?? 0 }}</td>
+              <td>{{ $item['lidiashopping']['created'] ?? 0 }}</td>
+              <td>{{ $item['lidiashopping']['inventory'] ?? 0 }}</td>
+              <td>{{ $item['lidiashopping']['removed'] ?? 0 }}</td>
             </tr>
           @endforeach
         </tbody>
