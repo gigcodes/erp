@@ -346,6 +346,8 @@ class ProductAttributeController extends Controller
 					'stock_data' => array(
 						'use_config_manage_stock' => 1,
 						'manage_stock' => 1,
+						'qty'					=> $product->stock,
+						'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
 					),
 					'price'                 => $product->price_inr,
 					// Same price than configurable product, no price change
@@ -383,10 +385,12 @@ class ProductAttributeController extends Controller
 				// 'tax_class_id'            => 2,
 				// Default VAT
 				// 'weight'                  => 0,
-				// 'stock_data' => array(
-				// 	'use_config_manage_stock' => 1,
-				// 	'manage_stock' => 1,
-				// ),
+				'stock_data' => array(
+					'use_config_manage_stock' => 1,
+					'manage_stock' => 1,
+					'qty'					=> $product->stock,
+					'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+				),
 				'price'                   => $product->price_inr,
 				// Same price than configurable product, no price change
 				'special_price'           => $product->price_special,
@@ -422,10 +426,12 @@ class ProductAttributeController extends Controller
 				// 'tax_class_id'          => 2,
 				// Default VAT
 				// 'weight'                => 0,
-				// 'stock_data' => array(
-				// 	'use_config_manage_stock' => 1,
-				// 	'manage_stock' => 1,
-				// ),
+				'stock_data' => array(
+					'use_config_manage_stock' => 1,
+					'manage_stock' => 1,
+					'qty'					=> $product->stock,
+					'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+				),
 				'price'                 => $product->price_inr,
 				// Same price than configurable product, no price change
 				'special_price'         => $product->price_special,

@@ -123,6 +123,7 @@ class UpdateInventory extends Command
                 $product->suppliers()->syncWithoutDetaching($db_supplier->id);
               }
 
+              $result = app('App\Http\Controllers\ProductInventoryController')->magentoSoapUpdateStock($product, $status ? 1 : 0);
             }
 
             ScrapActivity::create($params);

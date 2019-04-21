@@ -61,9 +61,10 @@ class UpdateMagentoProductStatus extends Command
       // $key = 0;
 
       foreach ($products as $key => $product) {
-        // $product = Product::where('sku', 'RR3MJ00GNXU0N0')->first();
+        // $product = Product::where('sku', 'RW0B0312VIT0RO')->first();
 
         $error_message = '';
+        $second_error_message = '';
         $sku = $product->sku . $product->color;
 
         try {
@@ -77,12 +78,19 @@ class UpdateMagentoProductStatus extends Command
           $product->isUploaded = 0;
           $product->isFinal = 0;
 
-          dump("$key Product Doesnt Exist");
+          dump("$key Product Doesnt Exist - status ($product->isUploaded)");
 
           // CHECKS FOR SKU WITHOUT COLOR
           try {
             $without_color_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $product->sku)), true);
+          } catch (\Exception $e) {
+            $second_error_message = $e->getMessage();
+            dump("$key Product Without Color Doesnt Exists");
+          }
+
+          if ($second_error_message != 'Product not exists.') {
             $product->isUploaded = 1;
+            dump("$key Product Without Color Exists - status($product->isUploaded)");
 
             $status = $without_color_product['status'];
             // 1 = Enabled, 2 = Disabled
@@ -96,17 +104,14 @@ class UpdateMagentoProductStatus extends Command
 
               dump("$key- Enabled Without Color Product");
             }
-
-          } catch (\Exception $e) {
-            $error_message = $e->getMessage();
           }
 
           // END OF NO CONFIGURABLE PRODUCT
         } else {
             // THERE IS A CONFIGURABLE PRODUCT
-            dump("$key CONFIGURABLE PRODUCT - $product->sku");
 
             $product->isUploaded = 1;
+            dump("$key CONFIGURABLE PRODUCT - $product->sku - status($product->isUploaded)");
 
             if(!empty($product->size)) {
               // THERE ARE SIZES
