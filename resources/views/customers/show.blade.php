@@ -1468,11 +1468,11 @@
                        @endforeach --}}
                    </select>
                </p>
-               <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
              </div>
 
              <div class="form-group">
                <input type="file" class="dropify" name="image" data-height="100" />
+               <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
              </div>
        </div>
 
@@ -1504,14 +1504,6 @@
                <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
                <input type="hidden" name="status" value="4" />
 
-               <strong>Assign to</strong>
-               <select name="assigned_user" class="form-control mb-3" required>
-                 <option value="">Select User</option>
-                 @foreach($users_array as $id => $user)
-                   <option value="{{ $id }}">{{ $user }}</option>
-                 @endforeach
-               </select>
-
                <p class="pb-4" style="display: block;">
                  <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
                    <option value="">Select Category</option>
@@ -1520,19 +1512,24 @@
                    @endforeach
                  </select>
 
-                   <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
-                       <option value="">Quick Reply</option>
-                       {{-- @foreach($internal_replies as $reply)
-                           <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                       @endforeach --}}
-                   </select>
+                 <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
+                   <option value="">Quick Reply</option>
+                 </select>
                </p>
-
-               <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
              </div>
 
              <div class="form-group">
-               <input type="file" class="dropify mb-3" name="image" data-height="100" />
+               <input type="file" class="dropify" name="image" data-height="100" />
+
+               <strong class="mt-3">Assign to</strong>
+               <select name="assigned_user" class="form-control mb-3" required>
+                 <option value="">Select User</option>
+                 @foreach($users_array as $id => $user)
+                   <option value="{{ $id }}">{{ $user }}</option>
+                 @endforeach
+               </select>
+
+               <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
              </div>
          </div>
 
@@ -1613,7 +1610,7 @@
 </div>
 
 <div class="row">
-  <div class="col-12" id="message-container"></div>
+  <div class="col-12 my-3" id="message-container"></div>
 
   <div class="col-xs-12 text-center">
     <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
