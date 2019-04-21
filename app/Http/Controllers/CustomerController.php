@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Mail\CustomerEmail;
 use Illuminate\Support\Facades\Mail;
 use App\Customer;
+use App\Suggestion;
 use App\Setting;
 use App\Leads;
 use App\Order;
@@ -608,9 +609,15 @@ class CustomerController extends Controller
     {
       // dd($request->all());
       $customer = Customer::find($request->customer_id);
+      $params = [
+        'customer_id' => $customer->id,
+        'number'      => $request->number
+      ];
 
       if ($request->brand[0] != null) {
         $products = Product::whereIn('brand', $request->brand);
+
+        $params['brand'] = json_encode($request->brand);
       }
 
       if ($request->category[0] != null && $request->category[0] != 1) {
@@ -619,6 +626,8 @@ class CustomerController extends Controller
         } else {
           $products = Product::whereIn('category', $request->category);
         }
+
+        $params['category'] = json_encode($request->category);
       }
 
       if ($request->size[0] != null) {
@@ -639,6 +648,8 @@ class CustomerController extends Controller
             return $query;
           });
         }
+
+        $params['size'] = json_encode($request->size);
       }
 
       if ($request->supplier[0] != null) {
@@ -659,6 +670,8 @@ class CustomerController extends Controller
             });
           });
         }
+
+        $params['supplier'] = json_encode($request->supplier);
       }
 
       if ($request->brand[0] == null && ($request->category[0] == 1 || $request->category[0] == null) && $request->size[0] == null && $request->supplier[0] == null) {
@@ -666,6 +679,13 @@ class CustomerController extends Controller
       }
 
       $products = $products->whereHas('scraped_products')->latest()->take($request->number)->get();
+
+      if ($customer->suggestion) {
+        $suggestion = Suggestion::find($customer->suggestion->id);
+        $suggestion->update($params);
+      } else {
+        $suggestion = Suggestion::create($params);
+      }
 
       if (count($products) > 0) {
         $params = [
@@ -677,11 +697,20 @@ class CustomerController extends Controller
           'customer_id' => $customer->id
         ];
 
-        $chat_message = ChatMessage::create($params);
+        $count = 0;
 
         foreach ($products as $product) {
-          if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
-            $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
+          if (!$product->suggestions->contains($suggestion->id)) {
+            if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
+              if ($count == 0) {
+                $chat_message = ChatMessage::create($params);
+              }
+
+              $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
+              $count++;
+            }
+
+            $product->suggestions()->attach($suggestion->id);
           }
         }
       }

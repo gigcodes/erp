@@ -23,6 +23,11 @@ class Customer extends Model
     return $this->hasMany('App\Order');
   }
 
+  public function suggestion()
+  {
+    return $this->hasOne('App\Suggestion');
+  }
+
   public function instructions()
   {
     return $this->hasMany('App\Instruction');
