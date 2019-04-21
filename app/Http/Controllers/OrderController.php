@@ -1139,6 +1139,20 @@ class OrderController extends Controller {
 		// 	'method'			=> 'whatsapp'
 		// ]);
 
+		$histories = CommunicationHistory::where('model_id', $customer->id)->where('model_type', Customer::class)->where('type', 'initiate-followup')->where('is_stopped', 0)->get();
+
+		foreach ($histories as $history) {
+			$history->is_stopped = 1;
+			$history->save();
+		}
+
+		CommunicationHistory::create([
+			'model_id'		=> $customer->id,
+			'model_type'	=> Customer::class,
+			'type'				=> 'initiate-followup',
+			'method'			=> 'whatsapp'
+		]);
+
 		return response('success');
 	}
 

@@ -1781,6 +1781,7 @@
           status: 1,
           assigned_user: "{{ Auth::id() }}",
           selected_product: selected_product_images,
+          type: "product-lead",
           created_at: created_at
         },
         beforeSend: function() {

@@ -17,6 +17,7 @@ use App\Image;
 use App\Reply;
 use App\Customer;
 use App\CallRecording;
+use App\CommunicationHistory;
 use App\ReplyCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -258,9 +259,23 @@ class LeadsController extends Controller
         $data['userid'] = Auth::id();
         $data['selected_product'] = json_encode( $request->input( 'selected_product' ) );
 
+        if ($request->type == 'product-lead') {
+          $brand_array = [];
 
-        $data['multi_brand'] = $request->input( 'multi_brand' ) ? json_encode( $request->input( 'multi_brand' ) ) : NULL;
-        $data['multi_category'] = $request->input('multi_category') ;
+          foreach ($request->selected_product as $product_id) {
+            $product = Product::find($product_id);
+
+            array_push($brand_array, $product->brand);
+            $multi_category = $product->category;
+          }
+
+          $data['multi_brand'] = $brand_array ? json_encode($brand_array) : NULL;
+          $data['multi_category'] = $multi_category;
+        } else {
+          $data['multi_brand'] = $request->input( 'multi_brand' ) ? json_encode( $request->input( 'multi_brand' ) ) : NULL;
+          $data['multi_category'] = $request->input('multi_category') ;
+        }
+
         // $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
 
 
@@ -547,6 +562,20 @@ class LeadsController extends Controller
       // 	'type'				=> 'lead-prices',
       // 	'method'			=> 'whatsapp'
       // ]);
+
+      $histories = CommunicationHistory::where('model_id', $customer->id)->where('model_type', Customer::class)->where('type', 'initiate-followup')->where('is_stopped', 0)->get();
+
+      foreach ($histories as $history) {
+        $history->is_stopped = 1;
+        $history->save();
+      }
+
+      CommunicationHistory::create([
+      	'model_id'		=> $customer->id,
+      	'model_type'	=> Customer::class,
+      	'type'				=> 'initiate-followup',
+      	'method'			=> 'whatsapp'
+      ]);
 
       return response('success');
     }
