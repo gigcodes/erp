@@ -226,8 +226,6 @@ class CustomerController extends Controller
 
     public function initiateFollowup(Request $request, $id)
     {
-      $customer = Customer::find($id);
-
       CommunicationHistory::create([
       	'model_id'		=> $id,
       	'model_type'	=> Customer::class,
@@ -236,6 +234,18 @@ class CustomerController extends Controller
       ]);
 
       return redirect()->route('customer.show', $id)->with('success', 'You have successfully initiated follow up sequence!');
+    }
+
+    public function stopFollowup(Request $request, $id)
+    {
+      $histories = CommunicationHistory::where('model_id', $id)->where('model_type', Customer::class)->where('type', 'initiate-followup')->where('is_stopped', 0)->get();
+
+      foreach ($histories as $history) {
+        $history->is_stopped = 1;
+        $history->save();
+      }
+
+      return redirect()->route('customer.show', $id)->with('success', 'You have successfully stopped follow up sequence!');
     }
 
     public function export()

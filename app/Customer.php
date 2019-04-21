@@ -72,6 +72,13 @@ class Customer extends Model
       return $this->hasOne(InstagramThread::class);
     }
 
+  public function is_initiated_followup()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'initiate-followup')->where('is_stopped', 0)->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
 	public function getCommunicationAttribute()
 	{
 		$message = $this->messages();

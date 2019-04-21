@@ -1567,38 +1567,51 @@
 <h2>Messages</h2>
 
 <div class="row">
-  <div class="col">
-    <div class="form-group">
-      <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
-        @csrf
+  <div class="col-md-4">
+    <div class="form-inline">
+      <div class="form-group">
+        <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
+          @csrf
 
-        <button type="submit" class="btn btn-secondary">Initiate Follow Up Sequence</button>
-      </form>
+          <button type="submit" class="btn btn-secondary" {{ $customer->is_initiated_followup() ? 'disabled' : '' }}>Initiate Follow Up Sequence</button>
+        </form>
+      </div>
+
+      @if ($customer->is_initiated_followup())
+        <div class="form-group ml-3">
+          <form action="{{ route('customer.stop.followup', $customer->id) }}" method="POST">
+            @csrf
+
+            <button type="submit" class="btn btn-secondary">STOP</button>
+          </form>
+        </div>
+      @endif
     </div>
   </div>
+
+  @if (isset($refunded_orders) && count($refunded_orders) > 0)
+    <div class="col-md-4">
+      <h4 class="position-absolute" style="top: -40px;">Refund Orders Status</h4>
+
+      <div class="form-inline">
+        <div class="form-group">
+          <select class="form-control refund-orders" name="">
+            <option value="">Select Order</option>
+            @foreach ($refunded_orders as $order)
+              <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="d-inline ml-3">
+          <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
+          <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
+        </div>
+      </div>
+    </div>
+  @endif
 </div>
 
-@if (isset($refunded_orders) && count($refunded_orders) > 0)
-  <div class="row mb-3">
-    <div class="col-md-4">
-      <h3>Refund Orders Status</h3>
-
-      <div class="form-group">
-        <select class="form-control refund-orders" name="">
-          <option value="">Select Order</option>
-          @foreach ($refunded_orders as $order)
-            <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
-          @endforeach
-        </select>
-      </div>
-
-      <div class="d-inline">
-        <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
-        <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
-      </div>
-    </div>
-  </div>
-@endif
 <div class="row">
   <div class="col-12" id="message-container"></div>
 
