@@ -233,6 +233,19 @@
               <div class="alert alert-danger">{{$errors->first('account_id')}}</div>
             @endif
           </div>
+
+          <div class="form-group">
+            <strong>Customer:</strong>
+            <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" id="edit_customer_id" title="Choose a Customer">
+              @foreach ($customers as $customer)
+                <option data-tokens="{{ $customer['name'] }} {{ $customer['email'] }}  {{ $customer['phone'] }} {{ $customer['instahandler'] }}" value="{{ $customer['id'] }}">{{ $customer['id'] }} - {{ $customer['name'] }} - {{ $customer['phone'] }}</option>
+              @endforeach
+            </select>
+
+            @if ($errors->has('customer_id'))
+                <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
+            @endif
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
