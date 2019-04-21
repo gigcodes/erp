@@ -347,6 +347,7 @@ class ProductInventoryController extends Controller
 				}
 			}
 
+			$error_message = '';
 			try {
 				$result = $proxy->catalogInventoryStockItemUpdate( $sessionId, $sku, array(
 	//				'qty'         => 0,
@@ -363,6 +364,8 @@ class ProductInventoryController extends Controller
 			}
 		}
 		else {
+			$error_message = '';
+			
 			try {
 				$result = $proxy->catalogInventoryStockItemUpdate( $sessionId, $sku, array(
 					'qty'         => $stockQty,
