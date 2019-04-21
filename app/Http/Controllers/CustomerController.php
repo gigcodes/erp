@@ -607,11 +607,14 @@ class CustomerController extends Controller
 
     public function sendSuggestion(Request $request)
     {
-      // dd($request->all());
       $customer = Customer::find($request->customer_id);
       $params = [
         'customer_id' => $customer->id,
-        'number'      => $request->number
+        'number'      => $request->number,
+        'brand'       => '',
+        'category'    => '',
+        'size'        => '',
+        'supplier'    => ''
       ];
 
       if ($request->brand[0] != null) {

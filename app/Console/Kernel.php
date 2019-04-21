@@ -14,6 +14,7 @@ use App\Console\Commands\CheckLogins;
 use App\Console\Commands\AutoInterestMessage;
 use App\Console\Commands\AutoReminder;
 use App\Console\Commands\AutoMessager;
+use App\Console\Commands\SendProductSuggestion;
 //use App\Console\Commands\SyncInstagramMessage;
 use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
@@ -59,6 +60,7 @@ class Kernel extends ConsoleKernel
         AutoInterestMessage::class,
         AutoReminder::class,
         AutoMessager::class,
+        SendProductSuggestion::class,
         MakeApprovedImagesSchedule::class,
         UpdateSkuInGnb::class,
         CreateScrapedProducts::class,
@@ -131,6 +133,7 @@ class Kernel extends ConsoleKernel
         // Sends Auto messages
         $schedule->command('send:auto-reminder')->hourly();
         // $schedule->command('send:auto-messager')->hourly();
+        $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
 
         $schedule->command('gebnegozionline:get-products-list')
             ->everyMinute()
