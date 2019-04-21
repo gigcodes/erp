@@ -210,6 +210,13 @@
 
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
+                        <strong> Suppliers :</strong>
+                        {{ $suppliers }}
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
                         <strong> Supplier Link :</strong>
                         <a href="{{ $supplier_link }}" target="_blank">{{ $supplier_link }}</a>
                     </div>

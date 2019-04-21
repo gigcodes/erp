@@ -115,6 +115,16 @@ class ProductController extends Controller {
 		$data['description_link'] = $product->description_link;
 		$data['location'] = $product->location;
 
+		$data['suppliers'] = '';
+
+		foreach ($product->suppliers as $key => $supplier) {
+			if ($key == 0) {
+				$data['suppliers'] .= $supplier->supplier;
+			} else {
+				$data['suppliers'] .= ", $supplier->supplier";
+			}
+		}
+
 		$data['images'] = $product->getMedia( config( 'constants.media_tags' ) );
 
 		$data['categories'] = $product->category ? CategoryController::getCategoryTree( $product->category ) : '';

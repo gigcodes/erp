@@ -49,6 +49,11 @@ class Product extends Model
 		return $this->hasMany('App\Notification');
 	}
 
+	public function suppliers()
+	{
+		return $this->belongsToMany('App\Supplier', 'product_suppliers', 'product_id', 'supplier_id');
+	}
+
 
 	public function brands(){
 		return $this->hasOne('App\Brand','id','brand');

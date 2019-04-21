@@ -132,22 +132,7 @@
     </div>
 
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            {{ $message }}
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     {!! $products->appends(Request::except('page'))->links() !!}
 
@@ -343,7 +328,19 @@
               'is_scraped': {{ $product->is_scraped }},
               'is_imported': {{ $product->status == 2 ? 1 : 0 }},
               'supplier' : "{{ $product->supplier }}",
-
+              @php
+                $supplier_list = '';
+              @endphp
+              @foreach ($product->suppliers as $key => $supplier)
+                @php
+                  if ($key == 0) {
+                    $supplier_list .= "$supplier->supplier";
+                  } else {
+                    $supplier_list .= ", $supplier->supplier";
+                  }
+                @endphp
+              @endforeach
+              'suppliers' : "{{ $supplier_list }}",
               @if( isset($doSelection) )
               'isAttached': '{{ in_array($product->id, $selected_products) ? 1 : 0 }}',
               @endif
@@ -373,7 +370,9 @@
                                           <p>Price : ` + product['price'] + `</p>
                                           <!--<p>Brand : ` + product['brand'] + `</p>-->
                                           <p>Status : ` + product['stage'] + `</p>
+
                                           <p>Supplier : ` + product['supplier'] + `</p>
+                                          <p>Supplier : ` + product['suppliers'] + `</p>
                                           ` + is_scraped + is_imported + `
 
                                           <input type="checkbox" class="select-product-edit" name="product_id" data-id="` + product['id'] + `}">

@@ -4,6 +4,7 @@ namespace App\Services\Products;
 
 use App\Brand;
 use App\Product;
+use App\Supplier;
 use App\ScrapActivity;
 use App\Setting;
 use Validator;
@@ -20,16 +21,17 @@ class GnbProductsCreator
          'sku' => 'unique:products,sku'
        ]);
 
+       $old_supplier = '';
        if ($validator->fails()) {
          $product = Product::where('sku', $image->sku)->first();
-           $params = [
-               'website'             => 'Tory',
-               'scraped_product_id'  => $image->id,
-               'status'              => 1
-           ];
-
-           ScrapActivity::create($params);
-
+           // $params = [
+           //     'website'             => 'Tory',
+           //     'scraped_product_id'  => $image->id,
+           //     'status'              => 1
+           // ];
+           //
+           // ScrapActivity::create($params);
+           $old_supplier = $product->supplier;
        } else {
          $product = new Product;
        }
@@ -109,6 +111,12 @@ class GnbProductsCreator
        $product->price_special = round($product->price_special, -3);
 
        $product->save();
+
+       // if ($old_supplier != '' && $old_supplier != 'G & B Negozionline') {
+         if ($db_supplier = Supplier::where('supplier', 'G & B Negozionline')->first()) {
+           $product->suppliers()->syncWithoutDetaching($db_supplier->id);
+         }
+       // }
 
        $images = $image->images;
 

@@ -130,6 +130,10 @@ class LidiaProductsCreator
 
        $product->save();
 
+       if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
+         $product->suppliers()->syncWithoutDetaching($db_supplier->id);
+       }
+
        $images = $image->images;
 
        $product->detachMediaTags(config('constants.media_tags'));

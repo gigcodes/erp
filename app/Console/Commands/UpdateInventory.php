@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\Supplier;
 use App\ScrapedProducts;
 use App\ScrapActivity;
 use App\Services\Scrap\DoubleFProductDetailsScraper;
@@ -70,6 +71,8 @@ class UpdateInventory extends Command
                   'scraped_product_id'  => $scraped_product->id,
                   'status'              => $status ? 1 : 0
                 ];
+
+                $supplier = 'G & B Negozionline';
             }
 
             if ($scraped_product->website == 'Wiseboutique') {
@@ -80,6 +83,8 @@ class UpdateInventory extends Command
                   'scraped_product_id'  => $scraped_product->id,
                   'status'              => $status ? 1 : 0
                 ];
+
+                $supplier = 'Wise Boutique';
             }
 
             if ($scraped_product->website == 'DoubleF') {
@@ -90,6 +95,8 @@ class UpdateInventory extends Command
                   'scraped_product_id'  => $scraped_product->id,
                   'status'              => $status ? 1 : 0
                 ];
+
+                $supplier = 'Double F';
             }
 
             if ($scraped_product->website == 'Tory') {
@@ -100,12 +107,23 @@ class UpdateInventory extends Command
                     'scraped_product_id'  => $scraped_product->id,
                     'status'              => $status ? 1 : 0
                 ];
+
+                $supplier = 'Tory Burch';
             }
 
+            // Updates the stock
             $sku = $scraped_product->sku;
-            Product::where('sku', $sku)->update([
-                'stock' => $status ? 1 : 0
-            ]);
+            if ($product = Product::where('sku', $sku)->first()) {
+              $product->update([
+                  'stock' => $status ? 1 : 0
+              ]);
+
+              // Attaches suppliers
+              if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
+                $product->suppliers()->syncWithoutDetaching($db_supplier->id);
+              }
+
+            }
 
             ScrapActivity::create($params);
         }

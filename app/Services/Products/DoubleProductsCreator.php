@@ -4,6 +4,7 @@ namespace App\Services\Products;
 
 use App\Brand;
 use App\Product;
+use App\Supplier;
 use App\Category;
 use App\Setting;
 use Validator;
@@ -94,6 +95,10 @@ class DoubleProductsCreator
         $product->price_special = round($product->price_special, -3);
 
         $product->save();
+
+        if ($db_supplier = Supplier::where('supplier', 'Double F')->first()) {
+          $product->suppliers()->syncWithoutDetaching($db_supplier->id);
+        }
 
         $images = $image->images;
 
