@@ -812,7 +812,7 @@
                     <div class="form-group">
                       <strong>status:</strong>
                       <Select name="status" class="form-control change_status" data-leadid="{{ $lead->id }}">
-                        @foreach($status as $key => $value)
+                        @foreach($lead_status as $key => $value)
                           <option value="{{$value}}" {{$value == $lead->status ? 'Selected=Selected':''}}>{{$key}}</option>
                         @endforeach
                       </Select>

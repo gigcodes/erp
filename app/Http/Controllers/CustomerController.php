@@ -413,7 +413,7 @@ class CustomerController extends Controller
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
 
         $emails = [];
-        $status = (New status)->all();
+        $lead_status = (New status)->all();
         $users_array = Helpers::getUserArray(User::all());
         $brands = Brand::all()->toArray();
         $reply_categories = ReplyCategory::all();
@@ -429,7 +429,7 @@ class CustomerController extends Controller
         return view('customers.show', [
             'customer'  => $customer,
             'customers'  => $customers,
-            'status'    => $status,
+            'lead_status'    => $lead_status,
             'brands'    => $brands,
             'users_array'     => $users_array,
             'reply_categories'  => $reply_categories,
