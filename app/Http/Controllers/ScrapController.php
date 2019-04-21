@@ -248,9 +248,6 @@ class ScrapController extends Controller
             'brand' => 'required'
         ]);
 
-        $images = $request->get('images') ?? [];
-        $images = $this->downloadImagesForSites($images, strtolower($request->get('website')));
-
         $brand = Brand::where('name', $request->get('brand'))->first();
 
         if  (!$brand) {
@@ -273,6 +270,9 @@ class ScrapController extends Controller
         $product = ScrapedProducts::where('sku', $request->get('sku'))->first();
         if (!$product) {
             $product = new ScrapedProducts();
+            $images = $request->get('images') ?? [];
+            $images = $this->downloadImagesForSites($images, strtolower($request->get('website')));
+            $product->images = $images;
         }
 
         $product->sku = $request->get('sku');
@@ -284,7 +284,6 @@ class ScrapController extends Controller
         $product->price = $request->get('price');
         $product->website = $request->get('website');
         $product->brand_id = $brand->id;
-        $product->images = $images;
         $product->save();
 
         app('App\Services\Products\LidiaProductsCreator')->createProduct($product);
