@@ -1090,16 +1090,32 @@ class OrderController extends Controller {
 
 		$customer = Customer::find($request->customer_id);
 		$message = 'We offer these shipping times: ';
+		$express_shipping = '';
+		$normal_shipping = '';
+		$in_stock = 0;
+		$normal_products = 0;
 
-		foreach ($request->selected_product as $product_id) {
+		foreach ($request->selected_product as $key => $product_id) {
 			$product = Product::find($product_id);
 
 			if ($product->supplier == 'In-stock') {
-				$message .= "$product->name - within 3 days in India with additional cost; ";
+				$express_shipping .= $in_stock == 0 ? $product->name : ", $product->name";
+				$in_stock++;
 			} else {
-				$message .= "$product->name - minimum 10 days - no additional cost; ";
+				$normal_shipping .= $normal_products == 0 ? $product->name : ", $product->name";
+				$normal_products++;
 			}
 		}
+
+		if ($in_stock >= 1) {
+			$express_shipping .= " - within 3 days in India with additional cost; ";
+		}
+
+		if ($normal_products >= 1) {
+			$normal_shipping .= " - minimum 10 days - no additional cost; ";
+		}
+
+		$message .= $express_shipping . $normal_shipping;
 
 		$params['customer_id'] = $customer->id;
 		$params['message'] = $message;
