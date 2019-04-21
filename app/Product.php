@@ -81,4 +81,9 @@ class Product extends Model
   {
     return $this->hasMany('App\OrderProduct', 'sku', 'sku');
   }
+
+	public function scraped_products()
+	{
+		return $this->hasOne('App\ScrapedProducts', 'sku', 'sku');
+	}
 }

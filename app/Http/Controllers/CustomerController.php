@@ -14,14 +14,17 @@ use App\Setting;
 use App\Leads;
 use App\Order;
 use App\Status;
+use App\Product;
 use App\Brand;
+use App\Supplier;
+use App\Category;
 use App\User;
-use App\ChatMessage;
 use App\MessageQueue;
 use App\Message;
 use App\Helpers;
 use App\Reply;
 use App\Instruction;
+use App\ChatMessage;
 use App\ReplyCategory;
 use App\CallRecording;
 use App\CommunicationHistory;
@@ -32,6 +35,9 @@ use App\ReadOnly\SoloNumbers;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 use Webklex\IMAP\Client;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Auth;
 
 class CustomerController extends Controller
 {
@@ -405,6 +411,9 @@ class CustomerController extends Controller
         $order_status_report = OrderStatuses::all();
         $purchase_status = (new PurchaseStatus)->all();
         $solo_numbers = (new SoloNumbers)->all();
+        $suppliers = Supplier::select(['id', 'supplier'])->get();
+        $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
+    		                                        ->renderAsDropdown();
 
         return view('customers.show', [
             'customer'  => $customer,
@@ -418,7 +427,9 @@ class CustomerController extends Controller
             'order_status_report' =>  $order_status_report,
             'purchase_status' =>  $purchase_status,
             'solo_numbers' =>  $solo_numbers,
-            'emails'          => $emails
+            'emails'          => $emails,
+            'category_suggestion'          => $category_suggestion,
+            'suppliers'          => $suppliers,
         ]);
     }
 
@@ -581,6 +592,91 @@ class CustomerController extends Controller
       $customer->save();
 
       return response('success');
+    }
+
+    public function sendSuggestion(Request $request)
+    {
+      // dd($request->all());
+      $customer = Customer::find($request->customer_id);
+
+      if ($request->brand[0] != null) {
+        $products = Product::whereIn('brand', $request->brand);
+      }
+
+      if ($request->category[0] != null && $request->category[0] != 1) {
+        if ($request->brand[0] != null) {
+          $products = $products->whereIn('category', $request->category);
+        } else {
+          $products = Product::whereIn('category', $request->category);
+        }
+      }
+
+      if ($request->size[0] != null) {
+        if ($request->brand[0] != null || ($request->category[0] != 1 && $request->category[0] != null)) {
+          $products = $products->where(function ($query) use ($request) {
+            foreach ($request->size as $size) {
+              $query->orWhere('size', 'LIKE', "%$size%");
+            }
+
+            return $query;
+          });
+        } else {
+          $products = Product::where(function ($query) use ($request) {
+            foreach ($request->size as $size) {
+              $query->orWhere('size', 'LIKE', "%$size%");
+            }
+
+            return $query;
+          });
+        }
+      }
+
+      if ($request->supplier[0] != null) {
+        if ($request->brand[0] != null || ($request->category[0] != 1 && $request->category[0] != null) || $request->size[0] != null) {
+          $products = $products->whereHas('suppliers', function ($query) use ($request) {
+            return $query->where(function ($q) use ($request) {
+              foreach ($request->supplier as $supplier) {
+                $q->orWhere('suppliers.id', $supplier);
+              }
+            });
+          });
+        } else {
+          $products = Product::whereHas('suppliers', function ($query) use ($request) {
+            return $query->where(function ($q) use ($request) {
+              foreach ($request->supplier as $supplier) {
+                $q->orWhere('suppliers.id', $supplier);
+              }
+            });
+          });
+        }
+      }
+
+      if ($request->brand[0] == null && ($request->category[0] == 1 || $request->category[0] == null) && $request->size[0] == null && $request->supplier[0] == null) {
+        $products = (new Product)->newQuery();
+      }
+
+      $products = $products->whereHas('scraped_products')->latest()->take($request->number)->get();
+
+      if (count($products) > 0) {
+        $params = [
+          'number'      => NULL,
+          'user_id'     => Auth::id(),
+          'approved'    => 0,
+          'status'      => 1,
+          'message'     => 'Suggested images',
+          'customer_id' => $customer->id
+        ];
+
+        $chat_message = ChatMessage::create($params);
+
+        foreach ($products as $product) {
+          if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
+            $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
+          }
+        }
+      }
+
+      return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully created suggested message');
     }
 
     /**
