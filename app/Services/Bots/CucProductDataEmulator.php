@@ -123,6 +123,8 @@ class CucProductDataEmulator
 
                         $title = $category . ' ' . $brand;
 
+                        //Lukas, can you check here, wht this isn't saving?
+
 
                         $client = new Client();
                         $response = $client->request('POST', 'https://erp.amourint.com/api/scrap-products/add', [
@@ -135,14 +137,15 @@ class CucProductDataEmulator
                                 'description' => 'N/A',
                                 'images' => $imagesUrls,
                                 'price' => $price,
-                                'properties' => $properties,
+                                'properties' => $propertiesToSave,
                                 'url' => $entry->url,
                             ],
                             'headers' => [
                                 'Accept' => 'application/json',
-                                'Content-type' => 'application/json'
                             ]
                         ]);
+
+                        dd($response->getBody()->getContents());
 
                         if (!$response) {
                             dd($response->getBody()->getContents());
