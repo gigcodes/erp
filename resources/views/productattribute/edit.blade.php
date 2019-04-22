@@ -223,11 +223,18 @@
               <div class="form-group">
                 <strong>Supplier</strong>
 
-                @php $supplier_list = (new \App\ReadOnly\SupplierList)->all(); @endphp
+                {{-- @php $supplier_list = (new \App\ReadOnly\SupplierList)->all(); @endphp
                 <select class="form-control" name="supplier">
                   <option value="">Select Supplier</option>
                   @foreach ($supplier_list as $index => $value)
                     <option value="{{ $index }}" {{ $index == $supplier ? 'selected' : '' }}>{{ $value }}</option>
+                  @endforeach
+                </select> --}}
+
+                <select class="form-control" name="supplier[]" multiple>
+                  <option value="">Select Supplier</option>
+                  @foreach ($suppliers as $index => $supplier)
+                    <option value="{{ $supplier->id }}" {{ $product_suppliers->contains($supplier->id) ? 'selected' : '' }}>{{ $supplier->supplier }}</option>
                   @endforeach
                 </select>
               </div>

@@ -2,6 +2,7 @@
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 @endsection
 
 @section('content')
@@ -193,6 +194,7 @@
                 <th>Date</th>
                 <th>Posted Date</th>
                 <th>Account</th>
+                <th>Customer</th>
                 <th>Platform</th>
                 <th>Number of Reviews</th>
                 <th>Reviews for Approval</th>
@@ -208,6 +210,11 @@
                   <td>{{ \Carbon\Carbon::parse($review->date)->format('d-m') }}</td>
                   <td>{{ $review->posted_date ? \Carbon\Carbon::parse($review->posted_date)->format('d-m') : '' }}</td>
                   <td>{{ $review->account->email ?? '' }} ({{ ucwords($review->account->platform ?? '') }})</td>
+                  <td>
+                    @if ($review->customer)
+                      <a href="{{ route('customer.show', $review->customer->id) }}" target="_blank">{{ $review->customer->name }}</a>
+                    @endif
+                  </td>
                   <td>{{ ucwords($review->platform) }}</td>
                   <td>{{ $review->review_count }}</td>
                   <td>
@@ -275,6 +282,7 @@
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function() {
@@ -403,6 +411,7 @@
       $('#edit_posted_date input').val(schedule.posted_date);
       $('#edit_review_link').val(schedule.review_link);
       $('#edit_review_account option[value="' + schedule.account_id + '"]').prop('selected', true);
+      $('#edit_customer_id option[value="' + schedule.customer_id + '"]').prop('selected', true);
 
       console.log($('#schedule_status  option[value="' + schedule.status + '"]'));
 

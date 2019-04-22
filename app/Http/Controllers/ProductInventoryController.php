@@ -121,11 +121,11 @@ class ProductInventoryController extends Controller
 		]);
 
 		$result = $this->magentoSoapUpdateStock($product,$request->input( 'stock' ));
+		$product->stock = $request->input( 'stock' );
+		$product->stage = $stage->get( 'Inventory' );
+		$product->save();
 
 		if( $result ) {
-			$product->stock = $request->input( 'stock' );
-			$product->stage = $stage->get( 'Inventory' );
-			$product->save();
 
 			//		NotificaitonContoller::store('has Final Approved',['Admin'],$product->id);
 			ActivityConroller::create( $product->id, 'inventory', 'create' );
@@ -320,6 +320,7 @@ class ProductInventoryController extends Controller
 		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
 		$sku = $product->sku . $product->color;
+		$result = false;
 
 //		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
 
@@ -327,22 +328,58 @@ class ProductInventoryController extends Controller
 
 			$sizes_array = explode( ',', $product->size );
 
-			foreach ($sizes_array as $size)
-				$result = $proxy->catalogInventoryStockItemUpdate( $sessionId, $sku . '-' . $size, array(
+			foreach ($sizes_array as $size) {
+				$error_message = '';
+
+				try {
+					$result = $proxy->catalogInventoryStockItemUpdate( $sessionId, $sku . '-' . $size, array(
+						'qty'         => $stockQty,
+						'is_in_stock' => $stockQty ? 1 : 0
+					) );
+				} catch (\Exception $e) {
+					$error_message = $e->getMessage();
+				}
+
+				if ($error_message == 'Product not exists.') {
+          $product->isUploaded = 0;
+          $product->isFinal = 0;
+					$product->save();
+				}
+			}
+
+			$error_message = '';
+			try {
+				$result = $proxy->catalogInventoryStockItemUpdate( $sessionId, $sku, array(
+	//				'qty'         => 0,
+					'is_in_stock' => $stockQty ? 1 : 0
+				) );
+			} catch (\Exception $e) {
+				$error_message = $e->getMessage();
+			}
+
+			if ($error_message == 'Product not exists.') {
+				$product->isUploaded = 0;
+				$product->isFinal = 0;
+				$product->save();
+			}
+		}
+		else {
+			$error_message = '';
+			
+			try {
+				$result = $proxy->catalogInventoryStockItemUpdate( $sessionId, $sku, array(
 					'qty'         => $stockQty,
 					'is_in_stock' => $stockQty ? 1 : 0
 				) );
+			} catch (\Exception $e) {
+				$error_message = $e->getMessage();
+			}
 
-			$result = $proxy->catalogInventoryStockItemUpdate( $sessionId, $sku, array(
-//				'qty'         => 0,
-				'is_in_stock' => $stockQty ? 1 : 0
-			) );
-		}
-		else {
-			$result = $proxy->catalogInventoryStockItemUpdate( $sessionId, $sku, array(
-				'qty'         => $stockQty,
-				'is_in_stock' => $stockQty ? 1 : 0
-			) );
+			if ($error_message == 'Product not exists.') {
+				$product->isUploaded = 0;
+				$product->isFinal = 0;
+				$product->save();
+			}
 		}
 
 		return $result;

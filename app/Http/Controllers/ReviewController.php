@@ -7,6 +7,7 @@ use App\Account;
 use App\Setting;
 use App\ReviewSchedule;
 use App\Review;
+use App\Customer;
 
 class ReviewController extends Controller
 {
@@ -50,8 +51,11 @@ class ReviewController extends Controller
       $review_schedules = $review_schedules->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
       $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
 
+      $customers = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
+
       return view('reviews.index', [
         'accounts'            => $accounts,
+        'customers'           => $customers,
         'review_schedules'    => $review_schedules,
         'posted_reviews'      => $posted_reviews,
         'filter_platform'     => $filter_platform,
@@ -202,6 +206,7 @@ class ReviewController extends Controller
     {
       $this->validate($request, [
         'account_id'    => 'sometimes|nullable|numeric',
+        'customer_id'   => 'sometimes|nullable|numeric',
         'date'          => 'required|date',
         'posted_date'   => 'sometimes|nullable|date',
         'platform'      => 'sometimes|nullable|string',

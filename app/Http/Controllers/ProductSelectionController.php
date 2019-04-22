@@ -9,6 +9,7 @@ use App\Setting;
 use App\Stage;
 use App\Brand;
 use App\Category;
+use App\Supplier;
 use App\ReadOnly\LocationList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,9 +31,9 @@ class ProductSelectionController extends Controller
 	}
 
 	public function index(){
-
 		$products = Product::latest()
 											->withMedia(config('constants.media_tags'))
+											->with('suppliers')
 											->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
 											->paginate(Setting::get('pagination'));
 
@@ -59,9 +60,11 @@ class ProductSelectionController extends Controller
 	public function create()
 	{
 		$locations = (new LocationList)->all();
+		$suppliers = Supplier::select(['id', 'supplier'])->get();
 
 		return view('productselection.create', [
-			'locations'	=> $locations
+			'locations'	=> $locations,
+			'suppliers'	=> $suppliers
 		]);
 	}
 
@@ -83,7 +86,7 @@ class ProductSelectionController extends Controller
 		$productselection->sku = $request->input('sku');
 		$productselection->size = $request->input('size');
 		$productselection->price = $request->input('price');
-		$productselection->supplier = $request->input('supplier');
+		// $productselection->supplier = $request->input('supplier');
 		$productselection->supplier_link = $request->input('supplier_link');
 		$productselection->location = $request->input('location');
 		$productselection->brand = $request->input('brand');
@@ -100,7 +103,12 @@ class ProductSelectionController extends Controller
 			$productselection->price_special = $request->price_special;
 		}
 
+
 		$productselection->save();
+
+		if ($request->supplier) {
+			$productselection->suppliers()->attach($request->supplier);
+		}
 
 		$productselection->detachMediaTags(config('constants.media_tags'));
 		$media = MediaUploader::fromSource($request->file('image'))->upload();
@@ -120,8 +128,9 @@ class ProductSelectionController extends Controller
 			return redirect(route('products.show',$productselection->id));
 
 		$locations = (new LocationList)->all();
+		$suppliers = Supplier::select(['id', 'supplier'])->get();
 
-		return view('productselection.edit',compact('productselection', 'locations'));
+		return view('productselection.edit',compact('productselection', 'locations', 'suppliers'));
 	}
 
 	public function update(Request $request, Product $productselection)
@@ -138,7 +147,7 @@ class ProductSelectionController extends Controller
 		$productselection->sku = $request->input('sku');
 		$productselection->size = $request->input('size');
 		$productselection->price = $request->input('price');
-		$productselection->supplier = $request->input('supplier');
+		// $productselection->supplier = $request->input('supplier');
 		$productselection->supplier_link = $request->input('supplier_link');
 		$productselection->location = $request->input('location');
 		$productselection->brand = $request->input('brand');
@@ -162,6 +171,11 @@ class ProductSelectionController extends Controller
 //		$product->update($request->all());
 
 		$productselection->save();
+
+		if ($request->supplier) {
+			$productselection->suppliers()->detach();
+			$productselection->suppliers()->attach($request->supplier);
+		}
 
 		NotificaitonContoller::store('has updated',['Searchers'], $productselection->id);
 

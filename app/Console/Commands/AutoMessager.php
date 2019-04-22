@@ -76,11 +76,13 @@ class AutoMessager extends Command
       }
 
       // Follow Up Sequence
-      $follow_ups = CommunicationHistory::where('type', 'initiate-followup')->where('model_type', 'App\Customer')->where('method', 'whatsapp')->get();
+      $follow_ups = CommunicationHistory::where('type', 'initiate-followup')->where('model_type', 'App\Customer')->where('method', 'whatsapp')->where('is_stopped', 0)->get();
       $now = Carbon::now();
 
       foreach ($follow_ups as $follow_up) {
         $time_diff = Carbon::parse($follow_up->created_at)->diffInHours($now);
+        
+        dump("FOLLOWUP - $time_diff");
 
         if ($time_diff == 24) {
           $customer = Customer::find($follow_up->model_id);
@@ -134,6 +136,10 @@ class AutoMessager extends Command
           // $chat_message->update([
           //   'approved'  => 1
           // ]);
+
+          // On last follow up stop it
+          $follow_up->is_stopped = 1;
+          $follow_up->save();
         }
       }
 

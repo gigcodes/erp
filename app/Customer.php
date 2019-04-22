@@ -23,6 +23,11 @@ class Customer extends Model
     return $this->hasMany('App\Order');
   }
 
+  public function suggestion()
+  {
+    return $this->hasOne('App\Suggestion');
+  }
+
   public function instructions()
   {
     return $this->hasMany('App\Instruction');
@@ -71,6 +76,13 @@ class Customer extends Model
 	public function instagramThread() {
       return $this->hasOne(InstagramThread::class);
     }
+
+  public function is_initiated_followup()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'initiate-followup')->where('is_stopped', 0)->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
 
 	public function getCommunicationAttribute()
 	{

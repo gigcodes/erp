@@ -7,6 +7,7 @@ use App\Image;
 use App\Product;
 use App\ScrapedProducts;
 use App\Setting;
+use App\Supplier;
 use App\Sizes;
 use App\Stage;
 use App\Brand;
@@ -88,6 +89,8 @@ class ProductAttributeController extends Controller
 		$data['price_inr'] = $productattribute->price_inr;
 		$data['price_special'] = $productattribute->price_special;
 		$data['euro_to_inr'] = $productattribute->euro_to_inr;
+		$data['suppliers'] = Supplier::all();
+		$data['product_suppliers'] = $productattribute->suppliers;
 
 		$data['isApproved'] = $productattribute->isApproved;
 		$data['rejected_note'] = $productattribute->rejected_note;
@@ -161,7 +164,7 @@ class ProductAttributeController extends Controller
 
 		$productattribute->category = $request->input('category');
 		$productattribute->product_link = $request->input('product_link');
-		$productattribute->supplier = $request->input('supplier');
+		// $productattribute->supplier = $request->input('supplier');
 		$productattribute->supplier_link = $request->input('supplier_link');
 		$productattribute->description_link = $request->input('description_link');
 		$productattribute->location = $request->input('location');
@@ -212,11 +215,16 @@ class ProductAttributeController extends Controller
 
 		$productattribute->save();
 
+		if ($request->supplier) {
+			$productattribute->suppliers()->detach();
+			$productattribute->suppliers()->attach($request->supplier);
+		}
+
 		$success_message = 'Attribute updated successfully. ';
 
 		if ($productattribute->isUploaded == 1) {
 			$result = $this->magentoProductUpdate($productattribute, $old_sizes);
-			
+
 			if (!$result[1]) {
 				$success_message .= "Not everything was updated correctly. Check product on Magento";
 			}
@@ -338,6 +346,8 @@ class ProductAttributeController extends Controller
 					'stock_data' => array(
 						'use_config_manage_stock' => 1,
 						'manage_stock' => 1,
+						'qty'					=> $product->stock,
+						'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
 					),
 					'price'                 => $product->price_inr,
 					// Same price than configurable product, no price change
@@ -375,10 +385,12 @@ class ProductAttributeController extends Controller
 				// 'tax_class_id'            => 2,
 				// Default VAT
 				// 'weight'                  => 0,
-				// 'stock_data' => array(
-				// 	'use_config_manage_stock' => 1,
-				// 	'manage_stock' => 1,
-				// ),
+				'stock_data' => array(
+					'use_config_manage_stock' => 1,
+					'manage_stock' => 1,
+					'qty'					=> $product->stock,
+					'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+				),
 				'price'                   => $product->price_inr,
 				// Same price than configurable product, no price change
 				'special_price'           => $product->price_special,
@@ -414,10 +426,12 @@ class ProductAttributeController extends Controller
 				// 'tax_class_id'          => 2,
 				// Default VAT
 				// 'weight'                => 0,
-				// 'stock_data' => array(
-				// 	'use_config_manage_stock' => 1,
-				// 	'manage_stock' => 1,
-				// ),
+				'stock_data' => array(
+					'use_config_manage_stock' => 1,
+					'manage_stock' => 1,
+					'qty'					=> $product->stock,
+					'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+				),
 				'price'                 => $product->price_inr,
 				// Same price than configurable product, no price change
 				'special_price'         => $product->price_special,

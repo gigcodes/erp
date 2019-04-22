@@ -163,52 +163,9 @@
   </div>
 </div>
 
-<div id="privateViewingModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+@include('customers.partials.modal-private-viewing')
 
-    <!-- Modal content-->
-    <div class="modal-content">
-      <form action="{{ route('productinventory.instock') }}" method="GET">
-        <div class="modal-header">
-          <h4 class="modal-title">Set Up for Private Viewing</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" name="type" value="private_viewing">
-          <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-          <div class="form-group">
-            <strong>Date:</strong>
-            <div class='input-group date' id='date'>
-              <input type='text' class="form-control" name="date" value="{{ date('Y-m-d H:i') }}" />
-
-              <span class="input-group-addon">
-                <span class="glyphicon glyphicon-calendar"></span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Select Products</button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-</div>
-
-
-@if ($message = Session::get('success'))
-<div class="alert alert-success">
-  <p>{{ $message }}</p>
-</div>
-@endif
-
-@if ($message = Session::get('error'))
-<div class="alert alert-danger">
-  <p>{{ $message }}</p>
-</div>
-@endif
+@include('partials.flash_messages')
 
 <div id="exTab2" class="container">
   <ul class="nav nav-tabs">
@@ -331,83 +288,7 @@
           <button type="submit" class="btn btn-secondary ml-3">Create Category</button>
         </form>
 
-        <div id="instructionModal" class="modal fade" role="dialog">
-          <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-              <form action="{{ route('instruction.store') }}" method="POST">
-                @csrf
-                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-
-                <div class="modal-header">
-                  <h4 class="modal-title">Create Instruction</h4>
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                  <div class="form-group">
-                      <strong>Assign to:</strong>
-                      <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assigned_to" title="Choose a User" required>
-                        @foreach ($users_array as $index => $user)
-                         <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
-                       @endforeach
-                     </select>
-
-                      @if ($errors->has('assigned_to'))
-                          <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
-                      @endif
-                  </div>
-
-                  <div class="form-group">
-                    <strong>Category:</strong>
-                    <select class="form-control" name="category_id" required>
-                      @foreach ($instruction_categories as $category)
-                        <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->name }}</option>
-                      @endforeach
-                    </select>
-                    @if ($errors->has('category_id'))
-                        <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
-                    @endif
-                  </div>
-
-                  <div class="form-group">
-                    <strong>Instruction:</strong>
-                    <textarea type="text" class="form-control" id="instruction-body" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
-                    @if ($errors->has('instruction'))
-                        <div class="alert alert-danger">{{$errors->first('instruction')}}</div>
-                    @endif
-                  </div>
-
-                  <div class="form-group">
-                    <input type="checkbox" name="send_whatsapp" id="sendWhatsappCheckbox">
-                    <label for="sendWhatsappCheckbox">Send with Whatsapp</label>
-                  </div>
-
-                  <hr>
-
-                  <div class="form-group">
-                    <select name="quickComment" id="instructionComment" class="form-control">
-                      <option value="">Quick Reply</option>
-                      @foreach ($instruction_replies as $reply)
-                        <option value="{{ $reply->reply }}">{{ $reply->reply }}</option>
-                      @endforeach
-                    </select>
-                  </div>
-
-                  <div class="form-group">
-                    <textarea class="form-control" id="instruction_reply_field" name="reply" placeholder="Quick Reply">{{ old('reply') }}</textarea>
-                    <button type="button" class="btn btn-xs btn-secondary mt-3" id="createInstructionReplyButton">Create Quick Reply</button>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-secondary">Create</button>
-                </div>
-              </form>
-            </div>
-
-          </div>
-        </div>
+        @include('customers.partials.modal-instruction')
 
         <div id="exTab3" class="container">
           <ul class="nav nav-tabs">
@@ -734,55 +615,7 @@
           </div>
         </div>
 
-        <!-- Modal -->
-        <div id="addRemarkModal" class="modal fade" role="dialog">
-          <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title">Add New Remark</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-
-              </div>
-              <div class="modal-body">
-                <form id="add-remark">
-                  <input type="hidden" name="id" value="">
-                  <textarea rows="1" name="remark" class="form-control"></textarea>
-                  <button type="button" class="btn btn-secondary mt-2" id="addRemarkButton">Add Remark</button>
-              </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Modal -->
-        <div id="viewRemarkModal" class="modal fade" role="dialog">
-          <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title">View Remark</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-
-              </div>
-              <div class="modal-body">
-                <div id="remark-list">
-
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
+        @include('customers.partials.modal-remark')
 
       </div>
     </div>
@@ -979,7 +812,7 @@
                     <div class="form-group">
                       <strong>status:</strong>
                       <Select name="status" class="form-control change_status" data-leadid="{{ $lead->id }}">
-                        @foreach($status as $key => $value)
+                        @foreach($lead_status as $key => $value)
                           <option value="{{$value}}" {{$value == $lead->status ? 'Selected=Selected':''}}>{{$key}}</option>
                         @endforeach
                       </Select>
@@ -1471,94 +1304,7 @@
                   </div>
                 @endif
 
-                <div id="generateAWBMODAL{{ $order->id }}" class="modal fade" role="dialog">
-                  <div class="modal-dialog">
-
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                      <form action="{{ route('order.generate.awb') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="order_id" value="{{ $order->id }}">
-
-                        <div class="modal-header">
-                          <h4 class="modal-title">Generate AWB</h4>
-                          <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                          <div class="form-group">
-                            <strong>Customer Name:</strong>
-                            <input type="text" name="customer_name" class="form-control" value="{{ $customer->name }}" required>
-                          </div>
-
-                          <div class="form-group">
-                            <strong>Customer Phone:</strong>
-                            <input type="number" name="customer_phone" class="form-control" value="{{ $customer->phone }}" required>
-                          </div>
-
-                          <div class="form-group">
-                            <strong>Customer Address 1:</strong>
-                            <input type="text" name="customer_address1" class="form-control" value="{{ $customer->address }}" required>
-                          </div>
-
-                          <div class="form-group">
-                            <strong>Customer Address 2:</strong>
-                            <input type="text" name="customer_address2" class="form-control" value="{{ $customer->city }}" required>
-                          </div>
-
-                          <div class="form-group">
-                            <strong>Customer Pincode:</strong>
-                            <input type="number" name="customer_pincode" class="form-control" value="{{ $customer->pincode }}" max="999999" required>
-                          </div>
-
-                          {{-- <div class="form-group">
-                            <strong>Actual Weight:</strong>
-                            <input type="number" name="actual_weight" class="form-control" value="1" step="0.01" required>
-                          </div> --}}
-
-                          <div class="row">
-                            <div class="col">
-                              <div class="form-group">
-                                <strong>Length:</strong>
-                                <input type="number" name="box_length" class="form-control" placeholder="1.0" value="" step="0.1" max="1000" required>
-                              </div>
-                            </div>
-
-                            <div class="col">
-                              <div class="form-group">
-                                <strong>Width:</strong>
-                                <input type="number" name="box_width" class="form-control" placeholder="1.0" value="" step="0.1" max="1000" required>
-                              </div>
-                            </div>
-
-                            <div class="col">
-                              <div class="form-group">
-                                <strong>Height:</strong>
-                                <input type="number" name="box_height" class="form-control" placeholder="1.0" value="" step="0.1" max="1000" required>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="form-group">
-                            <strong>Pick Up Date and Time</strong>
-                            <div class='input-group date' id='pickup-datetime'>
-                              <input type='text' class="form-control" name="pickup_time" value="{{ date('Y-m-d H:i') }}" required />
-
-                              <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                              </span>
-                            </div>
-                          </div>
-
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                          <button type="submit" class="btn btn-secondary">Update and Generate</button>
-                        </div>
-                      </form>
-                    </div>
-
-                  </div>
-                </div>
+                @include('customers.partials.modal-awb')
 
               </div>
             </div>
@@ -1567,183 +1313,11 @@
       </div>
     </div>
 
-    <div id="statusModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
+    @include('customers.partials.modal-status')
 
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Create Action</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
+    @include('customers.partials.modal-voucher')
 
-          <form action="{{ route('status.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-
-            <div class="modal-body">
-              <div class="form-group">
-                  <strong>Order Status:</strong>
-                   <input type="text" class="form-control" name="status" placeholder="Order Status" id="status" required />
-                   @if ($errors->has('status'))
-                       <div class="alert alert-danger">{{$errors->first('status')}}</div>
-                   @endif
-              </div>
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary">Create</button>
-            </div>
-          </form>
-        </div>
-
-      </div>
-    </div>
-
-    <div id="editVoucherModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <form action="" method="POST" id="editVoucherForm">
-            @csrf
-            @method('PUT')
-            <input type="hidden" name="type" value="partial">
-
-            <div class="modal-header">
-              <h4 class="modal-title">Update Voucher</h4>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                <strong>Travel Type:</strong>
-                <select class="form-control" name="travel_type" id="voucher_travel_field">
-                  <option value="">Select Travel type</option>
-        					<option value="flight">Flight</option>
-        					<option value="train">Train</option>
-        					<option value="taxi">Taxi</option>
-        					<option value="auto">Auto</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <strong>Amount:</strong>
-                <input type="number" name="amount" id="voucher_amount_field" class="form-control" value="">
-              </div>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary">Update</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-    </div>
-
-    <div id="productModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Create Product</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" name="order_id" value="">
-            <div class="form-group">
-                <strong>Image:</strong>
-                <input type="file" class="form-control" name="image"
-                       value="{{ old('image') }}" id="product-image"/>
-                @if ($errors->has('image'))
-                    <div class="alert alert-danger">{{$errors->first('image')}}</div>
-                @endif
-            </div>
-
-            <div class="form-group">
-                <strong>Name:</strong>
-                <input type="text" class="form-control" name="name" placeholder="Name"
-                       value="{{ old('name') }}"  id="product-name"/>
-                @if ($errors->has('name'))
-                    <div class="alert alert-danger">{{$errors->first('name')}}</div>
-                @endif
-            </div>
-
-            <div class="form-group">
-                <strong>SKU:</strong>
-                <input type="text" class="form-control" name="sku" placeholder="SKU"
-                       value="{{ old('sku') }}"  id="product-sku"/>
-                @if ($errors->has('sku'))
-                    <div class="alert alert-danger">{{$errors->first('sku')}}</div>
-                @endif
-            </div>
-
-            <div class="form-group">
-                <strong>Color:</strong>
-                <input type="text" class="form-control" name="color" placeholder="Color"
-                       value="{{ old('color') }}"  id="product-color"/>
-                @if ($errors->has('color'))
-                    <div class="alert alert-danger">{{$errors->first('color')}}</div>
-                @endif
-            </div>
-
-            <div class="form-group">
-                <strong>Brand:</strong>
-                <?php
-                $brands = \App\Brand::getAll();
-                echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
-                  {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
-                  @if ($errors->has('brand'))
-                      <div class="alert alert-danger">{{$errors->first('brand')}}</div>
-                  @endif
-            </div>
-
-            <div class="form-group">
-                <strong>Price: (Euro)</strong>
-                <input type="number" class="form-control" name="price" placeholder="Price (Euro)"
-                       value="{{ old('price') }}" step=".01"  id="product-price"/>
-                @if ($errors->has('price'))
-                    <div class="alert alert-danger">{{$errors->first('price')}}</div>
-                @endif
-            </div>
-
-            <div class="form-group">
-                <strong>Price:</strong>
-                <input type="number" class="form-control" name="price_special" placeholder="Price"
-                       value="{{ old('price_special') }}" step=".01"  id="product-price-special"/>
-                @if ($errors->has('price_special'))
-                    <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
-                @endif
-            </div>
-
-            <div class="form-group">
-                <strong>Size:</strong>
-                <input type="text" class="form-control" name="size" placeholder="Size"
-                       value="{{ old('size') }}"  id="product-size"/>
-                @if ($errors->has('size'))
-                    <div class="alert alert-danger">{{$errors->first('size')}}</div>
-                @endif
-            </div>
-
-            <div class="form-group">
-                <strong>Quantity:</strong>
-                <input type="number" class="form-control" name="quantity" placeholder="Quantity"
-                       value="{{ old('quantity') }}"  id="product-quantity"/>
-                @if ($errors->has('quantity'))
-                    <div class="alert alert-danger">{{$errors->first('quantity')}}</div>
-                @endif
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-success createProduct">Create</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
+    @include('customers.partials.modal-product')
   @endif
 
   @if (count($customer->private_views) > 0)
@@ -1817,40 +1391,7 @@
   </div>
 </div>
 
-<div id="emailSendModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Send an Email</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-
-      <form action="{{ route('customer.email.send') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-
-        <div class="modal-body">
-          <div class="form-group">
-            <strong>Subject</strong>
-            <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" required>
-          </div>
-
-          <div class="form-group">
-            <strong>Message</strong>
-            <textarea name="message" class="form-control" rows="8" cols="80" required>{{ old('message') }}</textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Send</button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-</div>
+@include('customers.partials.modal-email')
 
 <div class="row mt-5">
   <div class="col-xs-12 col-sm-6">
@@ -1867,20 +1408,26 @@
           </div>
         </div>
 
-        <div class="form-group flex-fill">
-          <textarea  class="form-control mb-3" name="body" placeholder="Received from Customer"></textarea>
-          <input type="file" class="dropify" name="image" data-height="100" />
+        <div class="form-group flex-fill mr-3">
+          <textarea  class="form-control mb-3" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
+
 
           <input type="hidden" name="moduletype" value="customer" />
           <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
           <input type="hidden" name="assigned_user" value="{{ Auth::id() }}" />
           <input type="hidden" name="status" value="0" />
         </div>
+
+        <div class="form-group">
+          <input type="file" class="dropify" name="image" data-height="100" />
+        </div>
       </div>
 
 
      </form>
    </div>
+
+   @include('customers.partials.modal-suggestion')
 
    <div class="col-xs-12 col-sm-6">
      <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
@@ -1893,13 +1440,13 @@
                <input type="file" name="image" /> --}}
 
                <a href="{{ route('attachImages', ['customer', $customer->id, 1, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+               <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal">X</button>
                <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
              </div>
            </div>
 
-             <div class="form-group flex-fill">
-               <textarea id="message-body" class="form-control mb-3" name="body" placeholder="Send for approval"></textarea>
-               <input type="file" class="dropify" name="image" data-height="100" />
+             <div class="form-group flex-fill mr-3">
+               <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
 
                <input type="hidden" name="moduletype" value="customer" />
                <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
@@ -1921,7 +1468,11 @@
                        @endforeach --}}
                    </select>
                </p>
-               <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
+             </div>
+
+             <div class="form-group">
+               <input type="file" class="dropify" name="image" data-height="100" />
+               <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
              </div>
        </div>
 
@@ -1931,46 +1482,7 @@
 
    <hr>
 
-   <div id="ReplyModal" class="modal fade" role="dialog">
-     <div class="modal-dialog">
-
-       <!-- Modal content-->
-       <div class="modal-content">
-         <div class="modal-header">
-           <h4 class="modal-title"></h4>
-           <button type="button" class="close" data-dismiss="modal">&times;</button>
-         </div>
-
-         <form action="{{ route('reply.store') }}" method="POST" enctype="multipart/form-data" id="approvalReplyForm">
-           @csrf
-
-           <div class="modal-body">
-             <select class="form-control" name="category_id" id="category_id_field">
-               @foreach ($reply_categories as $category)
-                 <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->name }}</option>
-               @endforeach
-             </select>
-
-             <div class="form-group">
-                 <strong>Quick Reply:</strong>
-                 <textarea class="form-control" id="reply_field" name="reply" placeholder="Quick Reply" required>{{ old('reply') }}</textarea>
-                 @if ($errors->has('reply'))
-                     <div class="alert alert-danger">{{$errors->first('reply')}}</div>
-                 @endif
-             </div>
-
-             <input type="hidden" name="model" id="model_field" value="">
-
-           </div>
-           <div class="modal-footer">
-             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-             <button type="submit" class="btn btn-secondary">Create</button>
-           </div>
-         </form>
-       </div>
-
-     </div>
-   </div>
+   @include('customers.partials.modal-reply')
 
    <div class="col-xs-12 col-sm-6 mt-3">
        <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
@@ -1985,21 +1497,12 @@
                  </div>
              </div>
 
-             <div class="form-group flex-fill">
-               <textarea class="form-control mb-3" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
-               <input type="file" class="dropify mb-3" name="image" data-height="100" />
+             <div class="form-group flex-fill mr-3">
+               <textarea class="form-control mb-3" style="height: 110px;" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
 
                <input type="hidden" name="moduletype" value="customer" />
                <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
                <input type="hidden" name="status" value="4" />
-
-               <strong>Assign to</strong>
-               <select name="assigned_user" class="form-control mb-3" required>
-                 <option value="">Select User</option>
-                 @foreach($users_array as $id => $user)
-                   <option value="{{ $id }}">{{ $user }}</option>
-                 @endforeach
-               </select>
 
                <p class="pb-4" style="display: block;">
                  <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
@@ -2009,13 +1512,22 @@
                    @endforeach
                  </select>
 
-                   <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
-                       <option value="">Quick Reply</option>
-                       {{-- @foreach($internal_replies as $reply)
-                           <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                       @endforeach --}}
-                   </select>
+                 <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
+                   <option value="">Quick Reply</option>
+                 </select>
                </p>
+             </div>
+
+             <div class="form-group">
+               <input type="file" class="dropify" name="image" data-height="100" />
+
+               <strong class="mt-3">Assign to</strong>
+               <select name="assigned_user" class="form-control mb-3" required>
+                 <option value="">Select User</option>
+                 @foreach($users_array as $id => $user)
+                   <option value="{{ $id }}">{{ $user }}</option>
+                 @endforeach
+               </select>
 
                <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
              </div>
@@ -2034,8 +1546,11 @@
         <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
       </div>
 
-      <div class="form-group flex-fill">
-        <textarea id="waNewMessage" class="form-control mb-3" placeholder="Whatsapp message"></textarea>
+      <div class="form-group flex-fill mr-3">
+        <textarea id="waNewMessage" class="form-control mb-3" style="height: 110px;" placeholder="Whatsapp message"></textarea>
+      </div>
+
+      <div class="form-group">
         <input type="file" id="waMessageMedia" class="dropify" name="image" data-height="100" />
       </div>
     </div>
@@ -2049,40 +1564,53 @@
 <h2>Messages</h2>
 
 <div class="row">
-  <div class="col">
-    <div class="form-group">
-      <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
-        @csrf
+  <div class="col-md-4">
+    <div class="form-inline">
+      <div class="form-group">
+        <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
+          @csrf
 
-        <button type="submit" class="btn btn-secondary">Initiate Follow Up Sequence</button>
-      </form>
+          <button type="submit" class="btn btn-secondary" {{ $customer->is_initiated_followup() ? 'disabled' : '' }}>Initiate Follow Up Sequence</button>
+        </form>
+      </div>
+
+      @if ($customer->is_initiated_followup())
+        <div class="form-group ml-3">
+          <form action="{{ route('customer.stop.followup', $customer->id) }}" method="POST">
+            @csrf
+
+            <button type="submit" class="btn btn-secondary">STOP</button>
+          </form>
+        </div>
+      @endif
     </div>
   </div>
+
+  @if (isset($refunded_orders) && count($refunded_orders) > 0)
+    <div class="col-md-4">
+      <h4 class="position-absolute" style="top: -40px;">Refund Orders Status</h4>
+
+      <div class="form-inline">
+        <div class="form-group">
+          <select class="form-control refund-orders" name="">
+            <option value="">Select Order</option>
+            @foreach ($refunded_orders as $order)
+              <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="d-inline ml-3">
+          <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
+          <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
+        </div>
+      </div>
+    </div>
+  @endif
 </div>
 
-@if (isset($refunded_orders) && count($refunded_orders) > 0)
-  <div class="row mb-3">
-    <div class="col-md-4">
-      <h3>Refund Orders Status</h3>
-
-      <div class="form-group">
-        <select class="form-control refund-orders" name="">
-          <option value="">Select Order</option>
-          @foreach ($refunded_orders as $order)
-            <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
-          @endforeach
-        </select>
-      </div>
-
-      <div class="d-inline">
-        <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
-        <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
-      </div>
-    </div>
-  </div>
-@endif
 <div class="row">
-  <div class="col-12" id="message-container"></div>
+  <div class="col-12 my-3" id="message-container"></div>
 
   <div class="col-xs-12 text-center">
     <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
@@ -2093,71 +1621,10 @@
   @csrf
 </form>
 
-<div id="forwardModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <form action="{{ route('whatsapp.forward') }}" method="POST">
-        @csrf
-        <input type="hidden" name="message_id" id="forward_message_id" value="">
-
-        <div class="modal-header">
-          <h4 class="modal-title">Forward Message</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-              <strong>Client:</strong>
-              <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id[]" title="Choose a Customer" required multiple>
-                @foreach ($customers as $client)
-                 <option data-tokens="{{ $client->name }} {{ $client->email }}  {{ $client->phone }} {{ $client->instahandler }}" value="{{ $client->id }}">{{ $client->name }} - {{ $client->phone }}</option>
-               @endforeach
-             </select>
-
-              @if ($errors->has('customer_id'))
-                  <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
-              @endif
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Forward Message</button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-</div>
+@include('customers.partials.modal-forward')
 
 @if (isset($order))
-  <div id="yesModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-
-      <!-- Modal content-->
-      <div class="modal-content">
-        <form action="{{ route('whatsapp.forward') }}" method="POST">
-          @csrf
-
-          <div class="modal-header">
-            <h4 class="modal-title">Choose your next action</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body text-center">
-            <form action="{{ route('order.send.suggestion', $order->id) }}" method="POST">
-              @csrf
-
-              <button type="submit" class="btn btn-secondary">Send Images</button>
-            </form>
-            <button type="button" class="btn btn-secondary" id="create_refund_instruction">Create Instruction</button>
-
-            <input type="hidden" name="order_id" id="refund_instruction_order_id" value="">
-          </div>
-        </form>
-      </div>
-
-    </div>
-  </div>
+  @include('customers.partials.modal-yes')
 @endif
 
 <form action="index.html" method="POST" id="createMagentoProductForm">
@@ -2314,6 +1781,7 @@
           status: 1,
           assigned_user: "{{ Auth::id() }}",
           selected_product: selected_product_images,
+          type: "product-lead",
           created_at: created_at
         },
         beforeSend: function() {
@@ -3780,6 +3248,26 @@
         }).fail(function(response) {
           alert('Could not load emails');
           console.log(response);
+        });
+      });
+
+      $(document).ready(function() {
+        var size_list  = {
+          5: ['34', '34.5', '35', '35.5', '36', '36.5', '37', '37.5', '38', '38.5', '39', '39.5', '40', '40.5', '41', '41.5', '42'], // Men Shoes
+          12: ['36-36S', '38-38S', '40-40S', '42-42S', '44-44S', '46-46S', '48-48S', '50-50S'], // Men Clothing
+          31: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'], // Men T-Shirt
+          131: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Men Sweat Pants
+          14: ['60', '65', '70', '75', '80', '85', '90', '95', '100', '105', '110', '115', '120'], // Men Belts
+        };
+
+        Object.keys(size_list).forEach(function(size) {
+          size_list[size].forEach(function(value) {
+            $('#size_selection').append($('<option>', {
+              value: value,
+              text: value
+            }));
+          });
+
         });
       });
   </script>

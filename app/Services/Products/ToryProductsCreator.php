@@ -112,6 +112,10 @@ class ToryProductsCreator
 
        $product->save();
 
+       if ($db_supplier = Supplier::where('supplier', 'Tory Burch')->first()) {
+         $product->suppliers()->syncWithoutDetaching($db_supplier->id);
+       }
+
        $images = $image->images;
 
        $product->detachMediaTags(config('constants.media_tags'));
