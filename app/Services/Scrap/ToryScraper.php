@@ -12,12 +12,29 @@ class ToryScraper extends Scraper
         'clothing' => 'https://www.toryburch.it/abbigliamento/visualizza-tutto/?sz=8000&start=1',
         'shoes' => 'https://www.toryburch.it/scarpe/visualizza-tutto/?sz=8000&start=1',
         'bags' => 'https://www.toryburch.it/borse/visualizza-tutto/?sz=8000&start=1',
+        'fragrance' => 'https://www.toryburch.it/fragranze/visualizza-tutto/',
+        'bags2' => 'https://www.toryburch.it/accessori/portafogli/?sz=1200&start=1',
+        'wallets' => 'https://www.toryburch.it/accessori/portafogli/?sz=1200&start=1&format=ajax&instart_disable_injection=true',
+        'card holder' => 'https://www.toryburch.it/porta-tessere-e-porta-monete/?sz=1200&start=1',
+        'wrist wallet' => 'https://www.toryburch.it/accessori/portafogli-da-polso-e-trousse/?sz=1200&start=1',
+        'cosmetic cases' => 'https://www.toryburch.it/accessori/cosmetic-cases/?sz=1200&start=1',
+        'sunglasses' => 'https://www.toryburch.it/accessori/occhiali/?sz=1200&start=1',
+        'belts' => 'https://www.toryburch.it/accessori/cinture/?sz=1200&start=1',
+        'hitech' => 'https://www.toryburch.it/accessori/hi-tech/?sz=1200&start=1',
+        'earings' => 'https://www.toryburch.it/accessori/orecchini/?sz=1200&start=1',
+        'jewellery' => 'https://www.toryburch.it/accessori/gioielli/?sz=1200&start=1',
+        'bracelets' => 'https://www.toryburch.it/accessori/bracciali/?sz=1200&start=1',
+        'watches' => 'https://www.toryburch.it/accessori/orologi/?sz=1200&start=1',
+        'necklaces' => 'https://www.toryburch.it/accessori/collane/?sz=1200&start=1',
+        'rings' => 'https://www.toryburch.it/accessori/anelli/?sz=1200&start=1',
     ];
 
 
-    public function scrap($key): void
+    public function scrap(): void
     {
-        $this->scrapPage(self::URL[$key]);
+        foreach (self::URL as $url) {
+            $this->scrapPage($url);
+        }
     }
 
     private function scrapPage($url, $hasProduct=true): void
