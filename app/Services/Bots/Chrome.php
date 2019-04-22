@@ -47,7 +47,7 @@ class Chrome implements DriverContract
         $options = (new ChromeOptions)->addArguments(
             [
                 '--disable-gpu',
-                '--headless',
+//                '--headless',
                 '--enable-file-cookies',
 //                '--no-sandbox'
             ]

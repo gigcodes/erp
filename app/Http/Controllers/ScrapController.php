@@ -237,6 +237,43 @@ class ScrapController extends Controller
 
     }
 
+    public function addProductEntries(Request $request) {
+        $this->validate($request, [
+            'title' => 'required',
+            'url' => 'required',
+            'website' => 'required',
+            'is_product_page' => 'required'
+        ]);
+
+        $scrapEntry = ScrapEntries::where('url', $request->get('url'))->first();
+        if (!$scrapEntry) {
+            $scrapEntry = new ScrapEntries();
+        }
+
+        $scrapEntry->url = $request->get('url');
+        $scrapEntry->title = $request->get('title') ?? 'N/A';
+        $scrapEntry->site_name = $request->get('website');
+        $scrapEntry->is_product_page = $request->get('is_product_page');
+        $scrapEntry->save();
+
+        $date = date('Y-m-d');
+        $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', $request->get('website'))->first();
+        if (!$allLinks) {
+            $allLinks = new ScrapCounts();
+            $allLinks->scraped_date = $date;
+            $allLinks->link_count = 0;
+            $allLinks->website = $request->get('website');
+            $allLinks->save();
+        }
+
+        $allLinks->link_count = $allLinks->link_count + 1;
+        $allLinks->save();
+
+        return response()->json([
+            'status' => 'Added items successfuly!'
+        ]);
+    }
+
     public function syncProductsFromNodeApp(Request $request) {
         $this->validate($request, [
             'sku' => 'required|min:5',

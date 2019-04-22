@@ -21,3 +21,4 @@ Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
 Route::post('sync-product', 'ScrapController@syncGnbProducts');
 Route::post('scrap-products/add', 'ScrapController@syncProductsFromNodeApp');
+Route::post('add-product-entries', 'ScrapController@addProductEntries');

@@ -5,6 +5,7 @@ namespace App\Services\Bots;
 use App\Brand;
 use App\Console\Commands\Bots\Chrome;
 use App\ScrapEntries;
+use GuzzleHttp\Client;
 use NunoMaduro\LaravelConsoleDusk\Manager;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
@@ -128,22 +129,22 @@ class CucLoginEmulator
                             $data = $c->filter('div.contfoto a')->getIterator();
 
                             if (count($data) === 0) {
-                                unset($allUrls[$key]);
+                                $allUrls[$key] = [];
                                 continue;
                             }
 
                             foreach ($data as $datum) {
                                 $productUrl = $datum->getAttribute('href');
                                 $entry = ScrapEntries::where('url', $productUrl)->first();
-                                if ($entry) {
-                                    continue;
+                                if (!$entry) {
+                                    $entry = new ScrapEntries();
                                 }
-                                $entry = new ScrapEntries();
                                 $entry->url = $pages['base'].$productUrl;
                                 $entry->title = $productUrl;
                                 $entry->is_product_page = 1;
                                 $entry->site_name = 'cuccuini';
                                 $entry->save();
+
                             }
                         }
                     }
