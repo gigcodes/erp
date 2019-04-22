@@ -160,6 +160,8 @@ class ProductAttributeController extends Controller
 
 		if ($productattribute->stage < $stage->get('Attribute')) {
 			$productattribute->stage = $stage->get('Attribute');
+		} else if ($productattribute->stage == $stage->get('Attribute')) {
+			$productattribute->stage = 4;
 		}
 
 		$productattribute->category = $request->input('category');
@@ -230,11 +232,10 @@ class ProductAttributeController extends Controller
 			}
 		}
 
-
-		NotificaitonContoller::store( 'has added attribute', ['Supervisors'], $productattribute->id );
+		NotificaitonContoller::store('has added attribute', ['Supervisors'], $productattribute->id);
 		ActivityConroller::create($productattribute->id,'attribute','create');
 
-		return redirect()->route( 'productattribute.index' )
+		return redirect()->route( 'productimagecropper.index' )
 		                 ->with( 'success', $success_message);
 	}
 
