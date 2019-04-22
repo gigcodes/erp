@@ -145,7 +145,8 @@ class CucProductDataEmulator
                             ]
                         ]);
 
-                        dd($response->getBody()->getContents());
+                        echo $response->getBody()->getContents();
+                        echo "\n";
 
                         if (!$response) {
                             dd($response->getBody()->getContents());
