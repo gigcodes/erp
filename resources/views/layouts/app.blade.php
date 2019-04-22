@@ -1176,6 +1176,7 @@
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'DoubleF') }}">TheDoubleF Product</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'Tory') }}">Tory Burch Product</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'lidiashopping') }}">Lidia Shopping</a>
+                                    <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'cuccuini') }}">Cuccuini</a>
                                     <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                 </div>
 

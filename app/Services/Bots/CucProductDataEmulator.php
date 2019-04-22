@@ -137,6 +137,10 @@ class CucProductDataEmulator
                                 'price' => $price,
                                 'properties' => $properties,
                                 'url' => $entry->url,
+                            ],
+                            'headers' => [
+                                'Accept' => 'application/json',
+                                'Content-type' => 'application/json'
                             ]
                         ]);
 
