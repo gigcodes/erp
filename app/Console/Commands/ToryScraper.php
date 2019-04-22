@@ -39,8 +39,6 @@ class ToryScraper extends Command
      */
     public function handle()
     {
-        $this->scraper->scrap('clothing');
-        $this->scraper->scrap('shoes');
-        $this->scraper->scrap('bags');
+        $this->scraper->scrap();
     }
 }
