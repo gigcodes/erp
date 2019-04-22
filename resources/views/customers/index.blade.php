@@ -344,28 +344,8 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
-    @if ($message = Session::get('warning'))
-        <div class="alert alert-warning">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
     <div class="infinite-scroll">
       <div class="table-responsive mt-3">
         <table class="table table-bordered">
@@ -579,7 +559,7 @@
                     </td>
                     <td>
                         <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
-                        <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}"><img src="/images/edit.png" /></a>
+                        <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png" /></a>
 
                         {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
