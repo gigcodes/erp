@@ -278,7 +278,6 @@ class ScrapController extends Controller
         $this->validate($request, [
             'sku' => 'required|min:5',
             'url' => 'required',
-            'images' => 'required|array',
             'properties' => 'required',
             'website' => 'required',
             'price' => 'required',
@@ -309,7 +308,9 @@ class ScrapController extends Controller
             $product = new ScrapedProducts();
             $images = $request->get('images') ?? [];
             $images = $this->downloadImagesForSites($images, strtolower($request->get('website')));
-            $product->images = $images;
+            if ($images !== []) {
+                $product->images = $images;
+            }
         }
 
         $product->sku = $request->get('sku');
