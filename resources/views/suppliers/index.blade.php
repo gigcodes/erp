@@ -8,7 +8,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Vendor Info</h2>
+            <h2 class="page-heading">Suppliers List</h2>
             <div class="pull-left">
               {{-- <form action="/order/" method="GET">
                   <div class="form-group">
@@ -26,7 +26,7 @@
               </form> --}}
             </div>
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</a>
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#supplierCreateModal">+</a>
             </div>
         </div>
     </div>
@@ -48,24 +48,24 @@
         </thead>
 
         <tbody>
-          @foreach ($vendors as $vendor)
+          @foreach ($suppliers as $supplier)
             <tr>
-              <td>{{ $vendor->id }}</td>
+              <td>{{ $supplier->id }}</td>
               <td>
-                {{ $vendor->name }}
+                {{ $supplier->supplier }}
                 <br>
                 <span class="text-muted">
-                  {{ $vendor->phone }}
+                  {{ $supplier->phone }}
                   <br>
-                  {{ $vendor->email }}
+                  {{ $supplier->email }}
                 </span>
               </td>
-              <td>{{ $vendor->address }}</td>
-              <td>{{ $vendor->social_handle }}</td>
+              <td>{{ $supplier->address }}</td>
+              <td>{{ $supplier->social_handle }}</td>
               <td>
-                @if ($vendor->agents)
+                @if ($supplier->agents)
                   <ul>
-                    @foreach ($vendor->agents as $agent)
+                    @foreach ($supplier->agents as $agent)
                       <li>
                         <strong>{{ $agent->name }}</strong> <br>
                         {{ $agent->phone }} - {{ $agent->email }} <br>
@@ -76,12 +76,12 @@
                   </ul>
                 @endif
               </td>
-              <td>{{ $vendor->gst }}</td>
+              <td>{{ $supplier->gst }}</td>
               <td>
-                <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $vendor->id }}">Add Agent</button>
-                <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ $vendor }}"><img src="/images/edit.png" /></button>
+                <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button>
+                <button type="button" class="btn btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ $supplier }}"><img src="/images/edit.png" /></button>
 
-                {!! Form::open(['method' => 'DELETE','route' => ['vendor.destroy', $vendor->id],'style'=>'display:inline']) !!}
+                {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                 {!! Form::close() !!}
               </td>
@@ -91,32 +91,32 @@
       </table>
     </div>
 
-    {!! $vendors->appends(Request::except('page'))->links() !!}
+    {!! $suppliers->appends(Request::except('page'))->links() !!}
 
-    @include('vendors.partials.vendor-modals')
-    @include('vendors.partials.agent-modals')
+    @include('suppliers.partials.supplier-modals')
+    @include('suppliers.partials.agent-modals')
 
 @endsection
 
 @section('scripts')
   <script type="text/javascript">
-    $(document).on('click', '.edit-vendor', function() {
-      var vendor = $(this).data('vendor');
-      var url = "{{ url('vendor') }}/" + vendor.id;
+    $(document).on('click', '.edit-supplier', function() {
+      var supplier = $(this).data('supplier');
+      var url = "{{ url('supplier') }}/" + supplier.id;
 
-      $('#vendorEditModal form').attr('action', url);
-      $('#vendor_name').val(vendor.name);
-      $('#vendor_address').val(vendor.address);
-      $('#vendor_phone').val(vendor.phone);
-      $('#vendor_email').val(vendor.email);
-      $('#vendor_social_handle').val(vendor.social_handle);
-      $('#vendor_gst').val(vendor.gst);
+      $('#supplierEditModal form').attr('action', url);
+      $('#supplier_supplier').val(supplier.supplier);
+      $('#supplier_address').val(supplier.address);
+      $('#supplier_phone').val(supplier.phone);
+      $('#supplier_email').val(supplier.email);
+      $('#supplier_social_handle').val(supplier.social_handle);
+      $('#supplier_gst').val(supplier.gst);
     });
 
     $(document).on('click', '.create-agent', function() {
       var id = $(this).data('id');
 
-      $('#agent_vendor_id').val(id);
+      $('#agent_supplier_id').val(id);
     });
 
     $(document).on('click', '.edit-agent-button', function() {

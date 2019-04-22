@@ -14,4 +14,9 @@ class Vendor extends Model
   {
     return $this->hasMany('App\VendorProduct');
   }
+
+  public function agents()
+  {
+    return $this->hasMany('App\Agent', 'model_id')->where('model_type', 'App\Vendor');
+  }
 }
