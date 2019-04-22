@@ -5,6 +5,7 @@ namespace App\Services\Products;
 use App\Brand;
 use App\Product;
 use App\Setting;
+use App\Supplier;
 use Validator;
 use Storage;
 use Plank\Mediable\Media;
