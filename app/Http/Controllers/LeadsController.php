@@ -261,16 +261,17 @@ class LeadsController extends Controller
 
         if ($request->type == 'product-lead') {
           $brand_array = [];
+          $category_array = [];
 
           foreach ($request->selected_product as $product_id) {
             $product = Product::find($product_id);
 
             array_push($brand_array, $product->brand);
-            $multi_category = $product->category;
+            array_push($category_array, $product->category);
           }
 
           $data['multi_brand'] = $brand_array ? json_encode($brand_array) : NULL;
-          $data['multi_category'] = $multi_category;
+          $data['multi_category'] = $category_array ? json_encode($category_array) : NULL;
         } else {
           $data['multi_brand'] = $request->input( 'multi_brand' ) ? json_encode( $request->input( 'multi_brand' ) ) : NULL;
           $data['multi_category'] = $request->input('multi_category') ;

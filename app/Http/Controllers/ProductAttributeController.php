@@ -132,6 +132,8 @@ class ProductAttributeController extends Controller
 	public function update(Request $request,Guard $auth, Product $productattribute,Stage $stage)
 	{
 		$old_sizes = $productattribute->size;
+		$old_color = $productattribute->color;
+		$old_images = $productattribute->getMedia(config('constants.media_tags'));
 
 		$productattribute->dnf = $request->input('dnf');
 		$productattribute->name = $request->input('name');
@@ -142,7 +144,7 @@ class ProductAttributeController extends Controller
 		$productattribute->hmeasurement = $request->input('hmeasurement');
 		$productattribute->dmeasurement = $request->input('dmeasurement');
 
-		$productattribute->size = $request->size ? implode(',', $request->size) : '';
+		$productattribute->size = $request->size ? implode(',', $request->size) : ($request->other_size ?? "");
 
 		$productattribute->size_value = $request->input('size_value');
 
@@ -160,6 +162,8 @@ class ProductAttributeController extends Controller
 
 		if ($productattribute->stage < $stage->get('Attribute')) {
 			$productattribute->stage = $stage->get('Attribute');
+		} else if ($productattribute->stage == $stage->get('Attribute')) {
+			$productattribute->stage = 4;
 		}
 
 		$productattribute->category = $request->input('category');
@@ -223,18 +227,17 @@ class ProductAttributeController extends Controller
 		$success_message = 'Attribute updated successfully. ';
 
 		if ($productattribute->isUploaded == 1) {
-			$result = $this->magentoProductUpdate($productattribute, $old_sizes);
+			$result = $this->magentoProductUpdate($productattribute, $old_sizes, $old_color, $old_images);
 
 			if (!$result[1]) {
 				$success_message .= "Not everything was updated correctly. Check product on Magento";
 			}
 		}
 
-
-		NotificaitonContoller::store( 'has added attribute', ['Supervisors'], $productattribute->id );
+		NotificaitonContoller::store('has added attribute', ['Supervisors'], $productattribute->id);
 		ActivityConroller::create($productattribute->id,'attribute','create');
 
-		return redirect()->route( 'productattribute.index' )
+		return redirect()->route( 'productimagecropper.index' )
 		                 ->with( 'success', $success_message);
 	}
 
@@ -292,7 +295,7 @@ class ProductAttributeController extends Controller
 				->count();
 	}
 
-	public function magentoProductUpdate($product, $old_sizes) {
+	public function magentoProductUpdate($product, $old_sizes, $old_color, $old_images) {
 		$options = array(
 			'trace' => true,
 			'connection_timeout' => 120,
@@ -303,6 +306,7 @@ class ProductAttributeController extends Controller
 		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
 		$sku = $product->sku . $product->color;
+		$old_sku = $product->sku . $old_color;
 		$categories = CategoryController::getCategoryTreeMagentoIds($product->category);
 		$brand= $product->brands()->get();
 
@@ -315,7 +319,7 @@ class ProductAttributeController extends Controller
 
 			foreach ($sizes_array as $size) {
 				try {
-					$result = $proxy->catalogProductDelete($sessionId, $sku . "-" . $size);
+					$result = $proxy->catalogProductDelete($sessionId, $old_sku . "-" . $size);
 
 					$deleted_count++;
 				} catch (\Exception $e) {
@@ -408,7 +412,32 @@ class ProductAttributeController extends Controller
 			);
 
 			// Creation of configurable product
-			$result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+			$error_message = '';
+			$updated_product = 0;
+			try {
+				$result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+			} catch (\Exception $e) {
+				$error_message = $e->getMessage();
+			}
+
+			if ($error_message == 'Product not exists.') {
+				$productData['status'] = $product->isFinal ?? 2;
+				$productData['visibility'] = 4;
+				$productData['tax_class_id'] = 2;
+				$productData['weight'] = 0;
+
+				try {
+					$result = $proxy->catalogProductDelete($sessionId, $old_sku);
+
+					$deleted_count++;
+				} catch (\Exception $e) {
+					$error_message = $e->getMessage();
+				}
+
+				$result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, $sku, $productData);
+			} else {
+				$updated_product = 1;
+			}
 		} else {
 			$measurement = 'L-'.$product->lmeasurement.',H-'.$product->hmeasurement.',D-'.$product->dmeasurement;
 
@@ -445,157 +474,70 @@ class ProductAttributeController extends Controller
 					),
 				),
 			);
+
 			// Creation of product simple
-			$result  = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+			$error_message = '';
+			$updated_product = 0;
+			try {
+				$result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+			} catch (\Exception $e) {
+				$error_message = $e->getMessage();
+			}
+
+			if ($error_message == 'Product not exists.') {
+				$productData['status'] = $product->isFinal ?? 2;
+				$productData['visibility'] = 4;
+				$productData['tax_class_id'] = 2;
+				$productData['weight'] = 0;
+
+				$result = $proxy->catalogProductCreate($sessionId, 'simple', 4, $sku, $productData);
+			} else {
+				$updated_product = 1;
+			}
 		}
-
-
-
-
-
-
-		// if(!empty($product->size)) {
-		// 	$associated_skus = [];
-		// 	$sizes_array = explode( ',', $product->size );
-		//
-		// 	foreach ( $sizes_array as $size ) {
-		// 		$productData = array(
-		// 			'categories'            => $categories,
-		// 			'name'                  => $product->name,
-		// 			'description'           => '<p></p>',
-		// 			'short_description'     => $product->short_description,
-		// 			'website_ids'           => array(1),
-		// 			// Id or code of website
-		// 			// 'status'                => 2,
-		// 			// 1 = Enabled, 2 = Disabled
-		// 			// 'visibility'            => 1,
-		// 			// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-		// 			// 'tax_class_id'          => 2,
-		// 			// Default VAT
-		// 			// 'weight'                => 0,
-		// 			// 'stock_data' => array(
-		// 			// 	'use_config_manage_stock' => 1,
-		// 			// 	'manage_stock' => 1,
-		// 			// ),
-		// 			'price'                 => $product->price_inr,
-		// 			// Same price than configurable product, no price change
-		// 			'special_price'         => $product->price_special,
-		// 			'additional_attributes' => array(
-		// 				'single_data' => array(
-		// 					array( 'key' => 'composition', 'value' => $product->composition, ),
-		// 					array( 'key' => 'color', 'value' => $product->color, ),
-		// 					array( 'key' => 'sizes', 'value' => $size, ),
-		// 					array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-		// 					array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-		// 				),
-		// 			),
-		// 		);
-		// 		// Creation of product simple
-		// 		$result            = $proxy->catalogProductUpdate( $sessionId, $sku . '-' . $size, $productData );
-		// 		$associated_skus[] = $sku . '-' . $size;
-		// 	}
-		//
-		// 	/**
-		// 	 * Configurable product
-		// 	 */
-		// 	$productData = array(
-		// 		'categories'              => $categories,
-		// 		'name'                    => $product->name,
-		// 		'description'             => '<p></p>',
-		// 		'short_description'       => $product->short_description,
-		// 		'website_ids'             => array(1),
-		// 		// Id or code of website
-		// 		// 'status'                  => 2,
-		// 		// 1 = Enabled, 2 = Disabled
-		// 		// 'visibility'              => 4,
-		// 		// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-		// 		// 'tax_class_id'            => 2,
-		// 		// Default VAT
-		// 		// 'weight'                  => 0,
-		// 		// 'stock_data' => array(
-		// 		// 	'use_config_manage_stock' => 1,
-		// 		// 	'manage_stock' => 1,
-		// 		// ),
-		// 		'price'                   => $product->price_inr,
-		// 		// Same price than configurable product, no price change
-		// 		'special_price'           => $product->price_special,
-		// 		'associated_skus'         => $associated_skus,
-		// 		// Simple products to associate
-		// 		// 'configurable_attributes' => array( 155 ),
-		// 		'additional_attributes'   => array(
-		// 			'single_data' => array(
-		// 				array( 'key' => 'composition', 'value' => $product->composition, ),
-		// 				array( 'key' => 'color', 'value' => $product->color, ),
-		// 				array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-		// 				array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-		// 			),
-		// 		),
-		// 	);
-		// 	// Creation of configurable product
-		// 	$result = $proxy->catalogProductUpdate( $sessionId, $sku, $productData );
-		// }
-		// else{
-		//
-		// 	$measurement = 'L-'.$product->lmeasurement.',H-'.$product->hmeasurement.',D-'.$product->dmeasurement;
-		//
-		// 	$productData = array(
-		// 		'categories'            => $categories,
-		// 		'name'                  => $product->name,
-		// 		'description'           => '<p></p>',
-		// 		'short_description'     => $product->short_description,
-		// 		'website_ids'           => array(1),
-		// 		// Id or code of website
-		// 		// 'status'                => 2,
-		// 		// 1 = Enabled, 2 = Disabled
-		// 		// 'visibility'            => 4,
-		// 		// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-		// 		// 'tax_class_id'          => 2,
-		// 		// Default VAT
-		// 		// 'weight'                => 0,
-		// 		// 'stock_data' => array(
-		// 		// 	'use_config_manage_stock' => 1,
-		// 		// 	'manage_stock' => 1,
-		// 		// ),
-		// 		'price'                 => $product->price_inr,
-		// 		// Same price than configurable product, no price change
-		// 		'special_price'         => $product->price_special,
-		// 		'additional_attributes' => array(
-		// 			'single_data' => array(
-		// 				array( 'key' => 'composition', 'value' => $product->composition, ),
-		// 				array( 'key' => 'color', 'value' => $product->color, ),
-		// 				array( 'key' => 'measurement', 'value' => $measurement, ),
-		// 				array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-		// 				array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-		// 			),
-		// 		),
-		// 	);
-		// 	// Creation of product simple
-		// 	$result  = $proxy->catalogProductUpdate( $sessionId, $sku, $productData );
-		// }
 
 		$images = $product->getMedia(config('constants.media_tags'));
 
 		$i = 0;
-		$productId = $result;
+		// dd($result);
+		// $productId = $result;
 
-		// foreach ($images as $image){
-		//
-		// 	$image->getUrl();
-		//
-		// 	$file = array(
-		// 		'name' => $image->getBasenameAttribute(),
-		// 		'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
-		// 		'mime' => mime_content_type($image->getAbsolutePath())
-		// 	);
-		//
-		// 	$types = $i ? array('') : array('size_guide','image','small_image','thumbnail','hover_image');
-		//
-		// 	$result = $proxy->catalogProductAttributeMediaCreate(
-		// 		$sessionId,
-		// 		$productId,
-		// 		array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
-		// 	);
-		// }
+		if ($updated_product == 1) {
+			foreach ($old_images as $old_image) {
+				$first_letter = substr($old_image->getBasenameAttribute(), 0, 1);
+				$second_letter = substr($old_image->getBasenameAttribute(), 1, 1);
+				$image_name = "/$first_letter/$second_letter/" . $old_image->getBasenameAttribute();
+
+				try {
+					$result = $proxy->catalogProductAttributeMediaRemove(
+						$sessionId,
+						$sku,
+						$image_name
+					);
+				} catch (\Exception $e) {
+
+				}
+			}
+		}
+
+		foreach ($images as $image){
+
+			$image->getUrl();
+
+			$file = array(
+				'name' => $image->getBasenameAttribute(),
+				'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
+				'mime' => mime_content_type($image->getAbsolutePath())
+			);
+
+			$types = $i ? array('') : array('size_guide','image','small_image','thumbnail','hover_image');
+
+			$result = $proxy->catalogProductAttributeMediaCreate(
+				$sessionId,
+				$sku,
+				array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
+			);
+		}
 
 		if (count(explode(',', $old_sizes)) != $deleted_count) {
 			return [$result, FALSE];
@@ -603,5 +545,4 @@ class ProductAttributeController extends Controller
 			return [$result, TRUE];
 		}
 	}
-
 }

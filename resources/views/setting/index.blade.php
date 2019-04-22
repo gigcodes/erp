@@ -17,11 +17,7 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
 
-            @if (session('status'))
-                <div class="alert alert-success">
-                    {{ session('status') }}
-                </div>
-            @endif
+            @include('partials.flash_messages')
 
             <form method="post" action="{{ route('settings.store') }}" class="form-horizontal" role="form">
                 {!! csrf_field() !!}
@@ -134,6 +130,19 @@
 
                                     @if ($errors->has('screenshot_shortcut'))
                                         <div class="alert alert-danger">{{$errors->first('screenshot_shortcut')}}</div>
+                                    @endif
+                                </div>
+
+                                <div class="form-group">
+                                    <strong>User for Give Details Shortcut:</strong>
+                                    <select class="selectpicker form-control" data-live-search="true" data-size="15" name="details_shortcut" title="Choose a User" required>
+                                        @foreach ($users_array as $index => $user)
+                                            <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}" {{ $index == $details_shortcut ? 'selected' : '' }}>{{ $user }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    @if ($errors->has('details_shortcut'))
+                                        <div class="alert alert-danger">{{$errors->first('details_shortcut')}}</div>
                                     @endif
                                 </div>
 

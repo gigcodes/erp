@@ -358,22 +358,24 @@
                             </form>
                         @endcan
                     </div> --}}
-                    <div class="form-group">
-                        @can('inventory-edit')
-                            <form method="POST" action="{{ route('productinventory.stock',$id) }}"
-                                  style="display: inline;">
-                                @csrf
-                                <div class="form-group">
-                                    <strong>Stock</strong>
-                                    <input type="number" class="form-control" name="stock" value="{{ old('stock') ? old('stock') : $stock }}" />
-                                </div>
-                                @if($errors->has('stock'))
-                                    <div class="alert alert-danger">{{$errors->first('stock')}}</div>
-                                @endif
-                                <button type="submit" class="btn btn-secondary">+</button>
-                            </form>
-                        @endcan
-                    </div>
+                    @if ($isFinal == 1)
+                      <div class="form-group">
+                          @can('inventory-edit')
+                              <form method="POST" action="{{ route('productinventory.stock',$id) }}"
+                                    style="display: inline;">
+                                  @csrf
+                                  <div class="form-group">
+                                      <strong>Stock</strong>
+                                      <input type="number" class="form-control" name="stock" value="{{ old('stock') ? old('stock') : $stock }}" />
+                                  </div>
+                                  @if($errors->has('stock'))
+                                      <div class="alert alert-danger">{{$errors->first('stock')}}</div>
+                                  @endif
+                                  <button type="submit" class="btn btn-secondary">+</button>
+                              </form>
+                          @endcan
+                      </div>
+                    @endif
                 </div>
             </div>
         </div>
