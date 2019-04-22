@@ -919,31 +919,103 @@ class WhatsAppController extends FindByNumberController
     }
 
     if ($request->to_all || $request->moduletype == 'customers') {
-      $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
-      $minutes = 5;
+      // $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
+      $minutes = 6;
       $max_group_id = MessageQueue::max('group_id') + 1;
 
-      $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0)->chunk(20, function ($customers) use ($content, $now, &$minutes, $max_group_id) {
-        foreach ($customers as $customer) {
-          // SendMessageToAll::dispatch(Auth::id(), $customer, $content)
-          //                 ->delay($now->addMinutes($minutes))
-          //                 ->onQueue('sending');
+      // $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0)->chunk(20, function ($customers) use ($content, $now, &$minutes, $max_group_id) {
+      //   foreach ($customers as $customer) {
+      //     // SendMessageToAll::dispatch(Auth::id(), $customer, $content)
+      //     //                 ->delay($now->addMinutes($minutes))
+      //     //                 ->onQueue('sending');
+      //
+      //
+      //
+      //     MessageQueue::create([
+      //       'user_id'       => Auth::id(),
+      //       'customer_id'   => $customer->id,
+      //       'phone'         => NULL,
+      //       'type'          => 'message_all',
+      //       'data'          => json_encode($content),
+      //       'sending_time'  => $now,
+      //       'group_id'      => $max_group_id
+      //     ]);
+      //   }
+      //
+      //   $now->addMinutes($minutes);
+      // });
 
+      $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0)->get()->groupBy('whatsapp_number');
 
+      foreach ($data as $whatsapp_number => $customers) {
+        $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
+        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+        $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
 
-          MessageQueue::create([
-            'user_id'       => Auth::id(),
-            'customer_id'   => $customer->id,
-            'phone'         => NULL,
-            'type'          => 'message_all',
-            'data'          => json_encode($content),
-            'sending_time'  => $now,
-            'group_id'      => $max_group_id
-          ]);
+        if ($whatsapp_number == '919152731486') {
+          foreach ($customers as $customer) {
+            if (!$now->between($morning, $evening, true)) {
+              if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                // add day
+                $now->addDay();
+                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+              } else {
+                // dont add day
+                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+              }
+            }
+
+            MessageQueue::create([
+              'user_id'       => Auth::id(),
+              'customer_id'   => $customer->id,
+              'phone'         => NULL,
+              'type'          => 'message_all',
+              'data'          => json_encode($content),
+              'sending_time'  => $now,
+              'group_id'      => $max_group_id
+            ]);
+
+            $now->addMinutes($minutes);
+          }
         }
 
-        $now->addMinutes($minutes);
-      });
+        if ($whatsapp_number == '919152731483') {
+          foreach ($customers as $customer) {
+            if (!$now->between($morning, $evening, true)) {
+              if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                // add day
+
+                $now->addDay();
+                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+              } else {
+                // dont add day
+
+                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+              }
+            }
+
+            MessageQueue::create([
+              'user_id'       => Auth::id(),
+              'customer_id'   => $customer->id,
+              'phone'         => NULL,
+              'type'          => 'message_all',
+              'data'          => json_encode($content),
+              'sending_time'  => $now,
+              'group_id'      => $max_group_id
+            ]);
+
+            $now->addMinutes($minutes);
+          }
+        }
+      }
     } else {
       $now = $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
       $minutes = 0;
