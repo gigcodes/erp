@@ -127,7 +127,7 @@
                     <option value="">Select Category</option>
                   </select>
 
-                  <input type="text" name="size[]" class="form-control mt-3 hidden" id="size-manual-input" placeholder="Manual Size" value="{{ !empty($size) ? $size[0] : '' }}">
+                  <input type="text" name="other_size" class="form-control mt-3 hidden" id="size-manual-input" placeholder="Manual Size" value="{{ !empty($size) ? $size[0] : '' }}">
 
                   @if ($errors->has('size'))
                       <div class="alert alert-danger">{{$errors->first('size')}}</div>
