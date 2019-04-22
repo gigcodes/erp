@@ -699,10 +699,10 @@
                       <div class="form-group">
                         <strong>Categories</strong>
                         @php
-                        $selected_category = $lead->multi_category ? $lead->multi_category : '';
-                        // $selected_categories = is_array(json_decode( $lead->multi_category,true)) ? json_decode( $lead->multi_category ,true) : [] ;
+                        // $selected_category = $lead->multi_category ? $lead->multi_category : '';
+                        $selected_categories = is_array(json_decode( $lead->multi_category,true)) ? json_decode( $lead->multi_category ,true) : [] ;
                         $category_selection = \App\Category::attr(['name' => 'multi_category','class' => 'form-control'])
-                        ->selected($selected_category)
+                        ->selected($selected_categories)
                         ->renderAsDropdown();
                         @endphp
                         {!! $category_selection  !!}
