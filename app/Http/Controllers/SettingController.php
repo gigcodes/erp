@@ -29,6 +29,7 @@ class SettingController extends Controller
 		$data['price_shortcut'] = Setting::get('price_shortcut');
 		$data['call_shortcut'] = Setting::get('call_shortcut');
 		$data['screenshot_shortcut'] = Setting::get('screenshot_shortcut');
+		$data['details_shortcut'] = Setting::get('details_shortcut');
 		$data['consignor_name'] = Setting::get('consignor_name');
 		$data['consignor_address'] = Setting::get('consignor_address');
 		$data['consignor_city'] = Setting::get('consignor_city');
@@ -60,6 +61,7 @@ class SettingController extends Controller
 		Setting::add('price_shortcut', $request->price_shortcut, 'tinyint');
 		Setting::add('call_shortcut', $request->call_shortcut, 'tinyint');
 		Setting::add('screenshot_shortcut', $request->screenshot_shortcut, 'tinyint');
+		Setting::add('details_shortcut', $request->details_shortcut, 'tinyint');
 		Setting::add('consignor_name', $request->consignor_name, 'string');
 		Setting::add('consignor_address', $request->consignor_address, 'string');
 		Setting::add('consignor_city', $request->consignor_city, 'string');
