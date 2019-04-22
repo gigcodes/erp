@@ -18,7 +18,7 @@ class VendorController extends Controller
      */
     public function index()
     {
-      $vendors = Vendor::latest()->paginate(Setting::get('pagination'));
+      $vendors = Vendor::with('agents')->latest()->paginate(Setting::get('pagination'));
 
       return view('vendors.index', [
         'vendors' => $vendors
@@ -193,6 +193,7 @@ class VendorController extends Controller
       }
 
       $vendor->products()->delete();
+      $vendor->agents()->delete();
       $vendor->delete();
 
       return redirect()->route('vendor.index')->withSuccess('You have successfully deleted a vendor');

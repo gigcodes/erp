@@ -389,6 +389,14 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::put('vendor/product/{id}', 'VendorController@productUpdate')->name('vendor.product.update');
 	Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
 	Route::resource('vendor', 'VendorController');
+
+	// Suppliers Module
+	// Route::post('supplier/agent/store', 'SupplierController@agentStore')->name('supplier.agent.store');
+	// Route::put('supplier/agent/update/{id}', 'SupplierController@agentUpdate')->name('supplier.agent.update');
+	Route::resource('supplier', 'SupplierController');
+
+	// Agent Routes
+	Route::resource('agent', 'AgentController');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
