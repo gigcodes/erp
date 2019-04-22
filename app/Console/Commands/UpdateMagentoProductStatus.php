@@ -54,7 +54,7 @@ class UpdateMagentoProductStatus extends Command
 
       // $magento_products = $proxy->catalogProductList($sessionId);
 
-      // $products = Product::skip(15934)->take(2558)->get();
+      // $products = Product::skip(909)->take(18435)->get();
       $products = Product::all();
 
       // $product = Product::where('sku', 'RR3MJ00GNXU0N0')->first();
@@ -78,7 +78,7 @@ class UpdateMagentoProductStatus extends Command
           $product->isUploaded = 0;
           $product->isFinal = 0;
 
-          dump("$key Product Doesnt Exist - status ($product->isUploaded)");
+          dump("$key Product Doesnt Exist - $product->sku - status ($product->isUploaded)");
 
           // CHECKS FOR SKU WITHOUT COLOR
           try {
