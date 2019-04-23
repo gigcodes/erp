@@ -358,7 +358,7 @@
                             </form>
                         @endcan
                     </div> --}}
-                    @if ($isFinal == 1)
+                    @if ($isUploaded == 1)
                       <div class="form-group">
                           @can('inventory-edit')
                               <form method="POST" action="{{ route('productinventory.stock',$id) }}"
