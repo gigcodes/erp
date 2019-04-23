@@ -276,17 +276,23 @@ class ScrapController extends Controller
     }
 
     public function getProductsForImages() {
-        $products = Product::all();
+        $products = Product::where('status', '2')->get  ();
+        $productsToPush = [];
 
-        $products = $products->map(function($product) {
-            return [
+
+        foreach ($products as $product) {
+            if ($product->hasMedia(config('constants.media_tags'))) {
+                continue;
+            }
+
+            $productsToPush[] = [
                 'id' => $product->id,
                 'sku' => $product->sku,
                 'brand' => $product->brand->name,
             ];
-        });
+        }
 
-        return  response()->json($products);
+        return  response()->json($productsToPush);
     }
 
     public function syncProductsFromNodeApp(Request $request) {
