@@ -276,16 +276,9 @@ class ScrapController extends Controller
     }
 
     public function getProductsForImages() {
-        $products = Product::where('status', '2')->all();
+        $products = Product::where('status', '2')->get  ();
         $productsToPush = [];
 
-        $products = $products->map(function($product) {
-            return [
-                'id' => $product->id,
-                'sku' => $product->sku,
-                'brand' => $product->brand->name,
-            ];
-        });
 
         foreach ($products as $product) {
             if ($product->hasMedia(config('constants.media_tags'))) {
