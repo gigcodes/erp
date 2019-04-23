@@ -55,9 +55,11 @@ class ToryProductsCreator
          $sizes = $properties_array['sizes'];
          if (array_key_exists('Length', $sizes)) {
            preg_match_all('/\s((.*))\s/', $sizes['Length'], $match);
-
-           $product->lmeasurement = (int) $match[1][0];
-           $product->measurement_size_type = 'measurement';
+           
+           if (array_key_exists('0', $match[1])) {
+             $product->lmeasurement = (int) $match[1][0];
+             $product->measurement_size_type = 'measurement';
+           }
          }
 
          // if (strpos($sizes, 'Width:') !== false) {
