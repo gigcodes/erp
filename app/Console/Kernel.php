@@ -133,6 +133,7 @@ class Kernel extends ConsoleKernel
         // Sends Auto messages
         $schedule->command('send:auto-reminder')->hourly();
         // $schedule->command('send:auto-messager')->hourly();
+        // $schedule->command('send:auto-messager')->everyMinute();
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
 
         $schedule->command('gebnegozionline:get-products-list')
@@ -198,7 +199,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
-        // $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
 
         // Voucher Reminders
         $schedule->command('send:voucher-reminder')->daily();
