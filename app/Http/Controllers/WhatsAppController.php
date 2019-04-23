@@ -405,6 +405,7 @@ class WhatsAppController extends FindByNumberController
 
     public function updateAndCreate(Request $request)
     {
+      $result = 'success';
       $message = Message::find($request->message_id);
       $params = [
         'number'  => NULL,
@@ -459,7 +460,7 @@ class WhatsAppController extends FindByNumberController
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
-        $this->approveMessage($request->moduletype, $myRequest);
+        $result = $this->approveMessage($request->moduletype, $myRequest);
 
       } else {
         if ($request->moduletype == 'customer') {
@@ -497,7 +498,7 @@ class WhatsAppController extends FindByNumberController
         return redirect('/'. $request->moduletype.'/'.$request->moduleid);
       }
 
-      return response('success');
+      return response()->json(['status' => $result]);
     }
 
     public function forwardMessage(Request $request)
@@ -860,6 +861,8 @@ class WhatsAppController extends FindByNumberController
 
                   if ($purchase->agent) {
                     $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+                  } else {
+                    return 'error';
                   }
                 }
               }
@@ -879,6 +882,8 @@ class WhatsAppController extends FindByNumberController
 
               if ($purchase->agent) {
                 $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+              } else {
+                return 'error';
               }
             }
           }
@@ -897,6 +902,8 @@ class WhatsAppController extends FindByNumberController
 
             if ($purchase->agent) {
               $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+            } else {
+              return 'error';
             }
           }
         }

@@ -34,7 +34,7 @@
             @endif
 
             <div class="form-group mr-3">
-              {!! Form::select('supplier[]', $supplier_list, (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
+              {!! Form::select('supplier[]', $suppliers_array, (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
             </div>
 
             <div class="form-group mr-3">
@@ -53,22 +53,7 @@
       </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            {{ $message }}
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     {!! $products->appends(Request::except('page'))->links() !!}
 
@@ -144,6 +129,7 @@
             }, {})
         };
 
+        var suppliers_array = {!! json_encode($suppliers_array) !!};
         const products = [
                 @foreach ($products as $product)
 
@@ -151,6 +137,8 @@
                 'id': '{{ $product['id'] }}',
                 'sku': '{{ $product['sku'] }}',
                 'supplier': '{{ $product['supplier'] }}',
+                'suppliers' : "{{ $product['supplier_list'] }}",
+                'single_supplier': "{{ $product['single_supplier'] }}",
                 'image': '{{ $product['image']}}',
                 'link': '{{ route('products.show', $product['id']) }}',
                 'customer_id': '{{ $product['customer_id'] != 'No Customer' && $product['customer_id'] != 'No Order' ? route('customer.show', $product['customer_id']) : '#noCustomer' }}',
@@ -162,21 +150,21 @@
             @endforeach
         ];
 
-        const groupedByTime = products.groupBy('supplier');
+        const groupedByTime = products.groupBy('single_supplier');
 
         jQuery(document).ready(function () {
 
             Object.keys(groupedByTime).forEach(function (key) {
 
-                let html = '<form action="{{ route('purchase.store') }}" method="POST"><input type="hidden" name="_token" value="{{ csrf_token() }}" /><input type="hidden" name="purchase_handler" value="{{ Auth::id() }}" /><input type="hidden" name="supplier" value="' + key + '" />';
-                    html += '<div class="supplier-wrapper"><div class="form-check pull-right"><input type="checkbox" class="select-all" id="' + key.replace(/[^a-zA-Z0-9]/g, '-') + '"><label class="form-check-label" for="' + key.replace(/[^a-zA-Z0-9]/g, '-') + '">Select All</label></div><h4>' + key + '</h4></div><div class="row">';
+                let html = '<form action="{{ route('purchase.store') }}" method="POST"><input type="hidden" name="_token" value="{{ csrf_token() }}" /><input type="hidden" name="purchase_handler" value="{{ Auth::id() }}" /><input type="hidden" name="supplier_id" value="' + key + '" />';
+                    html += '<div class="supplier-wrapper"><div class="form-check pull-right"><input type="checkbox" class="select-all" id="' + key.replace(/[^a-zA-Z0-9]/g, '-') + '"><label class="form-check-label" for="' + key.replace(/[^a-zA-Z0-9]/g, '-') + '">Select All</label></div><h4>' + suppliers_array[key] + '</h4></div><div class="row">';
 
                 groupedByTime[key].forEach(function (product) {
 
                     html += `
                         <div class="col-md-3 col-xs-6 text-center">
                           <a href="` + product['customer_id'] + `">
-                            <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Name: </strong>` + product['customer_name'] + `<br><strong>Price in Order: </strong>` + product['order_price'] + `<br><strong>Order Date: </strong>` + moment(product['order_date']).format('DD-MM') + `<br><strong>Supplier: </strong>` + product['supplier'] + `<br><strong>Sku: </strong>` + product['sku'] + `" />
+                            <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Name: </strong>` + product['customer_name'] + `<br><strong>Price in Order: </strong>` + product['order_price'] + `<br><strong>Order Date: </strong>` + moment(product['order_date']).format('DD-MM') + `<br><strong>Supplier: </strong>` + product['supplier'] + `<br><strong>Suppliers: </strong>` + product['suppliers'] + `<br><strong>Sku: </strong>` + product['sku'] + `" />
                                             <input type="checkbox" class="` + key.replace(/[^a-zA-Z0-9]/g, '-') + `" name="products[]" value="` + product['id'] + `">
                                             <a href="` + product['link'] + `" class="btn btn-image"><img src="/images/view.png" /></a>
                                              {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?

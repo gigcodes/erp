@@ -11,6 +11,7 @@ use App\Leads;
 use App\Customer;
 use App\Order;
 use App\Status;
+use App\Agent;
 use App\Setting;
 use App\User;
 use App\Brand;

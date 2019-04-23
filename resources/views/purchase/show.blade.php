@@ -451,170 +451,219 @@
     @endif
   </div>
 
-  <div class="row mt-5">
-    <div class="col-xs-12 col-sm-6">
-      <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
-        <div class="d-flex">
-          @csrf
+  <div id="exTab2" class="container">
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a href="#messages_tab" data-toggle="tab">Messages</a>
+      </li>
+      <li>
+        <a href="#emails_tab" data-toggle="tab" data-purchaseid="{{ $order->id }}" data-type="inbox">Emails</a>
+      </li>
+    </duv>
+  </div>
 
-          <div class="form-group">
-            <div class="upload-btn-wrapper btn-group">
-              {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-              <input type="file" name="image" /> --}}
+  <div class="tab-content ">
+    <div class="tab-pane active mt-3" id="messages_tab">
+      <div class="row mt-5">
+        <div class="col-xs-12 col-sm-6">
+          <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+            <div class="d-flex">
+              @csrf
 
-              <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+              <div class="form-group">
+                <div class="upload-btn-wrapper btn-group">
+                  {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                  <input type="file" name="image" /> --}}
+
+                  <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+                </div>
+              </div>
+
+              <div class="form-group flex-fill mr-3">
+                <textarea  class="form-control mb-3" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
+
+
+                <input type="hidden" name="moduletype" value="purchase" />
+                <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
+                <input type="hidden" name="assigned_user" value="{{ $order['purchase_handler'] }}" />
+                <input type="hidden" name="status" value="0" />
+              </div>
+
+              <div class="form-group">
+                <input type="file" class="dropify" name="image" data-height="100" />
+              </div>
             </div>
-          </div>
-
-          <div class="form-group flex-fill mr-3">
-            <textarea  class="form-control mb-3" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
 
 
-            <input type="hidden" name="moduletype" value="purchase" />
-            <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
-            <input type="hidden" name="assigned_user" value="{{ $order['purchase_handler'] }}" />
-            <input type="hidden" name="status" value="0" />
-          </div>
-
-          <div class="form-group">
-            <input type="file" class="dropify" name="image" data-height="100" />
-          </div>
-        </div>
-
-
-       </form>
-     </div>
-
-     {{-- @include('customers.partials.modal-suggestion') --}}
-
-     <div class="col-xs-12 col-sm-6">
-       <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
-         <div class="d-flex">
-           @csrf
-
-             <div class="form-group">
-               <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-                 {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-                 <input type="file" name="image" /> --}}
-
-                 {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 1, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
-                 <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal">X</button> --}}
-                 <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-               </div>
-             </div>
-
-               <div class="form-group flex-fill mr-3">
-                 <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
-
-                 <input type="hidden" name="moduletype" value="purchase" />
-                 <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
-                 <input type="hidden" name="assigned_user" value="{{$order['purchase_handler'] }}" />
-                 <input type="hidden" name="status" value="1" />
-
-                 <p class="pb-4 mt-3" style="display: block;">
-                   <select name="quickCategory" id="quickCategory" class="form-control mb-3">
-                     <option value="">Select Category</option>
-                     @foreach($reply_categories as $category)
-                         <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                     @endforeach
-                   </select>
-
-                     <select name="quickComment" id="quickComment" class="form-control">
-                         <option value="">Quick Reply</option>
-                     </select>
-                 </p>
-               </div>
-
-               <div class="form-group">
-                 <input type="file" class="dropify" name="image" data-height="100" />
-                 <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
-               </div>
+           </form>
          </div>
 
+         {{-- @include('customers.partials.modal-suggestion') --}}
 
-       </form>
-     </div>
+         <div class="col-xs-12 col-sm-6">
+           <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+             <div class="d-flex">
+               @csrf
 
-     <hr>
-
-     @include('customers.partials.modal-reply')
-
-     <div class="col-xs-12 col-sm-6 mt-3">
-         <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
-           <div class="d-flex">
-             @csrf
-
-               <div class="form-group">
-                 <div class="upload-btn-wrapper btn-group">
-                    {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                 <div class="form-group">
+                   <div class="upload-btn-wrapper btn-group pr-0 d-flex">
+                     {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                      <input type="file" name="image" /> --}}
+
+                     {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 1, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+                     <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal">X</button> --}}
                      <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+                   </div>
+                 </div>
+
+                   <div class="form-group flex-fill mr-3">
+                     <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
+
+                     <input type="hidden" name="moduletype" value="purchase" />
+                     <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
+                     <input type="hidden" name="assigned_user" value="{{$order['purchase_handler'] }}" />
+                     <input type="hidden" name="status" value="1" />
+
+                     <p class="pb-4 mt-3" style="display: block;">
+                       <select name="quickCategory" id="quickCategory" class="form-control mb-3">
+                         <option value="">Select Category</option>
+                         @foreach($reply_categories as $category)
+                             <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                         @endforeach
+                       </select>
+
+                         <select name="quickComment" id="quickComment" class="form-control">
+                             <option value="">Quick Reply</option>
+                         </select>
+                     </p>
+                   </div>
+
+                   <div class="form-group">
+                     <input type="file" class="dropify" name="image" data-height="100" />
+                     <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
+                   </div>
+             </div>
+
+
+           </form>
+         </div>
+
+         <hr>
+
+         @include('customers.partials.modal-reply')
+
+         <div class="col-xs-12 col-sm-6 mt-3">
+             <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+               <div class="d-flex">
+                 @csrf
+
+                   <div class="form-group">
+                     <div class="upload-btn-wrapper btn-group">
+                        {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                         <input type="file" name="image" /> --}}
+                         <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+                       </div>
+                   </div>
+
+                   <div class="form-group flex-fill mr-3">
+                     <textarea class="form-control mb-3" style="height: 110px;" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
+
+                     <input type="hidden" name="moduletype" value="purchase" />
+                     <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
+                     <input type="hidden" name="status" value="4" />
+
+                     <p class="pb-4" style="display: block;">
+                       <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
+                         <option value="">Select Category</option>
+                         @foreach($reply_categories as $category)
+                             <option value="{{ $category->internal_leads }}">{{ $category->name }}</option>
+                         @endforeach
+                       </select>
+
+                       <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
+                         <option value="">Quick Reply</option>
+                       </select>
+                     </p>
+                   </div>
+
+                   <div class="form-group">
+                     <input type="file" class="dropify" name="image" data-height="100" />
+
+                     <strong class="mt-3">Assign to</strong>
+                     <select name="assigned_user" class="form-control mb-3" required>
+                       <option value="">Select User</option>
+                       @foreach($users_array as $id => $user)
+                         <option value="{{ $id }}">{{ $user }}</option>
+                       @endforeach
+                     </select>
+
+                     <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
                    </div>
                </div>
 
-               <div class="form-group flex-fill mr-3">
-                 <textarea class="form-control mb-3" style="height: 110px;" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
 
-                 <input type="hidden" name="moduletype" value="purchase" />
-                 <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
-                 <input type="hidden" name="status" value="4" />
 
-                 <p class="pb-4" style="display: block;">
-                   <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
-                     <option value="">Select Category</option>
-                     @foreach($reply_categories as $category)
-                         <option value="{{ $category->internal_leads }}">{{ $category->name }}</option>
-                     @endforeach
-                   </select>
-
-                   <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
-                     <option value="">Quick Reply</option>
-                   </select>
-                 </p>
-               </div>
-
-               <div class="form-group">
-                 <input type="file" class="dropify" name="image" data-height="100" />
-
-                 <strong class="mt-3">Assign to</strong>
-                 <select name="assigned_user" class="form-control mb-3" required>
-                   <option value="">Select User</option>
-                   @foreach($users_array as $id => $user)
-                     <option value="{{ $id }}">{{ $user }}</option>
-                   @endforeach
-                 </select>
-
-                 <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
-               </div>
+             </form>
            </div>
 
+        <div class="col-xs-12 col-sm-6 mt-3">
+          <div class="d-flex">
+            <div class="form-group">
+              {{-- <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a> --}}
+              {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 9, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
+              <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
+            </div>
 
+            <div class="form-group flex-fill mr-3">
+              <textarea id="waNewMessage" class="form-control mb-3" style="height: 110px;" placeholder="Whatsapp message"></textarea>
+            </div>
 
-         </form>
-       </div>
+            <div class="form-group">
+              <input type="file" id="waMessageMedia" class="dropify" name="image" data-height="100" />
+            </div>
+          </div>
 
-    <div class="col-xs-12 col-sm-6 mt-3">
-      <div class="d-flex">
-        <div class="form-group">
-          {{-- <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a> --}}
-          {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 9, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
-          <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
-        </div>
+          {{-- <label>Attach Media</label>
+          <input id="waMessageMedia" type="file" name="media" /> --}}
 
-        <div class="form-group flex-fill mr-3">
-          <textarea id="waNewMessage" class="form-control mb-3" style="height: 110px;" placeholder="Whatsapp message"></textarea>
-        </div>
-
-        <div class="form-group">
-          <input type="file" id="waMessageMedia" class="dropify" name="image" data-height="100" />
         </div>
       </div>
 
-      {{-- <label>Attach Media</label>
-      <input id="waMessageMedia" type="file" name="media" /> --}}
+      <div class="row">
+        <h3>Messages</h3>
 
+        <div class="col-xs-12" id="message-container"></div>
+      </div>
+
+      <div class="col-xs-12 text-center">
+        <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
+      </div>
+    </div>
+
+    <div class="tab-pane mt-3" id="emails_tab">
+      <div id="exTab3" class="container mb-3">
+        <ul class="nav nav-tabs">
+          <li class="active">
+            <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-purchaseid="{{ $order->id }}" data-type="inbox">Inbox</a>
+          </li>
+          <li>
+            <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-purchaseid="{{ $order->id }}" data-type="sent">Sent</a>
+          </li>
+          <li class="nav-item ml-auto">
+            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#emailSendModal"><img src="{{ asset('images/filled-sent.png') }}" /></button>
+          </li>
+        </ul>
+      </div>
+
+      <div id="email-container">
+        @include('purchase.partials.email')
+      </div>
     </div>
   </div>
+
+  @include('purchase.partials.modal-email')
+
+
 
 
 
@@ -833,15 +882,7 @@
 
 </div>
 
-<div class="row">
-  <h3>Messages</h3>
 
-  <div class="col-xs-12" id="message-container"></div>
-</div>
-
-<div class="col-xs-12 text-center">
-  <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
-</div>
 
 @endsection
 
@@ -2130,6 +2171,73 @@
       e.preventDefault();
 
       $('#replace_product_id').val($(this).data('id'));
+    });
+
+    $(document).on('click', '.email-fetch', function(e) {
+      e.preventDefault();
+
+      var uid = $(this).data('uid');
+      var type = $(this).data('type');
+
+      $.ajax({
+        type: "GET",
+        url: "{{ route('purchase.email.fetch') }}",
+        data: {
+          uid: uid,
+          type: type
+        },
+        beforeSend: function() {
+          $('#email-content .card').html('Loading...');
+        }
+      }).done(function(response) {
+        $('#email-content .card').html(response.email);
+      }).fail(function(response) {
+        $('#email-content .card').html();
+
+        alert('Could not fetch an email');
+        console.log(response);
+      })
+    });
+
+    $('a[href="#emails_tab"], #email-inbox-tab, #email-sent-tab').on('click', function() {
+      var purchase_id = $(this).data('purchaseid');
+      var type = $(this).data('type');
+
+      $.ajax({
+        url: "{{ route('purchase.email.inbox') }}",
+        type: "GET",
+        data: {
+          purchase_id: purchase_id,
+          type: type
+        },
+        beforeSend: function() {
+          $('#emails_tab #email-container .card').html('Loading emails');
+        }
+      }).done(function(response) {
+        console.log(response);
+        $('#emails_tab #email-container').html(response.emails);
+      }).fail(function(response) {
+        $('#emails_tab #email-container .card').html();
+
+        alert('Could not fetch emails');
+        console.log(response);
+      });
+    });
+
+    $(document).on('click', '.pagination a', function(e) {
+      e.preventDefault();
+
+      var url = $(this).attr('href');
+
+      $.ajax({
+        url: url,
+        type: "GET"
+      }).done(function(response) {
+        $('#emails_tab #email-container').html(response.emails);
+      }).fail(function(response) {
+        alert('Could not load emails');
+        console.log(response);
+      });
     });
   </script>
 @endsection

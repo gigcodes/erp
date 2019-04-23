@@ -8,6 +8,7 @@ use App\OrderProduct;
 use App\Product;
 use App\Setting;
 use App\Purchase;
+use App\Customer;
 use App\Helpers;
 use App\User;
 use App\Comment;
@@ -16,6 +17,8 @@ use App\Message;
 use App\ReplyCategory;
 use App\Task;
 use App\Brand;
+use App\Email;
+use App\Mail\CustomerEmail;
 use App\Supplier;
 use App\File;
 use App\Mail\PurchaseExport;
@@ -31,6 +34,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Carbon\Carbon;
 use Storage;
+use Webklex\IMAP\Client;
 
 class PurchaseController extends Controller
 {
@@ -40,14 +44,6 @@ class PurchaseController extends Controller
 
     public function index(Request $request)
     {
-      $purchases = Purchase::whereNotNull('supplier')->get();
-      foreach ($purchases as $purchase) {
-        if($supplier = Supplier::where('supplier', $purchase->supplier)->first()) {
-          $purchase->supplier_id = $supplier->id;
-          $purchase->save();
-        }
-      }
-      dd('stap');
       $term = $request->input('term');
 
   		if($request->input('orderby') == '')
@@ -174,8 +170,10 @@ class PurchaseController extends Controller
         if ($request->status[0] != null) {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) use ($status) {
             $q->whereIn('order_status', $status);
-          })->whereHas('Product', function($q) use ($supplier) {
-            $q->where('supplier', $supplier);
+          })->whereHas('Product', function ($q) use ($supplier) {
+            $q->whereHas('Suppliers', function ($qs) use ($supplier) {
+              $qs->where('suppliers.id', $supplier);
+            });
           })->get();
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
@@ -197,7 +195,9 @@ class PurchaseController extends Controller
           }
 
           $orders = $orders->whereHas('Product', function($q) use ($supplier) {
-            $q->where('supplier', $supplier);
+            $q->whereHas('Suppliers', function ($qs) use ($supplier) {
+              $qs->where('suppliers.id', $supplier);
+            });
           })->get();
         }
       }
@@ -263,7 +263,7 @@ class PurchaseController extends Controller
 
       $products = Product::with(['Orderproducts' => function($query) {
         $query->with('Order');
-      }, 'Purchases'])->whereIn('sku', $new_orders);
+      }, 'Purchases', 'Suppliers'])->whereIn('sku', $new_orders);
 
       if ($page == 'ordered') {
         $products = $products->whereHas('Purchases', function ($query) {
@@ -279,6 +279,13 @@ class PurchaseController extends Controller
       $brand = isset($brand) ? $brand : '';
       $order_status = (new OrderStatus)->all();
       $supplier_list = (new SupplierList)->all();
+      $suppliers = Supplier::select(['id', 'supplier'])->get();
+
+      $suppliers_array = [];
+
+      foreach ($suppliers as $supplier) {
+        $suppliers_array[$supplier->id] = $supplier->supplier;
+      }
 
      if(!empty($term)){
 	    	$products = $products->where(function ($query) use ($term){
@@ -295,9 +302,23 @@ class PurchaseController extends Controller
       $products = $products->select(['id', 'sku', 'supplier'])->get()->sortBy('supplier');
 
       foreach($products as $key => $product) {
+        $supplier_list = '';
+        $single_supplier = '';
+        foreach ($product->suppliers as $key2 => $supplier) {
+          if ($key2 == 0) {
+            $supplier_list .= "$supplier->supplier";
+          } else {
+            $supplier_list .= ", $supplier->supplier";
+          }
+
+          $single_supplier = $supplier->id;
+        }
+
         $new_products[$key]['id'] = $product->id;
         $new_products[$key]['sku'] = $product->sku;
         $new_products[$key]['supplier'] = $product->supplier;
+        $new_products[$key]['supplier_list'] = $supplier_list;
+        $new_products[$key]['single_supplier'] = $single_supplier;
         $new_products[$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
         $new_products[$key]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
         $new_products[$key]['customer_name'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->name : 'No Customer') : 'No Order';
@@ -323,6 +344,7 @@ class PurchaseController extends Controller
         'products'      => $new_products,
         'order_status'  => $order_status,
         'supplier_list' => $supplier_list,
+        'suppliers_array' => $suppliers_array,
         'term'          => $term,
         'status'        => $status,
         'supplier'      => $supplier,
@@ -377,7 +399,7 @@ class PurchaseController extends Controller
       $purchase = new Purchase;
 
       $purchase->purchase_handler = $request->purchase_handler;
-      $purchase->supplier = $request->supplier;
+      $purchase->supplier_id = $request->supplier_id;
 
       $purchase->save();
 
@@ -395,7 +417,7 @@ class PurchaseController extends Controller
     public function show($id)
     {
       $purchase = Purchase::find($id);
-
+      $data['emails'] = [];
   		$data['comments']        = Comment::with('user')->where( 'subject_id', $purchase->id )
   		                                 ->where( 'subject_type','=' ,Order::class )->get();
   		$data['users']          = User::all()->toArray();
@@ -642,4 +664,129 @@ class PurchaseController extends Controller
 
   //		return OrderProduct::with( 'product' )->where( 'order_id', '=', $order_id )->get()->toArray();
   	}
+
+    public function emailInbox(Request $request)
+    {
+      $imap = new Client([
+          'host'          => env('IMAP_HOST'),
+          'port'          => env('IMAP_PORT'),
+          'encryption'    => env('IMAP_ENCRYPTION'),
+          'validate_cert' => env('IMAP_VALIDATE_CERT'),
+          'username'      => env('IMAP_USERNAME'),
+          'password'      => env('IMAP_PASSWORD'),
+          'protocol'      => env('IMAP_PROTOCOL')
+      ]);
+
+      $imap->connect();
+
+      $purchase = Purchase::find($request->purchase_id);
+      // $customer = Customer::find(841);
+
+      if ($request->type == 'inbox') {
+        $inbox = $imap->getFolder('INBOX');
+        $emails = $inbox->messages();
+        if ($purchase->purchase_supplier->agents) {
+          foreach ($purchase->purchase_supplier->agents as $key => $agent) {
+            if ($key == 0) {
+              // $emails = $emails->where('from', $agent->email)->orWhere(function(&$query) {
+              //   $query->from('lukas.markeviciuss@gmail.com');
+              // });
+              $emails = $emails->where('from', $agent->email);
+            }
+          }
+          // return response('boom');
+        }
+        // return response('no agents');
+      } else {
+        $inbox = $imap->getFolder('INBOX.Sent');
+        // $emails = $inbox->messages()->to($customer->email);
+        $emails = $inbox->messages();
+        if ($purchase->purchase_supplier->agents) {
+          foreach ($purchase->purchase_supplier->agents as $key => $agent) {
+            if ($key == 0) {
+              // $emails = $emails->where('from', $agent->email)->orWhere(function(&$query) {
+              //   $query->from('lukas.markeviciuss@gmail.com');
+              // });
+              $emails = $emails->where('from', $agent->email);
+            }
+          }
+          // return response('boom');
+        }
+      }
+
+      $emails = $emails->setFetchFlags(false)
+                      ->setFetchBody(false)
+                      ->setFetchAttachment(false)->get()
+                      ->sortByDesc('date')->paginate(10);
+
+                      dd($emails);
+
+      $view = view('purchase.partials.email', [
+        'emails'  => $emails,
+        'type'    => $request->type
+      ])->render();
+
+      return response()->json(['emails' => $view]);
+    }
+
+    public function emailFetch(Request $request)
+    {
+      $imap = new Client([
+          'host'          => env('IMAP_HOST'),
+          'port'          => env('IMAP_PORT'),
+          'encryption'    => env('IMAP_ENCRYPTION'),
+          'validate_cert' => env('IMAP_VALIDATE_CERT'),
+          'username'      => env('IMAP_USERNAME'),
+          'password'      => env('IMAP_PASSWORD'),
+          'protocol'      => env('IMAP_PROTOCOL')
+      ]);
+
+      $imap->connect();
+
+      if ($request->type == 'inbox') {
+        $inbox = $imap->getFolder('INBOX');
+      } else {
+        $inbox = $imap->getFolder('INBOX.Sent');
+        $inbox->query();
+      }
+
+      $email = $inbox->getMessage($uid = $request->uid, NULL, NULL, TRUE, TRUE, TRUE);
+
+      if ($email->hasHTMLBody()) {
+        $content = $email->getHTMLBody();
+      } else {
+        $content = $email->getTextBody();
+      }
+
+      return response()->json(['email' => $content]);
+    }
+
+    public function emailSend(Request $request)
+    {
+      $this->validate($request, [
+        'subject' => 'required|min:3|max:255',
+        'message' => 'required'
+      ]);
+
+      $purchase = Purchase::find($request->purchase_id);
+
+      if ($purchase->agent) {
+        Mail::to($purchase->agent->email)->send(new CustomerEmail($request->subject, $request->message));
+
+        $params = [
+          'model_id'    => $purchase->id,
+          'model_type'  => Purchase::class,
+          'from'        => 'customercare@sololuxury.co.in',
+          'to'          => $purchase->agent->email,
+          'subject'     => $request->subject,
+          'message'     => $request->message
+        ];
+
+        Email::create($params);
+
+        return redirect()->route('purchase.show', $purchase->id)->withSuccess('You have successfully sent an email!');
+      }
+
+      return redirect()->route('purchase.show', $purchase->id)->withError('Please select an Agent first');
+    }
 }
