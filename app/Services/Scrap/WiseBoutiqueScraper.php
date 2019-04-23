@@ -21,6 +21,9 @@ class WiseBoutiqueScraper extends Scraper
     {
         $brands = Brand::whereNull('deleted_at')->get();
         foreach ($brands as $brand) {
+            if ($brand->name == 'TODS') {
+                $brand->name = 'tod%27s';
+            }
             $brand->name = str_replace(' &amp; ', '&', $brand->name);
             $brand->name = str_replace('&amp;', '&', $brand->name);
             $this->scrapPage(self::URL['woman'] . '-' . strtolower(str_replace(' ', '+', trim($brand->name))) . '?n=120');
@@ -30,7 +33,6 @@ class WiseBoutiqueScraper extends Scraper
 
     private function scrapPage($url, $hasProduct=true): void
     {
-        echo $url . ' ';
         $scrapEntry = ScrapEntries::where('url', $url)->first();
         if (!$scrapEntry) {
             $scrapEntry = new ScrapEntries();
@@ -63,26 +65,26 @@ class WiseBoutiqueScraper extends Scraper
 
         $products = $c->filter('.contfoto .cotienifoto a:first-child')->getIterator();
 
+
         foreach ($products as $product) {
             $allLinks->link_count = $allLinks->link_count + 1;
             $allLinks->save();
-            $title = $product->getAttribute('title');
+            $title = $product->getAttribute('title') ?? 'N/A';
             $link = self::URL['HOMEPAGE'] . '/' . $product->getAttribute('href');
 
-            if (!$title || !$link) {
+            if (!$link) {
                 continue;
             }
 
-            $entry = ScrapEntries::where('title', $title)
-                ->orWhere('url', $link)
+            $entry = ScrapEntries::where('url', $link)
                 ->first()
             ;
 
-            if ($entry) {
-                continue;
+
+            if (!$entry) {
+                $entry = new ScrapEntries();
             }
 
-            $entry = new ScrapEntries();
             $entry->title = $title;
             $entry->url = $link;
             $entry->is_product_page = 1;

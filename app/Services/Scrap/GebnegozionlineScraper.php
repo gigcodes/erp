@@ -24,6 +24,9 @@ class GebnegozionlineScraper extends Scraper
             if ($brand->name === 'ALEXANDER McQUEEN') {
                 $brand->name = 'ALEXANDER Mc QUEEN';
             }
+            if ($brand->name === 'TODS') {
+                $brand->name = 'TOD-S';
+            }
             $brand->name = str_replace(' &amp; ', ' ', $brand->name);
             $brand->name = str_replace('&amp;', '', $brand->name);
             $this->scrapPage(self::URL['woman'] . strtolower(str_replace(' ', '-', trim($brand->name))) . '.html');

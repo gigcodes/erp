@@ -65,14 +65,15 @@ class UpdateInventory extends Command
         foreach ($scraped_products as $scraped_product) {
             $status = false;
             if ($scraped_product->website == 'G&B') {
-                $status = $this->GNBCommand->doesProductExist($scraped_product->url);
-                $params = [
-                  'website'             => 'G&B',
-                  'scraped_product_id'  => $scraped_product->id,
-                  'status'              => $status ? 1 : 0
-                ];
-
-                $supplier = 'G & B Negozionline';
+                continue;
+//                $status = $this->GNBCommand->doesProductExist($scraped_product->url);
+//                $params = [
+//                  'website'             => 'G&B',
+//                  'scraped_product_id'  => $scraped_product->id,
+//                  'status'              => $status ? 1 : 0
+//                ];
+//
+//                $supplier = 'G & B Negozionline';
             }
 
             if ($scraped_product->website == 'Wiseboutique') {

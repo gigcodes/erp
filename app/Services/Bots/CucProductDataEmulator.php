@@ -76,11 +76,16 @@ class CucProductDataEmulator
                             $imagesUrls[] = str_replace('thumbs_', '', $image->getAttribute('data-original'));
                         }
 
+                        if ($imagesUrls === []) {
+                            $imagesUrls = [str_replace('THUMBS_', '', $imagesHTML->filter('a.iframezoom img')->getAttribute('src'))];
+                        }
+
                         $sku = strip_tags($detailsHTML->filter('article')->getInnerHtml());
                         $sku_original = $sku;
                         $sku = str_replace('Art. (', '', $sku);
-                        $sku = str_replace('Art. )', '', $sku);
-                        $sku = str_replace('Art. /', '', $sku);
+                        $sku = str_replace(')', '', $sku);
+                        $sku = str_replace('/', '', $sku);
+
 
                         $price = $detailsHTML->filter('.prezzidettaglio span')->getInnerHtml();
                         $price = explode(',', $price);
@@ -96,6 +101,9 @@ class CucProductDataEmulator
 
                         foreach ($properties as $property) {
                             $key = str_replace(':', '', trim($property->textContent));
+                            if ($key == 'ALTRI COLORI') {
+                                continue;
+                            }
                             $propertiesToSave[] = trim($key);
                         }
 
@@ -110,10 +118,9 @@ class CucProductDataEmulator
 
                         foreach ($sizesArray as $item) {
                             $value = $item->getAttribute('value');
-                            if ((integer)trim($value) !== 0) {
-                                $sizes[] = trim($value);
-                            }
+                            $sizes[] = trim($value);
                         }
+
 
 
 

@@ -18,7 +18,7 @@ class ToryDetailsScraper extends Scraper
 
     public function scrap()
     {
-        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'Tory')->take(25)->get();
+        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'Tory')->take(2500)->get();
 
 
         foreach ($products as $product) {

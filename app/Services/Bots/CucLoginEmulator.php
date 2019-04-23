@@ -70,6 +70,9 @@ class CucLoginEmulator
                     $allUrls = [];
 
                     foreach ($brands as $brand) {
+                        if ($brand->name == 'TODS') {
+                            $brand->name = 'tod%27s';
+                        }
                         $brandName = str_replace(' ', '+', strtolower(trim($brand->name)));
                         $productListUrl = $pages['female'].$brandName;
                         $browser->visit($productListUrl);
@@ -96,6 +99,9 @@ class CucLoginEmulator
                     }
 
                     foreach ($brands as $brand) {
+                        if ($brand->name == 'TODS') {
+                            $brand->name = 'tod%27s';
+                        }
                         $brandName = str_replace(' ', '+', strtolower(trim($brand->name)));
                         $productListUrl = $pages['male'].$brandName;
                         $browser->visit($productListUrl);

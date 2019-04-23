@@ -6,6 +6,7 @@ use App\Brand;
 use App\Category;
 use App\Image;
 use App\Imports\ProductsImport;
+use App\Product;
 use App\ScrapCounts;
 use App\ScrapedProducts;
 use App\ScrapEntries;
@@ -274,6 +275,20 @@ class ScrapController extends Controller
         ]);
     }
 
+    public function getProductsForImages() {
+        $products = Product::all();
+
+        $products = $products->map(function($product) {
+            return [
+                'id' => $product->id,
+                'sku' => $product->sku,
+                'brand' => $product->brand->name,
+            ];
+        });
+
+        return  response()->json($products);
+    }
+
     public function syncProductsFromNodeApp(Request $request) {
         $this->validate($request, [
             'sku' => 'required|min:5',
@@ -304,8 +319,21 @@ class ScrapController extends Controller
         $scrapEntry->save();
 
         $product = ScrapedProducts::where('sku', $request->get('sku'))->first();
+        $new = false;
         if (!$product) {
             $product = new ScrapedProducts();
+            $new = true;
+        }
+
+        if ($new === true) {
+            $images = $request->get('images') ?? [];
+            $images = $this->downloadImagesForSites($images, strtolower($request->get('website')));
+            if ($images !== []) {
+                $product->images = $images;
+            }
+        }
+
+        if (($new === false) && count($product->images)) {
             $images = $request->get('images') ?? [];
             $images = $this->downloadImagesForSites($images, strtolower($request->get('website')));
             if ($images !== []) {
