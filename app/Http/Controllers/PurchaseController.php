@@ -16,6 +16,7 @@ use App\Message;
 use App\ReplyCategory;
 use App\Task;
 use App\Brand;
+use App\Supplier;
 use App\File;
 use App\Mail\PurchaseExport;
 use Illuminate\Support\Facades\Mail;
@@ -39,6 +40,14 @@ class PurchaseController extends Controller
 
     public function index(Request $request)
     {
+      $purchases = Purchase::whereNotNull('supplier')->get();
+      foreach ($purchases as $purchase) {
+        if($supplier = Supplier::where('supplier', $purchase->supplier)->first()) {
+          $purchase->supplier_id = $supplier->id;
+          $purchase->save();
+        }
+      }
+      dd('stap');
       $term = $request->input('term');
 
   		if($request->input('orderby') == '')
@@ -386,6 +395,7 @@ class PurchaseController extends Controller
     public function show($id)
     {
       $purchase = Purchase::find($id);
+
   		$data['comments']        = Comment::with('user')->where( 'subject_id', $purchase->id )
   		                                 ->where( 'subject_type','=' ,Order::class )->get();
   		$data['users']          = User::all()->toArray();
@@ -396,6 +406,7 @@ class PurchaseController extends Controller
   		$data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
       $data['purchase_status'] = (new PurchaseStatus)->all();
       $data['reply_categories'] = ReplyCategory::all();
+      $data['suppliers'] = Supplier::all();
 
   		return view('purchase.show', $data)->withOrder($purchase);
     }
@@ -547,7 +558,8 @@ class PurchaseController extends Controller
     public function saveBill(Request $request, $id)
     {
       $purchase = Purchase::find($id);
-      $purchase->supplier = $request->supplier;
+      $purchase->supplier_id = $request->supplier;
+      $purchase->agent_id = $request->agent_id;
       $purchase->bill_number = $request->bill_number;
       $purchase->supplier_phone = $request->supplier_phone;
       $purchase->whatsapp_number = $request->whatsapp_number;

@@ -40,6 +40,12 @@ class FindByNumberController extends Controller
 
 	protected function findPurchaseByNumber($number)
 	{
+		if ($agent = Agent::where('phone', $number)->first()) {
+			if ($agent->purchase) {
+				return $agent->purchase;
+			}
+		}
+
 		return Purchase::where('supplier_phone', '=', $number)->first();
 	}
 

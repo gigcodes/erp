@@ -32,6 +32,19 @@
           </div>
 
           <div class="form-group">
+    				<strong>Solo Phone:</strong>
+    				<select name="whatsapp_number" class="form-control">
+    					<option value>None</option>
+    					@foreach ($solo_numbers as $number => $name)
+    						<option value="{{ $number }}" {{ old('whatsapp_number') == $number ? 'selected' : '' }}>{{ $name }}</option>
+    					@endforeach
+    				</select>
+    				@if ($errors->has('whatsapp_number'))
+    						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
+    				@endif
+    			</div>
+
+          <div class="form-group">
             <strong>Address:</strong>
             <input type="text" name="address" class="form-control" value="{{ old('address') }}">
 
@@ -90,6 +103,19 @@
               <div class="alert alert-danger">{{$errors->first('phone')}}</div>
             @endif
           </div>
+
+          <div class="form-group">
+    				<strong>Solo Phone:</strong>
+    				<select name="whatsapp_number" class="form-control" id="agent_whatsapp_number">
+    					<option value>None</option>
+    					@foreach ($solo_numbers as $number => $name)
+    						<option value="{{ $number }}">{{ $name }}</option>
+    					@endforeach
+    				</select>
+    				@if ($errors->has('whatsapp_number'))
+    						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
+    				@endif
+    			</div>
 
           <div class="form-group">
             <strong>Address:</strong>

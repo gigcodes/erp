@@ -37,12 +37,13 @@ class AgentController extends Controller
     public function store(Request $request)
     {
       $this->validate($request, [
-        'model_id'      => 'required|numeric',
-        'model_type'    => 'required|string',
-        'name'          => 'required|string||max:255',
-        'phone'         => 'sometimes|nullable|numeric',
-        'address'       => 'sometimes|nullable|string',
-        'email'         => 'sometimes|nullable|email',
+        'model_id'        => 'required|numeric',
+        'model_type'      => 'required|string',
+        'name'            => 'required|string||max:255',
+        'phone'           => 'sometimes|nullable|numeric',
+        'whatsapp_number' => 'sometimes|nullable|numeric',
+        'address'         => 'sometimes|nullable|string',
+        'email'           => 'sometimes|nullable|email',
       ]);
 
       $data = $request->except('_token');
@@ -90,10 +91,11 @@ class AgentController extends Controller
      public function update(Request $request, $id)
      {
        $this->validate($request, [
-         'name'          => 'required|string||max:255',
-         'phone'         => 'sometimes|nullable|numeric',
-         'address'       => 'sometimes|nullable|string',
-         'email'         => 'sometimes|nullable|email',
+         'name'             => 'required|string||max:255',
+         'phone'            => 'sometimes|nullable|numeric',
+         'whatsapp_number'  => 'sometimes|nullable|numeric',
+         'address'          => 'sometimes|nullable|string',
+         'email'            => 'sometimes|nullable|email',
        ]);
 
        $data = $request->except('_token');
