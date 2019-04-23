@@ -32,4 +32,14 @@ class Purchase extends Model
   {
     return $this->hasMany('App\File', 'model_id')->where('model_type', 'App\Purchase');
   }
+
+  public function purchase_supplier()
+  {
+    return $this->belongsTo('App\Supplier', 'supplier_id');
+  }
+
+  public function agent()
+  {
+    return $this->belongsTo('App\Agent', 'agent_id');
+  }
 }

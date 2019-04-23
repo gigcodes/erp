@@ -207,6 +207,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/product/create/replace', 'PurchaseController@productCreateReplace')->name('purchase.product.create.replace');
 	Route::get('purchase/product/{id}', 'PurchaseController@productShow')->name('purchase.product.show');
 	Route::post('purchase/product/{id}', 'PurchaseController@updatePercentage')->name('purchase.product.percentage');
+	Route::get('purchase/email/inbox', 'PurchaseController@emailInbox')->name('purchase.email.inbox');
+	Route::get('purchase/email/fetch', 'PurchaseController@emailFetch')->name('purchase.email.fetch');
+	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
 
 	// Cash Vouchers
 	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');

@@ -1,7 +1,12 @@
 @extends('layouts.app')
 
+@section('styles')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
+@endsection
+
 @section('content')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+
 
 <div class="row">
   <div class="col-lg-12 margin-tb">
@@ -14,23 +19,7 @@
   </div>
 </div>
 
-
-@if ($message = Session::get('success'))
-<div class="alert alert-success">
-  <p>{{ $message }}</p>
-</div>
-@endif
-
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <strong>Whoops!</strong> There were some problems with your input.<br><br>
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+@include('partials.flash_messages')
 
 <div class="row">
   <div class="col-md-6 col-12">
@@ -44,14 +33,25 @@
 
     <div class="form-group">
       <strong>Supplier:</strong>
-      @php $supplier_list = (new \App\ReadOnly\SupplierList)->all(); @endphp
       <select class="form-control" name="supplier">
         <option value="">Select Supplier</option>
-        @foreach ($supplier_list as $index => $value)
-          <option value="{{ $index }}" {{ $index == $order->supplier ? 'selected' : '' }}>{{ $value }}</option>
+        @foreach ($suppliers as $supplier)
+          <option value="{{ $supplier->id }}" {{ $order->supplier_id == $supplier->id ? 'selected' : '' }}>{{ $supplier->supplier }}</option>
         @endforeach
       </select>
     </div>
+
+    @if ($order->purchase_supplier)
+      <strong>Agent</strong>
+      <div class="form-group">
+        <select class="form-control" name="agent_id">
+          <option value="">Select an Agent</option>
+          @foreach ($order->purchase_supplier->agents as $agent)
+            <option value="{{ $agent->id }}" {{ $order->agent_id == $agent->id ? 'selected' : '' }}>{{ $agent->name }}</option>
+          @endforeach
+        </select>
+      </div>
+    @endif
 
     <div class="form-group">
       <strong>Status:</strong>
@@ -450,14 +450,229 @@
       </table>
     @endif
   </div>
-  <div class="col-xs-12">
+
+  <div id="exTab2" class="container">
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a href="#messages_tab" data-toggle="tab">Messages</a>
+      </li>
+      <li>
+        <a href="#emails_tab" data-toggle="tab" data-purchaseid="{{ $order->id }}" data-type="inbox">Emails</a>
+      </li>
+    </duv>
+  </div>
+
+  <div class="tab-content ">
+    <div class="tab-pane active mt-3" id="messages_tab">
+      <div class="row mt-5">
+        <div class="col-xs-12 col-sm-6">
+          <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+            <div class="d-flex">
+              @csrf
+
+              <div class="form-group">
+                <div class="upload-btn-wrapper btn-group">
+                  {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                  <input type="file" name="image" /> --}}
+
+                  <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+                </div>
+              </div>
+
+              <div class="form-group flex-fill mr-3">
+                <textarea  class="form-control mb-3" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
+
+
+                <input type="hidden" name="moduletype" value="purchase" />
+                <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
+                <input type="hidden" name="assigned_user" value="{{ $order['purchase_handler'] }}" />
+                <input type="hidden" name="status" value="0" />
+              </div>
+
+              <div class="form-group">
+                <input type="file" class="dropify" name="image" data-height="100" />
+              </div>
+            </div>
+
+
+           </form>
+         </div>
+
+         {{-- @include('customers.partials.modal-suggestion') --}}
+
+         <div class="col-xs-12 col-sm-6">
+           <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+             <div class="d-flex">
+               @csrf
+
+                 <div class="form-group">
+                   <div class="upload-btn-wrapper btn-group pr-0 d-flex">
+                     {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                     <input type="file" name="image" /> --}}
+
+                     {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 1, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+                     <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal">X</button> --}}
+                     <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+                   </div>
+                 </div>
+
+                   <div class="form-group flex-fill mr-3">
+                     <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
+
+                     <input type="hidden" name="moduletype" value="purchase" />
+                     <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
+                     <input type="hidden" name="assigned_user" value="{{$order['purchase_handler'] }}" />
+                     <input type="hidden" name="status" value="1" />
+
+                     <p class="pb-4 mt-3" style="display: block;">
+                       <select name="quickCategory" id="quickCategory" class="form-control mb-3">
+                         <option value="">Select Category</option>
+                         @foreach($reply_categories as $category)
+                             <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                         @endforeach
+                       </select>
+
+                         <select name="quickComment" id="quickComment" class="form-control">
+                             <option value="">Quick Reply</option>
+                         </select>
+                     </p>
+                   </div>
+
+                   <div class="form-group">
+                     <input type="file" class="dropify" name="image" data-height="100" />
+                     <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
+                   </div>
+             </div>
+
+
+           </form>
+         </div>
+
+         <hr>
+
+         @include('customers.partials.modal-reply')
+
+         <div class="col-xs-12 col-sm-6 mt-3">
+             <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+               <div class="d-flex">
+                 @csrf
+
+                   <div class="form-group">
+                     <div class="upload-btn-wrapper btn-group">
+                        {{-- <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                         <input type="file" name="image" /> --}}
+                         <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+                       </div>
+                   </div>
+
+                   <div class="form-group flex-fill mr-3">
+                     <textarea class="form-control mb-3" style="height: 110px;" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
+
+                     <input type="hidden" name="moduletype" value="purchase" />
+                     <input type="hidden" name="moduleid" value="{{ $order['id'] }}" />
+                     <input type="hidden" name="status" value="4" />
+
+                     <p class="pb-4" style="display: block;">
+                       <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
+                         <option value="">Select Category</option>
+                         @foreach($reply_categories as $category)
+                             <option value="{{ $category->internal_leads }}">{{ $category->name }}</option>
+                         @endforeach
+                       </select>
+
+                       <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
+                         <option value="">Quick Reply</option>
+                       </select>
+                     </p>
+                   </div>
+
+                   <div class="form-group">
+                     <input type="file" class="dropify" name="image" data-height="100" />
+
+                     <strong class="mt-3">Assign to</strong>
+                     <select name="assigned_user" class="form-control mb-3" required>
+                       <option value="">Select User</option>
+                       @foreach($users_array as $id => $user)
+                         <option value="{{ $id }}">{{ $user }}</option>
+                       @endforeach
+                     </select>
+
+                     <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
+                   </div>
+               </div>
+
+
+
+             </form>
+           </div>
+
+        <div class="col-xs-12 col-sm-6 mt-3">
+          <div class="d-flex">
+            <div class="form-group">
+              {{-- <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a> --}}
+              {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 9, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
+              <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
+            </div>
+
+            <div class="form-group flex-fill mr-3">
+              <textarea id="waNewMessage" class="form-control mb-3" style="height: 110px;" placeholder="Whatsapp message"></textarea>
+            </div>
+
+            <div class="form-group">
+              <input type="file" id="waMessageMedia" class="dropify" name="image" data-height="100" />
+            </div>
+          </div>
+
+          {{-- <label>Attach Media</label>
+          <input id="waMessageMedia" type="file" name="media" /> --}}
+
+        </div>
+      </div>
+
+      <div class="row">
+        <h3>Messages</h3>
+
+        <div class="col-xs-12" id="message-container"></div>
+      </div>
+
+      <div class="col-xs-12 text-center">
+        <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
+      </div>
+    </div>
+
+    <div class="tab-pane mt-3" id="emails_tab">
+      <div id="exTab3" class="container mb-3">
+        <ul class="nav nav-tabs">
+          <li class="active">
+            <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-purchaseid="{{ $order->id }}" data-type="inbox">Inbox</a>
+          </li>
+          <li>
+            <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-purchaseid="{{ $order->id }}" data-type="sent">Sent</a>
+          </li>
+          <li class="nav-item ml-auto">
+            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#emailSendModal"><img src="{{ asset('images/filled-sent.png') }}" /></button>
+          </li>
+        </ul>
+      </div>
+
+      <div id="email-container">
+        @include('purchase.partials.email')
+      </div>
+    </div>
+  </div>
+
+  @include('purchase.partials.modal-email')
+
+
+
+
+
+  {{-- <div class="col-xs-12">
     <div class="row">
       <div class="col-xs-12 col-sm-6">
-        {{-- <p><strong></strong></p> --}}
         <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
             @csrf
 
-            {{-- <div class="row"> --}}
               <div class="form-group">
                 <div class="upload-btn-wrapper btn-group">
                   <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
@@ -466,7 +681,6 @@
                 </div>
               </div>
 
-              {{-- <div class="col-xs-6"> --}}
                 <div class="form-group flex-fill">
                   <textarea  class="form-control" name="body" placeholder="Received from Customer"></textarea>
 
@@ -475,30 +689,24 @@
                   <input type="hidden" name="assigned_user" value="{{$order['purchase_handler']}}" />
                   <input type="hidden" name="status" value="0" />
                 </div>
-              {{-- </div> --}}
 
-            {{-- </div> --}}
 
          </form>
        </div>
 
        <div class="col-xs-12 col-sm-6">
-         {{-- <p><strong></strong></p> --}}
          <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
             @csrf
 
-            {{-- <div class="row"> --}}
               <div class="form-group">
                 <div class="upload-btn-wrapper btn-group pr-0 d-flex">
                   <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                   <input type="file" name="image" />
 
-                  {{-- <a href="{{ route('attachImages', ['purchase', $order['id'], 1, $order['purchase_handler']]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
                   <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
                 </div>
               </div>
 
-              {{-- <div class="col-xs-6"> --}}
                 <div class="form-group flex-fill">
                   <textarea id="message-body" class="form-control mb-3" name="body" placeholder="Send for approval"></textarea>
 
@@ -508,7 +716,6 @@
                   <input type="hidden" name="status" value="1" />
 
                   <p class="pb-4" style="display: block;">
-                      {{-- <strong>Quick Reply</strong> --}}
                       <select name="quickCategory" id="quickCategory" class="form-control mb-3">
                         <option value="">Select Category</option>
                         @foreach($reply_categories as $category)
@@ -518,17 +725,12 @@
 
                       <select name="quickComment" id="quickComment" class="form-control">
                         <option value="">Quick Reply</option>
-                        {{-- @foreach($approval_replies as $reply )
-                            <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                        @endforeach --}}
+
                       </select>
                   </p>
 
                   <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
                 </div>
-              {{-- </div> --}}
-
-            {{-- </div> --}}
 
          </form>
        </div>
@@ -615,11 +817,9 @@
        </div>
 
        <div class="col-xs-12 col-sm-6">
-           {{-- <p><strong></strong></p> --}}
            <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data" class="d-flex">
               @csrf
 
-              {{-- <div class="row"> --}}
                 <div class="form-group">
                   <div class="upload-btn-wrapper btn-group">
                      <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
@@ -628,13 +828,11 @@
                     </div>
                 </div>
 
-                {{-- <div class="col-xs-6"> --}}
                   <div class="form-group flex-fill">
                     <textarea class="form-control mb-3" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
 
                     <input type="hidden" name="moduletype" value="purchase" />
                     <input type="hidden" name="moduleid" value="{{$order['id']}}" />
-                    {{-- <input type="hidden" name="assigned_user" value="{{$leads['assigned_user']}}" /> --}}
                     <input type="hidden" name="status" value="4" />
 
                     <strong>Assign to</strong>
@@ -646,7 +844,6 @@
                     </select>
 
                     <p class="pb-4" style="display: block;">
-                        {{-- <strong>Quick Reply</strong> --}}
                         <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
                           <option value="">Select Category</option>
                           @foreach($reply_categories as $category)
@@ -656,18 +853,11 @@
 
                         <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
                             <option value="">Quick Reply</option>
-                            {{-- @foreach($internal_replies as $reply)
-                                <option value="{{$reply->reply}}">{{$reply->reply}}</option>
-                            @endforeach --}}
                         </select>
                     </p>
 
                     <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
                   </div>
-                {{-- </div> --}}
-
-
-              {{-- </div> --}}
 
 
            </form>
@@ -676,8 +866,6 @@
          <div class="col-xs-12 col-sm-6">
            <div class="d-flex">
              <div class="form-group">
-               {{-- <a href="/leads?type=multiple" class="btn btn-xs btn-secondary">Send Multiple</a> --}}
-               {{-- <a href="{{ route('attachImages', ['purchase', $order['id'], 9, $order['purchase_handler']]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
                <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
              </div>
 
@@ -690,23 +878,17 @@
            <input id="waMessageMedia" type="file" name="media" />
          </div>
     </div>
-  </div>
+  </div> --}}
 
 </div>
 
-<div class="row">
-  <h3>Messages</h3>
-  <div class="col-xs-12" id="message-container"></div>
-</div>
 
-<div class="col-xs-12 text-center">
-  <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
-</div>
 
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
 
   <script type="text/javascript">
     $('#completion-datetime').datetimepicker({
@@ -715,10 +897,12 @@
 
     $(document).ready(function() {
       $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+      $('.dropify').dropify();
     });
 
     $(document).on('click', '.edit-message', function(e) {
       e.preventDefault();
+      var thiss = $(this);
       var message_id = $(this).data('messageid');
 
       $('#message_body_' + message_id).css({'display': 'none'});
@@ -733,12 +917,19 @@
           var url = "{{ url('message') }}/" + message_id;
           var message = $('#edit-message-textarea' + message_id).val();
 
+          if ($(thiss).hasClass('whatsapp-message')) {
+            var type = 'whatsapp';
+          } else {
+            var type = 'message';
+          }
+
           $.ajax({
             type: 'POST',
             url: url,
             data: {
               _token: token,
-              body: message
+              body: message,
+              type: type
             },
             success: function(data) {
               $('#edit-message-textarea' + message_id).css({'display': 'none'});
@@ -787,9 +978,10 @@
     });
 
     $(document).ready(function() {
-     var container = $("div#message-container");
-     var sendBtn = $("#waMessageSend");
-     var leadId = "{{$order->id}}";
+    var container = $("div#message-container");
+    var suggestion_container = $("div#suggestion-container");
+    var sendBtn = $("#waMessageSend");
+    var orderId = "{{ $order->id }}";
          var addElapse = false;
          function errorHandler(error) {
              console.error("error occured: " , error);
@@ -797,25 +989,20 @@
          function approveMessage(element, message) {
              $.post( "/whatsapp/approve/purchase", { messageId: message.id })
                .done(function( data ) {
-                 if (data != 'success') {
-                   data.forEach(function(id) {
-                     $('#waMessage_' + id).find('.btn-approve').remove();
-                   });
-                 }
-
                  element.remove();
                }).fail(function(response) {
                  console.log(response);
                  alert(response.responseJSON.message);
                });
          }
+
          function createMessageArgs() {
               var data = new FormData();
              var text = $("#waNewMessage").val();
              var files = $("#waMessageMedia").prop("files");
              var text = $("#waNewMessage").val();
 
-             data.append("purchase_id", leadId);
+             data.append("purchase_id", orderId);
              if (files && files.length>0){
                  for ( var i = 0; i != files.length; i ++ ) {
                    data.append("media[]", files[ i ]);
@@ -830,15 +1017,15 @@
              alert("please enter a message or attach media");
            }
 
-     function renderMessage(message, tobottom = null) {
-         var domId = "waMessage_" + message.id;
-         var current = $("#" + domId);
+    function renderMessage(message, tobottom = null) {
+        var domId = "waMessage_" + message.id;
+        var current = $("#" + domId);
          var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
          var is_hod_crm = "{{ Auth::user()->hasRole('HOD of CRM') }}";
          var users_array = {!! json_encode($users_array) !!};
-         if ( current.get( 0 ) ) {
-           return false;
-         }
+        if ( current.get( 0 ) ) {
+          return false;
+        }
 
          if (message.body) {
            var leads_assigned_user = "{{ $order['purchase_handler'] }}";
@@ -856,11 +1043,17 @@
            }
 
            var images = '';
+           var has_product_image = false;
+
            if (message.images !== null) {
              message.images.forEach(function (image) {
-               images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '">' : '';
+               images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
                images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image.key + '">x</span></div>';
-               images += image.product_id !== '' ? '</a>' : '';
+               images += image.product_id !== '' ? '<input type="checkbox" name="product" class="d-block mx-auto select-product-image" data-id="' + image.product_id + '" /></a>' : '';
+
+               if (image.product_id !== '') {
+                 has_product_image = true;
+               }
              });
              images += '<br>';
            }
@@ -874,7 +1067,7 @@
            if (message.status == 0 || message.status == 5 || message.status == 6) {
              var row = $("<div class='talk-bubble'></div>");
 
-             var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+             var meta = $("<em>Supplier " + moment(message.created_at).format('DD-MM H:mm') + " </em>");
              var mark_read = $("<a href data-url='/message/updatestatus?status=5&id=" + message.id + "&moduleid=" + message.moduleid + "&moduletype=leads' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
              var mark_replied = $('<a href data-url="/message/updatestatus?status=6&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
 
@@ -902,7 +1095,7 @@
            } else if (message.status == 4) {
              var row = $("<div class='talk-bubble' data-messageid='" + message.id + "'></div>");
              var chat_friend =  (message.assigned_to != 0 && message.assigned_to != leads_assigned_user && message.userid != message.assigned_to) ? ' - ' + users_array[message.assigned_to] : '';
-             var meta = $("<em>" + users_array[message.userid] + " " + chat_friend + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/1.png' /> &nbsp;</em>");
+             var meta = $("<em>" + users_array[message.userid] + " " + chat_friend + " " + moment(message.created_at).format('DD-MM H:mm') + " <img id='status_img_" + message.id + "' src='/images/1.png' /> &nbsp;</em>");
 
              row.attr("id", domId);
 
@@ -916,11 +1109,11 @@
              } else {
                row.prependTo(container);
              }
-           } else {
+           } else { // APPROVAL MESSAGE
              var row = $("<div class='talk-bubble' data-messageid='" + message.id + "'></div>");
              var body = $("<span id='message_body_" + message.id + "'></span>");
              var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.body + '</textarea>');
-             var meta = "<em>" + users_array[message.userid] + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/" + message.status + ".png' /> &nbsp;";
+             var meta = "<em>" + users_array[message.userid] + " " + moment(message.created_at).format('DD-MM H:mm') + " <img id='status_img_" + message.id + "' src='/images/" + message.status + ".png' /> &nbsp;";
 
              if (message.status == 2 && is_admin == false) {
                meta += '<a href data-url="/message/updatestatus?status=3&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as sent </a>';
@@ -929,6 +1122,11 @@
              if (message.status == 1 && (is_admin == true || is_hod_crm == true)) {
                meta += '<a href data-url="/message/updatestatus?status=2&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status wa_send_message" data-messageid="' + message.id + '">Approve</a>';
                meta += ' <a href="#" style="font-size: 9px" class="edit-message" data-messageid="' + message.id + '">Edit</a>';
+             }
+
+             if (has_product_image) {
+               meta += '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>';
+               meta += '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order">+ Order</a>';
              }
 
              meta += "</em>";
@@ -958,15 +1156,22 @@
                row.prependTo(container);
              }
            }
-         } else {
+         } else { // CHAT MESSAGES
            var row = $("<div class='talk-bubble'></div>");
+           var body = $("<span id='message_body_" + message.id + "'></span>");
            var text = $("<div class='talktext'></div>");
+           var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>');
            var p = $("<p class='collapsible-message'></p>");
-
            if (!message.received) {
-             var meta = $("<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+             if (message.sent == 0) {
+               var meta_content = "<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:mm') + " </em>";
+             } else {
+               var meta_content = "<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:mm') + " <img id='status_img_" + message.id + "' src='/images/1.png' /></em>";
+             }
+
+             var meta = $(meta_content);
            } else {
-             var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+             var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:mm') + " </em>");
            }
 
            row.attr("id", domId);
@@ -979,8 +1184,8 @@
            if ( message.message ) {
                p.html( message.message );
            } else if ( message.media_url ) {
-               var splitted = message.content_type[1].split("/");
-               if (splitted[0]==="image") {
+               var splitted = message.content_type.split("/");
+               if (splitted[0]==="image" || splitted[0] === 'm') {
                    var a = $("<a></a>");
                    a.attr("target", "_blank");
                    a.attr("href", message.media_url);
@@ -994,31 +1199,43 @@
                } else if (splitted[0]==="video") {
                    $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
                }
-           } else if (message.images) {
-             var images = '';
-             message.images.forEach(function (image) {
-               images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '">' : '';
-               images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
-               images += image.product_id !== '' ? '</a>' : '';
-             });
-             images += '<br>';
-             $(images).appendTo(p);
            }
 
-           p.appendTo( text );
+           var has_product_image = false;
+
+           if (message.images) {
+             var images = '';
+             message.images.forEach(function (image) {
+               images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
+               images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
+               images += image.product_id !== '' ? '<input type="checkbox" name="product" class="d-block mx-auto select-product-image" data-id="' + image.product_id + '" /></a>' : '';
+
+               if (image.product_id !== '') {
+                 has_product_image = true;
+               }
+             });
+             images += '<br>';
+             $(images).appendTo(text);
+           }
+
+           p.appendTo(body);
+           body.appendTo(text);
+           edit_field.appendTo(text);
            meta.appendTo(text);
            if (!message.received) {
              if (!message.approved) {
                  var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
+                 var editBtn = ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
                  approveBtn.click(function() {
                      approveMessage( this, message );
                  } );
                  if (is_admin || is_hod_crm) {
                    approveBtn.appendTo( text );
+                   $(editBtn).appendTo( text );
                  }
              }
            } else {
-             var moduleid = "{{ $order->id }}";
+             var moduleid = 0;
              var mark_read = $("<a href data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "&moduleid=" + moduleid+ "&moduletype=leads' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
              var mark_replied = $('<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '&moduleid=' + moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
 
@@ -1030,21 +1247,43 @@
              }
            }
 
+           var forward = $('<button class="btn btn-xs btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '">Forward >></button>');
+
+           if (has_product_image) {
+             var create_lead = $('<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>');
+             var create_order = $('<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order">+ Order</a>');
+           }
+
+           forward.appendTo(meta);
+
+           if (has_product_image) {
+             create_lead.appendTo(meta);
+             create_order.appendTo(meta);
+           }
+
            text.appendTo( row );
 
-
-           if (tobottom) {
-             row.appendTo(container);
+           if (message.status == 7) {
+             if (tobottom) {
+               row.appendTo(suggestion_container);
+             } else {
+               row.prependTo(suggestion_container);
+             }
            } else {
-             row.prependTo(container);
+             if (tobottom) {
+               row.appendTo(container);
+             } else {
+               row.prependTo(container);
+             }
            }
+
          }
 
                  return true;
-     }
-     function pollMessages(page = null, tobottom = null, addElapse = null) {
+    }
+    function pollMessages(page = null, tobottom = null, addElapse = null) {
              var qs = "";
-             qs += "/purchase?purchaseId=" + leadId;
+             qs += "/purchase?purchaseId=" + orderId;
              if (page) {
                qs += "&page=" + page;
              }
@@ -1052,6 +1291,7 @@
                  qs += "&elapse=3600";
              }
              var anyNewMessages = false;
+
              return new Promise(function(resolve, reject) {
                  $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
 
@@ -1061,6 +1301,11 @@
                              anyNewMessages = true;
                          }
                      } );
+
+                     if (page) {
+                       $('#load-more-messages').text('Load More');
+                       can_load_more = true;
+                     }
 
                      if ( anyNewMessages ) {
                          scrollChatTop();
@@ -1073,46 +1318,48 @@
 
                      resolve();
                  });
+
              });
-     }
+    }
          function scrollChatTop() {
              // console.log("scrollChatTop called");
              // var el = $(".chat-frame");
              // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
          }
-     function startPolling() {
-       setTimeout( function() {
+    function startPolling() {
+      setTimeout( function() {
                  pollMessages(null, null, addElapse).then(function() {
                      startPolling();
                  }, errorHandler);
              }, 1000);
-     }
-     function sendWAMessage() {
-       var data = createMessageArgs();
+    }
+    function sendWAMessage() {
+      var data = createMessageArgs();
              //var data = new FormData();
              //data.append("message", $("#waNewMessage").val());
-             //data.append("lead_id", leadId );
-       $.ajax({
-         url: '/whatsapp/sendMessage/purchase',
-         type: 'POST',
+             //data.append("lead_id", orderId );
+      $.ajax({
+        url: '/whatsapp/sendMessage/purchase',
+        type: 'POST',
                  "dataType"    : 'text',           // what to expect back from the PHP script, if anything
                  "cache"       : false,
                  "contentType" : false,
                  "processData" : false,
                  "data": data
-       }).done( function(response) {
-         $('#waNewMessage').val('');
-         pollMessages();
-         // console.log("message was sent");
-       }).fail(function(errObj) {
-         alert("Could not send message");
-       });
-     }
+      }).done( function(response) {
+          $('#waNewMessage').val('');
+          $('#waNewMessage').closest('.form-group').find('.dropify-clear').click();
+          pollMessages();
+        // console.log("message was sent");
+      }).fail(function(errObj) {
+        alert("Could not send message");
+      });
+    }
 
-     sendBtn.click(function() {
-       sendWAMessage();
-     } );
-     startPolling();
+    sendBtn.click(function() {
+      sendWAMessage();
+    } );
+    startPolling();
 
      $(document).on('click', '.send-communication', function(e) {
        e.preventDefault();
@@ -1146,8 +1393,9 @@
          }).done(function() {
            pollMessages();
            $(thiss).closest('form').find('textarea').val('');
+           $(thiss).closest('form').find('.dropify-clear').click();
          }).fail(function(response) {
-           // console.log(response);
+           console.log(response);
            alert('Error sending a message');
          });
        } else {
@@ -1156,15 +1404,418 @@
 
      });
 
+     var can_load_more = true;
+
+     $(window).scroll(function() {
+       var top = $(window).scrollTop();
+       var document_height = $(document).height();
+       var window_height = $(window).height();
+
+       if (top >= (document_height - window_height - 200)) {
+         if (can_load_more) {
+           var current_page = $('#load-more-messages').data('nextpage');
+           $('#load-more-messages').data('nextpage', current_page + 1);
+           var next_page = $('#load-more-messages').data('nextpage');
+           $('#load-more-messages').text('Loading...');
+
+           can_load_more = false;
+
+           pollMessages(next_page, true);
+         }
+       }
+     });
+
      $(document).on('click', '#load-more-messages', function() {
        var current_page = $(this).data('nextpage');
        $(this).data('nextpage', current_page + 1);
        var next_page = $(this).data('nextpage');
        $('#load-more-messages').text('Loading...');
+
        pollMessages(next_page, true);
-       $('#load-more-messages').text('Load More');
      });
-   });
+  });
+
+
+
+   //  $(document).ready(function() {
+   //   var container = $("div#message-container");
+   //   var sendBtn = $("#waMessageSend");
+   //   var orderId = "{{ $order->id }}";
+   //       var addElapse = false;
+   //       function errorHandler(error) {
+   //           console.error("error occured: " , error);
+   //       }
+   //       function approveMessage(element, message) {
+   //           $.post( "/whatsapp/approve/purchase", { messageId: message.id })
+   //             .done(function( data ) {
+   //               if (data != 'success') {
+   //                 data.forEach(function(id) {
+   //                   $('#waMessage_' + id).find('.btn-approve').remove();
+   //                 });
+   //               }
+   //
+   //               element.remove();
+   //             }).fail(function(response) {
+   //               console.log(response);
+   //               alert(response.responseJSON.message);
+   //             });
+   //       }
+   //       function createMessageArgs() {
+   //            var data = new FormData();
+   //           var text = $("#waNewMessage").val();
+   //           var files = $("#waMessageMedia").prop("files");
+   //           var text = $("#waNewMessage").val();
+   //
+   //           data.append("purchase_id", orderId);
+   //           if (files && files.length>0){
+   //               for ( var i = 0; i != files.length; i ++ ) {
+   //                 data.append("media[]", files[ i ]);
+   //               }
+   //               return data;
+   //           }
+   //           if (text !== "") {
+   //               data.append("message", text);
+   //               return data;
+   //           }
+   //
+   //           alert("please enter a message or attach media");
+   //         }
+   //
+   //   function renderMessage(message, tobottom = null) {
+   //       var domId = "waMessage_" + message.id;
+   //       var current = $("#" + domId);
+   //       var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
+   //       var is_hod_crm = "{{ Auth::user()->hasRole('HOD of CRM') }}";
+   //       var users_array = {!! json_encode($users_array) !!};
+   //       if ( current.get( 0 ) ) {
+   //         return false;
+   //       }
+   //
+   //       if (message.body) {
+   //         var leads_assigned_user = "{{ $order['purchase_handler'] }}";
+   //
+   //         var text = $("<div class='talktext'></div>");
+   //         var p = $("<p class='collapsible-message'></p>");
+   //
+   //         if ((message.body).indexOf('<br>') !== -1) {
+   //           var splitted = message.body.split('<br>');
+   //           var short_message = splitted[0].length > 150 ? (splitted[0].substring(0, 147) + '...<br>' + splitted[1]) : message.body;
+   //           var long_message = message.body;
+   //         } else {
+   //           var short_message = message.body.length > 150 ? (message.body.substring(0, 147) + '...') : message.body;
+   //           var long_message = message.body;
+   //         }
+   //
+   //         var images = '';
+   //         if (message.images !== null) {
+   //           message.images.forEach(function (image) {
+   //             images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '">' : '';
+   //             images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image.key + '">x</span></div>';
+   //             images += image.product_id !== '' ? '</a>' : '';
+   //           });
+   //           images += '<br>';
+   //         }
+   //
+   //         p.attr("data-messageshort", short_message);
+   //         p.attr("data-message", long_message);
+   //         p.attr("data-expanded", "false");
+   //         p.attr("data-messageid", message.id);
+   //         p.html(short_message);
+   //
+   //         if (message.status == 0 || message.status == 5 || message.status == 6) {
+   //           var row = $("<div class='talk-bubble'></div>");
+   //
+   //           var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+   //           var mark_read = $("<a href data-url='/message/updatestatus?status=5&id=" + message.id + "&moduleid=" + message.moduleid + "&moduletype=leads' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
+   //           var mark_replied = $('<a href data-url="/message/updatestatus?status=6&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
+   //
+   //           row.attr("id", domId);
+   //
+   //           p.appendTo(text);
+   //           $(images).appendTo(text);
+   //           meta.appendTo(text);
+   //
+   //           if (message.status == 0) {
+   //             mark_read.appendTo(meta);
+   //           }
+   //           if (message.status == 0 || message.status == 5) {
+   //             mark_replied.appendTo(meta);
+   //           }
+   //
+   //           text.appendTo(row);
+   //
+   //           if (tobottom) {
+   //             row.appendTo(container);
+   //           } else {
+   //             row.prependTo(container);
+   //           }
+   //
+   //         } else if (message.status == 4) {
+   //           var row = $("<div class='talk-bubble' data-messageid='" + message.id + "'></div>");
+   //           var chat_friend =  (message.assigned_to != 0 && message.assigned_to != leads_assigned_user && message.userid != message.assigned_to) ? ' - ' + users_array[message.assigned_to] : '';
+   //           var meta = $("<em>" + users_array[message.userid] + " " + chat_friend + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/1.png' /> &nbsp;</em>");
+   //
+   //           row.attr("id", domId);
+   //
+   //           p.appendTo(text);
+   //           $(images).appendTo(text);
+   //           meta.appendTo(text);
+   //
+   //           text.appendTo(row);
+   //           if (tobottom) {
+   //             row.appendTo(container);
+   //           } else {
+   //             row.prependTo(container);
+   //           }
+   //         } else {
+   //           var row = $("<div class='talk-bubble' data-messageid='" + message.id + "'></div>");
+   //           var body = $("<span id='message_body_" + message.id + "'></span>");
+   //           var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.body + '</textarea>');
+   //           var meta = "<em>" + users_array[message.userid] + " " + moment(message.created_at).format('DD-MM H:m') + " <img id='status_img_" + message.id + "' src='/images/" + message.status + ".png' /> &nbsp;";
+   //
+   //           if (message.status == 2 && is_admin == false) {
+   //             meta += '<a href data-url="/message/updatestatus?status=3&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as sent </a>';
+   //           }
+   //
+   //           if (message.status == 1 && (is_admin == true || is_hod_crm == true)) {
+   //             meta += '<a href data-url="/message/updatestatus?status=2&id=' + message.id + '&moduleid=' + message.moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status wa_send_message" data-messageid="' + message.id + '">Approve</a>';
+   //             meta += ' <a href="#" style="font-size: 9px" class="edit-message" data-messageid="' + message.id + '">Edit</a>';
+   //           }
+   //
+   //           meta += "</em>";
+   //           var meta_content = $(meta);
+   //
+   //
+   //
+   //           row.attr("id", domId);
+   //
+   //           p.appendTo(body);
+   //           body.appendTo(text);
+   //           edit_field.appendTo(text);
+   //           $(images).appendTo(text);
+   //           meta_content.appendTo(text);
+   //
+   //           if (message.status == 2 && is_admin == false) {
+   //             var copy_button = $('<button class="copy-button btn btn-secondary" data-id="' + message.id + '" moduleid="' + message.moduleid + '" moduletype="orders" data-message="' + message.body + '"> Copy message </button>');
+   //             copy_button.appendTo(text);
+   //           }
+   //
+   //
+   //           text.appendTo(row);
+   //
+   //           if (tobottom) {
+   //             row.appendTo(container);
+   //           } else {
+   //             row.prependTo(container);
+   //           }
+   //         }
+   //       } else {
+   //         var row = $("<div class='talk-bubble'></div>");
+   //         var text = $("<div class='talktext'></div>");
+   //         var p = $("<p class='collapsible-message'></p>");
+   //
+   //         if (!message.received) {
+   //           var meta = $("<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+   //         } else {
+   //           var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:m') + " </em>");
+   //         }
+   //
+   //         row.attr("id", domId);
+   //
+   //         p.attr("data-messageshort", message.message);
+   //         p.attr("data-message", message.message);
+   //         p.attr("data-expanded", "true");
+   //         p.attr("data-messageid", message.id);
+   //         // console.log("renderMessage message is ", message);
+   //         if ( message.message ) {
+   //             p.html( message.message );
+   //         } else if ( message.media_url ) {
+   //             var splitted = message.content_type[1].split("/");
+   //             if (splitted[0]==="image") {
+   //                 var a = $("<a></a>");
+   //                 a.attr("target", "_blank");
+   //                 a.attr("href", message.media_url);
+   //                 var img = $("<img></img>");
+   //                 img.attr("src", message.media_url);
+   //                 img.attr("width", "100");
+   //                 img.attr("height", "100");
+   //                 img.appendTo( a );
+   //                 a.appendTo( p );
+   //                 // console.log("rendered image message ", a);
+   //             } else if (splitted[0]==="video") {
+   //                 $("<a target='_blank' href='" + message.media_url+"'>"+ message.media_url + "</a>").appendTo(p);
+   //             }
+   //         } else if (message.images) {
+   //           var images = '';
+   //           message.images.forEach(function (image) {
+   //             images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '">' : '';
+   //             images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
+   //             images += image.product_id !== '' ? '</a>' : '';
+   //           });
+   //           images += '<br>';
+   //           $(images).appendTo(p);
+   //         }
+   //
+   //         p.appendTo( text );
+   //         meta.appendTo(text);
+   //         if (!message.received) {
+   //           if (!message.approved) {
+   //               var approveBtn = $("<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>");
+   //               approveBtn.click(function() {
+   //                   approveMessage( this, message );
+   //               } );
+   //               if (is_admin || is_hod_crm) {
+   //                 approveBtn.appendTo( text );
+   //               }
+   //           }
+   //         } else {
+   //           var moduleid = "{{ $order->id }}";
+   //           var mark_read = $("<a href data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "&moduleid=" + moduleid+ "&moduletype=leads' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
+   //           var mark_replied = $('<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '&moduleid=' + moduleid + '&moduletype=leads" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
+   //
+   //           if (message.status == 0) {
+   //             mark_read.appendTo(meta);
+   //           }
+   //           if (message.status == 0 || message.status == 5) {
+   //             mark_replied.appendTo(meta);
+   //           }
+   //         }
+   //
+   //         text.appendTo( row );
+   //
+   //
+   //         if (tobottom) {
+   //           row.appendTo(container);
+   //         } else {
+   //           row.prependTo(container);
+   //         }
+   //       }
+   //
+   //               return true;
+   //   }
+   //   function pollMessages(page = null, tobottom = null, addElapse = null) {
+   //           var qs = "";
+   //           qs += "/purchase?purchaseId=" + orderId;
+   //           if (page) {
+   //             qs += "&page=" + page;
+   //           }
+   //           if (addElapse) {
+   //               qs += "&elapse=3600";
+   //           }
+   //           var anyNewMessages = false;
+   //           return new Promise(function(resolve, reject) {
+   //               $.getJSON("/whatsapp/pollMessages" + qs, function( data ) {
+   //
+   //                   data.data.forEach(function( message ) {
+   //                       var rendered = renderMessage( message, tobottom );
+   //                       if ( !anyNewMessages && rendered ) {
+   //                           anyNewMessages = true;
+   //                       }
+   //                   } );
+   //
+   //                   if ( anyNewMessages ) {
+   //                       scrollChatTop();
+   //                       anyNewMessages = false;
+   //                   }
+   //                   if (!addElapse) {
+   //                       addElapse = true; // load less messages now
+   //                   }
+   //
+   //
+   //                   resolve();
+   //               });
+   //           });
+   //   }
+   //       function scrollChatTop() {
+   //           // console.log("scrollChatTop called");
+   //           // var el = $(".chat-frame");
+   //           // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
+   //       }
+   //   function startPolling() {
+   //     setTimeout( function() {
+   //               pollMessages(null, null, addElapse).then(function() {
+   //                   startPolling();
+   //               }, errorHandler);
+   //           }, 1000);
+   //   }
+   //   function sendWAMessage() {
+   //     var data = createMessageArgs();
+   //           //var data = new FormData();
+   //           //data.append("message", $("#waNewMessage").val());
+   //           //data.append("lead_id", orderId );
+   //     $.ajax({
+   //       url: '/whatsapp/sendMessage/purchase',
+   //       type: 'POST',
+   //               "dataType"    : 'text',           // what to expect back from the PHP script, if anything
+   //               "cache"       : false,
+   //               "contentType" : false,
+   //               "processData" : false,
+   //               "data": data
+   //     }).done( function(response) {
+   //       $('#waNewMessage').val('');
+   //       pollMessages();
+   //       // console.log("message was sent");
+   //     }).fail(function(errObj) {
+   //       alert("Could not send message");
+   //     });
+   //   }
+   //
+   //   sendBtn.click(function() {
+   //     sendWAMessage();
+   //   } );
+   //   startPolling();
+   //
+   //   $(document).on('click', '.send-communication', function(e) {
+   //     e.preventDefault();
+   //
+   //     var thiss = $(this);
+   //     var url = $(this).closest('form').attr('action');
+   //     var token = "{{ csrf_token() }}";
+   //     var file = $($(this).closest('form').find('input[type="file"]'))[0].files[0];
+   //     var status = $(this).closest('form').find('input[name="status"]').val();
+   //     var formData = new FormData();
+   //
+   //     formData.append("_token", token);
+   //     formData.append("image", file);
+   //     formData.append("body", $(this).closest('form').find('textarea').val());
+   //     formData.append("moduletype", $(this).closest('form').find('input[name="moduletype"]').val());
+   //     formData.append("moduleid", $(this).closest('form').find('input[name="moduleid"]').val());
+   //     formData.append("assigned_user", $(this).closest('form').find('input[name="assigned_user"]').val());
+   //     formData.append("status", status);
+   //
+   //     if (status == 4) {
+   //       formData.append("assigned_user", $(this).closest('form').find('select[name="assigned_user"]').val());
+   //     }
+   //
+   //     if ($(this).closest('form')[0].checkValidity()) {
+   //       $.ajax({
+   //         type: 'POST',
+   //         url: url,
+   //         data: formData,
+   //         processData: false,
+   //         contentType: false
+   //       }).done(function() {
+   //         pollMessages();
+   //         $(thiss).closest('form').find('textarea').val('');
+   //       }).fail(function(response) {
+   //         // console.log(response);
+   //         alert('Error sending a message');
+   //       });
+   //     } else {
+   //       $(this).closest('form')[0].reportValidity();
+   //     }
+   //
+   //   });
+   //
+   //   $(document).on('click', '#load-more-messages', function() {
+   //     var current_page = $(this).data('nextpage');
+   //     $(this).data('nextpage', current_page + 1);
+   //     var next_page = $(this).data('nextpage');
+   //     $('#load-more-messages').text('Loading...');
+   //     pollMessages(next_page, true);
+   //     $('#load-more-messages').text('Load More');
+   //   });
+   // });
 
 
 
@@ -1469,6 +2120,7 @@
       var id = {{ $order->id }};
       var token = "{{ csrf_token() }}";
       var supplier = $('select[name="supplier"]').val();
+      var agent_id = $('select[name="agent_id"]').val();
       var bill_number = $('input[name="bill_number"]').val();
       var supplier_phone = $('input[name="supplier_phone"]').val();
       var whatsapp_number = $('select[name="whatsapp_number"]').val();
@@ -1484,6 +2136,7 @@
       data.append("_token", token);
       data.append("bill_number", bill_number);
       data.append("supplier", supplier);
+      data.append("agent_id", agent_id);
       data.append("supplier_phone", supplier_phone);
       data.append("whatsapp_number", whatsapp_number);
 
@@ -1518,6 +2171,73 @@
       e.preventDefault();
 
       $('#replace_product_id').val($(this).data('id'));
+    });
+
+    $(document).on('click', '.email-fetch', function(e) {
+      e.preventDefault();
+
+      var uid = $(this).data('uid');
+      var type = $(this).data('type');
+
+      $.ajax({
+        type: "GET",
+        url: "{{ route('purchase.email.fetch') }}",
+        data: {
+          uid: uid,
+          type: type
+        },
+        beforeSend: function() {
+          $('#email-content .card').html('Loading...');
+        }
+      }).done(function(response) {
+        $('#email-content .card').html(response.email);
+      }).fail(function(response) {
+        $('#email-content .card').html();
+
+        alert('Could not fetch an email');
+        console.log(response);
+      })
+    });
+
+    $('a[href="#emails_tab"], #email-inbox-tab, #email-sent-tab').on('click', function() {
+      var purchase_id = $(this).data('purchaseid');
+      var type = $(this).data('type');
+
+      $.ajax({
+        url: "{{ route('purchase.email.inbox') }}",
+        type: "GET",
+        data: {
+          purchase_id: purchase_id,
+          type: type
+        },
+        beforeSend: function() {
+          $('#emails_tab #email-container .card').html('Loading emails');
+        }
+      }).done(function(response) {
+        console.log(response);
+        $('#emails_tab #email-container').html(response.emails);
+      }).fail(function(response) {
+        $('#emails_tab #email-container .card').html();
+
+        alert('Could not fetch emails');
+        console.log(response);
+      });
+    });
+
+    $(document).on('click', '.pagination a', function(e) {
+      e.preventDefault();
+
+      var url = $(this).attr('href');
+
+      $.ajax({
+        url: url,
+        type: "GET"
+      }).done(function(response) {
+        $('#emails_tab #email-container').html(response.emails);
+      }).fail(function(response) {
+        alert('Could not load emails');
+        console.log(response);
+      });
     });
   </script>
 @endsection

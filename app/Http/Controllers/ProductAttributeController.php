@@ -530,7 +530,8 @@ class ProductAttributeController extends Controller
 				'mime' => mime_content_type($image->getAbsolutePath())
 			);
 
-			$types = $i ? array('') : array('size_guide','image','small_image','thumbnail','hover_image');
+			$types = $i ? array('') : array('size_guide','image','small_image','thumbnail');
+			$types = $i == 1 ? array('hover_image') : $types;
 
 			$result = $proxy->catalogProductAttributeMediaCreate(
 				$sessionId,

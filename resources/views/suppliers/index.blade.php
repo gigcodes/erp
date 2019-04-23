@@ -122,11 +122,13 @@
     $(document).on('click', '.edit-agent-button', function() {
       var agent = $(this).data('agent');
       var url = "{{ url('agent') }}/" + agent.id;
+      $('#agent_whatsapp_number option[value=""]').prop('selected', 'selected');
 
       $('#editAgentModal form').attr('action', url);
       $('#agent_name').val(agent.name);
       $('#agent_address').val(agent.address);
       $('#agent_phone').val(agent.phone);
+      $('#agent_whatsapp_number option[value="' + agent.whatsapp_number + '"]').prop('selected', 'selected');
       $('#agent_email').val(agent.email);
     });
   </script>

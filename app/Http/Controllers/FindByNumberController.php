@@ -11,6 +11,7 @@ use App\Leads;
 use App\Customer;
 use App\Order;
 use App\Status;
+use App\Agent;
 use App\Setting;
 use App\User;
 use App\Brand;
@@ -40,6 +41,12 @@ class FindByNumberController extends Controller
 
 	protected function findPurchaseByNumber($number)
 	{
+		if ($agent = Agent::where('phone', $number)->first()) {
+			if ($agent->purchase) {
+				return $agent->purchase;
+			}
+		}
+
 		return Purchase::where('supplier_phone', '=', $number)->first();
 	}
 

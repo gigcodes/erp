@@ -65,7 +65,7 @@ class SendMessageToAll implements ShouldQueue
 
           try {
             app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
-          } catch {
+          } catch (\Exception $e) {
 
           }
         }
@@ -80,7 +80,7 @@ class SendMessageToAll implements ShouldQueue
 
             try {
               app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
-            } catch {
+            } catch (\Exception $e) {
 
             }
           }

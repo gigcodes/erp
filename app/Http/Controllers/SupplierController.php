@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Supplier;
 use App\Agent;
 use App\Setting;
+use App\ReadOnly\SoloNumbers;
 use Illuminate\Http\Request;
 
 class SupplierController extends Controller
@@ -17,9 +18,11 @@ class SupplierController extends Controller
     public function index()
     {
       $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
+      $solo_numbers = (new SoloNumbers)->all();
 
       return view('suppliers.index', [
-        'suppliers' => $suppliers
+        'suppliers' => $suppliers,
+        'solo_numbers' => $solo_numbers
       ]);
     }
 

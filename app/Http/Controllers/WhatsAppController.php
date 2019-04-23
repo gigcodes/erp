@@ -53,6 +53,7 @@ class WhatsAppController extends FindByNumberController
   		$text = $data['text'];
   		$lead = $this->findLeadByNumber( $from );
       $user = $this->findUserByNumber($from);
+      $purchase = $this->findPurchaseByNumber($from);
 
       $params = [
         'number' => $from
@@ -75,6 +76,20 @@ class WhatsAppController extends FindByNumberController
           'user_id' => '6',
           'sent_to' => $instruction->assigned_from,
           'role' => '',
+        ]);
+      }
+
+      if ($purchase) {
+        $params['lead_id'] = null;
+        $params['order_id'] = null;
+        $params['purchase_id'] = $purchase->id;
+
+        $params = $this->modifyParamsWithMessage($params, $data);
+        $message = ChatMessage::create($params);
+        $model_type = 'purchase';
+        $model_id = $purchase->id;
+        $purchase->update([
+            'whatsapp_number' => $to
         ]);
       }
 
@@ -110,25 +125,26 @@ class WhatsAppController extends FindByNumberController
           $order->update([
               'whatsapp_number' => $to
           ]);
-        } else {
-          $purchase = $this->findPurchaseByNumber($from);
-
-          if ($purchase) {
-            $params['lead_id'] = null;
-            $params['order_id'] = null;
-            $params['purchase_id'] = $purchase->id;
-
-            $params = $this->modifyParamsWithMessage($params, $data);
-            $message = ChatMessage::create($params);
-            $model_type = 'purchase';
-            $model_id = $purchase->id;
-            $purchase->update([
-                'whatsapp_number' => $to
-            ]);
-          } else {
-            // placeholder
-          }
         }
+        // else {
+        //   $purchase = $this->findPurchaseByNumber($from);
+        //
+        //   if ($purchase) {
+        //     $params['lead_id'] = null;
+        //     $params['order_id'] = null;
+        //     $params['purchase_id'] = $purchase->id;
+        //
+        //     $params = $this->modifyParamsWithMessage($params, $data);
+        //     $message = ChatMessage::create($params);
+        //     $model_type = 'purchase';
+        //     $model_id = $purchase->id;
+        //     $purchase->update([
+        //         'whatsapp_number' => $to
+        //     ]);
+        //   } else {
+        //     // placeholder
+        //   }
+        // }
       }
 
       if (!isset($order) && !isset($lead) && !isset($user) && !isset($purchase)) {
@@ -389,6 +405,7 @@ class WhatsAppController extends FindByNumberController
 
     public function updateAndCreate(Request $request)
     {
+      $result = 'success';
       $message = Message::find($request->message_id);
       $params = [
         'number'  => NULL,
@@ -443,7 +460,7 @@ class WhatsAppController extends FindByNumberController
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
-        $this->approveMessage($request->moduletype, $myRequest);
+        $result = $this->approveMessage($request->moduletype, $myRequest);
 
       } else {
         if ($request->moduletype == 'customer') {
@@ -481,7 +498,7 @@ class WhatsAppController extends FindByNumberController
         return redirect('/'. $request->moduletype.'/'.$request->moduleid);
       }
 
-      return response('success');
+      return response()->json(['status' => $result]);
     }
 
     public function forwardMessage(Request $request)
@@ -841,7 +858,12 @@ class WhatsAppController extends FindByNumberController
                   $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
                 } elseif ($context == 'purchase') {
                   $purchase = Purchase::find($message->purchase_id);
-                  $this->sendWithWhatsApp($purchase->supplier_phone,$purchase->whatsapp_number, $send, TRUE, $message->id);
+
+                  if ($purchase->agent) {
+                    $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+                  } else {
+                    return 'error';
+                  }
                 }
               }
             }
@@ -857,7 +879,12 @@ class WhatsAppController extends FindByNumberController
               $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
             } elseif($context == 'purchase') {
               $purchase = Purchase::find($message->purchase_id);
-              $this->sendWithWhatsApp($purchase->supplier_phone,$purchase->whatsapp_number, $send, TRUE, $message->id);
+
+              if ($purchase->agent) {
+                $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+              } else {
+                return 'error';
+              }
             }
           }
         } else {
@@ -872,7 +899,12 @@ class WhatsAppController extends FindByNumberController
             $this->sendWithWhatsApp($message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
           } elseif ($context == 'purchase') {
             $purchase = Purchase::find($message->purchase_id);
-            $this->sendWithWhatsApp($purchase->supplier_phone,$purchase->whatsapp_number, $send, TRUE, $message->id);
+
+            if ($purchase->agent) {
+              $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+            } else {
+              return 'error';
+            }
           }
         }
 
