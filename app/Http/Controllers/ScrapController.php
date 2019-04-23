@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -276,7 +277,7 @@ class ScrapController extends Controller
     }
 
     public function getProductsForImages() {
-        $products = Product::where('status', '2')->get  ();
+        $products = Product::where('status', '2')->get();
         $productsToPush = [];
 
 
@@ -288,11 +289,35 @@ class ScrapController extends Controller
             $productsToPush[] = [
                 'id' => $product->id,
                 'sku' => $product->sku,
-                'brand' => $product->brand->name,
+                'brand' => $product->brands->name,
             ];
         }
 
         return  response()->json($productsToPush);
+    }
+
+    public function saveImagesToProducts(Request $request) {
+        $this->validate($request, [
+            'id' => 'required',
+            'website' => 'required',
+            'images' => 'required|array'
+        ]);
+
+        $product = Product::find($request->get('id'));
+        $images = $this->downloadImagesForSites($request->get('images'), $request->get('website'));
+
+        foreach ($images as $image_name) {
+            // Storage::disk('uploads')->delete('/social-media/' . $image_name);
+
+            $path = public_path('uploads') . '/social-media/' . $image_name;
+            $media = MediaUploader::fromSource($path)->upload();
+            $product->attachMedia($media,config('constants.media_tags'));
+        }
+
+        return response()->json([
+            'status' => 'Added items successfuly!'
+        ]);
+
     }
 
     public function syncProductsFromNodeApp(Request $request) {
@@ -358,7 +383,7 @@ class ScrapController extends Controller
         $product->brand_id = $brand->id;
         $product->save();
 
-//        app('App\Services\Products\LidiaProductsCreator')->createProduct($product);
+        app('App\Services\Products\LidiaProductsCreator')->createProduct($product);
 
         return response()->json([
             'status' => 'Added items successfuly!'
@@ -385,8 +410,6 @@ class ScrapController extends Controller
 
         return $images;
     }
-
-
 
     public function excel_import() {
         $products = ScrapedProducts::where('website', 'EXCEL_IMPORT_TYPE_1')->paginate(25);
