@@ -20,6 +20,7 @@ use App\Purchase;
 use App\Customer;
 use App\ReplyCategory;
 use App\Refund;
+use App\Email;
 use App\ChatMessage;
 use App\CommunicationHistory;
 use Auth;
@@ -590,6 +591,19 @@ class OrderController extends Controller {
 				// 	'auto_emailed_date' => Carbon::now()
 				// ]);
 
+				$params = [
+	        'model_id'    		=> $order->customer->id,
+	        'model_type'  		=> Customer::class,
+	        'from'        		=> 'customercare@sololuxury.co.in',
+	        'to'          		=> $order->customer->email,
+	        'subject'     		=> "New Order # " . $order->order_id,
+	        'message'     		=> '',
+					'template'				=> 'order-confirmation',
+					'additional_data'	=> $order->id
+	      ];
+
+	      Email::create($params);
+
 				CommunicationHistory::create([
 					'model_id'		=> $order->id,
 					'model_type'	=> Order::class,
@@ -786,6 +800,19 @@ class OrderController extends Controller {
 				// 	'auto_emailed_date' => Carbon::now()
 				// ]);
 
+				$params = [
+	        'model_id'    		=> $order->customer->id,
+	        'model_type'  		=> Customer::class,
+	        'from'        		=> 'customercare@sololuxury.co.in',
+	        'to'          		=> $order->customer->email,
+	        'subject'     		=> "New Order # " . $order->order_id,
+	        'message'     		=> '',
+					'template'				=> 'order-confirmation',
+					'additional_data'	=> $order->id
+	      ];
+
+	      Email::create($params);
+
 				CommunicationHistory::create([
 					'model_id'		=> $order->id,
 					'model_type'	=> Order::class,
@@ -875,6 +902,19 @@ class OrderController extends Controller {
 				// 	'auto_emailed_date' => Carbon::now()
 				// ]);
 
+				$params = [
+	        'model_id'    		=> $order->customer->id,
+	        'model_type'  		=> Customer::class,
+	        'from'        		=> 'customercare@sololuxury.co.in',
+	        'to'          		=> $order->customer->email,
+	        'subject'     		=> "Advance Receipt",
+	        'message'     		=> '',
+					'template'				=> 'advance-receipt',
+					'additional_data'	=> $order->id
+	      ];
+
+	      Email::create($params);
+
 				CommunicationHistory::create([
 					'model_id'		=> $order->id,
 					'model_type'	=> Order::class,
@@ -900,6 +940,19 @@ class OrderController extends Controller {
 				// 	'auto_emailed' => 1,
 				// 	'auto_emailed_date' => Carbon::now()
 				// ]);
+
+				$params = [
+	        'model_id'    		=> $order->customer->id,
+	        'model_type'  		=> Customer::class,
+	        'from'        		=> 'customercare@sololuxury.co.in',
+	        'to'          		=> $order->customer->email,
+	        'subject'     		=> "New Order # " . $order->order_id,
+	        'message'     		=> '',
+					'template'				=> 'order-confirmation',
+					'additional_data'	=> $order->id
+	      ];
+
+	      Email::create($params);
 
 				CommunicationHistory::create([
 					'model_id'		=> $order->id,
@@ -1243,6 +1296,19 @@ class OrderController extends Controller {
 			]);
 
 			Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
+
+			$params = [
+				'model_id'    		=> $order->customer->id,
+				'model_type'  		=> Customer::class,
+				'from'        		=> 'customercare@sololuxury.co.in',
+				'to'          		=> $order->customer->email,
+				'subject'     		=> "Refund Processed",
+				'message'     		=> '',
+				'template'				=> 'refund-processed',
+				'additional_data'	=> json_encode(['order_id' => $order->order_id, 'product_names' => $product_names])
+			];
+
+			Email::create($params);
 
 			CommunicationHistory::create([
 				'model_id'		=> $order->id,

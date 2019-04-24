@@ -8,6 +8,9 @@ use App\Exports\CustomersExport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Mail\CustomerEmail;
+use App\Mail\RefundProcessed;
+use App\Mail\OrderConfirmation;
+use App\Mail\AdvanceReceipt;
 use Illuminate\Support\Facades\Mail;
 use App\Customer;
 use App\Suggestion;
@@ -555,9 +558,21 @@ class CustomerController extends Controller
         }
       } else {
         $email = Email::find($request->uid);
-        
+
         if ($email->template == 'customer-simple') {
           $content = (new CustomerEmail($email->subject, $email->message))->render();
+        } else if ($email->template == 'refund-processed') {
+          $details = json_decode($email->additional_data, true);
+
+          $content = (new RefundProcessed($details['order_id'], $details['product_names']))->render();
+        } else if ($email->template == 'order-confirmation') {
+          $order = Order::find($email->additional_data);
+
+          $content = (new OrderConfirmation($order))->render();
+        } else if ($email->template == 'advance-receipt') {
+          $order = Order::find($email->additional_data);
+
+          $content = (new AdvanceReceipt($order))->render();
         } else {
           $content = 'No Template';
         }
