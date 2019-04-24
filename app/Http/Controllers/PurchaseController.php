@@ -373,6 +373,8 @@ class PurchaseController extends Controller
 
       Mail::to('yogeshmordani@icloud.com')->send(new PurchaseExport($path));
 
+      return Storage::disk('uploads')->download($path);
+
       return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
     }
 
