@@ -813,7 +813,12 @@ class PurchaseController extends Controller
         }
       } else {
         $email = Email::find($request->uid);
-        $content = (new CustomerEmail($email->subject, $email->message))->render();
+
+        if ($email->template == 'customer-simple') {
+          $content = (new CustomerEmail($email->subject, $email->message))->render();
+        } else {
+          $content = 'No Template';
+        }
       }
 
 
@@ -834,12 +839,14 @@ class PurchaseController extends Controller
         Mail::to($purchase->agent->email)->send(new CustomerEmail($request->subject, $request->message));
 
         $params = [
-          'model_id'    => $purchase->id,
-          'model_type'  => Purchase::class,
-          'from'        => 'customercare@sololuxury.co.in',
-          'to'          => $purchase->agent->email,
-          'subject'     => $request->subject,
-          'message'     => $request->message
+          'model_id'        => $purchase->id,
+          'model_type'      => Purchase::class,
+          'from'            => 'customercare@sololuxury.co.in',
+          'to'              => $purchase->agent->email,
+          'subject'         => $request->subject,
+          'message'         => $request->message,
+          'template'				=> 'customer-simple',
+					'additional_data'	=> ''
         ];
 
         Email::create($params);

@@ -555,7 +555,12 @@ class CustomerController extends Controller
         }
       } else {
         $email = Email::find($request->uid);
-        $content = (new CustomerEmail($email->subject, $email->message))->render();
+        
+        if ($email->template == 'customer-simple') {
+          $content = (new CustomerEmail($email->subject, $email->message))->render();
+        } else {
+          $content = 'No Template';
+        }
       }
 
       return response()->json(['email' => $content]);
@@ -573,12 +578,14 @@ class CustomerController extends Controller
       Mail::to($customer->email)->send(new CustomerEmail($request->subject, $request->message));
 
       $params = [
-        'model_id'    => $customer->id,
-        'model_type'  => Customer::class,
-        'from'        => 'customercare@sololuxury.co.in',
-        'to'          => $customer->email,
-        'subject'     => $request->subject,
-        'message'     => $request->message
+        'model_id'        => $customer->id,
+        'model_type'      => Customer::class,
+        'from'            => 'customercare@sololuxury.co.in',
+        'to'              => $customer->email,
+        'subject'         => $request->subject,
+        'message'         => $request->message,
+        'template'				=> 'customer-simple',
+        'additional_data'	=> ''
       ];
 
       Email::create($params);
