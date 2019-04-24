@@ -584,32 +584,7 @@ class OrderController extends Controller {
 		// if ($order->auto_emailed == 0) {
 		if (!$order->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
-				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
 
-				// $order->update([
-				// 	'auto_emailed' => 1,
-				// 	'auto_emailed_date' => Carbon::now()
-				// ]);
-
-				$params = [
-	        'model_id'    		=> $order->customer->id,
-	        'model_type'  		=> Customer::class,
-	        'from'        		=> 'customercare@sololuxury.co.in',
-	        'to'          		=> $order->customer->email,
-	        'subject'     		=> "New Order # " . $order->order_id,
-	        'message'     		=> '',
-					'template'				=> 'order-confirmation',
-					'additional_data'	=> $order->id
-	      ];
-
-	      Email::create($params);
-
-				CommunicationHistory::create([
-					'model_id'		=> $order->id,
-					'model_type'	=> Order::class,
-					'type'				=> 'offline-confirmation',
-					'method'			=> 'email'
-				]);
 			}
 		}
 
@@ -793,32 +768,7 @@ class OrderController extends Controller {
 		// if ($order->auto_emailed == 0) {
 		if (!$order->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
-				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
-
-				// $order->update([
-				// 	'auto_emailed' => 1,
-				// 	'auto_emailed_date' => Carbon::now()
-				// ]);
-
-				$params = [
-	        'model_id'    		=> $order->customer->id,
-	        'model_type'  		=> Customer::class,
-	        'from'        		=> 'customercare@sololuxury.co.in',
-	        'to'          		=> $order->customer->email,
-	        'subject'     		=> "New Order # " . $order->order_id,
-	        'message'     		=> '',
-					'template'				=> 'order-confirmation',
-					'additional_data'	=> $order->id
-	      ];
-
-	      Email::create($params);
-
-				CommunicationHistory::create([
-					'model_id'		=> $order->id,
-					'model_type'	=> Order::class,
-					'type'				=> 'offline-confirmation',
-					'method'			=> 'email'
-				]);
+				
 			}
 		}
 
