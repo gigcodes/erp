@@ -883,8 +883,20 @@ class PurchaseController extends Controller
         Mail::setSwiftMailer($gmail);
         // Send your message
 
+        $file_paths = [];
+
+        if ($request->hasFile('file')) {
+          foreach ($request->file('file') as $file) {
+            $filename = $file->getClientOriginalName();
+
+            $file->storeAs("documents", $filename, 'uploads');
+
+            $file_paths[] = "documents/$filename";
+          }
+        }
+
         // Restore your original mailer
-        Mail::to($purchase->agent->email)->send(new PurchaseEmail($request->subject, $request->message));
+        Mail::to($purchase->agent->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
         Mail::setSwiftMailer($backup);
 
