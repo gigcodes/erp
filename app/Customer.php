@@ -58,6 +58,11 @@ class Customer extends Model
 		return $this->hasMany('App\Message', 'customer_id')->latest();
 	}
 
+  public function emails()
+  {
+    return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Customer');
+  }
+
 	public function whatsapps()
 	{
 		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest()->first();
