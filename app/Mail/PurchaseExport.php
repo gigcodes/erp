@@ -18,10 +18,14 @@ class PurchaseExport extends Mailable
      */
 
     protected $path;
+    public $subject;
+    public $message;
 
-    public function __construct(string $path)
+    public function __construct(string $path, string $subject, string $message)
     {
       $this->path = $path;
+      $this->subject = $subject;
+      $this->message = $message;
     }
 
     /**
@@ -31,10 +35,10 @@ class PurchaseExport extends Mailable
      */
     public function build()
     {
-      return $this->from('contact@sololuxury.co.in')
+      return $this->from('buying@amourint.com')
                   ->bcc('customercare@sololuxury.co.in')
-                  ->subject('Purchases Export')
-                  ->markdown('emails.purchases.export')
+                  ->subject($this->subject)
+                  ->text('emails.purchases.export_plain')->with(['body_message' => $this->message])
                   ->attachFromStorageDisk('uploads', $this->path);
     }
 }

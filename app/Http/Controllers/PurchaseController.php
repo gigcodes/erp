@@ -21,6 +21,7 @@ use App\Email;
 use App\Mail\CustomerEmail;
 use App\Mail\PurchaseEmail;
 use App\Supplier;
+use App\Agent;
 use App\File;
 use App\Mail\PurchaseExport;
 use Illuminate\Support\Facades\Mail;
@@ -89,7 +90,10 @@ class PurchaseController extends Controller
         ->orWhere('id','like','%'.$term.'%')
         ->orWhere('purchase_handler',Helpers::getUserIdByName($term))
         ->orWhere('supplier','like','%'.$term.'%')
-        ->orWhere('status','like','%'.$term.'%');
+        ->orWhere('status','like','%'.$term.'%')
+        ->orWhereHas('Products', function ($query) use ($term) {
+          $query->where('sku', 'LIKE', "%$term%");
+        });
       }
 
       if ($sortby != 'communication') {
@@ -137,13 +141,21 @@ class PurchaseController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+      $suppliers = Supplier::select(['id', 'supplier'])->get();
+      $agents = Agent::where('model_type', 'App\Supplier')->get();
+      $agents_array = [];
+
+      foreach ($agents as $agent) {
+        $agents_array[$agent->model_id][$agent->id] = $agent->name . " - " . $agent->email;
+      }
+
       if ($request->ajax()) {
   			$html = view('purchase.purchase-item', ['purchases_array' => $purchases_array, 'orderby' => $orderby, 'users'  => $users])->render();
 
   			return response()->json(['html' => $html]);
   		}
 
-  		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users' ) );
+  		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users', 'suppliers', 'agents_array' ) );
     }
 
     public function purchaseGrid(Request $request, $page = null)
@@ -371,11 +383,26 @@ class PurchaseController extends Controller
 
       Excel::store(new PurchasesExport($selected_purchases), $path, 'uploads');
 
-      Mail::to('yogeshmordani@icloud.com')->send(new PurchaseExport($path));
+      $agent = Agent::find($request->agent_id);
+
+      Mail::to($agent->email)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
+
+      $params = [
+        'model_id'        => $request->supplier_id,
+        'model_type'      => Supplier::class,
+        'from'            => 'buying@amourint.com',
+        'to'              => $agent->email,
+        'subject'         => $request->subject,
+        'message'         => $request->message,
+        'template'				=> 'purchase-simple',
+        'additional_data'	=> ''
+      ];
+
+      Email::create($params);
 
       return Storage::disk('uploads')->download($path);
 
-      return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
+      // return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
     }
 
     public function downloadFile(Request $request, $id)
