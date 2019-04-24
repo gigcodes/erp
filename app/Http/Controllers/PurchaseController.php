@@ -19,6 +19,7 @@ use App\Task;
 use App\Brand;
 use App\Email;
 use App\Mail\CustomerEmail;
+use App\Mail\PurchaseEmail;
 use App\Supplier;
 use App\File;
 use App\Mail\PurchaseExport;
@@ -668,13 +669,13 @@ class PurchaseController extends Controller
     public function emailInbox(Request $request)
     {
       $imap = new Client([
-          'host'          => env('IMAP_HOST'),
-          'port'          => env('IMAP_PORT'),
-          'encryption'    => env('IMAP_ENCRYPTION'),
-          'validate_cert' => env('IMAP_VALIDATE_CERT'),
-          'username'      => env('IMAP_USERNAME'),
-          'password'      => env('IMAP_PASSWORD'),
-          'protocol'      => env('IMAP_PROTOCOL')
+          'host'          => env('IMAP_HOST_PURCHASE'),
+          'port'          => env('IMAP_PORT_PURCHASE'),
+          'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+          'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+          'username'      => env('IMAP_USERNAME_PURCHASE'),
+          'password'      => env('IMAP_PASSWORD_PURCHASE'),
+          'protocol'      => env('IMAP_PROTOCOL_PURCHASE')
       ]);
 
       $imap->connect();
@@ -785,13 +786,13 @@ class PurchaseController extends Controller
     public function emailFetch(Request $request)
     {
       $imap = new Client([
-          'host'          => env('IMAP_HOST'),
-          'port'          => env('IMAP_PORT'),
-          'encryption'    => env('IMAP_ENCRYPTION'),
-          'validate_cert' => env('IMAP_VALIDATE_CERT'),
-          'username'      => env('IMAP_USERNAME'),
-          'password'      => env('IMAP_PASSWORD'),
-          'protocol'      => env('IMAP_PROTOCOL')
+        'host'          => env('IMAP_HOST_PURCHASE'),
+        'port'          => env('IMAP_PORT_PURCHASE'),
+        'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+        'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+        'username'      => env('IMAP_USERNAME_PURCHASE'),
+        'password'      => env('IMAP_PASSWORD_PURCHASE'),
+        'protocol'      => env('IMAP_PROTOCOL_PURCHASE')
       ]);
 
       $imap->connect();
@@ -836,7 +837,25 @@ class PurchaseController extends Controller
       $purchase = Purchase::find($request->purchase_id);
 
       if ($purchase->agent) {
-        Mail::to($purchase->agent->email)->send(new CustomerEmail($request->subject, $request->message));
+        // Backup your default mailer
+        $backup = Mail::getSwiftMailer();
+
+        // Setup your gmail mailer
+        $transport = new \Swift_SmtpTransport('c45729.sgvps.net', 465, 'ssl');
+        $transport->setUsername('buying@amourint.com');
+        $transport->setPassword('Buy@123');
+        // Any other mailer configuration stuff needed...
+
+        $gmail = new \Swift_Mailer($transport);
+
+        // Set the mailer as gmail
+        Mail::setSwiftMailer($gmail);
+        // Send your message
+
+        // Restore your original mailer
+        Mail::to($purchase->agent->email)->send(new PurchaseEmail($request->subject, $request->message));
+
+        Mail::setSwiftMailer($backup);
 
         $params = [
           'model_id'        => $purchase->id,
