@@ -2178,13 +2178,26 @@
 
       var uid = $(this).data('uid');
       var type = $(this).data('type');
+      var email_type = 'server';
+
+      console.log(uid);
+      console.log(email_type);
+
+      if (uid == 'no') {
+        uid = $(this).data('id');
+        email_type = 'local';
+      }
+
+      console.log(uid);
+      console.log(email_type);
 
       $.ajax({
         type: "GET",
         url: "{{ route('purchase.email.fetch') }}",
         data: {
           uid: uid,
-          type: type
+          type: type,
+          email_type: email_type
         },
         beforeSend: function() {
           $('#email-content .card').html('Loading...');
