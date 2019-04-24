@@ -813,7 +813,7 @@ class PurchaseController extends Controller
         }
       } else {
         $email = Email::find($request->uid);
-        $content = $email->message;
+        $content = (new CustomerEmail($email->subject, $email->message))->render();
       }
 
 

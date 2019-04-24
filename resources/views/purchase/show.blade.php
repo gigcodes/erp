@@ -2180,16 +2180,10 @@
       var type = $(this).data('type');
       var email_type = 'server';
 
-      console.log(uid);
-      console.log(email_type);
-
       if (uid == 'no') {
         uid = $(this).data('id');
         email_type = 'local';
       }
-
-      console.log(uid);
-      console.log(email_type);
 
       $.ajax({
         type: "GET",
