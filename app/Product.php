@@ -64,6 +64,10 @@ class Product extends Model
 		return $this->hasOne('App\Brand','id','brand');
 	}
 
+	public function references(){
+		return $this->hasMany('App\ProductReference');
+	}
+
 	public static function getPendingProductsCount($roleType){
 
 		$stage = new Stage();
