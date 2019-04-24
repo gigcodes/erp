@@ -31,7 +31,7 @@ class HourlyReport extends Mailable
     public function build()
     {
       return $this->from('contact@sololuxury.co.in')
-                  ->cc('customercare@sololuxury.co.in')
+                  ->bcc('customercare@sololuxury.co.in')
                   ->subject('Generated Hourly Report')
                   ->markdown('emails.hourly-report')
                   ->attachFromStorageDisk('uploads', $this->path);
