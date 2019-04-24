@@ -228,7 +228,7 @@
       <div class="col-md-6">
         @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
           <div class="form-group">
-            <strong>Email:</strong> {{ $customer->email }}
+            <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a>
           </div>
 
           <div class="form-group">
