@@ -815,11 +815,13 @@ class PurchaseController extends Controller
       } else {
         $email = Email::find($request->uid);
 
-        if ($email->template == 'customer-simple') {
-          $content = (new CustomerEmail($email->subject, $email->message))->render();
-        } else {
-          $content = 'No Template';
-        }
+        // if ($email->template == 'customer-simple') {
+        //   $content = (new CustomerEmail($email->subject, $email->message))->render();
+        // } else {
+        //   $content = 'No Template';
+        // }
+
+        $content = $email->message;
       }
 
 

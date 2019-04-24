@@ -36,6 +36,8 @@ class PurchaseEmail extends Mailable
         return $this->from('buying@amourint.com')
                     ->bcc('customercare@sololuxury.co.in')
                     ->subject($this->subject)
-                    ->markdown('emails.customers.email');
+                    ->text('emails.customers.email_plain')->with([
+                      'body_message' => $this->message
+                    ]);
     }
 }
