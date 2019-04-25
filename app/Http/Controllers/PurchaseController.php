@@ -19,7 +19,9 @@ use App\Task;
 use App\Brand;
 use App\Email;
 use App\Mail\CustomerEmail;
+use App\Mail\PurchaseEmail;
 use App\Supplier;
+use App\Agent;
 use App\File;
 use App\Mail\PurchaseExport;
 use Illuminate\Support\Facades\Mail;
@@ -88,7 +90,10 @@ class PurchaseController extends Controller
         ->orWhere('id','like','%'.$term.'%')
         ->orWhere('purchase_handler',Helpers::getUserIdByName($term))
         ->orWhere('supplier','like','%'.$term.'%')
-        ->orWhere('status','like','%'.$term.'%');
+        ->orWhere('status','like','%'.$term.'%')
+        ->orWhereHas('Products', function ($query) use ($term) {
+          $query->where('sku', 'LIKE', "%$term%");
+        });
       }
 
       if ($sortby != 'communication') {
@@ -136,13 +141,21 @@ class PurchaseController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+      $suppliers = Supplier::select(['id', 'supplier'])->get();
+      $agents = Agent::where('model_type', 'App\Supplier')->get();
+      $agents_array = [];
+
+      foreach ($agents as $agent) {
+        $agents_array[$agent->model_id][$agent->id] = $agent->name . " - " . $agent->email;
+      }
+
       if ($request->ajax()) {
   			$html = view('purchase.purchase-item', ['purchases_array' => $purchases_array, 'orderby' => $orderby, 'users'  => $users])->render();
 
   			return response()->json(['html' => $html]);
   		}
 
-  		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users' ) );
+  		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users', 'suppliers', 'agents_array' ) );
     }
 
     public function purchaseGrid(Request $request, $page = null)
@@ -370,9 +383,26 @@ class PurchaseController extends Controller
 
       Excel::store(new PurchasesExport($selected_purchases), $path, 'uploads');
 
-      Mail::to('yogeshmordani@icloud.com')->send(new PurchaseExport($path));
+      $agent = Agent::find($request->agent_id);
 
-      return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
+      Mail::to($agent->email)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
+
+      $params = [
+        'model_id'        => $request->supplier_id,
+        'model_type'      => Supplier::class,
+        'from'            => 'buying@amourint.com',
+        'to'              => $agent->email,
+        'subject'         => $request->subject,
+        'message'         => $request->message,
+        'template'				=> 'purchase-simple',
+        'additional_data'	=> ''
+      ];
+
+      Email::create($params);
+
+      return Storage::disk('uploads')->download($path);
+
+      // return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
     }
 
     public function downloadFile(Request $request, $id)
@@ -668,58 +698,111 @@ class PurchaseController extends Controller
     public function emailInbox(Request $request)
     {
       $imap = new Client([
-          'host'          => env('IMAP_HOST'),
-          'port'          => env('IMAP_PORT'),
-          'encryption'    => env('IMAP_ENCRYPTION'),
-          'validate_cert' => env('IMAP_VALIDATE_CERT'),
-          'username'      => env('IMAP_USERNAME'),
-          'password'      => env('IMAP_PASSWORD'),
-          'protocol'      => env('IMAP_PROTOCOL')
+          'host'          => env('IMAP_HOST_PURCHASE'),
+          'port'          => env('IMAP_PORT_PURCHASE'),
+          'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+          'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+          'username'      => env('IMAP_USERNAME_PURCHASE'),
+          'password'      => env('IMAP_PASSWORD_PURCHASE'),
+          'protocol'      => env('IMAP_PROTOCOL_PURCHASE')
       ]);
 
       $imap->connect();
 
       $purchase = Purchase::find($request->purchase_id);
-      // $customer = Customer::find(841);
 
       if ($request->type == 'inbox') {
-        $inbox = $imap->getFolder('INBOX');
-        $emails = $inbox->messages();
-        if ($purchase->purchase_supplier->agents) {
-          foreach ($purchase->purchase_supplier->agents as $key => $agent) {
-            if ($key == 0) {
-              // $emails = $emails->where('from', $agent->email)->orWhere(function(&$query) {
-              //   $query->from('lukas.markeviciuss@gmail.com');
-              // });
-              $emails = $emails->where('from', $agent->email);
-            }
-          }
-          // return response('boom');
-        }
-        // return response('no agents');
+        $inbox_name = 'INBOX';
+        $direction = 'from';
       } else {
-        $inbox = $imap->getFolder('INBOX.Sent');
-        // $emails = $inbox->messages()->to($customer->email);
-        $emails = $inbox->messages();
-        if ($purchase->purchase_supplier->agents) {
+        $inbox_name = 'INBOX.Sent';
+        $direction = 'to';
+      }
+
+      $inbox = $imap->getFolder($inbox_name);
+
+      if ($purchase->purchase_supplier->agents) {
+        if ($purchase->purchase_supplier->agents()->count() > 1) {
           foreach ($purchase->purchase_supplier->agents as $key => $agent) {
             if ($key == 0) {
-              // $emails = $emails->where('from', $agent->email)->orWhere(function(&$query) {
-              //   $query->from('lukas.markeviciuss@gmail.com');
-              // });
-              $emails = $emails->where('from', $agent->email);
+              $emails = $inbox->messages()->where($direction, $agent->email);
+              $emails = $emails->setFetchFlags(false)
+                              ->setFetchBody(false)
+                              ->setFetchAttachment(false)->leaveUnread()->get();
+            } else {
+              $additional = $inbox->messages()->where($direction, $agent->email);
+              $additional = $additional->setFetchFlags(false)
+                              ->setFetchBody(false)
+                              ->setFetchAttachment(false)->leaveUnread()->get();
+
+              $emails = $emails->merge($additional);
             }
           }
-          // return response('boom');
+        } else if ($purchase->purchase_supplier->agents()->count() == 1) {
+          $emails = $inbox->messages()->where($direction, $purchase->purchase_supplier->agents[0]->email);
+          $emails = $emails->setFetchFlags(false)
+                          ->setFetchBody(false)
+                          ->setFetchAttachment(false)->leaveUnread()->get();
+        } else {
+          $emails = $inbox->messages()->where($direction, 'nonexisting@email.com');
+          $emails = $emails->setFetchFlags(false)
+                          ->setFetchBody(false)
+                          ->setFetchAttachment(false)->leaveUnread()->get();
         }
       }
 
-      $emails = $emails->setFetchFlags(false)
-                      ->setFetchBody(false)
-                      ->setFetchAttachment(false)->get()
-                      ->sortByDesc('date')->paginate(10);
+      $emails_array = [];
+      $count = 0;
 
-                      dd($emails);
+      foreach ($emails as $key => $email) {
+        $emails_array[$key]['uid'] = $email->getUid();
+        $emails_array[$key]['subject'] = $email->getSubject();
+        $emails_array[$key]['date'] = $email->getDate();
+
+        $count++;
+      }
+
+      if ($request->type != 'inbox') {
+        $db_emails = $purchase->emails;
+
+        foreach ($db_emails as $key2 => $email) {
+          $emails_array[$count + $key2]['id'] = $email->id;
+          $emails_array[$count + $key2]['subject'] = $email->subject;
+          $emails_array[$count + $key2]['date'] = $email->created_at;
+        }
+      }
+
+        // dd($emails_array);
+        // dd($emails->merge($db_emails));
+        // $emails = $emails->merge($db_emails);
+        // $emails = collect($emails_array);
+        // dd($emails);
+
+      $emails_array = array_values(array_sort($emails_array, function ($value) {
+        return $value['date'];
+      }));
+
+      $emails_array = array_reverse($emails_array);
+
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      $perPage = 10;
+      // $perPage = Setting::get('pagination');
+      $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
+
+      $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
+
+      // $emails = $emails->setFetchFlags(false)
+      //                 ->setFetchBody(false)
+      //                 ->setFetchAttachment(false)->get();
+
+                      // $emails2 = $emails2->setFetchFlags(false)
+                      //                 ->setFetchBody(false)
+                      //                 ->setFetchAttachment(false)->get();
+                      // $emails = $emails->sortByDesc('date');
+                      // // $related = new Collection();
+                      // $emails = $emails->merge($emails2);
+                      // dd($emails);
 
       $view = view('purchase.partials.email', [
         'emails'  => $emails,
@@ -732,13 +815,13 @@ class PurchaseController extends Controller
     public function emailFetch(Request $request)
     {
       $imap = new Client([
-          'host'          => env('IMAP_HOST'),
-          'port'          => env('IMAP_PORT'),
-          'encryption'    => env('IMAP_ENCRYPTION'),
-          'validate_cert' => env('IMAP_VALIDATE_CERT'),
-          'username'      => env('IMAP_USERNAME'),
-          'password'      => env('IMAP_PASSWORD'),
-          'protocol'      => env('IMAP_PROTOCOL')
+        'host'          => env('IMAP_HOST_PURCHASE'),
+        'port'          => env('IMAP_PORT_PURCHASE'),
+        'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+        'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+        'username'      => env('IMAP_USERNAME_PURCHASE'),
+        'password'      => env('IMAP_PASSWORD_PURCHASE'),
+        'protocol'      => env('IMAP_PROTOCOL_PURCHASE')
       ]);
 
       $imap->connect();
@@ -750,13 +833,27 @@ class PurchaseController extends Controller
         $inbox->query();
       }
 
-      $email = $inbox->getMessage($uid = $request->uid, NULL, NULL, TRUE, TRUE, TRUE);
-
-      if ($email->hasHTMLBody()) {
-        $content = $email->getHTMLBody();
+      if ($request->email_type == 'server') {
+        $email = $inbox->getMessage($uid = $request->uid, NULL, NULL, TRUE, TRUE, TRUE);
+        // dd($email);
+        if ($email->hasHTMLBody()) {
+          $content = $email->getHTMLBody();
+        } else {
+          $content = $email->getTextBody();
+        }
       } else {
-        $content = $email->getTextBody();
+        $email = Email::find($request->uid);
+
+        // if ($email->template == 'customer-simple') {
+        //   $content = (new CustomerEmail($email->subject, $email->message))->render();
+        // } else {
+        //   $content = 'No Template';
+        // }
+
+        $content = $email->message;
       }
+
+
 
       return response()->json(['email' => $content]);
     }
@@ -771,15 +868,47 @@ class PurchaseController extends Controller
       $purchase = Purchase::find($request->purchase_id);
 
       if ($purchase->agent) {
-        Mail::to($purchase->agent->email)->send(new CustomerEmail($request->subject, $request->message));
+        // Backup your default mailer
+        $backup = Mail::getSwiftMailer();
+
+        // Setup your gmail mailer
+        $transport = new \Swift_SmtpTransport('c45729.sgvps.net', 465, 'ssl');
+        $transport->setUsername('buying@amourint.com');
+        $transport->setPassword('Buy@123');
+        // Any other mailer configuration stuff needed...
+
+        $gmail = new \Swift_Mailer($transport);
+
+        // Set the mailer as gmail
+        Mail::setSwiftMailer($gmail);
+        // Send your message
+
+        $file_paths = [];
+
+        if ($request->hasFile('file')) {
+          foreach ($request->file('file') as $file) {
+            $filename = $file->getClientOriginalName();
+
+            $file->storeAs("documents", $filename, 'uploads');
+
+            $file_paths[] = "documents/$filename";
+          }
+        }
+
+        // Restore your original mailer
+        Mail::to($purchase->agent->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
+        Mail::setSwiftMailer($backup);
 
         $params = [
-          'model_id'    => $purchase->id,
-          'model_type'  => Purchase::class,
-          'from'        => 'customercare@sololuxury.co.in',
-          'to'          => $purchase->agent->email,
-          'subject'     => $request->subject,
-          'message'     => $request->message
+          'model_id'        => $purchase->id,
+          'model_type'      => Purchase::class,
+          'from'            => 'customercare@sololuxury.co.in',
+          'to'              => $purchase->agent->email,
+          'subject'         => $request->subject,
+          'message'         => $request->message,
+          'template'				=> 'customer-simple',
+					'additional_data'	=> ''
         ];
 
         Email::create($params);

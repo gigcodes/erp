@@ -23,24 +23,14 @@
                 </form>
             </div>
             <div class="pull-right">
-              <form class="d-inline" action="{{ route('purchase.export') }}" id="purchaseExportForm" method="POST">
-                @csrf
-
-                <input type="hidden" name="selected_purchases" id="selected_purchases" value="">
-
-                <button type="submit" class="btn btn-secondary mr-3" id="purchaseExportButton">Export</button>
-              </form>
-
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendExportModal">Export</button>
               <a class="btn btn-secondary" href="{{ route('purchase.grid') }}">+</a>
             </div>
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
+    @include('purchase.partials.modal-purchase')
 
     <div id="purchaseList">
       @include('purchase.purchase-item')
@@ -51,6 +41,7 @@
 @section('scripts')
   <script type="text/javascript">
     var purchases_array = [];
+    var agents_array = {!! json_encode($agents_array) !!};
 
     $(document).on('click', '.pagination a', function(e) {
       e.preventDefault();
@@ -98,7 +89,14 @@
 
       if (purchases_array.length > 0) {
         $('#selected_purchases').val(JSON.stringify(purchases_array));
-        $('#purchaseExportForm').submit();
+
+        if ($('#purchaseExportForm')[0].checkValidity()) {
+          $('#purchaseExportForm').submit();
+          $('#sendExportModal').find('.close').click();
+        } else {
+          $('#purchaseExportForm')[0].reportValidity();
+        }
+
       } else {
         alert('Please select atleast 1 purchase');
       }
@@ -115,6 +113,26 @@
       }
 
       console.log(purchases_array);
+    });
+
+    $(document).on('change', '#export_supplier', function() {
+      var supplier_id = $(this).val();
+
+      agents = agents_array[supplier_id];
+
+      $('#export_agent').empty();
+
+      $('#export_agent').append($('<option>', {
+        value: '',
+        text: 'Select Agent'
+      }));
+
+      Object.keys(agents).forEach(function(agent) {
+        $('#export_agent').append($('<option>', {
+          value: agent,
+          text: agents_array[supplier_id][agent]
+        }));
+      });
     });
   </script>
 @endsection

@@ -34,7 +34,7 @@ class CustomerEmail extends Mailable
     public function build()
     {
         return $this->from('customercare@sololuxury.co.in')
-                    ->cc('customercare@sololuxury.co.in')
+                    ->bcc('customercare@sololuxury.co.in')
                     ->subject($this->subject)
                     ->markdown('emails.customers.email');
     }

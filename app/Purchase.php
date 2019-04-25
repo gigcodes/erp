@@ -42,4 +42,9 @@ class Purchase extends Model
   {
     return $this->belongsTo('App\Agent', 'agent_id');
   }
+
+  public function emails()
+  {
+    return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Purchase');
+  }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Brand;
 use App\Product;
+use App\ProductReference;
 use App\Setting;
 use App\Stage;
 use App\Category;
@@ -87,12 +88,28 @@ class ProductListerController extends Controller
 		$brand= $product->brands()->get();
 		array_push($categories,$brand[0]->magento_id);
 
+		if ($product->references) {
+			$product->references()->delete();
+		}
+
+		$reference = new ProductReference;
+		$reference->product_id = $product->id;
+		$reference->sku = $product->sku;
+		$reference->color = $product->color;
+		$reference->save();
+
 		if(!empty($product->size)) {
 
 			$associated_skus = [];
-			$sizes_array = explode( ',', $product->size );
+			$sizes_array = explode(',', $product->size);
 
 			foreach ( $sizes_array as $size ) {
+				$reference = new ProductReference;
+				$reference->product_id = $product->id;
+				$reference->sku = $product->sku;
+				$reference->color = $product->color;
+				$reference->size = $size;
+				$reference->save();
 
 				$productData = array(
 					'categories'            => $categories,

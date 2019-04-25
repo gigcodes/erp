@@ -228,7 +228,7 @@
       <div class="col-md-6">
         @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
           <div class="form-group">
-            <strong>Email:</strong> {{ $customer->email }}
+            <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a>
           </div>
 
           <div class="form-group">
@@ -3190,13 +3190,20 @@
 
         var uid = $(this).data('uid');
         var type = $(this).data('type');
+        var email_type = 'server';
+
+        if (uid == 'no') {
+          uid = $(this).data('id');
+          email_type = 'local';
+        }
 
         $.ajax({
           type: "GET",
           url: "{{ route('customer.email.fetch') }}",
           data: {
             uid: uid,
-            type: type
+            type: type,
+            email_type: email_type
           },
           beforeSend: function() {
             $('#email-content .card').html('Loading...');

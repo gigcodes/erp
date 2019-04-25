@@ -22,6 +22,11 @@
             <strong>Message</strong>
             <textarea name="message" class="form-control" rows="8" cols="80" required>{{ old('message') }}</textarea>
           </div>
+
+          <div class="form-group">
+            <strong>Files</strong>
+            <input type="file" name="file[]" value="" multiple>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

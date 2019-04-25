@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\Image;
 use App\Product;
+use App\ProductReference;
 use App\ScrapedProducts;
 use App\Setting;
 use App\Supplier;
@@ -313,64 +314,134 @@ class ProductAttributeController extends Controller
 		array_push($categories,$brand[0]->magento_id);
 
 		// DELETES OLD SIMPLE PRODUCTS
-		$deleted_count = 0;
-		if(!empty($old_sizes)) {
-			$sizes_array = explode(',', $old_sizes);
-
-			foreach ($sizes_array as $size) {
-				try {
-					$result = $proxy->catalogProductDelete($sessionId, $old_sku . "-" . $size);
-
-					$deleted_count++;
-				} catch (\Exception $e) {
-					$error_message = $e->getMessage();
-				}
-			}
-		}
+		// $deleted_count = 0;
+		// if(!empty($old_sizes)) {
+		// 	$sizes_array = explode(',', $old_sizes);
+		//
+		// 	foreach ($sizes_array as $size) {
+		// 		try {
+		// 			$result = $proxy->catalogProductDelete($sessionId, $old_sku . "-" . $size);
+		//
+		// 			$deleted_count++;
+		// 		} catch (\Exception $e) {
+		// 			$error_message = $e->getMessage();
+		// 		}
+		// 	}
+		// }
 
 		if(!empty($product->size)) {
 			$associated_skus = [];
 			$sizes_array = explode(',', $product->size);
 
-			foreach ($sizes_array as $size) {
-				$productData = array(
-					'categories'            => $categories,
-					'name'                  => $product->name,
-					'description'           => '<p></p>',
-					'short_description'     => $product->short_description,
-					'website_ids'           => array(1),
-					// Id or code of website
-					'status'                => $product->isFinal ?? 2,
-					// 1 = Enabled, 2 = Disabled
-					'visibility'            => 1,
-					// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-					'tax_class_id'          => 2,
-					// Default VAT
-					'weight'                => 0,
-					'stock_data' => array(
-						'use_config_manage_stock' => 1,
-						'manage_stock' => 1,
-						'qty'					=> $product->stock,
-						'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
-					),
-					'price'                 => $product->price_inr,
-					// Same price than configurable product, no price change
-					'special_price'         => $product->price_special,
-					'additional_attributes' => array(
-						'single_data' => array(
-							array( 'key' => 'composition', 'value' => $product->composition, ),
-							array( 'key' => 'color', 'value' => $product->color, ),
-							array( 'key' => 'sizes', 'value' => $size, ),
-							array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-							array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-						),
-					),
-				);
+			if ($productattribute->references) {
+				$reference_array = [];
+				$reference_color = '';
+				$reference_sku = '';
 
-				// Creation of product simple
-				$result            = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
-				$associated_skus[] = $sku . '-' . $size;
+				foreach ($product->references as $reference) {
+					if ($reference->size != '') {
+						$reference_array[] = $reference->size;
+					}
+
+					$reference_color = $reference->color;
+					$reference_sku = $reference->sku;
+				}
+
+				$product_sizes = explode(',', $product->size);
+
+				foreach ($product_sizes as $size) {
+					if (in_array($size, $reference_array)) {
+						// UPDATES SIMPLE PRODUCT
+						$productData = array(
+							'categories'            => $categories,
+							'name'                  => $product->name,
+							'description'           => '<p></p>',
+							'short_description'     => $product->short_description,
+							'website_ids'           => array(1),
+							// Id or code of website
+							'status'                => $product->isFinal ?? 2,
+							// 1 = Enabled, 2 = Disabled
+							'visibility'            => 1,
+							// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+							'tax_class_id'          => 2,
+							// Default VAT
+							'weight'                => 0,
+							'stock_data' => array(
+								'use_config_manage_stock' => 1,
+								'manage_stock' => 1,
+								'qty'					=> $product->stock,
+								'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+							),
+							'price'                 => $product->price_inr,
+							// Same price than configurable product, no price change
+							'special_price'         => $product->price_special,
+							'additional_attributes' => array(
+								'single_data' => array(
+									array( 'key' => 'composition', 'value' => $product->composition, ),
+									array( 'key' => 'color', 'value' => $product->color, ),
+									array( 'key' => 'sizes', 'value' => $size, ),
+									array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+									array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+								),
+							),
+						);
+
+						// Update product simple
+						$result = $proxy->catalogProductUpdate($sessionId, $reference_sku . $reference_color . '-' . $size, $productData);
+						$associated_skus[] = $reference_sku . $reference_color . '-' . $size;
+					} else {
+						$new_reference = new ProductReference;
+						$new_reference->product_id = $product->id;
+						$new_reference->sku = $reference_sku;
+						$new_reference->color = $reference_color;
+						$new_reference->size = $size;
+						$new_reference->save();
+
+						// CREATES NEW SIMPLE PRODUCT
+						$productData = array(
+							'categories'            => $categories,
+							'name'                  => $product->name,
+							'description'           => '<p></p>',
+							'short_description'     => $product->short_description,
+							'website_ids'           => array(1),
+							// Id or code of website
+							'status'                => $product->isFinal ?? 2,
+							// 1 = Enabled, 2 = Disabled
+							'visibility'            => 1,
+							// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+							'tax_class_id'          => 2,
+							// Default VAT
+							'weight'                => 0,
+							'stock_data' => array(
+								'use_config_manage_stock' => 1,
+								'manage_stock' => 1,
+								'qty'					=> $product->stock,
+								'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+							),
+							'price'                 => $product->price_inr,
+							// Same price than configurable product, no price change
+							'special_price'         => $product->price_special,
+							'additional_attributes' => array(
+								'single_data' => array(
+									array( 'key' => 'composition', 'value' => $product->composition, ),
+									array( 'key' => 'color', 'value' => $product->color, ),
+									array( 'key' => 'sizes', 'value' => $size, ),
+									array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+									array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+								),
+							),
+						);
+
+						// Creation of product simple
+						$result            = $proxy->catalogProductCreate($sessionId, 'simple', 14, $reference_sku . $reference_color . '-' . $size, $productData);
+						$associated_skus[] = $reference_sku . $reference_color . '-' . $size;
+					}
+				}
 			}
+
+			// foreach ($sizes_array as $size) {
+			//
+			// }
 
 			/**
 			 * Configurable product
@@ -415,31 +486,41 @@ class ProductAttributeController extends Controller
 			$error_message = '';
 			$updated_product = 0;
 			try {
-				$result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+				$result = $proxy->catalogProductUpdate($sessionId, $reference_sku, $productData);
 			} catch (\Exception $e) {
 				$error_message = $e->getMessage();
 			}
 
 			if ($error_message == 'Product not exists.') {
-				$productData['status'] = $product->isFinal ?? 2;
-				$productData['visibility'] = 4;
-				$productData['tax_class_id'] = 2;
-				$productData['weight'] = 0;
-
-				try {
-					$result = $proxy->catalogProductDelete($sessionId, $old_sku);
-
-					$deleted_count++;
-				} catch (\Exception $e) {
-					$error_message = $e->getMessage();
-				}
-
-				$result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, $sku, $productData);
+				// $productData['status'] = $product->isFinal ?? 2;
+				// $productData['visibility'] = 4;
+				// $productData['tax_class_id'] = 2;
+				// $productData['weight'] = 0;
+				//
+				// try {
+				// 	$result = $proxy->catalogProductDelete($sessionId, $old_sku);
+				//
+				// 	$deleted_count++;
+				// } catch (\Exception $e) {
+				// 	$error_message = $e->getMessage();
+				// }
+				//
+				// $result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, $sku, $productData);
 			} else {
 				$updated_product = 1;
 			}
 		} else {
 			$measurement = 'L-'.$product->lmeasurement.',H-'.$product->hmeasurement.',D-'.$product->dmeasurement;
+
+			if ($product->references) {
+				$reference_sku = $product->sku;
+				$reference_color = $product->color;
+
+				foreach ($product->references as $reference) {
+					$reference_sku = $reference->sku;
+					$reference_color = $reference->color;
+				}
+			}
 
 			$productData = array(
 				'categories'            => $categories,
@@ -479,7 +560,7 @@ class ProductAttributeController extends Controller
 			$error_message = '';
 			$updated_product = 0;
 			try {
-				$result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+				$result = $proxy->catalogProductUpdate($sessionId, $reference_sku . $reference_color, $productData);
 			} catch (\Exception $e) {
 				$error_message = $e->getMessage();
 			}
@@ -490,7 +571,7 @@ class ProductAttributeController extends Controller
 				$productData['tax_class_id'] = 2;
 				$productData['weight'] = 0;
 
-				$result = $proxy->catalogProductCreate($sessionId, 'simple', 4, $sku, $productData);
+				$result = $proxy->catalogProductCreate($sessionId, 'simple', 4, $reference_sku . $reference_color, $productData);
 			} else {
 				$updated_product = 1;
 			}
@@ -511,14 +592,18 @@ class ProductAttributeController extends Controller
 				try {
 					$result = $proxy->catalogProductAttributeMediaRemove(
 						$sessionId,
-						$sku,
+						$reference_sku . $reference_color,
 						$image_name
 					);
+
+					dump('ok');
 				} catch (\Exception $e) {
 
 				}
 			}
 		}
+
+		dd('stap');
 
 		foreach ($images as $image){
 
@@ -535,7 +620,7 @@ class ProductAttributeController extends Controller
 
 			$result = $proxy->catalogProductAttributeMediaCreate(
 				$sessionId,
-				$sku,
+				$reference_sku . $reference_color,
 				array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
 			);
 		}

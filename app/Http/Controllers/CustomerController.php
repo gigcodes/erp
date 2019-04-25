@@ -8,6 +8,9 @@ use App\Exports\CustomersExport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Mail\CustomerEmail;
+use App\Mail\RefundProcessed;
+use App\Mail\OrderConfirmation;
+use App\Mail\AdvanceReceipt;
 use Illuminate\Support\Facades\Mail;
 use App\Customer;
 use App\Suggestion;
@@ -24,6 +27,7 @@ use App\MessageQueue;
 use App\Message;
 use App\Helpers;
 use App\Reply;
+use App\Email;
 use App\Instruction;
 use App\ChatMessage;
 use App\ReplyCategory;
@@ -468,17 +472,52 @@ class CustomerController extends Controller
       $customer = Customer::find($request->customer_id);
 
       if ($request->type == 'inbox') {
-        $inbox = $imap->getFolder('INBOX');
-        $emails = $inbox->messages()->from($customer->email);
+        $inbox_name = 'INBOX';
+        $direction = 'from';
       } else {
-        $inbox = $imap->getFolder('INBOX.Sent');
-        $emails = $inbox->messages()->to($customer->email);
+        $inbox_name = 'INBOX.Sent';
+        $direction = 'to';
       }
 
+      $inbox = $imap->getFolder($inbox_name);
+
+      $emails = $inbox->messages()->where($direction, $customer->email);
       $emails = $emails->setFetchFlags(false)
                       ->setFetchBody(false)
-                      ->setFetchAttachment(false)->get()
-                      ->sortByDesc('date')->paginate(10);
+                      ->setFetchAttachment(false)->leaveUnread()->get();
+
+
+      $emails_array = [];
+      $count = 0;
+
+      foreach ($emails as $key => $email) {
+        $emails_array[$key]['uid'] = $email->getUid();
+        $emails_array[$key]['subject'] = $email->getSubject();
+        $emails_array[$key]['date'] = $email->getDate();
+
+        $count++;
+      }
+
+      if ($request->type != 'inbox') {
+        $db_emails = $customer->emails;
+
+        foreach ($db_emails as $key2 => $email) {
+          $emails_array[$count + $key2]['id'] = $email->id;
+          $emails_array[$count + $key2]['subject'] = $email->subject;
+          $emails_array[$count + $key2]['date'] = $email->created_at;
+        }
+      }
+
+      $emails_array = array_values(array_sort($emails_array, function ($value) {
+        return $value['date'];
+      }));
+
+      $emails_array = array_reverse($emails_array);
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      $perPage = 10;
+      $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
+      $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
 
       $view = view('customers.email', [
         'emails'  => $emails,
@@ -509,12 +548,34 @@ class CustomerController extends Controller
         $inbox->query();
       }
 
-      $email = $inbox->getMessage($uid = $request->uid, NULL, NULL, TRUE, TRUE, TRUE);
-
-      if ($email->hasHTMLBody()) {
-        $content = $email->getHTMLBody();
+      if ($request->email_type == 'server') {
+        $email = $inbox->getMessage($uid = $request->uid, NULL, NULL, TRUE, TRUE, TRUE);
+        // dd($email);
+        if ($email->hasHTMLBody()) {
+          $content = $email->getHTMLBody();
+        } else {
+          $content = $email->getTextBody();
+        }
       } else {
-        $content = $email->getTextBody();
+        $email = Email::find($request->uid);
+
+        if ($email->template == 'customer-simple') {
+          $content = (new CustomerEmail($email->subject, $email->message))->render();
+        } else if ($email->template == 'refund-processed') {
+          $details = json_decode($email->additional_data, true);
+
+          $content = (new RefundProcessed($details['order_id'], $details['product_names']))->render();
+        } else if ($email->template == 'order-confirmation') {
+          $order = Order::find($email->additional_data);
+
+          $content = (new OrderConfirmation($order))->render();
+        } else if ($email->template == 'advance-receipt') {
+          $order = Order::find($email->additional_data);
+
+          $content = (new AdvanceReceipt($order))->render();
+        } else {
+          $content = 'No Template';
+        }
       }
 
       return response()->json(['email' => $content]);
@@ -530,6 +591,19 @@ class CustomerController extends Controller
       $customer = Customer::find($request->customer_id);
 
       Mail::to($customer->email)->send(new CustomerEmail($request->subject, $request->message));
+
+      $params = [
+        'model_id'        => $customer->id,
+        'model_type'      => Customer::class,
+        'from'            => 'customercare@sololuxury.co.in',
+        'to'              => $customer->email,
+        'subject'         => $request->subject,
+        'message'         => $request->message,
+        'template'				=> 'customer-simple',
+        'additional_data'	=> ''
+      ];
+
+      Email::create($params);
 
       return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully sent an email!');
     }
