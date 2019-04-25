@@ -124,8 +124,8 @@ class Kernel extends ConsoleKernel
         // Updates Magento Products status on ERP
         // $schedule->command('update:magento-product-status')->dailyAt(03);
 
-        $schedule->command('post:scheduled-media')
-            ->everyMinute();
+//        $schedule->command('post:scheduled-media')
+//            ->everyMinute();
 
         $schedule->command('check:user-logins')->everyMinute();
         $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
@@ -137,22 +137,22 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
 
         $schedule->command('gebnegozionline:get-products-list')
-            ->everyMinute()
-            ->withoutOverlapping()
-        ;
-
-        $schedule->command('gebnegozionline:get-products-detail')
-            ->everyFiveMinutes()
-            ->withoutOverlapping()
-        ;
-
-        $schedule->command('gnb:update-price-via-dusk')
             ->hourly()
             ->withoutOverlapping()
         ;
 
+        $schedule->command('gebnegozionline:get-products-detail')
+            ->everyThirtyMinutes()
+            ->withoutOverlapping()
+        ;
+
+//        $schedule->command('gnb:update-price-via-dusk')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
+
         $schedule->command('enrich:wiseboutique')
-            ->everyMinute()
+            ->hourly()
             ->withoutOverlapping()
         ;
 
@@ -162,22 +162,22 @@ class Kernel extends ConsoleKernel
         ;
 
         $schedule->command('scrap:doublef-list')
-            ->everyMinute()
+            ->hourly()
             ->withoutOverlapping()
         ;
 
         $schedule->command('doublef:get-product-details')
-            ->everyFifteenMinutes()
+            ->hourly()
             ->withoutOverlapping()
         ;
 
         $schedule->command('scrap:wiseboutique-list')
-            ->everyMinute()
+            ->hourly()
             ->withoutOverlapping()
         ;
 
         $schedule->command('scrap:tory-list')
-            ->everyMinute()
+            ->hourly()
             ->withoutOverlapping()
         ;
 
@@ -186,11 +186,11 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
         ;
 
-        $schedule->command('image:create-schedule')->dailyAt(14);
-        $schedule->command('image:create-schedule')->dailyAt(17);
-        $schedule->command('image:create-schedule')->dailyAt(20);
+//        $schedule->command('image:create-schedule')->dailyAt(14);
+//        $schedule->command('image:create-schedule')->dailyAt(17);
+//        $schedule->command('image:create-schedule')->dailyAt(20);
         $schedule->command('inventory:refresh-stock')->dailyAt(12);
-        $schedule->command('gnb:get-sku')->everyMinute();
+        $schedule->command('gnb:get-sku')->hourly();
         // $schedule->command('create:scraped-products')->everyMinute();
 
 //        $schedule->command('sync:instagram-messages')
