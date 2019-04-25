@@ -13,14 +13,21 @@ class BroadcastMessageController extends Controller
   public function index(Request $request)
   {
     $date = $request->sending_time ?? Carbon::now()->format('Y-m-d');
+    $month_back = Carbon::parse($date)->subMonth();
+
     $message_queues = MessageQueue::latest()->where('sending_time', 'LIKE', "%$date%")->paginate(Setting::get('pagination'));
     $last_group_id = MessageQueue::max('group_id');
-    $last_set_completed = MessageQueue::where('group_id', $last_group_id)->where('sent', 1);
+    $last_set_completed = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->where('sent', 1);
     $last_set_stopped_count = MessageQueue::where('group_id', $last_group_id)->where('status', 1)->count();
     $last_set_completed_count = $last_set_completed->count();
-    $last_set_received_count = MessageQueue::with('chat_message')->where('group_id', $last_group_id)->whereHas('chat_message', function ($query) {
+    $last_set_received_count = MessageQueue::with('chat_message')->where('sending_time', '>', "$month_back 00:00:00")->whereHas('chat_message', function ($query) {
       $query->where('sent', 1);
     })->count();
+
+    $message_groups = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->where('sent', 0)->get()->groupBy(['group_id', 'status']);
+
+    // dd($message_groups);
+
 
     if ($last_set_stopped_count > 0) {
       $last_stopped = true;
@@ -32,6 +39,7 @@ class BroadcastMessageController extends Controller
 
     return view('customers.broadcast', [
       'message_queues'            => $message_queues,
+      'message_groups'            => $message_groups,
       'date'                      => $date,
       'last_set_completed'        => $last_set_completed,
       'last_stopped'              => $last_stopped,
@@ -74,7 +82,7 @@ class BroadcastMessageController extends Controller
   {
     $last_group_id = MessageQueue::max('group_id');
 
-    $last_set_stopped = MessageQueue::where('group_id', $last_group_id)->where('status', 1)->get();
+    $last_set_stopped = MessageQueue::where('group_id', $last_group_id)->where('status', 1)->where('sent', 0)->get();
 
     foreach ($last_set_stopped as $set) {
       $set->status = 0;
@@ -82,5 +90,28 @@ class BroadcastMessageController extends Controller
     }
 
     return redirect()->route('broadcast.index')->withSuccess('You have successfully restarted last set!');
+  }
+
+  public function restartGroup(Request $request, $id)
+  {
+    $group = MessageQueue::where('group_id', $id)->where('status', 1)->where('sent', 0)->get();
+
+    foreach ($group as $set) {
+      $set->status = 0;
+      $set->save();
+    }
+
+    return redirect()->route('broadcast.index')->withSuccess('You have successfully restarted group!');
+  }
+
+  public function stopGroup(Request $request, $id) {
+    $message_queues = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 0)->get();
+
+    foreach ($message_queues as $message_queue) {
+      $message_queue->status = 1;
+      $message_queue->save();
+    }
+
+    return redirect()->route('broadcast.index')->with('success', 'Broadcast group has been stopped!');
   }
 }

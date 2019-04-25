@@ -53,39 +53,66 @@
             </div>
 
             <div class="pull-right">
-              @if ($last_stopped)
+              {{-- @if ($last_stopped)
                 <form action="{{ route('broadcast.restart') }}" method="POST">
                   @csrf
 
                   <button type="submit" class="btn btn-secondary">Restart Last Set</button>
                 </form>
-              @endif
+              @endif --}}
+
+              <a href="{{ route('customer.whatsapp.stop.all') }}" class="btn btn-secondary">STOP ALL</a>
             </div>
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
-    @if ($message = Session::get('warning'))
-        <div class="alert alert-warning">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    <div class="form-group">
+      <ul>
+        @foreach ($message_groups as $group_id => $group)
+          <li>
+            <strong>Group ID {{ $group_id }}</strong>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+            @foreach ($group as $status => $messages)
+              @if ($status == 0)
+                @php
+                  $can_be_stopped = true;
+                @endphp
+              @else
+                @php
+                  $can_be_stopped = false;
+                @endphp
+              @endif
+            @endforeach
+
+            @if ($can_be_stopped)
+              <div class="my-1">
+                <strong>Preview:</strong>
+                {{ json_decode($group[0][0]->data, true)['message'] }}
+              </div>
+
+              <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
+                @csrf
+
+                <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
+              </form>
+            @else
+              <div class="my-1">
+                <strong>Preview:</strong>
+                {{ json_decode($group[1][0]->data, true)['message'] }}
+              </div>
+
+              <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
+                @csrf
+
+                <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
+              </form>
+            @endif
+          </li>
+        @endforeach
+      </ul>
+    </div>
 
     <div id="exTab2" class="container">
       <ul class="nav nav-tabs">
