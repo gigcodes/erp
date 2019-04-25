@@ -24,12 +24,14 @@
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <script>
         let Laravel = {};
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}
 
     {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script> --}}
@@ -1388,12 +1390,31 @@
 
     </nav>
 
+    <div class="float-container instruction-float">
+      @php
+        $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
+        $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
+        $other_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->whereNull('completed_at')->count();
+      @endphp
+
+      <a href="{{ route('instruction.index') }}">
+        <span class="badge badge-task-pending">{{ $pending_instructions_count }}</span>
+      </a>
+
+      <a href="{{ route('instruction.index') }}#verify-instructions">
+        <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
+      </a>
+
+      <a href="#notyet">
+        <span class="badge badge-task-other">{{ $other_pending_instructions_count }}</span>
+      </a>
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
+    </div>
+
     <div class="float-container">
       @php
-        $tasks_query = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id());
-
-        $pending_tasks_count = $tasks_query->whereNull('is_completed')->count();
-        $completed_tasks_count = $tasks_query->whereNotNull('is_completed')->count();
+        $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
+        $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
         $other_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_from', Auth::id())->whereNull('is_completed')->count();
       @endphp
 
@@ -1411,63 +1432,8 @@
       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
     </div>
 
-    <div id="quickTaskModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <form action="{{ route('task.store') }}" method="POST" id="quickTaskForm">
-            @csrf
-            <input type="hidden" name="is_statutory" value="0">
-
-            <div class="modal-header">
-              <h4 class="modal-title">Store a Task</h4>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                <strong>Task Subject:</strong>
-                <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" value="{{ old('task_subject') }}" id="quick_task_subject" required />
-                @if ($errors->has('task_subject'))
-                  <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
-                @endif
-              </div>
-
-              <div class="form-group">
-                <strong>Task Details:</strong>
-                <textarea class="form-control" name="task_details" placeholder="Task Details" id="quick_task_details" required>{{ old('task_details') }}</textarea>
-                @if ($errors->has('task_details'))
-                  <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
-                @endif
-              </div>
-
-              <div class="form-group">
-                  <strong>Assigned To:</strong>
-                  @php
-                    $quick_task_users = \App\User::all();
-                  @endphp
-
-                  <select class="selectpicker form-control" data-live-search="true" data-size="15" id="quick_task_assign_to" name="assign_to[]" title="Choose a User" required>
-                    @foreach ($quick_task_users as $user)
-                      <option data-tokens="{{ $user['name'] }} {{ $user['email'] }}" value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
-                    @endforeach
-                  </select>
-
-                  @if ($errors->has('assign_to'))
-                    <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
-                  @endif
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary" id="quickTaskSubmit">Add</button>
-            </div>
-          </form>
-        </div>
-
-      </div>
-    </div>
-
+    @include('partials.modals.quick-task')
+    @include('partials.modals.quick-instruction')
 
     <main class="container">
 

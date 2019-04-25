@@ -135,6 +135,10 @@ class InstructionController extends Controller
   			app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
       }
 
+      if ($request->ajax()) {
+        return response('success');
+      }
+
       return back()->with('success', 'You have successfully created instruction!');
     }
 

@@ -722,5 +722,13 @@
 
       $('#verifySelectedForm').submit();
     });
+
+    $(document).ready(function() {
+      var hash = window.location.hash.substr(1);
+
+      if (hash == 'verify-instructions') {
+        $('a[href="#verify-instructions"]').click();
+      }
+    });
   </script>
 @endsection
