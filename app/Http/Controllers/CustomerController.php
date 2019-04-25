@@ -11,6 +11,7 @@ use App\Mail\CustomerEmail;
 use App\Mail\RefundProcessed;
 use App\Mail\OrderConfirmation;
 use App\Mail\AdvanceReceipt;
+use App\Mail\IssueCredit;
 use Illuminate\Support\Facades\Mail;
 use App\Customer;
 use App\Suggestion;
@@ -672,6 +673,7 @@ class CustomerController extends Controller
             'city'          => 'sometimes|nullable|min:3|max:255',
             'country'       => 'sometimes|nullable|min:2|max:255',
             'pincode'       => 'sometimes|nullable|max:6',
+            'credit'        => 'sometimes|nullable|numeric',
         ]);
 
         $customer->name = $request->name;
@@ -686,6 +688,7 @@ class CustomerController extends Controller
         $customer->city = $request->city;
         $customer->country = $request->country;
         $customer->pincode = $request->pincode;
+        $customer->credit = $request->credit;
 
         $customer->save();
 
@@ -709,6 +712,20 @@ class CustomerController extends Controller
       $customer->save();
 
       return response('success');
+    }
+
+    public function issueCredit(Request $request)
+    {
+      $customer = Customer::find($request->customer_id);
+
+      Mail::to($customer->email)->send(new IssueCredit($customer));
+
+      CommunicationHistory::create([
+				'model_id'		=> $customer->id,
+				'model_type'	=> Customer::class,
+				'type'				=> 'issue-credit',
+				'method'			=> 'email'
+			]);
     }
 
     public function sendSuggestion(Request $request)

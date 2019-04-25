@@ -78,6 +78,11 @@ class Customer extends Model
 		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest();
 	}
 
+  public function credits_issued()
+	{
+		return $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'issue-credit');
+	}
+
 	public function instagramThread() {
       return $this->hasOne(InstagramThread::class);
     }

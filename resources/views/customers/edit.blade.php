@@ -136,6 +136,16 @@
 
 		<div class="col-xs-12 col-sm-8 col-sm-offset-2">
 			<div class="form-group">
+				<strong>Credit:</strong>
+				<input type="number" class="form-control" name="credit" value="{{ $customer->credit }}" />
+				@if ($errors->has('credit'))
+				<div class="alert alert-danger">{{$errors->first('credit')}}</div>
+				@endif
+			</div>
+		</div>
+
+		<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+			<div class="form-group">
 				<input type="checkbox" name="do_not_disturb" id="do_not_disturb" {{ $customer->do_not_disturb ? 'checked' : '' }}>
 				<label for="do_not_disturb">Do Not Disturb</label>
 			</div>
