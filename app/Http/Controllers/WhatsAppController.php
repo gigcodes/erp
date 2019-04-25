@@ -315,7 +315,7 @@ ORDER BY
             $messages[] = $message;
         }
 
-        dd($messages);
+        return $messages;
 
     }
 
