@@ -290,6 +290,7 @@ class ScrapController extends Controller
                 'id' => $product->id,
                 'sku' => $product->sku,
                 'brand' => $product->brands->name,
+                'url' => $product->url
             ];
         }
 
@@ -303,8 +304,13 @@ class ScrapController extends Controller
             'images' => 'required|array'
         ]);
 
+        $website = str_replace(' ', '', $request->get('website'));
+
         $product = Product::find($request->get('id'));
-        $images = $this->downloadImagesForSites($request->get('images'), $request->get('website'));
+        $images = $this->downloadImagesForSites($request->get('images'), $website);
+        $product->detachMediaTags(config('constants.media_tags'));
+
+        $downloadedImages = $images;
 
         foreach ($images as $image_name) {
             // Storage::disk('uploads')->delete('/social-media/' . $image_name);
@@ -393,7 +399,6 @@ class ScrapController extends Controller
 
     private function downloadImagesForSites($data, $prefix = 'img'): array
     {
-
         $images = [];
         foreach ($data as $key=>$datum) {
             try {

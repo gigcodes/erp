@@ -23,3 +23,4 @@ Route::post('sync-product', 'ScrapController@syncGnbProducts');
 Route::post('scrap-products/add', 'ScrapController@syncProductsFromNodeApp');
 Route::post('add-product-entries', 'ScrapController@addProductEntries');
 Route::post('add-product-images', 'ScrapController@getProductsForImages');
+Route::post('save-product-images', 'ScrapController@saveImagesToProducts');

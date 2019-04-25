@@ -4,14 +4,26 @@ namespace App\Http\Controllers;
 
 use App\SocialTags;
 use Illuminate\Http\Request;
+use App\Services\Facebook\Facebook;
+
+
 
 class SocialTagsController extends Controller
 {
+
+    private $facebook;
+
+    public function __construct(Facebook $facebook)
+    {
+        $this->facebook = $facebook;
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
     {
         $tags = SocialTags::all();
@@ -57,6 +69,10 @@ class SocialTagsController extends Controller
     public function show($id)
     {
         $tag = SocialTags::findOrFail($id);
+
+        $data = $this->facebook->getMentions($tag);
+
+        dd($data);
 
         return view('socialtags.scraped_images', compact('tag'));
     }

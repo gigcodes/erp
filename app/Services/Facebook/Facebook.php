@@ -28,6 +28,14 @@ class Facebook {
         $this->page_id= '507935072915757';
         $this->ad_acc_id= 'act_128125721296439';
         $this->instagram_id = '17841406743743390';
+        // 291175945035620 ;  business id
+    }
+
+    public function getMentions($tag) {
+        $tagText = $tag->name;
+        $data = $this->facebook->get('ig_hashtag_search?user_id='.$this->instagram_id.'&q='.$tagText, '10606198004.0912694.8a4c5161260e41bb87fd646638d27093'  );
+
+        dd($data);
     }
 
     public function postMedia($images, $message = ''): void
