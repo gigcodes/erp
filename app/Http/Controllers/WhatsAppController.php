@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\URL;
 use Twilio\Jwt\ClientToken;
 use Twilio\Twiml;
 use Twilio\Rest\Client;
@@ -301,10 +302,15 @@ ORDER BY
         $messages = [];
 
         foreach ($data as $datum) {
+
+            $images = Media::whereIn('id', explode(',', $datum->media_ids))->get(['disk', 'filename', 'extension'])->toArray();
+            $images = array_map(function($item) {
+                return URL::to('/') . '/' . $item['disk'] . '/' . $item['filename'] . '.' . $item['extension'];
+            }, $images);
             $message = [
                 'id' => $datum->id,
                 'message' => $datum->message,
-                'medias' => Media::whereIn('id', explode(',', $datum->media_ids))->get(['disk', 'filename', 'extension'])->toArray()
+                'images' => $images
             ];
             $messages[] = $message;
         }
