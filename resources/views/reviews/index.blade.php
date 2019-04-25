@@ -47,6 +47,7 @@
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#accountCreateModal">Create Account</a>
               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#scheduleReviewModal">Schedule Review</a>
+              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#complaintCreateModal">Create Complaint</a>
             </div>
         </div>
     </div>
@@ -63,6 +64,9 @@
         </li>
         <li>
           <a href="#posted_tab" data-toggle="tab">Posted Reviews</a>
+        </li>
+        <li>
+          <a href="#complaints_tab" data-toggle="tab">Customer Complaints</a>
         </li>
       </u>
     </div>
@@ -257,11 +261,58 @@
 
         {!! $posted_reviews->appends(Request::except('posted-page'))->links() !!}
       </div>
+
+      <div class="tab-pane mt-3" id="complaints_tab">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Platform</th>
+                <th>Conversation thread</th>
+                <th>Link</th>
+                <th>Notes & Instructions</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @foreach ($complaints as $complaint)
+                <tr>
+                  <td>{{ \Carbon\Carbon::parse($complaint->date)->format('d-m') }}</td>
+                  <td>
+                    @if ($complaint->customer)
+                      <a href="{{ route('customer.show', $complaint->customer->id) }}" target="_blank">{{ $complaint->customer->name }}</a>
+                    @endif
+                  </td>
+                  <td>{{ ucwords($complaint->platform) }}</td>
+                  <td>{{ $complaint->complaint }}</td>
+                  <td>
+                    <a href="{{ $complaint->link }}" target="_blank">{{ $complaint->link }}</a>
+                  </td>
+                  <td></td>
+                  <td>
+                    <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}"><img src="/images/edit.png" /></button>
+
+                    {!! Form::open(['method' => 'DELETE','route' => ['complaint.destroy', $complaint->id],'style'=>'display:inline']) !!}
+                      <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                    {!! Form::close() !!}
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+
+        {!! $complaints->appends(Request::except('complaints-page'))->links() !!}
+      </div>
     </div>
 
     @include('reviews.partials.account-modals')
     @include('reviews.partials.review-schedule-modals')
     @include('reviews.partials.review-modals')
+    @include('reviews.partials.complaint-modals')
 
 @endsection
 
@@ -271,7 +322,7 @@
 
   <script type="text/javascript">
     $(document).ready(function() {
-      $('#birthday-datetime, #account_birthday, #review_date, #edit_review_date, #edit_posted_date, #filter_posted_date').datetimepicker({
+      $('#birthday-datetime, #account_birthday, #review_date, #edit_review_date, #edit_posted_date, #filter_posted_date, #complaint_date').datetimepicker({
         format: 'YYYY-MM-DD'
       });
     });
@@ -314,6 +365,10 @@
 
     $(document).on('click', '.edit-review', function() {
       fillEditReview(this);
+    });
+
+    $(document).on('click', '.edit-complaint', function() {
+      fillEditComplaint(this);
     });
 
     $(document).on('change', '.update-schedule-status', function() {
@@ -433,6 +488,18 @@
       $('#edit_review_link').val(review.review_link);
       $('#edit_review_account option[value="' + review.account_id + '"]').prop('selected', true);
       $('#edit_customer_id option[value="' + review.customer_id + '"]').prop('selected', true);
+    }
+
+    function fillEditComplaint(thiss) {
+      var complaint = $(thiss).data('complaint');
+      var url = "{{ url('complaint') }}/" + complaint.id;
+
+      $('#complaintEditModal form').attr('action', url);
+      $('#complaint_customer_id option[value="' + complaint.customer_id + '"]').prop('selected', true);
+      $('#edit_complaint_date input').val(complaint.date);
+      $('#complaint_platform option[value="' + complaint.platform + '"]').prop('selected', true);
+      $('#complaint_complaint').val(complaint.complaint);
+      $('#complaint_link').val(complaint.link);
     }
 
     // $(document).on('keyup', '.review-input-field', function() {

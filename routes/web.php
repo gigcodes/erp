@@ -194,7 +194,6 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('broadcast/restart', 'BroadcastMessageController@restart')->name('broadcast.restart');
 	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
 
-
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
 	Route::post('purchase/export', 'PurchaseController@export')->name('purchase.export');
 	Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');
@@ -388,6 +387,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('account/create', 'ReviewController@accountStore')->name('account.store');
 	Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
 	Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
+
+	// Complaints Routes
+	Route::resource('complaint', 'ComplaintController');
 
 	// Vendor Module
 	Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
