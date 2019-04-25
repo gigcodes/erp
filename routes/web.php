@@ -485,3 +485,5 @@ Route::prefix('scrap')->group(function () {
 });
 
 Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
+
+Route::get('test', 'WhatsAppController@getAllMessages');

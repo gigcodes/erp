@@ -26,7 +26,7 @@ class GetImagesBySku extends Scraper
         'farfetch' => 'https://www.farfetch.com/it/shopping/tops-1/items.aspx?q={QUERY}'
     ];
 
-    public function scrap()
+    public function scrap($yo)
     {
         $products = Product::where('brand', 18)->get();
 

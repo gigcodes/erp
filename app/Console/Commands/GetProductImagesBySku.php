@@ -43,6 +43,6 @@ class GetProductImagesBySku extends Command
      */
     public function handle()
     {
-        $this->scraper->scrap();
+        $this->scraper->scrap($this);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\URL;
 use Twilio\Jwt\ClientToken;
 use Twilio\Twiml;
 use Twilio\Rest\Client;
@@ -246,6 +247,79 @@ class WhatsAppController extends FindByNumberController
 
     return response("");
     }
+    public function getAllMessages(Request $request) {
+        $cid = $request->get('customerId');
+        $sql = "SELECT
+    all_messages.*
+FROM
+    (
+    SELECT
+        messages.`id`,
+        `customer_id`,
+        `body` AS message,
+        'messages' AS `table_name`,
+        (
+        SELECT
+            GROUP_CONCAT(
+                DISTINCT mediables.media_id SEPARATOR ','
+            )
+        FROM
+            mediables
+        WHERE
+            mediables.mediable_id = messages.id
+    ) AS media_ids,
+    messages.`created_at`
+FROM
+    `messages`
+WHERE
+    $cid = `messages`.`customer_id`
+UNION
+SELECT
+    chat_messages.`id`,
+    `customer_id`,
+    `message`,
+    'chat_messages' AS `table_name`,
+    (
+    SELECT
+        GROUP_CONCAT(
+            DISTINCT mediables.media_id SEPARATOR ','
+        )
+    FROM
+        mediables
+    WHERE
+        mediables.mediable_id = chat_messages.id
+) AS media_ids,
+chat_messages.`created_at`
+FROM
+    `chat_messages`
+WHERE
+    $cid = `chat_messages`.`customer_id`
+) `all_messages`
+ORDER BY
+    all_messages.`created_at`";
+
+        $data = DB::select(DB::raw($sql));
+        $messages = [];
+
+        foreach ($data as $datum) {
+
+            $images = Media::whereIn('id', explode(',', $datum->media_ids))->get(['disk', 'filename', 'extension'])->toArray();
+            $images = array_map(function($item) {
+                return URL::to('/') . '/' . $item['disk'] . '/' . $item['filename'] . '.' . $item['extension'];
+            }, $images);
+            $message = [
+                'id' => $datum->id,
+                'message' => $datum->message,
+                'images' => $images
+            ];
+            $messages[] = $message;
+        }
+
+        dd($messages);
+
+    }
+
+
     /**
      * Send message
      *

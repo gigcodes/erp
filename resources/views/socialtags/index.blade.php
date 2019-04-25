@@ -35,7 +35,7 @@
                         <td>{{ $tag->name }}</td>
                         <td>
                             <a target="_new" href="https://www.facebook.com/hashtag/{{$tag->name}}" class="btn btn-primary">Show Facebook</a>&nbsp;
-                            <a target="_new" href="https://www.instagram.com/explore/tags/{{$tag->name}}" class="btn btn-warning">Show Instagram</a>&nbsp;
+                            <a target="_new" href="{{ action('SocialTagsController@show', $tag->id) }}" class="btn btn-warning">Show Instagram</a>&nbsp;
                             <a href="{{ action('SocialTagsController@edit', $tag->id) }}" class="btn btn-info">Edit</a>&nbsp;
                             <form style="display: inline" action="{{ action('SocialTagsController@destroy', $tag->id) }}" method="post">
                                 @method('delete')
