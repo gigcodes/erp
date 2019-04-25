@@ -274,6 +274,16 @@
 
                         <button type="submit" class="btn btn-image">Details</button>
                       </form>
+
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="instruction" value="Check for the Purchase">
+                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
+
+                        <button type="submit" class="btn btn-image">Check Purchase</button>
+                      </form>
                     </td>
                     <td>
                         <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
