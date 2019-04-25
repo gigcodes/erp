@@ -2521,7 +2521,7 @@
                  return new Promise(function(resolve, reject) {
                      $.getJSON("/whatsapp/pollMessagesCustomer" + qs, function( data ) {
 
-                         data.data.forEach(function( message ) {
+                         data.forEach(function( message ) {
                              var rendered = renderMessage( message, tobottom );
                              if ( !anyNewMessages && rendered ) {
                                  anyNewMessages = true;
@@ -2642,6 +2642,7 @@
                var current_page = $('#load-more-messages').data('nextpage');
                $('#load-more-messages').data('nextpage', current_page + 1);
                var next_page = $('#load-more-messages').data('nextpage');
+               console.log(next_page);
                $('#load-more-messages').text('Loading...');
 
                can_load_more = false;

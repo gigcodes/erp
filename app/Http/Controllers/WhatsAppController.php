@@ -250,59 +250,69 @@ class WhatsAppController extends FindByNumberController
     public function getAllMessages(Request $request) {
         $cid = $request->get('customerId');
         $sql = "SELECT
-    all_messages.*
-FROM
-    (
-    SELECT
-        messages.`id`,
-        `customer_id`,
-        `body` AS message,
-        'messages' AS `table_name`,
-        (
-        SELECT
-            GROUP_CONCAT(
-                DISTINCT mediables.media_id SEPARATOR ','
-            )
+            all_messages.*
         FROM
-            mediables
+            (
+            SELECT
+                messages.`id`,
+                `customer_id`,
+                `userid`,
+                `moduleid`,
+                `moduletype`,
+                `status`,
+                `body` AS message,
+                'messages' AS `table_name`,
+                (
+                SELECT
+                    GROUP_CONCAT(
+                        DISTINCT mediables.media_id SEPARATOR ','
+                    )
+                FROM
+                    mediables
+                WHERE
+                    mediables.mediable_id = messages.id
+            ) AS media_ids,
+            messages.`created_at`
+        FROM
+            `messages`
         WHERE
-            mediables.mediable_id = messages.id
-    ) AS media_ids,
-    messages.`created_at`
-FROM
-    `messages`
-WHERE
-    $cid = `messages`.`customer_id`
-UNION
-SELECT
-    chat_messages.`id`,
-    `customer_id`,
-    `message`,
-    'chat_messages' AS `table_name`,
-    (
-    SELECT
-        GROUP_CONCAT(
-            DISTINCT mediables.media_id SEPARATOR ','
-        )
-    FROM
-        mediables
-    WHERE
-        mediables.mediable_id = chat_messages.id
-) AS media_ids,
-chat_messages.`created_at`
-FROM
-    `chat_messages`
-WHERE
-    $cid = `chat_messages`.`customer_id`
-) `all_messages`
-ORDER BY
-    all_messages.`created_at`";
+            $cid = `messages`.`customer_id`
+        UNION
+        SELECT
+            chat_messages.`id`,
+            `number`,
+            `created_at`,
+            `approved`,
+            `status`,
+            `user_id`,
+            `sent`,
+            `customer_id`,
+            `message`,
+            'chat_messages' AS `table_name`,
+            (
+            SELECT
+                GROUP_CONCAT(
+                    DISTINCT mediables.media_id SEPARATOR ','
+                )
+            FROM
+                mediables
+            WHERE
+                mediables.mediable_id = chat_messages.id
+        ) AS media_ids,
+        chat_messages.`created_at`
+        FROM
+            `chat_messages`
+        WHERE
+            $cid = `chat_messages`.`customer_id`
+        ) `all_messages`
+        ORDER BY
+            all_messages.`created_at`";
 
         $data = DB::select(DB::raw($sql));
         $messages = [];
 
         foreach ($data as $datum) {
-
+          dd($datum);
             $images = Media::whereIn('id', explode(',', $datum->media_ids))->get(['disk', 'filename', 'extension'])->toArray();
             $images = array_map(function($item) {
                 return URL::to('/') . '/' . $item['disk'] . '/' . $item['filename'] . '.' . $item['extension'];
@@ -744,7 +754,9 @@ ORDER BY
     {
       $params = [];
       $result = [];
-      $messages = ChatMessage::where('customer_id', $request->customerId)->latest();
+      $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
+
+      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest()->skip($skip)->take(10);
 
       if ($request->get("elapse")) {
         $elapse = (int) $request->get("elapse");
@@ -765,6 +777,7 @@ ORDER BY
           'received' => $received,
           'number' => $message['number'],
           'created_at' => Carbon::parse($message['created_at'])->format('Y-m-d H:i:s'),
+          // 'created_at' => $message['created_at'],
           'approved' => $message['approved'],
           'status'  => $message['status'],
           'user_id' => $message['user_id'],
@@ -781,7 +794,7 @@ ORDER BY
           $messageParams['message'] = $message['message'];
         }
 
-        if ($message->getMedia(config('constants.media_tags'))->first()) {
+        if ($message->hasMedia(config('constants.media_tags'))) {
           $images_array = [];
 
           foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
@@ -823,7 +836,7 @@ ORDER BY
         $result[] = array_merge($params, $messageParams);
       }
 
-      $messages = Message::where('customer_id', $request->customerId)->orderBy("created_at", 'desc')->get();
+      $messages = Message::select(['id', 'customer_id', 'userid', 'status', 'assigned_to', 'body', 'created_at'])->where('customer_id', $request->customerId)->orderBy("created_at", 'desc')->skip($skip)->take(10)->get();
 
       foreach ($messages->toArray() as $key => $message) {
         $images_array = [];
@@ -868,18 +881,20 @@ ORDER BY
       }
 
       $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
-      $currentPage = LengthAwarePaginator::resolveCurrentPage();
-      $perPage = 10;
+      // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      // $perPage = 10;
 
       if ($request->page) {
-        $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+        // $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+
       } else {
-        $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+        // $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+        $result = array_reverse($result);
       }
 
-      $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
-        'path'	=> LengthAwarePaginator::resolveCurrentPath()
-      ]);
+      // $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
+      //   'path'	=> LengthAwarePaginator::resolveCurrentPath()
+      // ]);
 
       return response()->json($result);
     }
