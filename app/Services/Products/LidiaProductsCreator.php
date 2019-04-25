@@ -5,6 +5,7 @@ namespace App\Services\Products;
 use App\Brand;
 use App\Product;
 use App\Setting;
+use App\Category;
 use App\Supplier;
 use Validator;
 use Storage;
@@ -26,13 +27,16 @@ class LidiaProductsCreator
          $product = new Product;
        }
 
-       switch ($image->website) {
-         case 'lidiashopping':
-            $supplier = 'Lidia';
-            break;
-          default:
-            $supplier = '';
-       }
+      switch ($image->website) {
+        case 'lidiashopping':
+          $supplier = 'Lidia';
+          break;
+        case 'cuccuini':
+          $supplier = 'Cuccini';
+          break;
+        default:
+          $supplier = '';
+      }
 
        $product->sku = str_replace(' ', '', $image->sku);
        $product->brand = $image->brand_id;
@@ -94,6 +98,33 @@ class LidiaProductsCreator
 
        if (array_key_exists('color', $properties_array)) {
          $product->color = $properties_array['color'];
+       }
+
+       if (array_key_exists('COLORI', $properties_array)) {
+         $product->color = $properties_array['COLORI'];
+       }
+
+       if (array_key_exists('COMPOSIZIONE', $properties_array)) {
+         $product->composition = $properties_array['COMPOSIZIONE'];
+       }
+
+       if (array_key_exists('Category', $properties_array)) {
+         $categories = Category::all();
+         $category_id = 1;
+
+         foreach ($properties_array['Category'] as $cat) {
+           if ($cat == 'WOMAN') {
+             $cat = 'WOMEN';
+           }
+
+           foreach ($categories as $category) {
+             if (strtoupper($category->title) == $cat) {
+               $category_id = $category->id;
+             }
+           }
+         }
+
+         $product->category = $category_id;
        }
 
        if (array_key_exists('material_used', $properties_array)) {
