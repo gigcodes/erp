@@ -720,6 +720,20 @@ class CustomerController extends Controller
 
       Mail::to($customer->email)->send(new IssueCredit($customer));
 
+      $message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['customer_id' => $customer->id, 'message' => $message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+			CommunicationHistory::create([
+				'model_id'		=> $customer->id,
+				'model_type'	=> Customer::class,
+				'type'				=> 'issue-credit',
+				'method'			=> 'whatsapp'
+			]);
+
       CommunicationHistory::create([
 				'model_id'		=> $customer->id,
 				'model_type'	=> Customer::class,

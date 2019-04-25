@@ -80,7 +80,7 @@ class Customer extends Model
 
   public function credits_issued()
 	{
-		return $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'issue-credit');
+		return $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'issue-credit')->where('method', 'email');
 	}
 
 	public function instagramThread() {
