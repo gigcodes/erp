@@ -146,6 +146,19 @@
                                     @endif
                                 </div>
 
+                                <div class="form-group">
+                                    <strong>User for Check Purchase Shortcut:</strong>
+                                    <select class="selectpicker form-control" data-live-search="true" data-size="15" name="purchase_shortcut" title="Choose a User" required>
+                                        @foreach ($users_array as $index => $user)
+                                            <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}" {{ $index == $purchase_shortcut ? 'selected' : '' }}>{{ $user }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    @if ($errors->has('details_shortcut'))
+                                        <div class="alert alert-danger">{{$errors->first('details_shortcut')}}</div>
+                                    @endif
+                                </div>
+
                                 <hr>
 
                                 <div class="form-group">

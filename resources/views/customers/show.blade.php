@@ -203,7 +203,9 @@
         <div class="form-group">
           <strong>Name:</strong> {{ $customer->name }}
           @if ($customer->is_blocked == 1)
-            <span class="badge">Blocked</span>
+            <span class="badge badge-secondary">Blocked</span>
+          @else
+            <button type="button" class="btn btn-xs btn-secondary block-twilio" data-id="{{ $customer->id }}">Block on Twilio</button>
           @endif
         </div>
 
@@ -2521,7 +2523,7 @@
                  return new Promise(function(resolve, reject) {
                      $.getJSON("/whatsapp/pollMessagesCustomer" + qs, function( data ) {
 
-                         data.data.forEach(function( message ) {
+                         data.forEach(function( message ) {
                              var rendered = renderMessage( message, tobottom );
                              if ( !anyNewMessages && rendered ) {
                                  anyNewMessages = true;
@@ -2642,6 +2644,7 @@
                var current_page = $('#load-more-messages').data('nextpage');
                $('#load-more-messages').data('nextpage', current_page + 1);
                var next_page = $('#load-more-messages').data('nextpage');
+               console.log(next_page);
                $('#load-more-messages').text('Loading...');
 
                can_load_more = false;
@@ -3275,6 +3278,35 @@
             }));
           });
 
+        });
+      });
+
+      $(document).on('click', '.block-twilio', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.block') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Blocking...');
+          }
+        }).done(function(response) {
+          var badge = $('<span class="badge badge-secondary">Blocked</span>');
+
+          $(thiss).parent().append(badge);
+
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Block on Twilio');
+
+          alert('Could not block customer!');
+
+          console.log(response);
         });
       });
   </script>

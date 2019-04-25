@@ -1141,6 +1141,10 @@ form.display-inline{
   z-index: 10;
 }
 
+.instruction-float {
+  bottom: 80px;
+}
+
 .badge-task-pending {
   position: absolute;
   top: -10px;

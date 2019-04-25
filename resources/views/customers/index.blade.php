@@ -84,7 +84,15 @@
                 {{ ($customer->order_status && ($customer->order_status != 'Cancel' && $customer->order_status != 'Delivered')) ? 'text-success' : '' }}
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
-                    <td><a href="{{ route('customer.show', $customer->id) }}">{{ $customer->name }}</a></td>
+                    <td>
+                      <a href="{{ route('customer.show', $customer->id) }}">{{ $customer->name }}</a>
+
+                      @if ($customer->is_blocked == 1)
+                        <span class="badge badge-secondary">Blocked</span>
+                      @else
+                        <button type="button" class="btn btn-xs btn-secondary block-twilio" data-id="{{ $customer->id }}">Block on Twilio</button>
+                      @endif
+                    </td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                       <td>{{ $customer['email'] }}</td>
                       <td>{{ $customer['phone'] }}</td>
@@ -274,6 +282,20 @@
 
                         <button type="submit" class="btn btn-image">Details</button>
                       </form>
+
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="instruction" value="Check for the Purchase">
+                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
+
+                        <button type="submit" class="btn btn-image">Check Purchase</button>
+                      </form>
+
+                      <div class="d-inline">
+                        <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
+                      </div>
                     </td>
                     <td>
                         <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
@@ -629,6 +651,60 @@
           }, 2000);
         }).fail(function(errObj) {
           alert("Could not change status");
+        });
+      });
+
+      $(document).on('click', '.block-twilio', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.block') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Blocking...');
+          }
+        }).done(function(response) {
+          var badge = $('<span class="badge badge-secondary">Blocked</span>');
+
+          $(thiss).parent().append(badge);
+
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Block on Twilio');
+
+          alert('Could not block customer!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.send-instock-shortcut', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.send.instock') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Sending...');
+          }
+        }).done(function(response) {
+          $(thiss).text('Send In Stock');
+        }).fail(function(response) {
+          $(thiss).text('Block on Twilio');
+
+          alert('Could not block customer!');
+
+          console.log(response);
         });
       });
   </script>

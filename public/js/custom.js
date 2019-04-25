@@ -23,6 +23,28 @@ jQuery(document).ready(function () {
     });
   });
 
+  $('#quickInstructionSubmit').on('click', function(e) {
+    e.preventDefault();
+
+    var form = $('#quickInstructionForm');
+    var data = form.serialize();
+
+    $.ajax({
+      type: "POST",
+      url: "/instruction",
+      data: data
+    }).done(function() {
+      $('#quick_instruction_body').val('');
+      $('#quick_instruction_assiged_to select[value=""]');
+      $('#quick_instruction_assiged_to select[value=""]');
+
+      form.find('.close').click();
+    }).fail(function(response) {
+      alert('Could not create quick instruction!');
+      console.log(response);
+    });
+  });
+
     jQuery('li.notification-dropdown .dropdown-toggle').on('click', function (event) {
         event.preventDefault();
         jQuery(this).parent().toggleClass('show');

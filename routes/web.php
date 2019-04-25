@@ -81,6 +81,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 //	Route::resource('task','TaskController');
 
 	// Instruction
+	Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
 	Route::resource('instruction','InstructionController');
 	Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
 	Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
@@ -173,6 +174,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('customer/merge', 'CustomerController@merge')->name('customer.merge');
 	Route::post('customer/import', 'CustomerController@import')->name('customer.import');
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
+	Route::post('customer/block', 'CustomerController@block')->name('customer.block');
 	Route::post('customer/create', 'CustomerController@store')->name('customer.store');
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
 	Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
@@ -185,12 +187,12 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('customer/email/inbox', 'CustomerController@emailInbox')->name('customer.email.inbox');
 	Route::post('customer/email/send', 'CustomerController@emailSend')->name('customer.email.send');
 	Route::post('customer/send/suggestion', 'CustomerController@sendSuggestion')->name('customer.send.suggestion');
+	Route::post('customer/send/instock', 'CustomerController@sendInstock')->name('customer.send.instock');
 
 	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
 	Route::post('broadcast/restart', 'BroadcastMessageController@restart')->name('broadcast.restart');
 	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
-
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
 	Route::post('purchase/export', 'PurchaseController@export')->name('purchase.export');
@@ -385,6 +387,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('account/create', 'ReviewController@accountStore')->name('account.store');
 	Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
 	Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
+
+	// Complaints Routes
+	Route::resource('complaint', 'ComplaintController');
 
 	// Vendor Module
 	Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');

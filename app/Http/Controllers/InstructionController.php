@@ -82,6 +82,60 @@ class InstructionController extends Controller
       ]);
     }
 
+    public function list(Request $request)
+    {
+      $orderby = 'desc';
+
+      if($request->orderby == '') {
+        $orderby = 'asc';
+      }
+
+      if ($request->user[0] != null) {
+        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->where('assigned_from', Auth::id())->orderBy('created_at', $orderby)->get()->toArray();
+        $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->where('assigned_from', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
+        $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->where('assigned_from', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
+        $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->where('assigned_from', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+      } else {
+        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('created_at', $orderby)->get()->toArray();
+        $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
+        $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_from', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
+        $completed_instructions = Instruction::where('verified', 1)->where('assigned_from', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+      }
+
+      $users_array = Helpers::getUserArray(User::all());
+      $user = $request->user ? $request->user : [];
+
+      if ($request->sortby != 'created_at') {
+        $instructions = array_values(array_sort($instructions, function ($value) {
+          if ($value['remarks']) {
+            return $value['remarks'][0]['created_at'];
+          }
+
+          return NULL;
+  			}));
+      }
+
+      $instructions = array_reverse($instructions);
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		$perPage = Setting::get('pagination');
+  		$currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
+
+  		$instructions = new LengthAwarePaginator($currentItems, count($instructions), $perPage, $currentPage, [
+  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		]);
+
+      return view('instructions.list')->with([
+        'instructions'            => $instructions,
+        'pending_instructions'    => $pending_instructions,
+        'verify_instructions'     => $verify_instructions,
+        'completed_instructions'  => $completed_instructions,
+        'users_array'             => $users_array,
+        'user'                    => $user,
+        'orderby'                 => $orderby
+      ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -133,6 +187,10 @@ class InstructionController extends Controller
 
         app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
   			app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
+      }
+
+      if ($request->ajax()) {
+        return response('success');
       }
 
       return back()->with('success', 'You have successfully created instruction!');

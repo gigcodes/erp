@@ -33,19 +33,21 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
       foreach ($purchases as $purchase) {
         foreach ($purchase->products as $product) {
           foreach ($product->orderproducts as $order_product) {
-            $path = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
-            $this->path[] = $path;
+            if ($order_product->purchase_status == 'Ordered') {
+              $path = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+              $this->path[] = $path;
 
-            $products_array[$this->count]['image'] = 'Image.......';
-            $products_array[$this->count]['size'] = $order_product->size;
-            $products_array[$this->count]['sku'] = $product->sku;
-            $products_array[$this->count]['price'] = $product->price;
-            $products_array[$this->count]['discount'] = $product->percentage . "%";
-            $products_array[$this->count]['qty'] = $order_product->qty;
-            $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $order_product->qty;
-            // $products_array[$this->count]['client_name'] = $order_product->order ? ($order_product->order->customer ? $order_product->order->customer->name : 'No Customer') : 'No Order';
+              $products_array[$this->count]['image'] = 'Image.......';
+              $products_array[$this->count]['size'] = $order_product->size;
+              $products_array[$this->count]['sku'] = $product->sku;
+              $products_array[$this->count]['price'] = $product->price;
+              $products_array[$this->count]['discount'] = $product->percentage . "%";
+              $products_array[$this->count]['qty'] = $order_product->qty;
+              $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $order_product->qty;
+              // $products_array[$this->count]['client_name'] = $order_product->order ? ($order_product->order->customer ? $order_product->order->customer->name : 'No Customer') : 'No Order';
 
-            $this->count++;
+              $this->count++;
+            }
           }
         }
       }

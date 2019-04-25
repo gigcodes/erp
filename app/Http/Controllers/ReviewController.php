@@ -7,6 +7,7 @@ use App\Account;
 use App\Setting;
 use App\ReviewSchedule;
 use App\Review;
+use App\Complaint;
 use App\Customer;
 
 class ReviewController extends Controller
@@ -42,6 +43,8 @@ class ReviewController extends Controller
         $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->whereHas('review_schedule', function ($query) use ($request) {
           return $query->where('platform', $request->platform);
         });
+
+        $complaints = Complaint::where('platform', $request->platform);
       } else {
         $accounts = Account::latest()->paginate(Setting::get('pagination'));
       }
@@ -50,16 +53,19 @@ class ReviewController extends Controller
         if ($request->platform != null) {
           $review_schedules = $review_schedules->where('posted_date', $request->posted_date);
           $posted_reviews = $posted_reviews->where('posted_date', $request->posted_date);
+          $complaints = $complaints->where('date', $request->posted_date);
         } else {
           $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('posted_date', $request->posted_date);
           // $posted_reviews = ReviewSchedule::where('status', 'posted')->where('posted_date', $request->posted_date);
           $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->where('posted_date', $request->posted_date);
+          $complaints = Complaint::where('date', $request->posted_date);
         }
       }
 
       if ($request->platform == null && $request->posted_date == null) {
         $review_schedules = ReviewSchedule::where('status', '!=', 'posted');
         $posted_reviews = Review::with('review_schedule')->where('status', 'posted');
+        $complaints = (new Complaint)->newQuery();
       }
 
       $review_schedules = $review_schedules->orWhere(function ($query) {
@@ -67,7 +73,9 @@ class ReviewController extends Controller
           return $q->where('is_approved', 0)->orWhere('is_approved', 2);
         });
       })->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
+
       $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
+      $complaints = $complaints->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
 
       $customers = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
 
@@ -76,6 +84,7 @@ class ReviewController extends Controller
         'customers'           => $customers,
         'review_schedules'    => $review_schedules,
         'posted_reviews'      => $posted_reviews,
+        'complaints'      => $complaints,
         'filter_platform'     => $filter_platform,
         'filter_posted_date'  => $filter_posted_date
       ]);
