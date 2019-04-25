@@ -187,6 +187,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('customer/email/inbox', 'CustomerController@emailInbox')->name('customer.email.inbox');
 	Route::post('customer/email/send', 'CustomerController@emailSend')->name('customer.email.send');
 	Route::post('customer/send/suggestion', 'CustomerController@sendSuggestion')->name('customer.send.suggestion');
+	Route::post('customer/send/instock', 'CustomerController@sendInstock')->name('customer.send.instock');
 
 	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');

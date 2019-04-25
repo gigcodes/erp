@@ -269,6 +269,29 @@ class CustomerController extends Controller
       return response('success');
     }
 
+    public function sendInstock(Request $request)
+    {
+      $customer = Customer::find($request->customer_id);
+
+      $products = Product::where('supplier', 'In-stock')->latest()->get();
+
+      $params = [
+       'customer_id'  => $customer->id,
+       'number'       => NULL,
+       'user_id'      => Auth::id(),
+       'message'      => 'In Stock Products',
+       'status'       => 1
+      ];
+
+      $chat_message = ChatMessage::create($params);
+
+      foreach ($products as $product) {
+        $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
+      }
+
+      return response('success');
+    }
+
     public function load(Request $request)
     {
         $first_customer = Customer::find($request->first_customer);

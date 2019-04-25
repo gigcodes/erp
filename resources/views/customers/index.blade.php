@@ -292,6 +292,10 @@
 
                         <button type="submit" class="btn btn-image">Check Purchase</button>
                       </form>
+
+                      <div class="d-inline">
+                        <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
+                      </div>
                     </td>
                     <td>
                         <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
@@ -670,6 +674,31 @@
           $(thiss).parent().append(badge);
 
           $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Block on Twilio');
+
+          alert('Could not block customer!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.send-instock-shortcut', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.send.instock') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Sending...');
+          }
+        }).done(function(response) {
+          $(thiss).text('Send In Stock');
         }).fail(function(response) {
           $(thiss).text('Block on Twilio');
 
