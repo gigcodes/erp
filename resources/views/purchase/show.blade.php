@@ -135,8 +135,12 @@
         @foreach ($order->products as $product)
           @foreach ($product->orderproducts as $order_product)
             <li>
-              <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
-               - ({{ $order_product->purchase_status }})
+              @if ($order_product->order && $order_product->order->customer)
+                <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
+                 - ({{ $order_product->purchase_status }})
+               @else
+                 No Customer
+               @endif
             </li>
           @endforeach
         @endforeach
