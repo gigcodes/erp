@@ -174,6 +174,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('customer/merge', 'CustomerController@merge')->name('customer.merge');
 	Route::post('customer/import', 'CustomerController@import')->name('customer.import');
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
+	Route::post('customer/block', 'CustomerController@block')->name('customer.block');
 	Route::post('customer/create', 'CustomerController@store')->name('customer.store');
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
 	Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');

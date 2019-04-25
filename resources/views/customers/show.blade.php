@@ -203,7 +203,9 @@
         <div class="form-group">
           <strong>Name:</strong> {{ $customer->name }}
           @if ($customer->is_blocked == 1)
-            <span class="badge">Blocked</span>
+            <span class="badge badge-secondary">Blocked</span>
+          @else
+            <button type="button" class="btn btn-xs btn-secondary block-twilio" data-id="{{ $customer->id }}">Block on Twilio</button>
           @endif
         </div>
 
@@ -3276,6 +3278,35 @@
             }));
           });
 
+        });
+      });
+
+      $(document).on('click', '.block-twilio', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.block') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Blocking...');
+          }
+        }).done(function(response) {
+          var badge = $('<span class="badge badge-secondary">Blocked</span>');
+
+          $(thiss).parent().append(badge);
+
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Block on Twilio');
+
+          alert('Could not block customer!');
+
+          console.log(response);
         });
       });
   </script>

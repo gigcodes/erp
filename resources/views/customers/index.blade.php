@@ -84,7 +84,15 @@
                 {{ ($customer->order_status && ($customer->order_status != 'Cancel' && $customer->order_status != 'Delivered')) ? 'text-success' : '' }}
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
-                    <td><a href="{{ route('customer.show', $customer->id) }}">{{ $customer->name }}</a></td>
+                    <td>
+                      <a href="{{ route('customer.show', $customer->id) }}">{{ $customer->name }}</a>
+
+                      @if ($customer->is_blocked == 1)
+                        <span class="badge badge-secondary">Blocked</span>
+                      @else
+                        <button type="button" class="btn btn-xs btn-secondary block-twilio" data-id="{{ $customer->id }}">Block on Twilio</button>
+                      @endif
+                    </td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                       <td>{{ $customer['email'] }}</td>
                       <td>{{ $customer['phone'] }}</td>
@@ -639,6 +647,35 @@
           }, 2000);
         }).fail(function(errObj) {
           alert("Could not change status");
+        });
+      });
+
+      $(document).on('click', '.block-twilio', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.block') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Blocking...');
+          }
+        }).done(function(response) {
+          var badge = $('<span class="badge badge-secondary">Blocked</span>');
+
+          $(thiss).parent().append(badge);
+
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Block on Twilio');
+
+          alert('Could not block customer!');
+
+          console.log(response);
         });
       });
   </script>
