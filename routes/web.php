@@ -82,6 +82,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// Instruction
 	Route::resource('instruction','InstructionController');
+	Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
 	Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
 	Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
 	Route::post('instruction/verify', 'InstructionController@verify')->name('instruction.verify');

@@ -854,6 +854,7 @@
                                     <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
                                     <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
+                                    <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
                                     <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
                                     <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
 
@@ -1405,7 +1406,7 @@
         <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
       </a>
 
-      <a href="#notyet">
+      <a href="{{ route('instruction.list') }}">
         <span class="badge badge-task-other">{{ $other_pending_instructions_count }}</span>
       </a>
       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
