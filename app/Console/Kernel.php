@@ -91,9 +91,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
-
       $schedule->call(function() {
         $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
         $tasks = Task::where('is_statutory', 0 )->whereNotNull('is_completed')->get();
@@ -115,7 +112,7 @@ class Kernel extends ConsoleKernel
   	    $schedule->call(function () {
   		    \Log::debug('deQueueNotficationNew Start');
   	    	NotificationQueueController::deQueueNotficationNew();
-  	    })->everyMinute();
+  	    })->everyFiveMinutes();
 
         $schedule->call(function () {
           MagentoController::get_magento_orders();
@@ -127,7 +124,7 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('post:scheduled-media')
 //            ->everyMinute();
 
-        $schedule->command('check:user-logins')->everyMinute();
+        $schedule->command('check:user-logins')->everyFiveMinutes();
         $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
 
         // Sends Auto messages
@@ -192,9 +189,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('inventory:refresh-stock')->dailyAt(12);
         $schedule->command('gnb:get-sku')->hourly();
         // $schedule->command('create:scraped-products')->everyMinute();
+//        $schedule->command('gnb:get-sku')->everyMinute();
 
-//        $schedule->command('sync:instagram-messages')
-//            ->everyMinute();
+        $schedule->command('sync:instagram-messages')
+            ->hourly();
 
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
