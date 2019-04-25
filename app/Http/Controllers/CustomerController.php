@@ -606,6 +606,10 @@ class CustomerController extends Controller
           $order = Order::find($email->additional_data);
 
           $content = (new AdvanceReceipt($order))->render();
+        } else if ($email->template == 'issue-credit') {
+          $customer = Customer::find($email->model_id);
+
+          $content = (new IssueCredit($customer))->render();
         } else {
           $content = 'No Template';
         }
@@ -740,6 +744,19 @@ class CustomerController extends Controller
 				'type'				=> 'issue-credit',
 				'method'			=> 'email'
 			]);
+
+      $params = [
+        'model_id'    		=> $customer->id,
+        'model_type'  		=> Customer::class,
+        'from'        		=> 'customercare@sololuxury.co.in',
+        'to'          		=> $customer->email,
+        'subject'     		=> "Customer Credit Issued",
+        'message'     		=> '',
+        'template'				=> 'issue-credit',
+        'additional_data'	=> ''
+      ];
+
+      Email::create($params);
     }
 
     public function sendSuggestion(Request $request)
