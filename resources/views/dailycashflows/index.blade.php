@@ -10,20 +10,22 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Daily Cash Flow</h2>
             <div class="pull-left">
-              {{-- <form action="/order/" method="GET">
+              <form class="form-inline" action="/dailycashflow/" method="GET">
+                <div class="col">
                   <div class="form-group">
-                      <div class="row">
-                          <div class="col-md-12">
-                              <input name="term" type="text" class="form-control"
-                                     value="{{ isset($term) ? $term : '' }}"
-                                     placeholder="Search">
-                          </div>
-                          <div class="col-md-4">
-                              <button hidden type="submit" class="btn btn-primary">Submit</button>
-                          </div>
-                      </div>
+                    <div class='input-group date' id='filter_date'>
+                      <input type='text' class="form-control" name="date" value="{{ $filter_date }}" />
+
+                      <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                    </div>
                   </div>
-              </form> --}}
+                </div>
+                <div class="col">
+                  <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                </div>
+              </form>
             </div>
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#cashCreateModal">+</a>
@@ -31,22 +33,7 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     <div class="row">
       <div class="col text-right">
@@ -66,7 +53,8 @@
             <th>Paid To</th>
             <th>Date</th>
             <th>Expected</th>
-            <th>Received</th>
+            <th>Expenses</th>
+            <th>Net</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -78,7 +66,10 @@
               <td>{{ $cash_flow->paid_to }}</td>
               <td>{{ \Carbon\Carbon::parse($cash_flow->date)->format('d-m H:i') }}</td>
               <td>{{ $cash_flow->expected }}</td>
-              <td>{{ $cash_flow->received }}</td>
+              <td>Received - {{ $cash_flow->received }}</td>
+              <td>
+                {{ $cash_flow->received - $cash_flow->expected }}
+              </td>
               <td>
                 <button type="button" class="btn btn-image edit-cashflow" data-toggle="modal" data-target="#cashEditModal" data-cashflow="{{ $cash_flow }}"><img src="/images/edit.png" /></button>
 
@@ -88,6 +79,94 @@
               </td>
             </tr>
           @endforeach
+          <tr>
+
+          </tr>
+
+          @foreach ($orders as $order)
+            <tr>
+              <td><a href="{{ route('order.show', $order->id) }}" target="_blank">{{ \Carbon\Carbon::parse($order->order_date)->format('Y-m-d') == date('Y-m-d') ? 'New' : '' }} Order - {{ $order->id }}</a></td>
+              <td></td>
+              <td>{{ \Carbon\Carbon::parse($order->order_date)->format('Y-m-d') == date('Y-m-d') ? \Carbon\Carbon::parse($order->order_date)->format('d-m H:i') : \Carbon\Carbon::parse($order->estimated_delivery_date)->format('d-m H:i') }}</td>
+              <td>
+                @php $sold_price = 0; @endphp
+                @foreach ($order->order_product as $order_product)
+                  @php $sold_price += $order_product->product_price @endphp
+                @endforeach
+
+                {{ $sold_price }}
+              </td>
+              <td>
+                @if ($order->order_product)
+                  @php
+                    $purchase_price = 0;
+                    $balance = 0;
+                    $vouchers = 0;
+                  @endphp
+
+                  @foreach ($order->order_product as $order_product)
+                    @if ($order_product->product)
+                      @if (count($order_product->product->purchases) > 0)
+                        @php $purchase_price += ($order_product->product->price * 78); @endphp
+
+                      @else
+
+                      @endif
+
+                      @php $balance += $order->balance_amount;  @endphp
+                    @endif
+                  @endforeach
+
+                  @if ($order->delivery_approval)
+                    @if ($order->delivery_approval->voucher)
+                      @php $vouchers += $order->delivery_approval->voucher->amount @endphp
+                    @endif
+                  @endif
+
+                  <ul>
+                    <li>Purchase - {{ $purchase_price }}</li>
+                    <li>Order Balance - {{ $balance }}</li>
+                    <li>Voucher - {{ $vouchers }}</li>
+                  </ul>
+                @endif
+              </td>
+              <td>
+                {{ $sold_price - ($purchase_price + $balance + $vouchers) }}
+              </td>
+              <td></td>
+            </tr>
+          @endforeach
+
+          {{-- <tr>
+
+          </tr> --}}
+          {{-- @foreach ($purchases as $purchase)
+            <tr>
+              <td><a href="{{ route('purchase.show', $purchase->id) }}" target="_blank">Purchase - {{ $purchase->id }}</a></td>
+
+              <td></td>
+              <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d-m H:i') }}</td>
+              <td>
+                @php $actual_price = 0; @endphp
+                @foreach ($purchase['products'] as $product)
+                  @php $actual_price += $product['price'] @endphp
+                @endforeach
+
+                {{ $actual_price * 78 }}
+              </td>
+              <td>
+                @php $sold_price = 0; @endphp
+                @foreach ($purchase['products'] as $product)
+                  @foreach ($product['orderproducts'] as $order_product)
+                    @php $sold_price += $order_product['product_price'] @endphp
+                  @endforeach
+                @endforeach
+
+                {{ $sold_price }}
+              </td>
+              <td></td>
+            </tr>
+          @endforeach --}}
         </tbody>
       </table>
     </div>
@@ -250,8 +329,8 @@
 
   <script type="text/javascript">
     $(document).ready(function() {
-      $('#date-datetime').datetimepicker({
-        format: 'YYYY-MM-DD HH:mm'
+      $('#date-datetime, #filter_date').datetimepicker({
+        format: 'YYYY-MM-DD'
       });
     });
 
