@@ -13,6 +13,7 @@ use App\Sale;
 use App\Setting;
 use App\Sizes;
 use App\Brand;
+use App\Supplier;
 use App\Stock;
 use App\ReadOnly\LocationList;
 use Cache;
@@ -269,8 +270,10 @@ class ProductController extends Controller {
 		}
 
 		if (Cache::has('filter-supplier-' . Auth::id())) {
-			$supplier = Cache::get('filter-supplier-' . Auth::id());
-			$products = $products->where('supplier', $supplier);
+			// $supplier = Cache::get('filter-supplier-' . Auth::id());
+			// $products = $products->whereHas('suppliers', function ($query) use ($supplier) {
+			// 	$query->where('suppliers.id', $supplier);
+			// });
 		}
 
 		if ($request->page) {
@@ -289,6 +292,7 @@ class ProductController extends Controller {
 		                                        ->renderAsDropdown();
 
 		$locations = (new LocationList)->all();
+		$suppliers = Supplier::select(['id', 'supplier'])->whereHas('Products')->get();
 
 		if ($request->ajax()) {
 			$html = view('partials.image-load', ['products' => $products, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
@@ -296,7 +300,7 @@ class ProductController extends Controller {
 			return response()->json(['html' => $html]);
 		}
 
-		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations') );
+		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers') );
 	}
 
 

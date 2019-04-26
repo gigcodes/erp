@@ -80,12 +80,13 @@
                             </div>
 
                             <div class="form-group mr-3">
-                              @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp
+                              {{-- @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp --}}
+                              @php $suppliers = \App\Supplier::whereHas('products')->get(); @endphp
                               {{-- {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                               <select class="form-control select-multiple" name="supplier[]" multiple>
                                 <optgroup label="Suppliers">
-                                  @foreach ($suppliers->all() as $key => $name)
-                                    <option value="{{ $key }}" {{ isset($supplier) && $supplier == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                  @foreach ($suppliers->all() as $key => $item)
+                                    <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
                                   @endforeach
                               </optgroup>
                               </select>
@@ -372,7 +373,7 @@
                                           <p>Status : ` + product['stage'] + `</p>
 
                                           <p>Supplier : ` + product['supplier'] + `</p>
-                                          <p>Supplier : ` + product['suppliers'] + `</p>
+                                          <p>Suppliers : ` + product['suppliers'] + `</p>
                                           ` + is_scraped + is_imported + `
 
                                           <input type="checkbox" class="select-product-edit" name="product_id" data-id="` + product['id'] + `}">

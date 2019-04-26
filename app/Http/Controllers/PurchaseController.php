@@ -292,12 +292,12 @@ class PurchaseController extends Controller
       $brand = isset($brand) ? $brand : '';
       $order_status = (new OrderStatus)->all();
       $supplier_list = (new SupplierList)->all();
-      $suppliers = Supplier::select(['id', 'supplier'])->get();
+      $suppliers = Supplier::select(['id', 'supplier'])->whereHas('products')->get();
 
       $suppliers_array = [];
 
-      foreach ($suppliers as $supplier) {
-        $suppliers_array[$supplier->id] = $supplier->supplier;
+      foreach ($suppliers as $supp) {
+        $suppliers_array[$supp->id] = $supp->supplier;
       }
 
      if(!empty($term)){
