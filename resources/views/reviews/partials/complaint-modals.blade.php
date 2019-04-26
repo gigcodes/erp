@@ -55,15 +55,19 @@
             @endif
           </div>
 
-          <div class="form-group">
-            <strong>Complaint</strong>
+          <div id="complaint-container">
+            <div class="form-group">
+              <strong>Complaint</strong>
 
-            <textarea name="complaint" class="form-control" rows="8" cols="80" required>{{ old('complaint') }}</textarea>
+              <textarea name="complaint" class="form-control" rows="8" cols="80" required>{{ old('complaint') }}</textarea>
 
-            @if ($errors->has('complaint'))
-              <div class="alert alert-danger">{{$errors->first('complaint')}}</div>
-            @endif
+              @if ($errors->has('complaint'))
+                <div class="alert alert-danger">{{$errors->first('complaint')}}</div>
+              @endif
+            </div>
           </div>
+
+          <button type="button" class="btn btn-xs btn-secondary" id="add-complaint-button">Add Thread</button>
 
           <div class="form-group">
             <strong>Link</strong>
@@ -143,15 +147,21 @@
             @endif
           </div>
 
-          <div class="form-group">
-            <strong>Complaint</strong>
+          <div id="edit-complaint-container">
+            <div class="form-group">
+              <strong>Complaint</strong>
 
-            <textarea name="complaint" class="form-control" rows="8" cols="80" id="complaint_complaint" required>{{ old('complaint') }}</textarea>
+              <textarea name="complaint" class="form-control" rows="8" cols="80" id="complaint_complaint" required>{{ old('complaint') }}</textarea>
 
-            @if ($errors->has('complaint'))
-              <div class="alert alert-danger">{{$errors->first('complaint')}}</div>
-            @endif
+              @if ($errors->has('complaint'))
+                <div class="alert alert-danger">{{$errors->first('complaint')}}</div>
+              @endif
+            </div>
+
+            <div id="complaint-container-extra"></div>
           </div>
+
+          <button type="button" class="btn btn-xs btn-secondary" id="add-edit-complaint-button">Add Thread</button>
 
           <div class="form-group">
             <strong>Link</strong>

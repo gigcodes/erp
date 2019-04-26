@@ -14,4 +14,9 @@ class Complaint extends Model
   {
     return $this->belongsTo('App\Customer');
   }
+
+  public function threads()
+  {
+    return $this->hasMany('App\ComplaintThread');
+  }
 }

@@ -287,7 +287,17 @@
                     @endif
                   </td>
                   <td>{{ ucwords($complaint->platform) }}</td>
-                  <td>{{ $complaint->complaint }}</td>
+                  <td>
+                    {{ $complaint->complaint }}
+
+                    @if ($complaint->threads)
+                      <ul class="mx-0 px-4">
+                        @foreach ($complaint->threads as $key => $thread)
+                          <li class="ml-{{ $key + 1 }}">{{ $thread->thread }}</li>
+                        @endforeach
+                      </ul>
+                    @endif
+                  </td>
                   <td>
                     <a href="{{ $complaint->link }}" target="_blank">{{ $complaint->link }}</a>
                   </td>
@@ -297,7 +307,7 @@
                     <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $complaint->id }}">View</a>
                   </td>
                   <td>
-                    <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}"><img src="/images/edit.png" /></button>
+                    <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}" data-threads="{{ $complaint->threads }}"><img src="/images/edit.png" /></button>
 
                     {!! Form::open(['method' => 'DELETE','route' => ['complaint.destroy', $complaint->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -354,10 +364,22 @@
       $('#review-container').append(review_html);
     });
 
+    $('#add-complaint-button').on('click', function() {
+      var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+
+      $('#complaint-container').append(complaint_html);
+    });
+
     $('#add-edit-review-button').on('click', function() {
       var review_html = '<div class="form-group"><strong>Review:</strong><input type="text" name="review[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
 
       $('#edit-review-container').append(review_html);
+    });
+
+    $('#add-edit-complaint-button').on('click', function() {
+      var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+
+      $('#complaint-container-extra').append(complaint_html);
     });
 
     $(document).on('click', '.remove-review-button', function() {
@@ -497,6 +519,7 @@
 
     function fillEditComplaint(thiss) {
       var complaint = $(thiss).data('complaint');
+      var threads = $(thiss).data('threads');
       var url = "{{ url('complaint') }}/" + complaint.id;
 
       $('#complaintEditModal form').attr('action', url);
@@ -505,6 +528,13 @@
       $('#complaint_platform option[value="' + complaint.platform + '"]').prop('selected', true);
       $('#complaint_complaint').val(complaint.complaint);
       $('#complaint_link').val(complaint.link);
+
+      $('#complaint-container-extra').empty();
+      Object.keys(threads).forEach(function(index) {
+        var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value="' + threads[index].thread + '"><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+
+        $('#complaint-container-extra').append(complaint_html);
+      });
     }
 
     // $(document).on('keyup', '.review-input-field', function() {
@@ -520,7 +550,7 @@
       var id = $(this).data('id');
       $('#add-remark input[name="id"]').val(id);
     });
-    
+
     $('#addRemarkButton').on('click', function() {
       var id = $('#add-remark input[name="id"]').val();
       var remark = $('#add-remark textarea[name="remark"]').val();
