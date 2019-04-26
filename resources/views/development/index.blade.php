@@ -203,7 +203,7 @@
           @foreach ($tasks as $key => $module_tasks)
             <tr>
               <td></td>
-              <td><strong>{{ $key != '' ? $module_names[$key] : 'General Tasks' }}</strong></td>
+              <td><strong>{{ $key != '' && array_key_exists($key, $module_names) ? $module_names[$key]  : 'General Tasks' }}</strong></td>
               <td></td>
               <td></td>
               <td></td>
@@ -266,7 +266,7 @@
           @foreach ($review_tasks as $key => $module_tasks)
             <tr>
               <td></td>
-              <td><strong>{{ $key != '' ? $module_names[$key] : 'General Tasks' }}</strong></td>
+              <td><strong>{{$key != '' && array_key_exists($key, $module_names) ? $module_names[$key]  : 'General Tasks' }}</strong></td>
               <td></td>
               <td></td>
               <td></td>
@@ -333,7 +333,7 @@
           @foreach ($completed_tasks as $key => $module_tasks)
             <tr>
               <td></td>
-              <td><strong>{{ $key != '' ? $module_names[$key] : 'General Tasks' }}</strong></td>
+              <td><strong>{{ $key != '' && array_key_exists($key, $module_names) ? $module_names[$key]  : 'General Tasks' }}</strong></td>
               <td></td>
               <td></td>
               <td></td>
