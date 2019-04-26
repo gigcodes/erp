@@ -28,6 +28,7 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
     public function array(): array
     {
       $products_array = [];
+      $total_price = 0;
       $purchases = Purchase::whereIn('id', $this->selected_purchases)->get();
 
       foreach ($purchases as $purchase) {
@@ -47,10 +48,20 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
               // $products_array[$this->count]['client_name'] = $order_product->order ? ($order_product->order->customer ? $order_product->order->customer->name : 'No Customer') : 'No Order';
 
               $this->count++;
+
+              $total_price += $products_array[$this->count - 1]['final_cost'];
             }
           }
         }
       }
+
+      $products_array[$this->count]['image'] = '';
+      $products_array[$this->count]['size'] = '';
+      $products_array[$this->count]['sku'] = '';
+      $products_array[$this->count]['price'] = '';
+      $products_array[$this->count]['discount'] = '';
+      $products_array[$this->count]['qty'] = "TOTAL";
+      $products_array[$this->count]['final_cost'] = $total_price;
 
       return $products_array;
     }
