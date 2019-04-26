@@ -395,7 +395,7 @@ class PurchaseController extends Controller
         'subject'         => $request->subject,
         'message'         => $request->message,
         'template'				=> 'purchase-simple',
-        'additional_data'	=> ''
+        'additional_data'	=> json_encode(['attachment' => $path])
       ];
 
       Email::create($params);
@@ -410,6 +410,11 @@ class PurchaseController extends Controller
       $file = File::find($id);
 
       return Storage::disk('uploads')->download('files/' . $file->filename);
+    }
+
+    public function downloadAttachments(Request $request)
+    {
+      return Storage::disk('uploads')->download($request->path);
     }
 
     /**
@@ -849,8 +854,15 @@ class PurchaseController extends Controller
         // } else {
         //   $content = 'No Template';
         // }
+        $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
 
-        $content = $email->message;
+        if (array_key_exists('attachment', $array)) {
+          $attachment = json_decode($email->additional_data, true)['attachment'];
+          $content = "$email->message <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attachment . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
+        } else {
+          $content = $email->message;
+        }
+
       }
 
 

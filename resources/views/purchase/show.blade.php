@@ -2238,7 +2238,7 @@
     $(document).on('click', '.pagination a', function(e) {
       e.preventDefault();
 
-      var url = $(this).attr('href');
+      var url = "/purchase/email/inbox" + $(this).attr('href');
 
       $.ajax({
         url: url,
