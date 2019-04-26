@@ -330,10 +330,11 @@ class ProductAttributeController extends Controller
 		// }
 
 		if(!empty($product->size)) {
+			// dump('have sizes');
 			$associated_skus = [];
 			$sizes_array = explode(',', $product->size);
 
-			if ($productattribute->references) {
+			if ($product->references) {
 				$reference_array = [];
 				$reference_color = '';
 				$reference_sku = '';
@@ -486,12 +487,16 @@ class ProductAttributeController extends Controller
 			$error_message = '';
 			$updated_product = 0;
 			try {
-				$result = $proxy->catalogProductUpdate($sessionId, $reference_sku, $productData);
+				$result = $proxy->catalogProductUpdate($sessionId, $reference_sku . $reference_color, $productData);
+				// dump('product updated');
+				// dump($associated_skus);
 			} catch (\Exception $e) {
 				$error_message = $e->getMessage();
 			}
 
 			if ($error_message == 'Product not exists.') {
+				// dump($error_message);
+				// dump($reference_sku);
 				// $productData['status'] = $product->isFinal ?? 2;
 				// $productData['visibility'] = 4;
 				// $productData['tax_class_id'] = 2;
@@ -566,6 +571,7 @@ class ProductAttributeController extends Controller
 			}
 
 			if ($error_message == 'Product not exists.') {
+				// dump('PRODUCT NOT EXISTS / CREATING NEW');
 				$productData['status'] = $product->isFinal ?? 2;
 				$productData['visibility'] = 4;
 				$productData['tax_class_id'] = 2;
@@ -580,37 +586,55 @@ class ProductAttributeController extends Controller
 		$images = $product->getMedia(config('constants.media_tags'));
 
 		$i = 0;
+
+		$old_images = $proxy->catalogProductAttributeMediaList($sessionId, $reference_sku . $reference_color);
 		// dd($result);
-		// $productId = $result;
 
-		if ($updated_product == 1) {
-			foreach ($old_images as $old_image) {
-				$first_letter = substr($old_image->getBasenameAttribute(), 0, 1);
-				$second_letter = substr($old_image->getBasenameAttribute(), 1, 1);
-				$image_name = "/$first_letter/$second_letter/" . $old_image->getBasenameAttribute();
+		foreach ($old_images as $old_image) {
+			try {
+				$result = $proxy->catalogProductAttributeMediaRemove(
+					$sessionId,
+					$reference_sku . $reference_color,
+					$old_image->file
+				);
 
-				try {
-					$result = $proxy->catalogProductAttributeMediaRemove(
-						$sessionId,
-						$reference_sku . $reference_color,
-						$image_name
-					);
-
-					dump('ok');
-				} catch (\Exception $e) {
-
-				}
+				// dump('ok');
+			} catch (\Exception $e) {
+				// dump("EXCEPTION $e");
 			}
 		}
+		// dd('deleted');
+		// $productId = $result;
 
-		dd('stap');
+		// if ($updated_product == 1) {
+			// foreach ($old_images as $old_image) {
+			// 	$first_letter = substr($old_image->getBasenameAttribute(), 0, 1);
+			// 	$second_letter = substr($old_image->getBasenameAttribute(), 1, 1);
+			// 	$image_name = "/$first_letter/$second_letter/" . strtolower($old_image->getBasenameAttribute());
+			// 	dump($image_name);
+			// 	try {
+			// 		$result = $proxy->catalogProductAttributeMediaRemove(
+			// 			$sessionId,
+			// 			$reference_sku . $reference_color,
+			// 			$image_name
+			// 		);
+			//
+			// 		dump('ok');
+			// 		dump($image_name);
+			// 	} catch (\Exception $e) {
+			// 		dump("EXCEPTION $e");
+			// 	}
+			// }
+		// }
+
+		// dd('stap');
 
 		foreach ($images as $image){
 
 			$image->getUrl();
-
+			// dump(pathinfo($image->getBasenameAttribute(), PATHINFO_FILENAME));
 			$file = array(
-				'name' => $image->getBasenameAttribute(),
+				'name' => pathinfo($image->getBasenameAttribute(), PATHINFO_FILENAME),
 				'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
 				'mime' => mime_content_type($image->getAbsolutePath())
 			);
@@ -621,14 +645,15 @@ class ProductAttributeController extends Controller
 			$result = $proxy->catalogProductAttributeMediaCreate(
 				$sessionId,
 				$reference_sku . $reference_color,
-				array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
+				array('file' => $file, 'label' => pathinfo($image->getBasenameAttribute(), PATHINFO_FILENAME), 'position' => ++$i , 'types' => $types, 'exclude' => 0)
 			);
 		}
 
-		if (count(explode(',', $old_sizes)) != $deleted_count) {
-			return [$result, FALSE];
-		} else {
+		// dd('stap');
+		// if (count(explode(',', $old_sizes)) != $deleted_count) {
+		// 	return [$result, FALSE];
+		// } else {
 			return [$result, TRUE];
-		}
+		// }
 	}
 }
