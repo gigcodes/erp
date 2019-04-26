@@ -77,7 +77,7 @@ class UpdateInventory extends Command
             }
 
             if ($scraped_product->website == 'Wiseboutique') {
-                $status = $this->wiseScrapService->doesProductExist($scraped_product->url);
+                $status = $this->wiseScrapService->doesProductExist($scraped_product);
 
                 $params = [
                   'website'             => 'Wiseboutique',
@@ -89,7 +89,7 @@ class UpdateInventory extends Command
             }
 
             if ($scraped_product->website == 'DoubleF') {
-                $status = $this->doubleFScrapService->doesProductExist($scraped_product->url);
+                $status = $this->doubleFScrapService->doesProductExist($scraped_product);
 
                 $params = [
                   'website'             => 'DoubleF',

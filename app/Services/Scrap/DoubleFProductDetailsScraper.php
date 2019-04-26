@@ -18,14 +18,48 @@ class DoubleFProductDetailsScraper extends Scraper
 
     public function scrap()
     {
-        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'DoubleF')->take(5000)->get();
+        $products = ScrapEntries::where('is_product_page', 1)->where('site_name', 'DoubleF')->take(5000)->get();
 
         foreach ($products as $product) {
             $this->getProductDetails($product);
         }
     }
 
-    public function doesProductExist($url) {
+    private function getSizes(HtmlPageCrawler $c) {
+        $sizes = $c->filter('script')->getIterator();
+        $content = [];
+
+        foreach ($sizes as $size) {
+            $html = trim($size->textContent);
+            if (strpos($html, 'new Product.Config') !== false) {
+                $html = explode('var unsaleableProducts', $html);
+                $htmlData = trim($html[0]);
+                $htmlData = str_replace('var spConfig = new Product.Config(', '', $htmlData);
+                $htmlData = str_replace(');', '', $htmlData);
+
+                $data = json_decode($htmlData, true);
+
+                foreach ($data as $datum) {
+                    foreach ($datum as $item) {
+                        if ($item['label'] == 'Size') {
+                            $options = $item['options'];
+                            $options = array_map(function($item) {
+                                return $item['label'];
+                            }, $options);
+
+                            return $options;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $content;
+
+    }
+
+    public function doesProductExist($product) {
+        $url = $product->url;
         $content = $this->getContent($url, 'GET', 'it', false);
         if ($content === '') {
             return false;
@@ -36,6 +70,10 @@ class DoubleFProductDetailsScraper extends Scraper
         $title = $this->getTitle($c);
 
         if ($title !== '' && strlen($title) > 2) {
+            $props = $product->properties;
+            $props['sizes'] = $this->getSizes($c);
+            $product->properties = $props;
+            $product->save();
             return true;
         }
 
@@ -229,7 +267,10 @@ class DoubleFProductDetailsScraper extends Scraper
     }
 
     private function getProperties(HtmlPageCrawler $c) {
+        $sizes = $this->getSizes($c);
         $bread = $c->filter('ul.breadcrumbs li a')->getIterator();
+        $propertiesData = ['size' => $sizes];
+
 
         $categoryTypes = [];
 
