@@ -50,8 +50,8 @@
 				console.log(numberToCall);
 				console.log(context);
 
-				if (!numberToCall.startsWith("+")) {
-						numberToCall = "+"+ $(this).data('phone');
+				if (!numberToCall.toString().startsWith("+")) {
+						numberToCall = "+"+ $(this).data('phone').toString();
 				}
 				callNumber( numberToCall, context, id  );
 			} );
