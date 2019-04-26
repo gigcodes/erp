@@ -16,33 +16,64 @@ class BroadcastMessageController extends Controller
     $month_back = Carbon::parse($date)->subMonth();
 
     $message_queues = MessageQueue::latest()->where('sending_time', 'LIKE', "%$date%")->paginate(Setting::get('pagination'));
-    $last_group_id = MessageQueue::max('group_id');
+    // $last_group_id = MessageQueue::max('group_id');
     $last_set_completed = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->where('sent', 1);
-    $last_set_stopped_count = MessageQueue::where('group_id', $last_group_id)->where('status', 1)->count();
+    // $last_set_stopped_count = MessageQueue::where('group_id', $last_group_id)->where('status', 1)->count();
+
     $last_set_completed_count = $last_set_completed->count();
     $last_set_received_count = MessageQueue::with('chat_message')->where('sending_time', '>', "$month_back 00:00:00")->whereHas('chat_message', function ($query) {
       $query->where('sent', 1);
     })->count();
 
-    $message_groups = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->where('sent', 0)->get()->groupBy(['group_id', 'status']);
+    $message_groups = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->get()->groupBy(['group_id', 'sent', 'status']);
 
-    // dd($message_groups);
+    $message_groups_array = [];
 
+    foreach ($message_groups as $group_id => $datas) {
+      $sent_count = 0;
+      $total_count = 0;
+      foreach ($datas as $sent_status => $data) {
 
-    if ($last_set_stopped_count > 0) {
-      $last_stopped = true;
-    } else {
-      $last_stopped = false;
+        foreach ($data as $stopped_status => $items) {
+          if ($sent_status == 1) {
+            $sent_count += count($items);
+          }
+
+          $total_count += count($items);
+
+          if ($stopped_status == 0) {
+            $can_be_stopped = true;
+          } else {
+            $can_be_stopped = false;
+          }
+
+          $message_groups_array[$group_id]['message'] = json_decode($items[0]->data, true)['message'];
+          $message_groups_array[$group_id]['can_be_stopped'] = $can_be_stopped;
+        }
+
+        $message_groups_array[$group_id]['sent'] = $sent_count;
+        $message_groups_array[$group_id]['total'] = $total_count;
+      }
     }
+    // dd($message_groups_array);
+
+
+
+
+    // if ($last_set_stopped_count > 0) {
+    //   $last_stopped = true;
+    // } else {
+    //   $last_stopped = false;
+    // }
 
     $last_set_completed = $last_set_completed->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
     return view('customers.broadcast', [
       'message_queues'            => $message_queues,
-      'message_groups'            => $message_groups,
+      'message_groups'            => $message_groups_array,
       'date'                      => $date,
       'last_set_completed'        => $last_set_completed,
-      'last_stopped'              => $last_stopped,
+      // 'last_stopped'              => $last_stopped,
       'last_set_completed_count'  => $last_set_completed_count,
       'last_set_received_count'   => $last_set_received_count
     ]);

@@ -74,22 +74,39 @@
           <li>
             <strong>Group ID {{ $group_id }}</strong>
 
-            @foreach ($group as $status => $messages)
-              @if ($status == 0)
+            {{-- @php
+              $sent_count = 0;
+              $not_sent_count = 0;
+            @endphp
+            @foreach ($group as $sent => $data)
+              @if ($sent == 0)
                 @php
-                  $can_be_stopped = true;
+                  $not_sent_count = count($data[0]);
                 @endphp
+
+                @foreach ($data as $status => $items)
+                  @if ($status == 0)
+                    @php
+                      $can_be_stopped = true;
+                    @endphp
+                  @else
+                    @php
+                      $can_be_stopped = false;
+                    @endphp
+                  @endif
+                @endforeach
               @else
                 @php
-                  $can_be_stopped = false;
+                  $sent_count = count($data[0]);
                 @endphp
               @endif
-            @endforeach
+            @endforeach --}}
 
-            @if ($can_be_stopped)
+            @if ($group['can_be_stopped'])
               <div class="my-1">
                 <strong>Preview:</strong>
-                {{ json_decode($group[0][0]->data, true)['message'] }}
+                {{ $group['message'] }}
+                <div class="my-1">{{ $group['sent'] }} sent of {{ $group['total'] }}</div>
               </div>
 
               <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
@@ -100,7 +117,8 @@
             @else
               <div class="my-1">
                 <strong>Preview:</strong>
-                {{ json_decode($group[1][0]->data, true)['message'] }}
+                {{ $group['message'] }}
+                <div class="my-1">{{ $group['sent'] }} sent of {{$group['total'] }}</div>
               </div>
 
               <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
@@ -136,6 +154,7 @@
                     <th>Customer Name</th>
                     <th>Phone</th>
                     <th>Message</th>
+                    <th>Group ID</th>
                     <th>Sent</th>
                     <th>Received</th>
                     <th>Status</th>
@@ -152,6 +171,7 @@
                       </td>
                       <td>{{ $message_queue->customer ? $message_queue->customer->phone : $message_queue->phone }}</td>
                       <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
+                      <td>{{ $message_queue->group_id }}</td>
                       <td>
                         @if ($message_queue->sent == 1)
                           <img src='/images/1.png' />
@@ -205,6 +225,7 @@
                   <th>Customer Name</th>
                   <th>Phone</th>
                   <th>Message</th>
+                  <th>Group ID</th>
                   <th>Sent</th>
                   <th>Received</th>
                   <th>Status</th>
@@ -221,6 +242,7 @@
                     </td>
                     <td>{{ $message_queue->customer ? $message_queue->customer->phone : $message_queue->phone }}</td>
                     <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
+                    <td>{{ $message_queue->group_id }}</td>
                     <td>
                       @if ($message_queue->sent == 1)
                         <img src='/images/1.png' />
