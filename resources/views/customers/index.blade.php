@@ -69,7 +69,7 @@
             {{-- <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
             <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th> --}}
             <th width="10%">Instruction</th>
-            <th width="10%">Message Status</th>
+            <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Message Status</a></th>
             <th>Order Status</th>
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
             <th width="30%">Send Message</th>
@@ -87,10 +87,12 @@
                     <td>
                       <a href="{{ route('customer.show', $customer->id) }}">{{ $customer->name }}</a>
 
+                      <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
+
                       @if ($customer->is_blocked == 1)
                         <span class="badge badge-secondary">Blocked</span>
                       @else
-                        <button type="button" class="btn btn-xs btn-secondary block-twilio" data-id="{{ $customer->id }}">Block on Twilio</button>
+                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
                       @endif
                     </td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))

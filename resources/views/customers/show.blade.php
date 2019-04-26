@@ -205,7 +205,7 @@
           @if ($customer->is_blocked == 1)
             <span class="badge badge-secondary">Blocked</span>
           @else
-            <button type="button" class="btn btn-xs btn-secondary block-twilio" data-id="{{ $customer->id }}">Block on Twilio</button>
+            <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
           @endif
         </div>
 
