@@ -22,6 +22,7 @@ class SettingController extends Controller
 //		$data['euro_to_inr'] = Setting::get('euro_to_inr');
 //		$data['special_price_discount'] = Setting::get('special_price_discount');
 		$data['pagination'] = Setting::get('pagination');
+		$data['disable_twilio'] = Setting::get('disable_twilio');
 		$data['incoming_calls_yogesh'] = Setting::get('incoming_calls_yogesh');
 		$data['incoming_calls_andy'] = Setting::get('incoming_calls_andy');
 		$data['users_array'] = Helpers::getUserArray(User::all());
@@ -49,6 +50,7 @@ class SettingController extends Controller
 		$euro_to_inr = $request->input('euro_to_inr');
 //		$special_price_discount = $request->input('special_price_discount');
 		$pagination = $request->input('pagination');
+		$disable_twilio = $request->disable_twilio ? 1 : 0;
 		$incoming_calls_yogesh = $request->incoming_calls_yogesh ? 1 : 0;
 		$incoming_calls_andy = $request->incoming_calls_andy ? 1 : 0;
 
@@ -56,6 +58,7 @@ class SettingController extends Controller
 //		Setting::add('euro_to_inr', $euro_to_inr, 'double');
 //		Setting::add('special_price_discount', $special_price_discount, 'int');
 		Setting::add('pagination', $pagination, 'int');
+		Setting::add('disable_twilio', $disable_twilio, 'tinyint');
 		Setting::add('incoming_calls_yogesh', $incoming_calls_yogesh, 'tinyint');
 		Setting::add('incoming_calls_andy', $incoming_calls_andy, 'tinyint');
 		Setting::add('image_shortcut', $request->image_shortcut, 'tinyint');
