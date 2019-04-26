@@ -26,7 +26,8 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         }
     }
 
-    public function doesProductExist($url) {
+    public function doesProductExist($product) {
+        $url = $product->url;
         $content = $this->getContent($url);
         if ($content === '') {
             return false;
@@ -39,6 +40,10 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
 
         if ($title !== '' && strlen($title) > 2) {
+            $props = $product->properties;
+            $props['sizes'] = $this->getSizes($c);
+            $product->properties = $props;
+            $product->save();
             return true;
         }
 
@@ -446,6 +451,18 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         return $this->downloadImages($content, 'wiseboutique');
     }
 
+    private function getSizes(HtmlPageCrawler $c) {
+        $sizes = $c->filter('div.taglia')->getIterator();
+        $content = [];
+
+        foreach ($sizes as $size) {
+            $content[] = trim($size->textContent);
+        }
+
+        return $content;
+
+    }
+
     private function getDesignerName(HtmlPageCrawler $c)
     {
         try {
@@ -489,8 +506,9 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
     }
 
     private function getProperties(HtmlPageCrawler $c) {
+        $sizes = $this->getSizes($c);
         $propertiesValues =  $c->filter('div.dettagliinterno div.clear .col9')->getIterator();
-        $propertiesData = [];
+        $propertiesData = ['size' => $sizes];
 
         foreach ($propertiesValues as $key=>$property) {
             $value = preg_replace('/\s\s+/', '\n', $property->textContent);
