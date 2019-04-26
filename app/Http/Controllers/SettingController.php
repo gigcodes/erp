@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Setting;
 use App\Helpers;
 use App\User;
+use App\ApiKey;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
@@ -25,6 +26,7 @@ class SettingController extends Controller
 		$data['disable_twilio'] = Setting::get('disable_twilio');
 		$data['incoming_calls_yogesh'] = Setting::get('incoming_calls_yogesh');
 		$data['incoming_calls_andy'] = Setting::get('incoming_calls_andy');
+		$data['whatsapp_number_change'] = Setting::get('whatsapp_number_change');
 		$data['users_array'] = Helpers::getUserArray(User::all());
 		$data['image_shortcut'] = Setting::get('image_shortcut');
 		$data['price_shortcut'] = Setting::get('price_shortcut');
@@ -37,6 +39,7 @@ class SettingController extends Controller
 		$data['consignor_city'] = Setting::get('consignor_city');
 		$data['consignor_country'] = Setting::get('consignor_country');
 		$data['consignor_phone'] = Setting::get('consignor_phone');
+		$data['api_keys'] = ApiKey::get()->toArray();
 
 		return view('setting.index',$data);
 	}
@@ -53,6 +56,7 @@ class SettingController extends Controller
 		$disable_twilio = $request->disable_twilio ? 1 : 0;
 		$incoming_calls_yogesh = $request->incoming_calls_yogesh ? 1 : 0;
 		$incoming_calls_andy = $request->incoming_calls_andy ? 1 : 0;
+		$whatsapp_number_change = $request->whatsapp_number_change ? 1 : 0;
 
 
 //		Setting::add('euro_to_inr', $euro_to_inr, 'double');
@@ -61,6 +65,7 @@ class SettingController extends Controller
 		Setting::add('disable_twilio', $disable_twilio, 'tinyint');
 		Setting::add('incoming_calls_yogesh', $incoming_calls_yogesh, 'tinyint');
 		Setting::add('incoming_calls_andy', $incoming_calls_andy, 'tinyint');
+		Setting::add('whatsapp_number_change', $whatsapp_number_change, 'tinyint');
 		Setting::add('image_shortcut', $request->image_shortcut, 'tinyint');
 		Setting::add('price_shortcut', $request->price_shortcut, 'tinyint');
 		Setting::add('call_shortcut', $request->call_shortcut, 'tinyint');
@@ -72,6 +77,22 @@ class SettingController extends Controller
 		Setting::add('consignor_city', $request->consignor_city, 'string');
 		Setting::add('consignor_country', $request->consignor_country, 'string');
 		Setting::add('consignor_phone', $request->consignor_phone, 'string');
+
+		$old_api_keys = ApiKey::all();
+
+		foreach ($old_api_keys as $api_key) {
+			$api_key->delete();
+		}
+
+		if ($request->number[0] != null) {
+			foreach ($request->number as $key => $number) {
+				$api_key = new ApiKey;
+				$api_key->number = $number;
+				$api_key->key = $request->key[$key];
+				$api_key->default = $request->default == ($key + 1) ? 1 : 0;
+				$api_key->save();
+			}
+		}
 
 		return redirect()->back()->with('status', 'Settings has been saved.');
 	}

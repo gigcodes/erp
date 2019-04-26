@@ -17,6 +17,8 @@ use App\Setting;
 use App\User;
 use App\Brand;
 use App\Product;
+use App\CommunicationHistory;
+use App\ApiKey;
 use App\Message;
 use App\Instruction;
 use Illuminate\Http\Request;
@@ -925,6 +927,35 @@ class WhatsAppController extends FindByNumberController
 
             sleep(5);
           }
+
+          if (Setting::get('whatsapp_number_change') == 1) {
+            $customer = Customer::find($message->customer_id);
+            $default_api = ApiKey::where('default', 1)->first();
+
+            if (!$customer->whatsapp_number_change_notified() && $default_api->number != $customer->whatsapp_number) {
+              $params = [
+                 'number'       => NULL,
+                 'user_id'      => Auth::id(),
+                 'approved'     => 1,
+                 'status'       => 2,
+                 'customer_id'  => $message->customer_id,
+                 'message'      => 'Our whatsapp number has changed'
+               ];
+
+              $additional_message = ChatMessage::create($params);
+
+              $this->sendWithWhatsApp($customer->phone, $default_api->number, $additional_message->message, TRUE, $additional_message->id);
+
+              sleep(5);
+
+              CommunicationHistory::create([
+        				'model_id'		=> $customer->id,
+        				'model_type'	=> Customer::class,
+        				'type'				=> 'number-change',
+        				'method'			=> 'whatsapp'
+        			]);
+            }
+          }
         }
 
         $send = $message->message;
@@ -1196,57 +1227,99 @@ class WhatsAppController extends FindByNumberController
       }
     }
 
-    foreach (\Config::get("apiwha.api_keys") as $config_key) {
-      if ($config_key['number'] == $number) {
+    // foreach (\Config::get("apiwha.api_keys") as $config_key) {
+    //   if ($config_key['number'] == $number) {
+    //     return;
+    //   }
+    // }
+
+    $api_keys = ApiKey::all();
+
+    foreach ($api_keys as $api_key) {
+      if ($api_key->number == $number) {
         return;
       }
     }
 
-        $curl = curl_init();
-        if (is_null($sendNumber)) {
-            $keys = \Config::get("apiwha.api_keys");
-            $key = $keys[0]['key'];
-        } else {
-            $config = $this->getWhatsAppNumberConfig($sendNumber);
-            $key = $config['key'];
+    $curl = curl_init();
+
+    if (Setting::get('whatsapp_number_change') == 1) {
+      $keys = \Config::get("apiwha.api_keys");
+      $key = $keys[0]['key'];
+
+      foreach ($api_keys as $api_key) {
+        if ($api_key->default == 1) {
+          $key = $api_key->key;
         }
-        $encodedNumber = urlencode($number);
-        $encodedText = urlencode($text);
+      }
+    } else {
+      if (is_null($sendNumber)) {
+        $keys = \Config::get("apiwha.api_keys");
+        $key = $keys[0]['key'];
 
-        if ($chat_message_id) {
-          $custom_data = [
-            'chat_message_id' => $chat_message_id
-          ];
-
-          $encodedCustomData = urlencode(json_encode($custom_data));
-        } else {
-          $encodedCustomData = '';
+        foreach ($api_keys as $api_key) {
+          if ($api_key->default == 1) {
+            $key = $api_key->key;
+          }
         }
-        //$number = "";
-        $url = "https://panel.apiwha.com/send_message.php?apikey=".$key."&number=".$encodedNumber."&text=" . $encodedText . "&custom_data=" . $encodedCustomData;
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => $url,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "GET",
-        ));
+      } else {
+        // $config = $this->getWhatsAppNumberConfig($sendNumber);
+        // $key = $config['key'];
 
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
+        $keys = \Config::get("apiwha.api_keys");
+        $key = $keys[0]['key'];
 
-        curl_close($curl);
-
-        if ($err) {
-          throw new \Exception("cURL Error #:" . $err);
-        } else {
-          $result = json_decode( $response );
-          if (!$result->success) {
-            throw new \Exception("whatsapp request error: " . $result->description);
-           }
+        foreach ($api_keys as $api_key) {
+          if ($api_key->default == 1) {
+            $key = $api_key->key;
+          }
         }
+
+        foreach ($api_keys as $api_key) {
+          if ($api_key->number == $sendNumber) {
+            $key = $api_key->key;
+          }
+        }
+      }
+    }
+
+    $encodedNumber = urlencode($number);
+    $encodedText = urlencode($text);
+
+    if ($chat_message_id) {
+      $custom_data = [
+        'chat_message_id' => $chat_message_id
+      ];
+
+      $encodedCustomData = urlencode(json_encode($custom_data));
+    } else {
+      $encodedCustomData = '';
+    }
+    //$number = "";
+    $url = "https://panel.apiwha.com/send_message.php?apikey=".$key."&number=".$encodedNumber."&text=" . $encodedText . "&custom_data=" . $encodedCustomData;
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => $url,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => "",
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 30,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "GET",
+    ));
+
+    $response = curl_exec($curl);
+    $err = curl_error($curl);
+
+    curl_close($curl);
+
+    if ($err) {
+      throw new \Exception("cURL Error #:" . $err);
+    } else {
+      $result = json_decode( $response );
+      if (!$result->success) {
+        throw new \Exception("whatsapp request error: " . $result->description);
+       }
+    }
 	}
     private function getWhatsAppNumberConfig($target)
     {

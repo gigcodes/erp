@@ -94,6 +94,13 @@ class Customer extends Model
 		return $count > 0 ? TRUE : FALSE;
 	}
 
+  public function whatsapp_number_change_notified()
+  {
+    $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'number-change')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+  }
+
 	public function getCommunicationAttribute()
 	{
 		$message = $this->messages();
