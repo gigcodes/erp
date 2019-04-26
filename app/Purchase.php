@@ -45,6 +45,6 @@ class Purchase extends Model
 
   public function emails()
   {
-    return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Purchase');
+    return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Purchase')->orWhere('model_type', 'App\Supplier');
   }
 }

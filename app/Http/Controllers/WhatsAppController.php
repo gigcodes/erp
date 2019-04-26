@@ -1183,7 +1183,7 @@ class WhatsAppController extends FindByNumberController
       $message_queue->save();
     }
 
-    return redirect()->route('customer.index')->with('success', 'Messages stopped processing!');
+    return redirect()->back()->with('success', 'Messages stopped processing!');
   }
 
 	public function sendWithWhatsApp($number, $sendNumber, $text, $validation = true, $chat_message_id = null)

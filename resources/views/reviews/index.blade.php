@@ -291,7 +291,11 @@
                   <td>
                     <a href="{{ $complaint->link }}" target="_blank">{{ $complaint->link }}</a>
                   </td>
-                  <td></td>
+                  <td>
+                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $complaint->id }}">Add</a>
+                    <span> | </span>
+                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $complaint->id }}">View</a>
+                  </td>
                   <td>
                     <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}"><img src="/images/edit.png" /></button>
 
@@ -313,6 +317,7 @@
     @include('reviews.partials.review-schedule-modals')
     @include('reviews.partials.review-modals')
     @include('reviews.partials.complaint-modals')
+    @include('reviews.partials.remark-modals')
 
 @endsection
 
@@ -509,5 +514,59 @@
     //     // console.log();
     //   }
     // });
+
+    $('.add-task').on('click', function(e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
+    });
+    
+    $('#addRemarkButton').on('click', function() {
+      var id = $('#add-remark input[name="id"]').val();
+      var remark = $('#add-remark textarea[name="remark"]').val();
+
+      $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.addRemark') }}',
+          data: {
+            id:id,
+            remark:remark,
+            module_type: 'complaint'
+          },
+      }).done(response => {
+          alert('Remark Added Success!')
+          window.location.reload();
+      }).fail(function(response) {
+        console.log(response);
+      });
+    });
+
+
+    $(".view-remark").click(function () {
+      var id = $(this).attr('data-id');
+
+        $.ajax({
+            type: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.gettaskremark') }}',
+            data: {
+              id:id,
+              module_type: "complaint"
+            },
+        }).done(response => {
+            var html='';
+
+            $.each(response, function( index, value ) {
+              html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+              html+"<hr>";
+            });
+            $("#viewRemarkModal").find('#remark-list').html(html);
+        });
+    });
   </script>
 @endsection

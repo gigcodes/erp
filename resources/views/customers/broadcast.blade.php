@@ -53,39 +53,84 @@
             </div>
 
             <div class="pull-right">
-              @if ($last_stopped)
+              {{-- @if ($last_stopped)
                 <form action="{{ route('broadcast.restart') }}" method="POST">
                   @csrf
 
                   <button type="submit" class="btn btn-secondary">Restart Last Set</button>
                 </form>
-              @endif
+              @endif --}}
+
+              <a href="{{ route('customer.whatsapp.stop.all') }}" class="btn btn-secondary">STOP ALL</a>
             </div>
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
-    @if ($message = Session::get('warning'))
-        <div class="alert alert-warning">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    <div class="form-group">
+      <ul>
+        @foreach ($message_groups as $group_id => $group)
+          <li>
+            <strong>Group ID {{ $group_id }}</strong>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+            {{-- @php
+              $sent_count = 0;
+              $not_sent_count = 0;
+            @endphp
+            @foreach ($group as $sent => $data)
+              @if ($sent == 0)
+                @php
+                  $not_sent_count = count($data[0]);
+                @endphp
+
+                @foreach ($data as $status => $items)
+                  @if ($status == 0)
+                    @php
+                      $can_be_stopped = true;
+                    @endphp
+                  @else
+                    @php
+                      $can_be_stopped = false;
+                    @endphp
+                  @endif
                 @endforeach
-            </ul>
-        </div>
-    @endif
+              @else
+                @php
+                  $sent_count = count($data[0]);
+                @endphp
+              @endif
+            @endforeach --}}
+
+            @if ($group['can_be_stopped'])
+              <div class="my-1">
+                <strong>Preview:</strong>
+                {{ $group['message'] }}
+                <div class="my-1">{{ $group['sent'] }} sent of {{ $group['total'] }}</div>
+              </div>
+
+              <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
+                @csrf
+
+                <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
+              </form>
+            @else
+              <div class="my-1">
+                <strong>Preview:</strong>
+                {{ $group['message'] }}
+                <div class="my-1">{{ $group['sent'] }} sent of {{$group['total'] }}</div>
+              </div>
+
+              <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
+                @csrf
+
+                <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
+              </form>
+            @endif
+          </li>
+        @endforeach
+      </ul>
+    </div>
 
     <div id="exTab2" class="container">
       <ul class="nav nav-tabs">
@@ -109,6 +154,7 @@
                     <th>Customer Name</th>
                     <th>Phone</th>
                     <th>Message</th>
+                    <th>Group ID</th>
                     <th>Sent</th>
                     <th>Received</th>
                     <th>Status</th>
@@ -125,6 +171,7 @@
                       </td>
                       <td>{{ $message_queue->customer ? $message_queue->customer->phone : $message_queue->phone }}</td>
                       <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
+                      <td>{{ $message_queue->group_id }}</td>
                       <td>
                         @if ($message_queue->sent == 1)
                           <img src='/images/1.png' />
@@ -178,6 +225,7 @@
                   <th>Customer Name</th>
                   <th>Phone</th>
                   <th>Message</th>
+                  <th>Group ID</th>
                   <th>Sent</th>
                   <th>Received</th>
                   <th>Status</th>
@@ -194,6 +242,7 @@
                     </td>
                     <td>{{ $message_queue->customer ? $message_queue->customer->phone : $message_queue->phone }}</td>
                     <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
+                    <td>{{ $message_queue->group_id }}</td>
                     <td>
                       @if ($message_queue->sent == 1)
                         <img src='/images/1.png' />

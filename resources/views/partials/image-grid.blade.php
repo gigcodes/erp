@@ -79,12 +79,12 @@
                             </div>
 
                             <div class="form-group mr-3">
-                              @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp
+                              {{-- @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp --}}
                               {{-- {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                               <select class="form-control select-multiple" name="supplier[]" multiple>
                                 <optgroup label="Suppliers">
-                                  @foreach ($suppliers->all() as $key => $name)
-                                    <option value="{{ $key }}" {{ isset($supplier) && $supplier == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                  @foreach ($suppliers as $key => $supp)
+                                    <option value="{{ $supp->id }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
                                   @endforeach
                               </optgroup>
                               </select>

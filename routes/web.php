@@ -188,10 +188,13 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('customer/email/send', 'CustomerController@emailSend')->name('customer.email.send');
 	Route::post('customer/send/suggestion', 'CustomerController@sendSuggestion')->name('customer.send.suggestion');
 	Route::post('customer/send/instock', 'CustomerController@sendInstock')->name('customer.send.instock');
+	Route::post('customer/issue/credit', 'CustomerController@issueCredit')->name('customer.issue.credit');
 
 	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
 	Route::post('broadcast/restart', 'BroadcastMessageController@restart')->name('broadcast.restart');
+	Route::post('broadcast/restart/{id}', 'BroadcastMessageController@restartGroup')->name('broadcast.restart.group');
+	Route::post('broadcast/stop/{id}', 'BroadcastMessageController@stopGroup')->name('broadcast.stop.group');
 	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
@@ -201,6 +204,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/{id}/changestatus', 'PurchaseController@updateStatus');
 	Route::post('purchase/{id}/saveBill', 'PurchaseController@saveBill');
 	Route::post('purchase/{id}/downloadFile', 'PurchaseController@downloadFile')->name('purchase.file.download');
+	Route::get('purchase/download/attachments', 'PurchaseController@downloadAttachments')->name('purchase.download.attachments');
 	Route::delete('purchase/{id}/delete', 'PurchaseController@destroy')->name('purchase.destroy');
 	Route::delete('purchase/{id}/permanentDelete', 'PurchaseController@permanentDelete')->name('purchase.permanentDelete');
 	Route::get('purchaseGrid/{page?}', 'PurchaseController@purchaseGrid')->name('purchase.grid');

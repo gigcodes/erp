@@ -64,6 +64,14 @@
                                 <hr>
 
                                 <div class="form-group">
+                                    <input type="checkbox" name="disable_twilio" id="disable_twilio" {{ $disable_twilio ? 'checked' : '' }} />
+                                    <label for="disable_twilio">Disable Twilio:</label>
+                                    @if ($errors->has('disable_twilio'))
+                                        <div class="alert alert-danger">{{$errors->first('disable_twilio')}}</div>
+                                    @endif
+                                </div>
+
+                                <div class="form-group">
                                     <input type="checkbox" name="incoming_calls_yogesh" id="incoming_calls_yogesh" {{ $incoming_calls_yogesh ? 'checked' : '' }} />
                                     <label for="incoming_calls_yogesh">Incoming Calls for Yogesh:</label>
                                     @if ($errors->has('incoming_calls_yogesh'))

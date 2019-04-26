@@ -40,6 +40,21 @@
 				} );
 				call.insertAfter( this );
 			} );
+
+			$(document).on('click', '.call-twilio', function() {
+				var id = $(this).data('id');
+				var numberToCall = $(this).data('phone');
+				var context = $(this).data('context');
+
+				console.log(id);
+				console.log(numberToCall);
+				console.log(context);
+
+				if (!numberToCall.toString().startsWith("+")) {
+						numberToCall = "+"+ $(this).data('phone').toString();
+				}
+				callNumber( numberToCall, context, id  );
+			} );
     });
 
     device.on('error', function (error) {

@@ -122,13 +122,17 @@ class SearchController extends Controller {
 
 		if ($request->supplier[0] != null) {
 			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
-				$productQuery = $productQuery->whereIn('supplier', $request->supplier);
+				$productQuery = $productQuery->with('Suppliers')->whereHas('Suppliers', function ($query) use ($request) {
+					$query->whereIn('suppliers.id', $request->supplier);
+				});
 			} else {
-				$productQuery = ( new Product() )->newQuery()
-				                                 ->latest()->whereIn('supplier', $request->supplier);
+				$productQuery = ( new Product() )->newQuery()->with('Suppliers')
+				                                 ->latest()->whereHas('Suppliers', function ($query) use ($request) {
+																 					$query->whereIn('suppliers.id', $request->supplier);
+																 				});
 			}
 
-			$data['supplier'] = $request->supplier[0];
+			$data['supplier'] = $request->supplier;
 			Cache::put('filter-supplier-' . Auth::id(), $data['supplier'], 120);
 		} else {
 			Cache::forget('filter-supplier-' . Auth::id());

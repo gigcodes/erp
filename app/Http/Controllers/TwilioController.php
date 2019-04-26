@@ -112,7 +112,7 @@ class TwilioController extends FindByNumberController
         $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-        if ($context == "customers" && $object->is_blocked == 1) {
+        if (($context == "customers" && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
           $response = $response->reject();
         } else {
           if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday

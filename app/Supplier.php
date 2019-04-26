@@ -14,4 +14,9 @@ class Supplier extends Model
   {
     return $this->hasMany('App\Agent', 'model_id')->where('model_type', 'App\Supplier');
   }
+
+  public function products()
+	{
+		return $this->belongsToMany('App\Product', 'product_suppliers', 'supplier_id', 'product_id');
+	}
 }

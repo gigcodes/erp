@@ -205,7 +205,7 @@
           @if ($customer->is_blocked == 1)
             <span class="badge badge-secondary">Blocked</span>
           @else
-            <button type="button" class="btn btn-xs btn-secondary block-twilio" data-id="{{ $customer->id }}">Block on Twilio</button>
+            <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
           @endif
         </div>
 
@@ -225,6 +225,24 @@
         <div class="form-group">
           <strong>Address:</strong> {{ $customer->address }}
         </div>
+
+        @if ($customer->credit > 0)
+          <div class="form-group">
+            <strong>Credit:</strong> {{ $customer->credit }}
+          </div>
+
+          <div class="form-group">
+            <button type="button" class="btn btn-xs btn-secondary issue-credit-button" data-id="{{ $customer->id }}">Issue Credit</button>
+          </div>
+
+          @if ($customer->credits_issued)
+            <ul>
+              @foreach ($customer->credits_issued as $credit)
+                <li>Email sent on {{ \Carbon\Carbon::parse($credit->created_at)->format('H:i d-m') }}</li>
+              @endforeach
+            </ul>
+          @endif
+        @endif
       </div>
 
       <div class="col-md-6">
@@ -3305,6 +3323,31 @@
           $(thiss).text('Block on Twilio');
 
           alert('Could not block customer!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.issue-credit-button', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.issue.credit') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Sending Email...');
+          }
+        }).done(function(response) {
+          $(thiss).text('Issue Credit');
+        }).fail(function(response) {
+          $(thiss).text('Issue Credit');
+
+          alert('Could not issue credit!');
 
           console.log(response);
         });
