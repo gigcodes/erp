@@ -71,6 +71,7 @@
             <th width="10%">Instruction</th>
             <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Message Status</a></th>
             <th>Order Status</th>
+            <th>Purchase Status</th>
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
             <th width="30%">Send Message</th>
             <th>Shortcuts</th>
@@ -196,6 +197,15 @@
                         @endif
                       @else
                         No Orders
+                      @endif
+                    </td>
+                    <td>
+                      @if (array_key_exists($customer->id, $orders))
+                        @if ($customer->purchase_status != null)
+                          {{ $customer->purchase_status }}
+                        @else
+                          No Purchase
+                        @endif
                       @endif
                     </td>
                     <td>
