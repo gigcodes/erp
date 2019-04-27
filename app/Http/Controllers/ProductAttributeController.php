@@ -308,29 +308,15 @@ class ProductAttributeController extends Controller
 
 		$sku = $product->sku . $product->color;
 		$old_sku = $product->sku . $old_color;
+		$reference_final_sku = $sku;
 		$categories = CategoryController::getCategoryTreeMagentoIds($product->category);
 		$brand= $product->brands()->get();
+		$errors = 0;
+		$updated_product = 0;
 
 		array_push($categories,$brand[0]->magento_id);
 
-		// DELETES OLD SIMPLE PRODUCTS
-		// $deleted_count = 0;
-		// if(!empty($old_sizes)) {
-		// 	$sizes_array = explode(',', $old_sizes);
-		//
-		// 	foreach ($sizes_array as $size) {
-		// 		try {
-		// 			$result = $proxy->catalogProductDelete($sessionId, $old_sku . "-" . $size);
-		//
-		// 			$deleted_count++;
-		// 		} catch (\Exception $e) {
-		// 			$error_message = $e->getMessage();
-		// 		}
-		// 	}
-		// }
-
 		if(!empty($product->size)) {
-			// dump('have sizes');
 			$associated_skus = [];
 			$sizes_array = explode(',', $product->size);
 
@@ -348,6 +334,8 @@ class ProductAttributeController extends Controller
 					$reference_sku = $reference->sku;
 				}
 
+				// $reference_final_sku = str_replace(' ', '', $reference_sku . $reference_color);
+				$reference_final_sku = $reference_sku . $reference_color;
 				$product_sizes = explode(',', $product->size);
 
 				foreach ($product_sizes as $size) {
@@ -388,8 +376,22 @@ class ProductAttributeController extends Controller
 						);
 
 						// Update product simple
-						$result = $proxy->catalogProductUpdate($sessionId, $reference_sku . $reference_color . '-' . $size, $productData);
-						$associated_skus[] = $reference_sku . $reference_color . '-' . $size;
+						// dump('updates simple product');
+						// dump($reference_final_sku);
+
+						try {
+							$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size, $productData);
+							$associated_skus[] = $reference_final_sku . '-' . $size;
+						} catch (\Exception $e) {
+							$errors++;
+
+							try {
+								$result = $proxy->catalogProductUpdate($sessionId, $reference_sku . '-' . $size, $productData);
+								$associated_skus[] = $reference_final_sku . '-' . $size;
+							} catch (\Exception $e) {
+								$errors++;
+							}
+						}
 					} else {
 						$new_reference = new ProductReference;
 						$new_reference->product_id = $product->id;
@@ -434,15 +436,16 @@ class ProductAttributeController extends Controller
 						);
 
 						// Creation of product simple
-						$result            = $proxy->catalogProductCreate($sessionId, 'simple', 14, $reference_sku . $reference_color . '-' . $size, $productData);
-						$associated_skus[] = $reference_sku . $reference_color . '-' . $size;
+						// dump('creates simple product');
+						try {
+							$result            = $proxy->catalogProductCreate($sessionId, 'simple', 14, $reference_sku . $reference_color . '-' . $size, $productData);
+							$associated_skus[] = $reference_final_sku . '-' . $size;
+						} catch (\Exception $e) {
+							$errors++;
+						}
 					}
 				}
 			}
-
-			// foreach ($sizes_array as $size) {
-			//
-			// }
 
 			/**
 			 * Configurable product
@@ -485,17 +488,27 @@ class ProductAttributeController extends Controller
 
 			// Creation of configurable product
 			$error_message = '';
-			$updated_product = 0;
+
 			try {
-				$result = $proxy->catalogProductUpdate($sessionId, $reference_sku . $reference_color, $productData);
+				// dump('updates configurable product');
+				$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, $productData);
 				// dump('product updated');
 				// dump($associated_skus);
 			} catch (\Exception $e) {
 				$error_message = $e->getMessage();
+				$errors++;
+
+				try {
+					$result = $proxy->catalogProductUpdate($sessionId, $reference_sku, $productData);
+				} catch (\Exception $e) {
+					$error_message = $e->getMessage();
+					$errors++;
+				}
 			}
 
 			if ($error_message == 'Product not exists.') {
 				// dump($error_message);
+				// dump('configurable product doesnt exist');
 				// dump($reference_sku);
 				// $productData['status'] = $product->isFinal ?? 2;
 				// $productData['visibility'] = 4;
@@ -525,6 +538,8 @@ class ProductAttributeController extends Controller
 					$reference_sku = $reference->sku;
 					$reference_color = $reference->color;
 				}
+
+				$reference_final_sku = $reference_sku . $reference_color;
 			}
 
 			$productData = array(
@@ -563,76 +578,64 @@ class ProductAttributeController extends Controller
 
 			// Creation of product simple
 			$error_message = '';
-			$updated_product = 0;
 			try {
-				$result = $proxy->catalogProductUpdate($sessionId, $reference_sku . $reference_color, $productData);
+				// dump('updates configurable product without sizes');
+				$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, $productData);
 			} catch (\Exception $e) {
 				$error_message = $e->getMessage();
+				$errors++;
+
+				try {
+					$result = $proxy->catalogProductUpdate($sessionId, $reference_sku, $productData);
+				} catch (\Exception $e) {
+					$errors++;
+				}
 			}
 
 			if ($error_message == 'Product not exists.') {
 				// dump('PRODUCT NOT EXISTS / CREATING NEW');
+				// dump('configurable product without sizes doesnot exists');
 				$productData['status'] = $product->isFinal ?? 2;
 				$productData['visibility'] = 4;
 				$productData['tax_class_id'] = 2;
 				$productData['weight'] = 0;
 
-				$result = $proxy->catalogProductCreate($sessionId, 'simple', 4, $reference_sku . $reference_color, $productData);
+				$result = $proxy->catalogProductCreate($sessionId, 'simple', 4, $reference_final_sku, $productData);
 			} else {
 				$updated_product = 1;
 			}
 		}
 
+		$i = 0;
 		$images = $product->getMedia(config('constants.media_tags'));
 
-		$i = 0;
+		if ($updated_product == 1) {
+			$old_images = $proxy->catalogProductAttributeMediaList($sessionId, $reference_final_sku);
 
-		$old_images = $proxy->catalogProductAttributeMediaList($sessionId, $reference_sku . $reference_color);
-		// dd($result);
+			foreach ($old_images as $old_image) {
+				try {
+					$result = $proxy->catalogProductAttributeMediaRemove(
+						$sessionId,
+						$reference_final_sku,
+						$old_image->file
+					);
+				} catch (\Exception $e) {
+					$errors++;
 
-		foreach ($old_images as $old_image) {
-			try {
-				$result = $proxy->catalogProductAttributeMediaRemove(
-					$sessionId,
-					$reference_sku . $reference_color,
-					$old_image->file
-				);
-
-				// dump('ok');
-			} catch (\Exception $e) {
-				// dump("EXCEPTION $e");
+					try {
+						$result = $proxy->catalogProductAttributeMediaRemove(
+							$sessionId,
+							$reference_sku,
+							$old_image->file
+						);
+					} catch (\Exception $e) {
+						$errors++;
+					}
+				}
 			}
 		}
-		// dd('deleted');
-		// $productId = $result;
-
-		// if ($updated_product == 1) {
-			// foreach ($old_images as $old_image) {
-			// 	$first_letter = substr($old_image->getBasenameAttribute(), 0, 1);
-			// 	$second_letter = substr($old_image->getBasenameAttribute(), 1, 1);
-			// 	$image_name = "/$first_letter/$second_letter/" . strtolower($old_image->getBasenameAttribute());
-			// 	dump($image_name);
-			// 	try {
-			// 		$result = $proxy->catalogProductAttributeMediaRemove(
-			// 			$sessionId,
-			// 			$reference_sku . $reference_color,
-			// 			$image_name
-			// 		);
-			//
-			// 		dump('ok');
-			// 		dump($image_name);
-			// 	} catch (\Exception $e) {
-			// 		dump("EXCEPTION $e");
-			// 	}
-			// }
-		// }
-
-		// dd('stap');
 
 		foreach ($images as $image){
-
-			$image->getUrl();
-			// dump(pathinfo($image->getBasenameAttribute(), PATHINFO_FILENAME));
 			$file = array(
 				'name' => pathinfo($image->getBasenameAttribute(), PATHINFO_FILENAME),
 				'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
@@ -642,18 +645,31 @@ class ProductAttributeController extends Controller
 			$types = $i ? array('') : array('size_guide','image','small_image','thumbnail');
 			$types = $i == 1 ? array('hover_image') : $types;
 
-			$result = $proxy->catalogProductAttributeMediaCreate(
-				$sessionId,
-				$reference_sku . $reference_color,
-				array('file' => $file, 'label' => pathinfo($image->getBasenameAttribute(), PATHINFO_FILENAME), 'position' => ++$i , 'types' => $types, 'exclude' => 0)
-			);
+			try {
+				$result = $proxy->catalogProductAttributeMediaCreate(
+					$sessionId,
+					$reference_final_sku,
+					array('file' => $file, 'label' => pathinfo($image->getBasenameAttribute(), PATHINFO_FILENAME), 'position' => ++$i , 'types' => $types, 'exclude' => 0)
+				);
+			} catch (\Exception $e) {
+				$errors++;
+
+				try {
+					$result = $proxy->catalogProductAttributeMediaCreate(
+						$sessionId,
+						$reference_sku,
+						array('file' => $file, 'label' => pathinfo($image->getBasenameAttribute(), PATHINFO_FILENAME), 'position' => ++$i , 'types' => $types, 'exclude' => 0)
+					);
+				} catch (\Exception $e) {
+					$errors++;
+				}
+			}
 		}
 
-		// dd('stap');
-		// if (count(explode(',', $old_sizes)) != $deleted_count) {
-		// 	return [$result, FALSE];
-		// } else {
-			return [$result, TRUE];
-		// }
+		if ($errors > 0) {
+			return [isset($result) ? $result : '', FALSE];
+		} else {
+			return [isset($result) ? $result : '', TRUE];
+		}
 	}
 }
