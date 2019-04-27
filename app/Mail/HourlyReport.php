@@ -34,6 +34,6 @@ class HourlyReport extends Mailable
                   ->bcc('customercare@sololuxury.co.in')
                   ->subject('Generated Hourly Report')
                   ->markdown('emails.hourly-report')
-                  ->attachFromStorageDisk('uploads', $this->path);
+                  ->attachFromStorageDisk('files', $this->path);
     }
 }

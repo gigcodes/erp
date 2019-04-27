@@ -44,7 +44,7 @@ class PurchaseEmail extends Mailable
                     ]);
 
         foreach ($this->file_paths as $file_path) {
-          $email->attachFromStorageDisk('uploads', $file_path);
+          $email->attachFromStorageDisk('files', $file_path);
         }
 
         return $email;

@@ -870,6 +870,7 @@ class OrderController extends Controller {
 	{
 		$order = Order::find($id);
 
+		return (new AdvanceReceiptPDF($order))->render();
 		$view = (new AdvanceReceiptPDF($order))->render();
 
 		$pdf = new Dompdf;
@@ -1019,7 +1020,7 @@ class OrderController extends Controller {
 	{
 		$waybill = Waybill::find($id);
 
-		return Storage::disk('uploads')->download('waybills/' . $waybill->package_slip);
+		return Storage::disk('files')->download('waybills/' . $waybill->package_slip);
 	}
 
 	public function refundAnswer(Request $request, $id)
@@ -1443,7 +1444,7 @@ class OrderController extends Controller {
 			// dd($error);
 			return redirect()->back()->with('error', "$error");
 		} else {
-			Storage::disk('uploads')->put('waybills/' . $order->id . '_package_slip.pdf', $result->AWBPrintContent);
+			Storage::disk('files')->put('waybills/' . $order->id . '_package_slip.pdf', $result->AWBPrintContent);
 
 			$waybill = new Waybill;
 			$waybill->order_id = $order->id;

@@ -1,0 +1,6 @@
+*
+!documents/
+!files/
+!purchase_exports/
+!hourly_exports/
+!.gitignore

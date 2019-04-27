@@ -75,7 +75,7 @@ class SendHourlyReports extends Command
 
       if (count($daily_activities) > 0) {
         $path = "hourly_reports/" . $date . "_hourly_reports.xlsx";
-        Excel::store(new HourlyReportsExport(), $path, 'uploads');
+        Excel::store(new HourlyReportsExport(), $path, 'files');
 
         Mail::to('hr@sololuxury.co.in')
             ->send(new HourlyReport($path));
