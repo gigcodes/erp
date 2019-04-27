@@ -173,7 +173,7 @@ class ProductController extends Controller {
 		                 ->with( 'success', 'Product deleted successfully' );
 	}
 
-	public function attachProducts( $model_type, $model_id, $type = null, Request $request ) {
+	public function attachProducts( $model_type, $model_id, $type = null, $customer_id = null, Request $request ) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
 		$products = Product::latest()
@@ -181,6 +181,7 @@ class ProductController extends Controller {
 												->paginate( Setting::get( 'pagination' ) );
 
 		$doSelection = true;
+		$customer_id = $customer_id ?? null;
 
 		if ($type == 'images') {
 			$attachImages = true;
@@ -199,7 +200,7 @@ class ProductController extends Controller {
 		                                        ->renderAsDropdown();
 
 
-		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'category_selection', 'attachImages' ) );
+		return view( 'partials.grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'doSelection', 'model_type', 'category_selection', 'attachImages', 'customer_id' ) );
 	}
 
 	public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request) {

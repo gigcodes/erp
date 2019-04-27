@@ -1245,7 +1245,7 @@
                         {{-- {{dd($data)}} --}}
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group btn-group">
-                                <a href="{{ route('attachProducts',['order',$order->id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
+                                <a href="{{ route('attachProducts',['order',$order->id, 'fake-parameter', $customer->id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
                                 <button type="button" class="btn btn-secondary add-product-button" data-orderid="{{ $order->id }}" data-toggle="modal" data-target="#productModal">+</button>
                             </div>
                         </div>

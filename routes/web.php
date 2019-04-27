@@ -154,7 +154,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 //	Route::get('productSelectionGrid/{sale}','SaleController@selectionGrid')->name('productSelectionGrid');
 
 	//Attach Products
-	Route::get('attachProducts/{model_type}/{model_id}','ProductController@attachProducts')->name('attachProducts');
+	Route::get('attachProducts/{model_type}/{model_id}/{type?}/{customer_id?}','ProductController@attachProducts')->name('attachProducts');
 	Route::post('attachProductToModel/{model_type}/{model_id}/{product_id}','ProductController@attachProductToModel')->name('attachProductToModel');
 	Route::post('deleteOrderProduct/{order_product}','OrderController@deleteOrderProduct')->name('deleteOrderProduct');
 
