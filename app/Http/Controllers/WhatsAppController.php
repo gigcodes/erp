@@ -37,6 +37,7 @@ use App\Imports\CustomerNumberImport;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Support\Facades\DB;
+use Validator;
 
 
 class WhatsAppController extends FindByNumberController
