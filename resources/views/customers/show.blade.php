@@ -1215,7 +1215,7 @@
                                             @endif
                                           </td>
                                           <td>
-                                            <input class="form-control" type="number" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                            <input class="form-control" type="number" min="1" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
                                           </td>
                                           <td>
                                             @if(isset($order_product->product) && count($order_product->product->purchases) > 0)
@@ -2171,7 +2171,7 @@
                       product_row += '<td><select hidden class="form-control" name="order_products[' + response.order.id + '][size]"><option selected="selected" value=""></option></select>nil</td>';
                   }
 
-                  product_row += '<td><input class="table-input" type="number" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></td>';
+                  product_row += '<td><input class="table-input" type="number" min="1" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></td>';
                   product_row += '<td></td>';
                   product_row += '<td><a class="btn btn-image" href="' + show_url + '"><img src="/images/view.png" /></a>';
                   product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></td>';

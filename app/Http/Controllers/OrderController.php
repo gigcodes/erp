@@ -579,6 +579,26 @@ class OrderController extends Controller {
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
+
+			if ($order->payment_mode == 'paytm') {
+				if ($order->customer) {
+					$all_amount = 0;
+
+					if ($order->order_product) {
+						foreach ($order->order_product as $order_product) {
+							$all_amount += $order_product->product_price;
+						}
+					}
+
+					$order->customer->credit += $all_amount;
+					$order->customer->save();
+				}
+			} else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+				if ($order->customer) {
+					$order->customer->credit += $order->advance_detail;
+					$order->customer->save();
+				}
+			}
 		}
 
 		// if ($order->auto_emailed == 0) {
@@ -768,7 +788,7 @@ class OrderController extends Controller {
 		// if ($order->auto_emailed == 0) {
 		if (!$order->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
-				
+
 			}
 		}
 
@@ -783,6 +803,26 @@ class OrderController extends Controller {
 					'date_of_request'	=> Carbon::now(),
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
+			}
+
+			if ($order->payment_mode == 'paytm') {
+				if ($order->customer) {
+					$all_amount = 0;
+
+					if ($order->order_product) {
+						foreach ($order->order_product as $order_product) {
+							$all_amount += $order_product->product_price;
+						}
+					}
+
+					$order->customer->credit += $all_amount;
+					$order->customer->save();
+				}
+			} else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+				if ($order->customer) {
+					$order->customer->credit += $order->advance_detail;
+					$order->customer->save();
+				}
 			}
 		}
 
@@ -1217,6 +1257,26 @@ class OrderController extends Controller {
 					'date_of_request'	=> Carbon::now(),
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
+			}
+
+			if ($order->payment_mode == 'paytm') {
+				if ($order->customer) {
+					$all_amount = 0;
+
+					if ($order->order_product) {
+						foreach ($order->order_product as $order_product) {
+							$all_amount += $order_product->product_price;
+						}
+					}
+
+					$order->customer->credit += $all_amount;
+					$order->customer->save();
+				}
+			} else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+				if ($order->customer) {
+					$order->customer->credit += $order->advance_detail;
+					$order->customer->save();
+				}
 			}
 		}
 	}
