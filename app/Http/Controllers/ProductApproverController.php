@@ -46,7 +46,7 @@ class ProductApproverController extends Controller
 
 		$result = self::magentoSoapUpdateStatus($product);
 
-		if($result) {
+		if ($result) {
 
 			$product->isFinal = 1;
 			$product->stage   = $stage->get( 'Approver' );
@@ -62,39 +62,66 @@ class ProductApproverController extends Controller
 			return redirect()->route('products.show', $next_product->id)->with( 'success', 'Product has been Final Approved' );
 		}
 
-		return back()->with('error','Error Occured while uploading');
+		return back()->with('error','Error Occured while uploading. Check on magento');
 
 //		return ['msg'=>'success', 'isApproved'  => $product->isApproved ];
 	}
 
 
-	public function magentoSoapUpdateStatus($product){
-
+	public function magentoSoapUpdateStatus($product) {
 		$options = array(
 			'trace' => true,
 			'connection_timeout' => 120,
 			'wsdl_cache' => WSDL_CACHE_NONE,
 		);
+
 		$proxy = new \SoapClient(config('magentoapi.url'), $options);
 		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+		$errors = 0;
 
-		$sku = $product->sku . $product->color;
+		if ($product->references) {
+			$reference_array = [];
+			$reference_color = '';
+			$reference_sku = '';
 
-//		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
+			foreach ($product->references as $reference) {
+				if ($reference->size != '') {
+					$reference_array[] = $reference->size;
+				}
 
-		if(!empty($product->size)){
+				$reference_color = $reference->color;
+				$reference_sku = $reference->sku;
+			}
 
-			$sizes_array = explode( ',', $product->size );
+			$reference_final_sku = $reference_sku . $reference_color;
 
-			foreach ($sizes_array as $size)
-				$result = $proxy->catalogProductUpdate($sessionId, $sku . '-' . $size , array('status' => 1));
+			if(!empty($product->size)) {
+				$product_sizes = explode(',', $product->size);
 
-			$result = $proxy->catalogProductUpdate($sessionId, $sku , array('status' => 1));
+				foreach ($product_sizes as $size) {
+					if (in_array($size, $reference_array)) {
+						try {
+							$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size , array('status' => 1));
+						} catch (\Exception $e) {
+							$errors++;
+						}
+					}
+				}
+
+				try {
+					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
+				} catch (\Exception $e) {
+					$errors++;
+				}
+			} else {
+				try {
+					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
+				} catch (\Exception $e) {
+					$errors++;
+				}
+			}
 		}
-		else {
-			$result = $proxy->catalogProductUpdate($sessionId, $sku , array('status' => 1));
-		}
 
-		return $result;
+		return $errors > 0 ? false : $result;
 	}
 }
