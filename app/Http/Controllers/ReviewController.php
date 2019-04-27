@@ -38,7 +38,8 @@ class ReviewController extends Controller
 
       if ($request->platform != null) {
         $accounts = Account::where('platform', $request->platform)->latest()->paginate(Setting::get('pagination'));
-        $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('platform', $request->platform);
+        // $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('platform', $request->platform);
+        $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->where('platform', $request->platform);
         // $posted_reviews = ReviewSchedule::where('status', 'posted')->where('platform', $request->platform);
         $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->whereHas('review_schedule', function ($query) use ($request) {
           return $query->where('platform', $request->platform);
@@ -55,7 +56,8 @@ class ReviewController extends Controller
           $posted_reviews = $posted_reviews->where('posted_date', $request->posted_date);
           $complaints = $complaints->where('date', $request->posted_date);
         } else {
-          $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('posted_date', $request->posted_date);
+          $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->where('posted_date', $request->posted_date);
+          // $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('posted_date', $request->posted_date);
           // $posted_reviews = ReviewSchedule::where('status', 'posted')->where('posted_date', $request->posted_date);
           $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->where('posted_date', $request->posted_date);
           $complaints = Complaint::where('date', $request->posted_date);
@@ -63,16 +65,20 @@ class ReviewController extends Controller
       }
 
       if ($request->platform == null && $request->posted_date == null) {
-        $review_schedules = ReviewSchedule::where('status', '!=', 'posted');
+        $review_schedules = Review::where('status', '!=', 'posted');
+        // $review_schedules = ReviewSchedule::where('status', '!=', 'posted');
         $posted_reviews = Review::with('review_schedule')->where('status', 'posted');
         $complaints = (new Complaint)->newQuery();
       }
 
-      $review_schedules = $review_schedules->orWhere(function ($query) {
-        return $query->where('status', 'posted')->whereHas('Reviews', function ($q) {
+      // $review_schedules = $review_schedules->orWhere(function ($query) {
+      //   return $query->where('status', 'posted')->whereHas('Reviews', function ($q) {
+      //     return $q->where('is_approved', 0)->orWhere('is_approved', 2);
+      //   });
+      // })
+      $review_schedules = $review_schedules->orWhere('status', 'posted')->where(function ($q) {
           return $q->where('is_approved', 0)->orWhere('is_approved', 2);
-        });
-      })->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
+        })->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
 
       $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
       $complaints = $complaints->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
@@ -195,6 +201,7 @@ class ReviewController extends Controller
     public function update(Request $request, $id)
     {
       $this->validate($request, [
+        'review'        => 'required|string',
         'posted_date'   => 'sometimes|nullable|date',
         'review_link'   => 'sometimes|nullable|string',
         'account_id'    => 'sometimes|nullable|numeric',
@@ -282,16 +289,27 @@ class ReviewController extends Controller
 
     public function scheduleUpdateStatus(Request $request, $id)
     {
-      $review_schedule = ReviewSchedule::find($id);
-      $review_schedule->status = $request->status;
-      $review_schedule->save();
+      // $review_schedule = ReviewSchedule::find($id);
+      // $review_schedule->status = $request->status;
+      // $review_schedule->save();
+      //
+      // foreach ($review_schedule->reviews as $review) {
+      //   if ($review_schedule->status == 'posted' && $review->is_approved == 1) {
+      //     $review->status = 'posted';
+      //     $review->save();
+      //   }
+      // }
 
-      foreach ($review_schedule->reviews as $review) {
-        if ($review_schedule->status == 'posted' && $review->is_approved == 1) {
-          $review->status = 'posted';
-          $review->save();
-        }
-      }
+      $review = Review::find($id);
+      $review->status = $request->status;
+      $review->save();
+
+      // foreach ($review_schedule->reviews as $review) {
+      //   if ($review_schedule->status == 'posted' && $review->is_approved == 1) {
+      //     $review->status = 'posted';
+      //     $review->save();
+      //   }
+      // }
 
       return response('success');
     }
@@ -322,14 +340,20 @@ class ReviewController extends Controller
 
     public function scheduleDestroy($id)
     {
-      $schedule = ReviewSchedule::find($id);
+      // $schedule = ReviewSchedule::find($id);
+      //
+      // foreach ($schedule->reviews as $review) {
+      //   $review->delete();
+      // }
+      //
+      // $schedule->delete();
+      //
+      // return redirect()->route('review.index')->withSuccess('You have successfully deleted scheduled review!');
 
-      foreach ($schedule->reviews as $review) {
-        $review->delete();
-      }
+      $review = Review::find($id);
 
-      $schedule->delete();
+      $review->delete();
 
-      return redirect()->route('review.index')->withSuccess('You have successfully deleted scheduled review!');
+      return redirect()->route('review.index')->withSuccess('You have successfully deleted a review!');
     }
 }

@@ -28,6 +28,15 @@
           </div>
 
           <div class="form-group">
+            <strong>Review</strong>
+            <input type="text" name="review" class="form-control" id="edit_review_review" value="" required>
+
+            @if ($errors->has('review'))
+              <div class="alert alert-danger">{{$errors->first('review')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Review Link</strong>
             <input type="text" name="review_link" class="form-control" id="edit_review_link" value="">
 

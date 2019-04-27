@@ -133,33 +133,25 @@
             <tbody>
               @foreach ($review_schedules as $schedule)
                 <tr>
-                  <td>{{ \Carbon\Carbon::parse($schedule->date)->format('d-m') }}</td>
+                  <td>{{ \Carbon\Carbon::parse($schedule->review_schedule->date)->format('d-m') }}</td>
                   <td>{{ ucwords($schedule->platform) }}</td>
-                  <td>{{ $schedule->review_count }}</td>
-                  <td>
-                    @if ($schedule->reviews)
-                      <ul>
-                        @foreach ($schedule->reviews as $review)
-                          <li class="{{ $review->is_approved == 1 ? 'text-success' : ($review->is_approved == 2 ? 'text-danger' : '') }}">
-                            @php
-                              preg_match_all('/(#\w*)/', $review->review, $match);
+                  <td>{{ $schedule->review_schedule->review_count }}</td>
+                  <td class="{{ $schedule->is_approved == 1 ? 'text-success' : ($schedule->is_approved == 2 ? 'text-danger' : '') }}">
+                    @php
+                      preg_match_all('/(#\w*)/', $schedule->review, $match);
 
-                              $new_review = $review->review;
-                              foreach ($match[0] as $hashtag) {
-                                $exploded_review = explode($hashtag, $new_review);
-                                $new_hashtag = "<a target='_new' href='https://www.instagram.com/explore/tags/" . str_replace('#', '', $hashtag) . "'>" . $hashtag . "</a> ";
-                                $new_review = implode($new_hashtag, $exploded_review);
-                              }
-                            @endphp
-                            {!! $new_review !!}
-                            @if ($review->is_approved == 0)
-                               -
-                              <a href="#" class="btn-link review-approve-button" data-status="1" data-id="{{ $review->id }}">Approve</a>
-                              <a href="#" class="btn-link review-approve-button" data-status="2" data-id="{{ $review->id }}">Reject</a>
-                            @endif
-                          </li>
-                        @endforeach
-                      </ul>
+                      $new_review = $schedule->review;
+                      foreach ($match[0] as $hashtag) {
+                        $exploded_review = explode($hashtag, $new_review);
+                        $new_hashtag = "<a target='_new' href='https://www.instagram.com/explore/tags/" . str_replace('#', '', $hashtag) . "'>" . $hashtag . "</a> ";
+                        $new_review = implode($new_hashtag, $exploded_review);
+                      }
+                    @endphp
+                    {!! $new_review !!}
+                    @if ($schedule->is_approved == 0)
+                       -
+                      <a href="#" class="btn-link review-approve-button" data-status="1" data-id="{{ $schedule->id }}">Approve</a>
+                      <a href="#" class="btn-link review-approve-button" data-status="2" data-id="{{ $schedule->id }}">Reject</a>
                     @endif
                   </td>
                   <td>
@@ -175,7 +167,8 @@
                     </div>
                   </td>
                   <td>
-                    <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $schedule }}" data-reviews="{{ $schedule->reviews }}"><img src="/images/edit.png" /></button>
+                    {{-- <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $schedule }}" data-reviews="{{ $schedule }}"><img src="/images/edit.png" /></button> --}}
+                    <button type="button" class="btn btn-image edit-review" data-toggle="modal" data-target="#reviewEditModal" data-review="{{ $schedule }}"><img src="/images/edit.png" /></button>
 
                     {!! Form::open(['method' => 'DELETE','route' => ['review.schedule.destroy', $schedule->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -451,11 +444,11 @@
       }).done(function(response) {
         if (response.status == 1) {
           $(thiss).siblings('a').remove();
-          $(thiss).closest('li').addClass('text-success');
+          $(thiss).closest('td').addClass('text-success');
           $(thiss).remove();
         } else {
           $(thiss).siblings('a').remove();
-          $(thiss).closest('li').addClass('text-danger');
+          $(thiss).closest('td').addClass('text-danger');
           $(thiss).remove();
         }
       }).fail(function(response) {
@@ -513,6 +506,7 @@
       $('#reviewEditModal form').attr('action', url);
       $('#edit_posted_date input').val(review.posted_date);
       $('#edit_review_link').val(review.review_link);
+      $('#edit_review_review').val(review.review);
       $('#edit_review_account option[value="' + review.account_id + '"]').prop('selected', true);
       $('#edit_customer_id option[value="' + review.customer_id + '"]').prop('selected', true);
     }
