@@ -192,6 +192,8 @@ class WhatsAppController extends FindByNumberController
         $time = Carbon::now();
         $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
+        $saturday = Carbon::now()->endOfWeek()->subDay();
+        $sunday = Carbon::now()->endOfWeek();
 
         $customer = Customer::find($params['customer_id']);
         $params = [
@@ -202,7 +204,7 @@ class WhatsAppController extends FindByNumberController
            'customer_id'  => $params['customer_id']
          ];
 
-         if (!$time->between($morning, $evening, true)) {
+         if (!$time->between($morning, $evening, true) || $time == $saturday || $time == $sunday) {
            // $params['message'] = 'Our office is closed due to Good Friday we shall revert on all messages tomorrow.';
            $params['message'] = 'Our office is currently closed - we work between 10 - 5.30 - Monday - Friday -  - if an associate is available - your messaged will be responded within 60 minutes or on the next working day -since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate shall respond accordingly.';
          } else {
