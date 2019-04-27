@@ -147,12 +147,20 @@
                         $new_review = implode($new_hashtag, $exploded_review);
                       }
                     @endphp
-                    {!! $new_review !!}
+
+                    <span class="review-container">
+                      {!! $new_review !!}
+                    </span>
+
+                    <textarea name="review" class="form-control review-edit-textarea hidden" rows="8" cols="80">{{ $schedule->review }}</textarea>
+
                     @if ($schedule->is_approved == 0)
                        -
                       <a href="#" class="btn-link review-approve-button" data-status="1" data-id="{{ $schedule->id }}">Approve</a>
                       <a href="#" class="btn-link review-approve-button" data-status="2" data-id="{{ $schedule->id }}">Reject</a>
                     @endif
+
+                    <a href="#" class="btn-link quick-edit-review-button" data-id="{{ $schedule->id }}">Edit</a>
                   </td>
                   <td>
                     <div class="form-group">
@@ -591,6 +599,42 @@
             });
             $("#viewRemarkModal").find('#remark-list').html(html);
         });
+    });
+
+    $(document).on('click', '.quick-edit-review-button', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+
+      $(this).siblings('.review-edit-textarea').removeClass('hidden');
+      $(this).siblings('.review-container').addClass('hidden');
+
+      $(this).siblings('.review-edit-textarea').keypress(function(e) {
+        var key = e.which;
+        var thiss = $(this);
+
+        if (key == 13) {
+          e.preventDefault();
+          var review = $(thiss).val();
+
+          $.ajax({
+            type: 'POST',
+            url: "{{ url('review') }}/" + id + '/updateReview',
+            data: {
+              _token: "{{ csrf_token() }}",
+              review: review,
+            }
+          }).done(function() {
+            $(thiss).addClass('hidden');
+            $(thiss).siblings('.review-container').text(review);
+            $(thiss).siblings('.review-container').removeClass('hidden');
+          }).fail(function(response) {
+            console.log(response);
+
+            alert('Could not update review');
+          });
+        }
+      });
     });
   </script>
 @endsection

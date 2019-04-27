@@ -226,6 +226,15 @@ class ReviewController extends Controller
       return response()->json(['status' => $request->is_approved]);
     }
 
+    public function updateReview(Request $request, $id)
+    {
+      $review = Review::find($id);
+      $review->review = $request->review;
+      $review->save();
+
+      return response('success');
+    }
+
     public function accountUpdate(Request $request, $id)
     {
       $this->validate($request, [

@@ -383,6 +383,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// Reviews Module
 	Route::post('review/{id}/updateStatus', 'ReviewController@updateStatus');
+	Route::post('review/{id}/updateReview', 'ReviewController@updateReview');
 	Route::resource('review', 'ReviewController');
 	Route::post('review/schedule/create', 'ReviewController@scheduleStore')->name('review.schedule.store');
 	Route::put('review/schedule/{id}', 'ReviewController@scheduleUpdate')->name('review.schedule.update');
