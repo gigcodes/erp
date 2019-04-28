@@ -71,6 +71,11 @@ class Order extends Model {
 		return $this->hasMany('App\OrderReport', 'order_id')->latest()->first();
 	}
 
+	public function status_changes()
+	{
+		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Order')->latest();
+	}
+
 	public function many_reports()
 	{
 		return $this->hasMany('App\OrderReport', 'order_id')->latest();

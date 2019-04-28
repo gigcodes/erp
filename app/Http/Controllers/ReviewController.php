@@ -9,6 +9,10 @@ use App\ReviewSchedule;
 use App\Review;
 use App\Complaint;
 use App\Customer;
+use App\StatusChange;
+use App\Helpers;
+use App\User;
+use Auth;
 
 class ReviewController extends Controller
 {
@@ -25,6 +29,7 @@ class ReviewController extends Controller
     {
       $filter_platform = $request->platform ?? '';
       $filter_posted_date = $request->posted_date ?? '';
+      $users_array = Helpers::getUserArray(User::all());
 
       // $revs = Review::all();
       //
@@ -92,7 +97,8 @@ class ReviewController extends Controller
         'posted_reviews'      => $posted_reviews,
         'complaints'      => $complaints,
         'filter_platform'     => $filter_platform,
-        'filter_posted_date'  => $filter_posted_date
+        'filter_posted_date'  => $filter_posted_date,
+        'users_array'  => $users_array
       ]);
     }
 
@@ -310,6 +316,15 @@ class ReviewController extends Controller
       // }
 
       $review = Review::find($id);
+
+      StatusChange::create([
+        'model_id'    => $review->id,
+        'model_type'  => Review::class,
+        'user_id'     => Auth::id(),
+        'from_status' => $review->status,
+        'to_status'   => $request->status
+      ]);
+
       $review->status = $request->status;
       $review->save();
 

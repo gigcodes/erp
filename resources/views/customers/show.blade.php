@@ -838,6 +838,21 @@
 
                     <div class="form-group">
                       <strong>status:</strong>
+
+                      @if (count($lead->status_changes) > 0)
+                        <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                        <div class="change-history-container hidden">
+                          <ul>
+                            @foreach ($lead->status_changes as $status_history)
+                              <li>
+                                {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                              </li>
+                            @endforeach
+                          </ul>
+                        </div>
+                      @endif
+
                       <Select name="status" class="form-control change_status" data-leadid="{{ $lead->id }}">
                         @foreach($lead_status as $key => $value)
                           <option value="{{$value}}" {{$value == $lead->status ? 'Selected=Selected':''}}>{{$key}}</option>
@@ -1020,6 +1035,21 @@
 
                          <div class="form-group">
                              <strong>status:</strong>
+
+                             @if (count($order->status_changes) > 0)
+                               <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                               <div class="change-history-container hidden">
+                                 <ul>
+                                   @foreach ($order->status_changes as $status_history)
+                                     <li>
+                                       {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                                     </li>
+                                   @endforeach
+                                 </ul>
+                               </div>
+                             @endif
+
                              <Select name="status" class="form-control change_status order_status" data-orderid="{{ $order->id }}">
                                   @php $order_status = (new \App\ReadOnly\OrderStatus)->all(); @endphp
                                   @foreach($order_status as $key => $value)
@@ -1231,6 +1261,20 @@
                                                   <option value="{{$value}}" {{ $value == $order_product->purchase_status ? 'selected=selected' : '' }}>{{$key}}</option>
                                                   @endforeach
                                               </select>
+
+                                              @if (count($order_product->status_changes) > 0)
+                                                <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                                                <div class="change-history-container hidden">
+                                                  <ul>
+                                                    @foreach ($order_product->status_changes as $status_history)
+                                                      <li>
+                                                        {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                                                      </li>
+                                                    @endforeach
+                                                  </ul>
+                                                </div>
+                                              @endif
                                             @else
                                               No Purchase
                                             @endif
@@ -1480,6 +1524,8 @@
                <input type="hidden" name="assigned_user" value="{{ Auth::id() }}" />
                <input type="hidden" name="status" value="1" />
 
+               <div class="paste-container"></div>
+
                <p class="pb-4 mt-3" style="display: block;">
                  <select name="quickCategory" id="quickCategory" class="form-control mb-3">
                    <option value="">Select Category</option>
@@ -1498,7 +1544,7 @@
              </div>
 
              <div class="form-group">
-               <input type="file" class="dropify" name="image" data-height="100" />
+               <input type="file" class="dropify" id="dropify-test" name="image" data-height="100" />
                <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
              </div>
        </div>
@@ -1634,6 +1680,10 @@
       </div>
     </div>
   @endif
+</div>
+
+<div id="paste-container">
+{{-- remove later --}}
 </div>
 
 <div class="row">
@@ -3390,5 +3440,85 @@
           console.log(response);
         })
       });
+
+
+
+      // $('#message-body').on('focus', function() {
+      //   // if ($(this).is(":focus")) {
+      //   // Created by STRd6
+      //   // MIT License
+      //   // jquery.paste_image_reader.js
+      //   (function($) {
+      //     var defaults;
+      //     $.event.fix = (function(originalFix) {
+      //       return function(event) {
+      //         event = originalFix.apply(this, arguments);
+      //         if (event.type.indexOf('copy') === 0 || event.type.indexOf('paste') === 0) {
+      //           event.clipboardData = event.originalEvent.clipboardData;
+      //         }
+      //         return event;
+      //       };
+      //     })($.event.fix);
+      //     defaults = {
+      //       callback: $.noop,
+      //       matchType: /image.*/
+      //     };
+      //     return $.fn.pasteImageReader = function(options) {
+      //       if (typeof options === "function") {
+      //         options = {
+      //           callback: options
+      //         };
+      //       }
+      //       options = $.extend({}, defaults, options);
+      //       return this.each(function() {
+      //         var $this, element;
+      //         element = this;
+      //         $this = $(this);
+      //         return $this.bind('paste', function(event) {
+      //           var clipboardData, found;
+      //           found = false;
+      //           clipboardData = event.clipboardData;
+      //           return Array.prototype.forEach.call(clipboardData.types, function(type, i) {
+      //             var file, reader;
+      //             if (found) {
+      //               return;
+      //             }
+      //             if (type.match(options.matchType) || clipboardData.items[i].type.match(options.matchType)) {
+      //               file = clipboardData.items[i].getAsFile();
+      //               reader = new FileReader();
+      //               reader.onload = function(evt) {
+      //                 return options.callback.call(element, {
+      //                   dataURL: evt.target.result,
+      //                   event: evt,
+      //                   file: file,
+      //                   name: file.name
+      //                 });
+      //               };
+      //               reader.readAsDataURL(file);
+      //               return found = true;
+      //             }
+      //           });
+      //         });
+      //       });
+      //     };
+      //   })(jQuery);
+      //     var dataURL, filename;
+      //     $("html").pasteImageReader(function(results) {
+      //       console.log(results);
+      //       alert('pasted');
+      //     	filename = results.filename, dataURL = results.dataURL;
+      //
+      //       var img = $('<img src="' + dataURL + '" class="img-responsive" />');
+      //
+      //       $('#paste-container').append(img);
+      //
+      //     });
+      //   // }
+      // });
+
+      $(document).on('click', '.change-history-toggle', function() {
+        $(this).siblings('.change-history-container').toggleClass('hidden');
+      });
+
   </script>
 @endsection

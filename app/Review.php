@@ -24,4 +24,9 @@ class Review extends Model
   {
     return $this->belongsTo('App\Customer');
   }
+
+  public function status_changes()
+	{
+		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Review')->latest();
+	}
 }

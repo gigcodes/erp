@@ -41,6 +41,11 @@ class OrderProduct extends Model
 		return $this->hasMany('App\ChatMessage', 'order_id', 'order_id')->latest()->first();
 	}
 
+  public function status_changes()
+	{
+		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\OrderProduct')->latest();
+	}
+
   public function getCommunicationAttribute()
 	{
 		$message = $this->messages();

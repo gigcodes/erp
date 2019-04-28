@@ -21,6 +21,8 @@
 
 @include('partials.flash_messages')
 
+@php $users_array = \App\Helpers::getUserArray(\App\User::all()); @endphp
+
 <div class="row">
   <div class="col-md-6 col-12">
     <div class="form-group">
@@ -55,6 +57,21 @@
 
     <div class="form-group">
       <strong>Status:</strong>
+
+      @if (count($order->status_changes) > 0)
+        <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+        <div class="change-history-container hidden">
+          <ul>
+            @foreach ($order->status_changes as $status_history)
+              <li>
+                {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+              </li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
       <Select name="status" class="form-control" id="change_status">
            @foreach($purchase_status as $key => $value)
             <option value="{{$value}}" {{$value == $order->status ? 'Selected=Selected':''}}>{{$key}}</option>
@@ -348,7 +365,7 @@
   </div>
 </div>
 
-@php $users_array = \App\Helpers::getUserArray(\App\User::all()); @endphp
+
 
 <div class="row">
   <div class="col-xs-12 col-sm-12 mb-3">
@@ -2249,6 +2266,10 @@
         alert('Could not load emails');
         console.log(response);
       });
+    });
+
+    $(document).on('click', '.change-history-toggle', function() {
+      $(this).siblings('.change-history-container').toggleClass('hidden');
     });
   </script>
 @endsection

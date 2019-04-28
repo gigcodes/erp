@@ -173,6 +173,20 @@
 
                       <span class="text-success change_status_message" style="display: none;">Successfully changed schedule status</span>
                     </div>
+
+                    @if (count($schedule->status_changes) > 0)
+                      <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                      <div class="change-history-container hidden">
+                        <ul>
+                          @foreach ($schedule->status_changes as $status_history)
+                            <li>
+                              {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                            </li>
+                          @endforeach
+                        </ul>
+                      </div>
+                    @endif
                   </td>
                   <td>
                     {{-- <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $schedule }}" data-reviews="{{ $schedule }}"><img src="/images/edit.png" /></button> --}}
@@ -635,6 +649,10 @@
           });
         }
       });
+    });
+
+    $(document).on('click', '.change-history-toggle', function() {
+      $(this).siblings('.change-history-container').toggleClass('hidden');
     });
   </script>
 @endsection

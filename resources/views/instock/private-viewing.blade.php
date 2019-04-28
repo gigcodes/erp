@@ -77,6 +77,20 @@
                     <option value="returned" {{ 'returned' == $view->status ? 'selected' : '' }}>Returned</option>
                   </select>
 
+                  @if (count($view->status_changes) > 0)
+                    <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                    <div class="change-history-container hidden">
+                      <ul>
+                        @foreach ($view->status_changes as $status_history)
+                          <li>
+                            {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                          </li>
+                        @endforeach
+                      </ul>
+                    </div>
+                  @endif
+
                   <span class="text-success change_status_message" style="display: none;">Successfully updated status</span>
                 </td>
                 <td>
@@ -124,6 +138,10 @@
         console.log(response);
         alert('Could not update the status');
       });
+    });
+
+    $(document).on('click', '.change-history-toggle', function() {
+      $(this).siblings('.change-history-container').toggleClass('hidden');
     });
   </script>
 @endsection

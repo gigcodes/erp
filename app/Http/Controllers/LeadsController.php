@@ -16,6 +16,7 @@ use App\Task;
 use App\Image;
 use App\Reply;
 use App\Customer;
+use App\StatusChange;
 use App\CallRecording;
 use App\CommunicationHistory;
 use App\ReplyCategory;
@@ -469,6 +470,17 @@ class LeadsController extends Controller
         }
 
 
+        if ($request->status != $leads->status) {
+          $lead_status = (New status)->all();
+          StatusChange::create([
+            'model_id'    => $id,
+            'model_type'  => Leads::class,
+            'user_id'     => Auth::id(),
+            'from_status' => array_search($leads->status, $lead_status),
+            'to_status'   => array_search($request->status, $lead_status)
+          ]);
+        }
+
         $leads->status = $request->get('status');
         $leads->comments = $request->get('comments');
         $leads->assigned_user = $request->get('assigned_user');
@@ -518,8 +530,6 @@ class LeadsController extends Controller
           }
 
         }
-
-
 
         return redirect()->back()->with('success','Lead has been updated');
     }
@@ -599,6 +609,15 @@ class LeadsController extends Controller
     public function updateStatus(Request $request, $id)
     {
       $lead = Leads::find($id);
+      $lead_status = (New status)->all();
+      StatusChange::create([
+        'model_id'    => $id,
+        'model_type'  => Leads::class,
+        'user_id'     => Auth::id(),
+        'from_status' => array_search($lead->status, $lead_status),
+        'to_status'   => array_search($request->status, $lead_status)
+      ]);
+
       $lead->status = $request->status;
       $lead->save();
     }

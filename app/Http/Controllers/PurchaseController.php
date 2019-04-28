@@ -18,6 +18,7 @@ use App\ReplyCategory;
 use App\Task;
 use App\Brand;
 use App\Email;
+use App\StatusChange;
 use App\Mail\CustomerEmail;
 use App\Mail\PurchaseEmail;
 use App\Supplier;
@@ -36,6 +37,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Carbon\Carbon;
 use Storage;
+use Auth;
 use Webklex\IMAP\Client;
 
 class PurchaseController extends Controller
@@ -591,11 +593,30 @@ class PurchaseController extends Controller
     public function updateStatus(Request $request, $id)
     {
       $order = Purchase::find($id);
+
+      StatusChange::create([
+        'model_id'    => $order->id,
+        'model_type'  => Purchase::class,
+        'user_id'     => Auth::id(),
+        'from_status' => $order->status,
+        'to_status'   => $request->status
+      ]);
+
       $order->status = $request->status;
       $order->save();
 
       foreach ($order->products as $product) {
         foreach ($product->orderproducts as $order_product) {
+          if ($request->status != $order_product->purchase_status) {
+            StatusChange::create([
+              'model_id'    => $order_product->id,
+              'model_type'  => OrderProduct::class,
+              'user_id'     => Auth::id(),
+              'from_status' => $order_product->purchase_status,
+              'to_status'   => $request->status
+            ]);
+          }
+
           $order_product->purchase_status = $request->status;
           $order_product->save();
         }

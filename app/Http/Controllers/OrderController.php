@@ -33,6 +33,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
+use App\StatusChange;
 use App\Category;
 use App\Mail\RefundProcessed;
 use App\Mail\AdvanceReceipt;
@@ -734,8 +735,29 @@ class OrderController extends Controller {
 		if(!empty($request->input('order_products'))) {
 			foreach ($request->input('order_products') as $key => $order_product_data) {
 				$order_product = OrderProduct::findOrFail( $key );
+
+				if ($order_product_data['purchase_status'] != $order_product->purchase_status) {
+					StatusChange::create([
+						'model_id'    => $order_product->id,
+						'model_type'  => OrderProduct::class,
+						'user_id'     => Auth::id(),
+						'from_status' => $order_product->purchase_status,
+						'to_status'   => $order_product_data['purchase_status']
+					]);
+				}
+
 				$order_product->update($order_product_data);
 			}
+		}
+
+		if ($request->status != $order->order_status) {
+			StatusChange::create([
+				'model_id'    => $order->id,
+				'model_type'  => Order::class,
+				'user_id'     => Auth::id(),
+				'from_status' => $order->order_status,
+				'to_status'   => $request->status
+			]);
 		}
 
 		$data = $request->except(['_token', '_method', 'status', 'purchase_status']);
@@ -1203,6 +1225,15 @@ class OrderController extends Controller {
 	public function updateStatus(Request $request, $id)
 	{
 		$order = Order::find($id);
+
+		StatusChange::create([
+			'model_id'    => $order->id,
+			'model_type'  => Order::class,
+			'user_id'     => Auth::id(),
+			'from_status' => $order->order_status,
+			'to_status'   => $request->status
+		]);
+
 		$order->order_status = $request->status;
 		$order->save();
 

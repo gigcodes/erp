@@ -47,4 +47,9 @@ class Purchase extends Model
   {
     return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Purchase')->orWhere('model_type', 'App\Supplier');
   }
+
+  public function status_changes()
+	{
+		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Purchase')->latest();
+	}
 }
