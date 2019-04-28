@@ -143,6 +143,56 @@ class WhatsAppController extends FindByNumberController
         $customer->update([
           'whatsapp_number' => $to
         ]);
+
+        if (Setting::get('forward_messages') == 1) {
+          if (Setting::get('forward_start_date') != null && Setting::get('forward_end_date') != null) {
+            $time = Carbon::now();
+            $start_date = Carbon::parse(Setting::get('forward_start_date'));
+            $end_date = Carbon::parse(Setting::get('forward_end_date'));
+
+            if ($time->between($start_date, $end_date, true)) {
+              $forward_users_ids = json_decode(Setting::get('forward_users'));
+              $second_message = '';
+
+              if ($message->message == null) {
+                $forwarded_message = "FORWARDED from $customer->name";
+                $second_message = $message->media_url;
+              } else {
+                $forwarded_message = "FORWARDED from $customer->name - " . $message->message;
+              }
+
+              foreach ($forward_users_ids as $user_id) {
+                $user = User::find($user_id);
+
+                $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $forwarded_message, FALSE, $message->id);
+
+                if ($second_message != '') {
+                  $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $second_message, FALSE, $message->id);
+                }
+              }
+            }
+          } else {
+            $forward_users_ids = json_decode(Setting::get('forward_users'));
+            $second_message = '';
+
+            if ($message->message == null) {
+              $forwarded_message = "FORWARDED from $customer->name";
+              $second_message = $message->media_url;
+            } else {
+              $forwarded_message = "FORWARDED from $customer->name - " . $message->message;
+            }
+
+            foreach ($forward_users_ids as $user_id) {
+              $user = User::find($user_id);
+
+              $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $forwarded_message, FALSE, $message->id);
+
+              if ($second_message != '') {
+                $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $second_message, FALSE, $message->id);
+              }
+            }
+          }
+        }
       }
 
       if (!isset($order) && !isset($lead) && !isset($user) && !isset($purchase) && !isset($customer)) {

@@ -2,6 +2,8 @@
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
 
 @section('content')
@@ -216,6 +218,53 @@
 
                                 <hr>
 
+                                <div class="form-group">
+                                  <input type="checkbox" name="forward_messages" id="forward_messages" {{ $forward_messages ? 'checked' : '' }} />
+                                  <label for="forward_messages">Forward Messages to Personal:</label>
+                                  @if ($errors->has('forward_messages'))
+                                    <div class="alert alert-danger">{{$errors->first('forward_messages')}}</div>
+                                  @endif
+                                </div>
+
+                                <div class="form-group">
+                                  <strong>Select Users to Forward to</strong>
+                                  <select class="form-control select-multiple" name="forward_users[]" multiple>
+                                    @foreach ($users_array as $index => $user)
+                                      <option value="{{ $index }}" {{ isset($forward_users) && in_array($index, $forward_users) ? 'selected' : '' }}>{{ $user }}</option>
+                                    @endforeach
+                                  </select>
+                                </div>
+
+                                <div class="form-group">
+                                  <strong>Start Date:</strong>
+                                  <div class='input-group date' id='forward-start-date'>
+                                    <input type='text' class="form-control" name="forward_start_date" value="{{ $forward_start_date }}" />
+
+                                    <span class="input-group-addon">
+                                      <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                  </div>
+
+                                  @if ($errors->has('forward_start_date'))
+                                      <div class="alert alert-danger">{{$errors->first('forward_start_date')}}</div>
+                                  @endif
+                                </div>
+
+                                <div class="form-group">
+                                  <strong>End Date:</strong>
+                                  <div class='input-group date' id='forward-end-date'>
+                                    <input type='text' class="form-control" name="forward_end_date" value="{{ $forward_end_date }}" />
+
+                                    <span class="input-group-addon">
+                                      <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                  </div>
+
+                                  @if ($errors->has('forward_end_date'))
+                                      <div class="alert alert-danger">{{$errors->first('forward_end_date')}}</div>
+                                  @endif
+                                </div>
+
                                 <h4>Apiwha keys</h4>
 
                                 <div class="form-group">
@@ -268,6 +317,8 @@
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript">
     $('#add-more-fields').on('click', function() {
       var count = $(this).data('count') + 1;
@@ -303,6 +354,14 @@
 
         $('#apiwha-container').append(fields);
       }
+    });
+
+    $(document).ready(function() {
+       $(".select-multiple").multiselect();
+
+       $('#forward-start-date, #forward-end-date').datetimepicker({
+         format: 'YYYY-MM-DD HH:mm'
+       });
     });
   </script>
 @endsection
