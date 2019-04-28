@@ -14,6 +14,7 @@ use App\ScrapActivity;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
+use App\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -566,6 +567,28 @@ class ScrapController extends Controller
 
         return redirect()->back()->with('message', 'Excel Imported Successfully!');
 
+
+    }
+
+    public function saveSupplier(Request $request) {
+        $this->validate($request, [
+            'supplier' => 'required'
+        ]);
+        $params = [
+            'supplier' => ucwords($request->get('supplier')),
+            'phone'	=> str_replace('+', '', $request->get('phone')),
+            'address' => $request->get('address'),
+            'website' => $request->get('website'),
+            'email'	=> $request->get('email'),
+            'social_handle'	=> $request->get('social_handle'),
+            'instagram_handle' => $request->get('instagram_handle'),
+        ];
+
+        Supplier::create($params);
+
+        return response()->json([
+            'message' => 'Added successfully!'
+        ]);
 
     }
 }
