@@ -272,7 +272,7 @@ class ProductListerController extends Controller
 					array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
 				);
 			}
-
+		} else {
 			$result = false;
 		}
 
