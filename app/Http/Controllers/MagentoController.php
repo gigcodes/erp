@@ -164,11 +164,14 @@ class MagentoController extends Controller {
 				$customer_id = $customer->id;
 			}
 
+			$order_status = '';
 			$payment_method = '';
 			if ($results['payment']['method'] == 'paytm_cc'  || $results['payment']['method'] == 'zestmoney_zestpay') {
-				$payment_method = 'Prepaid';
+				$order_status = 'Prepaid';
+				$payment_method = 'paytm';
 			} elseif ($results['payment']['method'] == 'cashondelivery') {
-				$payment_method = 'Proceed without Advance';
+				$order_status = 'Proceed without Advance';
+				$payment_method = 'cash on delivery';
 			}
 
 			$id             = DB::table( 'orders' )->insertGetId(
@@ -176,7 +179,8 @@ class MagentoController extends Controller {
 					'customer_id'    => $customer_id,
 					'order_id'       => $results['increment_id'],
 					'order_type'     => 'online',
-					'order_status'	 => $payment_method,
+					'order_status'	 => $order_status,
+					'payment_mode' 	 => $payment_method,
 					'order_date'     => $results['created_at'],
 					'client_name'    => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
 					'city'           => $results['billing_address']['city'],

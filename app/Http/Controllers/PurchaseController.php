@@ -381,7 +381,7 @@ class PurchaseController extends Controller
       $selected_purchases = json_decode($request->selected_purchases);
       $path = "purchase_exports/" . Carbon::now()->format('Y-m-d') . "_purchases_export.xlsx";
 
-      Excel::store(new PurchasesExport($selected_purchases), $path, 'uploads');
+      Excel::store(new PurchasesExport($selected_purchases), $path, 'files');
 
       $agent = Agent::find($request->agent_id);
 
@@ -400,7 +400,7 @@ class PurchaseController extends Controller
 
       Email::create($params);
 
-      return Storage::disk('uploads')->download($path);
+      return Storage::disk('files')->download($path);
 
       // return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
     }
@@ -409,12 +409,12 @@ class PurchaseController extends Controller
     {
       $file = File::find($id);
 
-      return Storage::disk('uploads')->download('files/' . $file->filename);
+      return Storage::disk('files')->download('files/' . $file->filename);
     }
 
     public function downloadAttachments(Request $request)
     {
-      return Storage::disk('uploads')->download($request->path);
+      return Storage::disk('files')->download($request->path);
     }
 
     /**
@@ -629,9 +629,8 @@ class PurchaseController extends Controller
           $extension = $file->getClientOriginalExtension();
 
           $full_name = $filename . '.' . $extension;
-          // return response()->json(['data' => $full_name]);
 
-          $file->storeAs("files", $full_name, 'uploads');
+          $file->storeAs("files", $full_name, 'files');
 
           $new_file = new File;
           $new_file->filename = $full_name;
@@ -901,7 +900,7 @@ class PurchaseController extends Controller
           foreach ($request->file('file') as $file) {
             $filename = $file->getClientOriginalName();
 
-            $file->storeAs("documents", $filename, 'uploads');
+            $file->storeAs("documents", $filename, 'files');
 
             $file_paths[] = "documents/$filename";
           }

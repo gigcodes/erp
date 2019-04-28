@@ -71,6 +71,7 @@
             <th width="10%">Instruction</th>
             <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Message Status</a></th>
             <th>Order Status</th>
+            <th>Purchase Status</th>
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
             <th width="30%">Send Message</th>
             <th>Shortcuts</th>
@@ -135,7 +136,7 @@
                       @endif
                     <td class="{{ $instructions[$customer->id][0]['completed_at'] ? 'text-success' : 'text-danger' }}">
                         @if ($instructions[$customer->id][0]['assigned_to'])
-                          {{ $users_array[$instructions[$customer->id][0]['assigned_to']] }} -
+                          {{ array_key_exists($instructions[$customer->id][0]['assigned_to'], $users_array) ? $users_array[$instructions[$customer->id][0]['assigned_to']] : 'No User' }} -
 
 
                           {{ $instructions[$customer->id][0]['instruction'] }}
@@ -199,6 +200,15 @@
                       @endif
                     </td>
                     <td>
+                      @if (array_key_exists($customer->id, $orders))
+                        @if ($customer->purchase_status != null)
+                          {{ $customer->purchase_status }}
+                        @else
+                          No Purchase
+                        @endif
+                      @endif
+                    </td>
+                    <td>
                       @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at)
                         @if (isset($customer->message))
                             @if (strpos($customer->message, '<br>') !== false)
@@ -242,7 +252,7 @@
                         <input type="hidden" name="category_id" value="1">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('image_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image"><img src="/images/attach.png" /></button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/attach.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
@@ -252,17 +262,17 @@
                         <input type="hidden" name="category_id" value="1">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image">$</button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button">$</button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                        {{--<input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">--}}
+                        <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
                         <input type="hidden" name="category_id" value="1">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image"><img src="/images/call.png" /></button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/call.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
@@ -272,7 +282,7 @@
                         <input type="hidden" name="category_id" value="1">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image"><img src="/images/upload.png" /></button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/upload.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
@@ -282,7 +292,7 @@
                         <input type="hidden" name="category_id" value="1">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('details_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image">Details</button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button">Details</button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
@@ -292,7 +302,7 @@
                         <input type="hidden" name="category_id" value="1">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image">Check Purchase</button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button">Check Purchase</button>
                       </form>
 
                       <div class="d-inline">
@@ -318,7 +328,7 @@
       <input type="hidden" name="sending_time" id="attach_sending_time" value="">
     </form>
 
-    {!! $customers->links() !!}
+    {!! $customers->appends(Request::except('page'))->links() !!}
   </div>
 
 @endsection
@@ -705,6 +715,36 @@
           $(thiss).text('Block on Twilio');
 
           alert('Could not block customer!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.quick-shortcut-button', function(e) {
+        e.preventDefault();
+
+        var customer_id = $(this).parent().find('input[name="customer_id"]').val();
+        var instruction = $(this).parent().find('input[name="instruction"]').val();
+        var category_id = $(this).parent().find('input[name="category_id"]').val();
+        var assigned_to = $(this).parent().find('input[name="assigned_to"]').val();
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('instruction.store') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id,
+            instruction: instruction,
+            category_id: category_id,
+            assigned_to: assigned_to,
+          },
+          beforeSend: function() {
+
+          }
+        }).done(function(response) {
+
+        }).fail(function(response) {
+          alert('Could not execute shortcut!');
 
           console.log(response);
         });

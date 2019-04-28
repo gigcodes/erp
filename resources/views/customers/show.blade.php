@@ -1215,7 +1215,7 @@
                                             @endif
                                           </td>
                                           <td>
-                                            <input class="form-control" type="number" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                            <input class="form-control" type="number" min="1" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
                                           </td>
                                           <td>
                                             @if(isset($order_product->product) && count($order_product->product->purchases) > 0)
@@ -1245,7 +1245,7 @@
                         {{-- {{dd($data)}} --}}
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group btn-group">
-                                <a href="{{ route('attachProducts',['order',$order->id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
+                                <a href="{{ route('attachProducts',['order',$order->id, 'fake-parameter', $customer->id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
                                 <button type="button" class="btn btn-secondary add-product-button" data-orderid="{{ $order->id }}" data-toggle="modal" data-target="#productModal">+</button>
                             </div>
                         </div>
@@ -2171,7 +2171,7 @@
                       product_row += '<td><select hidden class="form-control" name="order_products[' + response.order.id + '][size]"><option selected="selected" value=""></option></select>nil</td>';
                   }
 
-                  product_row += '<td><input class="table-input" type="number" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></td>';
+                  product_row += '<td><input class="table-input" type="number" min="1" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></td>';
                   product_row += '<td></td>';
                   product_row += '<td><a class="btn btn-image" href="' + show_url + '"><img src="/images/view.png" /></a>';
                   product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></td>';

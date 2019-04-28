@@ -7,7 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class HourlyReport extends Mailable
+class ActivityListings extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -16,11 +16,12 @@ class HourlyReport extends Mailable
      *
      * @return void
      */
-    protected $path;
 
-    public function __construct($path)
+    public $data;
+
+    public function __construct(array $data)
     {
-      $this->path = $path;
+      $this->data = $data;
     }
 
     /**
@@ -30,10 +31,8 @@ class HourlyReport extends Mailable
      */
     public function build()
     {
-      return $this->from('contact@sololuxury.co.in')
-                  ->bcc('customercare@sololuxury.co.in')
-                  ->subject('Generated Hourly Report')
-                  ->markdown('emails.hourly-report')
-                  ->attachFromStorageDisk('files', $this->path);
+        return $this->from('contact@sololuxury.co.in')
+                    ->subject('Activity Listing Report Generated')
+                    ->markdown('emails.activity-listings');
     }
 }

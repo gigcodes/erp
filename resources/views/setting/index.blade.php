@@ -213,6 +213,41 @@
                                     <div class="alert alert-danger">{{$errors->first('consignor_phone')}}</div>
                                   @endif
                                 </div>
+
+                                <hr>
+
+                                <h4>Apiwha keys</h4>
+
+                                <div class="form-group">
+                                  <input type="checkbox" name="whatsapp_number_change" id="whatsapp_number_change" {{ $whatsapp_number_change ? 'checked' : '' }} />
+                                  <label for="whatsapp_number_change">Let Customers know about number change</label>
+                                </div>
+
+                                <div id="apiwha-container">
+                                  <div class="form-row">
+                                    <div class="form-group col">
+                                      <strong>Number:</strong>
+                                      <input type="number" class="form-control" name="number[]" id="first_number" value="" required>
+
+                                      @if ($errors->has('number'))
+                                        <div class="alert alert-danger">{{$errors->first('number')}}</div>
+                                      @endif
+                                    </div>
+
+                                    <div class="form-group col ml-3">
+                                      <strong>API Key:</strong>
+                                      <input type="text" class="form-control" name="key[]" id="first_key" value="" required>
+
+                                      @if ($errors->has('key'))
+                                        <div class="alert alert-danger">{{$errors->first('key')}}</div>
+                                      @endif
+
+                                      <input type="radio" name="default" id="first_default" value="1">
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <button type="button" id="add-more-fields" data-count="1" class="btn btn-xs btn-secondary">Add More</button>
                             </div>
                         </div>
                     </div>
@@ -233,4 +268,41 @@
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+  <script type="text/javascript">
+    $('#add-more-fields').on('click', function() {
+      var count = $(this).data('count') + 1;
+      $(this).data('count', count);
+      var fields = $('<div class="form-row"><div class="form-group col"><strong>Number:</strong><input type="number" class="form-control" name="number[]" value="" required></div><div class="form-group col ml-3"><strong>API Key:</strong><input type="text" class="form-control" name="key[]" value="" required><input type="radio" name="default" value="' + count + '"></div><div class="col-xs-12"><button type="button" class="btn btn-image remove-fields"><img src="/images/delete.png" /></button></div></div>');
+
+      $('#apiwha-container').append(fields);
+
+      console.log($(this).data('count'));
+    });
+
+    $(document).on('click', '.remove-fields', function() {
+      $(this).closest('.form-row').remove();
+      var count = $('#add-more-fields').data('count');
+      $('#add-more-fields').data('count', count - 1);
+      console.log($('#add-more-fields').data('count'));
+    });
+
+    var api_keys = {!! json_encode($api_keys) !!};
+
+    Object.keys(api_keys).forEach(function(index) {
+      if (index == 0) {
+        $('#first_number').val(api_keys[index].number);
+        $('#first_key').val(api_keys[index].key);
+
+        if (api_keys[index].default == 1) {
+          $('#first_default').prop('checked', true);
+        }
+      } else {
+        var checked = api_keys[index].default == 1 ? 'checked' : '';
+        var count = parseInt(index, 10) + 1;
+        var fields = $('<div class="form-row"><div class="form-group col"><strong>Number:</strong><input type="number" class="form-control" name="number[]" value="' + api_keys[index].number + '" required></div><div class="form-group col ml-3"><strong>API Key:</strong><input type="text" class="form-control" name="key[]" value="' + api_keys[index].key + '" required><input type="radio" name="default" value="' + count + '" ' + checked + '></div><div class="col-xs-12"><button type="button" class="btn btn-image remove-fields"><img src="/images/delete.png" /></button></div></div>');
+
+        $('#apiwha-container').append(fields);
+      }
+    });
+  </script>
 @endsection

@@ -60,7 +60,7 @@ class DocumentController extends Controller
       foreach ($request->file('file') as $file) {
         $data['filename'] = $file->getClientOriginalName();
 
-        $file->storeAs("documents", $data['filename'], 'uploads');
+        $file->storeAs("documents", $data['filename'], 'files');
 
         Document::create($data);
       }
@@ -72,7 +72,7 @@ class DocumentController extends Controller
     {
       $document = Document::find($id);
 
-      return Storage::disk('uploads')->download('documents/' . $document->filename);
+      return Storage::disk('files')->download('documents/' . $document->filename);
     }
 
     /**
@@ -119,7 +119,7 @@ class DocumentController extends Controller
     {
       $document = Document::find($id);
 
-      Storage::disk('uploads')->delete("documents/$document->filename");
+      Storage::disk('files')->delete("documents/$document->filename");
 
       $document->delete();
 

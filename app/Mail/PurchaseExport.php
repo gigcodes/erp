@@ -39,6 +39,6 @@ class PurchaseExport extends Mailable
                   ->bcc('customercare@sololuxury.co.in')
                   ->subject($this->subject)
                   ->text('emails.purchases.export_plain')->with(['body_message' => $this->message])
-                  ->attachFromStorageDisk('uploads', $this->path);
+                  ->attachFromStorageDisk('files', $this->path);
     }
 }

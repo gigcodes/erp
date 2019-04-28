@@ -579,6 +579,26 @@ class OrderController extends Controller {
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
+
+			if ($order->payment_mode == 'paytm') {
+				if ($order->customer) {
+					$all_amount = 0;
+
+					if ($order->order_product) {
+						foreach ($order->order_product as $order_product) {
+							$all_amount += $order_product->product_price;
+						}
+					}
+
+					$order->customer->credit += $all_amount;
+					$order->customer->save();
+				}
+			} else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+				if ($order->customer) {
+					$order->customer->credit += $order->advance_detail;
+					$order->customer->save();
+				}
+			}
 		}
 
 		// if ($order->auto_emailed == 0) {
@@ -768,7 +788,7 @@ class OrderController extends Controller {
 		// if ($order->auto_emailed == 0) {
 		if (!$order->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
-				
+
 			}
 		}
 
@@ -783,6 +803,26 @@ class OrderController extends Controller {
 					'date_of_request'	=> Carbon::now(),
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
+			}
+
+			if ($order->payment_mode == 'paytm') {
+				if ($order->customer) {
+					$all_amount = 0;
+
+					if ($order->order_product) {
+						foreach ($order->order_product as $order_product) {
+							$all_amount += $order_product->product_price;
+						}
+					}
+
+					$order->customer->credit += $all_amount;
+					$order->customer->save();
+				}
+			} else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+				if ($order->customer) {
+					$order->customer->credit += $order->advance_detail;
+					$order->customer->save();
+				}
 			}
 		}
 
@@ -830,6 +870,7 @@ class OrderController extends Controller {
 	{
 		$order = Order::find($id);
 
+		return (new AdvanceReceiptPDF($order))->render();
 		$view = (new AdvanceReceiptPDF($order))->render();
 
 		$pdf = new Dompdf;
@@ -979,7 +1020,7 @@ class OrderController extends Controller {
 	{
 		$waybill = Waybill::find($id);
 
-		return Storage::disk('uploads')->download('waybills/' . $waybill->package_slip);
+		return Storage::disk('files')->download('waybills/' . $waybill->package_slip);
 	}
 
 	public function refundAnswer(Request $request, $id)
@@ -1218,6 +1259,26 @@ class OrderController extends Controller {
 					'date_of_issue' 	=> Carbon::now()->addDays(10)
 				]);
 			}
+
+			if ($order->payment_mode == 'paytm') {
+				if ($order->customer) {
+					$all_amount = 0;
+
+					if ($order->order_product) {
+						foreach ($order->order_product as $order_product) {
+							$all_amount += $order_product->product_price;
+						}
+					}
+
+					$order->customer->credit += $all_amount;
+					$order->customer->save();
+				}
+			} else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+				if ($order->customer) {
+					$order->customer->credit += $order->advance_detail;
+					$order->customer->save();
+				}
+			}
 		}
 	}
 
@@ -1383,7 +1444,7 @@ class OrderController extends Controller {
 			// dd($error);
 			return redirect()->back()->with('error', "$error");
 		} else {
-			Storage::disk('uploads')->put('waybills/' . $order->id . '_package_slip.pdf', $result->AWBPrintContent);
+			Storage::disk('files')->put('waybills/' . $order->id . '_package_slip.pdf', $result->AWBPrintContent);
 
 			$waybill = new Waybill;
 			$waybill->order_id = $order->id;

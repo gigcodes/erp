@@ -171,9 +171,9 @@ class CustomerController extends Controller
         $customers = $customers->whereNull('deleted_at');
 
         if ($request->type != null) {
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'RIGHT');
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products ON orders.order_id = order_products.order_id'), 'customers.id', '=', 'orders.ocid', 'RIGHT');
         } else {
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders'), 'customers.id', '=', 'orders.ocid', 'LEFT');
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products ON orders.order_id = order_products.order_id'), 'customers.id', '=', 'orders.ocid', 'LEFT');
         }
 
         if ($request->type != null && $request->type == 'new') {
@@ -203,25 +203,45 @@ class CustomerController extends Controller
             'order_created' => 'order_created',
             'rating' => 'rating',
             'communication' => 'communication',
+            'status' => 'status',
         ];
 
         if (isset($sortBys[$request->input('sortby')])) {
             $sortby = $sortBys[$request->input('sortby')];
         }
 
-        if ($sortby !== 'communication') {
+        if ($sortby !== 'communication' && $sortby !== 'status') {
             $customers = $customers->orderBy($sortby, $orderby);
         }
 
-        $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
-        $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, MAX(messages.created_at) as message_created_at FROM messages GROUP BY messages.customer_id ORDER BY messages.created_at ' . $orderby . ') as messages'), 'messages.mcid', '=', 'customers.id', 'LEFT');
+        if (false) {
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, status FROM chat_messages WHERE chat_messages.status = 0 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'INNER');
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, MAX(messages.created_at) as message_created_at, status FROM messages WHERE messages.status = 0 GROUP BY messages.customer_id ORDER BY messages.created_at ' . $orderby . ') as messages'), 'messages.mcid', '=', 'customers.id', 'INNER');
+          // dd($customers->get());
+        } else {
+          if ($sortby == 'status') {
+            $join = 'INNER';
+          } else {
+            $join = 'LEFT';
+          }
 
-        if ($sortby === 'communication') {
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, status FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', $join);
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, MAX(messages.created_at) as message_created_at, status FROM messages GROUP BY messages.customer_id ORDER BY messages.created_at ' . $orderby . ') as messages'), 'messages.mcid', '=', 'customers.id', $join);
+        }
+
+
+
+
+        if ($sortby === 'communication' || $sortby === 'status') {
             $customers = $customers->orderBy('last_communicated_at', $orderby);
+        }
+        //
+        if ($sortby === 'status') {
+            $customers = $customers->orderBy('message_status', $orderby);
         }
 
        // $customers = $customers->selectRaw('customers.id, customers.name, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, instructions.id as instruction_id, instructions.pending as instruction_pending, instructions.verified as instruction_verified, instructions.instruction, instructions.created_at, instructions.completed_at as instruction_completed, instructions.assigned_to as instruction_assigned_to, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at,
-       $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at,
+       $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at,
         CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mmm.body FROM messages mmm WHERE mmm.id = message_id) ELSE (SELECT mm2.message FROM chat_messages mm2 WHERE mm2.id = chat_message_id) END AS message,
         CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm3.status FROM messages mm3 WHERE mm3.id = message_id) ELSE (SELECT mm4.status FROM chat_messages mm4 WHERE mm4.id = chat_message_id) END AS message_status,
         CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm5.id FROM messages mm5 WHERE mm5.id = message_id) ELSE (SELECT mm6.id FROM chat_messages mm6 WHERE mm6.id = chat_message_id) END AS message_id,
@@ -835,7 +855,7 @@ class CustomerController extends Controller
         $products = (new Product)->newQuery();
       }
 
-      $products = $products->whereHas('scraped_products')->latest()->take($request->number)->get();
+      $products = $products->whereHas('scraped_products')->where('category', '!=', 1)->latest()->take($request->number)->get();
 
       if ($customer->suggestion) {
         $suggestion = Suggestion::find($customer->suggestion->id);

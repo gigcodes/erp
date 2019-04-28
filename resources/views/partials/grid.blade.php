@@ -159,6 +159,14 @@
 
     </div>
 
+    @if (isset($customer_id) && $customer_id != null)
+      <div class="row">
+        <div class="col text-center">
+          <a href="{{ route('customer.show', $customer_id) }}" class="btn btn-secondary">Go to Customer Page</a>
+        </div>
+      </div>
+    @endif
+
     {!! $products->appends(Request::except('page'))->links() !!}
 
     <div class="row">
@@ -326,7 +334,7 @@
               'link': '{{ $link }}',
               'isApproved': '{{ $product->isApproved }}',
               'stage': '{{ $stage->getNameById( $product->stage )}}',
-              'is_scraped': {{ $product->is_scraped }},
+              'is_scraped': {{ $product->is_scraped ?? 0 }},
               'is_imported': {{ $product->status == 2 ? 1 : 0 }},
               'supplier' : "{{ $product->supplier }}",
               @php

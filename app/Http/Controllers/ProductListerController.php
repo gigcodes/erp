@@ -143,8 +143,15 @@ class ProductListerController extends Controller
 					),
 				);
 				// Creation of product simple
-				$result            = $proxy->catalogProductCreate( $sessionId, 'simple', 14, $sku . '-' . $size, $productData );
-				$associated_skus[] = $sku . '-' . $size;
+				try {
+					$result            = $proxy->catalogProductCreate( $sessionId, 'simple', 14, $sku . '-' . $size, $productData );
+					$associated_skus[] = $sku . '-' . $size;
+				} catch (\Exception $e) {
+					if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
+						$product->isUploaded = 1;
+						$product->save();
+					}
+				}
 			}
 
 			/**
@@ -183,8 +190,16 @@ class ProductListerController extends Controller
 					),
 				),
 			);
+
 			// Creation of configurable product
-			$result = $proxy->catalogProductCreate( $sessionId, 'configurable', 14, $sku, $productData );
+			try {
+				$result = $proxy->catalogProductCreate( $sessionId, 'configurable', 14, $sku, $productData );
+			} catch (\Exception $e) {
+				if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
+					$product->isUploaded = 1;
+					$product->save();
+				}
+			}
 		}
 		else{
 
@@ -222,32 +237,43 @@ class ProductListerController extends Controller
 				),
 			);
 			// Creation of product simple
-			$result  = $proxy->catalogProductCreate( $sessionId, 'simple', 4, $sku, $productData );
+			try {
+				$result  = $proxy->catalogProductCreate( $sessionId, 'simple', 4, $sku, $productData );
+			} catch (\Exception $e) {
+				if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
+					$product->isUploaded = 1;
+					$product->save();
+				}
+			}
 		}
 
-		$images = $product->getMedia(config('constants.media_tags'));
+		if (!isset($result)) {
+			$images = $product->getMedia(config('constants.media_tags'));
 
-		$i = 0;
-		$productId = $result;
+			$i = 0;
+			$productId = $result;
 
-		foreach ($images as $image){
+			foreach ($images as $image){
 
-			$image->getUrl();
+				$image->getUrl();
 
-			$file = array(
-				'name' => $image->getBasenameAttribute(),
-				'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
-				'mime' => mime_content_type($image->getAbsolutePath())
-			);
+				$file = array(
+					'name' => $image->getBasenameAttribute(),
+					'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
+					'mime' => mime_content_type($image->getAbsolutePath())
+				);
 
-			$types = $i ? array('') : array('size_guide','image','small_image','thumbnail');
-			$types = $i == 1 ? array('hover_image') : $types;
+				$types = $i ? array('') : array('size_guide','image','small_image','thumbnail');
+				$types = $i == 1 ? array('hover_image') : $types;
 
-			$result = $proxy->catalogProductAttributeMediaCreate(
-				$sessionId,
-				$productId,
-				array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
-			);
+				$result = $proxy->catalogProductAttributeMediaCreate(
+					$sessionId,
+					$productId,
+					array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
+				);
+			}
+
+			$result = false;
 		}
 
 		return $result;

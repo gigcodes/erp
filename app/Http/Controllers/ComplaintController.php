@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Complaint;
+use App\ComplaintThread;
 use Illuminate\Http\Request;
 
 class ComplaintController extends Controller
@@ -44,13 +45,23 @@ class ComplaintController extends Controller
         'customer_id' => 'sometimes|nullable|integer',
         'platform'    => 'sometimes|nullable|string',
         'complaint'   => 'required|string|min:3',
+        'thread.*'    => 'sometimes|nullable|string',
         'link'        => 'sometimes|nullable|url',
         'date'        => 'required|date'
       ]);
 
       $data = $request->except('_token');
 
-      Complaint::create($data);
+      $complaint = Complaint::create($data);
+
+      if ($request->thread[0] != null) {
+        foreach ($request->thread as $thread) {
+          ComplaintThread::create([
+            'complaint_id' => $complaint->id,
+            'thread'       => $thread
+          ]);
+        }
+      }
 
       return redirect()->route('review.index')->withSuccess('You have successfully added complaint');
     }
@@ -90,13 +101,26 @@ class ComplaintController extends Controller
         'customer_id' => 'sometimes|nullable|integer',
         'platform'    => 'sometimes|nullable|string',
         'complaint'   => 'required|string|min:3',
+        'thread.*'    => 'sometimes|nullable|string',
         'link'        => 'sometimes|nullable|url',
         'date'        => 'required|date'
       ]);
 
       $data = $request->except('_token');
 
-      Complaint::find($id)->update($data);
+      $complaint = Complaint::find($id);
+      $complaint->update($data);
+
+      if ($request->thread[0] != null) {
+        $complaint->threads()->delete();
+
+        foreach ($request->thread as $thread) {
+          ComplaintThread::create([
+            'complaint_id' => $complaint->id,
+            'thread'       => $thread
+          ]);
+        }
+      }
 
       return redirect()->route('review.index')->withSuccess('You have successfully updated complaint');
     }
@@ -109,7 +133,9 @@ class ComplaintController extends Controller
      */
     public function destroy($id)
     {
-      Complaint::find($id)->delete();
+      $complaint = Complaint::find($id);
+      $complaint->threads()->delete();
+      $complaint->delete();
 
       return redirect()->route('review.index')->withSuccess('You have successfully deleted complaint');
     }

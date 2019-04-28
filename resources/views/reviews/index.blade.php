@@ -133,34 +133,34 @@
             <tbody>
               @foreach ($review_schedules as $schedule)
                 <tr>
-                  <td>{{ \Carbon\Carbon::parse($schedule->date)->format('d-m') }}</td>
+                  <td>{{ \Carbon\Carbon::parse($schedule->review_schedule->date)->format('d-m') }}</td>
                   <td>{{ ucwords($schedule->platform) }}</td>
-                  <td>{{ $schedule->review_count }}</td>
-                  <td>
-                    @if ($schedule->reviews)
-                      <ul>
-                        @foreach ($schedule->reviews as $review)
-                          <li class="{{ $review->is_approved == 1 ? 'text-success' : ($review->is_approved == 2 ? 'text-danger' : '') }}">
-                            @php
-                              preg_match_all('/(#\w*)/', $review->review, $match);
+                  <td>{{ $schedule->review_schedule->review_count }}</td>
+                  <td class="{{ $schedule->is_approved == 1 ? 'text-success' : ($schedule->is_approved == 2 ? 'text-danger' : '') }}">
+                    @php
+                      preg_match_all('/(#\w*)/', $schedule->review, $match);
 
-                              $new_review = $review->review;
-                              foreach ($match[0] as $hashtag) {
-                                $exploded_review = explode($hashtag, $new_review);
-                                $new_hashtag = "<a target='_new' href='https://www.instagram.com/explore/tags/" . str_replace('#', '', $hashtag) . "'>" . $hashtag . "</a> ";
-                                $new_review = implode($new_hashtag, $exploded_review);
-                              }
-                            @endphp
-                            {!! $new_review !!}
-                            @if ($review->is_approved == 0)
-                               -
-                              <a href="#" class="btn-link review-approve-button" data-status="1" data-id="{{ $review->id }}">Approve</a>
-                              <a href="#" class="btn-link review-approve-button" data-status="2" data-id="{{ $review->id }}">Reject</a>
-                            @endif
-                          </li>
-                        @endforeach
-                      </ul>
+                      $new_review = $schedule->review;
+                      foreach ($match[0] as $hashtag) {
+                        $exploded_review = explode($hashtag, $new_review);
+                        $new_hashtag = "<a target='_new' href='https://www.instagram.com/explore/tags/" . str_replace('#', '', $hashtag) . "'>" . $hashtag . "</a> ";
+                        $new_review = implode($new_hashtag, $exploded_review);
+                      }
+                    @endphp
+
+                    <span class="review-container">
+                      {!! $new_review !!}
+                    </span>
+
+                    <textarea name="review" class="form-control review-edit-textarea hidden" rows="8" cols="80">{{ $schedule->review }}</textarea>
+
+                    @if ($schedule->is_approved == 0)
+                       -
+                      <a href="#" class="btn-link review-approve-button" data-status="1" data-id="{{ $schedule->id }}">Approve</a>
+                      <a href="#" class="btn-link review-approve-button" data-status="2" data-id="{{ $schedule->id }}">Reject</a>
                     @endif
+
+                    <a href="#" class="btn-link quick-edit-review-button" data-id="{{ $schedule->id }}">Edit</a>
                   </td>
                   <td>
                     <div class="form-group">
@@ -175,7 +175,8 @@
                     </div>
                   </td>
                   <td>
-                    <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $schedule }}" data-reviews="{{ $schedule->reviews }}"><img src="/images/edit.png" /></button>
+                    {{-- <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $schedule }}" data-reviews="{{ $schedule }}"><img src="/images/edit.png" /></button> --}}
+                    <button type="button" class="btn btn-image edit-review" data-toggle="modal" data-target="#reviewEditModal" data-review="{{ $schedule }}"><img src="/images/edit.png" /></button>
 
                     {!! Form::open(['method' => 'DELETE','route' => ['review.schedule.destroy', $schedule->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -287,7 +288,17 @@
                     @endif
                   </td>
                   <td>{{ ucwords($complaint->platform) }}</td>
-                  <td>{{ $complaint->complaint }}</td>
+                  <td>
+                    {{ $complaint->complaint }}
+
+                    @if ($complaint->threads)
+                      <ul class="mx-0 px-4">
+                        @foreach ($complaint->threads as $key => $thread)
+                          <li class="ml-{{ $key + 1 }}">{{ $thread->thread }}</li>
+                        @endforeach
+                      </ul>
+                    @endif
+                  </td>
                   <td>
                     <a href="{{ $complaint->link }}" target="_blank">{{ $complaint->link }}</a>
                   </td>
@@ -297,7 +308,7 @@
                     <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $complaint->id }}">View</a>
                   </td>
                   <td>
-                    <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}"><img src="/images/edit.png" /></button>
+                    <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}" data-threads="{{ $complaint->threads }}"><img src="/images/edit.png" /></button>
 
                     {!! Form::open(['method' => 'DELETE','route' => ['complaint.destroy', $complaint->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -354,10 +365,22 @@
       $('#review-container').append(review_html);
     });
 
+    $('#add-complaint-button').on('click', function() {
+      var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+
+      $('#complaint-container').append(complaint_html);
+    });
+
     $('#add-edit-review-button').on('click', function() {
       var review_html = '<div class="form-group"><strong>Review:</strong><input type="text" name="review[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
 
       $('#edit-review-container').append(review_html);
+    });
+
+    $('#add-edit-complaint-button').on('click', function() {
+      var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+
+      $('#complaint-container-extra').append(complaint_html);
     });
 
     $(document).on('click', '.remove-review-button', function() {
@@ -429,11 +452,11 @@
       }).done(function(response) {
         if (response.status == 1) {
           $(thiss).siblings('a').remove();
-          $(thiss).closest('li').addClass('text-success');
+          $(thiss).closest('td').addClass('text-success');
           $(thiss).remove();
         } else {
           $(thiss).siblings('a').remove();
-          $(thiss).closest('li').addClass('text-danger');
+          $(thiss).closest('td').addClass('text-danger');
           $(thiss).remove();
         }
       }).fail(function(response) {
@@ -491,12 +514,14 @@
       $('#reviewEditModal form').attr('action', url);
       $('#edit_posted_date input').val(review.posted_date);
       $('#edit_review_link').val(review.review_link);
+      $('#edit_review_review').val(review.review);
       $('#edit_review_account option[value="' + review.account_id + '"]').prop('selected', true);
       $('#edit_customer_id option[value="' + review.customer_id + '"]').prop('selected', true);
     }
 
     function fillEditComplaint(thiss) {
       var complaint = $(thiss).data('complaint');
+      var threads = $(thiss).data('threads');
       var url = "{{ url('complaint') }}/" + complaint.id;
 
       $('#complaintEditModal form').attr('action', url);
@@ -505,6 +530,13 @@
       $('#complaint_platform option[value="' + complaint.platform + '"]').prop('selected', true);
       $('#complaint_complaint').val(complaint.complaint);
       $('#complaint_link').val(complaint.link);
+
+      $('#complaint-container-extra').empty();
+      Object.keys(threads).forEach(function(index) {
+        var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value="' + threads[index].thread + '"><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+
+        $('#complaint-container-extra').append(complaint_html);
+      });
     }
 
     // $(document).on('keyup', '.review-input-field', function() {
@@ -520,7 +552,7 @@
       var id = $(this).data('id');
       $('#add-remark input[name="id"]').val(id);
     });
-    
+
     $('#addRemarkButton').on('click', function() {
       var id = $('#add-remark input[name="id"]').val();
       var remark = $('#add-remark textarea[name="remark"]').val();
@@ -567,6 +599,42 @@
             });
             $("#viewRemarkModal").find('#remark-list').html(html);
         });
+    });
+
+    $(document).on('click', '.quick-edit-review-button', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+
+      $(this).siblings('.review-edit-textarea').removeClass('hidden');
+      $(this).siblings('.review-container').addClass('hidden');
+
+      $(this).siblings('.review-edit-textarea').keypress(function(e) {
+        var key = e.which;
+        var thiss = $(this);
+
+        if (key == 13) {
+          e.preventDefault();
+          var review = $(thiss).val();
+
+          $.ajax({
+            type: 'POST',
+            url: "{{ url('review') }}/" + id + '/updateReview',
+            data: {
+              _token: "{{ csrf_token() }}",
+              review: review,
+            }
+          }).done(function() {
+            $(thiss).addClass('hidden');
+            $(thiss).siblings('.review-container').text(review);
+            $(thiss).siblings('.review-container').removeClass('hidden');
+          }).fail(function(response) {
+            console.log(response);
+
+            alert('Could not update review');
+          });
+        }
+      });
     });
   </script>
 @endsection

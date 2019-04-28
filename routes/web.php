@@ -154,7 +154,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 //	Route::get('productSelectionGrid/{sale}','SaleController@selectionGrid')->name('productSelectionGrid');
 
 	//Attach Products
-	Route::get('attachProducts/{model_type}/{model_id}','ProductController@attachProducts')->name('attachProducts');
+	Route::get('attachProducts/{model_type}/{model_id}/{type?}/{customer_id?}','ProductController@attachProducts')->name('attachProducts');
 	Route::post('attachProductToModel/{model_type}/{model_id}/{product_id}','ProductController@attachProductToModel')->name('attachProductToModel');
 	Route::post('deleteOrderProduct/{order_product}','OrderController@deleteOrderProduct')->name('deleteOrderProduct');
 
@@ -383,6 +383,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// Reviews Module
 	Route::post('review/{id}/updateStatus', 'ReviewController@updateStatus');
+	Route::post('review/{id}/updateReview', 'ReviewController@updateReview');
 	Route::resource('review', 'ReviewController');
 	Route::post('review/schedule/create', 'ReviewController@scheduleStore')->name('review.schedule.store');
 	Route::put('review/schedule/{id}', 'ReviewController@scheduleUpdate')->name('review.schedule.update');
