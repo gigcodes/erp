@@ -738,6 +738,25 @@ class CustomerController extends Controller
       return response('success');
     }
 
+    public function updateDnd(Request $request, $id)
+    {
+      $customer = Customer::find($id);
+
+      $customer->do_not_disturb = $request->do_not_disturb;
+      $customer->save();
+
+      if ($request->do_not_disturb == 1) {
+        $message_queues = MessageQueue::where('customer_id', $customer->id)->get();
+
+        foreach ($message_queues as $message_queue) {
+          $message_queue->status = 1; // message stopped
+          $message_queue->save();
+        }
+      }
+
+      return response('success');
+    }
+
     public function issueCredit(Request $request)
     {
       $customer = Customer::find($request->customer_id);

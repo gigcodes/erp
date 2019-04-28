@@ -209,6 +209,13 @@
           @endif
         </div>
 
+        <div class="form-group">
+  				<input type="checkbox" name="do_not_disturb" id="do_not_disturb" {{ $customer->do_not_disturb ? 'checked' : '' }} data-id="{{ $customer->id }}">
+  				<label for="do_not_disturb">Do Not Disturb</label>
+
+          <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
+  			</div>
+
         @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
           <div class="form-group">
             @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
@@ -3351,6 +3358,37 @@
 
           console.log(response);
         });
+      });
+
+      $(document).on('click', '#do_not_disturb', function() {
+        var checked = $(this).prop('checked');
+        var id = $(this).data('id');
+        var thiss = $(this);
+
+        if (checked) {
+          var option = 1;
+        } else {
+          var option = 0;
+        }
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('customer') }}/" + id + '/updateDND',
+          data: {
+            _token: "{{ csrf_token() }}",
+            do_not_disturb: option
+          }
+        }).done(function() {
+          $(thiss).siblings('.change_status_message').fadeIn(400);
+
+          setTimeout(function () {
+            $(thiss).siblings('.change_status_message').fadeOut(400);
+          }, 2000);
+        }).fail(function(response) {
+          alert('Could not update DND status');
+
+          console.log(response);
+        })
       });
   </script>
 @endsection
