@@ -39,7 +39,6 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Support\Facades\DB;
 use Validator;
 
-
 class WhatsAppController extends FindByNumberController
 {
     /**
@@ -235,7 +234,7 @@ class WhatsAppController extends FindByNumberController
       }
 
       // Auto DND
-      if ($params['message'] == 'DND') {
+      if (strtoupper($params['message']) == 'DND') {
         if ($customer = Customer::find($params['customer_id'])) {
           $customer->do_not_disturb = 1;
           $customer->save();
