@@ -22,6 +22,7 @@ use App\Status;
 use App\Product;
 use App\Brand;
 use App\Supplier;
+use App\ApiKey;
 use App\Category;
 use App\User;
 use App\MessageQueue;
@@ -59,6 +60,7 @@ class CustomerController extends Controller
       $customers = $this->getCustomersIndex($request);
       $term = $request->input('term');
       $reply_categories = ReplyCategory::all();
+      $api_keys = ApiKey::select('number')->get();
 
       $type = $request->type ?? '';
 
@@ -94,6 +96,7 @@ class CustomerController extends Controller
         'search_suggestions' => $search_suggestions,
         'reply_categories' => $reply_categories,
         'orders' => $orders,
+        'api_keys' => $api_keys,
       ]);
     }
 
@@ -753,6 +756,20 @@ class CustomerController extends Controller
           $message_queue->save();
         }
       }
+
+      return response('success');
+    }
+
+    public function updatePhone(Request $request, $id)
+    {
+      $this->validate($request, [
+        'phone' => 'required|numeric'
+      ]);
+
+      $customer = Customer::find($id);
+
+      $customer->phone = $request->phone;
+      $customer->save();
 
       return response('success');
     }

@@ -134,20 +134,101 @@
 
     <div id="exTab2" class="container">
       <ul class="nav nav-tabs">
+        <li class="active">
+          <a href="#all-messages" data-toggle="tab">All Messages</a>
+        </li>
         @if (count($last_set_completed) > 0)
-          <li class="active">
+          <li>
             <a href="#last-completed-messages" data-toggle="tab">Last Set Completed</a>
           </li>
         @endif
-        <li class="">
-          <a href="#all-messages" data-toggle="tab">All Messages</a>
-        </li>
       </ul>
     </div>
 
     <div class="tab-content">
+      <div class="tab-pane active mt-3" id="all-messages">
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered">
+                <thead>
+                  <th>Customer Name</th>
+                  <th>Phone</th>
+                  <th>Message</th>
+                  <th>Group ID</th>
+                  <th>Sent</th>
+                  <th>Received</th>
+                  <th>Status</th>
+                  <th>Scheduled Date</th>
+                  <th>Action</th>
+                </thead>
+                <tbody>
+                @foreach ($message_queues as $key => $message_queue)
+                  <tr>
+                    <td>
+                      @if ($message_queue->customer)
+                        <a href="{{ route('customer.show', $message_queue->customer->id) }}" target="_blank">{{ $message_queue->customer->name }}</a>
+                      @endif
+                    </td>
+                    <td>
+                      @if ($message_queue->customer)
+                        <div class="phone-container">
+                          {{ $message_queue->customer->phone }}
+                        </div>
+
+                        <input type="number" name="phone" class="form-control phone-edit-input hidden" value="{{ $message_queue->customer->phone }}">
+                        <a href="#" class="btn-link quick-edit-phone-button" data-id="{{ $message_queue->customer_id }}">Edit</a>
+                      @else
+                        {{ $message_queue->phone }}
+                      @endif
+                    </td>
+                    <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
+                    <td>{{ $message_queue->group_id }}</td>
+                    <td>
+                      @if ($message_queue->sent == 1)
+                        <img src='/images/1.png' />
+                      @endif
+                    </td>
+                    <td>
+                      @if ($message_queue->customer && $message_queue->sent == 1)
+                        @if ($message_queue->chat_message && $message_queue->chat_message->sent == 1)
+                          <img src='/images/1.png' />
+                        @endif
+                      @endif
+                    </td>
+                    <td>
+                      @if ($message_queue->status == 1)
+                        Stopped
+                      @endif
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($message_queue->sending_time)->format('H:i d-m') }}</td>
+                    <td>
+                      @if (isset($message_queue->customer) && $message_queue->customer->do_not_disturb == 0)
+                        <form action="{{ route('broadcast.donot.disturb', $message_queue->customer_id) }}" method="POST">
+                          @csrf
+
+                          <button type="submit" class="btn btn-xs btn-secondary">Do Not Disturb</button>
+                        </form>
+                      @elseif (isset($message_queue->customer) && $message_queue->customer->do_not_disturb == 1)
+                        <span class="badge">Do Not Disturb</span>
+                      @endif
+
+                        {{-- <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
+                        <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}"><img src="/images/edit.png" /></a>
+
+                        {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                        {!! Form::close() !!} --}}
+                    </td>
+                  </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        {!! $message_queues->appends(Request::except('page'))->links() !!}
+      </div>
+
       @if (count($last_set_completed) > 0)
-        <div class="tab-pane active mt-3" id="last-completed-messages">
+        <div class="tab-pane mt-3" id="last-completed-messages">
           <div class="table-responsive mt-3">
               <table class="table table-bordered">
                   <thead>
@@ -217,76 +298,6 @@
           {!! $last_set_completed->appends(Request::except('completed-page'))->links() !!}
         </div>
       @endif
-
-      <div class="tab-pane {{ count($last_set_completed) > 0 ? '' : 'active' }} mt-3" id="all-messages">
-        <div class="table-responsive mt-3">
-            <table class="table table-bordered">
-                <thead>
-                  <th>Customer Name</th>
-                  <th>Phone</th>
-                  <th>Message</th>
-                  <th>Group ID</th>
-                  <th>Sent</th>
-                  <th>Received</th>
-                  <th>Status</th>
-                  <th>Scheduled Date</th>
-                  <th>Action</th>
-                </thead>
-                <tbody>
-                @foreach ($message_queues as $key => $message_queue)
-                  <tr>
-                    <td>
-                      @if ($message_queue->customer)
-                        <a href="{{ route('customer.show', $message_queue->customer->id) }}" target="_blank">{{ $message_queue->customer->name }}</a>
-                      @endif
-                    </td>
-                    <td>{{ $message_queue->customer ? $message_queue->customer->phone : $message_queue->phone }}</td>
-                    <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
-                    <td>{{ $message_queue->group_id }}</td>
-                    <td>
-                      @if ($message_queue->sent == 1)
-                        <img src='/images/1.png' />
-                      @endif
-                    </td>
-                    <td>
-                      @if ($message_queue->customer && $message_queue->sent == 1)
-                        @if ($message_queue->chat_message && $message_queue->chat_message->sent == 1)
-                          <img src='/images/1.png' />
-                        @endif
-                      @endif
-                    </td>
-                    <td>
-                      @if ($message_queue->status == 1)
-                        Stopped
-                      @endif
-                    </td>
-                    <td>{{ \Carbon\Carbon::parse($message_queue->sending_time)->format('H:i d-m') }}</td>
-                    <td>
-                      @if (isset($message_queue->customer) && $message_queue->customer->do_not_disturb == 0)
-                        <form action="{{ route('broadcast.donot.disturb', $message_queue->customer_id) }}" method="POST">
-                          @csrf
-
-                          <button type="submit" class="btn btn-xs btn-secondary">Do Not Disturb</button>
-                        </form>
-                      @elseif (isset($message_queue->customer) && $message_queue->customer->do_not_disturb == 1)
-                        <span class="badge">Do Not Disturb</span>
-                      @endif
-
-                        {{-- <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
-                        <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}"><img src="/images/edit.png" /></a>
-
-                        {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                        {!! Form::close() !!} --}}
-                    </td>
-                  </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        {!! $message_queues->appends(Request::except('page'))->links() !!}
-      </div>
     </div>
 
 @endsection
@@ -297,6 +308,42 @@
   <script type="text/javascript">
     $('#schedule-datetime').datetimepicker({
       format: 'YYYY-MM-DD'
+    });
+
+    $(document).on('click', '.quick-edit-phone-button', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+
+      $(this).siblings('.phone-edit-input').removeClass('hidden');
+      $(this).siblings('.phone-container').addClass('hidden');
+
+      $(this).siblings('.phone-edit-input').keypress(function(e) {
+        var key = e.which;
+        var thiss = $(this);
+
+        if (key == 13) {
+          e.preventDefault();
+          var phone = $(thiss).val();
+
+          $.ajax({
+            type: 'POST',
+            url: "{{ url('customer') }}/" + id + '/updatePhone',
+            data: {
+              _token: "{{ csrf_token() }}",
+              phone: phone,
+            }
+          }).done(function() {
+            $(thiss).addClass('hidden');
+            $(thiss).siblings('.phone-container').text(phone);
+            $(thiss).siblings('.phone-container').removeClass('hidden');
+          }).fail(function(response) {
+            console.log(response);
+
+            alert('Could not update phone');
+          });
+        }
+      });
     });
   </script>
 @endsection
