@@ -549,7 +549,8 @@ class LeadsController extends Controller
 
       foreach ($request->selected_product as $product_id) {
         $product = Product::find($product_id);
-        $message .= "$product->name" . ' - ' . "$product->price_special; ";
+        $brand_name = $product->brands->name ?? '';
+        $message .= "$brand_name $product->name" . ' - ' . "$product->price_special; ";
       }
 
       $params['customer_id'] = $customer->id;
