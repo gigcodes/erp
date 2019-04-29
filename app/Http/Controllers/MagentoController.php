@@ -110,11 +110,13 @@ class MagentoController extends Controller {
 			$results = json_decode( json_encode( $proxy->salesOrderInfo( $sessionId, $orderlist[ $j ]->increment_id ) ), true );
 
 			$atts = unserialize( $results['items'][0]['product_options'] );
+
 			if ( ! empty( $results['total_paid'] ) ) {
 				$paid = $results['total_paid'];
 			} else {
 				$paid = 0;
 			}
+
 			$balance_amount = $results['base_grand_total'] - $paid;
 
 			$full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
@@ -139,6 +141,19 @@ class MagentoController extends Controller {
 
 				if ($customer_phone != null) {
 					$final_phone = $customer_phone;
+				}
+
+				if ($customer->credit > 0) {
+					if (($balance_amount - $customer->credit) < 0) {
+						$left_credit = ($balance_amount - $customer->credit) * -1;
+						$balance_amount = 0;
+						$customer->credit = $left_credit;
+					} else {
+						$balance_amount -= $customer->credit;
+						$customer->credit = 0;
+					}
+
+					$customer->save();
 				}
 			} else {
 				$customer = new Customer;

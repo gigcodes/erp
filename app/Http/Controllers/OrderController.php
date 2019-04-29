@@ -476,7 +476,6 @@ class OrderController extends Controller {
 		}
 
 		if ( empty( $request->input( 'order_date' ) ) ) {
-
 			$data['order_date'] = date( 'Y-m-d' );
 		}
 
@@ -507,6 +506,22 @@ class OrderController extends Controller {
 		$data['contact_detail'] = $customer->phone;
 
 		$order = Order::create( $data );
+
+		if ($customer->credit > 0) {
+			$balance_amount = $order->balance_amount;
+
+			if (($order->balance_amount - $customer->credit) < 0) {
+				$left_credit = ($order->balance_amount - $customer->credit) * -1;
+				$balance_amount = 0;
+				$customer->credit = $left_credit;
+			} else {
+				$balance_amount -= $customer->credit;
+			}
+
+			$order->balance_amount = $balance_amount;
+			$order->save();
+			$customer->save();
+		}
 
 		$expiresAt = Carbon::now()->addMinutes(10);
 		$last_order = $order->id + 1;
@@ -736,7 +751,7 @@ class OrderController extends Controller {
 			foreach ($request->input('order_products') as $key => $order_product_data) {
 				$order_product = OrderProduct::findOrFail( $key );
 
-				if ($order_product_data['purchase_status'] != $order_product->purchase_status) {
+				if (isset($order_product_data['purchase_status']) && $order_product_data['purchase_status'] != $order_product->purchase_status) {
 					StatusChange::create([
 						'model_id'    => $order_product->id,
 						'model_type'  => OrderProduct::class,
@@ -766,6 +781,25 @@ class OrderController extends Controller {
 
 		$this->calculateBalanceAmount($order);
 		$order = Order::find($order->id);
+
+		if ($customer = Customer::find($order->customer_id)) {
+			if ($customer->credit > 0) {
+				$balance_amount = $order->balance_amount;
+
+				if (($order->balance_amount - $customer->credit) < 0) {
+					$left_credit = ($order->balance_amount - $customer->credit) * -1;
+					$balance_amount = 0;
+					$customer->credit = $left_credit;
+				} else {
+					$balance_amount -= $customer->credit;
+					$customer->credit = 0;
+				}
+
+				$order->balance_amount = $balance_amount;
+				$order->save();
+				$customer->save();
+			}
+		}
 
 		if (!$order->is_sent_initial_advance() && $order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
 			$product_names = '';
