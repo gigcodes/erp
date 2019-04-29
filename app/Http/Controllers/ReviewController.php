@@ -89,6 +89,7 @@ class ReviewController extends Controller
       $complaints = $complaints->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
 
       $customers = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
+      $accounts_array = Account::select(['id', 'first_name', 'last_name', 'email'])->get();
 
       return view('reviews.index', [
         'accounts'            => $accounts,
@@ -98,7 +99,8 @@ class ReviewController extends Controller
         'complaints'      => $complaints,
         'filter_platform'     => $filter_platform,
         'filter_posted_date'  => $filter_posted_date,
-        'users_array'  => $users_array
+        'users_array'  => $users_array,
+        'accounts_array'  => $accounts_array,
       ]);
     }
 

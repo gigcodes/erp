@@ -42,12 +42,13 @@ class ComplaintController extends Controller
     public function store(Request $request)
     {
       $this->validate($request, [
-        'customer_id' => 'sometimes|nullable|integer',
-        'platform'    => 'sometimes|nullable|string',
-        'complaint'   => 'required|string|min:3',
-        'thread.*'    => 'sometimes|nullable|string',
-        'link'        => 'sometimes|nullable|url',
-        'date'        => 'required|date'
+        'customer_id'   => 'sometimes|nullable|integer',
+        'platform'      => 'sometimes|nullable|string',
+        'complaint'     => 'required|string|min:3',
+        'thread.*'      => 'sometimes|nullable|string',
+        'account_id.*'  => 'sometimes|nullable|numeric',
+        'link'          => 'sometimes|nullable|url',
+        'date'          => 'required|date'
       ]);
 
       $data = $request->except('_token');
@@ -55,9 +56,10 @@ class ComplaintController extends Controller
       $complaint = Complaint::create($data);
 
       if ($request->thread[0] != null) {
-        foreach ($request->thread as $thread) {
+        foreach ($request->thread as $key => $thread) {
           ComplaintThread::create([
             'complaint_id' => $complaint->id,
+            'account_id'   => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
             'thread'       => $thread
           ]);
         }
@@ -102,6 +104,7 @@ class ComplaintController extends Controller
         'platform'    => 'sometimes|nullable|string',
         'complaint'   => 'required|string|min:3',
         'thread.*'    => 'sometimes|nullable|string',
+        'account_id.*'  => 'sometimes|nullable|numeric',
         'link'        => 'sometimes|nullable|url',
         'date'        => 'required|date'
       ]);
@@ -114,9 +117,10 @@ class ComplaintController extends Controller
       if ($request->thread[0] != null) {
         $complaint->threads()->delete();
 
-        foreach ($request->thread as $thread) {
+        foreach ($request->thread as $key => $thread) {
           ComplaintThread::create([
             'complaint_id' => $complaint->id,
+            'account_id'   => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
             'thread'       => $thread
           ]);
         }

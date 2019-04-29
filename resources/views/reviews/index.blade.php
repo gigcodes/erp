@@ -66,7 +66,7 @@
           <a href="#posted_tab" data-toggle="tab">Posted Reviews</a>
         </li>
         <li>
-          <a href="#complaints_tab" data-toggle="tab">Customer Complaints</a>
+          <a href="#complaints_tab" data-toggle="tab">Instagram Threads</a>
         </li>
       </u>
     </div>
@@ -308,7 +308,7 @@
                     @if ($complaint->threads)
                       <ul class="mx-0 px-4">
                         @foreach ($complaint->threads as $key => $thread)
-                          <li class="ml-{{ $key + 1 }}">{{ $thread->thread }}</li>
+                          <li class="ml-{{ $key + 1 }}">{{ $thread->thread }} ({{ $thread->account->email ?? '' }})</li>
                         @endforeach
                       </ul>
                     @endif
@@ -357,6 +357,8 @@
       });
     });
 
+    var accounts_array = {!! json_encode($accounts_array) !!};
+
     $(document).on('click', '.edit-account', function() {
       var account = $(this).data('account');
       var url = "{{ url('account') }}/" + account.id;
@@ -380,7 +382,15 @@
     });
 
     $('#add-complaint-button').on('click', function() {
-      var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+      var account_html = '<div class="form-group"><strong>Account:</strong><select class="form-control" name="account_id[]"><option value="">Select an Account</option>';
+
+      Object.keys(accounts_array).forEach(function(index) {
+        account_html += '<option value="' + accounts_array[index].id + '">' + accounts_array[index].first_name + ' ' + accounts_array[index].last_name + ' - ' + accounts_array[index].email + '</option>';
+      });
+
+      account_html += '</select></div>';
+
+      var complaint_html = '<div class="thread-container"><div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value=""></div>' + account_html + '<button type="button" class="btn btn-image btn-secondary remove-review-button remove-special"><img src="/images/delete.png" /></button></div>';
 
       $('#complaint-container').append(complaint_html);
     });
@@ -398,7 +408,11 @@
     });
 
     $(document).on('click', '.remove-review-button', function() {
-      $(this).closest('.form-group').remove();
+      if ($(this).hasClass('remove-special')) {
+        $(this).closest('.thread-container').remove();
+      } else {
+        $(this).closest('.form-group').remove();
+      }
     });
 
     $(document).on('click', '.edit-schedule', function() {
@@ -547,7 +561,16 @@
 
       $('#complaint-container-extra').empty();
       Object.keys(threads).forEach(function(index) {
-        var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value="' + threads[index].thread + '"><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+        var account_html = '<div class="form-group"><strong>Account:</strong><select class="form-control" name="account_id[]"><option value="">Select an Account</option>';
+
+        Object.keys(accounts_array).forEach(function(key) {
+          var selected = threads[index].account_id == accounts_array[key].id ? "selected" : "";
+          account_html += '<option value="' + accounts_array[key].id + '" ' + selected + '>' + accounts_array[key].first_name + ' ' + accounts_array[key].last_name + ' - ' + accounts_array[key].email + '</option>';
+        });
+
+        account_html += '</select></div>';
+
+        var complaint_html = '<div class="thread-container"><div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value="' + threads[index].thread + '"></div>' + account_html + '<button type="button" class="btn btn-image btn-secondary remove-review-button remove-special"><img src="/images/delete.png" /></button></div>';
 
         $('#complaint-container-extra').append(complaint_html);
       });
