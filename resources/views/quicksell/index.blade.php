@@ -173,6 +173,16 @@
           </div>
 
           <div class="form-group">
+            <strong>Special Price (INR):</strong>
+
+            <input type="number" class="form-control" name="price_special" value="" id="price_special_field">
+
+            @if ($errors->has('price_special'))
+                <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Size:</strong>
             <input type="text" name="size" class="form-control" id="size_field" />
             @if ($errors->has('size'))
@@ -241,6 +251,7 @@
       $('#updateForm').attr('action', url);
       $('#supplier_select').val(product.supplier);
       $('#price_field').val(product.price);
+      $('#price_special_field').val(product.price_special);
       $('#size_field').val(product.size);
       $('#brand_field').val(product.brand);
       @if (Auth::user()->hasRole('Admin'))

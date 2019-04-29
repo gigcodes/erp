@@ -203,6 +203,14 @@ class QuickSellController extends Controller
       $product->brand = $request->brand;
       $product->location = $request->location;
       $product->category = $request->category;
+
+      if(!empty($product->brand) && !empty($product->price)) {
+  			$product->price_inr     = app('App\Http\Controllers\ProductSelectionController')->euroToInr($product->price, $product->brand);
+  			$product->price_special = app('App\Http\Controllers\ProductSelectionController')->calculateSpecialDiscount($product->price_inr, $product->brand);
+  		} else {
+  			$product->price_special = $request->price_special;
+  		}
+
       $product->save();
 
       if ($request->hasfile('images')) {
