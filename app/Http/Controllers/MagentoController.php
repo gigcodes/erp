@@ -153,6 +153,14 @@ class MagentoController extends Controller {
 						$customer->credit = 0;
 					}
 
+					$customer->name = $full_name;
+					$customer->email = $results['customer_email'];
+					$customer->address = $results['billing_address']['street'];
+					$customer->city = $results['billing_address']['city'];
+					$customer->country = $results['billing_address']['country_id'];
+					$customer->pincode = $results['billing_address']['postcode'];
+					$customer->phone = $final_phone;
+
 					$customer->save();
 				}
 			} else {
