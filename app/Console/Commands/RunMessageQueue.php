@@ -52,7 +52,7 @@ class RunMessageQueue extends Command
             if ($customer->do_not_disturb == 0)
               SendMessageToAll::dispatch($message->user_id, $customer, json_decode($message->data, true), $message->id);
           } else {
-            SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true), $message->id);
+            SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
           }
         }
 

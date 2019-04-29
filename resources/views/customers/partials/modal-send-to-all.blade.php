@@ -37,6 +37,11 @@
                     @endif
                   </div>
 
+                  <div class="form-group">
+                    <strong>Frequency</strong>
+                    <input type="number" name="frequency" class="form-control" value="10" required />
+                  </div>
+
                     <div class="form-group">
                         <strong>Message</strong>
                         <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
@@ -58,8 +63,19 @@
                     <hr>
 
                     <div class="form-group">
-                        <strong>Upload Phone Numbers</strong>
-                        <input type="file" name="file" />
+                      <strong>Sending Number</strong>
+                      <select class="form-control" name="whatsapp_number">
+                        <option value="">Select a Number</option>
+
+                        @foreach ($api_keys as $api_key)
+                          <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
+                        @endforeach
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <strong>Upload Phone Numbers</strong>
+                      <input type="file" name="file" />
                     </div>
                 </div>
                 <div class="modal-footer">

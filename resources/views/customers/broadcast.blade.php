@@ -152,6 +152,7 @@
                 <thead>
                   <th>Customer Name</th>
                   <th>Phone</th>
+                  <th>Whatsapp Number</th>
                   <th>Message</th>
                   <th>Group ID</th>
                   <th>Sent</th>
@@ -179,6 +180,9 @@
                       @else
                         {{ $message_queue->phone }}
                       @endif
+                    </td>
+                    <td>
+                      {{ $message_queue->whatsapp_number }}
                     </td>
                     <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
                     <td>{{ $message_queue->group_id }}</td>

@@ -234,6 +234,14 @@ class WhatsAppController extends FindByNumberController
         }
       }
 
+      // Auto DND
+      if ($params['message'] == 'DND') {
+        if ($customer = Customer::find($params['customer_id'])) {
+          $customer->do_not_disturb = 1;
+          $customer->save();
+        }
+      }
+
       // Auto Respond
       $today_date = Carbon::now()->format('Y-m-d');
       $chat_messages_count = ChatMessage::where('customer_id', $params['customer_id'])->where('created_at', 'LIKE', "%$today_date%")->whereNotNull('number')->count();
@@ -1087,13 +1095,17 @@ class WhatsAppController extends FindByNumberController
   {
     if ($validate) {
       $this->validate($request, [
-        'message'       => 'required_without:images',
-        'images'        => 'required_without:message',
-        'images.*'      => 'required_without:message',
-        'file'          => 'sometimes|mimes:xlsx,xls',
-        'sending_time'  => 'required|date'
+        'message'         => 'required_without:images',
+        'images'          => 'required_without:message',
+        'images.*'        => 'required_without:message',
+        'file'            => 'sometimes|mimes:xlsx,xls',
+        'sending_time'    => 'required|date',
+        'whatsapp_number' => 'required_with:file',
+        'frequency'       => 'required|numeric'
       ]);
     }
+
+    $frequency = $request->frequency;
 
     if ($request->moduletype == 'customers') {
       $content['message'] = $request->body;
@@ -1118,7 +1130,7 @@ class WhatsAppController extends FindByNumberController
 
     if ($request->to_all || $request->moduletype == 'customers') {
       // $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
-      $minutes = 6;
+      $minutes = round(60 / $frequency);
       $max_group_id = MessageQueue::max('group_id') + 1;
 
       // $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0)->chunk(20, function ($customers) use ($content, $now, &$minutes, $max_group_id) {
@@ -1215,36 +1227,44 @@ class WhatsAppController extends FindByNumberController
         }
       }
     } else {
-      $now = $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
-      $minutes = 0;
-      $count = 0;
+      $minutes = round(60 / $frequency);
+      $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
+      $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+      $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
       $max_group_id = MessageQueue::max('group_id') + 1;
       $array = Excel::toArray(new CustomerNumberImport, $request->file('file'));
 
       foreach ($array as $item) {
         foreach ($item as $it) {
-          if ($count == 20) {
-            // $minutes += 5;
-            $now->addMinutes(5);
-            $count = 0;
-          }
           $number = (int)$it[0];
 
+          if (!$now->between($morning, $evening, true)) {
+            if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+              // add day
+              $now->addDay();
+              $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+              $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+              $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+            } else {
+              // dont add day
+              $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+              $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+              $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+            }
+          }
+
           MessageQueue::create([
-            'user_id'       => Auth::id(),
-            'customer_id'   => NULL,
-            'phone'         => $number,
-            'type'          => 'message_selected',
-            'data'          => json_encode($content),
-            'sending_time'  => $now,
-            'group_id'      => $max_group_id
+            'user_id'         => Auth::id(),
+            'customer_id'     => NULL,
+            'phone'           => $number,
+            'whatsapp_number' => $request->whatsapp_number,
+            'type'            => 'message_selected',
+            'data'            => json_encode($content),
+            'sending_time'    => $now,
+            'group_id'        => $max_group_id
           ]);
 
-          // SendMessageToSelected::dispatch($number, $content)
-          //                       ->delay($now->addMinutes($minutes))
-          //                       ->onQueue('sending');
-
-          $count++;
+          $now->addMinutes($minutes);
         }
       }
     }
