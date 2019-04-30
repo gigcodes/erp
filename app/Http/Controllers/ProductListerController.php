@@ -247,7 +247,7 @@ class ProductListerController extends Controller
 			}
 		}
 
-		if (!isset($result)) {
+		if (isset($result)) {
 			$images = $product->getMedia(config('constants.media_tags'));
 
 			$i = 0;
