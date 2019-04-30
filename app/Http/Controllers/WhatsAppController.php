@@ -1122,8 +1122,8 @@ class WhatsAppController extends FindByNumberController
     if ($validate) {
       $this->validate($request, [
         'message'         => 'required_without:images',
-        'images'          => 'required_without:message|mimes:jpg,png',
-        'images.*'        => 'required_without:message|mimes:jpg,png',
+        // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
+        'images.*'        => 'required_without:message|mimetypes:image/jpeg,image/png',
         'file'            => 'sometimes|mimes:xlsx,xls',
         'sending_time'    => 'required|date',
         'whatsapp_number' => 'required_with:file',
