@@ -3,11 +3,11 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('complaint.store') }}" method="POST">
+      <form action="{{ route('complaint.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="modal-header">
-          <h4 class="modal-title">Create a Complaint</h4>
+          <h4 class="modal-title">Create a Thread</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -65,6 +65,14 @@
                 <div class="alert alert-danger">{{$errors->first('complaint')}}</div>
               @endif
             </div>
+          </div>
+
+          <div class="form-group">
+            <input type="file" name="images[]" multiple />
+
+            @if ($errors->has('images'))
+              <div class="alert alert-danger">{{$errors->first('images')}}</div>
+            @endif
           </div>
 
           <button type="button" class="btn btn-xs btn-secondary" id="add-complaint-button">Add Thread</button>
@@ -139,7 +147,7 @@
         @method('PUT')
 
         <div class="modal-header">
-          <h4 class="modal-title">Update a Complaint</h4>
+          <h4 class="modal-title">Update a Thread</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -199,6 +207,14 @@
             </div>
 
             <div id="complaint-container-extra"></div>
+          </div>
+
+          <div class="form-group">
+            <input type="file" name="images[]" multiple />
+
+            @if ($errors->has('images'))
+              <div class="alert alert-danger">{{$errors->first('images')}}</div>
+            @endif
           </div>
 
           <button type="button" class="btn btn-xs btn-secondary" id="add-edit-complaint-button">Add Thread</button>

@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Plank\Mediable\Mediable;
 
 class Complaint extends Model
 {
+  use Mediable;
+
   protected $fillable = [
     'customer_id', 'platform', 'complaint', 'status', 'link', 'where', 'username', 'name', 'plan_of_action', 'date'
   ];

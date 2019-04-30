@@ -47,7 +47,7 @@
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#accountCreateModal">Create Account</a>
               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#scheduleReviewModal">Schedule Review</a>
-              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#complaintCreateModal">Create Complaint</a>
+              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#complaintCreateModal">Create Thread</a>
             </div>
         </div>
     </div>
@@ -318,7 +318,17 @@
                     @if ($complaint->threads)
                       <ul class="mx-0 px-4">
                         @foreach ($complaint->threads as $key => $thread)
-                          <li class="ml-{{ $key + 1 }}">{{ $thread->thread }} ({{ $thread->account->email ?? '' }})</li>
+                          <li class="ml-{{ $key + 1 }}">
+                            {{ $thread->thread }} ({{ $thread->account->email ?? '' }})
+                          </li>
+                        @endforeach
+                      </ul>
+                    @endif
+
+                    @if ($complaint->hasMedia(config('constants.media_tags')))
+                      <ul>
+                        @foreach ($complaint->getMedia(config('constants.media_tags')) as $image)
+                          <li><a href="{{ $image->getUrl() }}" target="_blank"><img src="{{ $image->getUrl() }}" class="img-responsive" /></a></li>
                         @endforeach
                       </ul>
                     @endif

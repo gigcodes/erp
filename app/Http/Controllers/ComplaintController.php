@@ -6,7 +6,10 @@ use App\Complaint;
 use App\ComplaintThread;
 use App\StatusChange;
 use Auth;
+use Storage;
 use Illuminate\Http\Request;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ComplaintController extends Controller
 {
@@ -68,6 +71,13 @@ class ComplaintController extends Controller
             'account_id'   => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
             'thread'       => $thread
           ]);
+        }
+      }
+
+      if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+          $media = MediaUploader::fromSource($image)->toDirectory('reviews-images')->upload();
+          $complaint->attachMedia($media,config('constants.media_tags'));
         }
       }
 
@@ -136,6 +146,13 @@ class ComplaintController extends Controller
         }
       }
 
+      if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+          $media = MediaUploader::fromSource($image)->toDirectory('reviews-images')->upload();
+          $complaint->attachMedia($media,config('constants.media_tags'));
+        }
+      }
+
       return redirect()->route('review.index')->withSuccess('You have successfully updated complaint');
     }
 
@@ -170,6 +187,15 @@ class ComplaintController extends Controller
       $complaint->internal_messages()->delete();
       $complaint->plan_messages()->delete();
       $complaint->remarks()->delete();
+      if ($complaint->hasMedia(config('constants.media_tags'))) {
+        foreach ($complaint->getMedia(config('constants.media_tags')) as $image) {
+          // dd(public_path() . '/' . $image->getDiskPath());
+          Storage::delete($image->getDiskPath());
+        }
+
+        $complaint->detachMediaTags(config('constants.media_tags'));
+      }
+
       $complaint->delete();
 
       return redirect()->route('review.index')->withSuccess('You have successfully deleted complaint');
