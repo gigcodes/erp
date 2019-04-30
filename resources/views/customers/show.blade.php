@@ -268,8 +268,11 @@
     				<strong>Whatsapp Number:</strong>
     				<select name="whatsapp_number" class="form-control" id="whatsapp_change">
     					<option value>None</option>
-    					@foreach ($solo_numbers as $number => $name)
+    					{{-- @foreach ($solo_numbers as $number => $name)
     						<option value="{{ $number }}" {{ $customer->whatsapp_number == $number ? 'selected' : '' }}>{{ $name }}</option>
+    					@endforeach --}}
+              @foreach ($api_keys as $api_key)
+    						<option value="{{ $api_key->number }}" {{ $customer->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
     					@endforeach
     				</select>
     				@if ($errors->has('whatsapp_number'))

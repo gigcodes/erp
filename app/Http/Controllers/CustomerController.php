@@ -503,6 +503,7 @@ class CustomerController extends Controller
         $order_status_report = OrderStatuses::all();
         $purchase_status = (new PurchaseStatus)->all();
         $solo_numbers = (new SoloNumbers)->all();
+        $api_keys = ApiKey::select(['number'])->get();
         $suppliers = Supplier::select(['id', 'supplier'])->get();
         $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
     		                                        ->renderAsDropdown();
@@ -519,6 +520,7 @@ class CustomerController extends Controller
             'order_status_report' =>  $order_status_report,
             'purchase_status' =>  $purchase_status,
             'solo_numbers' =>  $solo_numbers,
+            'api_keys' =>  $api_keys,
             'emails'          => $emails,
             'category_suggestion'          => $category_suggestion,
             'suppliers'          => $suppliers,
