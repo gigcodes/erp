@@ -308,10 +308,16 @@ class CustomerController extends Controller
     public function block(Request $request)
     {
       $customer = Customer::find($request->customer_id);
-      $customer->is_blocked = 1;
+
+      if ($customer->is_blocked == 0) {
+        $customer->is_blocked = 1;
+      } else {
+        $customer->is_blocked = 0;
+      }
+
       $customer->save();
 
-      return response('success');
+      return response()->json(['is_blocked' => $customer->is_blocked]);
     }
 
     public function sendInstock(Request $request)

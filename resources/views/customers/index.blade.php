@@ -93,9 +93,8 @@
 
                       @if ($customer->is_blocked == 1)
                         <span class="badge badge-secondary">Blocked</span>
-                      @else
-                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
                       @endif
+                      <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
                     </td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                       <td>{{ $customer['email'] }}</td>
@@ -682,11 +681,17 @@
             $(thiss).text('Blocking...');
           }
         }).done(function(response) {
-          var badge = $('<span class="badge badge-secondary">Blocked</span>');
+          if (response.is_blocked == 1) {
+            var badge = $('<span class="badge badge-secondary">Blocked</span>');
 
-          $(thiss).parent().append(badge);
+            $(thiss).parent().append(badge);
+            $(thiss).html('<img src="/images/call-blocked.png" />');
+          } else {
+            $(thiss).html('<img src="/images/call-blocked.png" />');
+            $(thiss).parent().find('.badge').remove();
+          }
 
-          $(thiss).remove();
+          // $(thiss).remove();
         }).fail(function(response) {
           $(thiss).text('Block on Twilio');
 
