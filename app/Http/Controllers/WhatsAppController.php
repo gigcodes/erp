@@ -303,65 +303,92 @@ class WhatsAppController extends FindByNumberController
     return response("");
     }
     public function getAllMessages(Request $request) {
-        $cid = $request->get('customerId');
-        $sql = "SELECT
-            all_messages.*
-        FROM
-            (
-            SELECT
-                messages.`id`,
-                `customer_id`,
-                `userid`,
-                `moduleid`,
-                `moduletype`,
-                `status`,
-                `body` AS message,
-                'messages' AS `table_name`,
-                (
-                SELECT
-                    GROUP_CONCAT(
-                        DISTINCT mediables.media_id SEPARATOR ','
-                    )
-                FROM
-                    mediables
-                WHERE
-                    mediables.mediable_id = messages.id
-            ) AS media_ids,
-            messages.`created_at`
-        FROM
-            `messages`
-        WHERE
-            $cid = `messages`.`customer_id`
-        UNION
-        SELECT
-            chat_messages.`id`,
-            `number`,
-            `created_at`,
-            `approved`,
-            `status`,
-            `user_id`,
-            `sent`,
-            `customer_id`,
-            `message`,
-            'chat_messages' AS `table_name`,
-            (
-            SELECT
-                GROUP_CONCAT(
-                    DISTINCT mediables.media_id SEPARATOR ','
-                )
-            FROM
-                mediables
-            WHERE
-                mediables.mediable_id = chat_messages.id
-        ) AS media_ids,
-        chat_messages.`created_at`
-        FROM
-            `chat_messages`
-        WHERE
-            $cid = `chat_messages`.`customer_id`
-        ) `all_messages`
-        ORDER BY
-            all_messages.`created_at`";
+        // $cid = $request->get('customerId');
+        // $sql = "SELECT
+        //     all_messages.*
+        // FROM
+        //     (
+        //     SELECT
+        //         messages.`id`,
+        //         null AS `number`
+        //         `customer_id`,
+        //         `userid` AS `user_id`,
+        //         `status`,
+        //         `body` AS `message`,
+        //         null AS `approved`,
+        //         null AS `sent`,
+        //         `created_at`
+        //         'messages' AS `table_name`,
+        //         (
+        //         SELECT
+        //             GROUP_CONCAT(
+        //                 DISTINCT mediables.media_id SEPARATOR ','
+        //             )
+        //         FROM
+        //             mediables
+        //         WHERE
+        //             mediables.mediable_id = messages.id
+        //     ) AS media_ids,
+        //     messages.`created_at`
+        // FROM
+        //     `messages`
+        // WHERE
+        //     $cid = `messages`.`customer_id`
+        // UNION
+        // SELECT
+        //     chat_messages.`id`,
+        //     `number`,
+        //     `customer_id`,
+        //     `user_id`,
+        //     `status`,
+        //     `message`,
+        //     `approved`,
+        //     `sent`,
+        //     `created_at`,
+        //     'chat_messages' AS `table_name`,
+        //     (
+        //     SELECT
+        //         GROUP_CONCAT(
+        //             DISTINCT mediables.media_id SEPARATOR ','
+        //         )
+        //     FROM
+        //         mediables
+        //     WHERE
+        //         mediables.mediable_id = chat_messages.id
+        // ) AS media_ids,
+        // chat_messages.`created_at`
+        // FROM
+        //     `chat_messages`
+        // WHERE
+        //     $cid = `chat_messages`.`customer_id`
+        // ) `all_messages`
+        // ORDER BY
+        //     all_messages.`created_at`";
+
+
+            $chat_messages = DB::table('chat_messages')->where('customer_id', $request->customerId);
+
+            $chat_messages = $chat_messages->join(DB::raw('(SELECT media_id, mediable_type, mediable_id FROM `mediables` WHERE mediable_type = "App\ChatMessage") as mediables LEFT JOIN (SELECT media_id FROM `mediables`) as product_mediables ON mediables.media_id = product_mediables.media_id'), 'chat_messages.id', '=', 'mediables.mediable_id', 'LEFT');
+
+            $messages = DB::table('messages')->where('customer_id', $request->customerId);
+
+            $messages = $messages->join(DB::raw('(SELECT media_id, mediable_type, mediable_id FROM `mediables` WHERE mediable_type = "App\Message") as mediables'), 'messages.id', '=', 'mediables.mediable_id', 'LEFT');
+
+
+            $product_image = Product::with('Media')->whereHas('Media', function($q) {
+               $q->where('media.id', '57075');
+            })->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->get();
+
+            dD($product_image->toSql());
+
+            foreach ($chat_messages->get() as $chat_message) {
+              dump($chat_message->product_mediables);
+            }
+            dd('stap');
+
+
+
+
 
         $data = DB::select(DB::raw($sql));
         $messages = [];
@@ -811,13 +838,13 @@ class WhatsAppController extends FindByNumberController
       $result = [];
       $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
 
-      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest()->skip($skip)->take(10);
+      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
 
       if ($request->get("elapse")) {
         $elapse = (int) $request->get("elapse");
         $date = new \DateTime;
         $date->modify(sprintf("-%s seconds", $elapse));
-        $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
+        // $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
       }
 
       foreach ($messages->get() as $message) {
@@ -891,7 +918,7 @@ class WhatsAppController extends FindByNumberController
         $result[] = array_merge($params, $messageParams);
       }
 
-      $messages = Message::select(['id', 'customer_id', 'userid', 'status', 'assigned_to', 'body', 'created_at'])->where('customer_id', $request->customerId)->orderBy("created_at", 'desc')->skip($skip)->take(10)->get();
+      $messages = Message::select(['id', 'customer_id', 'userid', 'status', 'assigned_to', 'body', 'created_at'])->where('customer_id', $request->customerId)->latest()->get();
 
       foreach ($messages->toArray() as $key => $message) {
         $images_array = [];
@@ -936,20 +963,20 @@ class WhatsAppController extends FindByNumberController
       }
 
       $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
-      // $currentPage = LengthAwarePaginator::resolveCurrentPage();
-      // $perPage = 10;
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      $perPage = 10;
 
       if ($request->page) {
-        // $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+        $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
 
       } else {
-        // $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+        $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
         $result = array_reverse($result);
       }
 
-      // $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
-      //   'path'	=> LengthAwarePaginator::resolveCurrentPath()
-      // ]);
+      $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
+        'path'	=> LengthAwarePaginator::resolveCurrentPath()
+      ]);
 
       return response()->json($result);
     }

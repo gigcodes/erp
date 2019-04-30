@@ -2605,7 +2605,7 @@
                  return new Promise(function(resolve, reject) {
                      $.getJSON("/whatsapp/pollMessagesCustomer" + qs, function( data ) {
 
-                         data.forEach(function( message ) {
+                         data.data.forEach(function( message ) {
                              var rendered = renderMessage( message, tobottom );
                              if ( !anyNewMessages && rendered ) {
                                  anyNewMessages = true;

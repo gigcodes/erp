@@ -25,6 +25,7 @@
                       <option value="new" {{ isset($type) && $type == 'new' ? 'selected' : '' }}>New</option>
                       <option value="delivery" {{ isset($type) && $type == 'delivery' ? 'selected' : '' }}>Delivery</option>
                       <option value="Refund to be processed" {{ isset($type) && $type == 'Refund to be processed' ? 'selected' : '' }}>Refund</option>
+                      <option value="unread" {{ isset($type) && $type == 'unread' ? 'selected' : '' }}>Unread</option>
                     </optgroup>
                   </select>
                 </div>
