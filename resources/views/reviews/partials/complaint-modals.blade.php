@@ -3,7 +3,7 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('complaint.store') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('thread.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="modal-header">

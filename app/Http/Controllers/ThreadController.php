@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
-class ComplaintController extends Controller
+class ThreadController extends Controller
 {
     /**
      * Display a listing of the resource.

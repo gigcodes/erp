@@ -395,9 +395,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
 	Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
 
-	// Complaints Routes
-	Route::resource('complaint', 'ComplaintController');
-	Route::post('review/complaint/{id}/status', 'ComplaintController@updateStatus')->name('review.complaint.updateStatus');
+	// Threads Routes
+	Route::resource('thread', 'ThreadController');
+	Route::post('thread/{id}/status', 'ThreadController@updateStatus')->name('thread.updateStatus');
 
 	// Vendor Module
 	Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');

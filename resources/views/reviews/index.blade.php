@@ -391,7 +391,7 @@
                   <td>
                     <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}" data-threads="{{ $complaint->threads }}"><img src="/images/edit.png" /></button>
 
-                    {!! Form::open(['method' => 'DELETE','route' => ['complaint.destroy', $complaint->id],'style'=>'display:inline']) !!}
+                    {!! Form::open(['method' => 'DELETE','route' => ['thread.destroy', $complaint->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                   </td>
@@ -543,7 +543,7 @@
 
       $.ajax({
         type: "POST",
-        url: "{{ url('review/complaint') }}/" + id + '/status',
+        url: "{{ url('thread') }}/" + id + '/status',
         data: {
           _token: "{{ csrf_token() }}",
           status: status
@@ -656,7 +656,7 @@
     function fillEditComplaint(thiss) {
       var complaint = $(thiss).data('complaint');
       var threads = $(thiss).data('threads');
-      var url = "{{ url('complaint') }}/" + complaint.id;
+      var url = "{{ url('thread') }}/" + complaint.id;
 
       $('#complaintEditModal form').attr('action', url);
       $('#complaint_customer_id option[value="' + complaint.customer_id + '"]').prop('selected', true);
