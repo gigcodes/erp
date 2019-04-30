@@ -44,7 +44,9 @@ class ReviewController extends Controller
       if ($request->platform != null) {
         $accounts = Account::where('platform', $request->platform)->latest()->paginate(Setting::get('pagination'));
         // $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('platform', $request->platform);
-        $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->where('platform', $request->platform);
+        $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->whereHas('review_schedule', function ($query) use ($request) {
+          return $query->where('platform', $request->platform);
+        });
         // $posted_reviews = ReviewSchedule::where('status', 'posted')->where('platform', $request->platform);
         $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->whereHas('review_schedule', function ($query) use ($request) {
           return $query->where('platform', $request->platform);
