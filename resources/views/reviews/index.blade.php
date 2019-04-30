@@ -285,7 +285,12 @@
                 <th>Date</th>
                 <th>Customer</th>
                 <th>Platform</th>
+                <th>Where</th>
+                <th>Username</th>
                 <th>Conversation thread</th>
+                <th>Internal</th>
+                <th>Status</th>
+                <th>Plan of Action</th>
                 <th>Link</th>
                 <th>Notes & Instructions</th>
                 <th>Actions</th>
@@ -302,6 +307,11 @@
                     @endif
                   </td>
                   <td>{{ ucwords($complaint->platform) }}</td>
+                  <td>{{ ucwords($complaint->where) }}</td>
+                  <td>
+                    {{ ucwords($complaint->name) }}
+                    <span class="text-muted">{{ ucwords($complaint->username) }}</span>
+                  </td>
                   <td>
                     {{ $complaint->complaint }}
 
@@ -312,6 +322,53 @@
                         @endforeach
                       </ul>
                     @endif
+                  </td>
+                  <td>
+                    <input type="text" name="message" class="form-control quick-message-input" data-type="internal" placeholder="Internal message" value="" data-id="{{ $complaint->id }}">
+
+                    <ul class="internal-container">
+                      @foreach ($complaint->internal_messages as $message)
+                        <li>{{ $message->remark }}</li>
+                      @endforeach
+                    </ul>
+                  </td>
+                  <td>
+                    @if (count($complaint->status_changes) > 0)
+                      <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                      <div class="change-history-container hidden">
+                        <ul>
+                          @foreach ($complaint->status_changes as $status_history)
+                            <li>
+                              {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                            </li>
+                          @endforeach
+                        </ul>
+                      </div>
+                    @endif
+
+                    <div class="form-group">
+                      <select class="form-control update-complaint-status" name="status" data-id="{{ $complaint->id }}">
+                        <option value="pending" {{ 'pending' == $complaint->status ? 'selected' : '' }}>Pending</option>
+                        <option value="planned" {{ 'planned' == $complaint->status ? 'selected' : '' }}>Planned</option>
+                        <option value="replied" {{ 'replied' == $complaint->status ? 'selected' : '' }}>Replied</option>
+                        <option value="followed up" {{ 'followed up' == $complaint->status ? 'selected' : '' }}>Followed Up</option>
+                        <option value="deleted" {{ 'deleted' == $complaint->status ? 'selected' : '' }}>Deleted</option>
+                      </select>
+
+                      <span class="text-success change_status_message" style="display: none;">Successfully changed schedule status</span>
+                    </div>
+                  </td>
+                  <td>
+                    {{ $complaint->plan_of_action }}
+
+                    <input type="text" name="message" class="form-control quick-message-input" data-type="plan" placeholder="Comment" value="" data-id="{{ $complaint->id }}">
+
+                    <ul class="plan-comments-container">
+                      @foreach ($complaint->plan_messages as $message)
+                        <li>{{ $message->remark }}</li>
+                      @endforeach
+                    </ul>
                   </td>
                   <td>
                     <a href="{{ $complaint->link }}" target="_blank">{{ $complaint->link }}</a>
@@ -469,6 +526,30 @@
 
     });
 
+    $(document).on('change', '.update-complaint-status', function() {
+      var status = $(this).val();
+      var id = $(this).data('id');
+      var thiss = $(this);
+
+      $.ajax({
+        type: "POST",
+        url: "{{ url('review/complaint') }}/" + id + '/status',
+        data: {
+          _token: "{{ csrf_token() }}",
+          status: status
+        }
+      }).done(function() {
+        $(thiss).siblings('.change_status_message').fadeIn(400);
+
+        setTimeout(function () {
+          $(thiss).siblings('.change_status_message').fadeOut(400);
+        }, 2000);
+      }).fail(function(response) {
+        alert('Could not change the status');
+        console.log(response);
+      });
+    });
+
     $(document).on('click', '.review-approve-button', function(e) {
       e.preventDefault();
 
@@ -572,7 +653,11 @@
       $('#edit_complaint_date input').val(complaint.date);
       $('#complaint_platform option[value="' + complaint.platform + '"]').prop('selected', true);
       $('#complaint_complaint').val(complaint.complaint);
+      $('#edit_plan_of_action').val(complaint.plan_of_action);
       $('#complaint_link').val(complaint.link);
+      $('#complaint_where').val(complaint.where);
+      $('#complaint_username').val(complaint.username);
+      $('#complaint_name').val(complaint.name);
 
       $('#complaint-container-extra').empty();
       Object.keys(threads).forEach(function(index) {
@@ -651,6 +736,49 @@
             });
             $("#viewRemarkModal").find('#remark-list').html(html);
         });
+    });
+
+    $('.quick-message-input').keypress(function(e) {
+      var key = e.which;
+      var thiss = $(this);
+      var type = $(this).data('type');
+
+      if (type == 'internal') {
+        var module_type = 'internal-complaint';
+        var container = '.internal-container';
+      } else {
+        var module_type = 'complaint-plan-comment';
+        var container = '.plan-comments-container';
+      }
+
+      if (key == 13) {
+        e.preventDefault();
+        var phone = $(thiss).val();
+
+        var id = $(thiss).data('id');
+        var remark = $(thiss).val();
+
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.addRemark') }}',
+            data: {
+              id:id,
+              remark:remark,
+              module_type: module_type
+            },
+        }).done(response => {
+            // alert('Remark Added Success!')
+            // window.location.reload();
+            var remark_message = $('<li>' + remark + '</li>');
+            $(thiss).siblings(container).prepend(remark_message);
+            $(thiss).val('');
+        }).fail(function(response) {
+          console.log(response);
+        });
+      }
     });
 
     $(document).on('click', '.quick-edit-review-button', function(e) {

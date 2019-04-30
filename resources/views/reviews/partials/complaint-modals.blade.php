@@ -78,6 +78,46 @@
               <div class="alert alert-danger">{{$errors->first('link')}}</div>
             @endif
           </div>
+
+          <div class="form-group">
+            <strong>Where was written</strong>
+
+            <input type="text" name="where" class="form-control" value="{{ old('where') }}">
+
+            @if ($errors->has('where'))
+              <div class="alert alert-danger">{{$errors->first('where')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Username</strong>
+
+            <input type="text" name="username" class="form-control" value="{{ old('username') }}">
+
+            @if ($errors->has('username'))
+              <div class="alert alert-danger">{{$errors->first('username')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Name</strong>
+
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}">
+
+            @if ($errors->has('name'))
+              <div class="alert alert-danger">{{$errors->first('name')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Plan of Action</strong>
+
+            <textarea name="plan_of_action" class="form-control" rows="8" cols="80">{{ old('plan_of_action') }}</textarea>
+
+            @if ($errors->has('plan_of_action'))
+              <div class="alert alert-danger">{{$errors->first('plan_of_action')}}</div>
+            @endif
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -170,6 +210,46 @@
 
             @if ($errors->has('link'))
               <div class="alert alert-danger">{{$errors->first('link')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Where was written</strong>
+
+            <input type="text" name="where" class="form-control" value="{{ old('where') }}" id="complaint_where">
+
+            @if ($errors->has('where'))
+              <div class="alert alert-danger">{{$errors->first('where')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Username</strong>
+
+            <input type="text" name="username" class="form-control" value="{{ old('username') }}" id="complaint_username">
+
+            @if ($errors->has('username'))
+              <div class="alert alert-danger">{{$errors->first('username')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Name</strong>
+
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" id="complaint_name">
+
+            @if ($errors->has('name'))
+              <div class="alert alert-danger">{{$errors->first('name')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Plan of Action</strong>
+
+            <textarea name="plan_of_action" class="form-control" rows="8" cols="80" id="edit_plan_of_action">{{ old('plan_of_action') }}</textarea>
+
+            @if ($errors->has('plan_of_action'))
+              <div class="alert alert-danger">{{$errors->first('plan_of_action')}}</div>
             @endif
           </div>
         </div>

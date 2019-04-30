@@ -79,9 +79,7 @@ class ReviewController extends Controller
       //     return $q->where('is_approved', 0)->orWhere('is_approved', 2);
       //   });
       // })
-      $review_schedules = $review_schedules->orWhere('status', 'posted')->where(function ($q) {
-          return $q->where('is_approved', 0)->orWhere('is_approved', 2);
-        })->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
+      $review_schedules = $review_schedules->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
 
       $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
       $complaints = $complaints->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');

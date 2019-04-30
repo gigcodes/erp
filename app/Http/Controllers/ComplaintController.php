@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Complaint;
 use App\ComplaintThread;
+use App\StatusChange;
+use Auth;
 use Illuminate\Http\Request;
 
 class ComplaintController extends Controller
@@ -42,13 +44,17 @@ class ComplaintController extends Controller
     public function store(Request $request)
     {
       $this->validate($request, [
-        'customer_id'   => 'sometimes|nullable|integer',
-        'platform'      => 'sometimes|nullable|string',
-        'complaint'     => 'required|string|min:3',
-        'thread.*'      => 'sometimes|nullable|string',
-        'account_id.*'  => 'sometimes|nullable|numeric',
-        'link'          => 'sometimes|nullable|url',
-        'date'          => 'required|date'
+        'customer_id'     => 'sometimes|nullable|integer',
+        'platform'        => 'sometimes|nullable|string',
+        'complaint'       => 'required|string|min:3',
+        'thread.*'        => 'sometimes|nullable|string',
+        'account_id.*'    => 'sometimes|nullable|numeric',
+        'link'            => 'sometimes|nullable|url',
+        'where'           => 'sometimes|nullable|string',
+        'username'        => 'sometimes|nullable|string',
+        'name'            => 'sometimes|nullable|string',
+        'plan_of_action'  => 'sometimes|nullable|string',
+        'date'            => 'required|date'
       ]);
 
       $data = $request->except('_token');
@@ -100,13 +106,17 @@ class ComplaintController extends Controller
     public function update(Request $request, $id)
     {
       $this->validate($request, [
-        'customer_id' => 'sometimes|nullable|integer',
-        'platform'    => 'sometimes|nullable|string',
-        'complaint'   => 'required|string|min:3',
-        'thread.*'    => 'sometimes|nullable|string',
-        'account_id.*'  => 'sometimes|nullable|numeric',
-        'link'        => 'sometimes|nullable|url',
-        'date'        => 'required|date'
+        'customer_id'     => 'sometimes|nullable|integer',
+        'platform'        => 'sometimes|nullable|string',
+        'complaint'       => 'required|string|min:3',
+        'thread.*'        => 'sometimes|nullable|string',
+        'account_id.*'    => 'sometimes|nullable|numeric',
+        'link'            => 'sometimes|nullable|url',
+        'where'           => 'sometimes|nullable|string',
+        'username'        => 'sometimes|nullable|string',
+        'name'            => 'sometimes|nullable|string',
+        'plan_of_action'  => 'sometimes|nullable|string',
+        'date'            => 'required|date'
       ]);
 
       $data = $request->except('_token');
@@ -129,6 +139,24 @@ class ComplaintController extends Controller
       return redirect()->route('review.index')->withSuccess('You have successfully updated complaint');
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+      $complaint = Complaint::find($id);
+
+      StatusChange::create([
+        'model_id'    => $complaint->id,
+        'model_type'  => Complaint::class,
+        'user_id'     => Auth::id(),
+        'from_status' => $complaint->status,
+        'to_status'   => $request->status
+      ]);
+
+      $complaint->status = $request->status;
+      $complaint->save();
+
+      return response('success');
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -139,6 +167,9 @@ class ComplaintController extends Controller
     {
       $complaint = Complaint::find($id);
       $complaint->threads()->delete();
+      $complaint->internal_messages()->delete();
+      $complaint->plan_messages()->delete();
+      $complaint->remarks()->delete();
       $complaint->delete();
 
       return redirect()->route('review.index')->withSuccess('You have successfully deleted complaint');
