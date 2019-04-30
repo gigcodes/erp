@@ -82,7 +82,7 @@ class ReviewController extends Controller
       $review_schedules = $review_schedules->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
 
       $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
-      $complaints = $complaints->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
+      $complaints = $complaints->where('thread_type', 'thread')->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
 
       $customers = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
       $accounts_array = Account::select(['id', 'first_name', 'last_name', 'email'])->get();

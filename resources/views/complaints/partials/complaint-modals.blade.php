@@ -3,10 +3,10 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('thread.store') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('complaint.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
-        <input type="hidden" name="thread_type" value="thread">
+        <input type="hidden" name="thread_type" value="complaint">
 
         <div class="modal-header">
           <h4 class="modal-title">Create a Thread</h4>

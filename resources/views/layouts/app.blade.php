@@ -1229,6 +1229,7 @@
 
                                 @can('review-view')
                                   <a class="dropdown-item" href="{{ route('review.index') }}">Reviews</a>
+                                  <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                 @endcan
 
                                   <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts

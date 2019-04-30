@@ -10,7 +10,7 @@ class Complaint extends Model
   use Mediable;
 
   protected $fillable = [
-    'customer_id', 'platform', 'complaint', 'status', 'link', 'where', 'username', 'name', 'plan_of_action', 'date'
+    'customer_id', 'platform', 'complaint', 'status', 'link', 'where', 'username', 'name', 'plan_of_action', 'thread_type', 'date'
   ];
 
   public function customer()

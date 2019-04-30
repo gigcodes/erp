@@ -399,6 +399,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::resource('thread', 'ThreadController');
 	Route::post('thread/{id}/status', 'ThreadController@updateStatus')->name('thread.updateStatus');
 
+	// Complaints Routes
+	Route::resource('complaint', 'ComplaintController');
+	Route::post('complaint/{id}/status', 'ComplaintController@updateStatus')->name('complaint.updateStatus');
+
 	// Vendor Module
 	Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
 	Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
