@@ -108,7 +108,6 @@ class MagentoController extends Controller {
 
 		for ( $j = 0; $j < sizeof( $orderlist ); $j ++ ) {
 			$results = json_decode( json_encode( $proxy->salesOrderInfo( $sessionId, $orderlist[ $j ]->increment_id ) ), true );
-
 			$atts = unserialize( $results['items'][0]['product_options'] );
 
 			if ( ! empty( $results['total_paid'] ) ) {
@@ -272,12 +271,21 @@ class MagentoController extends Controller {
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 		}
 
-			if ($order->order_status == 'Proceed without Advance' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
-				$order->update([
-					'auto_messaged' => 1,
-					'auto_messaged_date'	=> Carbon::now()
-				]);
-			}
+		if ($results['state'] != 'processing' && $results['payment']['method'] != 'cashondelivery') {
+			$auto_message = "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?";
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+		}
+
+		if ($order->order_status == 'Proceed without Advance' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date'	=> Carbon::now()
+			]);
+		}
 		}
 	}
 
