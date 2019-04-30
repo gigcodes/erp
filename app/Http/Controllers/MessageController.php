@@ -14,6 +14,9 @@ use App\PushNotification;
 use App\NotificationQueue;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Image;
+use Storage;
+use File;
 
 class MessageController extends Controller
 {
@@ -93,6 +96,17 @@ class MessageController extends Controller
                 $media = Media::find($image);
                 $message->attachMedia($media,config('constants.media_tags'));
               }
+            }
+
+            if ($request->screenshot_path != '') {
+              $image_path = public_path() . '/uploads/temp_screenshot.png';
+              $img = substr($request->screenshot_path, strpos($request->screenshot_path, ",")+1);
+              $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
+
+              $media = MediaUploader::fromSource($image_path)->upload();
+              $message->attachMedia($media,config('constants.media_tags'));
+
+              File::delete('uploads/temp_screenshot.png');
             }
 
             // if( $data['status'] == '1' ) {

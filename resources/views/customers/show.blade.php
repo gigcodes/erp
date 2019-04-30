@@ -143,6 +143,12 @@
           overflow-y: auto;
           padding-bottom: 15px;
       }
+
+      .remove-screenshot {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+      }
   </style>
 @endsection
 
@@ -1509,6 +1515,9 @@
 
    <div class="col-xs-12 col-sm-6">
      <form action="{{ route('message.store') }}" method="POST" enctype="multipart/form-data">
+       <div id="paste-container" style="width: 200px;">
+
+       </div>
        <div class="d-flex">
          @csrf
 
@@ -1526,6 +1535,7 @@
              <div class="form-group flex-fill mr-3">
                <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
 
+               <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
                <input type="hidden" name="moduletype" value="customer" />
                <input type="hidden" name="moduleid" value="{{ $customer->id }}" />
                <input type="hidden" name="assigned_user" value="{{ Auth::id() }}" />
@@ -1687,10 +1697,6 @@
       </div>
     </div>
   @endif
-</div>
-
-<div id="paste-container">
-{{-- remove later --}}
 </div>
 
 <div class="row">
@@ -2679,6 +2685,7 @@
            var token = "{{ csrf_token() }}";
            var file = $($(this).closest('form').find('input[type="file"]'))[0].files[0];
            var status = $(this).closest('form').find('input[name="status"]').val();
+           var screenshot_path = $('#screenshot_path').val();
            var formData = new FormData();
 
            formData.append("_token", token);
@@ -2688,6 +2695,7 @@
            formData.append("moduleid", $(this).closest('form').find('input[name="moduleid"]').val());
            formData.append("assigned_user", $(this).closest('form').find('input[name="assigned_user"]').val());
            formData.append("status", status);
+           formData.append("screenshot_path", screenshot_path);
 
            if (status == 4) {
              formData.append("assigned_user", $(this).closest('form').find('select[name="assigned_user"]').val());
@@ -2700,9 +2708,12 @@
                data: formData,
                processData: false,
                contentType: false
-             }).done(function() {
+             }).done(function(response) {
+               console.log(response);
                pollMessages();
                $(thiss).closest('form').find('textarea').val('');
+               $('#paste-container').empty();
+               $('#screenshot_path').val('');
                $(thiss).closest('form').find('.dropify-clear').click();
              }).fail(function(response) {
                console.log(response);
@@ -3450,78 +3461,88 @@
 
 
 
-      // $('#message-body').on('focus', function() {
-      //   // if ($(this).is(":focus")) {
-      //   // Created by STRd6
-      //   // MIT License
-      //   // jquery.paste_image_reader.js
-      //   (function($) {
-      //     var defaults;
-      //     $.event.fix = (function(originalFix) {
-      //       return function(event) {
-      //         event = originalFix.apply(this, arguments);
-      //         if (event.type.indexOf('copy') === 0 || event.type.indexOf('paste') === 0) {
-      //           event.clipboardData = event.originalEvent.clipboardData;
-      //         }
-      //         return event;
-      //       };
-      //     })($.event.fix);
-      //     defaults = {
-      //       callback: $.noop,
-      //       matchType: /image.*/
-      //     };
-      //     return $.fn.pasteImageReader = function(options) {
-      //       if (typeof options === "function") {
-      //         options = {
-      //           callback: options
-      //         };
-      //       }
-      //       options = $.extend({}, defaults, options);
-      //       return this.each(function() {
-      //         var $this, element;
-      //         element = this;
-      //         $this = $(this);
-      //         return $this.bind('paste', function(event) {
-      //           var clipboardData, found;
-      //           found = false;
-      //           clipboardData = event.clipboardData;
-      //           return Array.prototype.forEach.call(clipboardData.types, function(type, i) {
-      //             var file, reader;
-      //             if (found) {
-      //               return;
-      //             }
-      //             if (type.match(options.matchType) || clipboardData.items[i].type.match(options.matchType)) {
-      //               file = clipboardData.items[i].getAsFile();
-      //               reader = new FileReader();
-      //               reader.onload = function(evt) {
-      //                 return options.callback.call(element, {
-      //                   dataURL: evt.target.result,
-      //                   event: evt,
-      //                   file: file,
-      //                   name: file.name
-      //                 });
-      //               };
-      //               reader.readAsDataURL(file);
-      //               return found = true;
-      //             }
-      //           });
-      //         });
-      //       });
-      //     };
-      //   })(jQuery);
-      //     var dataURL, filename;
-      //     $("html").pasteImageReader(function(results) {
-      //       console.log(results);
-      //       alert('pasted');
-      //     	filename = results.filename, dataURL = results.dataURL;
-      //
-      //       var img = $('<img src="' + dataURL + '" class="img-responsive" />');
-      //
-      //       $('#paste-container').append(img);
-      //
-      //     });
-      //   // }
-      // });
+
+        // if ($(this).is(":focus")) {
+        // Created by STRd6
+        // MIT License
+        // jquery.paste_image_reader.js
+        (function($) {
+          var defaults;
+          $.event.fix = (function(originalFix) {
+            return function(event) {
+              event = originalFix.apply(this, arguments);
+              if (event.type.indexOf('copy') === 0 || event.type.indexOf('paste') === 0) {
+                event.clipboardData = event.originalEvent.clipboardData;
+              }
+              return event;
+            };
+          })($.event.fix);
+          defaults = {
+            callback: $.noop,
+            matchType: /image.*/
+          };
+          return $.fn.pasteImageReader = function(options) {
+            if (typeof options === "function") {
+              options = {
+                callback: options
+              };
+            }
+            options = $.extend({}, defaults, options);
+            return this.each(function() {
+              var $this, element;
+              element = this;
+              $this = $(this);
+              return $this.bind('paste', function(event) {
+                var clipboardData, found;
+                found = false;
+                clipboardData = event.clipboardData;
+                return Array.prototype.forEach.call(clipboardData.types, function(type, i) {
+                  var file, reader;
+                  if (found) {
+                    return;
+                  }
+                  if (type.match(options.matchType) || clipboardData.items[i].type.match(options.matchType)) {
+                    file = clipboardData.items[i].getAsFile();
+                    reader = new FileReader();
+                    reader.onload = function(evt) {
+                      return options.callback.call(element, {
+                        dataURL: evt.target.result,
+                        event: evt,
+                        file: file,
+                        name: file.name
+                      });
+                    };
+                    reader.readAsDataURL(file);
+                    return found = true;
+                  }
+                });
+              });
+            });
+          };
+        })(jQuery);
+
+          var dataURL, filename;
+          $("html").pasteImageReader(function(results) {
+            console.log(results);
+
+            // $('#message-body').on('focus', function() {
+            	filename = results.filename, dataURL = results.dataURL;
+
+              var img = $('<div class="image-wrapper position-relative"><img src="' + dataURL + '" class="img-responsive" /><button type="button" class="btn btn-xs btn-secondary remove-screenshot">x</button></div>');
+
+              $('#paste-container').empty();
+              $('#paste-container').append(img);
+              $('#screenshot_path').val(dataURL);
+            // });
+
+          });
+
+          $(document).on('click', '.remove-screenshot', function() {
+            $(this).closest('.image-wrapper').remove();
+            $('#screenshot_path').val('');
+          });
+        // }
+
 
       $(document).on('click', '.change-history-toggle', function() {
         $(this).siblings('.change-history-container').toggleClass('hidden');
