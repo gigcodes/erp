@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Review extends Model
 {
   protected $fillable = [
-    'account_id', 'customer_id', 'posted_date', 'review_link', 'review'
+    'account_id', 'customer_id', 'posted_date', 'review_link', 'review', 'serial_number', 'platform'
   ];
 
   public function review_schedule()

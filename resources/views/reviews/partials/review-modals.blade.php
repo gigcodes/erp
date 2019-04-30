@@ -28,6 +28,15 @@
           </div>
 
           <div class="form-group">
+            <strong>Serial Number</strong>
+            <input type="text" name="serial_number" class="form-control" id="edit_review_serial" value="">
+
+            @if ($errors->has('serial_number'))
+              <div class="alert alert-danger">{{$errors->first('serial_number')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Review</strong>
             <input type="text" name="review" class="form-control" id="edit_review_review" value="" required>
 
@@ -42,6 +51,22 @@
 
             @if ($errors->has('review_link'))
               <div class="alert alert-danger">{{$errors->first('review_link')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Platform:</strong>
+            <select class="form-control" name="platform" id="edit_review_platform">
+              <option value="">Select a Platform</option>
+              <option value="instagram" {{ 'instagram' == old('platform') ? 'selected' : '' }}>Instagram</option>
+              <option value="facebook" {{ 'facebook' == old('platform') ? 'selected' : '' }}>Facebook</option>
+              <option value="sitejabber" {{ 'sitejabber' == old('platform') ? 'selected' : '' }}>Sitejabber</option>
+              <option value="google" {{ 'google' == old('platform') ? 'selected' : '' }}>Google</option>
+              <option value="trustpilot" {{ 'trustpilot' == old('platform') ? 'selected' : '' }}>Trustpilot</option>
+            </select>
+
+            @if ($errors->has('platform'))
+              <div class="alert alert-danger">{{$errors->first('platform')}}</div>
             @endif
           </div>
 

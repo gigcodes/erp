@@ -44,13 +44,9 @@ class ReviewController extends Controller
       if ($request->platform != null) {
         $accounts = Account::where('platform', $request->platform)->latest()->paginate(Setting::get('pagination'));
         // $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('platform', $request->platform);
-        $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->whereHas('review_schedule', function ($query) use ($request) {
-          return $query->where('platform', $request->platform);
-        });
+        $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->where('platform', $request->platform);
         // $posted_reviews = ReviewSchedule::where('status', 'posted')->where('platform', $request->platform);
-        $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->whereHas('review_schedule', function ($query) use ($request) {
-          return $query->where('platform', $request->platform);
-        });
+        $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->where('platform', $request->platform);
 
         $complaints = Complaint::where('platform', $request->platform);
       } else {
@@ -172,6 +168,9 @@ class ReviewController extends Controller
           $new_review = new Review;
           $new_review->review_schedule_id = $review_schedule->id;
           $new_review->review = $review;
+          $new_review->posted_date = $request->date;
+          $new_review->platform = $request->platform;
+          $new_review->status = $request->status;
           $new_review->save();
         }
       }
@@ -214,6 +213,8 @@ class ReviewController extends Controller
         'review'        => 'required|string',
         'posted_date'   => 'sometimes|nullable|date',
         'review_link'   => 'sometimes|nullable|string',
+        'serial_number' => 'sometimes|nullable|string',
+        'platform'      => 'sometimes|nullable|string',
         'account_id'    => 'sometimes|nullable|numeric',
         'customer_id'   => 'sometimes|nullable|numeric'
       ]);

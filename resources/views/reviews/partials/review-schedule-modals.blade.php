@@ -42,7 +42,7 @@
             @endif
           </div>
 
-          <div class="form-group">
+          {{-- <div class="form-group">
             <strong>Number of Reviews:</strong>
             <select class="form-control" name="review_count">
               <option value="">Select a Number</option>
@@ -61,7 +61,7 @@
             @if ($errors->has('review_count'))
               <div class="alert alert-danger">{{$errors->first('review_count')}}</div>
             @endif
-          </div>
+          </div> --}}
 
           <div id="review-container">
             <div class="form-group">

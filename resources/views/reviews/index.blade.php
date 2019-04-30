@@ -91,7 +91,7 @@
 
             <tbody>
               @foreach ($accounts as $account)
-                <tr>
+                <tr class="{{ $account->has_posted_reviews() ? 'text-danger' : '' }}">
                   <td>{{ $account->first_name }} {{ $account->last_name }}</td>
                   <td>{{ $account->email }}</td>
                   <td>{{ $account->password }}</td>
@@ -123,7 +123,7 @@
               <tr>
                 <th>Date</th>
                 <th>Platform</th>
-                <th>Number of Reviews</th>
+                <th>Serial Number</th>
                 <th>Reviews for Approval</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -135,7 +135,7 @@
                 <tr>
                   <td>{{ \Carbon\Carbon::parse($schedule->review_schedule->date)->format('d-m') }}</td>
                   <td>{{ ucwords($schedule->platform) }}</td>
-                  <td>{{ $schedule->review_schedule->review_count }}</td>
+                  <td>{{ $schedule->serial_number }}</td>
                   <td class="{{ $schedule->is_approved == 1 ? 'text-success' : ($schedule->is_approved == 2 ? 'text-danger' : '') }}">
                     @php
                       preg_match_all('/(#\w*)/', $schedule->review, $match);
@@ -164,7 +164,7 @@
                   </td>
                   <td>
                     <div class="form-group">
-                      <select class="form-control update-schedule-status" name="status" data-id="{{ $schedule->id }}" required>
+                      <select class="form-control update-schedule-status" name="status" data-id="{{ $schedule->id }}" data-review="{{ $schedule }}" data-account="{{ $schedule->account }}" data-customer="{{ $schedule->customer }}" required>
                         <option value="prepare" {{ 'prepare' == $schedule->status ? 'selected' : '' }}>Prepare</option>
                         <option value="prepared" {{ 'prepared' == $schedule->status ? 'selected' : '' }}>Prepared</option>
                         <option value="posted" {{ 'posted' == $schedule->status ? 'selected' : '' }}>Posted</option>
@@ -430,6 +430,9 @@
     $(document).on('change', '.update-schedule-status', function() {
       var status = $(this).val();
       var id = $(this).data('id');
+      var review = $(this).data('review');
+      var account = $(this).data('account');
+      var customer = $(this).data('customer');
       var thiss = $(this);
 
       $.ajax({
@@ -445,15 +448,25 @@
         setTimeout(function () {
           $(thiss).siblings('.change_status_message').fadeOut(400);
         }, 2000);
+
+        if (status == 'posted') {
+          // fillEditReview(thiss);
+          // $('#reviewEditModal').modal();
+
+          $(thiss).closest('tr').remove();
+          var token = "{{ csrf_token() }}";
+          var url = "{{ url('review') }}/" + id;
+
+          var posted_row = '<tr><td>' + moment(review.posted_date).format('DD-M') + '</td><td>' + account.email + '</td><td>' + customer.name + '</td><td>' + review.platform + '</td><td>' + review.review + '</td><td><a href="' + review.review_link + '" target="_blank">' + review.review_link + '</a></td><td><button type="button" class="btn btn-image edit-review" data-toggle="modal" data-target="#reviewEditModal" data-review="' + JSON.stringify(review) + '"><img src="/images/edit.png" /></button><form action="' + url + '" method="POST" style="display:inline;"><input type="hidden" name="_token" value="' + token + '" /><input type="hidden" name="_method" value="DELETE" /><button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button></form></td></tr>';
+
+          $('#posted_tab tbody').prepend($(posted_row));
+        }
       }).fail(function(response) {
         alert('Could not change the status');
         console.log(response);
       });
 
-      if (status == 'posted') {
-        fillEditReview(thiss);
-        $('#reviewEditModal').modal();
-      }
+
     });
 
     $(document).on('click', '.review-approve-button', function(e) {
@@ -543,6 +556,8 @@
       $('#edit_posted_date input').val(review.posted_date);
       $('#edit_review_link').val(review.review_link);
       $('#edit_review_review').val(review.review);
+      $('#edit_review_serial').val(review.serial_number);
+      $('#edit_review_platform option[value="' + review.platform + '"]').prop('selected', true);
       $('#edit_review_account option[value="' + review.account_id + '"]').prop('selected', true);
       $('#edit_customer_id option[value="' + review.customer_id + '"]').prop('selected', true);
     }
