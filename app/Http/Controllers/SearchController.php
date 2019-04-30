@@ -124,15 +124,13 @@ class SearchController extends Controller {
 		}
 
 		if ($request->supplier[0] != null) {
+			$suppliers_list = implode(',', $request->supplier);
+
 			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,10000000") {
-				$productQuery = $productQuery->with('Suppliers')->whereHas('Suppliers', function ($query) use ($request) {
-					$query->whereIn('suppliers.id', $request->supplier);
-				});
+				$productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
 			} else {
 				$productQuery = ( new Product() )->newQuery()->with('Suppliers')
-				                                 ->latest()->whereHas('Suppliers', function ($query) use ($request) {
-																 					$query->whereIn('suppliers.id', $request->supplier);
-																 				});
+				                                 ->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
 			}
 
 			$data['supplier'] = $request->supplier;
