@@ -385,15 +385,25 @@ class PurchaseController extends Controller
 
       Excel::store(new PurchasesExport($selected_purchases), $path, 'files');
 
-      $agent = Agent::find($request->agent_id);
+      $first_agent_email = '';
+      $cc_agents_emails = [];
+      foreach ($request->agent_id as $key => $agent_id) {
+        $agent = Agent::find($agent_id);
 
-      Mail::to($agent->email)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
+        if ($key == 0) {
+          $first_agent_email = $agent->email;
+        } else {
+          $cc_agents_emails[] = $agent->email;
+        }
+      }
+
+      Mail::to($agent->email)->cc($cc_agents_emails)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
 
       $params = [
         'model_id'        => $request->supplier_id,
         'model_type'      => Supplier::class,
         'from'            => 'buying@amourint.com',
-        'to'              => $agent->email,
+        'to'              => $first_agent_email,
         'subject'         => $request->subject,
         'message'         => $request->message,
         'template'				=> 'purchase-simple',
