@@ -63,27 +63,30 @@ class SearchController extends Controller {
 		}
 
 		if ($request->category[0] != 1) {
-			$is_parent = Category::isParent($request->category[0]);
 			$category_children = [];
 
-			if ($is_parent) {
-				$childs = Category::find($request->category[0])->childs()->get();
+			foreach ($request->category as $category) {
+				$is_parent = Category::isParent($category);
 
-				foreach ($childs as $child) {
-					$is_parent = Category::isParent($child->id);
+				if ($is_parent) {
+					$childs = Category::find($category)->childs()->get();
 
-					if ($is_parent) {
-						$children = Category::find($child->id)->childs()->get();
+					foreach ($childs as $child) {
+						$is_parent = Category::isParent($child->id);
 
-						foreach ($children as $chili) {
-							array_push($category_children, $chili->id);
+						if ($is_parent) {
+							$children = Category::find($child->id)->childs()->get();
+
+							foreach ($children as $chili) {
+								array_push($category_children, $chili->id);
+							}
+						} else {
+							array_push($category_children, $child->id);
 						}
-					} else {
-						array_push($category_children, $child->id);
 					}
+				} else {
+					array_push($category_children, $category);
 				}
-			} else {
-				array_push($category_children, $request->category[0]);
 			}
 
 			if ($request->brand[0] != null || $request->color[0] != null) {

@@ -288,7 +288,7 @@ class ProductController extends Controller {
 
 		$products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier'])->paginate(Setting::get('pagination'));
 
-		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
 		                                        ->selected($filtered_category)
 		                                        ->renderAsDropdown();
 

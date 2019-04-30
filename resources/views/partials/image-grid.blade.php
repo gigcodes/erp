@@ -122,31 +122,11 @@
                   <input type="hidden" name="quick_product" value="true">
                   <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
                 </form>
-
-
             </div>
         </div>
     </div>
 
-
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            {{ $message }}
-        </div>
-    @endif
-
-    @if ($errors->any())
-            <div class="alert alert-danger">
-                <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-
+    @include('partials.flash_messages')
 
     <div class="productGrid" id="productGrid">
       @include('partials.image-load')
