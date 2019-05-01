@@ -8,6 +8,7 @@ use App\Setting;
 use App\ReviewSchedule;
 use App\Review;
 use App\Complaint;
+use App\Instruction;
 use App\Customer;
 use App\StatusChange;
 use App\Helpers;
@@ -172,6 +173,13 @@ class ReviewController extends Controller
           $new_review->save();
         }
       }
+
+      Instruction::create([
+        'customer_id'   => '841',
+        'instruction'   => 'Approve Reviews',
+        'assigned_from' => Auth::id(),
+        'assigned_to'   => 6
+      ]);
 
       return redirect()->route('review.index')->withSuccess('You have successfully added a review schedule!');
     }
