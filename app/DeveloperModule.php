@@ -12,4 +12,9 @@ class DeveloperModule extends Model
   protected $fillable = [
     'name'
   ];
+
+  public function tasks()
+  {
+    return $this->hasMany('App\DeveloperTask', 'module_id');
+  }
 }

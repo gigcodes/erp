@@ -1165,3 +1165,7 @@ form.display-inline{
   left: -15px;
   background-color: red !important;
 }
+
+.table-hover-cell:hover {
+  background-color: #eee;
+}

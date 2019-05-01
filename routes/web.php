@@ -285,6 +285,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('development/{id}/verify', 'DevelopmentController@verify')->name('development.verify');
 	Route::get('development/verify/view', 'DevelopmentController@verifyView')->name('development.verify.view');
 	Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
+	Route::post('development/{id}/updateCost', 'DevelopmentController@updateCost')->name('development.update.cost');
+	Route::post('development/{id}/status', 'DevelopmentController@updateStatus')->name('development.update.status');
+	Route::post('development/{id}/updateTask', 'DevelopmentController@updateTask')->name('development.update.task');
 
 	Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
 	Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
