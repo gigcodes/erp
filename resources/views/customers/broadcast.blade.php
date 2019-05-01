@@ -24,9 +24,8 @@
 
             <div class="pull-left">
                 <form action="/broadcast/" method="GET">
-                    <div class="form-group">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-4">
                                 {{-- <input name="term" type="text" class="form-control"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="Search"> --}}
@@ -43,12 +42,28 @@
                                    <div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
                                @endif
                              </div>
+
+
+                            </div>
+                            <div class="col-md-4">
+                             <div class="form-group">
+                               <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer" title="Choose a Customer">
+                                 @foreach ($customers_all as $customer)
+                                   <option data-tokens="{{ $customer['name'] }} {{ $customer['email'] }}  {{ $customer['phone'] }} {{ $customer['instahandler'] }}" value="{{ $customer['id'] }}" {{ $selected_customer == $customer['id'] ? 'selected' : '' }}>{{ $customer['id'] }} - {{ $customer['name'] }} - {{ $customer['phone'] }}</option>
+                                 @endforeach
+                               </select>
+
+                               @if ($errors->has('customer'))
+                                   <div class="alert alert-danger">{{$errors->first('customer')}}</div>
+                               @endif
+                             </div>
+
+
                             </div>
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                             </div>
                         </div>
-                    </div>
                 </form>
             </div>
 
@@ -68,68 +83,56 @@
 
     @include('partials.flash_messages')
 
-    <div class="form-group">
-      <ul>
-        @foreach ($message_groups as $group_id => $group)
-          <li>
-            <strong>Group ID {{ $group_id }}</strong>
+    <div class="card activity-chart mb-3">
+      <canvas id="horizontalBroadcastBarChart" style="height: 100px;"></canvas>
+    </div>
 
-            {{-- @php
-              $sent_count = 0;
-              $not_sent_count = 0;
-            @endphp
-            @foreach ($group as $sent => $data)
-              @if ($sent == 0)
-                @php
-                  $not_sent_count = count($data[0]);
-                @endphp
+    <div class="card activity-chart mb-3">
+      <canvas id="broadcastChart" style="height: 300px;"></canvas>
+    </div>
 
-                @foreach ($data as $status => $items)
-                  @if ($status == 0)
-                    @php
-                      $can_be_stopped = true;
-                    @endphp
-                  @else
-                    @php
-                      $can_be_stopped = false;
-                    @endphp
-                  @endif
-                @endforeach
+    <div class="row">
+      @foreach ($message_groups as $group_id => $group)
+        <div class="col-md-3 mb-3">
+          <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#groupCollapse{{ $group_id }}">Group ID {{ $group_id }}</button>
+
+          <div class="collapse mt-3" id="groupCollapse{{ $group_id }}">
+            <div class="card card-body">
+              @if ($group['can_be_stopped'])
+                <div class="my-1">
+                  <strong>Preview:</strong>
+                  {{ $group['message'] }}
+                  <div class="my-1">{{ $group['sent'] }} sent of {{ $group['total'] }}</div>
+                </div>
+
+                <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
+                  @csrf
+
+                  <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
+                </form>
               @else
-                @php
-                  $sent_count = count($data[0]);
-                @endphp
+                <div class="my-1">
+                  <strong>Preview:</strong>
+                  {{ $group['message'] }}
+                  <div class="my-1">{{ $group['sent'] }} sent of {{$group['total'] }}</div>
+                </div>
+
+                <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
+                  @csrf
+
+                  <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
+                </form>
+
+                <form class="my-1" action="{{ route('broadcast.delete.group', $group_id) }}" method="POST">
+                  @csrf
+
+                  <button type="submit" class="btn btn-xs btn-secondary">Delete</button>
+                </form>
               @endif
-            @endforeach --}}
-
-            @if ($group['can_be_stopped'])
-              <div class="my-1">
-                <strong>Preview:</strong>
-                {{ $group['message'] }}
-                <div class="my-1">{{ $group['sent'] }} sent of {{ $group['total'] }}</div>
-              </div>
-
-              <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
-                @csrf
-
-                <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
-              </form>
-            @else
-              <div class="my-1">
-                <strong>Preview:</strong>
-                {{ $group['message'] }}
-                <div class="my-1">{{ $group['sent'] }} sent of {{$group['total'] }}</div>
-              </div>
-
-              <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
-                @csrf
-
-                <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
-              </form>
-            @endif
-          </li>
-        @endforeach
-      </ul>
+            </div>
+          </div>
+        </div>
+      @endforeach
     </div>
 
     <div id="exTab2" class="container">
@@ -309,6 +312,7 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
   <script type="text/javascript">
     $('#schedule-datetime').datetimepicker({
       format: 'YYYY-MM-DD'
@@ -348,6 +352,99 @@
           });
         }
       });
+    });
+
+    $(document).ready(function () {
+        // 'use strict';
+        let broadcastChart = $('#broadcastChart');
+
+
+        var barChartExample = new Chart(broadcastChart, {
+            type: 'line',
+            data: {
+                labels: [
+                    @foreach ($message_groups as $group_id => $group)
+                      'Group {{ $group_id }}',
+                    @endforeach
+                ],
+                datasets: [
+                    {
+                        label: "Sent",
+                        fill: false,
+                        backgroundColor: '#5EBA31',
+                        borderColor: '#5EBA31',
+                        data: [
+                            @foreach ($message_groups as $group_id => $group)
+                            {{ $group['sent'].',' }}
+                            @endforeach
+                        ],
+                    },
+                    {
+                        label: "Received",
+                        fill: false,
+                        backgroundColor: '#5738CA',
+                        borderColor: '#5738CA',
+                        data: [
+                            @foreach ($message_groups as $group_id => $group)
+                            {{ $group['received'].',' }}
+                            @endforeach
+                        ],
+                    }
+                ],
+            },
+            options: {
+                scaleShowValues: true,
+                responsive: true,
+                scales: {
+        					xAxes: [{
+        						display: true,
+        						scaleLabel: {
+        							display: true,
+        							labelString: 'Sets'
+        						}
+        					}],
+        					yAxes: [{
+        						display: true,
+        						scaleLabel: {
+        							display: true,
+        							labelString: 'Count'
+        						}
+        					}]
+        				}
+            }
+        });
+
+        let horizontalBroadcastBarChart = $('#horizontalBroadcastBarChart');
+        var horizontalBarChart = new Chart(horizontalBroadcastBarChart, {
+            type: 'horizontalBar',
+            data: {
+              labels: ['Total'],
+              datasets: [
+                {
+                  label: "Sent",
+                  backgroundColor: '#5EBA31',
+                  data: [{{ $last_set_completed_count }}],
+                },
+                {
+                  label: "Received",
+                  backgroundColor: '#5738CA',
+                  data: [{{ $last_set_received_count }}],
+                }
+              ],
+            },
+            options: {
+              beginAtZero: true,
+              elements: {
+    						rectangle: {
+    							borderWidth: 2,
+    						}
+    					},
+    					responsive: true,
+    					legend: {
+    						position: 'right',
+    					},
+            }
+        });
     });
   </script>
 @endsection

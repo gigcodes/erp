@@ -196,6 +196,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
 	Route::post('broadcast/restart', 'BroadcastMessageController@restart')->name('broadcast.restart');
 	Route::post('broadcast/restart/{id}', 'BroadcastMessageController@restartGroup')->name('broadcast.restart.group');
+	Route::post('broadcast/delete/{id}', 'BroadcastMessageController@deleteGroup')->name('broadcast.delete.group');
 	Route::post('broadcast/stop/{id}', 'BroadcastMessageController@stopGroup')->name('broadcast.stop.group');
 	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
 
