@@ -162,7 +162,7 @@ class PurchaseController extends Controller
 
     public function purchaseGrid(Request $request, $page = null)
     {
-      $purchases = Purchase::all();
+      $purchases = Purchase::select('id');
       $not_include_products = [];
 
       foreach ($purchases as $purchase) {
@@ -171,49 +171,61 @@ class PurchaseController extends Controller
         }
       }
 
-      if ($request->status[0] != null) {
+      if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
         $status = $request->status;
+        $status_list = implode("','", $request->status);
 
-  			$orders = OrderProduct::select('sku')->with('Order')->whereHas('Order', function($q) use ($status) {
-          $q->whereIn('order_status', $status);
-        })->get();
+  			$orders = OrderProduct::select('sku')->with('Order')
+        ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
+        ->get();
   		}
 
       if ($request->supplier[0] != null) {
         $supplier = $request->supplier[0];
+        $supplier_list = implode(',', $request->supplier);
 
         if ($request->status[0] != null) {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) use ($status) {
-            $q->whereIn('order_status', $status);
-          })->whereHas('Product', function ($q) use ($supplier) {
-            $q->whereHas('Suppliers', function ($qs) use ($supplier) {
-              $qs->where('suppliers.id', $supplier);
-            });
+          $status_list = implode("','", $request->status);
+
+          $orders = OrderProduct::select(['sku', 'order_id'])->with(['Order', 'Product'])
+          ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
+          // ->whereRaw("order_products.sku IN (SELECT products.sku FROM (SELECT products.id FROM products WHERE IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))) WHERE products.sku = order_products.sku)")
+          ->whereHas('Product', function ($qs) use ($supplier_list) {
+            $qs->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
           })->get();
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
           if ($page == 'canceled-refunded') {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
-            });
+            $orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");
+            // ->whereHas('Order', function($q) {
+            //   $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
+            // });
           } elseif ($page == 'ordered') {
 
           } elseif ($page == 'delivered') {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Delivered']);
-            });
+            $orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");
+            // ->whereHas('Order', function($q) {
+            //   $q->whereIn('order_status', ['Delivered']);
+            // });
           } else {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
-            });
+            $orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");
+            // ->whereHas('Order', function($q) {
+            //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
+            // });
+
           }
 
-          $orders = $orders->whereHas('Product', function($q) use ($supplier) {
-            $q->whereHas('Suppliers', function ($qs) use ($supplier) {
-              $qs->where('suppliers.id', $supplier);
-            });
-          })->get();
+          $orders = $orders->with('products')
+          ->whereRaw("order_products.products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))")
+          // ->whereHas('Product', function($q) use ($supplier_list) {
+          //   $q->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
+          // })
+          ->get();
+          dd($orders);
         }
       }
 
@@ -221,28 +233,37 @@ class PurchaseController extends Controller
         $brand = $request->brand[0];
 
         if ($request->status[0] != null) {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])->whereHas('Order', function($q) use ($status) {
-            $q->whereIn('order_status', $status);
-          })->whereHas('Product', function($q) use ($brand) {
+          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])
+          ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
+          // ->whereHas('Order', function($q) use ($status) {
+          //   $q->whereIn('order_status', $status);
+          // })
+          ->whereHas('Product', function($q) use ($brand) {
             $q->where('brand', $brand);
           })->get();
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
           if ($page == 'canceled-refunded') {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
-            });
+            $orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");
+            // ->whereHas('Order', function($q) {
+            //   $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
+            // });
           } elseif ($page == 'ordered') {
 
           } elseif ($page == 'delivered') {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereIn('order_status', ['Delivered']);
-            });
+            $orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");
+            // ->whereHas('Order', function($q) {
+            //   $q->whereIn('order_status', ['Delivered']);
+            // });
           } else {
-            $orders = $orders->whereHas('Order', function($q) {
-              $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
-            });
+            $orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");
+            // ->whereHas('Order', function($q) {
+            //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
+            // });
           }
 
           $orders = $orders->whereHas('Product', function($q) use ($brand) {
@@ -253,19 +274,25 @@ class PurchaseController extends Controller
 
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
         if ($page == 'canceled-refunded') {
-          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
-          });
+          $orders = OrderProduct::with('Order')
+          ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");
+          // ->whereHas('Order', function($q) {
+          //   $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
+          // });
         } elseif ($page == 'ordered') {
           $orders = OrderProduct::with('Order');
         } elseif ($page == 'delivered') {
-          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereIn('order_status', ['Delivered']);
-          });
+          $orders = OrderProduct::with('Order')
+          ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");
+          // ->whereHas('Order', function($q) {
+          //   $q->whereIn('order_status', ['Delivered']);
+          // });
         } else {
-          $orders = OrderProduct::with('Order')->whereHas('Order', function($q) {
-            $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
-          });
+          $orders = OrderProduct::with('Order')
+          ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");
+          // ->whereHas('Order', function($q) {
+          //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
+          // });
         }
 
         $orders = $orders->select('sku')->get()->toArray();
@@ -888,7 +915,15 @@ class PurchaseController extends Controller
 
         if (array_key_exists('attachment', $array)) {
           $attachment = json_decode($email->additional_data, true)['attachment'];
-          $content = "$email->message <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attachment . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
+
+          if (is_array($attachment)) {
+            $content = $email->message;
+            foreach ($attachment as $attach) {
+              $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
+            }
+          } else {
+            $content = "$email->message <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attachment . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
+          }
         } else {
           $content = $email->message;
         }
@@ -950,7 +985,7 @@ class PurchaseController extends Controller
           'subject'         => $request->subject,
           'message'         => $request->message,
           'template'				=> 'customer-simple',
-					'additional_data'	=> ''
+					'additional_data'	=> json_encode(['attachment' => $file_paths])
         ];
 
         Email::create($params);
@@ -959,5 +994,90 @@ class PurchaseController extends Controller
       }
 
       return redirect()->route('purchase.show', $purchase->id)->withError('Please select an Agent first');
+    }
+
+    public function emailResend(Request $request)
+    {
+      $this->validate($request, [
+        'purchase_id'   => 'required|numeric',
+        'email_id'      => 'required|numeric',
+        'recipient'     => 'required|email'
+      ]);
+
+      $attachment = [];
+      $purchase = Purchase::find($request->purchase_id);
+
+      $imap = new Client([
+        'host'          => env('IMAP_HOST_PURCHASE'),
+        'port'          => env('IMAP_PORT_PURCHASE'),
+        'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+        'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+        'username'      => env('IMAP_USERNAME_PURCHASE'),
+        'password'      => env('IMAP_PASSWORD_PURCHASE'),
+        'protocol'      => env('IMAP_PROTOCOL_PURCHASE')
+      ]);
+
+      $imap->connect();
+
+      if ($request->type == 'inbox') {
+        $inbox = $imap->getFolder('INBOX');
+      } else {
+        $inbox = $imap->getFolder('INBOX.Sent');
+        $inbox->query();
+      }
+
+      if ($request->email_type == 'server') {
+        $email = $inbox->getMessage($uid = $request->email_id, NULL, NULL, TRUE, TRUE, TRUE);
+
+        if ($email->hasHTMLBody()) {
+          $content = $email->getHTMLBody();
+        } else {
+          $content = $email->getTextBody();
+        }
+
+        Mail::to($request->recipient)->send(new PurchaseEmail($email->getSubject(), $content, $attachment));
+
+        $params = [
+          'model_id'        => $purchase->id,
+          'model_type'      => Purchase::class,
+          'from'            => 'customercare@sololuxury.co.in',
+          'to'              => $request->recipient,
+          'subject'         => "Resent: " . $email->getSubject(),
+          'message'         => $content,
+          'template'				=> 'customer-simple',
+  				'additional_data'	=> json_encode(['attachment' => $attachment])
+        ];
+      } else {
+        $email = Email::find($request->email_id);
+
+        $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
+
+        if (array_key_exists('attachment', $array)) {
+          $temp = json_decode($email->additional_data, true)['attachment'];
+        }
+
+        if (!is_array($temp)) {
+          $attachment[] = $temp;
+        } else {
+          $attachment = $temp;
+        }
+
+        Mail::to($request->recipient)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
+
+        $params = [
+          'model_id'        => $purchase->id,
+          'model_type'      => Purchase::class,
+          'from'            => 'customercare@sololuxury.co.in',
+          'to'              => $request->recipient,
+          'subject'         => "Resent: $email->subject",
+          'message'         => $email->message,
+          'template'				=> 'customer-simple',
+  				'additional_data'	=> json_encode(['attachment' => $attachment])
+        ];
+      }
+
+      Email::create($params);
+
+      return redirect()->route('purchase.show', $purchase->id)->withSuccess('You have successfully resent an email!');
     }
 }

@@ -218,6 +218,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('purchase/email/inbox', 'PurchaseController@emailInbox')->name('purchase.email.inbox');
 	Route::get('purchase/email/fetch', 'PurchaseController@emailFetch')->name('purchase.email.fetch');
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
+	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
 
 	// Cash Vouchers
 	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');

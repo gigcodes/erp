@@ -683,6 +683,7 @@
   </div>
 
   @include('purchase.partials.modal-email')
+  @include('purchase.partials.modal-recipient')
 
 
 
@@ -2206,6 +2207,10 @@
         email_type = 'local';
       }
 
+      $('#email-content').find('.resend-email-button').attr('data-id', uid);
+      $('#email-content').find('.resend-email-button').attr('data-emailtype', email_type);
+      $('#email-content').find('.resend-email-button').attr('data-type', type);
+
       $.ajax({
         type: "GET",
         url: "{{ route('purchase.email.fetch') }}",
@@ -2270,6 +2275,16 @@
 
     $(document).on('click', '.change-history-toggle', function() {
       $(this).siblings('.change-history-container').toggleClass('hidden');
+    });
+
+    $(document).on('click', '.resend-email-button', function() {
+      var id = $(this).data('id');
+      var email_type = $(this).data('emailtype');
+      var type = $(this).data('type');
+
+      $('#resend_email_id').val(id);
+      $('#resend_email_type').val(email_type);
+      $('#resend_type').val(type);
     });
   </script>
 @endsection
