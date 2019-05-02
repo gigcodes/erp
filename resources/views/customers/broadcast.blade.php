@@ -389,6 +389,17 @@
                             {{ $group['received'].',' }}
                             @endforeach
                         ],
+                    },
+                    {
+                        label: "Stopped",
+                        fill: false,
+                        backgroundColor: '#DC143C',
+                        borderColor: '#DC143C',
+                        data: [
+                            @foreach ($message_groups as $group_id => $group)
+                            {{ $group['stopped'].',' }}
+                            @endforeach
+                        ],
                     }
                 ],
             },
@@ -429,6 +440,11 @@
                   label: "Received",
                   backgroundColor: '#5738CA',
                   data: [{{ $last_set_received_count }}],
+                },
+                {
+                  label: "Stopped",
+                  backgroundColor: '#DC143C',
+                  data: [{{ $last_set_stopped_count }}],
                 }
               ],
             },

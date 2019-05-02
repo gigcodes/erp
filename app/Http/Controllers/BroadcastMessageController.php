@@ -30,6 +30,7 @@ class BroadcastMessageController extends Controller
     }
 
     $last_set_completed_count = $last_set_completed->count();
+    $last_set_stopped_count = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->where('status', 1)->count();
     $last_set_received_count = MessageQueue::with('chat_message')->where('sending_time', '>', "$month_back 00:00:00")->whereHas('chat_message', function ($query) {
       $query->where('sent', 1);
     })->count();
@@ -41,6 +42,7 @@ class BroadcastMessageController extends Controller
     foreach ($message_groups as $group_id => $datas) {
       $sent_count = 0;
       $received_count = 0;
+      $stopped_count = 0;
       $total_count = 0;
       foreach ($datas as $sent_status => $data) {
 
@@ -59,6 +61,7 @@ class BroadcastMessageController extends Controller
             $can_be_stopped = true;
           } else {
             $can_be_stopped = false;
+            $stopped_count += count($items);
           }
 
           $message_groups_array[$group_id]['message'] = json_decode($items[0]->data, true)['message'];
@@ -67,6 +70,7 @@ class BroadcastMessageController extends Controller
 
         $message_groups_array[$group_id]['sent'] = $sent_count;
         $message_groups_array[$group_id]['received'] = $received_count;
+        $message_groups_array[$group_id]['stopped'] = $stopped_count;
         $message_groups_array[$group_id]['total'] = $total_count;
       }
     }
@@ -82,6 +86,7 @@ class BroadcastMessageController extends Controller
       'date'                      => $date,
       'last_set_completed'        => $last_set_completed,
       'last_set_completed_count'  => $last_set_completed_count,
+      'last_set_stopped_count'    => $last_set_stopped_count,
       'last_set_received_count'   => $last_set_received_count,
       'customers_all'             => $customers_all,
       'selected_customer'         => $selected_customer
