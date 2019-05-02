@@ -457,7 +457,7 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
-Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');
+Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage')->name('whatsapp.send');
 Route::post('whatsapp/sendMultipleMessages', 'WhatsAppController@sendMultipleMessages');
 Route::post('whatsapp/approve/{context}', 'WhatsAppController@approveMessage');
 Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages');

@@ -252,6 +252,7 @@ class WhatsAppController extends FindByNumberController
           if (preg_match("/{$keyword}/i", $params['message'])) {
             $temp_params = $params;
             $temp_params['message'] = $auto_reply->reply;
+            $temp_params['status'] = 1;
 
             ChatMessage::create($temp_params);
           }
@@ -436,102 +437,57 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context)
     {
-	   $data = $request->all();
-       try {
-            $params = [];
-           if ($context == "leads") {
-             $lead = Leads::findOrFail( $data['lead_id'] );
-             $model_type = 'leads';
-             $model_id = $lead->id;
-             $params = [
-                'lead_id' => $lead->id,
-                'number' => NULL,
-                'user_id' => Auth::id()
-               ];
-              if ($lead->customer) {
-                $params['customer_id'] = $lead->customer->id;
-              }
-            } elseif ($context == "orders") {
-             $order = Order::findOrFail( $data['order_id'] );
-             $model_type = 'order';
-             $model_id = $order->id;
-             $params = [
-                'order_id' => $order->id,
-                'number' => NULL,
-                'user_id' => Auth::id()
-              ];
+      $this->validate($request, [
+        'message'     => 'required_without:image|nullable|string',
+        'image'       => 'required_without:message',
+        'customer_id' => 'sometimes|nullable|numeric',
+        'status'      => 'required|numeric',
+        'assigned_to' => 'sometimes|nullable',
+      ]);
 
-              if ($order->customer) {
-                $params['customer_id'] = $order->customer->id;
-              }
-            } elseif ($context == "customer") {
-              $model_type = 'customer';
-              $model_id = $data['customer_id'];
-              $params = [
-                 'number' => NULL,
-                 'user_id' => Auth::id(),
-                 'customer_id'  => $data['customer_id']
-               ];
-            } elseif ($context == "purchase") {
-              $model_type = 'purchase';
-              $model_id = $data['purchase_id'];
-              $params = [
-                 'number' => NULL,
-                 'user_id' => Auth::id(),
-                 'purchase_id' => $model_id
-               ];
-            }
-            if (isset($data['message'])) {
-                $params['message']  = $data['message'];
-            } else { // media message
-                $files = \Input::file("media");
-                if ($files) {
-                  foreach ($files as $media) {
-                    if (!$media->isValid()) {
-                      \Log::error(sprintf("sendMessage media invalid"));
-                      continue;
-                    }
-                    $extension = $media->guessExtension();
-                    if ( $extension == "jpeg" ) {
-                        $extension = "jpg";
-                    }
-                    $fileName = uniqid(TRUE).".".$extension;
-                    $media->move(\Config::get("apiwha.media_path"), $fileName);
+      $data = $request->except( '_token');
+      $data['user_id'] = Auth::id();
+      $data['number'] = NULL;
+      $params['status'] = 1;
 
-                    $url = implode("/", array( \Config::get("app.url"), "apiwha", "media", $fileName ));
-                    $params['media_url'] =$url;
-                  }
-                }
-            }
+      if ($context == 'customer') {
+        $data['customer_id'] = $request->customer_id;
+        $module_id = $request->customer_id;
+      } elseif ($context == "purchase") {
+        $data['purchase_id'] = $request->purchase_id;
+        $module_id = $request->purchase_id;
+      }
 
-            $params['status'] = 1;
-            $message = ChatMessage::create($params);
+      $chat_message = ChatMessage::create($data);
 
-            // NotificationQueueController::createNewNotification([
-  		      //   'message' => 'WAA - ' . $message->message,
-  		      //   'timestamps' => ['+0 minutes'],
-  		      //   'model_type' => $model_type,
-  		      //   'model_id' =>  $model_id,
-  		      //   'user_id' => Auth::id(),
-  		      //   'sent_to' => '',
-  		      //   'role' => 'message',
-  	        // ]);
-            //
-            // NotificationQueueController::createNewNotification([
-      		  //   'message' => 'WAA - ' . $message->message,
-      		  //   'timestamps' => ['+0 minutes'],
-            //   'model_type' => $model_type,
-  		      //   'model_id' =>  $model_id,
-      		  //   'user_id' => Auth::id(),
-      		  //   'sent_to' => '',
-      		  //   'role' => 'Admin',
-      	    // ]);
-        } catch (\Exception $ex) {
-            return response($ex->getMessage(), 500);
+      if ($request->hasFile('image')) {
+        $media = MediaUploader::fromSource($request->file('image'))->upload();
+        $chat_message->attachMedia($media,config('constants.media_tags'));
+      }
+
+      if ($request->images) {
+        foreach (json_decode($request->images) as $image) {
+          $media = Media::find($image);
+          $chat_message->attachMedia($media,config('constants.media_tags'));
         }
+      }
 
+      if ($request->screenshot_path != '') {
+        $image_path = public_path() . '/uploads/temp_screenshot.png';
+        $img = substr($request->screenshot_path, strpos($request->screenshot_path, ",")+1);
+        $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
 
-       return response()->json(['message' => $message]);
+        $media = MediaUploader::fromSource($image_path)->upload();
+        $chat_message->attachMedia($media,config('constants.media_tags'));
+
+        File::delete('uploads/temp_screenshot.png');
+      }
+
+      if ($request->ajax()) {
+        return response()->json(['message' => $chat_message]);
+      }
+
+      return redirect('/'. $context .'/'.$module_id);
     }
 
     public function sendMultipleMessages(Request $request)
@@ -717,146 +673,38 @@ class WhatsAppController extends FindByNumberController
      */
     public function pollMessages(Request $request, $context)
     {
-       $params = [];
-       if ($context == "leads") {
-            $id = $request->get("leadId");
-            $model_type = 'leads';
-            $params['lead_id'] = $id;
-	        $messages = ChatMessage::where('lead_id', '=', $id);
-       } elseif ($context == "orders") {
-            $id = $request->get("orderId");
-            $model_type = 'order';
-            $params['order_id'] = $id;
-	        $messages = ChatMessage::where('order_id', '=', $id);
-        } elseif ($context == 'purchase') {
-          $id = $request->get("purchaseId");
-          $model_type = 'purchase';
-          $params['purchase_id'] = $id;
-          $messages = ChatMessage::where('purchase_id', '=', $id);
-        }
-        if ($request->get("elapse")) {
-            $elapse = (int) $request->get("elapse");
-           $date = new \DateTime;
-           $date->modify(sprintf("-%s seconds", $elapse));
-           $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
-        }
-	   $result = [];
-	   foreach ($messages->get() as $message) {
-         $received = false;
-         if (!is_null($message['number'])) {
-            $received = true;
-         }
-         $messageParams = [
-                'id' => $message['id'],
-                'received' =>$received,
-                'number' => $message['number'],
-                'created_at' => Carbon::parse($message['created_at'])->format('Y-m-d H:i:s'),
-                // 'date' => $this->formatChatDate( $message['created_at'] ),
-                'approved' => $message['approved'],
-                'status'  => $message['status'],
-                'user_id' => $message['user_id']
-         ];
-         if ($message['media_url']) {
-            $messageParams['media_url'] = $message['media_url'];
-            $headers = get_headers($message['media_url'], 1);
-            $messageParams['content_type'] = $headers["Content-Type"][1];
-         }
-         if ($message['message']) {
-            $messageParams['message'] = $message['message'];
-         }
-         if ($message->getMedia(config('constants.media_tags'))->first()) {
-           $images_array = [];
-           foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
-             $temp_image = [
-               'key'          => $image->getKey(),
-               'image'        => $image->getUrl(),
-               'product_id'   => '',
-               'special_price'=> '',
-               'size'         => ''
-             ];
-
-             $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-                                 $q->where('media.id', $image->getKey());
-                               })->first();
-             if ($product_image) {
-               $temp_image['product_id'] = $product_image->id;
-               $temp_image['special_price'] = $product_image->price_special;
-
-               if ($product_image->size != NULL) {
-                 $temp_image['size'] = $product_image->size;
-               } else {
-                 $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
-               }
-             }
-
-             array_push($images_array, $temp_image);
-           }
-
-           $messageParams['images'] = $images_array;
-         }
-
-	     $result[] = array_merge($params, $messageParams);
-	   }
-
-     $messages = Message::where('moduleid','=', $id)->where('moduletype','=', $model_type)->orderBy("created_at", 'desc')->get();
-     foreach ($messages->toArray() as $key => $message) {
-       $images_array = [];
-       if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
-         foreach ($images as $image) {
-           $temp_image = [
-             'key'          => $image->getKey(),
-             'image'        => $image->getUrl(),
-             'product_id'   => '',
-             'special_price'=> '',
-             'size'         => ''
-           ];
-
-           $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-                               $q->where('media.id', $image->getKey());
-                             })->first();
-           if ($product_image) {
-             $temp_image['product_id'] = $product_image->id;
-             $temp_image['special_price'] = $product_image->price_special;
-
-             if ($product_image->size != NULL) {
-               $temp_image['size'] = $product_image->size;
-             } else {
-               $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
-             }
-           }
-
-           array_push($images_array, $temp_image);
-         }
-       }
-
-       $message['images'] = $images_array;
-       array_push($result, $message);
-     }
-
-     $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
-     $currentPage = LengthAwarePaginator::resolveCurrentPage();
-     $perPage = 10;
-
-     if ($request->page) {
-       $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
-     } else {
-       $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
-     }
-
-     $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
-       'path'	=> LengthAwarePaginator::resolveCurrentPath()
-     ]);
-       return response()->json( $result );
-    }
-
-    public function pollMessagesCustomer(Request $request)
-    {
       $params = [];
       $result = [];
       $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
 
-      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
+      switch ($context) {
+  			case 'customer':
+            $column = 'customer_id';
+            $column_value = $request->customerId;
+            break;
+  			case 'purchase':
+            $column = 'purchase_id';
+            $column_value = $request->purchaeId;
+            break;
+  			default :
+            $column = 'customer_id';
+            $column_value = $request->customerId;
+  		}
 
+      $messages = ChatMessage::select(['id', "$column", 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where($column, $column_value)->latest();
+      // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
+      // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
+
+
+      // foreach ($messages->get() as $message) {
+      //   foreach ($message->media_id as $med) {
+      //     dump($med);
+      //   }
+      // }
+
+      // dd('stap');
+
+      // IS IT NECESSARY ?
       if ($request->get("elapse")) {
         $elapse = (int) $request->get("elapse");
         $date = new \DateTime;
@@ -865,32 +713,25 @@ class WhatsAppController extends FindByNumberController
       }
 
       foreach ($messages->get() as $message) {
-        $received = false;
-
-        if (!is_null($message['number'])) {
-          $received = true;
-        }
-
         $messageParams = [
-          'id' => $message['id'],
-          'received' => $received,
-          'number' => $message['number'],
-          'created_at' => Carbon::parse($message['created_at'])->format('Y-m-d H:i:s'),
-          // 'created_at' => $message['created_at'],
-          'approved' => $message['approved'],
-          'status'  => $message['status'],
-          'user_id' => $message['user_id'],
-          'sent'    => $message['sent']
+          'id' => $message->id,
+          'number' => $message->number,
+          'assigned_to' => $message->assigned_to,
+          'created_at' => Carbon::parse($message->created_at)->format('Y-m-d H:i:s'),
+          'approved' => $message->approved,
+          'status'  => $message->status,
+          'user_id' => $message->user_id,
+          'sent'    => $message->sent
         ];
 
-        if ($message['media_url']) {
-          $messageParams['media_url'] = $message['media_url'];
-          $headers = get_headers($message['media_url'], 1);
+        if ($message->media_url) {
+          $messageParams['media_url'] = $message->media_url;
+          $headers = get_headers($message->media_url, 1);
           $messageParams['content_type'] = $headers["Content-Type"][1];
         }
 
-        if ($message['message']) {
-          $messageParams['message'] = $message['message'];
+        if ($message->message) {
+          $messageParams['message'] = $message->message;
         }
 
         if ($message->hasMedia(config('constants.media_tags'))) {
@@ -905,9 +746,14 @@ class WhatsAppController extends FindByNumberController
               'size'         => ''
             ];
 
-            $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-               $q->where('media.id', $image->getKey());
-            })->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+            $image_key = $image->getKey();
+
+            $product_image = Product::with('Media')
+            ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key)")
+            // ->whereHas('Media', function($q) use($image) {
+            //    $q->where('media.id', $image->getKey());
+            // })
+            ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
             if ($product_image) {
               $temp_image['product_id'] = $product_image->id;
@@ -935,24 +781,128 @@ class WhatsAppController extends FindByNumberController
         $result[] = array_merge($params, $messageParams);
       }
 
-      $messages = Message::select(['id', 'customer_id', 'userid', 'status', 'assigned_to', 'body', 'created_at'])->where('customer_id', $request->customerId)->latest()->get();
+     // $messages = Message::where('moduleid','=', $id)->where('moduletype','=', $model_type)->orderBy("created_at", 'desc')->get();
+     // foreach ($messages->toArray() as $key => $message) {
+     //   $images_array = [];
+     //   if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
+     //     foreach ($images as $image) {
+     //       $temp_image = [
+     //         'key'          => $image->getKey(),
+     //         'image'        => $image->getUrl(),
+     //         'product_id'   => '',
+     //         'special_price'=> '',
+     //         'size'         => ''
+     //       ];
+     //
+     //       $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
+     //                           $q->where('media.id', $image->getKey());
+     //                         })->first();
+     //       if ($product_image) {
+     //         $temp_image['product_id'] = $product_image->id;
+     //         $temp_image['special_price'] = $product_image->price_special;
+     //
+     //         if ($product_image->size != NULL) {
+     //           $temp_image['size'] = $product_image->size;
+     //         } else {
+     //           $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
+     //         }
+     //       }
+     //
+     //       array_push($images_array, $temp_image);
+     //     }
+     //   }
+     //
+     //   $message['images'] = $images_array;
+     //   array_push($result, $message);
+     // }
 
-      foreach ($messages->toArray() as $key => $message) {
-        $images_array = [];
+     $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
+     $currentPage = LengthAwarePaginator::resolveCurrentPage();
+     $perPage = 10;
 
-        if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
-          foreach ($images as $image) {
+     if ($request->page) {
+       $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+     } else {
+       $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+     }
+
+     $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
+       'path'	=> LengthAwarePaginator::resolveCurrentPath()
+     ]);
+       return response()->json( $result );
+    }
+
+    public function pollMessagesCustomer(Request $request)
+    {
+      $params = [];
+      $result = [];
+      $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
+
+      // $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
+
+      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
+      // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
+      // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
+
+
+      // foreach ($messages->get() as $message) {
+      //   foreach ($message->media_id as $med) {
+      //     dump($med);
+      //   }
+      // }
+
+      // dd('stap');
+
+      // IS IT NECESSARY ?
+      if ($request->get("elapse")) {
+        $elapse = (int) $request->get("elapse");
+        $date = new \DateTime;
+        $date->modify(sprintf("-%s seconds", $elapse));
+        // $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
+      }
+
+      foreach ($messages->get() as $message) {
+        $messageParams = [
+          'id' => $message->id,
+          'number' => $message->number,
+          'assigned_to' => $message->assigned_to,
+          'created_at' => Carbon::parse($message->created_at)->format('Y-m-d H:i:s'),
+          'approved' => $message->approved,
+          'status'  => $message->status,
+          'user_id' => $message->user_id,
+          'sent'    => $message->sent
+        ];
+
+        if ($message->media_url) {
+          $messageParams['media_url'] = $message->media_url;
+          $headers = get_headers($message->media_url, 1);
+          $messageParams['content_type'] = $headers["Content-Type"][1];
+        }
+
+        if ($message->message) {
+          $messageParams['message'] = $message->message;
+        }
+
+        if ($message->hasMedia(config('constants.media_tags'))) {
+          $images_array = [];
+
+          foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
             $temp_image = [
-            'key'          => $image->getKey(),
-            'image'        => $image->getUrl(),
-            'product_id'   => '',
-            'special_price'=> '',
-            'size'         => ''
+              'key'          => $image->getKey(),
+              'image'        => $image->getUrl(),
+              'product_id'   => '',
+              'special_price'=> '',
+              'size'         => ''
             ];
 
-            $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-              $q->where('media.id', $image->getKey());
-            })->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+            $image_key = $image->getKey();
+
+            $product_image = Product::with('Media')
+            ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key)")
+            // ->whereHas('Media', function($q) use($image) {
+            //    $q->where('media.id', $image->getKey());
+            // })
+            ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
             if ($product_image) {
               $temp_image['product_id'] = $product_image->id;
@@ -973,11 +923,58 @@ class WhatsAppController extends FindByNumberController
 
             array_push($images_array, $temp_image);
           }
+
+          $messageParams['images'] = $images_array;
         }
 
-        $message['images'] = $images_array;
-        array_push($result, $message);
+        $result[] = array_merge($params, $messageParams);
       }
+
+      // $messages = Message::select(['id', 'customer_id', 'userid', 'status', 'assigned_to', 'body', 'created_at'])->where('customer_id', $request->customerId)->latest()->get();
+      //
+      // foreach ($messages->toArray() as $key => $message) {
+      //   $images_array = [];
+      //
+      //   if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
+      //     foreach ($images as $image) {
+      //       $temp_image = [
+      //       'key'          => $image->getKey(),
+      //       'image'        => $image->getUrl(),
+      //       'product_id'   => '',
+      //       'special_price'=> '',
+      //       'size'         => ''
+      //       ];
+      //
+      //       $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
+      //         $q->where('media.id', $image->getKey());
+      //       })->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+      //
+      //       if ($product_image) {
+      //         $temp_image['product_id'] = $product_image->id;
+      //         $temp_image['special_price'] = $product_image->price_special;
+      //
+      //         $string = $product_image->supplier;
+      //         $expr = '/(?<=\s|^)[a-z]/i';
+      //         preg_match_all($expr, $string, $matches);
+      //         $supplier_initials = implode('', $matches[0]);
+      //         $temp_image['supplier_initials'] = strtoupper($supplier_initials);
+      //
+      //         if ($product_image->size != NULL) {
+      //           $temp_image['size'] = $product_image->size;
+      //         } else {
+      //           $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
+      //         }
+      //       }
+      //
+      //       array_push($images_array, $temp_image);
+      //     }
+      //   }
+      //
+      //   $message['images'] = $images_array;
+      //   array_push($result, $message);
+      // }
+      // $messages = $messages->paginate(24);
+      // dd('stap');
 
       $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -1457,49 +1454,10 @@ class WhatsAppController extends FindByNumberController
 
     public function updatestatus(Request $request)
     {
-        $message = ChatMessage::find($request->get('id'));
-        $message->status = $request->get('status');
-        // $moduleid = $request->get('moduleid');
-        // $moduletype = $request->get('moduletype');
-        $message->save();
+      $message = ChatMessage::find($request->get('id'));
+      $message->status = $request->get('status');
+      $message->save();
 
-      // if( $message->status == '5' ) {
-		  //   NotificationQueueController::createNewNotification( [
-			//     'message'    => 'Message was read : ' . $message->message,
-			//     'timestamps' => [ '+0 minutes' ],
-			//     'model_type' => $moduletype,
-			//     'model_id'   => $moduleid,
-			//     'user_id'    => Auth::id(),
-			//     'sent_to'    => '',
-			//     'role'       => 'Admin',
-		  //   ] );
-	    // }
-
-      // if( $message->status == '6' ) {
-      //   if ($notifications = PushNotification::where('model_id', $moduleid)->where('model_type', $moduletype)->get()) {
-      //     foreach ($notifications as $notification) {
-      //       $notification->isread = 1;
-      //       $notification->save();
-      //     }
-      //   }
-      //
-      //   if ($notifications_queue = NotificationQueue::where('model_id', $moduleid)->where('model_type', $moduletype)->get()) {
-      //     foreach ($notifications_queue as $notification) {
-      //       $notification->delete();
-      //     }
-      //   }
-      //
-		  //   NotificationQueueController::createNewNotification( [
-			//     'message'    => 'Message Sent : ' . $message->message,
-			//     'timestamps' => [ '+0 minutes' ],
-			//     'model_type' => $moduletype,
-			//     'model_id'   => $moduleid,
-			//     'user_id'    => Auth::id(),
-			//     'sent_to'    => '6',
-			//     'role'       => 'Admin',
-		  //   ] );
-	    // }
-
-	    // return redirect('/'. $moduletype.'/'.$moduleid);
+      return response('success');
     }
 }

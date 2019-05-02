@@ -455,26 +455,27 @@
         var id = $(this).data('id');
         var type = $(this).data('type');
 
-        if (isNaN(type)) {
-          $.ajax({
-            url: "{{ url('whatsapp/updateAndCreate') }}",
-            type: 'POST',
-            data: {
-              _token: "{{ csrf_token() }}",
-              moduletype: "customer",
-              message_id: id
-            },
-            beforeSend: function() {
-              $(thiss).text('Approving...');
-            }
-          }).done( function(response) {
-            $(thiss).parent().html('Approved');
-          }).fail(function(errObj) {
-            $(thiss).text('Approve');
-            console.log(errObj);
-            alert("Could not create whatsapp message");
-          });
-        } else {
+        // if (isNaN(type)) {
+        //   $.ajax({
+        //     url: "{{ url('whatsapp/updateAndCreate') }}",
+        //     type: 'POST',
+        //     data: {
+        //       _token: "{{ csrf_token() }}",
+        //       moduletype: "customer",
+        //       message_id: id
+        //     },
+        //     beforeSend: function() {
+        //       $(thiss).text('Approving...');
+        //     }
+        //   }).done( function(response) {
+        //     $(thiss).parent().html('Approved');
+        //   }).fail(function(errObj) {
+        //     $(thiss).text('Approve');
+        //     console.log(errObj);
+        //     alert("Could not create whatsapp message");
+        //   });
+        // }
+        // else {
           $.post("/whatsapp/approve/customer", {messageId: id})
             .done(function(data) {
               $(thiss).parent().html('Approved');
@@ -482,7 +483,7 @@
               console.log(response);
               alert(response.responseJSON.message);
             });
-        }
+        // }
       });
 
       $(document).on('click', '.create-shortcut', function() {

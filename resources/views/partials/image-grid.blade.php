@@ -132,17 +132,18 @@
       @include('partials.image-load')
     </div>
 
-        <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($model_type == 'purchase-replace' ? route('purchase.product.replace') : (($model_type == 'broadcast-images' ? route('broadcast.images.link') : ($status != 9 ? route('message.store') : url('whatsapp/updateAndCreate')))))) }}" method="POST" id="attachImageForm">
+        <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($model_type == 'purchase-replace' ? route('purchase.product.replace') : (($model_type == 'broadcast-images' ? route('broadcast.images.link') : ($model_type == 'customer' ? route('whatsapp.send', 'customer') : url('whatsapp/updateAndCreate')))))) }}" method="POST" id="attachImageForm">
           @csrf
 
-          <input type="hidden" name="images" id="images" value="">
-          <input type="hidden" name="body" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}">
           @if ($model_type == 'customers')
             <input type="hidden" name="sending_time" value="{{ $sending_time }}" />
           @endif
-          <input type="hidden" name="moduleid" value="{{ $model_id }}">
-          <input type="hidden" name="moduletype" value="{{ $model_type }}">
-          <input type="hidden" name="assigned_user" value="{{ $assigned_user }}" />
+
+          <input type="hidden" name="images" id="images" value="">
+          <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}">
+          <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}">
+          {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
+          <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
           <input type="hidden" name="status" value="{{ $status }}">
         </form>
 
