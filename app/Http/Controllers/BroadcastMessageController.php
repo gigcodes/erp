@@ -132,7 +132,7 @@ class BroadcastMessageController extends Controller
   public function imagesLink(Request $request)
   {
     $image = BroadcastImage::find($request->moduleid);
-    $image->products = $request->images;
+    $image->products = $request->products;
     $image->save();
 
     return redirect()->route('broadcast.images')->withSuccess('You have successfully linked products!');
@@ -142,7 +142,7 @@ class BroadcastMessageController extends Controller
   {
     $image = BroadcastImage::find($id);
 
-    $path = $image->getMedia(config('constants.media_tags'))->first()->getAbsolutePath();
+    $path = $image->hasMedia(config('constants.media_tags')) ? $image->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
 
     File::delete($path);
 

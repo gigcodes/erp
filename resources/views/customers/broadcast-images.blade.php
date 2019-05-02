@@ -34,9 +34,6 @@
     </form> --}}
 
     <div class="pull-right">
-      {{-- <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload Templates</a> --}}
-      {{-- <a href class="btn btn-secondary" id="toggleButton" data-toggle="modal" data-target="#imageModal" style="display: none;">Upload Templates</a>
-      <a href class="btn btn-secondary select-image">Upload Templates</a> --}}
       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Create Broadcast</button>
       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadImagesModal">Upload Images</button>
     </div>
@@ -44,39 +41,6 @@
     @include('customers.partials.modal-upload-images')
     @include('customers.partials.modal-send-to-all')
 
-    <div id="imageModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Upload Images</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-
-          <form action="{{ route('image.grid.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" name="status" value="2">
-            <input type="hidden" name="image_id" value="">
-
-            <div class="modal-body">
-              <div class="form-group">
-                   <input type="file" name="images[]" required />
-                   @if ($errors->has('images'))
-                       <div class="alert alert-danger">{{$errors->first('images')}}</div>
-                   @endif
-              </div>
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary">Upload</button>
-            </div>
-          </form>
-        </div>
-
-      </div>
-    </div>
   </div>
 </div>
 
@@ -90,7 +54,8 @@
     @if ($image->products)
       <span class="badge">Linked</span>
     @else
-      <a href="{{ route('attachImages', ['broadcast-images', $image->id]) }}" class="btn-link">Link</a>
+      {{-- <a href="{{ route('attachImages', ['broadcast-images', $image->id]) }}" class="btn-link">Link</a> --}}
+      <a href="{{ route('attachProducts', ['broadcast-images', $image->id]) }}" class="btn-link">Link Products</a>
     @endif
 
     <input type="checkbox" class="form-control image-selection hidden" value="{{ $image->id }}">
@@ -120,22 +85,6 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
-    // $(document).ready(function() {
-    //    $('.select-image').on('click', function(e) {
-    //      e.preventDefault();
-    //
-    //      $('.image-selection').show();
-    //    });
-    //
-    //    $(document).on('click', '.image-selection', function() {
-    //      $('.image-selection').prop('checked', false);
-    //
-    //      $(this).prop('checked', true);
-    //      $('input[name="image_id"]').val($(this).val());
-    //      jQuery.noConflict();
-    //      $('#imageModal').modal('toggle')
-    //    });
-    // });
     var images_selection = [];
 
     $(document).on('click', '.link-images-button', function() {
