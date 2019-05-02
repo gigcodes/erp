@@ -53,7 +53,7 @@ class SendMessageToAll implements ShouldQueue
         'user_id'     => $this->user_id,
         'customer_id' => $this->customer->id,
         'approved'    => 0,
-        'status'      => 8,
+        'status'      => 8, // status for Broadcast messages
       ];
 
       if (is_numeric($this->customer->phone)) {
