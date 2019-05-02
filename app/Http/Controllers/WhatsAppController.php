@@ -10,6 +10,7 @@ use App\Jobs\SendMessageToAll;
 use App\Jobs\SendMessageToSelected;
 use App\Category;
 use App\Notification;
+use App\AutoReply;
 use App\Leads;
 use App\Order;
 use App\Status;
@@ -238,6 +239,22 @@ class WhatsAppController extends FindByNumberController
         if ($customer = Customer::find($params['customer_id'])) {
           $customer->do_not_disturb = 1;
           $customer->save();
+        }
+      }
+
+      // Auto Replies
+      $auto_replies = AutoReply::all();
+
+      foreach ($auto_replies as $auto_reply) {
+        if ($params['message'] != '') {
+          $keyword = $auto_reply->keyword;
+
+          if (preg_match("/{$keyword}/i", $params['message'])) {
+            $temp_params = $params;
+            $temp_params['message'] = $auto_reply->reply;
+
+            ChatMessage::create($temp_params);
+          }
         }
       }
 

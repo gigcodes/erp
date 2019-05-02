@@ -1357,6 +1357,8 @@
 
                                 @endcan
 
+                                <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Replies</a>
+
                                 <a class="dropdown-item" href="{{ route('logout') }}"
 
                                    onclick="event.preventDefault();

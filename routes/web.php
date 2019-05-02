@@ -67,6 +67,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::resource('reply','ReplyController');
 	Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
+	// Auto Replies
+	Route::resource('autoreply', 'AutoReplyController');
+
 	Route::resource('settings','SettingController');
 	Route::resource('category','CategoryController');
 	Route::resource('benchmark','BenchmarkController');
