@@ -292,6 +292,11 @@ class SearchController extends Controller {
 
 		$data['products'] = $productQuery->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->paginate( Setting::get( 'pagination' ) );
 
+		if ($request->model_type == 'broadcast-images') {
+			$data['attachImages'] = true;
+			$data['doSelection'] = false;
+		}
+
 		if ($request->ajax()) {
 			$html = view('partials.image-load', ['products' => $data['products'], 'data'	=> $data, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
 

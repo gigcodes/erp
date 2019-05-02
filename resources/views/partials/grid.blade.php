@@ -50,6 +50,10 @@
                                     <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
                                     <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
                                 @endif
+
+                                @if (isset($attachImages))
+                                  <input type="hidden" name="model_type" value="broadcast-images">
+                                @endif
                               </div>
                             <div class="form-group mr-3 mb-3">
                               {!! $category_selection !!}
@@ -159,7 +163,7 @@
 
     </div>
 
-    @if ($attachImages)
+    @if (isset($attachImages) && $attachImages)
       <form class="text-center" action="{{ route('broadcast.images.link') }}" method="POST">
         @csrf
         <input type="hidden" name="moduleid" value="{{ $model_id }}">
