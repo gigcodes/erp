@@ -253,6 +253,12 @@ class InstructionController extends Controller
       $instruction->completed_at = Carbon::now();
       $instruction->save();
 
+      if ($instruction->instruction == '') {
+        $message_body = 'Images attached!';
+      } else {
+        $message_body = 'Instruction Complete!';
+      }
+
       $myRequest = new Request();
       $myRequest->setMethod('POST');
       $myRequest->request->add([
@@ -261,7 +267,7 @@ class InstructionController extends Controller
         'status' => (int) 4,
         'userid' => (int) Auth::id(),
         'assigned_user' => (int) $instruction->assigned_to,
-        'body' => (string) 'Instruction Complete!'
+        'body' => $message_body
       ]);
 
       // return response($myRequest);
