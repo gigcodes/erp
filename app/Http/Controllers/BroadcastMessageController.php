@@ -6,7 +6,12 @@ use Illuminate\Http\Request;
 use App\MessageQueue;
 use App\Setting;
 use App\Customer;
+use App\BroadcastImage;
+use App\ApiKey;
 use Carbon\Carbon;
+use File;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class BroadcastMessageController extends Controller
 {
@@ -97,6 +102,53 @@ class BroadcastMessageController extends Controller
     // }
 
     return redirect()->route('broadcast.index')->with('success', 'You have successfully changed status!');
+  }
+
+  public function images()
+  {
+    $broadcast_images = BroadcastImage::paginate(Setting::get('pagination'));
+    $api_keys = ApiKey::select('number')->get();
+
+    return view('customers.broadcast-images', [
+      'broadcast_images'  => $broadcast_images,
+      'api_keys'  => $api_keys
+    ]);
+  }
+
+  public function imagesUpload(Request $request)
+  {
+    if ($request->hasFile('images')) {
+      foreach ($request->file('images') as $image) {
+        $broadcast_image = BroadcastImage::create();
+
+        $media = MediaUploader::fromSource($image)->toDirectory('broadcast-images')->upload();
+        $broadcast_image->attachMedia($media,config('constants.media_tags'));
+      }
+    }
+
+    return redirect()->route('broadcast.images')->withSuccess('You have successfully uploaded images!');
+  }
+
+  public function imagesLink(Request $request)
+  {
+    $image = BroadcastImage::find($request->moduleid);
+    $image->products = $request->images;
+    $image->save();
+
+    return redirect()->route('broadcast.images')->withSuccess('You have successfully linked products!');
+  }
+
+  public function imagesDelete($id)
+  {
+    $image = BroadcastImage::find($id);
+
+    $path = $image->getMedia(config('constants.media_tags'))->first()->getAbsolutePath();
+
+    File::delete($path);
+
+    $image->delete();
+
+    return redirect()->route('broadcast.images')->withSuccess('You have successfully deleted images!');
   }
 
   public function calendar()

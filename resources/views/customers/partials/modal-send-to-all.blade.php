@@ -9,8 +9,11 @@
             </div>
             <form action="{{ route('customer.whatsapp.send.all') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+
+                <input type="hidden" name="linked_images" id="linked_images" value="">
+
                 <div class="modal-body">
-                  @if ($queues_total_count > $queues_sent_count)
+                  {{-- @if ($queues_total_count > $queues_sent_count)
                     <div class="form-group alert alert-success">
                       <strong>Background Status:</strong>
                       <br>
@@ -20,7 +23,7 @@
                     </div>
 
                     <hr>
-                  @endif
+                  @endif --}}
 
                   <div class="form-group">
                     <strong>Schedule Date:</strong>
@@ -52,8 +55,12 @@
                     </div>
 
                     <div class="form-group">
-                      <a href="#" class="btn btn-image attach-images-btn"><img src="/images/attach.png" />Attach from Grid</a>
+                      <button type="button" class="btn btn-xs btn-secondary link-images-button">Link Images</button>
                     </div>
+
+                    {{-- <div class="form-group">
+                      <a href="#" class="btn btn-image attach-images-btn"><img src="/images/attach.png" />Attach from Grid</a>
+                    </div> --}}
 
                     <div class="form-group">
                         <input type="checkbox" id="send_type" name="to_all" checked>

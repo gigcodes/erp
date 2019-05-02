@@ -37,7 +37,7 @@
             <div class="pull-right mt-4">
                 @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#importCustomersModal">Import Customers</button>
-                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Send Message to All</button>
+                    {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Send Message to All</button> --}}
                 @endif
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
                 <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
@@ -47,7 +47,7 @@
 
     @include('customers.partials.modal-merge')
 
-    @include('customers.partials.modal-send-to-all')
+    {{-- @include('customers.partials.modal-send-to-all') --}}
 
     @include('customers.partials.modal-import')
 

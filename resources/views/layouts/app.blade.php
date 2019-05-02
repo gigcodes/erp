@@ -852,6 +852,7 @@
 
                                     <a class="dropdown-item" href="{{ route('customer.index') }}">Customers</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                    <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
                                     <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
                                     <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>

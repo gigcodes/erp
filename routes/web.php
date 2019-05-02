@@ -193,6 +193,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('customer/issue/credit', 'CustomerController@issueCredit')->name('customer.issue.credit');
 
 	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
+	Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');
+	Route::post('broadcast/imagesUpload', 'BroadcastMessageController@imagesUpload')->name('broadcast.images.upload');
+	Route::post('broadcast/imagesLink', 'BroadcastMessageController@imagesLink')->name('broadcast.images.link');
+	Route::delete('broadcast/{id}/imagesDelete', 'BroadcastMessageController@imagesDelete')->name('broadcast.images.delete');
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
 	Route::post('broadcast/restart', 'BroadcastMessageController@restart')->name('broadcast.restart');
 	Route::post('broadcast/restart/{id}', 'BroadcastMessageController@restartGroup')->name('broadcast.restart.group');

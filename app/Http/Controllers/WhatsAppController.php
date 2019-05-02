@@ -1123,7 +1123,7 @@ class WhatsAppController extends FindByNumberController
       $this->validate($request, [
         'message'         => 'required_without:images',
         // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
-        'images.*'        => 'required_without:message|mimetypes:image/jpeg,image/png',
+        // 'images.*'        => 'required_without:message|mimetypes:image/jpeg,image/png',
         'file'            => 'sometimes|mimes:xlsx,xls',
         'sending_time'    => 'required|date',
         'whatsapp_number' => 'required_with:file',
@@ -1152,6 +1152,10 @@ class WhatsAppController extends FindByNumberController
           $content['image'][$key]['url'] = $media->getUrl();
         }
       }
+    }
+
+    if ($request->linked_images != '') {
+      $content['linked_images'] = json_decode($request->linked_images);
     }
 
     if ($request->to_all || $request->moduletype == 'customers') {
@@ -1295,7 +1299,7 @@ class WhatsAppController extends FindByNumberController
       }
     }
 
-    return redirect()->route('customer.index')->with('success', 'Messages are being sent in the background!');
+    return redirect()->route('broadcast.images')->with('success', 'Messages are being sent in the background!');
   }
 
   public function stopAll() {
