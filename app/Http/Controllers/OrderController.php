@@ -512,10 +512,12 @@ class OrderController extends Controller {
 
 			if (($order->balance_amount - $customer->credit) < 0) {
 				$left_credit = ($order->balance_amount - $customer->credit) * -1;
+				$order->advance_detail += $order->balance_amount;
 				$balance_amount = 0;
 				$customer->credit = $left_credit;
 			} else {
 				$balance_amount -= $customer->credit;
+				$order->advance_detail += $customer->credit;
 			}
 
 			$order->balance_amount = $balance_amount;
@@ -788,10 +790,12 @@ class OrderController extends Controller {
 
 				if (($order->balance_amount - $customer->credit) < 0) {
 					$left_credit = ($order->balance_amount - $customer->credit) * -1;
+					$order->advance_detail += $order->balance_amount;
 					$balance_amount = 0;
 					$customer->credit = $left_credit;
 				} else {
 					$balance_amount -= $customer->credit;
+					$order->advance_detail += $customer->credit;
 					$customer->credit = 0;
 				}
 
