@@ -59,7 +59,7 @@ class SendMessageToAll implements ShouldQueue
       if (is_numeric($this->customer->phone)) {
         $send_number = $this->customer->whatsapp_number ?? NULL;
 
-        if ($this->content['linked_images']) {
+        if (array_key_exists('linked_images', $this->content)) {
           $chat_message = ChatMessage::create($params);
 
           foreach ($this->content['linked_images'] as $image) {
@@ -90,7 +90,7 @@ class SendMessageToAll implements ShouldQueue
           }
         }
 
-        if ($this->content['linked_images']) {
+        if (array_key_exists('linked_images', $this->content)) {
           $chat_message = ChatMessage::create($params);
 
           foreach ($this->content['linked_images'] as $image) {
