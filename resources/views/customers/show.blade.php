@@ -149,6 +149,20 @@
         top: 0px;
         right: 0px;
       }
+
+      .floating-arrows {
+        position: fixed;
+        z-index: 9;
+        top: 50%;
+      }
+
+      .floating-arrows.left {
+        left: 20px;
+      }
+
+      .floating-arrows.right {
+        right: 20px;
+      }
   </style>
 @endsection
 
@@ -172,6 +186,30 @@
 @include('customers.partials.modal-private-viewing')
 
 @include('partials.flash_messages')
+
+@if (isset($customer_ids))
+  @if ($previous_customer_id != 0)
+    <div class="floating-arrows left">
+      <form class="d-inline" action="{{ route('customer.post.show', $previous_customer_id) }}" method="POST">
+        @csrf
+        <input type="hidden" name="customer_ids" value="{{ $customer_ids }}">
+
+        <button type="submit" class="btn btn-image"><img src="/images/back.png" /></button>
+      </form>
+    </div>
+  @endif
+
+  @if ($next_customer_id != 0)
+    <div class="floating-arrows right">
+      <form class="d-inline" action="{{ route('customer.post.show', $next_customer_id) }}" method="POST">
+        @csrf
+        <input type="hidden" name="customer_ids" value="{{ $customer_ids }}">
+
+        <button type="submit" class="btn btn-image"><img src="/images/next.png" /></button>
+      </form>
+    </div>
+  @endif
+@endif
 
 <div id="exTab2" class="container">
   <ul class="nav nav-tabs">

@@ -101,7 +101,13 @@
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
                     <td>
-                      <a href="{{ route('customer.show', $customer->id) }}">{{ $customer->name }}</a>
+                      <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
+
+                        <button type="submit" class="btn-link">{{ $customer->name }}</button>
+                      </form>
+                      {{-- <a href="{{ route('customer.show', $customer->id) }}?customer_ids={{ $customer_ids_list }}">{{ $customer->name }}</a> --}}
 
                       <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
 
@@ -330,12 +336,18 @@
                       </div>
                     </td>
                     <td>
-                        <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
-                        <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png" /></a>
+                      <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
 
-                        {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                        {!! Form::close() !!}
+                        <button type="submit" class="btn btn-image" href=""><img src="/images/view.png" /></button>
+                      </form>
+
+                      <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png" /></a>
+
+                      {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
+                      <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                      {!! Form::close() !!}
                     </td>
                 </tr>
             @endforeach

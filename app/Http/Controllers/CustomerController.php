@@ -62,7 +62,8 @@ class CustomerController extends Controller
       // $messages = DB::table('chat_messages')->selectRaw('id, message, customer_id GROUP BY customer_id')->get();
       // dd($messages);
 
-      $customers = $this->getCustomersIndex($request);
+      $results = $this->getCustomersIndex($request);
+
       $term = $request->input('term');
       $reply_categories = ReplyCategory::all();
       $api_keys = ApiKey::select('number')->get();
@@ -89,8 +90,9 @@ class CustomerController extends Controller
       $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('group_id', $last_set_id)->count();
 
       return view('customers.index', [
-        'customers' => $customers,
+        'customers' => $results[0],
         'customers_all' => $customers_all,
+        'customer_ids_list' => json_encode($results[1]),
         'users_array' => $users_array,
         'instructions' => $instructions,
         'term' => $term,
@@ -212,9 +214,16 @@ class CustomerController extends Controller
         (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
         (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
         (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,
-        (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type')->paginate(Setting::get('pagination'));
+        (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type');
 
-        return $customers;
+        $ids_list = [];
+        foreach ($customers->get() as $customer) {
+          $ids_list[] = $customer->id;
+        }
+
+        $customers = $customers->paginate(Setting::get('pagination'));
+
+        return [$customers, $ids_list];
     }
 
     public function initiateFollowup(Request $request, $id)
@@ -454,7 +463,6 @@ class CustomerController extends Controller
     public function show($id)
     {
         $customer = Customer::with(['call_recordings', 'orders', 'leads'])->where('id', $id)->first();
-        // dd($customer);
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
 
         $emails = [];
@@ -473,6 +481,63 @@ class CustomerController extends Controller
     		                                        ->renderAsDropdown();
 
         return view('customers.show', [
+            'customer'  => $customer,
+            'customers'  => $customers,
+            'lead_status'    => $lead_status,
+            'brands'    => $brands,
+            'users_array'     => $users_array,
+            'reply_categories'  => $reply_categories,
+            'instruction_categories' =>  $instruction_categories,
+            'instruction_replies' =>  $instruction_replies,
+            'order_status_report' =>  $order_status_report,
+            'purchase_status' =>  $purchase_status,
+            'solo_numbers' =>  $solo_numbers,
+            'api_keys' =>  $api_keys,
+            'emails'          => $emails,
+            'category_suggestion'          => $category_suggestion,
+            'suppliers'          => $suppliers,
+        ]);
+    }
+
+    public function postShow(Request $request, $id)
+    {
+        $customer = Customer::with(['call_recordings', 'orders', 'leads'])->where('id', $id)->first();
+        $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
+
+        $customer_ids = json_decode($request->customer_ids);
+        $key = array_search($id, $customer_ids);
+
+        if ($key != 0) {
+          $previous_customer_id = $customer_ids[$key - 1];
+        } else {
+          $previous_customer_id = 0;
+        }
+
+        if ($key == (count($customer_ids) - 1)) {
+          $next_customer_id = 0;
+        } else {
+          $next_customer_id = $customer_ids[$key + 1];
+        }
+
+        $emails = [];
+        $lead_status = (New status)->all();
+        $users_array = Helpers::getUserArray(User::all());
+        $brands = Brand::all()->toArray();
+        $reply_categories = ReplyCategory::all();
+        $instruction_categories = InstructionCategory::all();
+        $instruction_replies = Reply::where('model', 'Instruction')->get();
+        $order_status_report = OrderStatuses::all();
+        $purchase_status = (new PurchaseStatus)->all();
+        $solo_numbers = (new SoloNumbers)->all();
+        $api_keys = ApiKey::select(['number'])->get();
+        $suppliers = Supplier::select(['id', 'supplier'])->get();
+        $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
+    		                                        ->renderAsDropdown();
+
+        return view('customers.show', [
+            'customer_ids'         => json_encode($customer_ids),
+            'previous_customer_id' => $previous_customer_id,
+            'next_customer_id'     => $next_customer_id,
             'customer'  => $customer,
             'customers'  => $customers,
             'lead_status'    => $lead_status,

@@ -169,6 +169,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
 
 	// Customers
+	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
 	Route::post('customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup')->name('customer.initiate.followup');
