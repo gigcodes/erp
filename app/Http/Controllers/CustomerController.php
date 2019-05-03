@@ -243,7 +243,7 @@ class CustomerController extends Controller
 
 
         if ($sortby === 'communication') {
-            $customers = $customers->orderBy('last_communicated_at', $orderby);
+            $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('last_communicated_at', $orderby);
         }
         //
         // if ($sortby === 'status') {
@@ -275,7 +275,7 @@ class CustomerController extends Controller
           // CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm7.moduletype FROM messages mm7 WHERE mm7.id = message_id) ELSE (SELECT mm8.sent FROM chat_messages mm8 WHERE mm8.id = chat_message_id) END AS message_type')->paginate(Setting::get('pagination'));
 
 
-          $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
+          $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
           (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
           (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
           (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,
@@ -330,6 +330,21 @@ class CustomerController extends Controller
       $customer->save();
 
       return response()->json(['is_blocked' => $customer->is_blocked]);
+    }
+
+    public function flag(Request $request)
+    {
+      $customer = Customer::find($request->customer_id);
+
+      if ($customer->is_flagged == 0) {
+        $customer->is_flagged = 1;
+      } else {
+        $customer->is_flagged = 0;
+      }
+
+      $customer->save();
+
+      return response()->json(['is_flagged' => $customer->is_flagged]);
     }
 
     public function sendInstock(Request $request)

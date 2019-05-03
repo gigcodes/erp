@@ -95,6 +95,12 @@
                         <span class="badge badge-secondary">Blocked</span>
                       @endif
                       <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
+
+                      @if ($customer->is_flagged == 1)
+                        <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
+                      @else
+                        <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
+                      @endif
                     </td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                       <td>{{ $customer['email'] }}</td>
@@ -697,6 +703,41 @@
           $(thiss).text('Block on Twilio');
 
           alert('Could not block customer!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.flag-customer', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.flag') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Flagging...');
+          }
+        }).done(function(response) {
+          if (response.is_flagged == 1) {
+            // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+            //
+            // $(thiss).parent().append(badge);
+            $(thiss).html('<img src="/images/flagged.png" />');
+          } else {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+            // $(thiss).parent().find('.badge').remove();
+          }
+
+          // $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/unflagged.png" />');
+
+          alert('Could not flag customer!');
 
           console.log(response);
         });
