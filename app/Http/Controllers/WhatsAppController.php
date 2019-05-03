@@ -440,9 +440,9 @@ class WhatsAppController extends FindByNumberController
     public function sendMessage(Request $request, $context)
     {
       $this->validate($request, [
-        'message'         => 'required_without:image,screenshot_path|nullable|string',
-        'image'           => 'required_without:message,screenshot_path',
-        'screenshot_path' => 'required_without:message,image',
+        'message'         => 'nullable|required_without:image,screenshot_path|string',
+        'image'           => 'nullable|required_without:message',
+        'screenshot_path' => 'nullable|required_without:message',
         'customer_id'     => 'sometimes|nullable|numeric',
         'status'          => 'required|numeric',
         'assigned_to'     => 'sometimes|nullable',
@@ -899,13 +899,16 @@ class WhatsAppController extends FindByNumberController
             ];
 
             $image_key = $image->getKey();
+            $mediable_type = "Product";
 
             $product_image = Product::with('Media')
-            ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key)")
+            ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
             // ->whereHas('Media', function($q) use($image) {
             //    $q->where('media.id', $image->getKey());
             // })
             ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+
+            // dd($product_image);
 
             if ($product_image) {
               $temp_image['product_id'] = $product_image->id;
@@ -1055,46 +1058,24 @@ class WhatsAppController extends FindByNumberController
           }
         }
 
-        $send = $message->message;
-        if (is_null($send)) {
-          $send = $message->media_url;
+        if ($message->message != '') {
+          $customer = Customer::find($message->customer_id);
+          $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $message->message, TRUE, $message->id);
+        }
 
-          if (is_null($send)) {
-            if ($images = $message->getMedia(config('constants.media_tags'))) {
-              foreach ($images as $image) {
-                $send = str_replace(' ', '%20', $image->getUrl());
+        if ($message->media_url != '') {
+          $customer = Customer::find($message->customer_id);
+          $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $message->media_url, TRUE, $message->id);
+        }
 
-                if ($context == "leads") {
-                  $lead = Leads::find($message->lead_id);
-                  $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send, TRUE, $message->id);
-                } elseif ( $context == "orders") {
-                  $order = Order::find($message->order_id);
-                  $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send, TRUE, $message->id);
-                } elseif ($context == "customer") {
-                  $customer = Customer::find($message->customer_id);
-                  $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
-                } elseif ($context == 'purchase') {
-                  $purchase = Purchase::find($message->purchase_id);
+        if ($images = $message->getMedia(config('constants.media_tags'))) {
+          foreach ($images as $image) {
+            $send = str_replace(' ', '%20', $image->getUrl());
 
-                  if ($purchase->agent) {
-                    $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
-                  } else {
-                    return 'error';
-                  }
-                }
-              }
-            }
-          } else {
-            if ($context == "leads") {
-              $lead = Leads::find($message->lead_id);
-              $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send, TRUE, $message->id);
-            } elseif ( $context == "orders") {
-              $order = Order::find($message->order_id);
-              $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send, TRUE, $message->id);
-            } elseif ($context == "customer") {
+            if ($context == "customer") {
               $customer = Customer::find($message->customer_id);
               $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
-            } elseif($context == 'purchase') {
+            } elseif ($context == 'purchase') {
               $purchase = Purchase::find($message->purchase_id);
 
               if ($purchase->agent) {
@@ -1104,26 +1085,77 @@ class WhatsAppController extends FindByNumberController
               }
             }
           }
-        } else {
-          if ($context == "leads") {
-            $lead = Leads::find($message->lead_id);
-            $this->sendWithWhatsApp($lead->contactno, $lead->whatsapp_number, $send, TRUE, $message->id);
-          } elseif ( $context == "orders") {
-            $order = Order::find($message->order_id);
-            $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send, TRUE, $message->id);
-          } elseif ($context == "customer") {
-            $customer = Customer::find($message->customer_id);
-            $this->sendWithWhatsApp($message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
-          } elseif ($context == 'purchase') {
-            $purchase = Purchase::find($message->purchase_id);
-
-            if ($purchase->agent) {
-              $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
-            } else {
-              return 'error';
-            }
-          }
         }
+
+        // $send = $message->message;
+        // if (is_null($send)) {
+        //   $send = $message->media_url;
+        //
+        //   if (is_null($send)) {
+        //     if ($images = $message->getMedia(config('constants.media_tags'))) {
+        //       foreach ($images as $image) {
+        //         $send = str_replace(' ', '%20', $image->getUrl());
+        //
+        //         if ($context == "leads") {
+        //           $lead = Leads::find($message->lead_id);
+        //           $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send, TRUE, $message->id);
+        //         } elseif ( $context == "orders") {
+        //           $order = Order::find($message->order_id);
+        //           $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send, TRUE, $message->id);
+        //         } elseif ($context == "customer") {
+        //           $customer = Customer::find($message->customer_id);
+        //           $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
+        //         } elseif ($context == 'purchase') {
+        //           $purchase = Purchase::find($message->purchase_id);
+        //
+        //           if ($purchase->agent) {
+        //             $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+        //           } else {
+        //             return 'error';
+        //           }
+        //         }
+        //       }
+        //     }
+        //   } else {
+        //     if ($context == "leads") {
+        //       $lead = Leads::find($message->lead_id);
+        //       $this->sendWithWhatsApp( $lead->contactno, $lead->whatsapp_number, $send, TRUE, $message->id);
+        //     } elseif ( $context == "orders") {
+        //       $order = Order::find($message->order_id);
+        //       $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send, TRUE, $message->id);
+        //     } elseif ($context == "customer") {
+        //       $customer = Customer::find($message->customer_id);
+        //       $this->sendWithWhatsApp( $message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
+        //     } elseif($context == 'purchase') {
+        //       $purchase = Purchase::find($message->purchase_id);
+        //
+        //       if ($purchase->agent) {
+        //         $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+        //       } else {
+        //         return 'error';
+        //       }
+        //     }
+        //   }
+        // } else {
+        //   if ($context == "leads") {
+        //     $lead = Leads::find($message->lead_id);
+        //     $this->sendWithWhatsApp($lead->contactno, $lead->whatsapp_number, $send, TRUE, $message->id);
+        //   } elseif ( $context == "orders") {
+        //     $order = Order::find($message->order_id);
+        //     $this->sendWithWhatsApp( $order->contact_detail,$order->whatsapp_number, $send, TRUE, $message->id);
+        //   } elseif ($context == "customer") {
+        //     $customer = Customer::find($message->customer_id);
+        //     $this->sendWithWhatsApp($message->customer->phone,$customer->whatsapp_number, $send, TRUE, $message->id);
+        //   } elseif ($context == 'purchase') {
+        //     $purchase = Purchase::find($message->purchase_id);
+        //
+        //     if ($purchase->agent) {
+        //       $this->sendWithWhatsApp($purchase->agent->phone,$purchase->agent->whatsapp_number, $send, FALSE, $message->id);
+        //     } else {
+        //       return 'error';
+        //     }
+        //   }
+        // }
 
         $message->update([
           'approved' => 1,
