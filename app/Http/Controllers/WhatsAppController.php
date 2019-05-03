@@ -204,6 +204,19 @@ class WhatsAppController extends FindByNumberController
           }
         }
 
+        // Auto Instruction
+        if (array_key_exists('message', $params) && preg_match("/price/i", $params['message'])) {
+          if ($customer = Customer::find($params['customer_id'])) {
+            Instruction::create([
+              'customer_id' => $customer->id,
+              'instruction' => 'Please send the prices',
+              'category_id' => 1,
+              'assigned_to' => 7,
+              'assigned_from' => 6,
+            ]);
+          }
+        }
+
         // Auto Replies
         $auto_replies = AutoReply::all();
 
