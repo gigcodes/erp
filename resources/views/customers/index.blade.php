@@ -576,6 +576,7 @@
 
         data.append("customer_id", customer_id);
         data.append("message", message);
+        data.append("status", 1);
 
         if (message.length > 0) {
           $.ajax({
