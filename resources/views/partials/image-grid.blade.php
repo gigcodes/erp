@@ -214,6 +214,32 @@
         console.log(image_array);
       });
 
+      $(document).on('click', '.attach-photo-all', function(e) {
+        e.preventDefault();
+        var image = $(this).data('image');
+
+        if ($(this).data('attached') == 0) {
+          $(this).data('attached', 1);
+          
+          Object.keys(image).forEach(function(index) {
+            image_array.push(image[index]);
+          });
+        } else {
+          Object.keys(image).forEach(function(key) {
+            var index = image_array.indexOf(image[key]);
+
+            image_array.splice(index, 1);
+          });
+
+          $(this).data('attached', 0);
+        }
+
+        $(this).toggleClass('btn-success');
+        $(this).toggleClass('btn-secondary');
+
+        console.log(image_array);
+      });
+
       // $('#attachImageForm').on('submit', function(e) {
       //   e.preventDefault();
       //
