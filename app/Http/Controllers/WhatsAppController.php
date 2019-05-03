@@ -39,6 +39,8 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Support\Facades\DB;
 use Validator;
+use Image;
+use File;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -276,7 +278,7 @@ class WhatsAppController extends FindByNumberController
            'number'       => NULL,
            'user_id'      => 6,
            'approved'     => 1,
-           'status'       => 2,
+           'status'       => 9,
            'customer_id'  => $params['customer_id']
          ];
 
@@ -298,7 +300,7 @@ class WhatsAppController extends FindByNumberController
            'number'       => NULL,
            'user_id'      => 6,
            'approved'     => 1,
-           'status'       => 2,
+           'status'       => 9,
            'customer_id'  => $params['customer_id'],
            'message'      => 'Our office is currently closed - we work between 10 - 5.30 - Monday - Friday -  - if an associate is available - your messaged will be responded within 60 minutes or on the next working day -since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate shall respond accordingly.'
          ];
@@ -438,11 +440,12 @@ class WhatsAppController extends FindByNumberController
     public function sendMessage(Request $request, $context)
     {
       $this->validate($request, [
-        'message'     => 'required_without:image|nullable|string',
-        'image'       => 'required_without:message',
-        'customer_id' => 'sometimes|nullable|numeric',
-        'status'      => 'required|numeric',
-        'assigned_to' => 'sometimes|nullable',
+        'message'         => 'required_without:image,screenshot_path|nullable|string',
+        'image'           => 'required_without:message,screenshot_path',
+        'screenshot_path' => 'required_without:message,image',
+        'customer_id'     => 'sometimes|nullable|numeric',
+        'status'          => 'required|numeric',
+        'assigned_to'     => 'sometimes|nullable',
       ]);
 
       $data = $request->except( '_token');
