@@ -107,7 +107,7 @@ class SearchController extends Controller {
 			$min = $exploded[0];
 			$max = $exploded[1];
 
-			if ($min != '0' || $max != '10000000') {
+			if ($min != '0' || $max != '400000') {
 				if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
 					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
 				} else {
@@ -126,7 +126,7 @@ class SearchController extends Controller {
 		if ($request->supplier[0] != null) {
 			$suppliers_list = implode(',', $request->supplier);
 
-			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,10000000") {
+			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000") {
 				$productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
 			} else {
 				$productQuery = ( new Product() )->newQuery()->with('Suppliers')
@@ -140,7 +140,7 @@ class SearchController extends Controller {
 		}
 
 		if (trim($request->size) != '') {
-			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,10000000" || $request->supplier[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null) {
 				$productQuery = $productQuery->whereNotNull('size')->where('size', 'LIKE', "%$request->size%");
 			} else {
 				$productQuery = ( new Product() )->newQuery()
@@ -154,7 +154,7 @@ class SearchController extends Controller {
 		}
 
 		if ($request->location[0] != null) {
-			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '') {
+			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '') {
 				$productQuery = $productQuery->whereIn('location', $request->location);
 			} else {
 				$productQuery = ( new Product() )->newQuery()
@@ -165,7 +165,7 @@ class SearchController extends Controller {
 		}
 
 		if ($request->type[0] != null) {
-			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null) {
 				if (count($request->type) > 1) {
 					$productQuery = $productQuery->where('is_scraped', 1)->orWhere('status', 2);
 				} else {
@@ -199,7 +199,7 @@ class SearchController extends Controller {
 		}
 
 		if ($request->date != '') {
-			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,10000000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null || $request->type[0] != null) {
+			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null || $request->type[0] != null) {
 				if ($request->type[0] != null && $request->type[0] == 'uploaded') {
 					$productQuery = $productQuery->where('is_uploaded_date', 'LIKE', "%$request->date%");
 				} else {
@@ -257,7 +257,7 @@ class SearchController extends Controller {
 				$productQuery = $productQuery->whereNull( 'dnf' );
 			}
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->price == "0,10000000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type == null && $request->location[0] == null) {
+			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->price == "0,400000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type == null && $request->location[0] == null) {
 				$productQuery = ( new Product() )->newQuery()->latest();
 			}
 		}
