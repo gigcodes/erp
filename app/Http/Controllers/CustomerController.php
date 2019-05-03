@@ -983,6 +983,241 @@ class CustomerController extends Controller
       return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully created suggested message');
     }
 
+    public function attachAll(Request $request)
+    {
+      $data     = [];
+  		$term     = $request->input( 'term' );
+  		$roletype = $request->input( 'roletype' );
+  		$model_type = $request->input( 'model_type' );
+
+  		$data['term']     = $term;
+  		$data['roletype'] = $roletype;
+
+  		$doSelection = $request->input( 'doSelection' );
+
+  		if ( ! empty( $doSelection ) ) {
+
+  			$data['doSelection'] = true;
+  			$data['model_id']    = $request->input( 'model_id' );
+  			$data['model_type']  = $request->input( 'model_type' );
+
+  			$data['selected_products'] = ProductController::getSelectedProducts($data['model_type'],$data['model_id']);
+  		}
+
+  		if ($request->brand[0] != null) {
+  			$productQuery = ( new Product() )->newQuery()
+  			                                 ->latest()->whereIn('brand', $request->brand);
+
+  		}
+
+  		if ($request->color[0] != null) {
+  			if ($request->brand[0] != null) {
+  				$productQuery = $productQuery->whereIn('color', $request->color);
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  				                                 ->latest()->whereIn('color', $request->color);
+  			}
+  		}
+
+  		if ($request->category[0] != null && $request->category[0] != 1) {
+  			$category_children = [];
+
+  			foreach ($request->category as $category) {
+  				$is_parent = Category::isParent($category);
+
+  				if ($is_parent) {
+  					$childs = Category::find($category)->childs()->get();
+
+  					foreach ($childs as $child) {
+  						$is_parent = Category::isParent($child->id);
+
+  						if ($is_parent) {
+  							$children = Category::find($child->id)->childs()->get();
+
+  							foreach ($children as $chili) {
+  								array_push($category_children, $chili->id);
+  							}
+  						} else {
+  							array_push($category_children, $child->id);
+  						}
+  					}
+  				} else {
+  					array_push($category_children, $category);
+  				}
+  			}
+
+  			if ($request->brand[0] != null || $request->color[0] != null) {
+  				$productQuery = $productQuery->whereIn('category', $category_children);
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  				                                 ->latest()->whereIn('category', $category_children);
+  			}
+	    }
+
+  		if ($request->price != null) {
+  			$exploded = explode(',', $request->price);
+  			$min = $exploded[0];
+  			$max = $exploded[1];
+
+  			if ($min != '0' || $max != '400000') {
+  				if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
+  					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+  				} else {
+  					$productQuery = ( new Product() )->newQuery()
+  					                                 ->latest()->whereBetween('price_special', [$min, $max]);
+  				}
+  			}
+  		}
+
+  		if ($request->supplier[0] != null) {
+  			$suppliers_list = implode(',', $request->supplier);
+
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000") {
+  				$productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()->with('Suppliers')
+  				                                 ->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+  			}
+  		}
+
+  		if (trim($request->size) != '') {
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null) {
+  				$productQuery = $productQuery->whereNotNull('size')->where('size', 'LIKE', "%$request->size%");
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  																			 ->latest()->whereNotNull('size')->where('size', 'LIKE', "%$request->size%");
+  			}
+  		}
+
+  		if ($request->location[0] != null) {
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '') {
+  				$productQuery = $productQuery->whereIn('location', $request->location);
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  				                                 ->latest()->whereIn('location', $request->location);
+  			}
+
+  			$data['location'] = $request->location[0];
+  		}
+
+  		if ($request->type[0] != null) {
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null) {
+  				if (count($request->type) > 1) {
+  					$productQuery = $productQuery->where('is_scraped', 1)->orWhere('status', 2);
+  				} else {
+  					if ($request->type[0] == 'scraped') {
+  						$productQuery = $productQuery->where('is_scraped', 1);
+  					} elseif ($request->type[0] == 'imported') {
+  						$productQuery = $productQuery->where('status', 2);
+  					} else {
+  						$productQuery = $productQuery->where('isUploaded', 1);
+  					}
+  				}
+  			} else {
+  				if (count($request->type) > 1) {
+  					$productQuery = ( new Product() )->newQuery()
+  																				 ->latest()->where('is_scraped', 1)->orWhere('status', 2);
+  				} else {
+  					if ($request->type[0] == 'scraped') {
+  						$productQuery = ( new Product() )->newQuery()
+  																					 ->latest()->where('is_scraped', 1);
+  					} elseif ($request->type[0] == 'imported') {
+  						$productQuery = ( new Product() )->newQuery()
+  																					 ->latest()->where('status', 2);
+  					} else {
+  						$productQuery = ( new Product() )->newQuery()
+  																					 ->latest()->where('isUploaded', 1);
+  					}
+  				}
+  			}
+
+  			$data['type'] = $request->type[0];
+  		}
+
+  		if ($request->date != '') {
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null || $request->type[0] != null) {
+  				if ($request->type[0] != null && $request->type[0] == 'uploaded') {
+  					$productQuery = $productQuery->where('is_uploaded_date', 'LIKE', "%$request->date%");
+  				} else {
+  					$productQuery = $productQuery->where('created_at', 'LIKE', "%$request->date%");
+  				}
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  																			 ->latest()->where('created_at', 'LIKE', "%$request->date%");
+  			}
+  		}
+
+  		if ($request->quick_product === 'true') {
+  				$productQuery = ( new Product() )->newQuery()
+  				                                 ->latest()->where('quick_product', 1);
+  		}
+
+  		if (trim($term) != '') {
+  			$productQuery = ( new Product() )->newQuery()
+  			                                 ->latest()
+  			                                 ->orWhere( 'sku', 'LIKE', "%$term%" )
+  			                                 ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+  			;
+
+  			if ( $term == - 1 ) {
+  				$productQuery = $productQuery->orWhere( 'isApproved', - 1 );
+  			}
+
+  			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+  				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+  				$productQuery = $productQuery->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+  			}
+
+  			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+  				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+  				$productQuery = $productQuery->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
+  			}
+
+  			if ( ! empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+
+  				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+  			}
+
+  			if ( ! ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
+
+  				$productQuery = $productQuery->where( 'stage', '>=', $stage->get( $roletype ) );
+  			}
+
+  			if ( $roletype != 'Selection' && $roletype != 'Searcher' ) {
+
+  				$productQuery = $productQuery->whereNull( 'dnf' );
+  			}
+  		} else {
+  			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->price == "0,400000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type == null && $request->location[0] == null) {
+  				$productQuery = ( new Product() )->newQuery()->latest();
+  			}
+  		}
+
+  		if ($request->ids[0] != null) {
+  			$productQuery = ( new Product() )->newQuery()
+  																		 ->latest()->whereIn('id', $request->ids);
+  		}
+
+  		$data['products'] = $productQuery->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->get();
+
+      $params = [
+        'user_id'     => Auth::id(),
+        'number'      => NULL,
+        'status'      => 1,
+        'customer_id' => $request->customer_id
+      ];
+
+      $chat_message = ChatMessage::create($params);
+
+      foreach ($data['products'] as $product) {
+        if ($product->hasMedia(config('constants.media_tags'))) {
+          $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
+        }
+      }
+
+  		return redirect()->route('customer.show', $request->customer_id);
+    }
+
     /**
      * Remove the specified resource from storage.
      *

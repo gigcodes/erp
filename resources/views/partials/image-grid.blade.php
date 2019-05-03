@@ -29,6 +29,7 @@
 
                 <!--Product Search Input -->
                 <form action="{{ route('search') }}" method="GET" id="searchForm" class="form-inline align-items-start">
+                  @csrf
                     {{-- <div class="form-group">
                         <div class="row"> --}}
                         <input type="hidden" name="selected_products" id="selected_products" value="">
@@ -113,6 +114,10 @@
                               <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '400000' }}]"/>
                             </div>
 
+                            <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
+                            <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}" id="attach_all_model_id">
+                            <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
+
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                         {{-- </div>
                     </div> --}}
@@ -122,6 +127,8 @@
                   <input type="hidden" name="quick_product" value="true">
                   <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
                 </form>
+
+                <button type="button" class="btn btn-secondary" id="attachAllButton">Attach All</button>
             </div>
         </div>
     </div>
@@ -220,7 +227,7 @@
 
         if ($(this).data('attached') == 0) {
           $(this).data('attached', 1);
-          
+
           Object.keys(image).forEach(function(index) {
             image_array.push(image[index]);
           });
@@ -252,7 +259,7 @@
       //   }
       // });
 
-      $('#searchForm').on('submit', function(e) {
+      $('#searchForm button[type="submit"]').on('click', function(e) {
         e.preventDefault();
 
         $('#selected_products').val(JSON.stringify(image_array));
@@ -349,6 +356,15 @@
               }
             });
         // });
+
+        $('#attachAllButton').on('click', function() {
+          var url = "{{ route('customer.attach.all') }}";
+          console.log(url);
+          $('#searchForm').attr('action', url);
+          $('#searchForm').attr('method', 'POST');
+
+          $('#searchForm').submit();
+        });
 
     </script>
 @endsection
