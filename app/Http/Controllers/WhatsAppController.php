@@ -843,7 +843,7 @@ class WhatsAppController extends FindByNumberController
 
       // $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
 
-      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
+      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
       // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
       // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
 
@@ -873,7 +873,8 @@ class WhatsAppController extends FindByNumberController
           'approved' => $message->approved,
           'status'  => $message->status,
           'user_id' => $message->user_id,
-          'sent'    => $message->sent
+          'sent'    => $message->sent,
+          'error_status'    => $message->error_status
         ];
 
         if ($message->media_url) {

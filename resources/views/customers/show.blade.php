@@ -2551,6 +2551,15 @@
                    var meta_content = "<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:mm') + " <img id='status_img_" + message.id + "' src='/images/1.png' /></em>";
                  }
 
+                 var error_flag = '';
+                 if (message.error_status == 1) {
+                   error_flag = "<span class='badge badge-warning'>Resent</span>";
+                 } else if (message.error_status == 2) {
+                   error_flag = "<span class='badge badge-danger'>!</span>";
+                 }
+
+
+
                  var meta = $(meta_content);
 
                  edit_field.appendTo(text);
@@ -2568,6 +2577,8 @@
                  }
 
                  forward.appendTo(meta);
+
+                 $(error_flag).appendTo(meta);
                }
 
 

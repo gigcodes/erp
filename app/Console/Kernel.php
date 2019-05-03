@@ -14,6 +14,7 @@ use App\Console\Commands\CheckLogins;
 use App\Console\Commands\AutoInterestMessage;
 use App\Console\Commands\AutoReminder;
 use App\Console\Commands\AutoMessenger;
+use App\Console\Commands\CheckMessagesErrors;
 use App\Console\Commands\SendProductSuggestion;
 use App\Console\Commands\SendActivitiesListing;
 //use App\Console\Commands\SyncInstagramMessage;
@@ -61,6 +62,7 @@ class Kernel extends ConsoleKernel
         AutoInterestMessage::class,
         AutoReminder::class,
         AutoMessenger::class,
+        CheckMessagesErrors::class,
         SendProductSuggestion::class,
         SendActivitiesListing::class,
         MakeApprovedImagesSchedule::class,
@@ -132,6 +134,7 @@ class Kernel extends ConsoleKernel
         // Sends Auto messages
         $schedule->command('send:auto-reminder')->hourly();
         $schedule->command('send:auto-messenger')->hourly();
+        $schedule->command('check:messages-errors')->hourly();
         // $schedule->command('send:auto-messenger')->everyMinute();
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
         $schedule->command('send:activity-listings')->dailyAt('00:00')->timezone('Asia/Kolkata');
