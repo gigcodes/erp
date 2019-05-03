@@ -2555,7 +2555,7 @@
                  if (message.error_status == 1) {
                    error_flag = "<span class='badge badge-warning'>Resent</span>";
                  } else if (message.error_status == 2) {
-                   error_flag = "<span class='badge badge-danger'>!</span>";
+                   error_flag = "<span class='badge badge-danger'>Error</span>";
                  }
 
 

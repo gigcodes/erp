@@ -50,22 +50,22 @@ class CheckMessagesErrors extends Command
         $error = $error_status == 0 ? 1 : ($error_status == 1 ? 2 : 2);
         dump($error);
         foreach ($chat_messages as $chat_message) {
-          $params = [
-            'number'        => NULL,
-            'user_id'       => $chat_message->user_id,
-            'customer_id'   => $chat_message->customer_id,
-            'approved'      => 0,
-            'status'        => 2,
-            'error_status'  => $error
-          ];
+          // $params = [
+          //   'number'        => NULL,
+          //   'user_id'       => $chat_message->user_id,
+          //   'customer_id'   => $chat_message->customer_id,
+          //   'approved'      => 0,
+          //   'status'        => 2,
+          //   'error_status'  => $error
+          // ];
 
           if ($chat_message->message != '') {
             dump('text');
             $params['message'] = $chat_message->message;
 
-            $new_message = ChatMessage::create($params);
+            // $new_message = ChatMessage::create($params);
 
-            if ($error == 2) {
+            if ($error == 1) {
               try {
                 app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, $params['message'], false, $new_message->id);
               } catch (\Exception $e) {
@@ -76,14 +76,14 @@ class CheckMessagesErrors extends Command
 
           if ($chat_message->hasMedia(config('constants.media_tags'))) {
             dump('images');
-            if (!isset($new_message)) {
-              $new_message = ChatMessage::create($params);
-            }
+            // if (!isset($new_message)) {
+            //   $new_message = ChatMessage::create($params);
+            // }
 
             foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-              $new_message->attachMedia($image, config('constants.media_tags'));
+              // $new_message->attachMedia($image, config('constants.media_tags'));
 
-              if ($error == 2) {
+              if ($error == 1) {
                 try {
                   app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), false, $new_message->id);
                 } catch (\Exception $e) {
@@ -93,11 +93,16 @@ class CheckMessagesErrors extends Command
             }
           }
 
-          if (isset($new_message) && $error != 2) {
-            $new_message->update([
-              'approved'  => 1
-            ]);
-          }
+          // if (isset($new_message) && $error != 2) {
+          //   $new_message->update([
+          //     'approved'  => 1
+          //   ]);
+          // }
+
+          $chat_message->update([
+            'error_status'  => $error,
+            'created_at'    => Carbon::now()
+          ]);
         }
       }
     }
