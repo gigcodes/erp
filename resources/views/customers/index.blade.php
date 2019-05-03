@@ -62,7 +62,7 @@
 
     <div class="form-group position-fixed" style="top: 50px; left: 20px;">
       Goto :
-      <select onchange="location.href = this.value;" class="form-control">
+      <select onchange="location.href = this.value;" class="form-control" id="page-goto">
         @for($i = 1 ; $i <= $customers->lastPage() ; $i++ )
           <option value="{{ $query.$i }}" {{ ($i == $customers->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
         @endfor
@@ -377,6 +377,32 @@
     var cached_suggestions = localStorage['message_suggestions'];
     var suggestions = [];
 
+    $(window).scroll(function() {
+      // var top = $(window).scrollTop();
+      // var document_height = $(document).height();
+      // var window_height = $(window).height();
+      //
+      // if (top >= (document_height - window_height - 200)) {
+      //   if (can_load_more) {
+      //     var current_page = $('#load-more-messages').data('nextpage');
+      //     $('#load-more-messages').data('nextpage', current_page + 1);
+      //     var next_page = $('#load-more-messages').data('nextpage');
+      //     console.log(next_page);
+      //     $('#load-more-messages').text('Loading...');
+      //
+      //     can_load_more = false;
+      //
+      //     pollMessages(next_page, true);
+      //   }
+      // }
+      var next_page = $('.pagination li.active + li a');
+      var page_number = next_page.attr('href').split('?page=');
+      console.log(page_number);
+      var current_page = page_number[1] - 1;
+
+      $('#page-goto option[value="' + page_number[0] + '?page=' + current_page + '"]').attr('selected', 'selected');
+    });
+
     $(document).ready(function() {
       $('ul.pagination').hide();
       $(function() {
@@ -387,7 +413,7 @@
               nextSelector: '.pagination li.active + li a',
               contentSelector: 'div.infinite-scroll',
               callback: function() {
-                  $('ul.pagination').remove();
+                  // $('ul.pagination').remove();
               }
           });
       });
