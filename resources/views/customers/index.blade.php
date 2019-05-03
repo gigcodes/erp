@@ -55,6 +55,20 @@
 
     @include('partials.flash_messages')
 
+    <?php
+  	$query = http_build_query( Request::except( 'page' ) );
+  	$query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
+  	?>
+
+    <div class="form-group position-fixed" style="top: 50px; left: 20px;">
+      Goto :
+      <select onchange="location.href = this.value;" class="form-control">
+        @for($i = 1 ; $i <= $customers->lastPage() ; $i++ )
+          <option value="{{ $query.$i }}" {{ ($i == $customers->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+        @endfor
+      </select>
+    </div>
+
     <div class="infinite-scroll">
       <div class="table-responsive mt-3">
         <table class="table table-bordered">
