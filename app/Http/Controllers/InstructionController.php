@@ -64,6 +64,11 @@ class InstructionController extends Controller
 
       $instructions = array_reverse($instructions);
 
+      $ids_list = [];
+      foreach ($instructions as $instruction) {
+        $ids_list[] = $instruction['customer']['id'];
+      }
+
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = Setting::get('pagination');
   		$currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
@@ -79,7 +84,8 @@ class InstructionController extends Controller
         'completed_instructions'  => $completed_instructions,
         'users_array'             => $users_array,
         'user'                    => $user,
-        'orderby'                 => $orderby
+        'orderby'                 => $orderby,
+        'customer_ids_list'       => json_encode($ids_list)
       ]);
     }
 

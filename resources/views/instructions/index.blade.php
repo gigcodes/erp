@@ -84,7 +84,15 @@
             </tr>
             @foreach ($instructions as $instruction)
                 <tr>
-                  <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
+                  <td>
+                    {{-- <a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a> --}}
+                    <form class="d-inline" action="{{ route('customer.post.show', $instruction['customer_id']) }}" method="POST">
+                      @csrf
+                      <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
+
+                      <button type="submit" class="btn-link">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</button>
+                    </form>
+                  </td>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
                   </td>
