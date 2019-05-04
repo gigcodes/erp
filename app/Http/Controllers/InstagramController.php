@@ -6,6 +6,7 @@ use App\AdsSchedules;
 use App\Brand;
 use App\Category;
 use App\Customer;
+use App\HashTag;
 use App\Image;
 use App\ImageSchedule;
 use App\Product;
@@ -469,5 +470,11 @@ class InstagramController extends Controller
 
         return redirect()->back()->with('message', 'Schedule updated successfully!');
 
+    }
+
+    public function showHahstags() {
+        $posts = HashTag::all();
+
+        return view('instagram.hahstags', compact('posts'));
     }
 }

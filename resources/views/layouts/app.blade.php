@@ -1191,6 +1191,7 @@
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
                                   <a class="dropdown-item" href="{{ action('ScrapController@excel_import') }}">Import Excel Document Type 1</a>
                                     <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap Activity</a>
+                                    <a class="dropdown-item" href="{{ action('InstagramController@showHahstags') }}">HashTags</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scraped</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'G&B') }}">G&B Product</a>
