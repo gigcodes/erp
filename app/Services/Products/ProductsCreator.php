@@ -17,7 +17,7 @@ class ProductsCreator
     public function createProduct($image)
     {
       $data['sku'] = str_replace(' ', '', $image->sku);
-      dump("SKU - $image->sku");
+
       $validator = Validator::make($data, [
         'sku' => 'unique:products,sku'
       ]);
@@ -27,8 +27,6 @@ class ProductsCreator
       } else {
         $product = new Product;
       }
-
-      // dump($product);
 
       $properties_array = $image->properties;
 
@@ -70,6 +68,8 @@ class ProductsCreator
           break;
         default:
           $supplier = '';
+          
+          return;
       }
 
        $product->sku = str_replace(' ', '', $image->sku);
