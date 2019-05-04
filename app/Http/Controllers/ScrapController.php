@@ -390,7 +390,7 @@ class ScrapController extends Controller
         $product->brand_id = $brand->id;
         $product->save();
 
-        app('App\Services\Products\LidiaProductsCreator')->createProduct($product);
+        app('App\Services\Products\ProductsCreator')->createProduct($product);
 
         return response()->json([
             'status' => 'Added items successfuly!'
