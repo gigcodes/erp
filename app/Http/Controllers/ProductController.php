@@ -15,9 +15,11 @@ use App\Sizes;
 use App\Brand;
 use App\Supplier;
 use App\Stock;
+use App\Colors;
 use App\ReadOnly\LocationList;
 use Cache;
 use Auth;
+use Chumper\Zipper\Zipper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
@@ -65,6 +67,40 @@ class ProductController extends Controller {
 
 		return view('products.index', compact( 'products', 'term', 'archived'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
+	}
+
+	public function listing()
+	{
+		$products = Product::where('stock', '>=', 1)->latest()->paginate(Setting::get('pagination'));
+		$colors = (new Colors)->all();
+		$categories = Category::all();
+		$category_tree = [];
+		$categories_array = [];
+
+		foreach (Category::all() as $category) {
+			if ($category->parent_id != 0) {
+				$parent = $category->parent;
+				if ($parent->parent_id != 0) {
+					$category_tree[$parent->parent_id][$parent->id][$category->id];
+				} else {
+					$category_tree[$parent->id][$category->id] = $category->id;
+				}
+			}
+
+			$categories_array[$category->id] = $category->parent_id;
+		}
+
+		$category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
+																					 ->renderAsDropdown();
+
+		return view('products.listing', [
+			'products'					=> $products,
+			'colors'						=> $colors,
+			'categories'				=> $categories,
+			'category_tree'			=> $category_tree,
+			'categories_array'	=> $categories_array,
+			'category_selection'	=> $category_selection,
+		]);
 	}
 
 
@@ -147,6 +183,174 @@ class ProductController extends Controller {
 		}
 
 		return redirect()->back()->withSuccess('You have successfully bulk updated products!');
+	}
+
+	public function updateName(Request $request, $id)
+	{
+		$product = Product::find($id);
+		$product->name = $request->name;
+		$product->save();
+
+		return response('success');
+	}
+
+	public function updateDescription(Request $request, $id)
+	{
+		$product = Product::find($id);
+		$product->short_description = $request->description;
+		$product->save();
+
+		return response('success');
+	}
+
+	public function updateComposition(Request $request, $id)
+	{
+		$product = Product::find($id);
+		$product->composition = $request->composition;
+		$product->save();
+
+		return response('success');
+	}
+
+	public function updateColor(Request $request, $id)
+	{
+		$product = Product::find($id);
+		$product->color = $request->color;
+		$product->save();
+
+		return response('success');
+	}
+
+	public function updateCategory(Request $request, $id)
+	{
+		$product = Product::find($id);
+		$product->category = $request->category;
+		$product->save();
+
+		return response('success');
+	}
+
+	public function updateSize(Request $request, $id)
+	{
+		$product = Product::find($id);
+		$product->size = is_array($request->size) && count($request->size) > 0 ? implode(',', $request->size) : $request->other_size;
+		$product->save();
+
+		return response('success');
+	}
+
+	public function updatePrice(Request $request, $id)
+	{
+		$product = Product::find($id);
+		$product->price = $request->price;
+
+		if(!empty($product->brand)) {
+			$product->price_inr     = $this->euroToInr($product->price, $product->brand);
+			$product->price_special = $this->calculateSpecialDiscount($product->price_inr, $product->brand);
+		}
+
+		$product->save();
+
+		return response()->json([
+			'price_inr'	=> $product->price_inr,
+			'price_special'	=> $product->price_special
+		]);
+	}
+
+	public function quickDownload($id)
+	{
+		$product = Product::find($id);
+
+		$products_array = [];
+
+		if ($product->hasMedia(config('constants.media_tags'))) {
+			foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+				$path = public_path('uploads') . '/' . $image->filename . '.' . $image->extension;
+				array_push($products_array, $path);
+			}
+		}
+
+
+		\Zipper::make(public_path("$product->sku.zip"))->add($products_array)->close();
+
+		return response()->download(public_path("$product->sku.zip"))->deleteFileAfterSend();
+	}
+
+	public function quickUpload(Request $request, $id)
+	{
+		$product = Product::find($id);
+		$image_url = '';
+
+		if ($request->hasFile('images')) {
+			$product->detachMediaTags(config('constants.media_tags'));
+
+			foreach ($request->file('images') as $key => $image) {
+				$media = MediaUploader::fromSource($image)->upload();
+				$product->attachMedia($media, config('constants.media_tags'));
+
+				if ($key == 0) {
+					$image_url = $media->getUrl();
+				}
+			}
+		}
+
+		return response()->json([
+			'image_url'	=> $image_url
+		]);
+	}
+
+	public function calculateSpecialDiscount($price,$brand) {
+		$dis_per = BrandController::getDeductionPercentage($brand);
+		$dis_price = $price - ($price * $dis_per)/100;
+
+		return round($dis_price,-3);
+	}
+
+	public function euroToInr($price,$brand){
+		$euro_to_inr =  BrandController::getEuroToInr($brand);
+
+		if(!empty($euro_to_inr))
+			$inr = $euro_to_inr*$price;
+		else
+			$inr = Setting::get('euro_to_inr')*$price;
+
+		return round($inr,-3);
+	}
+
+	public function listMagento(Request $request, $id)
+	{
+		$product = Product::find($id);
+
+		$result = app('App\Http\Controllers\ProductListerController')->magentoSoapApiUpload($product, 1);
+
+		return response()->json([
+			'result'	=> $result,
+			'status'	=> 'listed'
+		]);
+	}
+
+	public function approveMagento(Request $request, $id)
+	{
+		$product = Product::find($id);
+
+		$result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUpdateStatus($product);
+
+		return response()->json([
+			'result'	=> $result,
+			'status'	=> 'approved'
+		]);
+	}
+
+	public function updateMagento(Request $request, $id)
+	{
+		$product = Product::find($id);
+
+		$result = app('App\Http\Controllers\ProductAttributeController')->magentoProductUpdate($product);
+
+		return response()->json([
+			'result'	=> $result[1],
+			'status'	=> 'updated'
+		]);
 	}
 
 	public function archive($id) {

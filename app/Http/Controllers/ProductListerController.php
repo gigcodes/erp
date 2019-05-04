@@ -70,7 +70,7 @@ class ProductListerController extends Controller
 
 	}
 
-	public function magentoSoapApiUpload($product){
+	public function magentoSoapApiUpload($product, $status = 2){
 
 		$options = array(
 			'trace' => true,
@@ -119,7 +119,7 @@ class ProductListerController extends Controller
 					'short_description'     => $product->short_description,
 					'website_ids'           => array(1),
 					// Id or code of website
-					'status'                => 2,
+					'status'                => $status,
 					// 1 = Enabled, 2 = Disabled
 					'visibility'            => 1,
 					// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
@@ -150,6 +150,7 @@ class ProductListerController extends Controller
 				} catch (\Exception $e) {
 					if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
 						$product->isUploaded = 1;
+
 						$product->save();
 					}
 				}
@@ -165,7 +166,7 @@ class ProductListerController extends Controller
 				'short_description'       => $product->short_description,
 				'website_ids'             => array(1),
 				// Id or code of website
-				'status'                  => 2,
+				'status'                  => $status,
 				// 1 = Enabled, 2 = Disabled
 				'visibility'              => 4,
 				// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
@@ -198,6 +199,7 @@ class ProductListerController extends Controller
 			} catch (\Exception $e) {
 				if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
 					$product->isUploaded = 1;
+
 					$product->save();
 				}
 			}
@@ -213,7 +215,7 @@ class ProductListerController extends Controller
 				'short_description'     => $product->short_description,
 				'website_ids'           => array(1),
 				// Id or code of website
-				'status'                => 2,
+				'status'                => $status,
 				// 1 = Enabled, 2 = Disabled
 				'visibility'            => 4,
 				// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
@@ -243,6 +245,7 @@ class ProductListerController extends Controller
 			} catch (\Exception $e) {
 				if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
 					$product->isUploaded = 1;
+
 					$product->save();
 				}
 			}
@@ -273,6 +276,15 @@ class ProductListerController extends Controller
 					array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
 				);
 			}
+
+			$product->is_uploaded_date = Carbon::now();
+
+			if ($status == 1) {
+				$product->isFinal = 1;
+				$product->isListed = 1;
+			}
+
+			$product->save();
 		} else {
 			$result = false;
 		}

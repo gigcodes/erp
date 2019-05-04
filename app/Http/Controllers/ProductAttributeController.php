@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Carbon\Carbon;
 
 class ProductAttributeController extends Controller
 {
@@ -296,7 +297,7 @@ class ProductAttributeController extends Controller
 				->count();
 	}
 
-	public function magentoProductUpdate($product, $old_sizes, $old_color, $old_images) {
+	public function magentoProductUpdate($product, $old_sizes = null, $old_color = null, $old_images = null) {
 		$options = array(
 			'trace' => true,
 			'connection_timeout' => 120,

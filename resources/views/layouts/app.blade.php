@@ -495,6 +495,8 @@
 
                                     </li>
 
+                                    <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
+
 
 
                                     <li class="nav-item dropdown dropdown-submenu">
