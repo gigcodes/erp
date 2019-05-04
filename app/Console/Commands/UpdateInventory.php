@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\Services\Bots\WebsiteEmulator;
 use App\Supplier;
 use App\ScrapedProducts;
 use App\ScrapActivity;
@@ -59,24 +60,37 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
-//        $scraped_products = ScrapedProducts::where('website', '==', 'G&B')->get();
         $scraped_products = ScrapedProducts::where('website', '!=', 'EXCEL_IMPORT_TYPE_1')->get();
 
         foreach ($scraped_products as $scraped_product) {
             $status = false;
             if ($scraped_product->website == 'G&B') {
-                continue;
-//                $status = $this->GNBCommand->doesProductExist($scraped_product->url);
-//                $params = [
-//                  'website'             => 'G&B',
-//                  'scraped_product_id'  => $scraped_product->id,
-//                  'status'              => $status ? 1 : 0
-//                ];
-//
-//                $supplier = 'G & B Negozionline';
+                $url = $scraped_product->url;
+                $duskShell = new WebsiteEmulator();
+                $this->setCountry('IT');
+                $duskShell->prepare();
+
+                try {
+                    $content = $duskShell->emulate($this, $url, '');
+                } catch (Exception $exception) {
+                    $content = ['', ''];
+                }
+
+                if (strlen($content[0]) > 3 && strlen($content[1]) > 4) {
+                    $status = true;
+                }
+
+                $params = [
+                  'website'             => 'G&B',
+                  'scraped_product_id'  => $scraped_product->id,
+                  'status'              => $status ? 1 : 0
+                ];
+
+                $supplier = 'G & B Negozionline';
             }
 
             if ($scraped_product->website == 'Wiseboutique') {
+
                 $status = $this->wiseScrapService->doesProductExist($scraped_product);
 
                 $params = [
