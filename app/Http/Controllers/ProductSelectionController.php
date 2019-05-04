@@ -31,7 +31,7 @@ class ProductSelectionController extends Controller
 	}
 
 	public function index(){
-		$products = Product::latest()
+		$products = Product::where('stock', '>=', 1)->latest()
 											->withMedia(config('constants.media_tags'))
 											->with('suppliers')
 											->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])

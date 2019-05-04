@@ -290,7 +290,7 @@ class SearchController extends Controller {
 		                                        ->selected($selected_categories)
 		                                        ->renderAsDropdown();
 
-		$data['products'] = $productQuery->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->paginate( Setting::get( 'pagination' ) );
+		$data['products'] = $productQuery->where('stock', '>=', 1)->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->paginate( Setting::get( 'pagination' ) );
 
 		if ($request->model_type == 'broadcast-images') {
 			$data['attachImages'] = true;

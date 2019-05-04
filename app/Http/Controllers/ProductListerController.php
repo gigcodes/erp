@@ -23,7 +23,8 @@ class ProductListerController extends Controller
 	public function index(Stage $stage){
 
 		$products = Product::latest()
-		                   ->where('stage','>=',$stage->get('ImageCropper'))
+											->where('stock', '>=', 1)
+											 ->where('stage','>=',$stage->get('ImageCropper'))
 		                   ->whereNull('dnf')
 											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
 		                   ->paginate(Setting::get('pagination'));

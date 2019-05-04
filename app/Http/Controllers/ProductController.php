@@ -176,7 +176,7 @@ class ProductController extends Controller {
 	public function attachProducts( $model_type, $model_id, $type = null, $customer_id = null, Request $request ) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
-		$products = Product::latest()
+		$products = Product::where('stock', '>=', 1)->latest()
 												->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
 												->paginate( Setting::get( 'pagination' ) );
 
@@ -211,7 +211,7 @@ class ProductController extends Controller {
 	public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
-		$products = Product::latest();
+		$products = Product::where('stock', '>=', 1)->latest();
 		$filtered_category = '';
 		$brand = '';
 		$message_body = $request->message ? $request->message : '';

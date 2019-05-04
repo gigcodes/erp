@@ -33,6 +33,7 @@ class ProductCropperController extends Controller
 	public function index(Stage $stage){
 
 		$products = Product::latest()
+												->where('stock', '>=', 1)
 		                   ->where('stage','>=',$stage->get('Supervisor'))
 		                   ->whereNull('dnf')
 		                   ->withMedia(config('constants.media_tags'))

@@ -20,7 +20,7 @@ class ProductSupervisorController extends Controller
 
 	public function index(Stage $stage){
 
-		$products = Product::latest()
+		$products = Product::where('stock', '>=', 1)->latest()
 		                   ->where('stage','>=', $stage->get('Attribute') )
 		                   ->whereNull('dnf')
                        ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
