@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class MessageQueue extends Model
 {
   protected $fillable = [
-    'user_id', 'customer_id', 'phone', 'type', 'data', 'sending_time', 'group_id'
+    'user_id', 'customer_id', 'phone', 'whatsapp_number', 'type', 'data', 'sending_time', 'group_id'
   ];
 
   public function customer()

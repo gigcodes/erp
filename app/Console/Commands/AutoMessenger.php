@@ -10,14 +10,14 @@ use App\CommunicationHistory;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
-class AutoMessager extends Command
+class AutoMessenger extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'send:auto-messager';
+    protected $signature = 'send:auto-messenger';
 
     /**
      * The console command description.
@@ -55,8 +55,10 @@ class AutoMessager extends Command
 
       foreach ($communication_histories as $history) {
         $time_diff = Carbon::parse($history->created_at)->diffInHours($now);
+        // $time_diff = Carbon::parse($history->created_at)->diffInMinutes($now);
 
         if ($time_diff == 12) {
+        // if ($time_diff == 10) {
           $order = Order::find($history->model_id);
           $params['customer_id'] = $order->customer_id;
           $params['message'] = 'This is Alternative';
@@ -81,10 +83,12 @@ class AutoMessager extends Command
 
       foreach ($follow_ups as $follow_up) {
         $time_diff = Carbon::parse($follow_up->created_at)->diffInHours($now);
-        
+        // $time_diff = Carbon::parse($follow_up->created_at)->diffInMinutes($now);
+
         dump("FOLLOWUP - $time_diff");
 
         if ($time_diff == 24) {
+        // if ($time_diff == 10) {
           $customer = Customer::find($follow_up->model_id);
           $params['customer_id'] = $customer->id;
           $params['message'] = 'This is follow up after 24 hours';
@@ -103,6 +107,7 @@ class AutoMessager extends Command
         }
 
         if ($time_diff == 48) {
+        // if ($time_diff == 20) {
           $customer = Customer::find($follow_up->model_id);
           $params['customer_id'] = $customer->id;
           $params['message'] = 'This is follow up after 48 hours';
@@ -121,6 +126,7 @@ class AutoMessager extends Command
         }
 
         if ($time_diff == 72) {
+        // if ($time_diff == 30) {
           $customer = Customer::find($follow_up->model_id);
           $params['customer_id'] = $customer->id;
           $params['message'] = 'This is follow up after 72 hours';
@@ -150,8 +156,10 @@ class AutoMessager extends Command
 
       foreach ($refunded_orders as $order) {
         $time_diff = Carbon::parse($order->refund_answer_date)->diffInHours($now);
-        dump($time_diff);
+        // $time_diff = Carbon::parse($order->refund_answer_date)->diffInMinutes($now);
+        dump("Refund No - $time_diff");
         if ($time_diff == 48) {
+        // if ($time_diff == 10) {
           $params['customer_id'] = $order->customer_id;
           $params['message'] = 'After 48 hours - Refund is in process';
 
@@ -176,6 +184,7 @@ class AutoMessager extends Command
         }
 
         if ($time_diff == 72) {
+        // if ($time_diff == 20) {
           $params['customer_id'] = $order->customer_id;
           $params['message'] = 'After 72 hours - Some Products';
 
@@ -212,8 +221,10 @@ class AutoMessager extends Command
 
       foreach ($private_views as $private_view) {
         $time_diff = Carbon::parse($private_view->date)->diffInHours($now);
-        dump($time_diff);
+        // $time_diff = Carbon::parse($private_view->date)->diffInMinutes($now);
+        dump("Private view - $time_diff");
         if ($time_diff == 24) {
+        // if ($time_diff == 10) {
           $params['customer_id'] = $private_view->customer_id;
           $params['message'] = 'After 24 hours - Alert about private viewing';
 

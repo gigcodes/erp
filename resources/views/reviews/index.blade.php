@@ -47,7 +47,7 @@
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#accountCreateModal">Create Account</a>
               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#scheduleReviewModal">Schedule Review</a>
-              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#complaintCreateModal">Create Complaint</a>
+              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#complaintCreateModal">Create Thread</a>
             </div>
         </div>
     </div>
@@ -66,7 +66,7 @@
           <a href="#posted_tab" data-toggle="tab">Posted Reviews</a>
         </li>
         <li>
-          <a href="#complaints_tab" data-toggle="tab">Customer Complaints</a>
+          <a href="#complaints_tab" data-toggle="tab">Instagram Threads</a>
         </li>
       </u>
     </div>
@@ -91,7 +91,7 @@
 
             <tbody>
               @foreach ($accounts as $account)
-                <tr>
+                <tr class="{{ $account->has_posted_reviews() ? 'text-danger' : '' }}">
                   <td>{{ $account->first_name }} {{ $account->last_name }}</td>
                   <td>{{ $account->email }}</td>
                   <td>{{ $account->password }}</td>
@@ -123,7 +123,7 @@
               <tr>
                 <th>Date</th>
                 <th>Platform</th>
-                <th>Number of Reviews</th>
+                <th>Serial Number</th>
                 <th>Reviews for Approval</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -135,7 +135,7 @@
                 <tr>
                   <td>{{ \Carbon\Carbon::parse($schedule->review_schedule->date)->format('d-m') }}</td>
                   <td>{{ ucwords($schedule->platform) }}</td>
-                  <td>{{ $schedule->review_schedule->review_count }}</td>
+                  <td>{{ $schedule->serial_number }}</td>
                   <td class="{{ $schedule->is_approved == 1 ? 'text-success' : ($schedule->is_approved == 2 ? 'text-danger' : '') }}">
                     @php
                       preg_match_all('/(#\w*)/', $schedule->review, $match);
@@ -164,7 +164,7 @@
                   </td>
                   <td>
                     <div class="form-group">
-                      <select class="form-control update-schedule-status" name="status" data-id="{{ $schedule->id }}" required>
+                      <select class="form-control update-schedule-status" name="status" data-id="{{ $schedule->id }}" data-review="{{ $schedule }}" data-account="{{ $schedule->account }}" data-customer="{{ $schedule->customer }}" required>
                         <option value="prepare" {{ 'prepare' == $schedule->status ? 'selected' : '' }}>Prepare</option>
                         <option value="prepared" {{ 'prepared' == $schedule->status ? 'selected' : '' }}>Prepared</option>
                         <option value="posted" {{ 'posted' == $schedule->status ? 'selected' : '' }}>Posted</option>
@@ -173,6 +173,20 @@
 
                       <span class="text-success change_status_message" style="display: none;">Successfully changed schedule status</span>
                     </div>
+
+                    @if (count($schedule->status_changes) > 0)
+                      <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                      <div class="change-history-container hidden">
+                        <ul>
+                          @foreach ($schedule->status_changes as $status_history)
+                            <li>
+                              {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                            </li>
+                          @endforeach
+                        </ul>
+                      </div>
+                    @endif
                   </td>
                   <td>
                     {{-- <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $schedule }}" data-reviews="{{ $schedule }}"><img src="/images/edit.png" /></button> --}}
@@ -271,7 +285,12 @@
                 <th>Date</th>
                 <th>Customer</th>
                 <th>Platform</th>
+                <th>Where</th>
+                <th>Username</th>
                 <th>Conversation thread</th>
+                <th>Internal</th>
+                <th>Status</th>
+                <th>Plan of Action</th>
                 <th>Link</th>
                 <th>Notes & Instructions</th>
                 <th>Actions</th>
@@ -288,16 +307,78 @@
                     @endif
                   </td>
                   <td>{{ ucwords($complaint->platform) }}</td>
+                  <td>{{ ucwords($complaint->where) }}</td>
+                  <td>
+                    {{ ucwords($complaint->name) }}
+                    <span class="text-muted">{{ ucwords($complaint->username) }}</span>
+                  </td>
                   <td>
                     {{ $complaint->complaint }}
 
                     @if ($complaint->threads)
                       <ul class="mx-0 px-4">
                         @foreach ($complaint->threads as $key => $thread)
-                          <li class="ml-{{ $key + 1 }}">{{ $thread->thread }}</li>
+                          <li class="ml-{{ $key + 1 }}">
+                            {{ $thread->thread }} ({{ $thread->account->email ?? '' }})
+                          </li>
                         @endforeach
                       </ul>
                     @endif
+
+                    @if ($complaint->hasMedia(config('constants.media_tags')))
+                      <ul>
+                        @foreach ($complaint->getMedia(config('constants.media_tags')) as $image)
+                          <li><a href="{{ $image->getUrl() }}" target="_blank"><img src="{{ $image->getUrl() }}" class="img-responsive" /></a></li>
+                        @endforeach
+                      </ul>
+                    @endif
+                  </td>
+                  <td>
+                    <input type="text" name="message" class="form-control quick-message-input" data-type="internal" placeholder="Internal message" value="" data-id="{{ $complaint->id }}">
+
+                    <ul class="internal-container">
+                      @foreach ($complaint->internal_messages as $message)
+                        <li>{{ $message->remark }}</li>
+                      @endforeach
+                    </ul>
+                  </td>
+                  <td>
+                    @if (count($complaint->status_changes) > 0)
+                      <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                      <div class="change-history-container hidden">
+                        <ul>
+                          @foreach ($complaint->status_changes as $status_history)
+                            <li>
+                              {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                            </li>
+                          @endforeach
+                        </ul>
+                      </div>
+                    @endif
+
+                    <div class="form-group">
+                      <select class="form-control update-complaint-status" name="status" data-id="{{ $complaint->id }}">
+                        <option value="pending" {{ 'pending' == $complaint->status ? 'selected' : '' }}>Pending</option>
+                        <option value="planned" {{ 'planned' == $complaint->status ? 'selected' : '' }}>Planned</option>
+                        <option value="replied" {{ 'replied' == $complaint->status ? 'selected' : '' }}>Replied</option>
+                        <option value="followed up" {{ 'followed up' == $complaint->status ? 'selected' : '' }}>Followed Up</option>
+                        <option value="deleted" {{ 'deleted' == $complaint->status ? 'selected' : '' }}>Deleted</option>
+                      </select>
+
+                      <span class="text-success change_status_message" style="display: none;">Successfully changed schedule status</span>
+                    </div>
+                  </td>
+                  <td>
+                    {{ $complaint->plan_of_action }}
+
+                    <input type="text" name="message" class="form-control quick-message-input" data-type="plan" placeholder="Comment" value="" data-id="{{ $complaint->id }}">
+
+                    <ul class="plan-comments-container">
+                      @foreach ($complaint->plan_messages as $message)
+                        <li>{{ $message->remark }}</li>
+                      @endforeach
+                    </ul>
                   </td>
                   <td>
                     <a href="{{ $complaint->link }}" target="_blank">{{ $complaint->link }}</a>
@@ -310,7 +391,7 @@
                   <td>
                     <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}" data-threads="{{ $complaint->threads }}"><img src="/images/edit.png" /></button>
 
-                    {!! Form::open(['method' => 'DELETE','route' => ['complaint.destroy', $complaint->id],'style'=>'display:inline']) !!}
+                    {!! Form::open(['method' => 'DELETE','route' => ['thread.destroy', $complaint->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                   </td>
@@ -343,6 +424,8 @@
       });
     });
 
+    var accounts_array = {!! json_encode($accounts_array) !!};
+
     $(document).on('click', '.edit-account', function() {
       var account = $(this).data('account');
       var url = "{{ url('account') }}/" + account.id;
@@ -366,7 +449,15 @@
     });
 
     $('#add-complaint-button').on('click', function() {
-      var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value=""><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+      var account_html = '<div class="form-group"><strong>Account:</strong><select class="form-control" name="account_id[]"><option value="">Select an Account</option>';
+
+      Object.keys(accounts_array).forEach(function(index) {
+        account_html += '<option value="' + accounts_array[index].id + '">' + accounts_array[index].first_name + ' ' + accounts_array[index].last_name + ' - ' + accounts_array[index].email + '</option>';
+      });
+
+      account_html += '</select></div>';
+
+      var complaint_html = '<div class="thread-container"><div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value=""></div>' + account_html + '<button type="button" class="btn btn-image btn-secondary remove-review-button remove-special"><img src="/images/delete.png" /></button></div>';
 
       $('#complaint-container').append(complaint_html);
     });
@@ -384,7 +475,11 @@
     });
 
     $(document).on('click', '.remove-review-button', function() {
-      $(this).closest('.form-group').remove();
+      if ($(this).hasClass('remove-special')) {
+        $(this).closest('.thread-container').remove();
+      } else {
+        $(this).closest('.form-group').remove();
+      }
     });
 
     $(document).on('click', '.edit-schedule', function() {
@@ -402,6 +497,9 @@
     $(document).on('change', '.update-schedule-status', function() {
       var status = $(this).val();
       var id = $(this).data('id');
+      var review = $(this).data('review');
+      var account = $(this).data('account');
+      var customer = $(this).data('customer');
       var thiss = $(this);
 
       $.ajax({
@@ -417,15 +515,49 @@
         setTimeout(function () {
           $(thiss).siblings('.change_status_message').fadeOut(400);
         }, 2000);
+
+        if (status == 'posted') {
+          // fillEditReview(thiss);
+          // $('#reviewEditModal').modal();
+
+          $(thiss).closest('tr').remove();
+          var token = "{{ csrf_token() }}";
+          var url = "{{ url('review') }}/" + id;
+
+          var posted_row = '<tr><td>' + moment(review.posted_date).format('DD-M') + '</td><td>' + account.email + '</td><td>' + customer.name + '</td><td>' + review.platform + '</td><td>' + review.review + '</td><td><a href="' + review.review_link + '" target="_blank">' + review.review_link + '</a></td><td><button type="button" class="btn btn-image edit-review" data-toggle="modal" data-target="#reviewEditModal" data-review="' + JSON.stringify(review) + '"><img src="/images/edit.png" /></button><form action="' + url + '" method="POST" style="display:inline;"><input type="hidden" name="_token" value="' + token + '" /><input type="hidden" name="_method" value="DELETE" /><button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button></form></td></tr>';
+
+          $('#posted_tab tbody').prepend($(posted_row));
+        }
       }).fail(function(response) {
         alert('Could not change the status');
         console.log(response);
       });
 
-      if (status == 'posted') {
-        fillEditReview(thiss);
-        $('#reviewEditModal').modal();
-      }
+
+    });
+
+    $(document).on('change', '.update-complaint-status', function() {
+      var status = $(this).val();
+      var id = $(this).data('id');
+      var thiss = $(this);
+
+      $.ajax({
+        type: "POST",
+        url: "{{ url('thread') }}/" + id + '/status',
+        data: {
+          _token: "{{ csrf_token() }}",
+          status: status
+        }
+      }).done(function() {
+        $(thiss).siblings('.change_status_message').fadeIn(400);
+
+        setTimeout(function () {
+          $(thiss).siblings('.change_status_message').fadeOut(400);
+        }, 2000);
+      }).fail(function(response) {
+        alert('Could not change the status');
+        console.log(response);
+      });
     });
 
     $(document).on('click', '.review-approve-button', function(e) {
@@ -515,6 +647,8 @@
       $('#edit_posted_date input').val(review.posted_date);
       $('#edit_review_link').val(review.review_link);
       $('#edit_review_review').val(review.review);
+      $('#edit_review_serial').val(review.serial_number);
+      $('#edit_review_platform option[value="' + review.platform + '"]').prop('selected', true);
       $('#edit_review_account option[value="' + review.account_id + '"]').prop('selected', true);
       $('#edit_customer_id option[value="' + review.customer_id + '"]').prop('selected', true);
     }
@@ -522,18 +656,31 @@
     function fillEditComplaint(thiss) {
       var complaint = $(thiss).data('complaint');
       var threads = $(thiss).data('threads');
-      var url = "{{ url('complaint') }}/" + complaint.id;
+      var url = "{{ url('thread') }}/" + complaint.id;
 
       $('#complaintEditModal form').attr('action', url);
       $('#complaint_customer_id option[value="' + complaint.customer_id + '"]').prop('selected', true);
       $('#edit_complaint_date input').val(complaint.date);
       $('#complaint_platform option[value="' + complaint.platform + '"]').prop('selected', true);
       $('#complaint_complaint').val(complaint.complaint);
+      $('#edit_plan_of_action').val(complaint.plan_of_action);
       $('#complaint_link').val(complaint.link);
+      $('#complaint_where').val(complaint.where);
+      $('#complaint_username').val(complaint.username);
+      $('#complaint_name').val(complaint.name);
 
       $('#complaint-container-extra').empty();
       Object.keys(threads).forEach(function(index) {
-        var complaint_html = '<div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value="' + threads[index].thread + '"><button type="button" class="btn btn-image btn-secondary remove-review-button"><img src="/images/delete.png" /></button></div>';
+        var account_html = '<div class="form-group"><strong>Account:</strong><select class="form-control" name="account_id[]"><option value="">Select an Account</option>';
+
+        Object.keys(accounts_array).forEach(function(key) {
+          var selected = threads[index].account_id == accounts_array[key].id ? "selected" : "";
+          account_html += '<option value="' + accounts_array[key].id + '" ' + selected + '>' + accounts_array[key].first_name + ' ' + accounts_array[key].last_name + ' - ' + accounts_array[key].email + '</option>';
+        });
+
+        account_html += '</select></div>';
+
+        var complaint_html = '<div class="thread-container"><div class="form-group"><strong>Thread:</strong><input type="text" name="thread[]" class="form-control" value="' + threads[index].thread + '"></div>' + account_html + '<button type="button" class="btn btn-image btn-secondary remove-review-button remove-special"><img src="/images/delete.png" /></button></div>';
 
         $('#complaint-container-extra').append(complaint_html);
       });
@@ -601,6 +748,49 @@
         });
     });
 
+    $('.quick-message-input').keypress(function(e) {
+      var key = e.which;
+      var thiss = $(this);
+      var type = $(this).data('type');
+
+      if (type == 'internal') {
+        var module_type = 'internal-complaint';
+        var container = '.internal-container';
+      } else {
+        var module_type = 'complaint-plan-comment';
+        var container = '.plan-comments-container';
+      }
+
+      if (key == 13) {
+        e.preventDefault();
+        var phone = $(thiss).val();
+
+        var id = $(thiss).data('id');
+        var remark = $(thiss).val();
+
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.addRemark') }}',
+            data: {
+              id:id,
+              remark:remark,
+              module_type: module_type
+            },
+        }).done(response => {
+            // alert('Remark Added Success!')
+            // window.location.reload();
+            var remark_message = $('<li>' + remark + '</li>');
+            $(thiss).siblings(container).prepend(remark_message);
+            $(thiss).val('');
+        }).fail(function(response) {
+          console.log(response);
+        });
+      }
+    });
+
     $(document).on('click', '.quick-edit-review-button', function(e) {
       e.preventDefault();
 
@@ -635,6 +825,10 @@
           });
         }
       });
+    });
+
+    $(document).on('click', '.change-history-toggle', function() {
+      $(this).siblings('.change-history-container').toggleClass('hidden');
     });
   </script>
 @endsection

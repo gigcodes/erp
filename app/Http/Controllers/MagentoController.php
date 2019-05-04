@@ -108,13 +108,14 @@ class MagentoController extends Controller {
 
 		for ( $j = 0; $j < sizeof( $orderlist ); $j ++ ) {
 			$results = json_decode( json_encode( $proxy->salesOrderInfo( $sessionId, $orderlist[ $j ]->increment_id ) ), true );
-
 			$atts = unserialize( $results['items'][0]['product_options'] );
+
 			if ( ! empty( $results['total_paid'] ) ) {
 				$paid = $results['total_paid'];
 			} else {
 				$paid = 0;
 			}
+
 			$balance_amount = $results['base_grand_total'] - $paid;
 
 			$full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
@@ -139,6 +140,27 @@ class MagentoController extends Controller {
 
 				if ($customer_phone != null) {
 					$final_phone = $customer_phone;
+				}
+
+				if ($customer->credit > 0) {
+					if (($balance_amount - $customer->credit) < 0) {
+						$left_credit = ($balance_amount - $customer->credit) * -1;
+						$balance_amount = 0;
+						$customer->credit = $left_credit;
+					} else {
+						$balance_amount -= $customer->credit;
+						$customer->credit = 0;
+					}
+
+					$customer->name = $full_name;
+					$customer->email = $results['customer_email'];
+					$customer->address = $results['billing_address']['street'];
+					$customer->city = $results['billing_address']['city'];
+					$customer->country = $results['billing_address']['country_id'];
+					$customer->pincode = $results['billing_address']['postcode'];
+					$customer->phone = $final_phone;
+
+					$customer->save();
 				}
 			} else {
 				$customer = new Customer;
@@ -249,12 +271,21 @@ class MagentoController extends Controller {
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 		}
 
-			if ($order->order_status == 'Proceed without Advance' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
-				$order->update([
-					'auto_messaged' => 1,
-					'auto_messaged_date'	=> Carbon::now()
-				]);
-			}
+		if ($results['state'] != 'processing' && $results['payment']['method'] != 'cashondelivery') {
+			$auto_message = "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?";
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+		}
+
+		if ($order->order_status == 'Proceed without Advance' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
+			$order->update([
+				'auto_messaged' => 1,
+				'auto_messaged_date'	=> Carbon::now()
+			]);
+		}
 		}
 	}
 

@@ -25,7 +25,7 @@
           </div>
 
           <div class="form-group">
-            <select class="form-control" name="agent_id" id="export_agent" required>
+            <select class="form-control" name="agent_id[]" id="export_agent" multiple required>
               <option value="">Select Agent</option>
 
             </select>

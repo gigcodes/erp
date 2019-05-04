@@ -9,8 +9,11 @@
             </div>
             <form action="{{ route('customer.whatsapp.send.all') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+
+                <input type="hidden" name="linked_images" id="linked_images" value="">
+
                 <div class="modal-body">
-                  @if ($queues_total_count > $queues_sent_count)
+                  {{-- @if ($queues_total_count > $queues_sent_count)
                     <div class="form-group alert alert-success">
                       <strong>Background Status:</strong>
                       <br>
@@ -20,7 +23,7 @@
                     </div>
 
                     <hr>
-                  @endif
+                  @endif --}}
 
                   <div class="form-group">
                     <strong>Schedule Date:</strong>
@@ -37,6 +40,11 @@
                     @endif
                   </div>
 
+                  <div class="form-group">
+                    <strong>Frequency</strong>
+                    <input type="number" name="frequency" class="form-control" value="10" required />
+                  </div>
+
                     <div class="form-group">
                         <strong>Message</strong>
                         <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
@@ -47,8 +55,12 @@
                     </div>
 
                     <div class="form-group">
-                      <a href="#" class="btn btn-image attach-images-btn"><img src="/images/attach.png" />Attach from Grid</a>
+                      <button type="button" class="btn btn-xs btn-secondary link-images-button">Link Images</button>
                     </div>
+
+                    {{-- <div class="form-group">
+                      <a href="#" class="btn btn-image attach-images-btn"><img src="/images/attach.png" />Attach from Grid</a>
+                    </div> --}}
 
                     <div class="form-group">
                         <input type="checkbox" id="send_type" name="to_all" checked>
@@ -58,8 +70,38 @@
                     <hr>
 
                     <div class="form-group">
-                        <strong>Upload Phone Numbers</strong>
-                        <input type="file" name="file" />
+                      <strong>Select Group of Customers</strong>
+                      <select class="form-control" name="rating">
+                        <option value="">Select a Rating</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                      </select>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group">
+                      <strong>Sending Number</strong>
+                      <select class="form-control" name="whatsapp_number">
+                        <option value="">Select a Number</option>
+
+                        @foreach ($api_keys as $api_key)
+                          <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
+                        @endforeach
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <strong>Upload Phone Numbers</strong>
+                      <input type="file" name="file" />
                     </div>
                 </div>
                 <div class="modal-footer">

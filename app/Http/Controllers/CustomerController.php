@@ -22,6 +22,7 @@ use App\Status;
 use App\Product;
 use App\Brand;
 use App\Supplier;
+use App\ApiKey;
 use App\Category;
 use App\User;
 use App\MessageQueue;
@@ -56,9 +57,16 @@ class CustomerController extends Controller
     {
       $instructions = Instruction::with('remarks')->latest()->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
-      $customers = $this->getCustomersIndex($request);
+      // dd(';s');
+      // $customers = Customer::with('whatsapps')->get();
+      // $messages = DB::table('chat_messages')->selectRaw('id, message, customer_id GROUP BY customer_id')->get();
+      // dd($messages);
+
+      $results = $this->getCustomersIndex($request);
+
       $term = $request->input('term');
       $reply_categories = ReplyCategory::all();
+      $api_keys = ApiKey::select('number')->get();
 
       $type = $request->type ?? '';
 
@@ -82,8 +90,9 @@ class CustomerController extends Controller
       $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('group_id', $last_set_id)->count();
 
       return view('customers.index', [
-        'customers' => $customers,
+        'customers' => $results[0],
         'customers_all' => $customers_all,
+        'customer_ids_list' => json_encode($results[1]),
         'users_array' => $users_array,
         'instructions' => $instructions,
         'term' => $term,
@@ -94,6 +103,7 @@ class CustomerController extends Controller
         'search_suggestions' => $search_suggestions,
         'reply_categories' => $reply_categories,
         'orders' => $orders,
+        'api_keys' => $api_keys,
       ]);
     }
 
@@ -119,9 +129,10 @@ class CustomerController extends Controller
             $query->orWhere('customers.name', 'LIKE', "%$term%")
             ->orWhere('customers.phone', 'LIKE', "%$term%")
             ->orWhere('customers.instahandler', 'LIKE', "%$term%");
+
           });
 
-          if ($request->type != null) {
+          if ($request->type == 'delivery' || $request->type == 'new' || $request->type == 'Refund to be processed') {
             $status_array = [];
 
             if ($request->type == 'delivery') {
@@ -130,7 +141,7 @@ class CustomerController extends Controller
               $status_array = $delivery_status;
             } else if ($request->type == 'Refund to be processed') {
               $status_array = [$request->type];
-            } else {
+            } else if ($request->type == 'new') {
               $status_array = [
                 'Delivered',
                 'Refund Dispatched',
@@ -146,34 +157,12 @@ class CustomerController extends Controller
           }
         }
 
-        if (empty($term) && $request->type != null) {
-          $status_array = [];
-
-          if ($request->type == 'delivery') {
-            array_push($delivery_status, 'VIP', 'HIGH PRIORITY');
-
-            $status_array = $delivery_status;
-          } else if ($request->type == 'Refund to be processed') {
-            $status_array = [$request->type];
-          } else {
-            $status_array = [
-              'Delivered',
-              'Refund Dispatched',
-              'Refund Credited'
-            ];
-          }
-
-          $imploded = implode("','", $status_array);
-
-          $orderWhereClause = "WHERE orders.order_status IN ('" . $imploded . "')";
-        }
-
         $customers = $customers->whereNull('deleted_at');
 
-        if ($request->type != null) {
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products ON orders.order_id = order_products.order_id'), 'customers.id', '=', 'orders.ocid', 'RIGHT');
+        if ($request->type == 'delivery' || $request->type == 'new' || $request->type == 'Refund to be processed') {
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id LIMIT 1) as orders LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products ON orders.order_id = order_products.order_id'), 'customers.id', '=', 'orders.ocid', 'RIGHT');
         } else {
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id) as orders LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products ON orders.order_id = order_products.order_id'), 'customers.id', '=', 'orders.ocid', 'LEFT');
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id LIMIT 1) as orders LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products ON orders.order_id = order_products.order_id'), 'customers.id', '=', 'orders.ocid', 'LEFT');
         }
 
         if ($request->type != null && $request->type == 'new') {
@@ -181,15 +170,11 @@ class CustomerController extends Controller
         } else {
           $customers = $customers->join(DB::raw('(SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, MAX(leads.created_at) as lead_created, leads.status as lead_status FROM `leads` GROUP BY customer_id) as leads'), 'customers.id', '=', 'leads.lcid', 'LEFT');
         }
-        // $customers = $customers->leftJoin(DB::raw('(SELECT * FROM (SELECT instructions.id, instructions.instruction, instructions.pending, instructions.verified, instructions.assigned_to, instructions.completed_at, MAX(instructions.created_at) as created_at, instructions.customer_id FROM `instructions` GROUP BY customer_id) as latest_instructions) as final_instructions INNER JOIN instructions ON instructions.customer_id = final_instructions.customer_id AND instructions.created_at = final_instructions.created_at'), function($join) {
-        //   $join->on('customers.id', '=', 'final_instructions.customer_id');
-        //   // $join->on('instructions.created_at', '=', 'instructions.instruction_created');
 
-        // dd($customers->limit(20)->get());
         $orderby = 'DESC';
 
         if($request->input('orderby')) {
-            $orderby = 'ASC';
+          $orderby = 'ASC';
         }
 
         $sortby = 'communication';
@@ -202,52 +187,43 @@ class CustomerController extends Controller
             'lead_created' => 'lead_created',
             'order_created' => 'order_created',
             'rating' => 'rating',
-            'communication' => 'communication',
-            'status' => 'status',
+            'communication' => 'communication'
         ];
 
         if (isset($sortBys[$request->input('sortby')])) {
             $sortby = $sortBys[$request->input('sortby')];
         }
 
-        if ($sortby !== 'communication' && $sortby !== 'status') {
+        if ($sortby !== 'communication') {
             $customers = $customers->orderBy($sortby, $orderby);
         }
 
-        if (false) {
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, status FROM chat_messages WHERE chat_messages.status = 0 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'INNER');
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, MAX(messages.created_at) as message_created_at, status FROM messages WHERE messages.status = 0 GROUP BY messages.customer_id ORDER BY messages.created_at ' . $orderby . ') as messages'), 'messages.mcid', '=', 'customers.id', 'INNER');
-          // dd($customers->get());
+        if ($request->type == 'unread') {
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
+
+          $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('message_status', 'ASC')->orderBy('last_communicated_at', $orderby);
         } else {
-          if ($sortby == 'status') {
-            $join = 'INNER';
-          } else {
-            $join = 'LEFT';
-          }
-
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, status FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', $join);
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as message_id, messages.customer_id as mcid, MAX(messages.created_at) as message_created_at, status FROM messages GROUP BY messages.customer_id ORDER BY messages.created_at ' . $orderby . ') as messages'), 'messages.mcid', '=', 'customers.id', $join);
+          $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
         }
 
-
-
-
-        if ($sortby === 'communication' || $sortby === 'status') {
-            $customers = $customers->orderBy('last_communicated_at', $orderby);
-        }
-        //
-        if ($sortby === 'status') {
-            $customers = $customers->orderBy('message_status', $orderby);
+        if ($request->type != 'unread' && $sortby === 'communication') {
+            $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('last_communicated_at', $orderby);
         }
 
-       // $customers = $customers->selectRaw('customers.id, customers.name, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, instructions.id as instruction_id, instructions.pending as instruction_pending, instructions.verified as instruction_verified, instructions.instruction, instructions.created_at, instructions.completed_at as instruction_completed, instructions.assigned_to as instruction_assigned_to, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at,
-       $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN messages.message_created_at ELSE chat_messages.chat_message_created_at END AS last_communicated_at,
-        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mmm.body FROM messages mmm WHERE mmm.id = message_id) ELSE (SELECT mm2.message FROM chat_messages mm2 WHERE mm2.id = chat_message_id) END AS message,
-        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm3.status FROM messages mm3 WHERE mm3.id = message_id) ELSE (SELECT mm4.status FROM chat_messages mm4 WHERE mm4.id = chat_message_id) END AS message_status,
-        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm5.id FROM messages mm5 WHERE mm5.id = message_id) ELSE (SELECT mm6.id FROM chat_messages mm6 WHERE mm6.id = chat_message_id) END AS message_id,
-        CASE WHEN messages.message_created_at > chat_messages.chat_message_created_at THEN (SELECT mm7.moduletype FROM messages mm7 WHERE mm7.id = message_id) ELSE (SELECT mm8.sent FROM chat_messages mm8 WHERE mm8.id = chat_message_id) END AS message_type')->paginate(24);
+        $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
+        (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
+        (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
+        (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,
+        (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type');
 
-        return $customers;
+        $ids_list = [];
+        foreach ($customers->get() as $customer) {
+          $ids_list[] = $customer->id;
+        }
+
+        $customers = $customers->paginate(Setting::get('pagination'));
+
+        return [$customers, $ids_list];
     }
 
     public function initiateFollowup(Request $request, $id)
@@ -284,10 +260,31 @@ class CustomerController extends Controller
     public function block(Request $request)
     {
       $customer = Customer::find($request->customer_id);
-      $customer->is_blocked = 1;
+
+      if ($customer->is_blocked == 0) {
+        $customer->is_blocked = 1;
+      } else {
+        $customer->is_blocked = 0;
+      }
+
       $customer->save();
 
-      return response('success');
+      return response()->json(['is_blocked' => $customer->is_blocked]);
+    }
+
+    public function flag(Request $request)
+    {
+      $customer = Customer::find($request->customer_id);
+
+      if ($customer->is_flagged == 0) {
+        $customer->is_flagged = 1;
+      } else {
+        $customer->is_flagged = 0;
+      }
+
+      $customer->save();
+
+      return response()->json(['is_flagged' => $customer->is_flagged]);
     }
 
     public function sendInstock(Request $request)
@@ -466,7 +463,6 @@ class CustomerController extends Controller
     public function show($id)
     {
         $customer = Customer::with(['call_recordings', 'orders', 'leads'])->where('id', $id)->first();
-        // dd($customer);
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
 
         $emails = [];
@@ -479,6 +475,7 @@ class CustomerController extends Controller
         $order_status_report = OrderStatuses::all();
         $purchase_status = (new PurchaseStatus)->all();
         $solo_numbers = (new SoloNumbers)->all();
+        $api_keys = ApiKey::select(['number'])->get();
         $suppliers = Supplier::select(['id', 'supplier'])->get();
         $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
     		                                        ->renderAsDropdown();
@@ -495,6 +492,64 @@ class CustomerController extends Controller
             'order_status_report' =>  $order_status_report,
             'purchase_status' =>  $purchase_status,
             'solo_numbers' =>  $solo_numbers,
+            'api_keys' =>  $api_keys,
+            'emails'          => $emails,
+            'category_suggestion'          => $category_suggestion,
+            'suppliers'          => $suppliers,
+        ]);
+    }
+
+    public function postShow(Request $request, $id)
+    {
+        $customer = Customer::with(['call_recordings', 'orders', 'leads'])->where('id', $id)->first();
+        $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
+
+        $customer_ids = json_decode($request->customer_ids);
+        $key = array_search($id, $customer_ids);
+
+        if ($key != 0) {
+          $previous_customer_id = $customer_ids[$key - 1];
+        } else {
+          $previous_customer_id = 0;
+        }
+
+        if ($key == (count($customer_ids) - 1)) {
+          $next_customer_id = 0;
+        } else {
+          $next_customer_id = $customer_ids[$key + 1];
+        }
+
+        $emails = [];
+        $lead_status = (New status)->all();
+        $users_array = Helpers::getUserArray(User::all());
+        $brands = Brand::all()->toArray();
+        $reply_categories = ReplyCategory::all();
+        $instruction_categories = InstructionCategory::all();
+        $instruction_replies = Reply::where('model', 'Instruction')->get();
+        $order_status_report = OrderStatuses::all();
+        $purchase_status = (new PurchaseStatus)->all();
+        $solo_numbers = (new SoloNumbers)->all();
+        $api_keys = ApiKey::select(['number'])->get();
+        $suppliers = Supplier::select(['id', 'supplier'])->get();
+        $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
+    		                                        ->renderAsDropdown();
+
+        return view('customers.show', [
+            'customer_ids'         => json_encode($customer_ids),
+            'previous_customer_id' => $previous_customer_id,
+            'next_customer_id'     => $next_customer_id,
+            'customer'  => $customer,
+            'customers'  => $customers,
+            'lead_status'    => $lead_status,
+            'brands'    => $brands,
+            'users_array'     => $users_array,
+            'reply_categories'  => $reply_categories,
+            'instruction_categories' =>  $instruction_categories,
+            'instruction_replies' =>  $instruction_replies,
+            'order_status_report' =>  $order_status_report,
+            'purchase_status' =>  $purchase_status,
+            'solo_numbers' =>  $solo_numbers,
+            'api_keys' =>  $api_keys,
             'emails'          => $emails,
             'category_suggestion'          => $category_suggestion,
             'suppliers'          => $suppliers,
@@ -738,6 +793,39 @@ class CustomerController extends Controller
       return response('success');
     }
 
+    public function updateDnd(Request $request, $id)
+    {
+      $customer = Customer::find($id);
+
+      $customer->do_not_disturb = $request->do_not_disturb;
+      $customer->save();
+
+      if ($request->do_not_disturb == 1) {
+        $message_queues = MessageQueue::where('customer_id', $customer->id)->get();
+
+        foreach ($message_queues as $message_queue) {
+          $message_queue->status = 1; // message stopped
+          $message_queue->save();
+        }
+      }
+
+      return response('success');
+    }
+
+    public function updatePhone(Request $request, $id)
+    {
+      $this->validate($request, [
+        'phone' => 'required|numeric'
+      ]);
+
+      $customer = Customer::find($id);
+
+      $customer->phone = $request->phone;
+      $customer->save();
+
+      return response('success');
+    }
+
     public function issueCredit(Request $request)
     {
       $customer = Customer::find($request->customer_id);
@@ -893,6 +981,241 @@ class CustomerController extends Controller
       }
 
       return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully created suggested message');
+    }
+
+    public function attachAll(Request $request)
+    {
+      $data     = [];
+  		$term     = $request->input( 'term' );
+  		$roletype = $request->input( 'roletype' );
+  		$model_type = $request->input( 'model_type' );
+
+  		$data['term']     = $term;
+  		$data['roletype'] = $roletype;
+
+  		$doSelection = $request->input( 'doSelection' );
+
+  		if ( ! empty( $doSelection ) ) {
+
+  			$data['doSelection'] = true;
+  			$data['model_id']    = $request->input( 'model_id' );
+  			$data['model_type']  = $request->input( 'model_type' );
+
+  			$data['selected_products'] = ProductController::getSelectedProducts($data['model_type'],$data['model_id']);
+  		}
+
+  		if ($request->brand[0] != null) {
+  			$productQuery = ( new Product() )->newQuery()
+  			                                 ->latest()->whereIn('brand', $request->brand);
+
+  		}
+
+  		if ($request->color[0] != null) {
+  			if ($request->brand[0] != null) {
+  				$productQuery = $productQuery->whereIn('color', $request->color);
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  				                                 ->latest()->whereIn('color', $request->color);
+  			}
+  		}
+
+  		if ($request->category[0] != null && $request->category[0] != 1) {
+  			$category_children = [];
+
+  			foreach ($request->category as $category) {
+  				$is_parent = Category::isParent($category);
+
+  				if ($is_parent) {
+  					$childs = Category::find($category)->childs()->get();
+
+  					foreach ($childs as $child) {
+  						$is_parent = Category::isParent($child->id);
+
+  						if ($is_parent) {
+  							$children = Category::find($child->id)->childs()->get();
+
+  							foreach ($children as $chili) {
+  								array_push($category_children, $chili->id);
+  							}
+  						} else {
+  							array_push($category_children, $child->id);
+  						}
+  					}
+  				} else {
+  					array_push($category_children, $category);
+  				}
+  			}
+
+  			if ($request->brand[0] != null || $request->color[0] != null) {
+  				$productQuery = $productQuery->whereIn('category', $category_children);
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  				                                 ->latest()->whereIn('category', $category_children);
+  			}
+	    }
+
+  		if ($request->price != null) {
+  			$exploded = explode(',', $request->price);
+  			$min = $exploded[0];
+  			$max = $exploded[1];
+
+  			if ($min != '0' || $max != '400000') {
+  				if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
+  					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+  				} else {
+  					$productQuery = ( new Product() )->newQuery()
+  					                                 ->latest()->whereBetween('price_special', [$min, $max]);
+  				}
+  			}
+  		}
+
+  		if ($request->supplier[0] != null) {
+  			$suppliers_list = implode(',', $request->supplier);
+
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000") {
+  				$productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()->with('Suppliers')
+  				                                 ->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+  			}
+  		}
+
+  		if (trim($request->size) != '') {
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null) {
+  				$productQuery = $productQuery->whereNotNull('size')->where('size', 'LIKE', "%$request->size%");
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  																			 ->latest()->whereNotNull('size')->where('size', 'LIKE', "%$request->size%");
+  			}
+  		}
+
+  		if ($request->location[0] != null) {
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '') {
+  				$productQuery = $productQuery->whereIn('location', $request->location);
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  				                                 ->latest()->whereIn('location', $request->location);
+  			}
+
+  			$data['location'] = $request->location[0];
+  		}
+
+  		if ($request->type[0] != null) {
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null) {
+  				if (count($request->type) > 1) {
+  					$productQuery = $productQuery->where('is_scraped', 1)->orWhere('status', 2);
+  				} else {
+  					if ($request->type[0] == 'scraped') {
+  						$productQuery = $productQuery->where('is_scraped', 1);
+  					} elseif ($request->type[0] == 'imported') {
+  						$productQuery = $productQuery->where('status', 2);
+  					} else {
+  						$productQuery = $productQuery->where('isUploaded', 1);
+  					}
+  				}
+  			} else {
+  				if (count($request->type) > 1) {
+  					$productQuery = ( new Product() )->newQuery()
+  																				 ->latest()->where('is_scraped', 1)->orWhere('status', 2);
+  				} else {
+  					if ($request->type[0] == 'scraped') {
+  						$productQuery = ( new Product() )->newQuery()
+  																					 ->latest()->where('is_scraped', 1);
+  					} elseif ($request->type[0] == 'imported') {
+  						$productQuery = ( new Product() )->newQuery()
+  																					 ->latest()->where('status', 2);
+  					} else {
+  						$productQuery = ( new Product() )->newQuery()
+  																					 ->latest()->where('isUploaded', 1);
+  					}
+  				}
+  			}
+
+  			$data['type'] = $request->type[0];
+  		}
+
+  		if ($request->date != '') {
+  			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null || $request->type[0] != null) {
+  				if ($request->type[0] != null && $request->type[0] == 'uploaded') {
+  					$productQuery = $productQuery->where('is_uploaded_date', 'LIKE', "%$request->date%");
+  				} else {
+  					$productQuery = $productQuery->where('created_at', 'LIKE', "%$request->date%");
+  				}
+  			} else {
+  				$productQuery = ( new Product() )->newQuery()
+  																			 ->latest()->where('created_at', 'LIKE', "%$request->date%");
+  			}
+  		}
+
+  		if ($request->quick_product === 'true') {
+  				$productQuery = ( new Product() )->newQuery()
+  				                                 ->latest()->where('quick_product', 1);
+  		}
+
+  		if (trim($term) != '') {
+  			$productQuery = ( new Product() )->newQuery()
+  			                                 ->latest()
+  			                                 ->orWhere( 'sku', 'LIKE', "%$term%" )
+  			                                 ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+  			;
+
+  			if ( $term == - 1 ) {
+  				$productQuery = $productQuery->orWhere( 'isApproved', - 1 );
+  			}
+
+  			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+  				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+  				$productQuery = $productQuery->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+  			}
+
+  			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+  				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+  				$productQuery = $productQuery->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
+  			}
+
+  			if ( ! empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+
+  				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+  			}
+
+  			if ( ! ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
+
+  				$productQuery = $productQuery->where( 'stage', '>=', $stage->get( $roletype ) );
+  			}
+
+  			if ( $roletype != 'Selection' && $roletype != 'Searcher' ) {
+
+  				$productQuery = $productQuery->whereNull( 'dnf' );
+  			}
+  		} else {
+  			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->price == "0,400000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type == null && $request->location[0] == null) {
+  				$productQuery = ( new Product() )->newQuery()->latest();
+  			}
+  		}
+
+  		if ($request->ids[0] != null) {
+  			$productQuery = ( new Product() )->newQuery()
+  																		 ->latest()->whereIn('id', $request->ids);
+  		}
+
+  		$data['products'] = $productQuery->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->get();
+
+      $params = [
+        'user_id'     => Auth::id(),
+        'number'      => NULL,
+        'status'      => 1,
+        'customer_id' => $request->customer_id
+      ];
+
+      $chat_message = ChatMessage::create($params);
+
+      foreach ($data['products'] as $product) {
+        if ($product->hasMedia(config('constants.media_tags'))) {
+          $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
+        }
+      }
+
+  		return redirect()->route('customer.show', $request->customer_id);
     }
 
     /**

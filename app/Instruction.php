@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Instruction extends Model
 {
-  protected $fillable = ['start_time', 'end_time'];
+  protected $fillable = ['start_time', 'end_time', 'customer_id', 'instruction', 'category_id', 'assigned_to', 'assigned_from'];
 
   public function customer()
   {

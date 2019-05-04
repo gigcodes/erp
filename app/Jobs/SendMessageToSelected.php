@@ -17,6 +17,7 @@ class SendMessageToSelected implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $number;
+    protected $whatsapp_number;
     protected $content;
     protected $message_queue_id;
 
@@ -27,9 +28,10 @@ class SendMessageToSelected implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(int $number, array $content, int $message_queue_id)
+    public function __construct(string $number, array $content, int $message_queue_id, string $whatsapp_number)
     {
       $this->number = $number;
+      $this->whatsapp_number = $whatsapp_number;
       $this->content = $content;
       $this->message_queue_id = $message_queue_id;
     }
@@ -44,12 +46,12 @@ class SendMessageToSelected implements ShouldQueue
       if ($this->content['message']) {
         $message = $this->content['message'];
 
-        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, NULL, $message, false);
+        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, $this->whatsapp_number, $message, false);
       }
 
       if (isset($this->content['image'])) {
         foreach ($this->content['image'] as $image) {
-          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, NULL, str_replace(' ', '%20', $image['url']), false);
+          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, $this->whatsapp_number, str_replace(' ', '%20', $image['url']), false);
         }
       }
 

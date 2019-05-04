@@ -359,7 +359,7 @@ class ProductAttributeController extends Controller
 								'use_config_manage_stock' => 1,
 								'manage_stock' => 1,
 								'qty'					=> $product->stock,
-								'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+								'is_in_stock'	=> $product->stock >= 1 ? 1 : 0,
 							),
 							'price'                 => $product->price_inr,
 							// Same price than configurable product, no price change
@@ -419,7 +419,7 @@ class ProductAttributeController extends Controller
 								'use_config_manage_stock' => 1,
 								'manage_stock' => 1,
 								'qty'					=> $product->stock,
-								'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+								'is_in_stock'	=> $product->stock >= 1 ? 1 : 0,
 							),
 							'price'                 => $product->price_inr,
 							// Same price than configurable product, no price change
@@ -468,7 +468,7 @@ class ProductAttributeController extends Controller
 					'use_config_manage_stock' => 1,
 					'manage_stock' => 1,
 					'qty'					=> $product->stock,
-					'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
+					'is_in_stock'	=> $product->stock >= 1 ? 1 : 0,
 				),
 				'price'                   => $product->price_inr,
 				// Same price than configurable product, no price change
@@ -500,6 +500,8 @@ class ProductAttributeController extends Controller
 
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_sku, $productData);
+
+					$updated_product = 1;
 				} catch (\Exception $e) {
 					$error_message = $e->getMessage();
 					$errors++;
@@ -524,8 +526,6 @@ class ProductAttributeController extends Controller
 				// }
 				//
 				// $result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, $sku, $productData);
-			} else {
-				$updated_product = 1;
 			}
 		} else {
 			$measurement = 'L-'.$product->lmeasurement.',H-'.$product->hmeasurement.',D-'.$product->dmeasurement;
@@ -587,6 +587,8 @@ class ProductAttributeController extends Controller
 
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_sku, $productData);
+
+					$updated_product = 1;
 				} catch (\Exception $e) {
 					$errors++;
 				}
@@ -601,8 +603,6 @@ class ProductAttributeController extends Controller
 				$productData['weight'] = 0;
 
 				$result = $proxy->catalogProductCreate($sessionId, 'simple', 4, $reference_final_sku, $productData);
-			} else {
-				$updated_product = 1;
 			}
 		}
 

@@ -39,6 +39,10 @@ class SettingController extends Controller
 		$data['consignor_city'] = Setting::get('consignor_city');
 		$data['consignor_country'] = Setting::get('consignor_country');
 		$data['consignor_phone'] = Setting::get('consignor_phone');
+		$data['forward_messages'] = Setting::get('forward_messages');
+		$data['forward_start_date'] = Setting::get('forward_start_date');
+		$data['forward_end_date'] = Setting::get('forward_end_date');
+		$data['forward_users'] = json_decode(Setting::get('forward_users'));
 		$data['api_keys'] = ApiKey::get()->toArray();
 
 		return view('setting.index',$data);
@@ -46,32 +50,40 @@ class SettingController extends Controller
 
 	public function store(Request $request)
 	{
-		/*$data = $this->validate($request, [
-			'euro_to_inr' => 'required'
-		]);*/
-
 		$euro_to_inr = $request->input('euro_to_inr');
 //		$special_price_discount = $request->input('special_price_discount');
 		$pagination = $request->input('pagination');
 		$disable_twilio = $request->disable_twilio ? 1 : 0;
 		$incoming_calls_yogesh = $request->incoming_calls_yogesh ? 1 : 0;
 		$incoming_calls_andy = $request->incoming_calls_andy ? 1 : 0;
+		$forward_messages = $request->forward_messages ? 1 : 0;
 		$whatsapp_number_change = $request->whatsapp_number_change ? 1 : 0;
-
 
 //		Setting::add('euro_to_inr', $euro_to_inr, 'double');
 //		Setting::add('special_price_discount', $special_price_discount, 'int');
 		Setting::add('pagination', $pagination, 'int');
+
+		// Twilio
 		Setting::add('disable_twilio', $disable_twilio, 'tinyint');
 		Setting::add('incoming_calls_yogesh', $incoming_calls_yogesh, 'tinyint');
 		Setting::add('incoming_calls_andy', $incoming_calls_andy, 'tinyint');
+
+		// Whatsapp
 		Setting::add('whatsapp_number_change', $whatsapp_number_change, 'tinyint');
+		Setting::add('forward_messages', $forward_messages, 'tinyint');
+		Setting::add('forward_start_date', $request->forward_start_date, 'string');
+		Setting::add('forward_end_date', $request->forward_end_date, 'string');
+		Setting::add('forward_users', json_encode($request->forward_users), 'string');
+
+		// Shortcuts
 		Setting::add('image_shortcut', $request->image_shortcut, 'tinyint');
 		Setting::add('price_shortcut', $request->price_shortcut, 'tinyint');
 		Setting::add('call_shortcut', $request->call_shortcut, 'tinyint');
 		Setting::add('screenshot_shortcut', $request->screenshot_shortcut, 'tinyint');
 		Setting::add('details_shortcut', $request->details_shortcut, 'tinyint');
 		Setting::add('purchase_shortcut', $request->purchase_shortcut, 'tinyint');
+
+		// Shipping Details
 		Setting::add('consignor_name', $request->consignor_name, 'string');
 		Setting::add('consignor_address', $request->consignor_address, 'string');
 		Setting::add('consignor_city', $request->consignor_city, 'string');

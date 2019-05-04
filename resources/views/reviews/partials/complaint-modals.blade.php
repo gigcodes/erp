@@ -3,11 +3,13 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('complaint.store') }}" method="POST">
+      <form action="{{ route('thread.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
+        <input type="hidden" name="thread_type" value="thread">
+
         <div class="modal-header">
-          <h4 class="modal-title">Create a Complaint</h4>
+          <h4 class="modal-title">Create a Thread</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -67,6 +69,14 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <input type="file" name="images[]" multiple />
+
+            @if ($errors->has('images'))
+              <div class="alert alert-danger">{{$errors->first('images')}}</div>
+            @endif
+          </div>
+
           <button type="button" class="btn btn-xs btn-secondary" id="add-complaint-button">Add Thread</button>
 
           <div class="form-group">
@@ -76,6 +86,46 @@
 
             @if ($errors->has('link'))
               <div class="alert alert-danger">{{$errors->first('link')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Where was written</strong>
+
+            <input type="text" name="where" class="form-control" value="{{ old('where') }}">
+
+            @if ($errors->has('where'))
+              <div class="alert alert-danger">{{$errors->first('where')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Username</strong>
+
+            <input type="text" name="username" class="form-control" value="{{ old('username') }}">
+
+            @if ($errors->has('username'))
+              <div class="alert alert-danger">{{$errors->first('username')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Name</strong>
+
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}">
+
+            @if ($errors->has('name'))
+              <div class="alert alert-danger">{{$errors->first('name')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Plan of Action</strong>
+
+            <textarea name="plan_of_action" class="form-control" rows="8" cols="80">{{ old('plan_of_action') }}</textarea>
+
+            @if ($errors->has('plan_of_action'))
+              <div class="alert alert-danger">{{$errors->first('plan_of_action')}}</div>
             @endif
           </div>
         </div>
@@ -99,7 +149,7 @@
         @method('PUT')
 
         <div class="modal-header">
-          <h4 class="modal-title">Update a Complaint</h4>
+          <h4 class="modal-title">Update a Thread</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -161,6 +211,14 @@
             <div id="complaint-container-extra"></div>
           </div>
 
+          <div class="form-group">
+            <input type="file" name="images[]" multiple />
+
+            @if ($errors->has('images'))
+              <div class="alert alert-danger">{{$errors->first('images')}}</div>
+            @endif
+          </div>
+
           <button type="button" class="btn btn-xs btn-secondary" id="add-edit-complaint-button">Add Thread</button>
 
           <div class="form-group">
@@ -170,6 +228,46 @@
 
             @if ($errors->has('link'))
               <div class="alert alert-danger">{{$errors->first('link')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Where was written</strong>
+
+            <input type="text" name="where" class="form-control" value="{{ old('where') }}" id="complaint_where">
+
+            @if ($errors->has('where'))
+              <div class="alert alert-danger">{{$errors->first('where')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Username</strong>
+
+            <input type="text" name="username" class="form-control" value="{{ old('username') }}" id="complaint_username">
+
+            @if ($errors->has('username'))
+              <div class="alert alert-danger">{{$errors->first('username')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Name</strong>
+
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" id="complaint_name">
+
+            @if ($errors->has('name'))
+              <div class="alert alert-danger">{{$errors->first('name')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Plan of Action</strong>
+
+            <textarea name="plan_of_action" class="form-control" rows="8" cols="80" id="edit_plan_of_action">{{ old('plan_of_action') }}</textarea>
+
+            @if ($errors->has('plan_of_action'))
+              <div class="alert alert-danger">{{$errors->first('plan_of_action')}}</div>
             @endif
           </div>
         </div>

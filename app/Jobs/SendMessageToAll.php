@@ -5,6 +5,8 @@ namespace App\Jobs;
 use App\Customer;
 use App\ChatMessage;
 use App\MessageQueue;
+use App\BroadcastImage;
+use App\Product;
 use Carbon\Carbon;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -51,11 +53,29 @@ class SendMessageToAll implements ShouldQueue
         'user_id'     => $this->user_id,
         'customer_id' => $this->customer->id,
         'approved'    => 0,
-        'status'      => 8,
+        'status'      => 8, // status for Broadcast messages
       ];
 
       if (is_numeric($this->customer->phone)) {
         $send_number = $this->customer->whatsapp_number ?? NULL;
+
+        if (array_key_exists('linked_images', $this->content)) {
+          $chat_message = ChatMessage::create($params);
+
+          foreach ($this->content['linked_images'] as $image) {
+            $broadcast_image = BroadcastImage::find($image);
+
+            $product_ids = json_decode($broadcast_image->products, true);
+
+            foreach ($product_ids as $product_id) {
+              $product = Product::find($product_id);
+
+              if ($product->hasMedia(config('constants.media_tags'))) {
+                $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first()->getKey(), config('constants.media_tags'));
+              }
+            }
+          }
+        }
 
         if ($this->content['message']) {
           $params['message'] = $this->content['message'];
@@ -67,6 +87,26 @@ class SendMessageToAll implements ShouldQueue
             app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
           } catch (\Exception $e) {
 
+          }
+        }
+
+        if (array_key_exists('linked_images', $this->content)) {
+          $chat_message = ChatMessage::create($params);
+
+          foreach ($this->content['linked_images'] as $image) {
+            $broadcast_image = BroadcastImage::find($image);
+
+            if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
+              foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $brod_image) {
+                $chat_message->attachMedia($brod_image->getKey(), config('constants.media_tags'));
+
+                try {
+                  app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
+                } catch (\Exception $e) {
+
+                }
+              }
+            }
           }
         }
 

@@ -20,6 +20,7 @@ return [
      */
     'allowed_disks' => [
         'uploads',
+        'files',
     ],
 
     /*

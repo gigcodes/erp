@@ -7,6 +7,10 @@ use App\Stock;
 use App\Setting;
 use App\Product;
 use App\PrivateView;
+use App\StatusChange;
+use App\Helpers;
+use App\User;
+use Auth;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -161,9 +165,11 @@ class StockController extends Controller
     public function privateViewing()
     {
       $private_views = PrivateView::paginate(Setting::get('pagination'));
+      $users_array = Helpers::getUserArray(User::all());
 
       return view('instock.private-viewing', [
-        'private_views' => $private_views
+        'private_views' => $private_views,
+        'users_array'   => $users_array
       ]);
     }
 
@@ -209,8 +215,15 @@ class StockController extends Controller
     {
       $private_view = PrivateView::find($id);
 
-      $private_view->status = $request->status;
+      StatusChange::create([
+        'model_id'    => $private_view->id,
+        'model_type'  => PrivateView::class,
+        'user_id'     => Auth::id(),
+        'from_status' => $private_view->status,
+        'to_status'   => $request->status
+      ]);
 
+      $private_view->status = $request->status;
       $private_view->save();
 
       if ($request->status == 'delivered') {

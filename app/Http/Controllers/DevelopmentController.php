@@ -107,6 +107,7 @@ class DevelopmentController extends Controller
     {
       $this->validate($request, [
         'priority'  => 'required|integer',
+        'subject'   => 'sometimes|nullable|string',
         'task'      => 'required|string|min:3',
         'cost'      => 'sometimes||nullable|integer',
         'status'    => 'required'
@@ -145,6 +146,10 @@ class DevelopmentController extends Controller
       //     'role' => '',
       //   ]);
       // }
+
+      if ($request->ajax()) {
+        return response()->json(['task' => $task]);
+      }
 
       return redirect()->route('development.index')->with('success', 'You have successfully added task!');
     }
@@ -339,6 +344,42 @@ class DevelopmentController extends Controller
       return redirect()->route('development.index')->with('success', 'You have successfully updated task!');
     }
 
+    public function updateCost(Request $request, $id)
+    {
+      $task = DeveloperTask::find($id);
+
+      if ($task->user_id == Auth::id()) {
+        $task->cost = $request->cost;
+        $task->save();
+      }
+
+      return response('success');
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+      $task = DeveloperTask::find($id);
+      $task->status = $request->status;
+
+      if ($request->status == 'Done') {
+        $task->start_time = Carbon::now();
+        $task->end_time = Carbon::now();
+      }
+
+      $task->save();
+
+      return response('success');
+    }
+
+    public function updateTask(Request $request, $id)
+    {
+      $task = DeveloperTask::find($id);
+      $task->task = $request->task;
+      $task->save();
+
+      return response('success');
+    }
+
     public function verify(Request $request, $id)
     {
       $task = DeveloperTask::find($id);
@@ -350,6 +391,10 @@ class DevelopmentController extends Controller
       foreach ($notifications as $notification) {
         $notification->isread = 1;
         $notification->save();
+      }
+
+      if ($request->ajax()) {
+        return response('success');
       }
 
       return redirect()->route('development.index')->with('success', 'You have successfully verified the task!');
@@ -436,9 +481,15 @@ class DevelopmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-      DeveloperTask::find($id)->delete();
+      $task = DeveloperTask::find($id);
+      $task->development_details()->delete();
+      $task->delete();
+
+      if ($request->ajax()) {
+        return response('success');
+      }
 
       return redirect()->route('development.index')->with('success', 'You have successfully archived the task!');
     }
@@ -452,7 +503,14 @@ class DevelopmentController extends Controller
 
     public function moduleDestroy($id)
     {
-      DeveloperModule::find($id)->delete();
+      $module = DeveloperModule::find($id);
+
+      foreach ($module->tasks as $task) {
+        $task->module_id = '';
+        $task->save();
+      }
+
+      $module->delete();
 
       return redirect()->route('development.index')->with('success', 'You have successfully archived the module!');
     }

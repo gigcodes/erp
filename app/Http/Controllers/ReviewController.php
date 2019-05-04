@@ -8,7 +8,12 @@ use App\Setting;
 use App\ReviewSchedule;
 use App\Review;
 use App\Complaint;
+use App\Instruction;
 use App\Customer;
+use App\StatusChange;
+use App\Helpers;
+use App\User;
+use Auth;
 
 class ReviewController extends Controller
 {
@@ -25,6 +30,7 @@ class ReviewController extends Controller
     {
       $filter_platform = $request->platform ?? '';
       $filter_posted_date = $request->posted_date ?? '';
+      $users_array = Helpers::getUserArray(User::all());
 
       // $revs = Review::all();
       //
@@ -41,9 +47,7 @@ class ReviewController extends Controller
         // $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('platform', $request->platform);
         $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->where('platform', $request->platform);
         // $posted_reviews = ReviewSchedule::where('status', 'posted')->where('platform', $request->platform);
-        $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->whereHas('review_schedule', function ($query) use ($request) {
-          return $query->where('platform', $request->platform);
-        });
+        $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->where('platform', $request->platform);
 
         $complaints = Complaint::where('platform', $request->platform);
       } else {
@@ -76,14 +80,13 @@ class ReviewController extends Controller
       //     return $q->where('is_approved', 0)->orWhere('is_approved', 2);
       //   });
       // })
-      $review_schedules = $review_schedules->orWhere('status', 'posted')->where(function ($q) {
-          return $q->where('is_approved', 0)->orWhere('is_approved', 2);
-        })->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
+      $review_schedules = $review_schedules->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
 
       $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
-      $complaints = $complaints->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
+      $complaints = $complaints->where('thread_type', 'thread')->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
 
       $customers = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
+      $accounts_array = Account::select(['id', 'first_name', 'last_name', 'email'])->get();
 
       return view('reviews.index', [
         'accounts'            => $accounts,
@@ -92,7 +95,9 @@ class ReviewController extends Controller
         'posted_reviews'      => $posted_reviews,
         'complaints'      => $complaints,
         'filter_platform'     => $filter_platform,
-        'filter_posted_date'  => $filter_posted_date
+        'filter_posted_date'  => $filter_posted_date,
+        'users_array'  => $users_array,
+        'accounts_array'  => $accounts_array,
       ]);
     }
 
@@ -162,9 +167,19 @@ class ReviewController extends Controller
           $new_review = new Review;
           $new_review->review_schedule_id = $review_schedule->id;
           $new_review->review = $review;
+          $new_review->posted_date = $request->date;
+          $new_review->platform = $request->platform;
+          $new_review->status = $request->status;
           $new_review->save();
         }
       }
+
+      Instruction::create([
+        'customer_id'   => '841',
+        'instruction'   => 'Approve Reviews',
+        'assigned_from' => Auth::id(),
+        'assigned_to'   => 6
+      ]);
 
       return redirect()->route('review.index')->withSuccess('You have successfully added a review schedule!');
     }
@@ -204,6 +219,8 @@ class ReviewController extends Controller
         'review'        => 'required|string',
         'posted_date'   => 'sometimes|nullable|date',
         'review_link'   => 'sometimes|nullable|string',
+        'serial_number' => 'sometimes|nullable|string',
+        'platform'      => 'sometimes|nullable|string',
         'account_id'    => 'sometimes|nullable|numeric',
         'customer_id'   => 'sometimes|nullable|numeric'
       ]);
@@ -310,6 +327,15 @@ class ReviewController extends Controller
       // }
 
       $review = Review::find($id);
+
+      StatusChange::create([
+        'model_id'    => $review->id,
+        'model_type'  => Review::class,
+        'user_id'     => Auth::id(),
+        'from_status' => $review->status,
+        'to_status'   => $request->status
+      ]);
+
       $review->status = $request->status;
       $review->save();
 

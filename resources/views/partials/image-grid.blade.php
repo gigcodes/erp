@@ -29,6 +29,7 @@
 
                 <!--Product Search Input -->
                 <form action="{{ route('search') }}" method="GET" id="searchForm" class="form-inline align-items-start">
+                  @csrf
                     {{-- <div class="form-group">
                         <div class="row"> --}}
                         <input type="hidden" name="selected_products" id="selected_products" value="">
@@ -110,8 +111,12 @@
 
                             <div class="form-group mr-3">
                               <strong class="mr-3">Price</strong>
-                              <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
+                              <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '400000' }}]"/>
                             </div>
+
+                            <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
+                            <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}" id="attach_all_model_id">
+                            <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
 
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                         {{-- </div>
@@ -123,46 +128,31 @@
                   <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
                 </form>
 
-
+                <button type="button" class="btn btn-secondary" id="attachAllButton">Attach All</button>
             </div>
         </div>
     </div>
 
-
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            {{ $message }}
-        </div>
-    @endif
-
-    @if ($errors->any())
-            <div class="alert alert-danger">
-                <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-
+    @include('partials.flash_messages')
 
     <div class="productGrid" id="productGrid">
       @include('partials.image-load')
     </div>
 
-        <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($model_type == 'purchase-replace' ? route('purchase.product.replace') : ($status != 9 ? route('message.store') : url('whatsapp/updateAndCreate')))) }}" method="POST" id="attachImageForm">
+        <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($model_type == 'purchase-replace' ? route('purchase.product.replace') : (($model_type == 'broadcast-images' ? route('broadcast.images.link') : ($model_type == 'customer' ? route('whatsapp.send', 'customer') : url('whatsapp/updateAndCreate')))))) }}" method="POST" id="attachImageForm">
           @csrf
 
-          <input type="hidden" name="images" id="images" value="">
-          <input type="hidden" name="body" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}">
           @if ($model_type == 'customers')
             <input type="hidden" name="sending_time" value="{{ $sending_time }}" />
           @endif
-          <input type="hidden" name="moduleid" value="{{ $model_id }}">
-          <input type="hidden" name="moduletype" value="{{ $model_type }}">
-          <input type="hidden" name="assigned_user" value="{{ $assigned_user }}" />
+
+          <input type="hidden" name="images" id="images" value="">
+          <input type="hidden" name="image" value="">
+          <input type="hidden" name="screenshot_path" value="">
+          <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}">
+          <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}">
+          {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
+          <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
           <input type="hidden" name="status" value="{{ $status }}">
         </form>
 
@@ -231,6 +221,32 @@
         console.log(image_array);
       });
 
+      $(document).on('click', '.attach-photo-all', function(e) {
+        e.preventDefault();
+        var image = $(this).data('image');
+
+        if ($(this).data('attached') == 0) {
+          $(this).data('attached', 1);
+
+          Object.keys(image).forEach(function(index) {
+            image_array.push(image[index]);
+          });
+        } else {
+          Object.keys(image).forEach(function(key) {
+            var index = image_array.indexOf(image[key]);
+
+            image_array.splice(index, 1);
+          });
+
+          $(this).data('attached', 0);
+        }
+
+        $(this).toggleClass('btn-success');
+        $(this).toggleClass('btn-secondary');
+
+        console.log(image_array);
+      });
+
       // $('#attachImageForm').on('submit', function(e) {
       //   e.preventDefault();
       //
@@ -243,7 +259,7 @@
       //   }
       // });
 
-      $('#searchForm').on('submit', function(e) {
+      $('#searchForm button[type="submit"]').on('click', function(e) {
         e.preventDefault();
 
         $('#selected_products').val(JSON.stringify(image_array));
@@ -340,6 +356,15 @@
               }
             });
         // });
+
+        $('#attachAllButton').on('click', function() {
+          var url = "{{ route('customer.attach.all') }}";
+          console.log(url);
+          $('#searchForm').attr('action', url);
+          $('#searchForm').attr('method', 'POST');
+
+          $('#searchForm').submit();
+        });
 
     </script>
 @endsection

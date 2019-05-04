@@ -9,7 +9,7 @@
     <div class="col-2">
         <div class="form-group">
             Goto :
-            <select onchange="location.href = this.value;">
+            <select onchange="location.href = this.value;" class="form-control">
                 @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
                     <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
                 @endfor
@@ -20,8 +20,23 @@
 
 <div class="row">
   @foreach ($products as $product)
-    @if ($images = $product->getMedia(config('constants.media_tags')))
-      @foreach ($images as $image)
+    @if ($product->hasMedia(config('constants.media_tags')))
+      @php
+        $image = $product->getMedia(config('constants.media_tags'))->first();
+        $image_keys = [];
+        $selected_all = true;
+
+        foreach ($product->getMedia(config('constants.media_tags')) as $img) {
+          $image_keys[] = $img->getKey();
+
+          if (!in_array($img->getKey(), $selected_products)) {
+            $selected_all = false;
+          }
+        }
+
+        $image_keys = json_encode($image_keys);
+      @endphp
+      {{-- @foreach ($images as $image) --}}
         <div class="col-md-3 col-xs-6 text-center mb-5">
           <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }}">
             <img data-src="{{ $image->getUrl() }}" class="lazy img-responsive grid-image" alt="" />
@@ -30,12 +45,13 @@
             <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
             <p>Price : {{ $product->price_special }}</p>
           </a>
-          <a href="#" class="btn {{ in_array($image->getKey(), $selected_products) ? 'btn-success' : 'btn-secondary' }} attach-photo" data-image="{{ $model_type == 'purchase-replace' ? $product->id : $image->getKey() }}" data-attached="{{ in_array($image->getKey(), $selected_products) ? 1 : 0 }}">Attach</a>
+          <a href="#" class="btn btn-xs {{ in_array($image->getKey(), $selected_products) ? 'btn-success' : 'btn-secondary' }} attach-photo" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images') ? $product->id : $image->getKey() }}" data-attached="{{ in_array($image->getKey(), $selected_products) ? 1 : 0 }}">Attach</a>
+          <a href="#" class="btn btn-xs {{ $selected_all ? 'btn-success' : 'btn-secondary' }} attach-photo-all" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images') ? $product->id : $image_keys }}" data-attached="{{ $selected_all ? 1 : 0 }}">Attach All</a>
         </div>
-      @endforeach
+      {{-- @endforeach --}}
     @else
       <div class="col-md-3 col-xs-6 text-center mb-5">
-        <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" title="{{ $images_html ? $images_html : 'Nothing to show' }}">
+        <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" title="{{ 'Nothing to show' }}">
           <img src="" class="img-responsive grid-image" alt="" />
           <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
           <p>Id : {{ $product->id }}</p>
@@ -60,7 +76,7 @@
     <div class="col-2">
         <div class="form-group">
             Goto :
-            <select onchange="location.href = this.value;">
+            <select onchange="location.href = this.value;" class="form-control">
                 @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
                     <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
                 @endfor

@@ -50,6 +50,10 @@
                                     <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
                                     <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
                                 @endif
+
+                                @if (isset($attachImages))
+                                  <input type="hidden" name="model_type" value="broadcast-images">
+                                @endif
                               </div>
                             <div class="form-group mr-3 mb-3">
                               {!! $category_selection !!}
@@ -159,6 +163,16 @@
 
     </div>
 
+    @if (isset($attachImages) && $attachImages)
+      <form class="text-center" action="{{ route('broadcast.images.link') }}" method="POST">
+        @csrf
+        <input type="hidden" name="moduleid" value="{{ $model_id }}">
+        <input type="hidden" name="products" value="" id="linked_products">
+
+        <button type="submit" class="btn btn-secondary" id="linkProductsSubmit">Link Products</button>
+      </form>
+    @endif
+
     @if (isset($customer_id) && $customer_id != null)
       <div class="row">
         <div class="col text-center">
@@ -249,6 +263,18 @@
       }
 
       console.log(select_products_edit_array);
+    });
+
+    $(document).on('click', '#linkProductsSubmit', function(e) {
+      e.preventDefault();
+
+      if (select_products_edit_array.length > 0) {
+        $('#linked_products').val(JSON.stringify(select_products_edit_array));
+
+        $(this).closest('form').submit();
+      } else {
+        alert('Please select some products');
+      }
     });
 
     $('#bulk-update-btn').on('click', function(e) {
@@ -384,7 +410,7 @@
                                           <p>Suppliers : ` + product['suppliers'] + `</p>
                                           ` + is_scraped + is_imported + `
 
-                                          <input type="checkbox" class="select-product-edit" name="product_id" data-id="` + product['id'] + `}">
+                                          <input type="checkbox" class="select-product-edit" name="product_id" data-id="` + product['id'] + `">
                                            {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
                                                                   'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
                           {{--@can('supervisor-edit')
@@ -394,7 +420,7 @@
                               </button>
                           @endcan--}}
                       </a>
-                                          @if( isset($doSelection))
+                                          @if( isset($doSelection) && $doSelection == true)
 
                       <button data-id="` + product['id'] + `" model-type="{{ $model_type }}" model-id="{{ $model_id }}"
                                                           class="btn-attach btn btn-secondary ` + ((product['isAttached'] === '1') ? 'btn-success' : '') + ` ">

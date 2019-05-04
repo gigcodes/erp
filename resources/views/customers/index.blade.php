@@ -25,6 +25,7 @@
                       <option value="new" {{ isset($type) && $type == 'new' ? 'selected' : '' }}>New</option>
                       <option value="delivery" {{ isset($type) && $type == 'delivery' ? 'selected' : '' }}>Delivery</option>
                       <option value="Refund to be processed" {{ isset($type) && $type == 'Refund to be processed' ? 'selected' : '' }}>Refund</option>
+                      <option value="unread" {{ isset($type) && $type == 'unread' ? 'selected' : '' }}>Unread</option>
                     </optgroup>
                   </select>
                 </div>
@@ -36,7 +37,7 @@
             <div class="pull-right mt-4">
                 @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#importCustomersModal">Import Customers</button>
-                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Send Message to All</button>
+                    {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Send Message to All</button> --}}
                 @endif
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
                 <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
@@ -46,13 +47,27 @@
 
     @include('customers.partials.modal-merge')
 
-    @include('customers.partials.modal-send-to-all')
+    {{-- @include('customers.partials.modal-send-to-all') --}}
 
     @include('customers.partials.modal-import')
 
     @include('customers.partials.modal-shortcut')
 
     @include('partials.flash_messages')
+
+    <?php
+  	$query = http_build_query( Request::except( 'page' ) );
+  	$query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
+  	?>
+
+    <div class="form-group position-fixed" style="top: 50px; left: 20px;">
+      Goto :
+      <select onchange="location.href = this.value;" class="form-control" id="page-goto">
+        @for($i = 1 ; $i <= $customers->lastPage() ; $i++ )
+          <option value="{{ $query.$i }}" {{ ($i == $customers->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+        @endfor
+      </select>
+    </div>
 
     <div class="infinite-scroll">
       <div class="table-responsive mt-3">
@@ -69,7 +84,7 @@
             {{-- <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
             <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th> --}}
             <th width="10%">Instruction</th>
-            <th width="10%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Message Status</a></th>
+            <th width="10%">Message Status</th>
             <th>Order Status</th>
             <th>Purchase Status</th>
             <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
@@ -86,14 +101,25 @@
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
                     <td>
-                      <a href="{{ route('customer.show', $customer->id) }}">{{ $customer->name }}</a>
+                      <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
+
+                        <button type="submit" class="btn-link">{{ $customer->name }}</button>
+                      </form>
+                      {{-- <a href="{{ route('customer.show', $customer->id) }}?customer_ids={{ $customer_ids_list }}">{{ $customer->name }}</a> --}}
 
                       <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
 
                       @if ($customer->is_blocked == 1)
                         <span class="badge badge-secondary">Blocked</span>
+                      @endif
+                      <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
+
+                      @if ($customer->is_flagged == 1)
+                        <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
                       @else
-                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
+                        <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
                       @endif
                     </td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
@@ -310,12 +336,18 @@
                       </div>
                     </td>
                     <td>
-                        <a class="btn btn-image" href="{{ route('customer.show', $customer->id) }}"><img src="/images/view.png" /></a>
-                        <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png" /></a>
+                      <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
 
-                        {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                        {!! Form::close() !!}
+                        <button type="submit" class="btn btn-image" href=""><img src="/images/view.png" /></button>
+                      </form>
+
+                      <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png" /></a>
+
+                      {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
+                      <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                      {!! Form::close() !!}
                     </td>
                 </tr>
             @endforeach
@@ -345,6 +377,32 @@
     var cached_suggestions = localStorage['message_suggestions'];
     var suggestions = [];
 
+    $(window).scroll(function() {
+      // var top = $(window).scrollTop();
+      // var document_height = $(document).height();
+      // var window_height = $(window).height();
+      //
+      // if (top >= (document_height - window_height - 200)) {
+      //   if (can_load_more) {
+      //     var current_page = $('#load-more-messages').data('nextpage');
+      //     $('#load-more-messages').data('nextpage', current_page + 1);
+      //     var next_page = $('#load-more-messages').data('nextpage');
+      //     console.log(next_page);
+      //     $('#load-more-messages').text('Loading...');
+      //
+      //     can_load_more = false;
+      //
+      //     pollMessages(next_page, true);
+      //   }
+      // }
+      var next_page = $('.pagination li.active + li a');
+      var page_number = next_page.attr('href').split('?page=');
+      console.log(page_number);
+      var current_page = page_number[1] - 1;
+
+      $('#page-goto option[value="' + page_number[0] + '?page=' + current_page + '"]').attr('selected', 'selected');
+    });
+
     $(document).ready(function() {
       $('ul.pagination').hide();
       $(function() {
@@ -355,7 +413,7 @@
               nextSelector: '.pagination li.active + li a',
               contentSelector: 'div.infinite-scroll',
               callback: function() {
-                  $('ul.pagination').remove();
+                  // $('ul.pagination').remove();
               }
           });
       });
@@ -455,26 +513,27 @@
         var id = $(this).data('id');
         var type = $(this).data('type');
 
-        if (isNaN(type)) {
-          $.ajax({
-            url: "{{ url('whatsapp/updateAndCreate') }}",
-            type: 'POST',
-            data: {
-              _token: "{{ csrf_token() }}",
-              moduletype: "customer",
-              message_id: id
-            },
-            beforeSend: function() {
-              $(thiss).text('Approving...');
-            }
-          }).done( function(response) {
-            $(thiss).parent().html('Approved');
-          }).fail(function(errObj) {
-            $(thiss).text('Approve');
-            console.log(errObj);
-            alert("Could not create whatsapp message");
-          });
-        } else {
+        // if (isNaN(type)) {
+        //   $.ajax({
+        //     url: "{{ url('whatsapp/updateAndCreate') }}",
+        //     type: 'POST',
+        //     data: {
+        //       _token: "{{ csrf_token() }}",
+        //       moduletype: "customer",
+        //       message_id: id
+        //     },
+        //     beforeSend: function() {
+        //       $(thiss).text('Approving...');
+        //     }
+        //   }).done( function(response) {
+        //     $(thiss).parent().html('Approved');
+        //   }).fail(function(errObj) {
+        //     $(thiss).text('Approve');
+        //     console.log(errObj);
+        //     alert("Could not create whatsapp message");
+        //   });
+        // }
+        // else {
           $.post("/whatsapp/approve/customer", {messageId: id})
             .done(function(data) {
               $(thiss).parent().html('Approved');
@@ -482,7 +541,7 @@
               console.log(response);
               alert(response.responseJSON.message);
             });
-        }
+        // }
       });
 
       $(document).on('click', '.create-shortcut', function() {
@@ -555,6 +614,7 @@
 
         data.append("customer_id", customer_id);
         data.append("message", message);
+        data.append("status", 1);
 
         if (message.length > 0) {
           $.ajax({
@@ -681,15 +741,56 @@
             $(thiss).text('Blocking...');
           }
         }).done(function(response) {
-          var badge = $('<span class="badge badge-secondary">Blocked</span>');
+          if (response.is_blocked == 1) {
+            var badge = $('<span class="badge badge-secondary">Blocked</span>');
 
-          $(thiss).parent().append(badge);
+            $(thiss).parent().append(badge);
+            $(thiss).html('<img src="/images/call-blocked.png" />');
+          } else {
+            $(thiss).html('<img src="/images/call-blocked.png" />');
+            $(thiss).parent().find('.badge').remove();
+          }
 
-          $(thiss).remove();
+          // $(thiss).remove();
         }).fail(function(response) {
           $(thiss).text('Block on Twilio');
 
           alert('Could not block customer!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.flag-customer', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.flag') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Flagging...');
+          }
+        }).done(function(response) {
+          if (response.is_flagged == 1) {
+            // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+            //
+            // $(thiss).parent().append(badge);
+            $(thiss).html('<img src="/images/flagged.png" />');
+          } else {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+            // $(thiss).parent().find('.badge').remove();
+          }
+
+          // $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/unflagged.png" />');
+
+          alert('Could not flag customer!');
 
           console.log(response);
         });

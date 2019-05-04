@@ -189,6 +189,11 @@ class ProductController extends Controller {
 			$attachImages = false;
 		}
 
+		if ($model_type == 'broadcast-images') {
+			$attachImages = true;
+			$doSelection = false;
+		}
+
 		if (Order::find($model_id)) {
 			$selected_products = self::getSelectedProducts($model_type,$model_id);
 		} else {
@@ -288,7 +293,7 @@ class ProductController extends Controller {
 
 		$products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier'])->paginate(Setting::get('pagination'));
 
-		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
 		                                        ->selected($filtered_category)
 		                                        ->renderAsDropdown();
 

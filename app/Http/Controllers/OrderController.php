@@ -33,6 +33,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
+use App\StatusChange;
 use App\Category;
 use App\Mail\RefundProcessed;
 use App\Mail\AdvanceReceipt;
@@ -475,7 +476,6 @@ class OrderController extends Controller {
 		}
 
 		if ( empty( $request->input( 'order_date' ) ) ) {
-
 			$data['order_date'] = date( 'Y-m-d' );
 		}
 
@@ -506,6 +506,24 @@ class OrderController extends Controller {
 		$data['contact_detail'] = $customer->phone;
 
 		$order = Order::create( $data );
+
+		if ($customer->credit > 0) {
+			$balance_amount = $order->balance_amount;
+
+			if (($order->balance_amount - $customer->credit) < 0) {
+				$left_credit = ($order->balance_amount - $customer->credit) * -1;
+				$order->advance_detail += $order->balance_amount;
+				$balance_amount = 0;
+				$customer->credit = $left_credit;
+			} else {
+				$balance_amount -= $customer->credit;
+				$order->advance_detail += $customer->credit;
+			}
+
+			$order->balance_amount = $balance_amount;
+			$order->save();
+			$customer->save();
+		}
 
 		$expiresAt = Carbon::now()->addMinutes(10);
 		$last_order = $order->id + 1;
@@ -734,8 +752,29 @@ class OrderController extends Controller {
 		if(!empty($request->input('order_products'))) {
 			foreach ($request->input('order_products') as $key => $order_product_data) {
 				$order_product = OrderProduct::findOrFail( $key );
+
+				if (isset($order_product_data['purchase_status']) && $order_product_data['purchase_status'] != $order_product->purchase_status) {
+					StatusChange::create([
+						'model_id'    => $order_product->id,
+						'model_type'  => OrderProduct::class,
+						'user_id'     => Auth::id(),
+						'from_status' => $order_product->purchase_status,
+						'to_status'   => $order_product_data['purchase_status']
+					]);
+				}
+
 				$order_product->update($order_product_data);
 			}
+		}
+
+		if ($request->status != $order->order_status) {
+			StatusChange::create([
+				'model_id'    => $order->id,
+				'model_type'  => Order::class,
+				'user_id'     => Auth::id(),
+				'from_status' => $order->order_status,
+				'to_status'   => $request->status
+			]);
 		}
 
 		$data = $request->except(['_token', '_method', 'status', 'purchase_status']);
@@ -744,6 +783,27 @@ class OrderController extends Controller {
 
 		$this->calculateBalanceAmount($order);
 		$order = Order::find($order->id);
+
+		if ($customer = Customer::find($order->customer_id)) {
+			if ($customer->credit > 0) {
+				$balance_amount = $order->balance_amount;
+
+				if (($order->balance_amount - $customer->credit) < 0) {
+					$left_credit = ($order->balance_amount - $customer->credit) * -1;
+					$order->advance_detail += $order->balance_amount;
+					$balance_amount = 0;
+					$customer->credit = $left_credit;
+				} else {
+					$balance_amount -= $customer->credit;
+					$order->advance_detail += $customer->credit;
+					$customer->credit = 0;
+				}
+
+				$order->balance_amount = $balance_amount;
+				$order->save();
+				$customer->save();
+			}
+		}
 
 		if (!$order->is_sent_initial_advance() && $order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
 			$product_names = '';
@@ -1203,6 +1263,15 @@ class OrderController extends Controller {
 	public function updateStatus(Request $request, $id)
 	{
 		$order = Order::find($id);
+
+		StatusChange::create([
+			'model_id'    => $order->id,
+			'model_type'  => Order::class,
+			'user_id'     => Auth::id(),
+			'from_status' => $order->order_status,
+			'to_status'   => $request->status
+		]);
+
 		$order->order_status = $request->status;
 		$order->save();
 

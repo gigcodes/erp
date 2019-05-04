@@ -59,6 +59,11 @@ class Leads extends Model {
 		return $this->hasMany('App\ChatMessage', 'lead_id')->latest()->first();
 	}
 
+	public function status_changes()
+	{
+		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Leads')->latest();
+	}
+
 	public function instagram()
 	{
 		return $this->hasMany('App\InstaMessages', 'lead_id')->latest()->first();

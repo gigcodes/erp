@@ -852,6 +852,7 @@
 
                                     <a class="dropdown-item" href="{{ route('customer.index') }}">Customers</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                    <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
                                     <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
                                     <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
@@ -1229,6 +1230,7 @@
 
                                 @can('review-view')
                                   <a class="dropdown-item" href="{{ route('review.index') }}">Reviews</a>
+                                  <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                 @endcan
 
                                   <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts
@@ -1354,6 +1356,8 @@
                                     <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
 
                                 @endcan
+
+                                <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Replies</a>
 
                                 <a class="dropdown-item" href="{{ route('logout') }}"
 

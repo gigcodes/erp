@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Review extends Model
 {
   protected $fillable = [
-    'account_id', 'customer_id', 'posted_date', 'review_link', 'review'
+    'account_id', 'customer_id', 'posted_date', 'review_link', 'review', 'serial_number', 'platform'
   ];
 
   public function review_schedule()
@@ -24,4 +24,9 @@ class Review extends Model
   {
     return $this->belongsTo('App\Customer');
   }
+
+  public function status_changes()
+	{
+		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Review')->latest();
+	}
 }

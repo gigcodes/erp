@@ -7,6 +7,7 @@ use App\Instruction;
 use App\Setting;
 use App\Helpers;
 use App\User;
+use App\ChatMessage;
 use App\InstructionCategory;
 use App\NotificationQueue;
 use App\PushNotification;
@@ -63,6 +64,11 @@ class InstructionController extends Controller
 
       $instructions = array_reverse($instructions);
 
+      $ids_list = [];
+      foreach ($instructions as $instruction) {
+        $ids_list[] = $instruction['customer']['id'];
+      }
+
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = Setting::get('pagination');
   		$currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
@@ -78,7 +84,8 @@ class InstructionController extends Controller
         'completed_instructions'  => $completed_instructions,
         'users_array'             => $users_array,
         'user'                    => $user,
-        'orderby'                 => $orderby
+        'orderby'                 => $orderby,
+        'customer_ids_list'       => json_encode($ids_list)
       ]);
     }
 
@@ -253,20 +260,35 @@ class InstructionController extends Controller
       $instruction->completed_at = Carbon::now();
       $instruction->save();
 
-      $myRequest = new Request();
-      $myRequest->setMethod('POST');
-      $myRequest->request->add([
-        'moduletype' => (string) 'customer',
-        'moduleid' => (int) $instruction->customer_id,
-        'status' => (int) 4,
-        'userid' => (int) Auth::id(),
-        'assigned_user' => (int) $instruction->assigned_to,
-        'body' => (string) 'Instruction Complete!'
+      if ($instruction->instruction == '') {
+        $message_body = 'Images attached!';
+      } else {
+        $message_body = 'Instruction Complete!';
+      }
+
+      ChatMessage::create([
+        'number'        => NULL,
+        'customer_id'   => $instruction->customer_id,
+        'status'        => 4,
+        'user_id'       => Auth::id(),
+        'assigned_to'   => $instruction->assigned_to,
+        'message'       => $message_body
       ]);
 
-      // return response($myRequest);
-
-      app('App\Http\Controllers\MessageController')->store($myRequest);
+      // $myRequest = new Request();
+      // $myRequest->setMethod('POST');
+      // $myRequest->request->add([
+      //   'moduletype' => (string) 'customer',
+      //   'moduleid' => (int) $instruction->customer_id,
+      //   'status' => (int) 4,
+      //   'userid' => (int) Auth::id(),
+      //   'assigned_user' => (int) $instruction->assigned_to,
+      //   'body' => $message_body
+      // ]);
+      //
+      // // return response($myRequest);
+      //
+      // app('App\Http\Controllers\MessageController')->store($myRequest);
 
       NotificationQueue::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
       PushNotification::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();

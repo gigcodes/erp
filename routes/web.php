@@ -67,6 +67,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::resource('reply','ReplyController');
 	Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
+	// Auto Replies
+	Route::resource('autoreply', 'AutoReplyController');
+
 	Route::resource('settings','SettingController');
 	Route::resource('category','CategoryController');
 	Route::resource('benchmark','BenchmarkController');
@@ -166,6 +169,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
 
 	// Customers
+	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
 	Route::post('customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup')->name('customer.initiate.followup');
@@ -175,11 +179,14 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('customer/import', 'CustomerController@import')->name('customer.import');
 	Route::get('customer/create', 'CustomerController@create')->name('customer.create');
 	Route::post('customer/block', 'CustomerController@block')->name('customer.block');
+	Route::post('customer/flag', 'CustomerController@flag')->name('customer.flag');
 	Route::post('customer/create', 'CustomerController@store')->name('customer.store');
 	Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
 	Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
 	Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
 	Route::post('customer/{id}/updateNumber', 'CustomerController@updateNumber')->name('customer.update.number');
+	Route::post('customer/{id}/updateDND', 'CustomerController@updateDnd')->name('customer.update.dnd');
+	Route::post('customer/{id}/updatePhone', 'CustomerController@updatePhone')->name('customer.update.phone');
 	Route::delete('customer/{id}/destroy', 'CustomerController@destroy')->name('customer.destroy');
 	Route::post('customer/send/message/all/{validate?}', 'WhatsAppController@sendToAll')->name('customer.whatsapp.send.all');
 	Route::get('customer/stop/message/all', 'WhatsAppController@stopAll')->name('customer.whatsapp.stop.all');
@@ -189,11 +196,17 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('customer/send/suggestion', 'CustomerController@sendSuggestion')->name('customer.send.suggestion');
 	Route::post('customer/send/instock', 'CustomerController@sendInstock')->name('customer.send.instock');
 	Route::post('customer/issue/credit', 'CustomerController@issueCredit')->name('customer.issue.credit');
+	Route::post('customer/attach/all', 'CustomerController@attachAll')->name('customer.attach.all');
 
 	Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
+	Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');
+	Route::post('broadcast/imagesUpload', 'BroadcastMessageController@imagesUpload')->name('broadcast.images.upload');
+	Route::post('broadcast/imagesLink', 'BroadcastMessageController@imagesLink')->name('broadcast.images.link');
+	Route::delete('broadcast/{id}/imagesDelete', 'BroadcastMessageController@imagesDelete')->name('broadcast.images.delete');
 	Route::get('broadcast/calendar', 'BroadcastMessageController@calendar')->name('broadcast.calendar');
 	Route::post('broadcast/restart', 'BroadcastMessageController@restart')->name('broadcast.restart');
 	Route::post('broadcast/restart/{id}', 'BroadcastMessageController@restartGroup')->name('broadcast.restart.group');
+	Route::post('broadcast/delete/{id}', 'BroadcastMessageController@deleteGroup')->name('broadcast.delete.group');
 	Route::post('broadcast/stop/{id}', 'BroadcastMessageController@stopGroup')->name('broadcast.stop.group');
 	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
 
@@ -216,6 +229,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('purchase/email/inbox', 'PurchaseController@emailInbox')->name('purchase.email.inbox');
 	Route::get('purchase/email/fetch', 'PurchaseController@emailFetch')->name('purchase.email.fetch');
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
+	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
 
 	// Cash Vouchers
 	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');
@@ -282,6 +296,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('development/{id}/verify', 'DevelopmentController@verify')->name('development.verify');
 	Route::get('development/verify/view', 'DevelopmentController@verifyView')->name('development.verify.view');
 	Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
+	Route::post('development/{id}/updateCost', 'DevelopmentController@updateCost')->name('development.update.cost');
+	Route::post('development/{id}/status', 'DevelopmentController@updateStatus')->name('development.update.status');
+	Route::post('development/{id}/updateTask', 'DevelopmentController@updateTask')->name('development.update.task');
 
 	Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
 	Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
@@ -393,8 +410,13 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
 	Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
 
+	// Threads Routes
+	Route::resource('thread', 'ThreadController');
+	Route::post('thread/{id}/status', 'ThreadController@updateStatus')->name('thread.updateStatus');
+
 	// Complaints Routes
 	Route::resource('complaint', 'ComplaintController');
+	Route::post('complaint/{id}/status', 'ComplaintController@updateStatus')->name('complaint.updateStatus');
 
 	// Vendor Module
 	Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
@@ -438,7 +460,7 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
-Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage');
+Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage')->name('whatsapp.send');
 Route::post('whatsapp/sendMultipleMessages', 'WhatsAppController@sendMultipleMessages');
 Route::post('whatsapp/approve/{context}', 'WhatsAppController@approveMessage');
 Route::get('whatsapp/pollMessages/{context}', 'WhatsAppController@pollMessages');
