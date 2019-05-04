@@ -772,12 +772,12 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 'on') {
-          $message_queues = MessageQueue::where('customer_id', $customer->id)->get();
+          MessageQueue::where('customer_id', $customer->id)->delete();
 
-          foreach ($message_queues as $message_queue) {
-            $message_queue->status = 1; // message stopped
-            $message_queue->save();
-          }
+          // foreach ($message_queues as $message_queue) {
+          //   $message_queue->status = 1; // message stopped
+          //   $message_queue->save();
+          // }
         }
 
         return redirect()->route('customer.show', $id)->with('success', 'You have successfully updated the customer!');
@@ -801,12 +801,12 @@ class CustomerController extends Controller
       $customer->save();
 
       if ($request->do_not_disturb == 1) {
-        $message_queues = MessageQueue::where('customer_id', $customer->id)->get();
+        MessageQueue::where('customer_id', $customer->id)->delete();
 
-        foreach ($message_queues as $message_queue) {
-          $message_queue->status = 1; // message stopped
-          $message_queue->save();
-        }
+        // foreach ($message_queues as $message_queue) {
+        //   $message_queue->status = 1; // message stopped
+        //   $message_queue->save();
+        // }
       }
 
       return response('success');
