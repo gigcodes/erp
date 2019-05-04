@@ -804,8 +804,11 @@
     });
 
     $(document).on('click', '.read-more-button', function() {
-      $(this).find('.short-task-container').toggleClass('hidden');
-      $(this).find('.long-task-container').toggleClass('hidden');
+      var selection = window.getSelection();
+      if (selection.toString().length === 0) {
+        $(this).find('.short-task-container').toggleClass('hidden');
+        $(this).find('.long-task-container').toggleClass('hidden');
+      }
     });
 
     $(document).on('click', '.quick-task-edit-textarea, .quick-message-input', function(e) {
