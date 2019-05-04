@@ -14,7 +14,7 @@
         <div class="modal-body">
           <div class="form-group">
               <strong>Assign to:</strong>
-              <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assigned_to" title="Choose a User" required>
+              <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assigned_to" title="Choose a User" id="instruction_user_id" required>
                 @foreach ($users_array as $index => $user)
                  <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
                @endforeach
@@ -27,7 +27,7 @@
 
           <div class="form-group">
             <strong>Category:</strong>
-            <select class="form-control" name="category_id" required>
+            <select class="form-control" name="category_id" id="instruction_category_id" required>
               @foreach ($instruction_categories as $category)
                 <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->name }}</option>
               @endforeach
@@ -68,7 +68,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Create</button>
+          <button type="submit" class="btn btn-secondary" id="instructionCreateButton">Create</button>
         </div>
       </form>
     </div>

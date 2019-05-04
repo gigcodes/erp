@@ -3671,5 +3671,37 @@
         $(this).siblings('.change-history-container').toggleClass('hidden');
       });
 
+      $('#instructionCreateButton').on('click', function(e) {
+        e.preventDefault();
+
+        var assigned_to = $('#instruction_user_id').val();
+        var category_id = $('#instruction_category_id').val();
+        var instruction = $('#instruction-body').val();
+        var send_whatsapp = $('#sendWhatsappCheckbox').prop('checked') ? 'send' : '';
+
+        console.log(send_whatsapp);
+
+        if ($(this).closest('form')[0].checkValidity()) {
+          $.ajax({
+            type: 'POST',
+            url: "{{ route('instruction.store') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              assigned_to: assigned_to,
+              category_id: category_id,
+              instruction: instruction,
+              customer_id: {{ $customer->id }},
+              send_whatsapp: send_whatsapp,
+            }
+          }).done(function() {
+            $('#instructionModal').find('.close').click();
+          }).fail(function(response) {
+            console.log(response);
+            alert('Could not create an instruction');
+          });
+        } else {
+          $(this).closest('form')[0].reportValidity();
+        }
+      });
   </script>
 @endsection

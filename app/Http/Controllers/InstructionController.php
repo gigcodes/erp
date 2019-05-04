@@ -186,7 +186,7 @@ class InstructionController extends Controller
       //   'role' => '',
       // ]);
 
-      if ($request->send_whatsapp) {
+      if ($request->send_whatsapp === 'send') {
   			$user = User::find($instruction->assigned_to);
         $myRequest = new Request();
         $myRequest->setMethod('POST');
