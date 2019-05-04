@@ -41,7 +41,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
         if ($title !== '' && strlen($title) > 2) {
             $props = $product->properties;
-            $props['sizes'] = $this->getSizes($c);
+            $props['sizes_prop'] = $this->getSizes($c);
             $product->properties = $props;
             $product->save();
             return true;

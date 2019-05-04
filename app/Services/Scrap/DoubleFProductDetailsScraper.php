@@ -26,33 +26,33 @@ class DoubleFProductDetailsScraper extends Scraper
     }
 
     private function getSizes(HtmlPageCrawler $c) {
-        $sizes = $c->filter('script')->getIterator();
+//        $sizes = $c->filter('script')->getIterator();
         $content = [];
 
-        foreach ($sizes as $size) {
-            $html = trim($size->textContent);
-            if (strpos($html, 'new Product.Config') !== false) {
-                $html = explode('var unsaleableProducts', $html);
-                $htmlData = trim($html[0]);
-                $htmlData = str_replace('var spConfig = new Product.Config(', '', $htmlData);
-                $htmlData = str_replace(');', '', $htmlData);
-
-                $data = json_decode($htmlData, true);
-
-                foreach ($data as $datum) {
-                    foreach ($datum as $item) {
-                        if ($item['label'] == 'Size') {
-                            $options = $item['options'];
-                            $options = array_map(function($item) {
-                                return $item['label'];
-                            }, $options);
-
-                            return $options;
-                        }
-                    }
-                }
-            }
-        }
+//        foreach ($sizes as $size) {
+//            $html = trim($size->textContent);
+//            if (strpos($html, 'new Product.Config') !== false) {
+//                $html = explode('var unsaleableProducts', $html);
+//                $htmlData = trim($html[0]);
+//                $htmlData = str_replace('var spConfig = new Product.Config(', '', $htmlData);
+//                $htmlData = str_replace(');', '', $htmlData);
+//
+//                $data = json_decode($htmlData, true);
+//
+//                foreach ($data as $datum) {
+//                    foreach ($datum as $item) {
+//                        if ($item['label'] == 'Size') {
+//                            $options = $item['options'];
+//                            $options = array_map(function($item) {
+//                                return $item['label'];
+//                            }, $options);
+//
+//                            return $options;
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         return $content;
 
@@ -71,7 +71,7 @@ class DoubleFProductDetailsScraper extends Scraper
 
         if ($title !== '' && strlen($title) > 2) {
             $props = $product->properties;
-            $props['sizes'] = $this->getSizes($c);
+            $props['sizes_prop'] = $this->getSizes($c);
             $product->properties = $props;
             $product->save();
             return true;
