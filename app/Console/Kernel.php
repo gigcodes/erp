@@ -113,10 +113,10 @@ class Kernel extends ConsoleKernel
         }
       })->dailyAt('00:00');
 
-  	    $schedule->call(function () {
-  		    \Log::debug('deQueueNotficationNew Start');
-  	    	NotificationQueueController::deQueueNotficationNew();
-  	    })->everyFiveMinutes();
+  	    // $schedule->call(function () {
+  		  //   \Log::debug('deQueueNotficationNew Start');
+  	    // 	NotificationQueueController::deQueueNotficationNew();
+  	    // })->everyFiveMinutes();
 
         $schedule->call(function () {
           MagentoController::get_magento_orders();
