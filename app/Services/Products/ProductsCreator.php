@@ -23,7 +23,7 @@ class ProductsCreator
       ]);
 
       if ($validator->fails()) {
-        $product = Product::where('sku', $image->sku)->first();
+        $product = Product::where('sku', $data['sku'])->first();
       } else {
         $product = new Product;
       }
