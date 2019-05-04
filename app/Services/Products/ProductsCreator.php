@@ -28,7 +28,7 @@ class ProductsCreator
         $product = new Product;
       }
 
-      dump($product);
+      // dump($product);
 
       $properties_array = $image->properties;
 
