@@ -68,7 +68,7 @@ class ProductsCreator
           break;
         default:
           $supplier = '';
-          
+
           return;
       }
 
@@ -440,8 +440,8 @@ class ProductsCreator
       if (array_key_exists('category', $properties_array)) {
         $categories = Category::all();
         $category_id = 1;
-
-        foreach ($properties_array['category'] as $cat) {
+        $cat = strtoupper($properties_array['category']);
+        // foreach ($properties_array['category'] as $cat) {
           if ($cat == 'WOMAN') {
             $cat = 'WOMEN';
           }
@@ -451,7 +451,7 @@ class ProductsCreator
               $category_id = $category->id;
             }
           }
-        }
+        // }
 
         $category = $category_id;
       }
