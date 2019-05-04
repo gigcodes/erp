@@ -201,6 +201,19 @@ class WhatsAppController extends FindByNumberController
           if ($customer = Customer::find($params['customer_id'])) {
             $customer->do_not_disturb = 1;
             $customer->save();
+
+            $dnd_params = [
+               'number'       => NULL,
+               'user_id'      => 6,
+               'approved'     => 1,
+               'status'       => 9,
+               'customer_id'  => $customer->id,
+               'message'      => 'Greetings from Sololuxury.co.in, based on your request we have now placed you on DND. You will no longer receive updates from us. We apologize for the inconvenience caused.'
+             ];
+
+            $auto_dnd_message = ChatMessage::create($dnd_params);
+
+            $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $dnd_params['message'], FALSE, $auto_dnd_message->id);
           }
         }
 
