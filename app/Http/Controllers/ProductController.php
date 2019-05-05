@@ -233,7 +233,10 @@ class ProductController extends Controller {
 	public function updateSize(Request $request, $id)
 	{
 		$product = Product::find($id);
-		$product->size = is_array($request->size) && count($request->size) > 0 ? implode(',', $request->size) : $request->other_size;
+		$product->size = is_array($request->size) && count($request->size) > 0 ? implode(',', $request->size) : '';
+		$product->lmeasurement = $request->lmeasurement;
+		$product->hmeasurement = $request->hmeasurement;
+		$product->dmeasurement = $request->dmeasurement;
 		$product->save();
 
 		return response('success');

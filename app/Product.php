@@ -32,6 +32,11 @@ class Product extends Model
 		return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'product')->latest()->first();
 	}
 
+	public function product_category()
+	{
+		return $this->belongsTo('App\Category', 'category');
+	}
+
 	public function getCommunicationAttribute()
 	{
 		return $this->messages();

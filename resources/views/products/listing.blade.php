@@ -3,6 +3,7 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
   <style>
     .quick-edit-color {
       transition: 1s ease-in-out;
@@ -49,122 +50,234 @@
 
   @include('partials.flash_messages')
 
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped">
-      <tr>
-        <th width="10%">Thumbnail</th>
-        <th width="10%">Name</th>
-        <th width="25%">Description</th>
-        <th width="10%">Category</th>
-        <th width="10%">Sizes</th>
-        <th width="10%">Composition</th>
-        <th width="10%">Color</th>
-        <th width="5%">Price</th>
-        <th width="5%">Cropper</th>
-        <th width="5%">Action</th>
-      </tr>
-
-      @foreach ($products as $key => $product)
-        <tr id="product_{{ $product->id }}">
-          <td>
-            @if ($product->hasMedia(config('constants.media_tags')))
-              <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="">
-            @else
-              <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
-            @endif
-          </td>
-          <td class="table-hover-cell quick-edit-name" data-id="{{ $product->id }}">
-            <span class="quick-name">{{ $product->name }}</span>
-            <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
-          </td>
-
-          <td class="read-more-button table-hover-cell">
-            <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
-
-            <span class="long-description-container hidden">
-              <span class="description-container">{{ $product->short_description }}</span>
-
-              <textarea name="description" class="form-control quick-description-edit-textarea hidden" rows="8" cols="80">{{ $product->short_description }}</textarea>
-            </span>
-
-            <button type="button" class="btn-link quick-edit-description" data-id="{{ $product->id }}">Edit</button>
-          </td>
-
-          <td class="table-hover-cell">
-            {!! $category_selection !!}
-            <input type="hidden" name="product_id" value="{{ $product->id }}">
-            <input type="hidden" name="category_id" value="{{ $product->category }}">
-            <input type="hidden" name="sizes" value='{{ $product->size }}'>
-          </td>
-
-          <td class="table-hover-cell">
-            <select class="form-control quick-edit-size select-multiple" name="size[]" multiple>
-              <option value="">Select Size</option>
-            </select>
-
-            <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}">
-
-            <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product->id }}">Save</button>
-          </td>
-          <td class="table-hover-cell quick-edit-composition" data-id="{{ $product->id }}">
-            <span class="quick-composition">{{ $product->composition }}</span>
-            <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}">
-          </td>
-
-          <td class="table-hover-cell">
-            <select class="form-control quick-edit-color" name="color" data-id="{{ $product->id }}">
-              <option value="">Select a Color</option>
-
-              @foreach ($colors as $color)
-                <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
-              @endforeach
-            </select>
-          </td>
-
-          <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
-            <span class="quick-price">{{ $product->price }}</span>
-            <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
-
-            <span class="quick-price-inr">{{ $product->price_inr }}</span>
-            <span class="quick-price-special">{{ $product->price_special }}</span>
-          </td>
-
-          <td>
-            @if ($product->hasMedia(config('constants.media_tags')))
-              <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
-            @endif
-
-            <input type="file" class="input-sm px-0 quick-images-upload-input" name="images[]" value="" multiple>
-
-            <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
-          </td>
-
-          <td>
-            {{ $product->isUploaded }} {{ $product->isFinal }}
-            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="{{ $product->isUploaded == 0 ? 'list' : ($product->isUploaded == 1 && $product->isFinal == 0 ? 'approve' : 'update') }}">
-              @if ($product->isUploaded == 0)
-                List
-              @elseif ($product->isUploaded == 1 && $product->isFinal == 0)
-                Approve
-              @else
-                Update
-              @endif
-            </button>
-            {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
-
-            {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
-          </td>
+  <div class="infinite-scroll">
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <tr>
+          <th width="10%">Thumbnail</th>
+          <th width="10%">Name</th>
+          <th width="25%">Description</th>
+          <th width="10%">Category</th>
+          <th width="10%">Sizes</th>
+          <th width="10%">Composition</th>
+          <th width="10%">Color</th>
+          <th width="5%">Price</th>
+          <th width="5%">Cropper</th>
+          <th width="5%">Action</th>
         </tr>
-      @endforeach
-    </table>
-  </div>
 
-  {!! $products->appends(Request::except('page'))->links() !!}
+        @foreach ($products as $key => $product)
+          <tr id="product_{{ $product->id }}">
+            @if (!Auth::user()->hasRole('ImageCropers'))
+              <td>
+                @if ($product->hasMedia(config('constants.media_tags')))
+                  <a href="{{ route('products.show', $product->id) }}" target="_blank">
+                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="">
+                  </a>
+                @else
+                  <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
+                @endif
+              </td>
+              <td class="table-hover-cell quick-edit-name" data-id="{{ $product->id }}">
+                <span class="quick-name">{{ $product->name }}</span>
+                <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
+              </td>
+
+              <td class="read-more-button table-hover-cell">
+                <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+
+                <span class="long-description-container hidden">
+                  <span class="description-container">{{ $product->short_description }}</span>
+
+                  <textarea name="description" class="form-control quick-description-edit-textarea hidden" rows="8" cols="80">{{ $product->short_description }}</textarea>
+                </span>
+
+                <button type="button" class="btn-link quick-edit-description" data-id="{{ $product->id }}">Edit</button>
+              </td>
+
+              <td class="table-hover-cell">
+                {!! $category_selection !!}
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                <input type="hidden" name="category_id" value="{{ $product->category }}">
+                <input type="hidden" name="sizes" value='{{ $product->size }}'>
+              </td>
+
+              <td class="table-hover-cell">
+                <select class="form-control quick-edit-size select-multiple" name="size[]" multiple>
+                  <option value="">Select Size</option>
+                </select>
+
+                {{-- <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}"> --}}
+                <span class="lmeasurement-container">
+                  <strong>L:</strong>
+                  <input type="number" name="lmeasurement" class="form-control mt-1" placeholder="12" min="0" max="999" value="{{ $product->lmeasurement }}">
+                </span>
+
+                <span class="hmeasurement-container">
+                  <strong>H:</strong>
+                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="14" min="0" max="999" value="{{ $product->hmeasurement }}">
+                </span>
+
+                <span class="dmeasurement-container">
+                  <strong>D:</strong>
+                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="16" min="0" max="999" value="{{ $product->dmeasurement }}">
+                </span>
+
+                <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product->id }}">Save</button>
+              </td>
+              <td class="table-hover-cell quick-edit-composition" data-id="{{ $product->id }}">
+                <span class="quick-composition">{{ $product->composition }}</span>
+                <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}">
+              </td>
+
+              <td class="table-hover-cell">
+                <select class="form-control quick-edit-color" name="color" data-id="{{ $product->id }}">
+                  <option value="">Select a Color</option>
+
+                  @foreach ($colors as $color)
+                    <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
+                  @endforeach
+                </select>
+              </td>
+
+              <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
+                <span class="quick-price">{{ $product->price }}</span>
+                <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
+
+                <span class="quick-price-inr">{{ $product->price_inr }}</span>
+                <span class="quick-price-special">{{ $product->price_special }}</span>
+              </td>
+
+              <td>
+                @if ($product->hasMedia(config('constants.media_tags')))
+                  <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
+                @endif
+
+                <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
+
+                <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
+              </td>
+
+              <td>
+                {{ $product->isUploaded }} {{ $product->isFinal }}
+                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="{{ $product->isUploaded == 0 ? 'list' : ($product->isUploaded == 1 && $product->isFinal == 0 ? 'approve' : 'update') }}">
+                  @if ($product->isUploaded == 0)
+                    List
+                  @elseif ($product->isUploaded == 1 && $product->isFinal == 0)
+                    Approve
+                  @else
+                    Update
+                  @endif
+                </button>
+                {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
+
+                {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
+              </td>
+            @else
+              <td>
+                @if ($product->hasMedia(config('constants.media_tags')))
+                  <a href="{{ route('products.show', $product->id) }}" target="_blank">
+                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="">
+                  </a>
+                @else
+                  <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
+                @endif
+              </td>
+              <td>
+                <span>{{ $product->name }}</span>
+              </td>
+
+              <td class="read-more-button">
+                <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+
+                <span class="long-description-container hidden">
+                  <span class="description-container">{{ $product->short_description }}</span>
+                </span>
+              </td>
+
+              <td>
+                {{ $product->product_category->title }}
+              </td>
+
+              <td>
+                @if ($product->price != '')
+                  {{ $product->size }}
+                @else
+                  L-{{ $product->lmeasurement }}, H-{{ $product->hmeasurement }}, D-{{ $product->dmeasurement }}
+                @endif
+              </td>
+
+              <td>
+                <span class="quick-composition">{{ $product->composition }}</span>
+              </td>
+
+              <td>
+                {{ $product->color }}
+              </td>
+
+              <td>
+                <span>{{ $product->price }}</span>
+
+                <span>{{ $product->price_inr }}</span>
+                <span>{{ $product->price_special }}</span>
+              </td>
+
+              <td>
+                @if ($product->hasMedia(config('constants.media_tags')))
+                  <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
+                @endif
+
+                <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
+
+                <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
+              </td>
+
+              <td>
+                {{ $product->isUploaded }} {{ $product->isFinal }}
+                <button type="button" disabled class="btn btn-xs btn-secondary">
+                  @if ($product->isUploaded == 0)
+                    List
+                  @elseif ($product->isUploaded == 1 && $product->isFinal == 0)
+                    Approve
+                  @else
+                    Update
+                  @endif
+                </button>
+              </td>
+            @endif
+          </tr>
+        @endforeach
+      </table>
+    </div>
+
+    {!! $products->appends(Request::except('page'))->links() !!}
+  </div>
 
 @endsection
 
 @section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script type="text/javascript">
+    $(document).ready(function() {
+      $('ul.pagination').hide();
+      $(function() {
+          $('.infinite-scroll').jscroll({
+              autoTrigger: true,
+              loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+              padding: 2500,
+              nextSelector: '.pagination li.active + li a',
+              contentSelector: 'div.infinite-scroll',
+              callback: function() {
+                  // $('ul.pagination').remove();
+                  $('.dropify').dropify();
+              }
+          });
+      });
+
+      $('.dropify').dropify();
+    });
+
     var category_tree = {!! json_encode($category_tree) !!};
     var categories_array = {!! json_encode($categories_array) !!};
 
@@ -346,7 +459,10 @@
 
     $(document).on('click', '.quick-edit-size-button', function() {
       var size = $(this).siblings('.quick-edit-size').val();
-      var other_size = $(this).siblings('input[name="other_size"]').val();
+      // var other_size = $(this).siblings('input[name="other_size"]').val();
+      var lmeasurement = $(this).closest('td').find('input[name="lmeasurement"]').val();
+      var hmeasurement = $(this).closest('td').find('input[name="hmeasurement"]').val();
+      var dmeasurement = $(this).closest('td').find('input[name="dmeasurement"]').val();
       var id = $(this).data('id');
       var thiss = $(this);
 
@@ -358,7 +474,9 @@
         data: {
           _token: "{{ csrf_token() }}",
           size: size,
-          other_size: other_size
+          lmeasurement: lmeasurement,
+          hmeasurement: hmeasurement,
+          dmeasurement: dmeasurement
         },
         beforeSend: function() {
           $(thiss).text('Saving...');
@@ -418,10 +536,11 @@
     $(document).on('click', '.quick-images-upload', function() {
       var id = $(this).data('id');
       var thiss = $(this);
-      var images = $(this).siblings('.quick-images-upload-input').prop('files');
+      var images = $(this).closest('td').find('input[type="file"]').prop('files');
       var images_array = [];
       var form_data = new FormData();
       console.log(images);
+      console.log($(this).closest('td').find('input[type="file"]'));
 
       form_data.append('_token', "{{ csrf_token() }}");
 
@@ -438,6 +557,7 @@
         data: form_data
       }).done(function(response) {
         $(thiss).closest('tr').find('.quick-image-container').attr('src', response.image_url);
+        $(thiss).closest('td').find('.dropify-clear').click();
       }).fail(function(response) {
         console.log(response);
 
@@ -535,7 +655,10 @@
             });
 
             found_everything = true;
-            $(element).closest('tr').find('input[name="other_size"]').addClass('hidden');
+            // $(element).closest('tr').find('.quick-edit-size').removeClass('hidden');
+            $(element).closest('tr').find('.lmeasurement-container').addClass('hidden');
+            $(element).closest('tr').find('.hmeasurement-container').addClass('hidden');
+            $(element).closest('tr').find('.dmeasurement-container').addClass('hidden');
           }
         });
 
@@ -569,7 +692,11 @@
                   }));
                 });
 
-                $(element).closest('tr').find('input[name="other_size"]').addClass('hidden');
+                // $(element).closest('tr').find('input[name="other_size"]').addClass('hidden');
+                // $(element).closest('tr').find('.quick-edit-size').removeClass('hidden');
+                $(element).closest('tr').find('.lmeasurement-container').addClass('hidden');
+                $(element).closest('tr').find('.hmeasurement-container').addClass('hidden');
+                $(element).closest('tr').find('.dmeasurement-container').addClass('hidden');
                 found_final = true;
               }
             });
@@ -577,7 +704,11 @@
         }
 
         if (!found_final) {
-          $(element).closest('tr').find('input[name="other_size"]').removeClass('hidden');
+          // $(element).closest('tr').find('input[name="other_size"]').removeClass('hidden');
+          // $(element).closest('tr').find('.quick-edit-size').addClass('hidden');
+          $(element).closest('tr').find('.lmeasurement-container').removeClass('hidden');
+          $(element).closest('tr').find('.hmeasurement-container').removeClass('hidden');
+          $(element).closest('tr').find('.dmeasurement-container').removeClass('hidden');
         }
       }
     }
