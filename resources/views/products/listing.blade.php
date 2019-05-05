@@ -4,6 +4,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <style>
     .quick-edit-color {
       transition: 1s ease-in-out;
@@ -16,28 +17,51 @@
     <div class="col-lg-12 margin-tb">
       <h2 class="page-heading">Product Listing</h2>
 
-      {{-- <div class="pull-left">
-        <form class="form-inline" action="{{ route('development.index') }}" method="GET">
-          <div class="form-group">
-            <select class="form-control" name="user">
-              @foreach ($users as $id => $name)
-                <option value="{{ $id }}" {{ $id == $user ? 'selected' : '' }}>{{ $name }}</option>
-              @endforeach
+      <div class="pull-left">
+        <form class="form-inline" action="{{ route('products.listing') }}" method="GET">
+          <div class="form-group mr-3 mb-3">
+            <input name="term" type="text" class="form-control"
+            value="{{ isset($term) ? $term : '' }}"
+            placeholder="sku,brand,category,status,stage">
+          </div>
+
+          <div class="form-group mr-3 mb-3">
+            {!! $category_search !!}
+          </div>
+
+          <div class="form-group mr-3">
+            <select class="form-control select-multiple" name="brand[]" multiple>
+              <optgroup label="Brands">
+                @foreach ($brands as $key => $name)
+                  <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+              </optgroup>
             </select>
           </div>
 
-          <div class="form-group ml-3">
-            <input type="text" value="" name="range_start" hidden/>
-            <input type="text" value="" name="range_end" hidden/>
-            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-              <i class="fa fa-calendar"></i>&nbsp;
-              <span></span> <i class="fa fa-caret-down"></i>
-            </div>
+          <div class="form-group mr-3">
+            <select class="form-control select-multiple" name="color[]" multiple>
+              <optgroup label="Colors">
+                @foreach ($colors as $key => $col)
+                  <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+                @endforeach
+              </optgroup>
+            </select>
           </div>
 
-          <button type="submit" class="btn btn-secondary ml-3">Submit</button>
+          <div class="form-group mr-3">
+            <select class="form-control select-multiple" name="supplier[]" multiple>
+              <optgroup label="Suppliers">
+                @foreach ($suppliers as $key => $item)
+                  <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
+                @endforeach
+              </optgroup>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
         </form>
-      </div> --}}
+      </div>
 
       {{-- <div class="pull-right">
         <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#createTaskModal">Add Task</button>
@@ -50,7 +74,7 @@
 
   @include('partials.flash_messages')
 
-  <div class="infinite-scroll">
+  <div class="infinite-scroll mt-5">
     <div class="table-responsive">
       <table class="table table-bordered table-striped">
         <tr>
@@ -258,6 +282,7 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('ul.pagination').hide();
@@ -276,6 +301,7 @@
       });
 
       $('.dropify').dropify();
+      $(".select-multiple").multiselect();
     });
 
     var category_tree = {!! json_encode($category_tree) !!};

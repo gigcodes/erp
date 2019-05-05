@@ -12,6 +12,7 @@ use App\ScrapedProducts;
 use App\Sale;
 use App\Setting;
 use App\Sizes;
+use App\Stage;
 use App\Brand;
 use App\Supplier;
 use App\Stock;
@@ -69,13 +70,14 @@ class ProductController extends Controller {
 			->with('i', (request()->input('page', 1) - 1) * 10);
 	}
 
-	public function listing()
+	public function listing(Request $request, Stage $stage)
 	{
-		$products = Product::where('stock', '>=', 1)->latest()->paginate(Setting::get('pagination'));
 		$colors = (new Colors)->all();
 		$categories = Category::all();
 		$category_tree = [];
 		$categories_array = [];
+		$brands = Brand::getAll();
+		$suppliers = Supplier::whereHas('products')->get();
 
 		foreach (Category::all() as $category) {
 			if ($category->parent_id != 0) {
@@ -93,13 +95,131 @@ class ProductController extends Controller {
 		$category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
 																					 ->renderAsDropdown();
 
+		$term = $request->input('term');
+		$brand = '';
+		$category = '';
+		$color = '';
+		$supplier = [];
+
+		if ($request->brand[0] != null) {
+			$productQuery = ( new Product() )->newQuery()
+			->latest()->whereIn('brand', $request->brand);
+
+			$brand = $request->brand[0];
+		}
+
+		if ($request->color[0] != null) {
+			if ($request->brand[0] != null) {
+				$productQuery = $productQuery->whereIn('color', $request->color);
+			} else {
+				$productQuery = ( new Product() )->newQuery()
+				->latest()->whereIn('color', $request->color);
+			}
+
+			$color = $request->color[0];
+		}
+
+		if ($request->category[0] != null && $request->category[0] != 1) {
+			$category_children = [];
+
+			foreach ($request->category as $category) {
+				$is_parent = Category::isParent($category);
+
+				if ($is_parent) {
+					$childs = Category::find($category)->childs()->get();
+
+					foreach ($childs as $child) {
+						$is_parent = Category::isParent($child->id);
+
+						if ($is_parent) {
+							$children = Category::find($child->id)->childs()->get();
+
+							foreach ($children as $chili) {
+								array_push($category_children, $chili->id);
+							}
+						} else {
+							array_push($category_children, $child->id);
+						}
+					}
+				} else {
+					array_push($category_children, $category);
+				}
+			}
+
+			if ($request->brand[0] != null || $request->color[0] != null) {
+				$productQuery = $productQuery->whereIn('category', $category_children);
+			} else {
+				$productQuery = ( new Product() )->newQuery()
+				->latest()->whereIn('category', $category_children);
+			}
+
+			$category = $request->category[0];
+		}
+
+		if ($request->supplier[0] != null) {
+			$suppliers_list = implode(',', $request->supplier);
+
+			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
+				$productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+			} else {
+				$productQuery = ( new Product() )->newQuery()->with('Suppliers')
+				->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+			}
+
+			$supplier = $request->supplier;
+		}
+
+		if (trim($term) != '') {
+			$productQuery = ( new Product() )->newQuery()
+			->latest()
+			->orWhere( 'sku', 'LIKE', "%$term%" )
+			->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+			;
+
+			if ( $term == - 1 ) {
+				$productQuery = $productQuery->orWhere( 'isApproved', - 1 );
+			}
+
+			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+				$productQuery = $productQuery->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+			}
+
+			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+				$productQuery = $productQuery->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
+			}
+
+			if (!empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+			}
+		} else {
+			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null) {
+				$productQuery = ( new Product() )->newQuery()->latest();
+			}
+		}
+
+		$products = $productQuery->where('stock', '>=', 1)->latest()->paginate(Setting::get('pagination'));
+		$selected_categories = $request->category ? $request->category : 1;
+		$category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		                                        ->selected($selected_categories)
+		                                        ->renderAsDropdown();
+
 		return view('products.listing', [
 			'products'					=> $products,
 			'colors'						=> $colors,
+			'brands'						=> $brands,
+			'suppliers'					=> $suppliers,
 			'categories'				=> $categories,
 			'category_tree'			=> $category_tree,
 			'categories_array'	=> $categories_array,
 			'category_selection'	=> $category_selection,
+			'category_search'	=> $category_search,
+			'term'	=> $term,
+			'brand'	=> $brand,
+			'category'	=> $category,
+			'color'	=> $color,
+			'supplier'	=> $supplier,
 		]);
 	}
 
