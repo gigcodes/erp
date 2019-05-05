@@ -47,7 +47,7 @@ class AutoMessenger extends Command
         'number'      => NULL,
         'user_id'     => 6,
         'approved'    => 0,
-        'status'      => 1,
+        'status'      => 9, // auto message status
       ];
 
       $communication_histories = CommunicationHistory::where('type', 'refund-initiated')->where('model_type', 'App\Order')->where('method', 'email')->get();
