@@ -108,4 +108,11 @@ class SettingController extends Controller
 
 		return redirect()->back()->with('status', 'Settings has been saved.');
 	}
+
+	public function updateAutoMessages(Request $request)
+	{
+		Setting::add('show_automated_messages', $request->value, 'int');
+
+		return response('success');
+	}
 }

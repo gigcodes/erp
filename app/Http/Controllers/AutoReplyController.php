@@ -16,9 +16,11 @@ class AutoReplyController extends Controller
     public function index()
     {
       $auto_replies = AutoReply::paginate(Setting::get('pagination'));
+      $show_automated_messages = Setting::get('show_automated_messages');
 
       return view('autoreplies.index', [
-        'auto_replies'  => $auto_replies
+        'auto_replies'  => $auto_replies,
+        'show_automated_messages'  => $show_automated_messages
       ]);
     }
 

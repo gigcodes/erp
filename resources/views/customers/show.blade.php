@@ -1285,10 +1285,13 @@
           @csrf
 
           <div class="form-group">
-            <div class="upload-btn-wrapper btn-group pr-0 d-flex flex-column">
+            <div class=" d-flex flex-column">
               <div class="">
-                <input type="file" name="image" />
-                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+                <div class="upload-btn-wrapper btn-group px-0">
+                  <input type="file" name="image" />
+                  <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+
+                </div>
 
                 <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
               </div>

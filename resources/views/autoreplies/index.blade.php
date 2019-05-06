@@ -39,7 +39,16 @@
               </form> --}}
             </div>
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#autoReplyCreateModal">Create</a>
+              <div class="form-inline">
+                <div class="form-inline">
+                  <input type="checkbox" id="turn_off_automated" name="show_automated_messages" value="" {{ $show_automated_messages == 1 ? 'checked' : '' }}>
+                  <label for="#turn_off_automated">Show Automated Messages</label>
+
+                    <span class="text-success change_status_message" style="display: none;">Successfully saved</span>
+                </div>
+
+                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#autoReplyCreateModal">Create</a>
+              </div>
             </div>
         </div>
     </div>
@@ -92,6 +101,30 @@
       $('#autoReplyEditModal form').attr('action', url);
       $('#autoreply_keyword').val(autoreply.keyword);
       $('#autoreply_reply').val(autoreply.reply);
+    });
+
+    $('#turn_off_automated').on('click', function() {
+      var checked = $(this).prop('checked');
+      var thiss = $(this);
+
+      $.ajax({
+        type: "POST",
+        url: "{{ route('settings.update.automessages') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          value: checked ? 1 : 0
+        }
+      }).done(function() {
+        $(thiss).siblings('.change_status_message').fadeIn(400);
+
+        setTimeout(function () {
+          $(thiss).siblings('.change_status_message').fadeOut(400);
+        }, 2000);
+      }).fail(function(response) {
+        console.log(response);
+
+        alert('Could not saved the changes');
+      })
     });
   </script>
 @endsection
