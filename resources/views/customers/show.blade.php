@@ -3865,5 +3865,14 @@
           alert('Could not update customer');
         });
       });
+
+      $('#email_order_id').on('change', function() {
+        var order_id = $(this).val();
+
+        var subject = $(this).closest('form').find('input[name="subject"]').val();
+        var new_subject = order_id + ' ' + subject;
+
+        $(this).closest('form').find('input[name="subject"]').val(new_subject);
+      });
   </script>
 @endsection

@@ -704,6 +704,10 @@ class CustomerController extends Controller
 
       Mail::to($customer->email)->send(new CustomerEmail($request->subject, $request->message));
 
+      if ($request->order_id != '') {
+        $order_data = json_encode(['order_id' => $request->order_id]);
+      }
+
       $params = [
         'model_id'        => $customer->id,
         'model_type'      => Customer::class,
@@ -712,7 +716,7 @@ class CustomerController extends Controller
         'subject'         => $request->subject,
         'message'         => $request->message,
         'template'				=> 'customer-simple',
-        'additional_data'	=> ''
+        'additional_data'	=> isset($order_data) ? $order_data : ''
       ];
 
       Email::create($params);

@@ -14,6 +14,19 @@
 
         <div class="modal-body">
           <div class="form-group">
+            <strong>Select Order</strong>
+            <select class="form-control" name="order_id" id="email_order_id">
+              <option value="">Select an Order</option>
+
+              @if (count($customer->orders) > 0)
+                @foreach ($customer->orders as $order)
+                  <option value="{{ $order->order_id }}">{{ $order->order_id }}</option>
+                @endforeach
+              @endif
+            </select>
+          </div>
+
+          <div class="form-group">
             <strong>Subject</strong>
             <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" required>
           </div>
