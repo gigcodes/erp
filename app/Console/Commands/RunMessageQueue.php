@@ -47,12 +47,17 @@ class RunMessageQueue extends Command
       if (count($message_queues->get()) > 0) {
         foreach ($message_queues->get() as $message) {
           if ($message->type == 'message_all') {
+
             $customer = Customer::find($message->customer_id);
 
             if ($customer && $customer->do_not_disturb == 0) {
               SendMessageToAll::dispatch($message->user_id, $customer, json_decode($message->data, true), $message->id);
 
               dump('sent to all');
+            } else {
+              $message->delete();
+              
+              dump('deleting queue');
             }
           } else {
             SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);

@@ -122,6 +122,14 @@ class Kernel extends ConsoleKernel
           MagentoController::get_magento_orders();
         })->hourly();
 
+        $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
+        $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
+        $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
+
+        // Voucher Reminders
+        $schedule->command('send:voucher-reminder')->daily();
+
         // Updates Magento Products status on ERP
         // $schedule->command('update:magento-product-status')->dailyAt(03);
 
@@ -200,13 +208,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:instagram-messagges')
             ->hourly();
 
-        $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
-        $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
-        $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
 
-        // Voucher Reminders
-        $schedule->command('send:voucher-reminder')->daily();
     }
 
     /**
