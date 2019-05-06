@@ -163,11 +163,6 @@
       .floating-arrows.right {
         right: 20px;
       }
-
-      #message-wrapper {
-        height: 500px;
-        overflow-y: scroll;
-      }
   </style>
 @endsection
 
@@ -219,776 +214,1077 @@
 <div id="exTab2" class="container">
   <ul class="nav nav-tabs">
     <li class="active">
-      <a href="#one" data-toggle="tab" class="btn btn-image"><img src="/images/customer-info.png" /></a>
+      <a href="#one" data-toggle="tab">Customer Info</a>
     </li>
     <li>
-      <a href="#6" data-toggle="tab" class="btn btn-image"><img src="/images/customer-call-recording.png" /></a>
+      <a href="#6" data-toggle="tab">Call Recording</a>
     </li>
     @if (count($customer->leads) > 0)
-    <li><a href="#2" data-toggle="tab" class="btn btn-image"><img src="/images/customer-lead.png" /></a></li>
+    <li><a href="#2" data-toggle="tab">Leads</a></li>
     @endif
     @if (count($customer->orders) > 0)
-      <li><a href="#3" data-toggle="tab" class="btn btn-image"><img src="/images/customer-order.png" /></a></li>
+      <li><a href="#3" data-toggle="tab">Orders</a></li>
     @endif
     @if ($customer->instagramThread)
       <li><a href="#igdm" data-toggle="tab">Instagram DM</a></li>
     @endif
     @if (count($customer->private_views) > 0)
-      <li><a href="#private_view_tab" data-toggle="tab" class="btn btn-image"><img src="/images/customer-private-viewing.png" /></a></li>
+      <li><a href="#private_view_tab" data-toggle="tab">Private Viewing</a></li>
     @endif
     <li>
-      <a href="#suggestion_tab" data-toggle="tab" class="btn btn-image"><img src="/images/customer-suggestion.png" /></a>
+      <a href="#suggestion_tab" data-toggle="tab">Suggestions</a>
     </li>
     <li>
-      <a href="#email_tab" data-toggle="tab" data-customerid="{{ $customer->id }}" data-type="inbox" class="btn btn-image"><img src="/images/customer-email.png" /></a>
+      <a href="#email_tab" data-toggle="tab" data-customerid="{{ $customer->id }}" data-type="inbox">Emails</a>
     </li>
   </ul>
 </div>
 
-<div class="row">
-  <div class="col-xs-12 col-md-4">
-    <div class="tab-content">
-      <div class="tab-pane active mt-3" id="one">
-        <div class="row">
-          <div class="col-xs-12">
-            <div class="form-group form-inline">
-              <input type="text" name="name" id="customer_name" class="form-control" placeholder="Name" value="{{ $customer->name }}">
+<div class="tab-content ">
+  <div class="tab-pane active mt-3" id="one">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <strong>Name:</strong> {{ $customer->name }}
+          @if ($customer->is_blocked == 1)
+            <span class="badge badge-secondary">Blocked</span>
+          @endif
+          <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
+        </div>
 
-              @if ($customer->is_blocked == 1)
-                <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
-              @else
-                <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
-              @endif
+        <div class="form-group">
+  				<input type="checkbox" name="do_not_disturb" id="do_not_disturb" {{ $customer->do_not_disturb ? 'checked' : '' }} data-id="{{ $customer->id }}">
+  				<label for="do_not_disturb">Do Not Disturb</label>
 
-              @if ($customer->do_not_disturb == 1)
-                <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-not-disturb.png" /></button>
-              @else
-                <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-disturb.png" /></button>
-              @endif
-            </div>
+          <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
+  			</div>
 
-            {{-- <div class="form-group">
-      				<input type="checkbox" name="do_not_disturb" id="do_not_disturb" {{ $customer->do_not_disturb ? 'checked' : '' }} data-id="{{ $customer->id }}">
-      				<label for="do_not_disturb">Do Not Disturb</label>
-
-              <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
-      			</div> --}}
-
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-              <div class="form-group form-inline">
-                <input type="number" id="customer_phone" name="phone" class="form-control" placeholder="910000000000" value="{{ $customer->phone }}">
-
-                @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
-                  <span class="badge badge-danger ml-3" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
-                @endif
-                {{-- <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span> --}}
-              </div>
+        @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+          <div class="form-group">
+            @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
+              <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
             @endif
-
-            <div class="form-group">
-              {{-- <strong>Address:</strong> {{ $customer->address }} --}}
-              <textarea name="address" id="customer_address" class="form-control" rows="3" cols="80" placeholder="Address">{{ $customer->address }}</textarea>
-            </div>
-
-            <div class="row">
-              <div class="col">
-                <div class="form-group">
-                  <input type="text" name="city" id="customer_city" class="form-control" placeholder="City" value="{{ $customer->city }}">
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="form-group">
-                  <input type="text" name="country" id="customer_country" class="form-control" placeholder="Country" value="{{ $customer->country }}">
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <input type="number" name="pincode" id="customer_pincode" class="form-control" placeholder="91111" value="{{ $customer->pincode }}">
-            </div>
-
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-              <div class="form-group">
-                {{-- <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a> --}}
-                <input type="email" name="email" id="customer_email" class="form-control" placeholder="Email" value="{{ $customer->email }}">
-              </div>
-
-              <div class="form-group">
-                <input type="text" name="insta_handle" id="customer_insta_handle" class="form-control" placeholder="Instagram Handle" value="{{ $customer->insta_handle }}">
-              </div>
-
-              <div class="form-group">
-        				<select name="whatsapp_number" class="form-control" id="whatsapp_change">
-        					<option value>Whatsapp Number</option>
-
-                  @foreach ($api_keys as $api_key)
-        						<option value="{{ $api_key->number }}" {{ $customer->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
-        					@endforeach
-        				</select>
-
-                <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
-        			</div>
-            @endif
-
-            <div class="form-group">
-              <select name="rating" class="form-control" id="customer_rating">
-                <option value>Select Rating</option>
-                <option value="1" {{ '1' == $customer->rating ? 'selected' : '' }}>1</option>
-                <option value="2" {{ '2' == $customer->rating ? 'selected' : '' }}>2</option>
-                <option value="3" {{ '3' == $customer->rating ? 'selected' : '' }}>3</option>
-                <option value="4" {{ '4' == $customer->rating ? 'selected' : '' }}>4</option>
-                <option value="5" {{ '5' == $customer->rating ? 'selected' : '' }}>5</option>
-                <option value="6" {{ '6' == $customer->rating ? 'selected' : '' }}>6</option>
-                <option value="7" {{ '7' == $customer->rating ? 'selected' : '' }}>7</option>
-                <option value="8" {{ '8' == $customer->rating ? 'selected' : '' }}>8</option>
-                <option value="9" {{ '9' == $customer->rating ? 'selected' : '' }}>9</option>
-                <option value="10" {{ '10' == $customer->rating ? 'selected' : '' }}>10</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <input type="text" name="shoe_size" id="customer_shoe_size" class="form-control" placeholder="Shoe Size" value="{{ $customer->shoe_size }}">
-            </div>
-
-            <div class="form-group">
-              <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
-            </div>
-
-            <div class="form-group">
-              <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
-            </div>
-
-            <div class="form-group">
-              <button type="button" id="updateCustomerButton" class="btn btn-xs btn-secondary">Save</button>
-            </div>
-
-            @if ($customer->credit > 0)
-              <div class="form-group">
-                <strong>Credit:</strong> {{ $customer->credit }}
-              </div>
-
-              <div class="form-group">
-                <button type="button" class="btn btn-xs btn-secondary issue-credit-button" data-id="{{ $customer->id }}">Issue Credit</button>
-              </div>
-
-              @if ($customer->credits_issued)
-                <ul>
-                  @foreach ($customer->credits_issued as $credit)
-                    <li>Email sent on {{ \Carbon\Carbon::parse($credit->created_at)->format('H:i d-m') }}</li>
-                  @endforeach
-                </ul>
-              @endif
-            @endif
+            <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span>
           </div>
 
+          <div class="form-group">
+            <strong>Instagram Handle:</strong> {{ $customer->ig_username }}
+          </div>
+        @endif
 
+        <div class="form-group">
+          <strong>Address:</strong> {{ $customer->address }}
+        </div>
+
+        @if ($customer->credit > 0)
+          <div class="form-group">
+            <strong>Credit:</strong> {{ $customer->credit }}
+          </div>
+
+          <div class="form-group">
+            <button type="button" class="btn btn-xs btn-secondary issue-credit-button" data-id="{{ $customer->id }}">Issue Credit</button>
+          </div>
+
+          @if ($customer->credits_issued)
+            <ul>
+              @foreach ($customer->credits_issued as $credit)
+                <li>Email sent on {{ \Carbon\Carbon::parse($credit->created_at)->format('H:i d-m') }}</li>
+              @endforeach
+            </ul>
+          @endif
+        @endif
+      </div>
+
+      <div class="col-md-6">
+        @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+          <div class="form-group">
+            <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a>
+          </div>
+
+          <div class="form-group">
+    				<strong>Whatsapp Number:</strong>
+    				<select name="whatsapp_number" class="form-control" id="whatsapp_change">
+    					<option value>None</option>
+    					{{-- @foreach ($solo_numbers as $number => $name)
+    						<option value="{{ $number }}" {{ $customer->whatsapp_number == $number ? 'selected' : '' }}>{{ $name }}</option>
+    					@endforeach --}}
+              @foreach ($api_keys as $api_key)
+    						<option value="{{ $api_key->number }}" {{ $customer->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
+    					@endforeach
+    				</select>
+    				@if ($errors->has('whatsapp_number'))
+    						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
+    				@endif
+
+            <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
+    			</div>
+        @endif
+
+        <div class="form-group">
+          <strong>Rating:</strong> {{ $customer->rating }}
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <strong>City:</strong> {{ $customer->city }}
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="form-group">
+              <strong>Country:</strong> {{ $customer->country }}
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="form-group">
+              <strong>Pincode:</strong> {{ $customer->pincode }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
         </div>
       </div>
 
-      <div class="tab-pane mt-3" id="6">
-        <div class="row">
-          <h4>Call Recording</h4>
-          <div class="table-responsive">
-            <table class="table table-bordered">
-              {{-- <tr>
-                <th style="width: 50%">Call Recording</th>
-                <th style="width: 25%">Message</th>
-                <th style="width: 25%">Call Time</th>
-              </tr> --}}
-              @if (count($customer->call_recordings) > 0)
-                @foreach ($customer->call_recordings as $history_val)
-                  <tr class="">
-                    <td>
-                      {{$history_val['message']}}
-                      {{ \Carbon\Carbon::parse($history_val['created_at'])->format('H:i d-m') }}
-                      <br>
+      <div class="col-xs-12">
+        <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
 
-                      <audio src="{{$history_val['recording_url']}}" controls preload="metadata">
-                        <p>Alas, your browser doesn't support html5 audio.</p>
-                      </audio>
-                    </td>
-                    {{-- <td></td>
-                    <td></td> --}}
-                  </tr>
+        <form class="form-inline mb-3" action="{{ route('instruction.category.store') }}" method="POST">
+          @csrf
+          <div class="form-group">
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" placeholder="Category" required>
+          </div>
+
+          <button type="submit" class="btn btn-secondary ml-3">Create Category</button>
+        </form>
+
+        @include('customers.partials.modal-instruction')
+
+        <div id="exTab3" class="container">
+          <ul class="nav nav-tabs">
+            <li class="active">
+              <a href="#4" data-toggle="tab">Instructions</a>
+            </li>
+            <li><a href="#5" data-toggle="tab">Complete</a></li>
+          </ul>
+        </div>
+
+        <div class="tab-content ">
+
+          <div class="tab-pane active mt-3" id="4">
+            <div class="table-responsive">
+                <table class="table table-bordered m-0">
+                <tr>
+                  <th>Number</th>
+                  <th>Assigned to</th>
+                  <th>Category</th>
+                  <th>Instructions</th>
+                  <th colspan="3" class="text-center">Action</th>
+                  <th>Created at</th>
+                  <th>Remark</th>
+                </tr>
+                @foreach ($customer->instructions()->where('verified', 0)->latest()->limit(3)->get() as $instruction)
+                    <tr>
+                      <td>
+                        <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                      </td>
+                      <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
+                      <td>{{ $instruction->category->name }}</td>
+                      <td>{{ $instruction->instruction }}</td>
+                      <td>
+                        @if ($instruction->completed_at)
+                          {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                        @else
+                          <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction->completed_at)
+                          Completed
+                        @else
+                          @if ($instruction->pending == 0)
+                            <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                          @else
+                            Pending
+                          @endif
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction->verified == 1)
+                          <span class="badge">Verified</span>
+                        @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                          <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                        @else
+                          <span class="badge">Not Verified</span>
+                        @endif
+                      </td>
+                      <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                      <td>
+                        <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                        <span> | </span>
+                        <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                      </td>
+                    </tr>
                 @endforeach
-              @endif
-          </table>
+            </table>
+            </div>
+
+            <div id="instructionAccordion">
+                <div class="card mb-5">
+                  <div class="card-header" id="headingInstruction">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionAcc" aria-expanded="false" aria-controls="">
+                        Rest of Instructions
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="instructionAcc" class="collapse collapse-element" aria-labelledby="headingInstruction" data-parent="#instructionAccordion">
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <tbody>
+                            @foreach ($customer->instructions()->where('verified', 0)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
+                              <tr>
+                                <td>
+                                  <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                                </td>
+                                <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
+                                <td>{{ $instruction->category->name }}</td>
+                                <td>{{ $instruction->instruction }}</td>
+                                <td>
+                                  @if ($instruction->completed_at)
+                                    {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                                  @else
+                                    <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
+                                  @endif
+                                </td>
+                                <td>
+                                  @if ($instruction->completed_at)
+                                    Completed
+                                  @else
+                                    @if ($instruction->pending == 0)
+                                      <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                                    @else
+                                      Pending
+                                    @endif
+                                  @endif
+                                </td>
+                                <td>
+                                  @if ($instruction->verified == 1)
+                                    <span class="badge">Verified</span>
+                                  @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                                    <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                                  @else
+                                    <span class="badge">Not Verified</span>
+                                  @endif
+                                </td>
+                                <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                                <td>
+                                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                                  <span> | </span>
+                                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                                </td>
+                              </tr>
+                            @endforeach
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="tab-pane mt-3" id="5">
+            <div class="table-responsive">
+                <table class="table table-bordered m-0">
+                <tr>
+                  <th>Number</th>
+                  <th>Assigned to</th>
+                  <th>Category</th>
+                  <th>Instructions</th>
+                  <th colspan="3" class="text-center">Action</th>
+                  <th>Created at</th>
+                  <th>Remark</th>
+                </tr>
+                @foreach ($customer->instructions()->where('verified', 1)->latest()->limit(3)->get() as $instruction)
+                    <tr>
+                      <td>
+                        <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                      </td>
+                      <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
+                      <td>{{ $instruction->category->name }}</td>
+                      <td>{{ $instruction->instruction }}</td>
+                      <td>
+                        @if ($instruction->completed_at)
+                          {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                        @else
+                          <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction->completed_at)
+                          Completed
+                        @else
+                          @if ($instruction->pending == 0)
+                            <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                          @else
+                            Pending
+                          @endif
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction->verified == 1)
+                          <span class="badge">Verified</span>
+                        @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                          <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                        @else
+                          <span class="badge">Not Verified</span>
+                        @endif
+                      </td>
+                      <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                      <td>
+                        <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                        <span> | </span>
+                        <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                      </td>
+                    </tr>
+                @endforeach
+            </table>
+            </div>
+
+            <div id="instructionCompletedAccordion">
+                <div class="card mb-5">
+                  <div class="card-header" id="headingInstruction">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionCompletedAcc" aria-expanded="false" aria-controls="">
+                        Rest of Instructions
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="instructionCompletedAcc" class="collapse collapse-element" aria-labelledby="headingInstruction" data-parent="#instructionCompletedAccordion">
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <tbody>
+                            @foreach ($customer->instructions()->where('verified', 1)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
+                              <tr>
+                                <td>
+                                  <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                                </td>
+                                <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
+                                <td>{{ $instruction->category->name }}</td>
+                                <td>{{ $instruction->instruction }}</td>
+                                <td>
+                                  @if ($instruction->completed_at)
+                                    {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                                  @else
+                                    <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
+                                  @endif
+                                </td>
+                                <td>
+                                  @if ($instruction->completed_at)
+                                    Completed
+                                  @else
+                                    @if ($instruction->pending == 0)
+                                      <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                                    @else
+                                      Pending
+                                    @endif
+                                  @endif
+                                </td>
+                                <td>
+                                  @if ($instruction->verified == 1)
+                                    <span class="badge">Verified</span>
+                                  @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                                    <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                                  @else
+                                    <span class="badge">Not Verified</span>
+                                  @endif
+                                </td>
+                                <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                                <td>
+                                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                                  <span> | </span>
+                                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                                </td>
+                              </tr>
+                            @endforeach
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
           </div>
         </div>
+
+        <div class="row">
+          <div class="col-md-6 col-12 mb-3">
+            <form action="{{ route('status.report.store') }}" method="POST">
+              @csrf
+
+              <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+
+              <div class="form-group">
+                <strong>Next action due</strong>
+                <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
+
+                <select class="form-control" name="status_id" required>
+                  <option value="">Select action</option>
+                  @foreach ($order_status_report as $status)
+                    <option value="{{ $status->id }}">{{ $status->status }}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              <div class="form-group" id="completion_form_group">
+                <strong>Completion Date:</strong>
+                <div class='input-group date' id='report-completion-datetime'>
+                  <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+
+                @if ($errors->has('completion_date'))
+                    <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                @endif
+              </div>
+
+              <button type="submit" class="btn btn-secondary">Add Report</button>
+            </form>
+
+            @if (count($customer->many_reports) > 0)
+              <h4>Order Reports</h4>
+
+              <table class="table table-bordered mt-4">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Created at</th>
+                    <th>Creator</th>
+                    <th>Due date</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @foreach ($customer->many_reports as $report)
+                    <tr>
+                      <td>{{ $report->status }}</td>
+                      <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
+                      <td>{{ $users_array[$report->user_id] }}</td>
+                      <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
+                    </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            @endif
+          </div>
+        </div>
+
+        @include('customers.partials.modal-remark')
+
       </div>
-        @if ($customer->instagramThread)
-            <div class="tab-pane mt-3" id="igdm">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mesgs">
-                            <p style="font-size: 24px;font-weight: bolder;" class="text-center mb-5">Instagram Messages</p>
-                            <div class="msg_history"></div>
-                            <div class="type_msg">
-                                <div class="input_msg_write">
-                                    <input data-thread-id="{{$customer->instagramThread->thread_id}}" type="text" class="write_msg ig-reply" placeholder="Type a message" />
-                                    <label for="ig_image" class="btn btn-info"  style="position: absolute; top: 10px; right: 5px; border-radius:50%"><i class="fa fa-image" aria-hidden="true"></i></label>
-                                    <input type="file" data-thread-id="{{$customer->instagramThread->thread_id}}" name="ig_image" id="ig_image" style="display: none;">
-                                </div>
+    </div>
+  </div>
+
+  <div class="tab-pane mt-3" id="6">
+    <div class="row">
+      <h2> Call Recording </h2>
+      <table class="table table-bordered">
+        <tr>
+            <th style="width: 50%">Call Recording</th>
+            <th style="width: 50%">Message</th>
+            <th style="width: 50%">Call Time</th>
+        </tr>
+        @if (count($customer->call_recordings) > 0)
+          @foreach ($customer->call_recordings as $history_val)
+            <tr class="">
+              <td><audio src="{{$history_val['recording_url']}}" controls preload="metadata">
+              <p>Alas, your browser doesn't support html5 audio.</p>
+              </audio> </td>
+              <td>{{$history_val['message']}}</td>
+              <td>{{$history_val['created_at']}}</td>
+            </tr>
+          @endforeach
+        @endif
+    </table>
+    </div>
+  </div>
+    @if ($customer->instagramThread)
+        <div class="tab-pane mt-3" id="igdm">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mesgs">
+                        <p style="font-size: 24px;font-weight: bolder;" class="text-center mb-5">Instagram Messages</p>
+                        <div class="msg_history"></div>
+                        <div class="type_msg">
+                            <div class="input_msg_write">
+                                <input data-thread-id="{{$customer->instagramThread->thread_id}}" type="text" class="write_msg ig-reply" placeholder="Type a message" />
+                                <label for="ig_image" class="btn btn-info"  style="position: absolute; top: 10px; right: 5px; border-radius:50%"><i class="fa fa-image" aria-hidden="true"></i></label>
+                                <input type="file" data-thread-id="{{$customer->instagramThread->thread_id}}" name="ig_image" id="ig_image" style="display: none;">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        @endif
+        </div>
+    @endif
 
-      @if (count($customer->leads) > 0)
-        <div class="tab-pane mt-3" id="2">
-          <div id="leadAccordion">
-            @foreach ($customer->leads as $key => $lead)
-              <div class="card">
-                <div class="card-header" id="headingLead{{ $key + 1 }}">
-                  <h5 class="mb-0">
-                    <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#lead{{ $key + 1 }}" aria-expanded="false" aria-controls="lead{{ $key + 1 }}">
-                      Lead {{ $key + 1 }}
-                      <a href="{{ route('leads.show', $lead->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
-                    </button>
-                  </h5>
-                </div>
-                <div id="lead{{ $key + 1 }}" class="collapse collapse-element" aria-labelledby="headingLead{{ $key + 1 }}" data-parent="#leadAccordion">
-                  <div class="card-body">
-                    <form action="{{ route('leads.update', $lead->id) }}" method="POST" enctype="multipart/form-data">
-                      @csrf
-                      @method('PUT')
-                      <input type="hidden" name="type" value="customer">
-                      <div class="row">
-                        <div class="col-xs-12">
-                          <div class="form-group">
-                            <strong>Brand:</strong>
-                            <select multiple="" name="multi_brand[]" class="form-control multi_brand">
-                              @php $multi_brand = is_array(json_decode($lead->multi_brand,true) ) ? json_decode($lead->multi_brand,true) : []; @endphp
-                              @foreach($brands as $brand_item)
-                                <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'] ,$multi_brand) ? 'Selected=Selected':''}}>{{$brand_item['name']}}</option>
-                              @endforeach
-                            </select>
+  @if (count($customer->leads) > 0)
+    <div class="tab-pane mt-3" id="2">
+      <div id="leadAccordion">
+        @foreach ($customer->leads as $key => $lead)
+          <div class="card">
+            <div class="card-header" id="headingLead{{ $key + 1 }}">
+              <h5 class="mb-0">
+                <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#lead{{ $key + 1 }}" aria-expanded="false" aria-controls="lead{{ $key + 1 }}">
+                  Lead {{ $key + 1 }}
+                  <a href="{{ route('leads.show', $lead->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
+                </button>
+              </h5>
+            </div>
+            <div id="lead{{ $key + 1 }}" class="collapse collapse-element" aria-labelledby="headingLead{{ $key + 1 }}" data-parent="#leadAccordion">
+              <div class="card-body">
+                <form action="{{ route('leads.update', $lead->id) }}" method="POST" enctype="multipart/form-data">
+                  @csrf
+                  @method('PUT')
+                  <input type="hidden" name="type" value="customer">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <strong>Brand:</strong>
+                        <select multiple="" name="multi_brand[]" class="form-control multi_brand">
+                          @php $multi_brand = is_array(json_decode($lead->multi_brand,true) ) ? json_decode($lead->multi_brand,true) : []; @endphp
+                          @foreach($brands as $brand_item)
+                            <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'] ,$multi_brand) ? 'Selected=Selected':''}}>{{$brand_item['name']}}</option>
+                          @endforeach
+                        </select>
 
-                          </div>
+                      </div>
 
-                          <div class="form-group">
-                            <strong>Categories</strong>
-                            @php
-                            // $selected_category = $lead->multi_category ? $lead->multi_category : '';
-                            $selected_categories = is_array(json_decode( $lead->multi_category,true)) ? json_decode( $lead->multi_category ,true) : [] ;
-                            $category_selection = \App\Category::attr(['name' => 'multi_category','class' => 'form-control'])
-                            ->selected($selected_categories)
-                            ->renderAsDropdown();
-                            @endphp
-                            {!! $category_selection  !!}
-                          </div>
+                      <div class="form-group">
+                        <strong>Categories</strong>
+                        @php
+                        // $selected_category = $lead->multi_category ? $lead->multi_category : '';
+                        $selected_categories = is_array(json_decode( $lead->multi_category,true)) ? json_decode( $lead->multi_category ,true) : [] ;
+                        $category_selection = \App\Category::attr(['name' => 'multi_category','class' => 'form-control'])
+                        ->selected($selected_categories)
+                        ->renderAsDropdown();
+                        @endphp
+                        {!! $category_selection  !!}
+                      </div>
 
-                          <div class="form-group">
-                            <strong> Selected Product :</strong>
+                      <div class="form-group">
+                        <strong> Selected Product :</strong>
 
-                            <select name="selected_product[]" class="select2{{ $key + 1 }} form-control" multiple="multiple"></select>
+                        <select name="selected_product[]" class="select2{{ $key + 1 }} form-control" multiple="multiple"></select>
 
-                            @if ($errors->has('selected_product'))
-                              <div class="alert alert-danger">{{$errors->first('selected_product')}}</div>
-                            @endif
-                          </div>
+                        @if ($errors->has('selected_product'))
+                          <div class="alert alert-danger">{{$errors->first('selected_product')}}</div>
+                        @endif
+                      </div>
 
-                          <script type="text/javascript">
-                          $(document).ready(function() {
-                            var key = {{ $key + 1 }};
-                            jQuery('.select2' + key).select2({
-                              ajax: {
-                                url: '/productSearch/',
-                                dataType: 'json',
-                                delay: 750,
-                                data: function (params) {
-                                  return {
-                                    q: params.term, // search term
-                                  };
-                                },
-                                processResults: function (data,params) {
+                      <script type="text/javascript">
+                      $(document).ready(function() {
+                        var key = {{ $key + 1 }};
+                        jQuery('.select2' + key).select2({
+                          ajax: {
+                            url: '/productSearch/',
+                            dataType: 'json',
+                            delay: 750,
+                            data: function (params) {
+                              return {
+                                q: params.term, // search term
+                              };
+                            },
+                            processResults: function (data,params) {
 
-                                  params.page = params.page || 1;
+                              params.page = params.page || 1;
 
-                                  return {
-                                    results: data,
-                                    pagination: {
-                                      more: (params.page * 30) < data.total_count
-                                    }
-                                  };
-                                },
-                              },
-                              placeholder: 'Search for Product by id, Name, Sku',
-                              escapeMarkup: function (markup) { return markup; },
-                              minimumInputLength: 5,
-                              width: '100%',
-                              templateResult: formatProduct,
-                              templateSelection:function(product) {
-                                return product.text || product.name;
-                              },
+                              return {
+                                results: data,
+                                pagination: {
+                                  more: (params.page * 30) < data.total_count
+                                }
+                              };
+                            },
+                          },
+                          placeholder: 'Search for Product by id, Name, Sku',
+                          escapeMarkup: function (markup) { return markup; },
+                          minimumInputLength: 5,
+                          width: '100%',
+                          templateResult: formatProduct,
+                          templateSelection:function(product) {
+                            return product.text || product.name;
+                          },
 
+                        });
+
+
+
+
+                        @php
+                          $selected_products_array = json_decode( $lead->selected_product );
+                          $products_array = [];
+
+                          if ( ! empty( $selected_products_array  ) ) {
+                            foreach ($selected_products_array  as $product_id) {
+                              $product = \App\Product::find($product_id);
+
+                              $products_array[$product_id] = $product->name ? $product->name : $product->sku;
+                            }
+                          }
+                        @endphp
+                        @if(!empty($products_array ))
+                          let data = [
+                          @forEach($products_array as $key => $value)
+                            {
+                              'id': '{{ $key }}',
+                              'text': '{{$value  }}',
+                            },
+                          @endforeach
+                          ];
+                        @endif
+
+                        let productSelect = jQuery('.select2' + key);
+                        // create the option and append to Select2
+                        @if(!empty($products_array ))
+                          data.forEach(function (item) {
+
+                            var option = new Option(item.text,item.id , true, true);
+                            productSelect.append(option).trigger('change');
+
+                            // manually trigger the `select2:select` event
+                            productSelect.trigger({
+                              type: 'select2:select',
+                              params: {
+                                data: item
+                              }
                             });
 
-
-
-
-                            @php
-                              $selected_products_array = json_decode( $lead->selected_product );
-                              $products_array = [];
-
-                              if ( ! empty( $selected_products_array  ) ) {
-                                foreach ($selected_products_array  as $product_id) {
-                                  $product = \App\Product::find($product_id);
-
-                                  $products_array[$product_id] = $product->name ? $product->name : $product->sku;
-                                }
-                              }
-                            @endphp
-                            @if(!empty($products_array ))
-                              let data = [
-                              @forEach($products_array as $key => $value)
-                                {
-                                  'id': '{{ $key }}',
-                                  'text': '{{$value  }}',
-                                },
-                              @endforeach
-                              ];
-                            @endif
-
-                            let productSelect = jQuery('.select2' + key);
-                            // create the option and append to Select2
-                            @if(!empty($products_array ))
-                              data.forEach(function (item) {
-
-                                var option = new Option(item.text,item.id , true, true);
-                                productSelect.append(option).trigger('change');
-
-                                // manually trigger the `select2:select` event
-                                productSelect.trigger({
-                                  type: 'select2:select',
-                                  params: {
-                                    data: item
-                                  }
-                                });
-
-                              });
-                            @endif
-
-                            function formatProduct (product) {
-                              if (product.loading) {
-                                return product.sku;
-                              }
-
-                              return "<p> <b>Id:</b> " +product.id  + (product.name ? " <b>Name:</b> "+product.name : "" ) +  " <b>Sku:</b> "+product.sku+" </p>";
-                            }
                           });
-                        </script>
+                        @endif
+
+                        function formatProduct (product) {
+                          if (product.loading) {
+                            return product.sku;
+                          }
+
+                          return "<p> <b>Id:</b> " +product.id  + (product.name ? " <b>Name:</b> "+product.name : "" ) +  " <b>Sku:</b> "+product.sku+" </p>";
+                        }
+                      });
+                    </script>
+
+                    <div class="form-group">
+                      <strong>status:</strong>
+
+                      @if (count($lead->status_changes) > 0)
+                        <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                        <div class="change-history-container hidden">
+                          <ul>
+                            @foreach ($lead->status_changes as $status_history)
+                              <li>
+                                {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                              </li>
+                            @endforeach
+                          </ul>
+                        </div>
+                      @endif
+
+                      <Select name="status" class="form-control change_status" data-leadid="{{ $lead->id }}">
+                        @foreach($lead_status as $key => $value)
+                          <option value="{{$value}}" {{$value == $lead->status ? 'Selected=Selected':''}}>{{$key}}</option>
+                        @endforeach
+                      </Select>
+                      <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
+
+                      <input type="hidden" class="form-control" name="userid" placeholder="status" value="{{$lead->userid}}"/>
+
+                    </div>
+
+                    <div class="form-group">
+                      <strong>Created by:</strong>
+
+                      <input type="text" class="form-control" name="" placeholder="Created by" value="{{ $lead->userid != 0 ? App\Helpers::getUserNameById($lead->userid) : '' }}" readonly/>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <strong>Comments:</strong>
+                      <textarea  class="form-control" name="comments" placeholder="comments">{{$lead->comments}} </textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <strong>Sizes:</strong>
+                      <input type="text" name="size" value="{{ $lead->size }}" class="form-control" placeholder="S, M, L">
+                    </div>
+
+                    <div class="form-group">
+                      <strong>Assigned To:</strong>
+                      <Select name="assigned_user" class="form-control">
+
+                        @foreach($users_array as $id => $user)
+                          <option value="{{ $id }}" {{ $id == $lead->assigned_user ? 'Selected=Selected':''}}>{{ $user }}</option>
+                        @endforeach
+                      </Select>
+                    </div>
+
+                    <?php $images = $lead->getMedia(config('constants.media_tags')) ?>
+                    @if ($lead->hasMedia(config('constants.media_tags')))
+                      <div class="row">
+                        @foreach ($images as $key => $image)
+                          <div class="col-md-4 old-image{{ $key }}" style="
+                          @if ($errors->has('image'))
+                            display: none;
+                          @endif
+                          ">
+                          <p>
+                            <img src="{{ $image->getUrl() ?? '#no-image' }}" class="img-responsive" alt="">
+                            <button class="btn btn-image removeOldImage" data-id="{{ $key }}" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
+
+                            <input type="text" hidden name="oldImage[{{ $key }}]" value="{{ $images ? '0' : '-1' }}">
+                          </p>
+                        </div>
+                      @endforeach
+                    </div>
+                  @endif
+
+
+                  @if (count($images) == 0)
+                    <input type="text" hidden name="oldImage[0]" value="{{ $images ? '0' : '-1' }}">
+                  @endif
+
+                  <div class="form-group new-image" style="">
+                    <strong>Upload Image:</strong>
+                    <input  type="file" enctype="multipart/form-data" class="form-control" name="image[]" multiple />
+                    @if ($errors->has('image'))
+                      <div class="alert alert-danger">{{$errors->first('image')}}</div>
+                    @endif
+                  </div>
+
+                  <div class="form-group">
+                    <strong>Created at:</strong>
+                    {{ Carbon\Carbon::parse($lead->created_at)->format('d-m H:i') }}
+                  </div>
+                </div>
+
+                <div class="col-xs-12 text-center">
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-secondary">Update</button>
+                  </div>
+                </div>
+
+              </div>
+            </form>
+              </div>
+            </div>
+          </div>
+    @endforeach
+      </div>
+    </div>
+  @endif
+
+  @if (count($customer->orders) > 0)
+    <div class="tab-pane mt-3" id="3">
+      <div id="orderAccordion">
+        @php
+          $refunded_orders = [];
+        @endphp
+        @foreach ($customer->orders as $key => $order)
+          @if ($order->order_status == 'Refund to be processed')
+            @php
+              array_push($refunded_orders, $order);
+            @endphp
+          @endif
+
+          <div class="card">
+            <div class="card-header" id="headingOrder{{ $key + 1 }}">
+              <h5 class="mb-0">
+                <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#order{{ $key + 1 }}" aria-expanded="false" aria-controls="order{{ $key + 1 }}">
+                  Order {{ $key + 1 }}
+                  <a href="{{ route('order.show', $order->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
+                  <span class="ml-3">
+                    @if (isset($order->delivery_approval) && $order->delivery_approval->approved == 0)
+                      <span class="badge">Waiting for Delivery Approval</span>
+                    @endif
+                  </span>
+                </button>
+              </h5>
+            </div>
+            <div id="order{{ $key + 1 }}" class="collapse collapse-element" aria-labelledby="headingOrder{{ $key + 1 }}" data-parent="#orderAccordion">
+              <div class="card-body">
+                <form action="{{ route('order.update',$order->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="type" value="customer">
+
+                  <div class="row">
+                      <div class="col-md-6 col-12">
 
                         <div class="form-group">
-                          <strong>status:</strong>
+                            <strong>Balance Amount:</strong>
+                            <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
+                                   value="{{ old('balance_amount') ? old('balance_amount') : $order->balance_amount }}"/>
+                            @if ($errors->has('balance_amount'))
+                                <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
+                            @endif
+                        </div>
 
-                          @if (count($lead->status_changes) > 0)
-                            <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+                        <div class="form-group">
+                            <strong>Payment Mode :</strong>
+                      <?php
+                      $paymentModes = new \App\ReadOnly\PaymentModes();
 
-                            <div class="change-history-container hidden">
-                              <ul>
-                                @foreach ($lead->status_changes as $status_history)
-                                  <li>
-                                    {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
-                                  </li>
-                                @endforeach
-                              </ul>
+                      echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $order->payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
+
+                            @if ($errors->has('payment_mode'))
+                                <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Advance Amount:</strong>
+                            <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
+                                   value="{{ old('advance_detail') ? old('advance_detail') : $order->advance_detail }}"/>
+                            @if ($errors->has('advance_detail'))
+                                <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Received By:</strong>
+                            <input type="text" class="form-control" name="received_by" placeholder="Received By"
+                                   value="{{ old('received_by') ? old('received_by') : $order->received_by }}"/>
+                            @if ($errors->has('received_by'))
+                                <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Advance Date:</strong>
+                            <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
+                                   value="{{ old('advance_date') ? old('advance_date') : $order->advance_date }}"/>
+                            @if ($errors->has('advance_date'))
+                                <div class="alert alert-danger">{{$errors->first('advance_date')}}</div>
+                            @endif
+                        </div>
+
+                      </div>
+                      <div class="col-md-6 col-12">
+
+                         <div class="form-group">
+                             <strong>status:</strong>
+
+                             @if (count($order->status_changes) > 0)
+                               <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                               <div class="change-history-container hidden">
+                                 <ul>
+                                   @foreach ($order->status_changes as $status_history)
+                                     <li>
+                                       {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                                     </li>
+                                   @endforeach
+                                 </ul>
+                               </div>
+                             @endif
+
+                             <Select name="status" class="form-control change_status order_status" data-orderid="{{ $order->id }}">
+                                  @php $order_status = (new \App\ReadOnly\OrderStatus)->all(); @endphp
+                                  @foreach($order_status as $key => $value)
+                                   <option value="{{$value}}" {{$value == $order->order_status ? 'Selected=Selected':''}}>{{$key}}</option>
+                                   @endforeach
+                             </Select>
+                             <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
+                         </div>
+
+                         <div id="tracking-wrapper-{{ $order->id }}" style="display: {{ $order->order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
+                           <div class="form-group">
+                             <strong>AWB Number:</strong>
+                             <input type="text" name="awb" class="form-control" id="awb_field_{{ $order->id }}" value="{{ $order->awb }}" placeholder="00000000000">
+                             <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $order->id }}">Track</button>
+                           </div>
+
+                           <div class="form-group" id="tracking-container-{{ $order->id }}">
+
+                           </div>
+                         </div>
+
+                         <div class="form-group">
+                             <strong>Estimated Delivery Date:</strong>
+                             <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
+                                    value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $order->estimated_delivery_date }}"/>
+                             @if ($errors->has('estimated_delivery_date'))
+                                 <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
+                             @endif
+                         </div>
+
+
+                         <div class="form-group">
+                             <strong>Note if any:</strong>
+                             <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
+                                    value="{{ old('note_if_any') ? old('note_if_any') : $order->note_if_any }}"/>
+                             @if ($errors->has('note_if_any'))
+                                 <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
+                             @endif
+                         </div>
+
+
+                        <div class="form-group">
+                            <strong> Name of Order Handler :</strong>
+                      <?php
+                      $sales_persons = \App\Helpers::getUsersArrayByRole( 'Sales' );
+                      echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $order->sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
+                            @if ($errors->has('sales_person'))
+                                <div class="alert alert-danger">{{$errors->first('sales_person')}}</div>
+                            @endif
+                        </div>
+
+                         <div class="form-group">
+                             <strong>Created by:</strong>
+                             {{ $order->user_id != 0 ? App\Helpers::getUserNameById($order->user_id) : 'Unknown' }}
+                         </div>
+
+                         <div class="form-group">
+                           <strong>Created at:</strong>
+                           {{ Carbon\Carbon::parse($order->created_at)->format('d-m H:i') }}
+                         </div>
+                        <div class="form-group">
+                            <strong>Remark</strong>
+                            {{ $order->remark }}
+                        </div>
+
+                        @if (isset($order->waybill))
+                          <div class="form-group">
+                            <strong>AWB: </strong> {{ $order->waybill->awb }}
+                            <br>
+
+                            <a href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn-link">Download Package Slip</a>
+                          </div>
+
+                        @else
+                          <div class="form-group">
+                            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#generateAWBMODAL{{ $order->id }}">Generate AWB</button>
+                          </div>
+                        @endif
+
+                        @if (isset($order))
+                          @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
+                            <div class="form-group">
+                              <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
+                            </div>
+                          @elseif ($order->is_sent_initial_advance())
+                            <div class="form-group">
+                              Advance Receipt was emailed
                             </div>
                           @endif
 
-                          <Select name="status" class="form-control change_status" data-leadid="{{ $lead->id }}">
-                            @foreach($lead_status as $key => $value)
-                              <option value="{{$value}}" {{$value == $lead->status ? 'Selected=Selected':''}}>{{$key}}</option>
-                            @endforeach
-                          </Select>
-                          <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
-
-                          <input type="hidden" class="form-control" name="userid" placeholder="status" value="{{$lead->userid}}"/>
-
-                        </div>
-
-                        <div class="form-group">
-                          <strong>Created by:</strong>
-
-                          <input type="text" class="form-control" name="" placeholder="Created by" value="{{ $lead->userid != 0 ? App\Helpers::getUserNameById($lead->userid) : '' }}" readonly/>
-                        </div>
-
-                        <div class="form-group">
-                          <strong>Comments:</strong>
-                          <textarea  class="form-control" name="comments" placeholder="comments">{{$lead->comments}} </textarea>
-                        </div>
-
-                        <div class="form-group">
-                          <strong>Sizes:</strong>
-                          <input type="text" name="size" value="{{ $lead->size }}" class="form-control" placeholder="S, M, L">
-                        </div>
-
-                        <div class="form-group">
-                          <strong>Assigned To:</strong>
-                          <Select name="assigned_user" class="form-control">
-
-                            @foreach($users_array as $id => $user)
-                              <option value="{{ $id }}" {{ $id == $lead->assigned_user ? 'Selected=Selected':''}}>{{ $user }}</option>
-                            @endforeach
-                          </Select>
-                        </div>
-
-                        <?php $images = $lead->getMedia(config('constants.media_tags')) ?>
-                        @if ($lead->hasMedia(config('constants.media_tags')))
-                          <div class="row">
-                            @foreach ($images as $key => $image)
-                              <div class="col-md-4 old-image{{ $key }}" style="
-                              @if ($errors->has('image'))
-                                display: none;
-                              @endif
-                              ">
-                              <p>
-                                <img src="{{ $image->getUrl() ?? '#no-image' }}" class="img-responsive" alt="">
-                                <button class="btn btn-image removeOldImage" data-id="{{ $key }}" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
-
-                                <input type="text" hidden name="oldImage[{{ $key }}]" value="{{ $images ? '0' : '-1' }}">
-                              </p>
-                            </div>
-                          @endforeach
-                        </div>
-                      @endif
-
-
-                      @if (count($images) == 0)
-                        <input type="text" hidden name="oldImage[0]" value="{{ $images ? '0' : '-1' }}">
-                      @endif
-
-                      <div class="form-group new-image" style="">
-                        <strong>Upload Image:</strong>
-                        <input  type="file" enctype="multipart/form-data" class="form-control" name="image[]" multiple />
-                        @if ($errors->has('image'))
-                          <div class="alert alert-danger">{{$errors->first('image')}}</div>
-                        @endif
-                      </div>
-
-                      <div class="form-group">
-                        <strong>Created at:</strong>
-                        {{ Carbon\Carbon::parse($lead->created_at)->format('d-m H:i') }}
-                      </div>
-                    </div>
-
-                    <div class="col-xs-12 text-center">
-                      <div class="form-group">
-                        <button type="submit" class="btn btn-secondary">Update</button>
-                      </div>
-                    </div>
-
-                  </div>
-                </form>
-                  </div>
-                </div>
-              </div>
-        @endforeach
-          </div>
-        </div>
-      @endif
-
-      @if (count($customer->orders) > 0)
-        <div class="tab-pane mt-3" id="3">
-          <div id="orderAccordion">
-            @php
-              $refunded_orders = [];
-            @endphp
-            @foreach ($customer->orders as $key => $order)
-              @if ($order->order_status == 'Refund to be processed')
-                @php
-                  array_push($refunded_orders, $order);
-                @endphp
-              @endif
-
-              <div class="card">
-                <div class="card-header" id="headingOrder{{ $key + 1 }}">
-                  <h5 class="mb-0">
-                    <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#order{{ $key + 1 }}" aria-expanded="false" aria-controls="order{{ $key + 1 }}">
-                      Order {{ $key + 1 }}
-                      <a href="{{ route('order.show', $order->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
-                      <span class="ml-3">
-                        @if (isset($order->delivery_approval) && $order->delivery_approval->approved == 0)
-                          <span class="badge">Waiting for Delivery Approval</span>
-                        @endif
-                      </span>
-                    </button>
-                  </h5>
-                </div>
-                <div id="order{{ $key + 1 }}" class="collapse collapse-element" aria-labelledby="headingOrder{{ $key + 1 }}" data-parent="#orderAccordion">
-                  <div class="card-body">
-                    <form action="{{ route('order.update',$order->id) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="type" value="customer">
-
-                      <div class="row">
-                          <div class="col-xs-12">
-
+                          @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
                             <div class="form-group">
-                                <strong>Balance Amount:</strong>
-                                <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
-                                       value="{{ old('balance_amount') ? old('balance_amount') : $order->balance_amount }}"/>
-                                @if ($errors->has('balance_amount'))
-                                    <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
-                                @endif
+                              <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
                             </div>
+                          @endif
 
-                            <div class="form-group">
-                                <strong>Payment Mode :</strong>
-                          <?php
-                          $paymentModes = new \App\ReadOnly\PaymentModes();
-
-                          echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $order->payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
-
-                                @if ($errors->has('payment_mode'))
-                                    <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
-                                @endif
-                            </div>
-
-                            <div class="form-group">
-                                <strong>Advance Amount:</strong>
-                                <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
-                                       value="{{ old('advance_detail') ? old('advance_detail') : $order->advance_detail }}"/>
-                                @if ($errors->has('advance_detail'))
-                                    <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
-                                @endif
-                            </div>
-
-                            <div class="form-group">
-                                <strong>Received By:</strong>
-                                <input type="text" class="form-control" name="received_by" placeholder="Received By"
-                                       value="{{ old('received_by') ? old('received_by') : $order->received_by }}"/>
-                                @if ($errors->has('received_by'))
-                                    <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
-                                @endif
-                            </div>
-
-                            <div class="form-group">
-                                <strong>Advance Date:</strong>
-                                <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
-                                       value="{{ old('advance_date') ? old('advance_date') : $order->advance_date }}"/>
-                                @if ($errors->has('advance_date'))
-                                    <div class="alert alert-danger">{{$errors->first('advance_date')}}</div>
-                                @endif
-                            </div>
-
-                             <div class="form-group">
-                                 <strong>status:</strong>
-
-                                 @if (count($order->status_changes) > 0)
-                                   <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
-
-                                   <div class="change-history-container hidden">
-                                     <ul>
-                                       @foreach ($order->status_changes as $status_history)
-                                         <li>
-                                           {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
-                                         </li>
-                                       @endforeach
-                                     </ul>
-                                   </div>
-                                 @endif
-
-                                 <Select name="status" class="form-control change_status order_status" data-orderid="{{ $order->id }}">
-                                      @php $order_status = (new \App\ReadOnly\OrderStatus)->all(); @endphp
-                                      @foreach($order_status as $key => $value)
-                                       <option value="{{$value}}" {{$value == $order->order_status ? 'Selected=Selected':''}}>{{$key}}</option>
-                                       @endforeach
-                                 </Select>
-                                 <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
-                             </div>
-
-                             <div id="tracking-wrapper-{{ $order->id }}" style="display: {{ $order->order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
-                               <div class="form-group">
-                                 <strong>AWB Number:</strong>
-                                 <input type="text" name="awb" class="form-control" id="awb_field_{{ $order->id }}" value="{{ $order->awb }}" placeholder="00000000000">
-                                 <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $order->id }}">Track</button>
-                               </div>
-
-                               <div class="form-group" id="tracking-container-{{ $order->id }}">
-
-                               </div>
-                             </div>
-
-                             <div class="form-group">
-                                 <strong>Estimated Delivery Date:</strong>
-                                 <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
-                                        value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $order->estimated_delivery_date }}"/>
-                                 @if ($errors->has('estimated_delivery_date'))
-                                     <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
-                                 @endif
-                             </div>
-
-
-                             <div class="form-group">
-                                 <strong>Note if any:</strong>
-                                 <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
-                                        value="{{ old('note_if_any') ? old('note_if_any') : $order->note_if_any }}"/>
-                                 @if ($errors->has('note_if_any'))
-                                     <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
-                                 @endif
-                             </div>
-
-
-                            <div class="form-group">
-                                <strong> Name of Order Handler :</strong>
-                          <?php
-                          $sales_persons = \App\Helpers::getUsersArrayByRole( 'Sales' );
-                          echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $order->sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
-                                @if ($errors->has('sales_person'))
-                                    <div class="alert alert-danger">{{$errors->first('sales_person')}}</div>
-                                @endif
-                            </div>
-
-                             <div class="form-group">
-                                 <strong>Created by:</strong>
-                                 {{ $order->user_id != 0 ? App\Helpers::getUserNameById($order->user_id) : 'Unknown' }}
-                             </div>
-
-                             <div class="form-group">
-                               <strong>Created at:</strong>
-                               {{ Carbon\Carbon::parse($order->created_at)->format('d-m H:i') }}
-                             </div>
-                            <div class="form-group">
-                                <strong>Remark</strong>
-                                {{ $order->remark }}
-                            </div>
-
-                            <div class="row">
-                              <div class="col-6">
-                                @if (isset($order->waybill))
-                                  <div class="form-group">
-                                    <strong>AWB: </strong> {{ $order->waybill->awb }}
-                                    <br>
-
-                                    <a href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn-link">Download Package Slip</a>
-                                  </div>
-
-                                @else
-                                  <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#generateAWBMODAL{{ $order->id }}">Generate AWB</button>
-                                  </div>
-                                @endif
-                              </div>
-
-                              @if (isset($order))
-                                <div class="col-6">
-                                  @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
-                                    <div class="form-group">
-                                      <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
-                                    </div>
-                                  @elseif ($order->is_sent_initial_advance())
-                                    <div class="form-group">
-                                      Advance Receipt was emailed
-                                    </div>
-                                  @endif
-                                </div>
-
-                                <div class="col-6">
-                                  @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
-                                    <div class="form-group">
-                                      <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
-                                    </div>
-                                  @endif
-                                </div>
-
-                                <div class="col-6">
-                                  <div class="form-group">
-                                    <a href="{{ route('order.generate.invoice', $order->id) }}" class="btn btn-secondary">Generate Invoice</a>
-                                    <a href="{{ route('settings.index') }}" class="btn-link" target="_blank">Edit Consignor Details</a>
-                                  </div>
-                                </div>
-
-                                <div class="col-6">
-                                  @if (!$order->is_sent_refund_initiated())
-                                    <div class="form-group">
-                                      <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
-                                      <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
-                                    </div>
-                                  @else
-                                    <div class="form-group">
-                                      Refund Initiated Email was Sent
-                                    </div>
-                                  @endif
-                                </div>
-
-                                <div class="col-6">
-                                  @if ($order->order_type == 'offline' && !$order->is_sent_offline_confirmation())
-                                    <div class="form-group">
-                                      <a href="{{ route('order.send.confirmation.email', $order->id) }}" class="btn btn-secondary">Send Confirmation Email</a>
-                                    </div>
-                                  @elseif ($order->is_sent_offline_confirmation())
-                                    <div class="form-group">
-                                      Offline Confirmation Email was sent
-                                    </div>
-                                  @endif
-                                </div>
-
-                                <div class="col-6">
-                                  @if ($order->is_sent_online_confirmation())
-                                    <div class="form-group">
-                                      Online Confirmation Email was sent
-                                    </div>
-                                  @endif
-                                </div>
-                              @endif
-                            </div>
-
-
-
-                            {{-- <div class="form-group">
-                              <a href="#" class="btn btn-secondary create-magento-product" data-id="{{ $order->id }}">Create Magento Product</a>
-                            </div> --}}
-
+                          <div class="form-group">
+                            <a href="{{ route('order.generate.invoice', $order->id) }}" class="btn btn-secondary">Generate Invoice</a>
+                            <a href="{{ route('settings.index') }}" class="btn-link" target="_blank">Edit Consignor Details</a>
                           </div>
 
-                          <div class="col-xs-12">
+                          @if (!$order->is_sent_refund_initiated())
+                            <div class="form-group">
+                              <button type="button" class="btn btn-secondary send-refund" data-id="{{ $order->id }}">Send Refund Messages</button>
+                              <span class="text-success send-refund-message" style="display: none;">Successfully sent refund messages</span>
+                            </div>
+                          @else
+                            <div class="form-group">
+                              Refund Initiated Email was Sent
+                            </div>
+                          @endif
+
+                          @if ($order->order_type == 'offline' && !$order->is_sent_offline_confirmation())
+                            <div class="form-group">
+                              <a href="{{ route('order.send.confirmation.email', $order->id) }}" class="btn btn-secondary">Send Confirmation Email</a>
+                            </div>
+                          @elseif ($order->is_sent_offline_confirmation())
+                            <div class="form-group">
+                              Offline Confirmation Email was sent
+                            </div>
+                          @endif
+
+                          @if ($order->is_sent_online_confirmation())
+                            <div class="form-group">
+                              Online Confirmation Email was sent
+                            </div>
+                          @endif
+                        @endif
+
+                        {{-- <div class="form-group">
+                          <a href="#" class="btn btn-secondary create-magento-product" data-id="{{ $order->id }}">Create Magento Product</a>
+                        </div> --}}
+
+                      </div>
+
+                      <div class="col-xs-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="text-center">
-                              <h4>Product Details</h4>
+                              <h3>Product Details</h3>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="products-table-{{ $order->id }}">
                                   <thead>
+                                    <th>Image</th>
                                     <th>Name</th>
+                                    <th>Sku</th>
+                                    <th>Color</th>
+                                    <th>Brand</th>
+                                    <th style="width: 100px">Price</th>
+                                    <th style="width: 100px">Size</th>
+                                    <th style="width: 80px">Qty</th>
+                                    <th>Purchase Status</th>
                                     <th>Action</th>
                                   </thead>
                                   <tbody>
                                     @foreach($order->order_product  as $order_product)
                                       <tr>
-
-                                          {{-- <td>
-                                            @if(isset($order_product->product))
-
-                                            @endif
-                                          </td> --}}
+                                        @if(isset($order_product->product))
                                           <td>
-                                            @if(isset($order_product->product))
-                                              @php
-                                                $string = $order_product->product->supplier;
-                                                $expr = '/(?<=\s|^)[a-z]/i';
-                                                preg_match_all($expr, $string, $matches);
-                                                $supplier_initials = implode('', $matches[0]);
-                                                $supplier_initials = strtoupper($supplier_initials);
-                                              @endphp
+                                            @php
+                                              $string = $order_product->product->supplier;
+                                              $expr = '/(?<=\s|^)[a-z]/i';
+                                              preg_match_all($expr, $string, $matches);
+                                              $supplier_initials = implode('', $matches[0]);
+                                              $supplier_initials = strtoupper($supplier_initials);
+                                            @endphp
 
-                                              @if ($order_product->product->hasMedia(config('constants.media_tags')))
-                                                <img width="150" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" data-toggle='tooltip' data-html='true' data-placement='top' title="{{ Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM') ? "<strong>Supplier:</strong> $supplier_initials" : '' }}" />
+                                            @if ($order_product->product->hasMedia(config('constants.media_tags')))
+                                              <img width="150" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" data-toggle='tooltip' data-html='true' data-placement='top' title="{{ Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM') ? "<strong>Supplier:</strong> $supplier_initials" : '' }}" />
                                               @endif
+                                            </td>
+                                            <td>{{ $order_product->product->name }}</td>
+                                            <td>{{ $order_product->product->sku }}</td>
+                                            <td>{{ $order_product->product->color }}</td>
+                                            <td>{{ \App\Http\Controllers\BrandController::getBrandName($order_product->product->brand) }}</td>
+                                          @else
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{$order_product->sku}}</td>
+                                            <td></td>
+                                            <td></td>
+                                          @endif
 
-                                              {{ $order_product->product->name }} - {{ $order_product->product->color }}
-                                              <br>
-                                              <span class="text-muted">{{ \App\Http\Controllers\BrandController::getBrandName($order_product->product->brand) }}</span>
-                                              <span class="text-muted">{{ $order_product->product->sku }}</span>
-                                            @else
-                                              {{ $order_product->sku }}
-                                            @endif
-
-                                              <input class="form-control" type="text" value="{{ $order_product->product_price }}" name="order_products[{{ $order_product->id }}][product_price]">
-
+                                          <td>
+                                            <input class="form-control" type="text" value="{{ $order_product->product_price }}" name="order_products[{{ $order_product->id }}][product_price]">
+                                          </td>
+                                          <td>
                                             @if(!empty($order_product->product->size))
                                               <?php
 
@@ -1003,7 +1299,11 @@
                                               </select>
                                               nil
                                             @endif
-
+                                          </td>
+                                          <td>
+                                            <input class="form-control" type="number" min="1" value="{{ $order_product->qty }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                          </td>
+                                          <td>
                                             @if(isset($order_product->product) && count($order_product->product->purchases) > 0)
                                               <select name="order_products[{{$order_product->id}}][purchase_status]" class="form-control">
                                                  @foreach($purchase_status as $key => $value)
@@ -1028,7 +1328,6 @@
                                               No Purchase
                                             @endif
                                           </td>
-
                                           @if(isset($order_product->product))
                                             <td>
                                               <a class="btn btn-image" href="{{ route('products.show',$order_product->product->id) }}"><img src="/images/view.png" /></a>
@@ -1042,396 +1341,184 @@
                                   </tbody>
                                 </table>
                             </div>
-
+                        </div>
+                        {{-- {{dd($data)}} --}}
+                        <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group btn-group">
                                 <a href="{{ route('attachProducts',['order',$order->id, 'fake-parameter', $customer->id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
                                 <button type="button" class="btn btn-secondary add-product-button" data-orderid="{{ $order->id }}" data-toggle="modal" data-target="#productModal">+</button>
                             </div>
-                          </div>
-
-                          <div class="col-xs-12 text-center">
-                            <button type="submit" class="btn btn-secondary">Update</button>
-                          </div>
-                      </div>
-                    </form>
-
-                    <hr>
-
-                    <h4 class="text-center">Delivery Approval</h4>
-
-                    <form class="form-inline my-3" action="{{ route('order.upload.approval', $order->id) }}" method="POST" enctype="multipart/form-data">
-                      @csrf
-
-                      <div class="form-group">
-                        <input type="file" name="images[]" required multiple>
-                      </div>
-
-                      <button type="submit" class="btn btn-xs btn-secondary ml-3">Upload for Approval</button>
-                    </form>
-
-                    @if (isset($order->delivery_approval))
-                      <div class="table-responsive">
-                        <table class="table">
-                          <thead>
-                            <tr>
-                              <th>Uploaded Photos</th>
-                              <th>Approved</th>
-                              <th>Voucher</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>
-                                @if ($order->delivery_approval->hasMedia(config('constants.media_tags')))
-                                  @foreach ($order->delivery_approval->getMedia(config('constants.media_tags')) as $image)
-                                    <img width="150" src="{{ $image->getUrl() ?? '#no-image' }}" />
-                                  @endforeach
-                                @endif
-                              </td>
-                              <td>
-                                @if ($order->delivery_approval->approved == 1)
-                                  Approved
-                                @else
-                                  <form action="{{ route('order.delivery.approve', $order->delivery_approval->id) }}" method="POST">
-                                    @csrf
-
-                                    <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-                                  </form>
-                                @endif
-                              </td>
-                              {{-- <td>
-                                @if ($order->delivery_approval->approved == 2)
-                                  Approved
-                                @else
-                                  <form action="{{ route('order.delivery.approve', $order->delivery_approval->id) }}" method="POST">
-                                    @csrf
-
-                                    <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-                                  </form>
-                                @endif
-                              </td> --}}
-                              <td>
-                                @can('voucher')
-                                  @if ($order->delivery_approval->voucher)
-                                    <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
-                                  @else
-                                    <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
-                                  @endif
-                                @endcan
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    @endif
-
-                    @include('customers.partials.modal-awb')
-
-                  </div>
-                </div>
-              </div>
-            @endforeach
-          </div>
-        </div>
-
-        @include('customers.partials.modal-status')
-
-        @include('customers.partials.modal-voucher')
-
-        @include('customers.partials.modal-product')
-      @endif
-
-      @if (count($customer->private_views) > 0)
-        <div class="tab-pane mt-3" id="private_view_tab">
-          <div class="row">
-            <table class="table table-bordered">
-              <tr>
-                <th>Products</th>
-                <th>Date</th>
-                <th>Delivery Images</th>
-              </tr>
-              @foreach ($customer->private_views as $view)
-                <tr class="{{ \Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d') ? 'row-highlight' : '' }}">
-                  <td>
-                    @foreach ($view->products as $product)
-                      @if ($product->hasMedia(config('constants.media_tags')))
-                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
-                      @endif
-                    @endforeach
-                  </td>
-                  <td>{{ \Carbon\Carbon::parse($view->date)->format('d-m') }}</td>
-                  <td>
-                    @if ($view->hasMedia(config('constants.media_tags')))
-                      @foreach ($view->getMedia(config('constants.media_tags')) as $image)
-                        <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
-                          <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
-                        </a>
-                      @endforeach
-                    @elseif (\Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d'))
-                      <form action="{{ route('stock.private.viewing.upload') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group">
-                          <input type="hidden" name="view_id" value="{{ $view->id }}">
-                          <input type="file" name="images[]" required multiple>
                         </div>
+                      </div>
 
-                        <button type="submit" class="btn btn-xs btn-secondary">Upload</button>
-                      </form>
-                    @endif
-                  </td>
-                </tr>
-              @endforeach
-          </table>
+                      <div class="col-xs-12 text-center">
+                        <button type="submit" class="btn btn-secondary">Update</button>
+                      </div>
+                  </div>
+                </form>
+
+                <hr>
+                <h3 class="text-center">Delivery Approval</h3>
+
+                <form class="form-inline my-3" action="{{ route('order.upload.approval', $order->id) }}" method="POST" enctype="multipart/form-data">
+                  @csrf
+
+                  <div class="form-group">
+                    <input type="file" name="images[]" required multiple>
+                  </div>
+
+                  <button type="submit" class="btn btn-xs btn-secondary ml-3">Upload for Approval</button>
+                </form>
+
+                @if (isset($order->delivery_approval))
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Uploaded Photos</th>
+                          <th>Approved</th>
+                          <th>Voucher</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            @if ($order->delivery_approval->hasMedia(config('constants.media_tags')))
+                              @foreach ($order->delivery_approval->getMedia(config('constants.media_tags')) as $image)
+                                <img width="150" src="{{ $image->getUrl() ?? '#no-image' }}" />
+                              @endforeach
+                            @endif
+                          </td>
+                          <td>
+                            @if ($order->delivery_approval->approved == 1)
+                              Approved
+                            @else
+                              <form action="{{ route('order.delivery.approve', $order->delivery_approval->id) }}" method="POST">
+                                @csrf
+
+                                <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                              </form>
+                            @endif
+                          </td>
+                          {{-- <td>
+                            @if ($order->delivery_approval->approved == 2)
+                              Approved
+                            @else
+                              <form action="{{ route('order.delivery.approve', $order->delivery_approval->id) }}" method="POST">
+                                @csrf
+
+                                <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                              </form>
+                            @endif
+                          </td> --}}
+                          <td>
+                            @can('voucher')
+                              @if ($order->delivery_approval->voucher)
+                                <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
+                              @else
+                                <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
+                              @endif
+                            @endcan
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                @endif
+
+                @include('customers.partials.modal-awb')
+
+              </div>
+            </div>
           </div>
-        </div>
-      @endif
-
-      <div class="tab-pane mt-3" id="suggestion_tab">
-        <h2>Suggestions</h2>
-        <div class="row">
-          <div class="col-12" id="suggestion-container"></div>
-        </div>
-      </div>
-
-      <div class="tab-pane mt-3" id="email_tab">
-        <div id="exTab3" class="mb-3">
-          <ul class="nav nav-tabs">
-            <li class="active">
-              <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-customerid="{{ $customer->id }}" data-type="inbox">Inbox</a>
-            </li>
-            <li>
-              <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-customerid="{{ $customer->id }}" data-type="sent">Sent</a>
-            </li>
-            <li class="nav-item ml-auto">
-              <button type="button" class="btn btn-image" data-toggle="modal" data-target="#emailSendModal"><img src="{{ asset('images/filled-sent.png') }}" /></button>
-            </li>
-          </ul>
-        </div>
-
-        <div id="email-container">
-          @include('customers.email')
-        </div>
+        @endforeach
       </div>
     </div>
-  </div>
 
-  <div class="col-xs-12 col-md-4 mb-3">
-    <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
-      <div class="d-flex">
-        @csrf
+    @include('customers.partials.modal-status')
 
-        <div class="form-group">
-          <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-            <button type="submit" class="btn btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png" /></button>
-          </div>
-        </div>
+    @include('customers.partials.modal-voucher')
 
-        <div class="form-group flex-fill mr-3">
-          <button type="button" id="customerMessageButton" class="btn btn-image"><img src="/images/support.png" /></button>
-          <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
-          <input type="hidden" name="status" value="0" />
-        </div>
+    @include('customers.partials.modal-product')
+  @endif
 
-        <div class="form-group">
-          <div class="upload-btn-wrapper">
-            <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-            <input type="file" name="image" />
-          </div>
-        </div>
-      </div>
-
-    </form>
-
-    <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
-      <div id="paste-container" style="width: 200px;">
-
-      </div>
-
-      <div class="d-flex">
-        @csrf
-
-        <div class="form-group">
-          <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-            <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
-            <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
-            <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-          </div>
-        </div>
-
-        <div class="form-group flex-fill mr-3">
-          <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
-
-          <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
-          <input type="hidden" name="status" value="1" />
-
-          <div class="paste-container"></div>
-
-
-        </div>
-
-        <div class="form-group">
-          {{-- <input type="file" class="" name="image" data-height="100" /> --}}
-
-          <div class="upload-btn-wrapper">
-            <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-            <input type="file" name="image" />
-          </div>
-        </div>
-      </div>
-
-      <div class="pb-4 mt-3">
-        <div class="row">
-          <div class="col">
-            <select name="quickCategory" id="quickCategory" class="form-control mb-3">
-              <option value="">Select Category</option>
-              @foreach($reply_categories as $category)
-                <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-              @endforeach
-            </select>
-
-            <select name="quickComment" id="quickComment" class="form-control">
-              <option value="">Quick Reply</option>
-            </select>
-          </div>
-          <div class="col">
-            <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
-          </div>
-        </div>
-      </div>
-
-    </form>
-
-    <div class="row">
-      <div class="col-12 mb-3">
-        <form action="{{ route('status.report.store') }}" method="POST">
-          @csrf
-
-          <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-
-          <div class="form-group">
-            <strong>Next action due</strong>
-            <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link d-inline">Add Action</a>
-
-            <select class="form-control" name="status_id" required>
-              <option value="">Select action</option>
-              @foreach ($order_status_report as $status)
-                <option value="{{ $status->id }}">{{ $status->status }}</option>
-              @endforeach
-            </select>
-          </div>
-
-          <div class="form-group" id="completion_form_group">
-            <strong>Completion Date:</strong>
-            <div class='input-group date' id='report-completion-datetime'>
-              <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
-
-              <span class="input-group-addon">
-                <span class="glyphicon glyphicon-calendar"></span>
-              </span>
-            </div>
-
-            @if ($errors->has('completion_date'))
-                <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-            @endif
-          </div>
-
-          <button type="submit" class="btn btn-xs btn-secondary">Add Report</button>
-        </form>
-
-        @if (count($customer->many_reports) > 0)
-          <h4>Order Reports</h4>
-
-          <table class="table table-bordered mt-4">
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>Created at</th>
-                <th>Creator</th>
-                <th>Due date</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              @foreach ($customer->many_reports as $report)
-                <tr>
-                  <td>{{ $report->status }}</td>
-                  <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
-                  <td>{{ $users_array[$report->user_id] }}</td>
-                  <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-        @endif
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xs-12 col-md-4">
-    <h4>Messages</h4>
-
-    <div class="row">
-      <div class="col-xs-12">
-        <div class="form-inline">
-          <div class="form-group">
-            <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
-              @csrf
-
-              <button type="submit" class="btn btn-secondary" {{ $customer->is_initiated_followup() ? 'disabled' : '' }}>Initiate Follow Up Sequence</button>
-            </form>
-          </div>
-
-          @if ($customer->is_initiated_followup())
-            <div class="form-group ml-3">
-              <form action="{{ route('customer.stop.followup', $customer->id) }}" method="POST">
-                @csrf
-
-                <button type="submit" class="btn btn-secondary">STOP</button>
-              </form>
-            </div>
-          @endif
-        </div>
-      </div>
-
-      @if (isset($refunded_orders) && count($refunded_orders) > 0)
-        <div class="col-xs-12">
-          <h5>Refund Orders Status</h5>
-
-          <div class="form-inline">
-            <div class="form-group">
-              <select class="form-control refund-orders" name="">
-                <option value="">Select Order</option>
-                @foreach ($refunded_orders as $order)
-                  <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
+  @if (count($customer->private_views) > 0)
+    <div class="tab-pane mt-3" id="private_view_tab">
+      <div class="row">
+        <table class="table table-bordered">
+          <tr>
+            <th>Products</th>
+            <th>Date</th>
+            <th>Delivery Images</th>
+          </tr>
+          @foreach ($customer->private_views as $view)
+            <tr class="{{ \Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d') ? 'row-highlight' : '' }}">
+              <td>
+                @foreach ($view->products as $product)
+                  @if ($product->hasMedia(config('constants.media_tags')))
+                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
+                  @endif
                 @endforeach
-              </select>
-            </div>
+              </td>
+              <td>{{ \Carbon\Carbon::parse($view->date)->format('d-m') }}</td>
+              <td>
+                @if ($view->hasMedia(config('constants.media_tags')))
+                  @foreach ($view->getMedia(config('constants.media_tags')) as $image)
+                    <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                      <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
+                    </a>
+                  @endforeach
+                @elseif (\Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d'))
+                  <form action="{{ route('stock.private.viewing.upload') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group">
+                      <input type="hidden" name="view_id" value="{{ $view->id }}">
+                      <input type="file" name="images[]" required multiple>
+                    </div>
 
-            <div class="d-inline ml-3">
-              <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
-              <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
-            </div>
-          </div>
-        </div>
-      @endif
+                    <button type="submit" class="btn btn-xs btn-secondary">Upload</button>
+                  </form>
+                @endif
+              </td>
+            </tr>
+          @endforeach
+      </table>
+      </div>
+    </div>
+  @endif
+
+  <div class="tab-pane mt-3" id="suggestion_tab">
+    <h2>Suggestions</h2>
+    <div class="row">
+      <div class="col-12" id="suggestion-container"></div>
+    </div>
+  </div>
+
+  <div class="tab-pane mt-3" id="email_tab">
+    <div id="exTab3" class="container mb-3">
+      <ul class="nav nav-tabs">
+        <li class="active">
+          <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-customerid="{{ $customer->id }}" data-type="inbox">Inbox</a>
+        </li>
+        <li>
+          <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-customerid="{{ $customer->id }}" data-type="sent">Sent</a>
+        </li>
+        <li class="nav-item ml-auto">
+          <button type="button" class="btn btn-image" data-toggle="modal" data-target="#emailSendModal"><img src="{{ asset('images/filled-sent.png') }}" /></button>
+        </li>
+      </ul>
     </div>
 
-    <div class="row">
-      <div class="col-12 my-3" id="message-wrapper">
-        <div id="message-container"></div>
-      </div>
-
-      <div class="col-xs-12 text-center">
-        <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
-      </div>
+    <div id="email-container">
+      @include('customers.email')
     </div>
   </div>
 </div>
 
 @include('customers.partials.modal-email')
 
-{{-- <div class="row mt-5"> --}}
-  {{-- <div class="col-xs-12 col-sm-6">
+<div class="row mt-5">
+  <div class="col-xs-12 col-sm-6">
     <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
       <div class="d-flex">
         @csrf
@@ -1452,19 +1539,64 @@
         </div>
       </div>
      </form>
-   </div> --}}
+   </div>
 
    @include('customers.partials.modal-suggestion')
 
-   {{-- <div class="col-xs-12 col-sm-6">
+   <div class="col-xs-12 col-sm-6">
+     <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
+       <div id="paste-container" style="width: 200px;">
 
-   </div> --}}
+       </div>
 
-   {{-- <hr> --}}
+       <div class="d-flex">
+         @csrf
+
+         <div class="form-group">
+           <div class="upload-btn-wrapper btn-group pr-0 d-flex">
+             <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+             <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal">X</button>
+             <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+           </div>
+         </div>
+
+         <div class="form-group flex-fill mr-3">
+           <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
+
+           <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
+           <input type="hidden" name="status" value="1" />
+
+           <div class="paste-container"></div>
+
+           <p class="pb-4 mt-3" style="display: block;">
+             <select name="quickCategory" id="quickCategory" class="form-control mb-3">
+               <option value="">Select Category</option>
+               @foreach($reply_categories as $category)
+                 <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+               @endforeach
+             </select>
+
+             <select name="quickComment" id="quickComment" class="form-control">
+               <option value="">Quick Reply</option>
+             </select>
+           </p>
+         </div>
+
+         <div class="form-group">
+           <input type="file" class="dropify" name="image" data-height="100" />
+           <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
+         </div>
+       </div>
+
+
+     </form>
+   </div>
+
+   <hr>
 
    @include('customers.partials.modal-reply')
 
-   {{-- <div class="col-xs-12 col-sm-6 mt-3">
+   <div class="col-xs-12 col-sm-6 mt-3">
      <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
        <div class="d-flex">
          @csrf
@@ -1510,7 +1642,7 @@
        </div>
 
      </form>
-   </div> --}}
+   </div>
 
   {{-- <div class="col-xs-12 col-sm-6 mt-3">
     <div class="d-flex">
@@ -1529,289 +1661,63 @@
     </div>
 
   </div> --}}
-{{-- </div> --}}
-
-<div class="row">
-  <div class="col-xs-12">
-    <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
-
-    {{-- <form class="form-inline mb-3" action="{{ route('instruction.category.store') }}" method="POST">
-      @csrf
-      <div class="form-group">
-        <input type="text" name="name" class="form-control" value="{{ old('name') }}" placeholder="Category" required>
-      </div>
-
-      <button type="submit" class="btn btn-secondary ml-3">Create Category</button>
-    </form> --}}
-
-    @include('customers.partials.modal-instruction')
-
-    <div id="exTab3" class="container">
-      <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="#4" data-toggle="tab">Instructions</a>
-        </li>
-        <li><a href="#5" data-toggle="tab">Complete</a></li>
-      </ul>
-    </div>
-
-    <div class="tab-content ">
-
-      <div class="tab-pane active mt-3" id="4">
-        <div class="table-responsive">
-            <table class="table table-bordered m-0">
-            <tr>
-              <th>Number</th>
-              <th>Assigned to</th>
-              <th>Category</th>
-              <th>Instructions</th>
-              <th colspan="3" class="text-center">Action</th>
-              <th>Created at</th>
-              <th>Remark</th>
-            </tr>
-            @foreach ($customer->instructions()->where('verified', 0)->latest()->limit(3)->get() as $instruction)
-                <tr>
-                  <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
-                  </td>
-                  <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                  <td>{{ $instruction->category->name }}</td>
-                  <td>{{ $instruction->instruction }}</td>
-                  <td>
-                    @if ($instruction->completed_at)
-                      {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
-                    @else
-                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction->completed_at)
-                      Completed
-                    @else
-                      @if ($instruction->pending == 0)
-                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
-                      @else
-                        Pending
-                      @endif
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction->verified == 1)
-                      <span class="badge">Verified</span>
-                    @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
-                      <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
-                    @else
-                      <span class="badge">Not Verified</span>
-                    @endif
-                  </td>
-                  <td>{{ $instruction->created_at->diffForHumans() }}</td>
-                  <td>
-                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
-                    <span> | </span>
-                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
-                  </td>
-                </tr>
-            @endforeach
-        </table>
-        </div>
-
-        <div id="instructionAccordion">
-            <div class="card mb-5">
-              <div class="card-header" id="headingInstruction">
-                <h5 class="mb-0">
-                  <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionAcc" aria-expanded="false" aria-controls="">
-                    Rest of Instructions
-                  </button>
-                </h5>
-              </div>
-              <div id="instructionAcc" class="collapse collapse-element" aria-labelledby="headingInstruction" data-parent="#instructionAccordion">
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-bordered">
-                      <tbody>
-                        @foreach ($customer->instructions()->where('verified', 0)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
-                          <tr>
-                            <td>
-                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
-                            </td>
-                            <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                            <td>{{ $instruction->category->name }}</td>
-                            <td>{{ $instruction->instruction }}</td>
-                            <td>
-                              @if ($instruction->completed_at)
-                                {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
-                              @else
-                                <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
-                              @endif
-                            </td>
-                            <td>
-                              @if ($instruction->completed_at)
-                                Completed
-                              @else
-                                @if ($instruction->pending == 0)
-                                  <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
-                                @else
-                                  Pending
-                                @endif
-                              @endif
-                            </td>
-                            <td>
-                              @if ($instruction->verified == 1)
-                                <span class="badge">Verified</span>
-                              @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
-                                <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
-                              @else
-                                <span class="badge">Not Verified</span>
-                              @endif
-                            </td>
-                            <td>{{ $instruction->created_at->diffForHumans() }}</td>
-                            <td>
-                              <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
-                              <span> | </span>
-                              <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
-                            </td>
-                          </tr>
-                        @endforeach
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-        </div>
-      </div>
-
-      <div class="tab-pane mt-3" id="5">
-        <div class="table-responsive">
-            <table class="table table-bordered m-0">
-            <tr>
-              <th>Number</th>
-              <th>Assigned to</th>
-              <th>Category</th>
-              <th>Instructions</th>
-              <th colspan="3" class="text-center">Action</th>
-              <th>Created at</th>
-              <th>Remark</th>
-            </tr>
-            @foreach ($customer->instructions()->where('verified', 1)->latest()->limit(3)->get() as $instruction)
-                <tr>
-                  <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
-                  </td>
-                  <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                  <td>{{ $instruction->category->name }}</td>
-                  <td>{{ $instruction->instruction }}</td>
-                  <td>
-                    @if ($instruction->completed_at)
-                      {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
-                    @else
-                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction->completed_at)
-                      Completed
-                    @else
-                      @if ($instruction->pending == 0)
-                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
-                      @else
-                        Pending
-                      @endif
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction->verified == 1)
-                      <span class="badge">Verified</span>
-                    @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
-                      <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
-                    @else
-                      <span class="badge">Not Verified</span>
-                    @endif
-                  </td>
-                  <td>{{ $instruction->created_at->diffForHumans() }}</td>
-                  <td>
-                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
-                    <span> | </span>
-                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
-                  </td>
-                </tr>
-            @endforeach
-        </table>
-        </div>
-
-        <div id="instructionCompletedAccordion">
-            <div class="card mb-5">
-              <div class="card-header" id="headingInstruction">
-                <h5 class="mb-0">
-                  <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionCompletedAcc" aria-expanded="false" aria-controls="">
-                    Rest of Instructions
-                  </button>
-                </h5>
-              </div>
-              <div id="instructionCompletedAcc" class="collapse collapse-element" aria-labelledby="headingInstruction" data-parent="#instructionCompletedAccordion">
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-bordered">
-                      <tbody>
-                        @foreach ($customer->instructions()->where('verified', 1)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
-                          <tr>
-                            <td>
-                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
-                            </td>
-                            <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                            <td>{{ $instruction->category->name }}</td>
-                            <td>{{ $instruction->instruction }}</td>
-                            <td>
-                              @if ($instruction->completed_at)
-                                {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
-                              @else
-                                <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
-                              @endif
-                            </td>
-                            <td>
-                              @if ($instruction->completed_at)
-                                Completed
-                              @else
-                                @if ($instruction->pending == 0)
-                                  <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
-                                @else
-                                  Pending
-                                @endif
-                              @endif
-                            </td>
-                            <td>
-                              @if ($instruction->verified == 1)
-                                <span class="badge">Verified</span>
-                              @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
-                                <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
-                              @else
-                                <span class="badge">Not Verified</span>
-                              @endif
-                            </td>
-                            <td>{{ $instruction->created_at->diffForHumans() }}</td>
-                            <td>
-                              <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
-                              <span> | </span>
-                              <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
-                            </td>
-                          </tr>
-                        @endforeach
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-        </div>
-      </div>
-    </div>
-
-    @include('customers.partials.modal-remark')
-
-  </div>
 </div>
 
+<h2>Messages</h2>
 
+<div class="row">
+  <div class="col-md-4">
+    <div class="form-inline">
+      <div class="form-group">
+        <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
+          @csrf
+
+          <button type="submit" class="btn btn-secondary" {{ $customer->is_initiated_followup() ? 'disabled' : '' }}>Initiate Follow Up Sequence</button>
+        </form>
+      </div>
+
+      @if ($customer->is_initiated_followup())
+        <div class="form-group ml-3">
+          <form action="{{ route('customer.stop.followup', $customer->id) }}" method="POST">
+            @csrf
+
+            <button type="submit" class="btn btn-secondary">STOP</button>
+          </form>
+        </div>
+      @endif
+    </div>
+  </div>
+
+  @if (isset($refunded_orders) && count($refunded_orders) > 0)
+    <div class="col-md-4">
+      <h4 class="position-absolute" style="top: -40px;">Refund Orders Status</h4>
+
+      <div class="form-inline">
+        <div class="form-group">
+          <select class="form-control refund-orders" name="">
+            <option value="">Select Order</option>
+            @foreach ($refunded_orders as $order)
+              <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="d-inline ml-3">
+          <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
+          <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
+        </div>
+      </div>
+    </div>
+  @endif
+</div>
+
+<div class="row">
+  <div class="col-12 my-3" id="message-container"></div>
+
+  <div class="col-xs-12 text-center">
+    <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
+  </div>
+</div>
 
 <form action="" method="POST" id="product-remove-form">
   @csrf
@@ -2926,11 +2832,6 @@
                $('#paste-container').empty();
                $('#screenshot_path').val('');
                $(thiss).closest('form').find('.dropify-clear').click();
-
-               if ($(thiss).hasClass('received-customer')) {
-                 $(thiss).closest('form').find('#customerMessageButton').removeClass('hidden');
-                 $(thiss).closest('form').find('textarea').addClass('hidden');
-               }
              }).fail(function(response) {
                console.log(response);
                alert('Error sending a message');
@@ -2943,17 +2844,12 @@
 
          var can_load_more = true;
 
-         $('#message-wrapper').scroll(function() {
-           var top = $('#message-wrapper').scrollTop();
+         $(window).scroll(function() {
+           var top = $(window).scrollTop();
            var document_height = $(document).height();
-           var window_height = $('#message-container').height();
+           var window_height = $(window).height();
 
-           console.log($('#message-wrapper').scrollTop());
-           console.log($(document).height());
-           console.log($('#message-container').height());
-
-           // if (top >= (document_height - window_height - 200)) {
-           if (top >= (window_height - 1000)) {
+           if (top >= (document_height - window_height - 200)) {
              if (can_load_more) {
                var current_page = $('#load-more-messages').data('nextpage');
                $('#load-more-messages').data('nextpage', current_page + 1);
@@ -3508,7 +3404,6 @@
         var uid = $(this).data('uid');
         var type = $(this).data('type');
         var email_type = 'server';
-        var thiss = $(this);
 
         if (uid == 'no') {
           uid = $(this).data('id');
@@ -3524,13 +3419,12 @@
             email_type: email_type
           },
           beforeSend: function() {
-            // $('#email-content .card').html('Loading...');
-            $(thiss).closest('.card').find('.email-content .card').html('Loading...');
+            $('#email-content .card').html('Loading...');
           }
         }).done(function(response) {
-          $(thiss).closest('.card').find('.email-content .card').html(response.email);
+          $('#email-content .card').html(response.email);
         }).fail(function(response) {
-          $(thiss).closest('.card').find('.email-content .card').html();
+          $('#email-content .card').html();
 
           alert('Could not fetch an email');
           console.log(response);
@@ -3549,12 +3443,12 @@
             type: type
           },
           beforeSend: function() {
-            $('#email_tab #email-container').find('.card').html('Loading emails');
+            $('#email_tab #email-container .card').html('Loading emails');
           }
         }).done(function(response) {
           $('#email_tab #email-container').html(response.emails);
         }).fail(function(response) {
-          $('#email_tab #email-container').find('.card').html();
+          $('#email_tab #email-container .card').html();
 
           alert('Could not fetch emails');
           console.log(response);
@@ -3613,10 +3507,16 @@
           }
         }).done(function(response) {
           if (response.is_blocked == 1) {
-            $(thiss).html('<img src="/images/blocked-twilio.png" />');
+            var badge = $('<span class="badge badge-secondary">Blocked</span>');
+
+            $(thiss).parent().append(badge);
+            $(thiss).html('<img src="/images/call-blocked.png" />');
           } else {
-            $(thiss).html('<img src="/images/unblocked-twilio.png" />');
+            $(thiss).html('<img src="/images/call-blocked.png" />');
+            $(thiss).parent().find('.badge').remove();
           }
+
+          // $(thiss).remove();
         }).fail(function(response) {
           $(thiss).text('Block on Twilio');
 
@@ -3652,33 +3552,29 @@
       });
 
       $(document).on('click', '#do_not_disturb', function() {
-        // var checked = $(this).prop('checked');
+        var checked = $(this).prop('checked');
         var id = $(this).data('id');
         var thiss = $(this);
 
-        // if (checked) {
-        //   var option = 1;
-        // } else {
-        //   var option = 0;
-        // }
+        if (checked) {
+          var option = 1;
+        } else {
+          var option = 0;
+        }
 
         $.ajax({
           type: "POST",
           url: "{{ url('customer') }}/" + id + '/updateDND',
           data: {
             _token: "{{ csrf_token() }}",
-            // do_not_disturb: option
-          },
-          beforeSend: function() {
-            $(thiss).text('DND...');
+            do_not_disturb: option
           }
-        }).done(function(response) {
-          console.log(response);
-          if (response.do_not_disturb == 1) {
-            $(thiss).html('<img src="/images/do-not-disturb.png" />');
-          } else {
-            $(thiss).html('<img src="/images/do-disturb.png" />');
-          }
+        }).done(function() {
+          $(thiss).siblings('.change_status_message').fadeIn(400);
+
+          setTimeout(function () {
+            $(thiss).siblings('.change_status_message').fadeOut(400);
+          }, 2000);
         }).fail(function(response) {
           alert('Could not update DND status');
 
@@ -3806,64 +3702,6 @@
         } else {
           $(this).closest('form')[0].reportValidity();
         }
-      });
-
-      $('#customerMessageButton').on('click', function() {
-        $(this).siblings('textarea').removeClass('hidden');
-        $(this).addClass('hidden');
-      });
-
-      $('#updateCustomerButton').on('click', function() {
-        var id = {{ $customer->id }};
-        var thiss = $(this);
-        var name = $('#customer_name').val();
-        var phone = $('#customer_phone').val();
-        var address = $('#customer_address').val();
-        var city = $('#customer_city').val();
-        var country = $('#customer_country').val();
-        var pincode = $('#customer_pincode').val();
-        var email = $('#customer_email').val();
-        var insta_handle = $('#customer_insta_handle').val();
-        var rating = $('#customer_rating').val();
-        var shoe_size = $('#customer_shoe_size').val();
-        var clothing_size = $('#customer_clothing_size').val();
-
-        $.ajax({
-          type: "POST",
-          url: "{{ url('customer') }}/" + id + '/edit',
-          data: {
-            _token: "{{ csrf_token() }}",
-            name: name,
-            phone: phone,
-            address: address,
-            city: city,
-            country: country,
-            pincode: pincode,
-            email: email,
-            insta_handle: insta_handle,
-            rating: rating,
-            shoe_size: shoe_size,
-            clothing_size: clothing_size,
-            do_not_disturb: "{{ $customer->do_not_disturb == 1 ? "on" : '' }}",
-            is_blocked: "{{ $customer->is_blocked == 1 ? "on" : '' }}"
-          },
-          beforeSend: function() {
-            $(thiss).text('Saving...');
-          }
-        }).done(function() {
-          $(thiss).text('Save');
-          $(thiss).removeClass('btn-secondary');
-          $(thiss).addClass('btn-success');
-
-          setTimeout(function () {
-            $(thiss).addClass('btn-secondary');
-            $(thiss).removeClass('btn-success');
-          }, 2000);
-        }).fail(function(response) {
-          $(thiss).text('Save');
-          console.log(response);
-          alert('Could not update customer');
-        });
       });
   </script>
 @endsection

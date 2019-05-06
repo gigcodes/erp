@@ -752,6 +752,8 @@ class CustomerController extends Controller
             'city'          => 'sometimes|nullable|min:3|max:255',
             'country'       => 'sometimes|nullable|min:2|max:255',
             'pincode'       => 'sometimes|nullable|max:6',
+            'shoe_size'     => 'sometimes|nullable',
+            'clothing_size' => 'sometimes|nullable',
             'credit'        => 'sometimes|nullable|numeric',
         ]);
 
@@ -768,6 +770,8 @@ class CustomerController extends Controller
         $customer->country = $request->country;
         $customer->pincode = $request->pincode;
         $customer->credit = $request->credit;
+        $customer->shoe_size = $request->shoe_size;
+        $customer->clothing_size = $request->clothing_size;
 
         $customer->save();
 
@@ -797,7 +801,14 @@ class CustomerController extends Controller
     {
       $customer = Customer::find($id);
 
-      $customer->do_not_disturb = $request->do_not_disturb;
+      // $customer->do_not_disturb = $request->do_not_disturb;
+
+      if ($customer->do_not_disturb == 1) {
+        $customer->do_not_disturb = 0;
+      } else {
+        $customer->do_not_disturb = 1;
+      }
+
       $customer->save();
 
       if ($request->do_not_disturb == 1) {
@@ -809,7 +820,9 @@ class CustomerController extends Controller
         // }
       }
 
-      return response('success');
+      return response()->json([
+        'do_not_disturb'  => $customer->do_not_disturb
+      ]);
     }
 
     public function updatePhone(Request $request, $id)
