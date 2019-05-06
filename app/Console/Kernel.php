@@ -145,7 +145,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:messages-errors')->hourly();
         // $schedule->command('send:auto-messenger')->everyMinute();
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:activity-listings')->dailyAt('00:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
 
         $schedule->command('gebnegozionline:get-products-list')
             ->hourly()
