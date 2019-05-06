@@ -165,7 +165,7 @@
       }
 
       #message-wrapper {
-        height: 500px;
+        height: 450px;
         overflow-y: scroll;
       }
   </style>
@@ -177,13 +177,13 @@
 <div class="row">
   <div class="col-lg-12 margin-tb">
     <div class="pull-left">
-      <h2>Customer Page</h2>
+      <h3>Customer Page</h3>
     </div>
     <div class="pull-right mt-4">
-      <a class="btn btn-secondary" href="{{ route('customer.index') }}">Back</a>
-      <a class="btn btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
-      <a class="btn btn-secondary" href="#" id="quick_add_order">+ Order</a>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button>
+      <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
+      <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
+      <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
+      <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button>
     </div>
   </div>
 </div>
@@ -246,25 +246,37 @@
 </div>
 
 <div class="row">
-  <div class="col-xs-12 col-md-4">
+  <div class="col-xs-12 col-md-4 border">
     <div class="tab-content">
       <div class="tab-pane active mt-3" id="one">
         <div class="row">
           <div class="col-xs-12">
-            <div class="form-group form-inline">
-              <input type="text" name="name" id="customer_name" class="form-control" placeholder="Name" value="{{ $customer->name }}">
+            <div class="d-flex">
+              <div class="form-group form-inline">
+                <input type="text" name="name" id="customer_name" class="form-control input-sm" placeholder="Name" value="{{ $customer->name }}">
+              </div>
 
-              @if ($customer->is_blocked == 1)
-                <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
-              @else
-                <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
-              @endif
+              <div class="form-group">
+                <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
 
-              @if ($customer->do_not_disturb == 1)
-                <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-not-disturb.png" /></button>
-              @else
-                <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-disturb.png" /></button>
-              @endif
+                @if ($customer->is_blocked == 1)
+                  <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
+                @else
+                  <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
+                @endif
+
+                @if ($customer->do_not_disturb == 1)
+                  <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-not-disturb.png" /></button>
+                @else
+                  <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-disturb.png" /></button>
+                @endif
+
+                @if ($customer->is_flagged == 1)
+                  <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
+                @else
+                  <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
+                @endif
+              </div>
             </div>
 
             {{-- <div class="form-group">
@@ -276,7 +288,7 @@
 
             @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group form-inline">
-                <input type="number" id="customer_phone" name="phone" class="form-control" placeholder="910000000000" value="{{ $customer->phone }}">
+                <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
 
                 @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
                   <span class="badge badge-danger ml-3" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
@@ -287,39 +299,41 @@
 
             <div class="form-group">
               {{-- <strong>Address:</strong> {{ $customer->address }} --}}
-              <textarea name="address" id="customer_address" class="form-control" rows="3" cols="80" placeholder="Address">{{ $customer->address }}</textarea>
+              <textarea name="address" id="customer_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address">{{ $customer->address }}</textarea>
             </div>
 
             <div class="row">
-              <div class="col">
+              <div class="col-6">
                 <div class="form-group">
-                  <input type="text" name="city" id="customer_city" class="form-control" placeholder="City" value="{{ $customer->city }}">
+                  <input type="text" name="city" id="customer_city" class="form-control input-sm" placeholder="City" value="{{ $customer->city }}">
                 </div>
               </div>
 
-              <div class="col">
+              <div class="col-6">
                 <div class="form-group">
-                  <input type="text" name="country" id="customer_country" class="form-control" placeholder="Country" value="{{ $customer->country }}">
+                  <input type="text" name="country" id="customer_country" class="form-control input-sm" placeholder="Country" value="{{ $customer->country }}">
                 </div>
               </div>
-            </div>
 
-            <div class="form-group">
-              <input type="number" name="pincode" id="customer_pincode" class="form-control" placeholder="91111" value="{{ $customer->pincode }}">
+              <div class="col-6">
+                <div class="form-group">
+                  <input type="number" name="pincode" id="customer_pincode" class="form-control input-sm" placeholder="91111" value="{{ $customer->pincode }}">
+                </div>
+              </div>
             </div>
 
             @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group">
                 {{-- <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a> --}}
-                <input type="email" name="email" id="customer_email" class="form-control" placeholder="Email" value="{{ $customer->email }}">
+                <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
               </div>
 
               <div class="form-group">
-                <input type="text" name="insta_handle" id="customer_insta_handle" class="form-control" placeholder="Instagram Handle" value="{{ $customer->insta_handle }}">
+                <input type="text" name="insta_handle" id="customer_insta_handle" class="form-control input-sm" placeholder="Instagram Handle" value="{{ $customer->insta_handle }}">
               </div>
 
               <div class="form-group">
-        				<select name="whatsapp_number" class="form-control" id="whatsapp_change">
+        				<select name="whatsapp_number" class="form-control input-sm" id="whatsapp_change">
         					<option value>Whatsapp Number</option>
 
                   @foreach ($api_keys as $api_key)
@@ -331,32 +345,42 @@
         			</div>
             @endif
 
-            <div class="form-group">
-              <select name="rating" class="form-control" id="customer_rating">
-                <option value>Select Rating</option>
-                <option value="1" {{ '1' == $customer->rating ? 'selected' : '' }}>1</option>
-                <option value="2" {{ '2' == $customer->rating ? 'selected' : '' }}>2</option>
-                <option value="3" {{ '3' == $customer->rating ? 'selected' : '' }}>3</option>
-                <option value="4" {{ '4' == $customer->rating ? 'selected' : '' }}>4</option>
-                <option value="5" {{ '5' == $customer->rating ? 'selected' : '' }}>5</option>
-                <option value="6" {{ '6' == $customer->rating ? 'selected' : '' }}>6</option>
-                <option value="7" {{ '7' == $customer->rating ? 'selected' : '' }}>7</option>
-                <option value="8" {{ '8' == $customer->rating ? 'selected' : '' }}>8</option>
-                <option value="9" {{ '9' == $customer->rating ? 'selected' : '' }}>9</option>
-                <option value="10" {{ '10' == $customer->rating ? 'selected' : '' }}>10</option>
-              </select>
-            </div>
+            <div class="row">
+              <div class="col-6">
+                <div class="form-group">
+                  <select name="rating" class="form-control input-sm" id="customer_rating">
+                    <option value>Select Rating</option>
+                    <option value="1" {{ '1' == $customer->rating ? 'selected' : '' }}>1</option>
+                    <option value="2" {{ '2' == $customer->rating ? 'selected' : '' }}>2</option>
+                    <option value="3" {{ '3' == $customer->rating ? 'selected' : '' }}>3</option>
+                    <option value="4" {{ '4' == $customer->rating ? 'selected' : '' }}>4</option>
+                    <option value="5" {{ '5' == $customer->rating ? 'selected' : '' }}>5</option>
+                    <option value="6" {{ '6' == $customer->rating ? 'selected' : '' }}>6</option>
+                    <option value="7" {{ '7' == $customer->rating ? 'selected' : '' }}>7</option>
+                    <option value="8" {{ '8' == $customer->rating ? 'selected' : '' }}>8</option>
+                    <option value="9" {{ '9' == $customer->rating ? 'selected' : '' }}>9</option>
+                    <option value="10" {{ '10' == $customer->rating ? 'selected' : '' }}>10</option>
+                  </select>
+                </div>
+              </div>
 
-            <div class="form-group">
-              <input type="text" name="shoe_size" id="customer_shoe_size" class="form-control" placeholder="Shoe Size" value="{{ $customer->shoe_size }}">
-            </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <input type="text" name="shoe_size" id="customer_shoe_size" class="form-control input-sm" placeholder="Shoe Size" value="{{ $customer->shoe_size }}">
+                </div>
+              </div>
 
-            <div class="form-group">
-              <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
-            </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control input-sm" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
+                </div>
+              </div>
 
-            <div class="form-group">
-              <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
+              <div class="col-6">
+                <div class="form-group">
+                  <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
+                </div>
+              </div>
             </div>
 
             <div class="form-group">
@@ -1216,213 +1240,239 @@
   </div>
 
   <div class="col-xs-12 col-md-4 mb-3">
-    <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
-      <div class="d-flex">
-        @csrf
-
-        <div class="form-group">
-          <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-            <button type="submit" class="btn btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png" /></button>
-          </div>
-        </div>
-
-        <div class="form-group flex-fill mr-3">
-          <button type="button" id="customerMessageButton" class="btn btn-image"><img src="/images/support.png" /></button>
-          <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
-          <input type="hidden" name="status" value="0" />
-        </div>
-
-        <div class="form-group">
-          <div class="upload-btn-wrapper">
-            <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-            <input type="file" name="image" />
-          </div>
-        </div>
-      </div>
-
-    </form>
-
-    <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
-      <div id="paste-container" style="width: 200px;">
-
-      </div>
-
-      <div class="d-flex">
-        @csrf
-
-        <div class="form-group">
-          <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-            <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
-            <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
-            <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-          </div>
-        </div>
-
-        <div class="form-group flex-fill mr-3">
-          <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
-
-          <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
-          <input type="hidden" name="status" value="1" />
-
-          <div class="paste-container"></div>
-
-
-        </div>
-
-        <div class="form-group">
-          {{-- <input type="file" class="" name="image" data-height="100" /> --}}
-
-          <div class="upload-btn-wrapper">
-            <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-            <input type="file" name="image" />
-          </div>
-        </div>
-      </div>
-
-      <div class="pb-4 mt-3">
-        <div class="row">
-          <div class="col">
-            <select name="quickCategory" id="quickCategory" class="form-control mb-3">
-              <option value="">Select Category</option>
-              @foreach($reply_categories as $category)
-                <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-              @endforeach
-            </select>
-
-            <select name="quickComment" id="quickComment" class="form-control">
-              <option value="">Quick Reply</option>
-            </select>
-          </div>
-          <div class="col">
-            <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
-          </div>
-        </div>
-      </div>
-
-    </form>
-
-    <div class="row">
-      <div class="col-12 mb-3">
-        <form action="{{ route('status.report.store') }}" method="POST">
+    <div class="border">
+      <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
+        <div class="d-flex">
           @csrf
 
-          <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+          <div class="form-group">
+            <div class="upload-btn-wrapper btn-group pr-0 d-flex">
+              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+              <input type="file" name="image" />
+
+              <button type="submit" class="btn btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png" /></button>
+            </div>
+          </div>
+
+          <div class="form-group flex-fill mr-3">
+            <button type="button" id="customerMessageButton" class="btn btn-image"><img src="/images/support.png" /></button>
+            <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
+            <input type="hidden" name="status" value="0" />
+          </div>
+
+          {{-- <div class="form-group">
+            <div class="upload-btn-wrapper">
+              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+              <input type="file" name="image" />
+            </div>
+          </div> --}}
+        </div>
+
+      </form>
+
+      <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
+        <div id="paste-container" style="width: 200px;">
+
+        </div>
+
+        <div class="d-flex">
+          @csrf
 
           <div class="form-group">
-            <strong>Next action due</strong>
-            <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link d-inline">Add Action</a>
+            <div class="upload-btn-wrapper btn-group pr-0 d-flex flex-column">
+              <div class="">
+                <input type="file" name="image" />
+                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
 
-            <select class="form-control" name="status_id" required>
-              <option value="">Select action</option>
-              @foreach ($order_status_report as $status)
-                <option value="{{ $status->id }}">{{ $status->status }}</option>
-              @endforeach
-            </select>
+                <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+              </div>
+
+              <div class="">
+                <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+
+                <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
+              </div>
+            </div>
           </div>
 
-          <div class="form-group" id="completion_form_group">
-            <strong>Completion Date:</strong>
-            <div class='input-group date' id='report-completion-datetime'>
-              <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+          <div class="form-group flex-fill mr-3">
+            <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
 
-              <span class="input-group-addon">
-                <span class="glyphicon glyphicon-calendar"></span>
-              </span>
+            <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
+            <input type="hidden" name="status" value="1" />
+
+            <div class="paste-container"></div>
+
+
+          </div>
+
+          {{-- <div class="form-group">
+            <div class="upload-btn-wrapper">
+              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+              <input type="file" name="image" />
+            </div>
+          </div> --}}
+        </div>
+
+        <div class="pb-4 mt-3">
+          <div class="row">
+            <div class="col">
+              <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
+                <option value="">Select Category</option>
+                @foreach($reply_categories as $category)
+                  <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                @endforeach
+              </select>
+
+              <select name="quickComment" id="quickComment" class="form-control input-sm">
+                <option value="">Quick Reply</option>
+              </select>
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <div class="row">
+        <div class="col-12 mb-3">
+          <form action="{{ route('status.report.store') }}" method="POST">
+            @csrf
+
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+
+            <div class="row">
+              <div class="col-6">
+                <div class="form-group">
+                  <strong>Next action due</strong>
+                  <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
+
+                  <select class="form-control input-sm" name="status_id" required>
+                    <option value="">Select action</option>
+                    @foreach ($order_status_report as $status)
+                      <option value="{{ $status->id }}">{{ $status->status }}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-6">
+                <div class="form-group" id="completion_form_group">
+                  <strong>Completion Date:</strong>
+                  <div class='input-group date' id='report-completion-datetime'>
+                    <input type='text' class="form-control input-sm" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                    <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                  </div>
+
+                  @if ($errors->has('completion_date'))
+                      <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                  @endif
+                </div>
+              </div>
             </div>
 
-            @if ($errors->has('completion_date'))
-                <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+            <button type="submit" class="btn btn-xs btn-secondary">Add Report</button>
+
+            <button type="button" class="btn btn-xs btn-secondary" id="showActionsButton">Show</button>
+          </form>
+
+          <div id="actions-container" class="hidden">
+            @if (count($customer->many_reports) > 0)
+              <h4>Order Reports</h4>
+
+              <table class="table table-bordered mt-4">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Created at</th>
+                    <th>Creator</th>
+                    <th>Due date</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @foreach ($customer->many_reports as $report)
+                    <tr>
+                      <td>{{ $report->status }}</td>
+                      <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
+                      <td>{{ $users_array[$report->user_id] }}</td>
+                      <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
+                    </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            @else
+              No Actions
             @endif
           </div>
-
-          <button type="submit" class="btn btn-xs btn-secondary">Add Report</button>
-        </form>
-
-        @if (count($customer->many_reports) > 0)
-          <h4>Order Reports</h4>
-
-          <table class="table table-bordered mt-4">
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>Created at</th>
-                <th>Creator</th>
-                <th>Due date</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              @foreach ($customer->many_reports as $report)
-                <tr>
-                  <td>{{ $report->status }}</td>
-                  <td>{{ Carbon\Carbon::parse($report->created_at)->format('d-m H:i') }}</td>
-                  <td>{{ $users_array[$report->user_id] }}</td>
-                  <td>{{ Carbon\Carbon::parse($report->completion_date)->format('d-m H:i') }}</td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-        @endif
+        </div>
       </div>
     </div>
   </div>
 
   <div class="col-xs-12 col-md-4">
-    <h4>Messages</h4>
+    <div class="border">
+      {{-- <h4>Messages</h4> --}}
 
-    <div class="row">
-      <div class="col-xs-12">
-        <div class="form-inline">
-          <div class="form-group">
-            <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
-              @csrf
-
-              <button type="submit" class="btn btn-secondary" {{ $customer->is_initiated_followup() ? 'disabled' : '' }}>Initiate Follow Up Sequence</button>
-            </form>
-          </div>
-
-          @if ($customer->is_initiated_followup())
-            <div class="form-group ml-3">
-              <form action="{{ route('customer.stop.followup', $customer->id) }}" method="POST">
-                @csrf
-
-                <button type="submit" class="btn btn-secondary">STOP</button>
-              </form>
-            </div>
-          @endif
-        </div>
-      </div>
-
-      @if (isset($refunded_orders) && count($refunded_orders) > 0)
-        <div class="col-xs-12">
-          <h5>Refund Orders Status</h5>
-
+      <div class="row">
+        <div class="col-xs-6">
           <div class="form-inline">
             <div class="form-group">
-              <select class="form-control refund-orders" name="">
-                <option value="">Select Order</option>
-                @foreach ($refunded_orders as $order)
-                  <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
-                @endforeach
-              </select>
+              <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
+                @csrf
+
+                <button type="submit" class="btn btn-xs btn-secondary" {{ $customer->is_initiated_followup() ? 'disabled' : '' }}>Follow Up</button>
+              </form>
             </div>
 
-            <div class="d-inline ml-3">
-              <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
-              <button type="button" class="btn btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
-            </div>
+            @if ($customer->is_initiated_followup())
+              <div class="form-group ml-3">
+                <form action="{{ route('customer.stop.followup', $customer->id) }}" method="POST">
+                  @csrf
+
+                  <button type="submit" class="btn btn-xs btn-secondary">STOP</button>
+                </form>
+              </div>
+            @endif
           </div>
         </div>
-      @endif
-    </div>
 
-    <div class="row">
-      <div class="col-12 my-3" id="message-wrapper">
-        <div id="message-container"></div>
+        @if (isset($refunded_orders) && count($refunded_orders) > 0)
+          <div class="col-xs-6">
+            {{-- <h5>Refund Orders Status</h5> --}}
+
+            <div class="form-inline">
+              <div class="form-group">
+                <select class="form-control input-sm refund-orders" name="">
+                  <option value="">Select Order</option>
+                  @foreach ($refunded_orders as $order)
+                    <option value="{{ $order->id }}" data-answer={{ $order->refund_answer }}>{{ $order->order_id }}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              <div class="d-inline ml-3">
+                <button type="button" class="btn btn-xs btn-secondary customer-refund-answer" id="refund_answer_yes" data-answer="yes">Yes</button>
+                <button type="button" class="btn btn-xs btn-secondary customer-refund-answer" id="refund_answer_no" data-answer="no">No</button>
+              </div>
+            </div>
+          </div>
+        @endif
       </div>
 
-      <div class="col-xs-12 text-center">
-        <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
+      <div class="row">
+        <div class="col-12 my-3" id="message-wrapper">
+          <div id="message-container"></div>
+        </div>
+
+        {{-- <div class="col-xs-12 text-center">
+          <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
+        </div> --}}
       </div>
     </div>
   </div>
@@ -1533,7 +1583,7 @@
 
 <div class="row">
   <div class="col-xs-12">
-    <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
+    {{-- <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button> --}}
 
     {{-- <form class="form-inline mb-3" action="{{ route('instruction.category.store') }}" method="POST">
       @csrf
@@ -1552,6 +1602,9 @@
           <a href="#4" data-toggle="tab">Instructions</a>
         </li>
         <li><a href="#5" data-toggle="tab">Complete</a></li>
+        <li>
+          <a href="#6" class="mb-3" data-toggle="modal" data-target="#instructionModal">+ Add</a>
+        </li>
       </ul>
     </div>
 
@@ -2953,7 +3006,7 @@
            console.log($('#message-container').height());
 
            // if (top >= (document_height - window_height - 200)) {
-           if (top >= (window_height - 1000)) {
+           if (top >= (window_height - 2000)) {
              if (can_load_more) {
                var current_page = $('#load-more-messages').data('nextpage');
                $('#load-more-messages').data('nextpage', current_page + 1);
@@ -3873,6 +3926,45 @@
         var new_subject = order_id + ' ' + subject;
 
         $(this).closest('form').find('input[name="subject"]').val(new_subject);
+      });
+
+      $('#showActionsButton').on('click', function() {
+        $('#actions-container').toggleClass('hidden');
+      });
+
+      $(document).on('click', '.flag-customer', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.flag') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Flagging...');
+          }
+        }).done(function(response) {
+          if (response.is_flagged == 1) {
+            // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+            //
+            // $(thiss).parent().append(badge);
+            $(thiss).html('<img src="/images/flagged.png" />');
+          } else {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+            // $(thiss).parent().find('.badge').remove();
+          }
+
+          // $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/unflagged.png" />');
+
+          alert('Could not flag customer!');
+
+          console.log(response);
+        });
       });
   </script>
 @endsection
