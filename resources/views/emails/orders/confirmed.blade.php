@@ -17,7 +17,7 @@
 
   <table class="table table-bordered" width="100%">
     <tr>
-      <th>Item</th>
+      <th colspan="2">Item</th>
       <th>Sku</th>
       <th>Qty</th>
       <th>Total</th>
@@ -26,6 +26,11 @@
     @php $total_price = 0 @endphp
     @foreach ($order->order_product as $order_product)
       <tr>
+        <td>
+          @if ($order_product->product->hasMedia(config('constants.media_tags')))
+            <img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
+          @endif
+        </td>
         <td>{{ $order_product->product->name ?? 'No Product' }}</td>
         <td>{{ $order_product->sku }}</td>
         <td>{{ $order_product->qty }}</td>
