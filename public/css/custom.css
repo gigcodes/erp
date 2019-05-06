@@ -1073,12 +1073,12 @@ form.display-inline{
 
 .thumbnail-wrapper {
     position: relative;
-    width: 200px;
+    width: 50px;
     display: inline-block;
 }
 
 .thumbnail-200 {
-    width: 200px !important;
+    width: 50px !important;
 }
 
 .thumbnail-delete {

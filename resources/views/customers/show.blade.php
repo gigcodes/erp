@@ -168,6 +168,12 @@
         height: 450px;
         overflow-y: scroll;
       }
+
+      .show-images-wrapper {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+      }
   </style>
 @endsection
 
@@ -1470,9 +1476,9 @@
           <div id="message-container"></div>
         </div>
 
-        {{-- <div class="col-xs-12 text-center">
+        <div class="col-xs-12 text-center hidden">
           <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
-        </div> --}}
+        </div>
       </div>
     </div>
   </div>
@@ -2775,7 +2781,7 @@
                  message.images.forEach(function (image) {
                    images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
                    images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
-                   images += image.product_id !== '' ? '<input type="checkbox" name="product" class="d-block mx-auto select-product-image" data-id="' + image.product_id + '" /></a>' : '';
+                   images += image.product_id !== '' ? '<input type="checkbox" name="product" style="width: 20px; height: 20px;" class="d-block mx-auto select-product-image" data-id="' + image.product_id + '" /></a>' : '';
 
                    if (image.product_id !== '') {
                      has_product_image = true;
@@ -2783,7 +2789,18 @@
                  });
 
                  images += '<br>';
-                 $(images).appendTo(text);
+
+                 if (has_product_image) {
+                   var show_images_wrapper = $('<div class="show-images-wrapper hidden"></div>');
+                   var show_images_button = $('<button type="button" class="btn btn-xs btn-secondary show-images-button">Show Images</button>');
+
+                   $(images).appendTo(show_images_wrapper);
+                   $(show_images_wrapper).appendTo(text);
+                   $(show_images_button).appendTo(text);
+                 } else {
+                   $(images).appendTo(text);
+                 }
+
                }
 
                p.appendTo(body);
@@ -3006,7 +3023,8 @@
            console.log($('#message-container').height());
 
            // if (top >= (document_height - window_height - 200)) {
-           if (top >= (window_height - 2000)) {
+           if (top >= (window_height - 1500)) {
+             console.log('should load', can_load_more);
              if (can_load_more) {
                var current_page = $('#load-more-messages').data('nextpage');
                $('#load-more-messages').data('nextpage', current_page + 1);
@@ -3965,6 +3983,10 @@
 
           console.log(response);
         });
+      });
+
+      $(document).on('click', '.show-images-button', function() {
+        $(this).siblings('.show-images-wrapper').toggleClass('hidden');
       });
   </script>
 @endsection
