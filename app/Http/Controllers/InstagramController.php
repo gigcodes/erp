@@ -512,7 +512,7 @@ class InstagramController extends Controller
     }
 
     public function hashtagGrid(Request $request) {
-        if ($request->has('query')) {
+        if ($request->get('query') !== '') {
             $hashTag = HashTag::where('hashtag', $request->get('query'))->get();
 
             $comments = $hashTag;
