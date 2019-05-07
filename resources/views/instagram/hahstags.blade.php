@@ -78,7 +78,7 @@
             $('.delete-comment').click(function(e) {
                 e.preventDefault();
                 let postId = $(this).attr('data-post-id');
-                let commentKey = $(this).attr('data-comment');
+                let commentKey = $(this).attr('data-comment-key');
                 $("#comment-"+postId+'-'+commentKey).hide('slow');
             });
         });
