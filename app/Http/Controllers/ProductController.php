@@ -218,7 +218,7 @@ class ProductController extends Controller {
 			}
 		}
 
-		$products = $productQuery->where('stock', '>=', 1)->latest()->paginate(Setting::get('pagination'));
+		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1)->latest()->paginate(Setting::get('pagination'));
 		$selected_categories = $request->category ? $request->category : 1;
 		$category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
 		                                        ->selected($selected_categories)
