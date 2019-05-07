@@ -66,7 +66,7 @@ class InstagramController extends Controller
      */
     public function store(Request $request) {
         $this->validate($request, [
-           'image' => 'required|image'
+            'image' => 'required|image'
         ]);
     }
 
@@ -476,5 +476,38 @@ class InstagramController extends Controller
         $posts = HashTag::all();
 
         return view('instagram.hahstags', compact('posts'));
+    }
+
+    public function deleteComment(Request $request) {
+        $postId = $request->get('post_id');
+        $commentKey = $request->get('comment_key');
+        $hashtag = HashTag::find($postId);
+
+        if (!$hashtag) {
+            return response()->json([
+                'status' => 'Not found!'
+            ]);
+        }
+
+        $comments = $hashtag->comments;
+        $filteredComments = [];
+
+        foreach ($comments as $key=>$comment) {
+            if ($key == $commentKey) {
+                $filteredComments[] = [$comment[0], $comment[1], 0];
+                continue;
+            }
+
+            $filteredComments[] = [$comment[0], $comment[1], 1];
+        }
+
+        $hashtag->comments = $filteredComments;
+        $hashtag->save();
+
+        return response()->json([
+            'status' => 'Success deleting product!'
+        ]);
+
+
     }
 }

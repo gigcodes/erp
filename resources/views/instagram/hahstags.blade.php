@@ -38,11 +38,19 @@
                                 <div data-pid="{{ $key }}" data-post-id="{{ $post->id }}" class="comments-content">
                                     @if ($post->comments && count($post->comments))
                                         @foreach($post->comments as $commentKey=>$comment)
-                                            <p id="comment-{{$post->id}}-{{$commentKey}}">
-                                                <strong>{{ $comment[0] }}</strong>
-                                                <span>{{ $comment[1] }}</span>
-                                                <span class="delete-comment" data-comment-key="{{$commentKey}}" data-post-id="{{$post->id}}">DELETE</span>
-                                            </p>
+                                            @if (!isset($comment[2]))
+                                                <p id="comment-{{$post->id}}-{{$commentKey}}">
+                                                    <strong>{{ $comment[0] }}</strong>
+                                                    <span>{{ $comment[1] }}</span>
+                                                    <span class="delete-comment" data-comment-key="{{$commentKey}}" data-post-id="{{$post->id}}">DELETE</span>
+                                                </p>
+                                            @elseif ($comment[2])
+                                                <p id="comment-{{$post->id}}-{{$commentKey}}">
+                                                    <strong>{{ $comment[0] }}</strong>
+                                                    <span>{{ $comment[1] }}</span>
+                                                    <span style="float: right; background: #FF0000;color:#fff;font-weight:bolder;border-radius: 50%;padding: 2px 10px;" class="delete-comment" data-comment-key="{{$commentKey}}" data-post-id="{{$post->id}}">X</span>
+                                                </p>
+                                            @endif
                                         @endforeach
                                     @else
                                         <p><strong>There are no comments loaded at this moment.</strong></p>
@@ -79,7 +87,20 @@
                 e.preventDefault();
                 let postId = $(this).attr('data-post-id');
                 let commentKey = $(this).attr('data-comment-key');
-                $("#comment-"+postId+'-'+commentKey).hide('slow');
+                $.ajax({
+                    url: '{{action('InstagramController@deleteComment')}}',
+                    data: {
+                        post_id: postId,
+                        comment_key: commentKey
+                    },
+                    type: 'get',
+                    success: function(response) {
+                        $("#comment-"+postId+'-'+commentKey).hide('slow');
+                    },
+                    error: function() {
+                        alert("Error deleting the product!")
+                    }
+                });
             });
         });
 
