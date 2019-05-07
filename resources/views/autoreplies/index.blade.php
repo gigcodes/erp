@@ -62,30 +62,44 @@
             <th>ID</th>
             <th>Keyword</th>
             <th>Reply</th>
-            <th>Actions</th>
+            {{-- <th>Actions</th> --}}
           </tr>
         </thead>
 
         <tbody>
-          @foreach ($auto_replies as $key => $auto_reply)
+          @php
+            $count = 0;
+          @endphp
+          @foreach ($auto_replies as $reply => $data)
             <tr>
-              <td>{{ $key + 1 }}</td>
-              <td>{{ $auto_reply->keyword }}</td>
-              <td>{{ $auto_reply->reply }}</td>
+              <td>{{ $count + 1 }}</td>
+              <td>{{ $reply }}</td>
               <td>
-                <button type="button" class="btn btn-image edit-auto-reply" data-toggle="modal" data-target="#autoReplyEditModal" data-reply="{{ $auto_reply }}"><img src="/images/edit.png" /></button>
+                <ul>
+                  @foreach ($data as $key => $auto_reply)
+                    <li>
+                      {{ $auto_reply->keyword }}
 
-                {!! Form::open(['method' => 'DELETE','route' => ['autoreply.destroy', $auto_reply->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                {!! Form::close() !!}
+                      <button type="button" class="btn btn-image edit-auto-reply" data-toggle="modal" data-target="#autoReplyEditModal" data-reply="{{ $auto_reply }}"><img src="/images/edit.png" /></button>
+
+                      {!! Form::open(['method' => 'DELETE','route' => ['autoreply.destroy', $auto_reply->id],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                      {!! Form::close() !!}
+                    </li>
+                  @endforeach
+                </ul>
               </td>
+
+              @php
+                $count++;
+              @endphp
             </tr>
           @endforeach
         </tbody>
       </table>
     </div>
 
-    {!! $auto_replies->appends(Request::except('page'))->links() !!}
+    {{-- {!! $auto_replies->appends(Request::except('page'))->links() !!} --}}
 
     @include('autoreplies.partials.autoreply-modals')
 
