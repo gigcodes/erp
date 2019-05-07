@@ -88,6 +88,8 @@ class ReviewController extends Controller
       $customers = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
       $accounts_array = Account::select(['id', 'first_name', 'last_name', 'email'])->get();
 
+        $instagram_dm_reviews = Review::where('platform', 'instagram_dm')->get();
+
       return view('reviews.index', [
         'accounts'            => $accounts,
         'customers'           => $customers,
@@ -98,6 +100,7 @@ class ReviewController extends Controller
         'filter_posted_date'  => $filter_posted_date,
         'users_array'  => $users_array,
         'accounts_array'  => $accounts_array,
+          'instagram_dm_reviews' => $instagram_dm_reviews
       ]);
     }
 
