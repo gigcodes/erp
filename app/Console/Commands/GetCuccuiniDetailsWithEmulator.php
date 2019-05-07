@@ -35,6 +35,11 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     public function handle(): void
     {
+        $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        if (strpos($letters, 'C') === false) {
+            return;
+        }
+
         $this->authenticate();
     }
 

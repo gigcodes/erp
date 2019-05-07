@@ -75,6 +75,8 @@ class ToryScraper extends Scraper
             $title = $this->getTitleFromProduct($product);
             $link = $this->getLinkFromProduct($product);
 
+            echo $link;
+
             if (!$title || !$link) {
                 continue;
             }

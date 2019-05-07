@@ -65,6 +65,10 @@ class UpdateInventory extends Command
         foreach ($scraped_products as $scraped_product) {
             $status = false;
             if ($scraped_product->website == 'G&B') {
+                $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+                if (strpos($letters, 'G') === false) {
+                    return;
+                }
                 $url = $scraped_product->url;
                 $duskShell = new WebsiteEmulator();
                 $this->setCountry('IT');
@@ -91,6 +95,11 @@ class UpdateInventory extends Command
 
             if ($scraped_product->website == 'Wiseboutique') {
 
+                $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+                if (strpos($letters, 'W') === false) {
+                    return;
+                }
+
                 $status = $this->wiseScrapService->doesProductExist($scraped_product);
 
                 $params = [
@@ -103,6 +112,12 @@ class UpdateInventory extends Command
             }
 
             if ($scraped_product->website == 'DoubleF') {
+
+                $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+                if (strpos($letters, 'D') === false) {
+                    return;
+                }
+
                 $status = $this->doubleFScrapService->doesProductExist($scraped_product);
 
                 $params = [
@@ -115,6 +130,12 @@ class UpdateInventory extends Command
             }
 
             if ($scraped_product->website == 'Tory') {
+
+                $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+                if (strpos($letters, 'T') === false) {
+                    return;
+                }
+
                 $status = $this->toryScrapService->doesProductExist($scraped_product->url);
 
                 $params = [

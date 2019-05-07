@@ -420,6 +420,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::put('review/schedule/{id}', 'ReviewController@scheduleUpdate')->name('review.schedule.update');
 	Route::post('review/schedule/{id}/status', 'ReviewController@scheduleUpdateStatus')->name('review.schedule.updateStatus');
 	Route::delete('review/schedule/{id}/destroy', 'ReviewController@scheduleDestroy')->name('review.schedule.destroy');
+	Route::get('account/{id}', 'AccountController@show');
+	Route::post('account/igdm/{id}', 'AccountController@sendMessage');
+	Route::post('account/bulk/{id}', 'AccountController@addMessageSchedule');
 	Route::post('account/create', 'ReviewController@accountStore')->name('account.store');
 	Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
 	Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');

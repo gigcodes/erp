@@ -35,6 +35,10 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
 
     public function handle(): void
     {
+        $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        if (strpos($letters, 'G') === false) {
+            return;
+        }
 //        $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'GNB')->take(250)->get();
         $products = ScrapedProducts::where('website', 'GNB')->get();
         foreach ($products as $product) {

@@ -40,6 +40,10 @@ class DoubleFProductDetailScraper extends Command
      */
     public function handle()
     {
+        $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        if (strpos($letters, 'D') === false) {
+            return;
+        }
         $this->scraper->scrap();
     }
 }

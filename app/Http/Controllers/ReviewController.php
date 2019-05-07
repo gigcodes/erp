@@ -23,7 +23,7 @@ class ReviewController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function __construct() {
-   		$this->middleware('permission:review-view');
+//   		$this->middleware('permission:review-view');
    	}
 
     public function index(Request $request)
@@ -88,6 +88,8 @@ class ReviewController extends Controller
       $customers = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
       $accounts_array = Account::select(['id', 'first_name', 'last_name', 'email'])->get();
 
+        $instagram_dm_reviews = Review::where('platform', 'instagram_dm')->get();
+
       return view('reviews.index', [
         'accounts'            => $accounts,
         'customers'           => $customers,
@@ -98,6 +100,7 @@ class ReviewController extends Controller
         'filter_posted_date'  => $filter_posted_date,
         'users_array'  => $users_array,
         'accounts_array'  => $accounts_array,
+          'instagram_dm_reviews' => $instagram_dm_reviews
       ]);
     }
 
@@ -187,12 +190,13 @@ class ReviewController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function show($id)
     {
-        //
+        $account = Account::findOrFail($id);
+        return view('reviews.show', compact('account'));
     }
 
     /**
