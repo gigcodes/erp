@@ -76,9 +76,10 @@ class BroadcastMessageController extends Controller
     }
     // dd($message_groups_array);
 
-    $message_queues = $message_queues->paginate(Setting::get('pagination'));
-    $last_set_completed = $last_set_completed->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+    $message_queues = $message_queues->orderBy('sending_time', 'ASC')->paginate(Setting::get('pagination'));
+    $last_set_completed = $last_set_completed->orderBy('sending_time', 'ASC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
     $customers_all = Customer::select(['id', 'name', 'phone', 'email'])->get();
+    $api_keys = ApiKey::select('number')->get();
 
     return view('customers.broadcast', [
       'message_queues'            => $message_queues,
@@ -89,7 +90,8 @@ class BroadcastMessageController extends Controller
       'last_set_stopped_count'    => $last_set_stopped_count,
       'last_set_received_count'   => $last_set_received_count,
       'customers_all'             => $customers_all,
-      'selected_customer'         => $selected_customer
+      'selected_customer'         => $selected_customer,
+      'api_keys'                  => $api_keys
     ]);
   }
 
@@ -186,11 +188,44 @@ class BroadcastMessageController extends Controller
 
   public function restartGroup(Request $request, $id)
   {
-    $group = MessageQueue::where('group_id', $id)->where('status', 1)->where('sent', 0)->get();
+    if ($request->whatsapp_number == '') {
+      $group = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 1);
+    } else {
+      $group = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 1)
+      ->whereHas('Customer', function($query) use ($request) {
+        $query->where('whatsapp_number', $request->whatsapp_number);
+      });
+    }
+
+    $group = $group->get();
+
+    $minutes = 6;
+    $now = Carbon::now();
+    $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+    $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
 
     foreach ($group as $set) {
+
+      if (!$now->between($morning, $evening, true)) {
+        if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+          // add day
+          $now->addDay();
+          $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+          $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+          $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+        } else {
+          // dont add day
+          $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+          $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+          $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+        }
+      }
+
+      $set->sending_time = $now;
       $set->status = 0;
       $set->save();
+
+      $now->addMinutes($minutes);
     }
 
     return redirect()->route('broadcast.index')->withSuccess('You have successfully restarted group!');
@@ -204,7 +239,16 @@ class BroadcastMessageController extends Controller
   }
 
   public function stopGroup(Request $request, $id) {
-    $message_queues = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 0)->get();
+    if ($request->whatsapp_number == '') {
+      $message_queues = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 0);
+    } else {
+      $message_queues = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 0)
+      ->whereHas('Customer', function($query) use ($request) {
+        $query->where('whatsapp_number', $request->whatsapp_number);
+      });
+    }
+
+    $message_queues = $message_queues->get();
 
     foreach ($message_queues as $message_queue) {
       $message_queue->status = 1;

@@ -108,6 +108,15 @@
                 <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
                   @csrf
 
+                  <div class="form-group">
+                    <select class="form-control input-sm" name="whatsapp_number">
+                      <option value="">Select Whatsapp Number</option>
+                      @foreach ($api_keys as $api_key)
+                        <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
+                      @endforeach
+                    </select>
+                  </div>
+
                   <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
                 </form>
               @else
@@ -119,6 +128,15 @@
 
                 <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
                   @csrf
+
+                  <div class="form-group">
+                    <select class="form-control input-sm" name="whatsapp_number">
+                      <option value="">Select Whatsapp Number</option>
+                      @foreach ($api_keys as $api_key)
+                        <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
+                      @endforeach
+                    </select>
+                  </div>
 
                   <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
                 </form>
