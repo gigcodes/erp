@@ -1078,7 +1078,7 @@ class WhatsAppController extends FindByNumberController
                  'number'       => NULL,
                  'user_id'      => Auth::id(),
                  'approved'     => 1,
-                 'status'       => 2,
+                 'status'       => 9,
                  'customer_id'  => $message->customer_id,
                  'message'      => 'Our whatsapp number has changed'
                ];
@@ -1552,5 +1552,39 @@ class WhatsAppController extends FindByNumberController
           $message->save();
         }
       }
+
+      return response('success');
+    }
+
+    public function resendMessage(Request $request, $id)
+    {
+      $chat_message = ChatMessage::find($id);
+
+      if ($customer = Customer::find($chat_message->customer_id)) {
+        $params = [
+           'number'       => NULL,
+           'user_id'      => Auth::id(),
+           'approved'     => 1,
+           'status'       => 2,
+           'customer_id'  => $customer->id,
+           'message'      => $chat_message->message
+         ];
+
+        $additional_message = ChatMessage::create($params);
+
+        if ($additional_message->message != '') {
+          $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
+        }
+
+        if ($chat_message->hasMedia(config('constants.media_tags'))) {
+          foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+            $additional_message->attachMedia($image, config('constants.media_tags'));
+
+            $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), TRUE, $additional_message->id);
+          }
+        }
+      }
+
+      return response('success');
     }
 }

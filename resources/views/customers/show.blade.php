@@ -2651,7 +2651,7 @@
                var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>');
                var p = $("<p class='collapsible-message'></p>");
 
-               var forward = $('<button class="btn btn-xs btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '">Forward >></button>');
+               var forward = $('<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button>');
 
 
 
@@ -2710,9 +2710,9 @@
 
                  var error_flag = '';
                  if (message.error_status == 1) {
-                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a>";
+                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
                  } else if (message.error_status == 2) {
-                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a>";
+                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
                  }
 
 
@@ -4014,6 +4014,30 @@
           console.log(response);
 
           alert('Could not mark as fixed');
+        });
+      });
+
+      $(document).on('click', '.resend-message', function() {
+        var id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('whatsapp') }}/" + id + "/resendMessage",
+          data: {
+            _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function() {
+            $(thiss).text('Sending...');
+          }
+        }).done(function() {
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Resend');
+
+          console.log(response);
+
+          alert('Could not resend message');
         });
       });
   </script>
