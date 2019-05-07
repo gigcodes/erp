@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Setting;
 use App\Customer;
+use App\ChatMessage;
 use App\Order;
 use App\OrderProduct;
 use Carbon\Carbon;
