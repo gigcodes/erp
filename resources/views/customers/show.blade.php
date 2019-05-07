@@ -2710,9 +2710,9 @@
 
                  var error_flag = '';
                  if (message.error_status == 1) {
-                   error_flag = "<span class='badge badge-warning'>Resent</span>";
+                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a>";
                  } else if (message.error_status == 2) {
-                   error_flag = "<span class='badge badge-danger'>Error</span>";
+                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a>";
                  }
 
 
@@ -3991,6 +3991,30 @@
 
       $(document).on('click', '.show-images-button', function() {
         $(this).siblings('.show-images-wrapper').toggleClass('hidden');
+      });
+
+      $(document).on('click', '.fix-message-error', function() {
+        var id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('whatsapp') }}/" + id + "/fixMessageError",
+          data: {
+            _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function() {
+            $(thiss).text('Fixing...');
+          }
+        }).done(function() {
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/flagged.png" />');
+
+          console.log(response);
+
+          alert('Could not mark as fixed');
+        });
       });
   </script>
 @endsection

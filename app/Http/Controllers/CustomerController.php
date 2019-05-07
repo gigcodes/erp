@@ -210,7 +210,7 @@ class CustomerController extends Controller
             $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('last_communicated_at', $orderby);
         }
 
-        $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
+        $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
         (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
         (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
         (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,

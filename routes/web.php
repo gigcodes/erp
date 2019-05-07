@@ -482,6 +482,7 @@ Route::get('whatsapp/pollMessagesCustomer', 'WhatsAppController@pollMessagesCust
 Route::get('whatsapp/updatestatus/', 'WhatsAppController@updateStatus');
 Route::post('whatsapp/updateAndCreate/', 'WhatsAppController@updateAndCreate');
 Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->name('whatsapp.forward');
+Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 
 
 /*

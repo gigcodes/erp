@@ -1536,4 +1536,21 @@ class WhatsAppController extends FindByNumberController
 
       return response('success');
     }
+
+    public function fixMessageError(Request $request, $id)
+    {
+      $chat_message = ChatMessage::find($id);
+
+      if ($customer = Customer::find($chat_message->customer_id)) {
+        $customer->is_error_flagged = 0;
+        $customer->save();
+
+        $messages = ChatMessage::where('customer_id', $customer->id)->where('error_status', '!=', 0)->get();
+
+        foreach ($messages as $message) {
+          $message->error_status = 0;
+          $message->save();
+        }
+      }
+    }
 }
