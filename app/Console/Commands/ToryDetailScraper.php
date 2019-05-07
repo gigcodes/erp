@@ -39,6 +39,10 @@ class ToryDetailScraper extends Command
      */
     public function handle()
     {
+        $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        if (strpos($letters, 'T') === false) {
+            return;
+        }
         $this->scraper->scrap();
     }
 }

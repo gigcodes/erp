@@ -34,9 +34,9 @@
                                 </p>
                             </div><!-- card actions -->
                             <div class="card-reveal reveal-{{ $key }}">
-                                <span class="card-title">Comments (<span class="count-for-{{$key}}">{{ count($post->comments) }}</span>)</span> <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <span class="card-title">Comments (<span class="count-for-{{$key}}">{{ $post->comments ? count($post->comments) : '0' }}</span>)</span> <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                 <div data-pid="{{ $key }}" data-post-id="{{ $post->id }}" class="comments-content">
-                                    @if (count($post->comments))
+                                    @if ($post->comments && count($post->comments))
                                         @foreach($post->comments as $comment)
                                             <p>
                                                 <strong>{{ $comment[0] }}</strong>
