@@ -101,6 +101,7 @@
                   <td> {{ $account->posts_count }}</td>
                   <td> {{ $account->dp_count }}</td>
                   <td>
+                    <a href="{{ action('AccountController@show', $account->id) }}">Show Account</a>
                     <button type="button" class="btn btn-image edit-account" data-toggle="modal" data-target="#accountEditModal" data-account="{{ $account }}"><img src="/images/edit.png" /></button>
 
                     {!! Form::open(['method' => 'DELETE','route' => ['account.destroy', $account->id],'style'=>'display:inline']) !!}

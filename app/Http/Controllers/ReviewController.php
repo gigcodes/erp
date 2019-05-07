@@ -23,7 +23,7 @@ class ReviewController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function __construct() {
-   		$this->middleware('permission:review-view');
+//   		$this->middleware('permission:review-view');
    	}
 
     public function index(Request $request)
@@ -187,12 +187,13 @@ class ReviewController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function show($id)
     {
-        //
+        $account = Account::findOrFail($id);
+        return view('reviews.show', compact('account'));
     }
 
     /**
