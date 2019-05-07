@@ -66,7 +66,7 @@ class InstagramController extends Controller
      */
     public function store(Request $request) {
         $this->validate($request, [
-           'image' => 'required|image'
+            'image' => 'required|image'
         ]);
     }
 
@@ -476,5 +476,60 @@ class InstagramController extends Controller
         $posts = HashTag::all();
 
         return view('instagram.hahstags', compact('posts'));
+    }
+
+    public function deleteComment(Request $request) {
+        $postId = $request->get('post_id');
+        $commentKey = $request->get('comment_key');
+        $hashtag = HashTag::find($postId);
+
+        if (!$hashtag) {
+            return response()->json([
+                'status' => 'Not found!'
+            ]);
+        }
+
+        $comments = $hashtag->comments;
+        $filteredComments = [];
+
+        foreach ($comments as $key=>$comment) {
+            if ($key == $commentKey) {
+                $filteredComments[] = [$comment[0], $comment[1], 0];
+                continue;
+            }
+
+            $filteredComments[] = [$comment[0], $comment[1], 1];
+        }
+
+        $hashtag->comments = $filteredComments;
+        $hashtag->save();
+
+        return response()->json([
+            'status' => 'Success deleting product!'
+        ]);
+
+
+    }
+
+    public function hashtagGrid(Request $request) {
+        if ($request->get('query') !== '') {
+            $hashTag = HashTag::where('hashtag', $request->get('query'))->get();
+
+            $comments = $hashTag;
+
+            $hashtext = $request->get('query');
+
+            return view('instagram.hashtag_grid', compact('comments', 'hashtext', 'request'));
+        }
+
+        $hashTags = HashTag::distinct('hashtag')->get();
+        $comments = [];
+        foreach ($hashTags as $hash) {
+            $comments[$hash->hashtag] = HashTag::where('hashtag', $hash->hashtag)->get();
+        }
+
+        return view('instagram.hashtag_grid', compact('comments', 'request'));
+
+
     }
 }
