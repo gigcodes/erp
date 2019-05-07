@@ -100,6 +100,7 @@ class ProductController extends Controller {
 		$category = '';
 		$color = '';
 		$supplier = [];
+		$type = '';
 
 		if ($request->brand[0] != null) {
 			$productQuery = ( new Product() )->newQuery()
@@ -169,6 +170,24 @@ class ProductController extends Controller {
 			$supplier = $request->supplier;
 		}
 
+		if ($request->type != '') {
+			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->supplier[0] != null) {
+				if ($request->type == 'Not Listed') {
+					$productQuery = $productQuery->where('isFinal', 0)->where('isUploaded', 0);
+				} else {
+					$productQuery = $productQuery->where('isUploaded', 1);
+				}
+			} else {
+				if ($request->type == 'Not Listed') {
+					$productQuery = ( new Product() )->newQuery()->latest()->where('isFinal', 0)->where('isUploaded', 0);
+				} else {
+					$productQuery = ( new Product() )->newQuery()->latest()->where('isUploaded', 1);
+				}
+			}
+
+			$type = $request->type;
+		}
+
 		if (trim($term) != '') {
 			$productQuery = ( new Product() )->newQuery()
 			->latest()
@@ -194,7 +213,7 @@ class ProductController extends Controller {
 				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
 			}
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null) {
+			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
 				$productQuery = ( new Product() )->newQuery()->latest();
 			}
 		}
@@ -220,6 +239,7 @@ class ProductController extends Controller {
 			'category'	=> $category,
 			'color'	=> $color,
 			'supplier'	=> $supplier,
+			'type'	=> $type,
 		]);
 	}
 

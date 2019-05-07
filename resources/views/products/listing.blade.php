@@ -59,6 +59,14 @@
             </select>
           </div>
 
+          <div class="form-group mr-3">
+            <select class="form-control" name="type">
+              <option value="">Select Type</option>
+              <option value="Not Listed" {{ isset($type) && $type == "Not Listed" ? 'selected' : ''  }}>Not Listed</option>
+              <option value="Listed" {{ isset($type) && $type == "Listed" ? 'selected' : ''  }}>Listed</option>
+            </select>
+          </div>
+
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
         </form>
       </div>
