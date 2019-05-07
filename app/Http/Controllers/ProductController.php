@@ -435,10 +435,14 @@ class ProductController extends Controller {
 					$image_url = $media->getUrl();
 				}
 			}
+
+			$product->last_imagecropper = Auth::id();
+			$product->save();
 		}
 
 		return response()->json([
-			'image_url'	=> $image_url
+			'image_url'	=> $image_url,
+			'last_imagecropper'	=> $product->last_imagecropper
 		]);
 	}
 

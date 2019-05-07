@@ -187,7 +187,13 @@
 
                 <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
 
-                <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
+                <div class="form-inline">
+                  <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
+
+                  @if ($product->last_imagecropper != '')
+                    <img src="/images/1.png" class="ml-1" alt="">
+                  @endif
+                </div>
               </td>
 
               <td>
@@ -592,6 +598,9 @@
       }).done(function(response) {
         $(thiss).closest('tr').find('.quick-image-container').attr('src', response.image_url);
         $(thiss).closest('td').find('.dropify-clear').click();
+
+        $(thiss).parent('div').find('img').remove();
+        $(thiss).parent('div').append('<img src="/images/1.png" class="ml-1" alt="">');
       }).fail(function(response) {
         console.log(response);
 
