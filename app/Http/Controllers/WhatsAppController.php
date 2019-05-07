@@ -11,6 +11,7 @@ use App\Jobs\SendMessageToSelected;
 use App\Category;
 use App\Notification;
 use App\AutoReply;
+use App\BroadcastImage;
 use App\Leads;
 use App\Order;
 use App\Status;
@@ -1246,7 +1247,18 @@ class WhatsAppController extends FindByNumberController
     }
 
     if ($request->linked_images != '') {
-      $content['linked_images'] = json_decode($request->linked_images);
+      foreach (json_decode($request->linked_images) as $key => $id) {
+        $broadcast_image = BroadcastImage::find($id);
+
+        if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
+          foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
+            $content['linked_images'][$key + $key2]['key'] = $brod_image->getKey();
+            $content['linked_images'][$key + $key2]['url'] = $brod_image->getUrl();
+          }
+        }
+
+      }
+      // $content['linked_images'] = json_decode($request->linked_images);
     }
 
     if ($request->to_all || $request->moduletype == 'customers') {

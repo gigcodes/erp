@@ -37,7 +37,22 @@ class BroadcastMessageController extends Controller
 
     $message_groups = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->get()->groupBy(['group_id', 'sent', 'status']);
 
+    // dd($message_groups);
+
     $message_groups_array = [];
+
+    // dd();
+
+    $new_data = [];
+
+    for ($i = 1; $i <= $month_back->daysInMonth; $i++) {
+      $day = $i < 10 ? "0" . $i : $i;
+      $date = $month_back->format('Y-m-') . $day;
+
+      $new_data[$date] = [];
+    }
+
+    // dd($new_data);
 
     foreach ($message_groups as $group_id => $datas) {
       $sent_count = 0;
@@ -65,25 +80,43 @@ class BroadcastMessageController extends Controller
           }
 
           $message_groups_array[$group_id]['message'] = json_decode($items[0]->data, true)['message'];
+          $message_groups_array[$group_id]['image'] = array_key_exists('image', json_decode($items[0]->data, true)) ? json_decode($items[0]->data, true)['image'] : [];
+          $message_groups_array[$group_id]['linked_images'] = array_key_exists('linked_images', json_decode($items[0]->data, true)) ? json_decode($items[0]->data, true)['linked_images'] : [];
           $message_groups_array[$group_id]['can_be_stopped'] = $can_be_stopped;
+          $message_groups_array[$group_id]['sending_time'] = $items[0]->sending_time;
+          $message_groups_array[$group_id]['whatsapp_number'] = $items[0]->whatsapp_number;
         }
 
         $message_groups_array[$group_id]['sent'] = $sent_count;
         $message_groups_array[$group_id]['received'] = $received_count;
         $message_groups_array[$group_id]['stopped'] = $stopped_count;
         $message_groups_array[$group_id]['total'] = $total_count;
+        $message_groups_array[$group_id]['expecting_time'] = MessageQueue::where('group_id', $group_id)->orderBy('sending_time', 'DESC')->first()->sending_time;
       }
+
+      // dd($message_groups_array[$group_id]);
+      $new_data[Carbon::parse($message_groups_array[$group_id]['sending_time'])->format('Y-m-d')][$group_id] = $message_groups_array[$group_id];
     }
+
+    // $broadcast_images = BroadcastImage::whereNotNull('sending_time')->get();
+    //
+    // foreach ($broadcast_images as $image) {
+    //   $new_data[Carbon::parse($image->sending_time)->format('Y-m-d')][]
+    // }
+
+    // dd($new_data);
+
     // dd($message_groups_array);
 
     $message_queues = $message_queues->orderBy('sending_time', 'ASC')->paginate(Setting::get('pagination'));
     $last_set_completed = $last_set_completed->orderBy('sending_time', 'ASC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
     $customers_all = Customer::select(['id', 'name', 'phone', 'email'])->get();
     $api_keys = ApiKey::select('number')->get();
+    $broadcast_images = BroadcastImage::paginate(Setting::get('pagination'));
 
     return view('customers.broadcast', [
       'message_queues'            => $message_queues,
-      'message_groups'            => $message_groups_array,
+      'message_groups'            => $new_data,
       'date'                      => $date,
       'last_set_completed'        => $last_set_completed,
       'last_set_completed_count'  => $last_set_completed_count,
@@ -91,7 +124,8 @@ class BroadcastMessageController extends Controller
       'last_set_received_count'   => $last_set_received_count,
       'customers_all'             => $customers_all,
       'selected_customer'         => $selected_customer,
-      'api_keys'                  => $api_keys
+      'api_keys'                  => $api_keys,
+      'broadcast_images'          => $broadcast_images
     ]);
   }
 
@@ -126,14 +160,16 @@ class BroadcastMessageController extends Controller
   {
     if ($request->hasFile('images')) {
       foreach ($request->file('images') as $image) {
-        $broadcast_image = BroadcastImage::create();
+        $broadcast_image = BroadcastImage::create([
+          'sending_time'  => $request->sending_time
+        ]);
 
         $media = MediaUploader::fromSource($image)->toDirectory('broadcast-images')->upload();
         $broadcast_image->attachMedia($media,config('constants.media_tags'));
       }
     }
 
-    return redirect()->route('broadcast.images')->withSuccess('You have successfully uploaded images!');
+    return redirect()->route('broadcast.index')->withSuccess('You have successfully uploaded images!');
   }
 
   public function imagesLink(Request $request)
