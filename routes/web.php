@@ -498,6 +498,7 @@ Route::prefix('instagram')->group(function () {
     Route::get('posts', 'InstagramController@showPosts');
     Route::get('hashtags', 'InstagramController@showHahstags');
     Route::get('hashtags/comment/delete', 'InstagramController@deleteComment');
+    Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
     Route::get('post-media', 'InstagramController@showImagesToBePosted');

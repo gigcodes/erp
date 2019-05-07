@@ -510,4 +510,26 @@ class InstagramController extends Controller
 
 
     }
+
+    public function hashtagGrid(Request $request) {
+        if ($request->has('query')) {
+            $hashTag = HashTag::where('hashtag', $request->get('query'))->get();
+
+            $comments = $hashTag;
+
+            $hashtext = $request->get('query');
+
+            return view('instagram.hashtag_grid', compact('comments', 'hashtext', 'request'));
+        }
+
+        $hashTags = HashTag::distinct('hashtag')->get();
+        $comments = [];
+        foreach ($hashTags as $hash) {
+            $comments[$hash->hashtag] = HashTag::where('hashtag', $hash->hashtag)->get();
+        }
+
+        return view('instagram.hashtag_grid', compact('comments', 'request'));
+
+
+    }
 }
