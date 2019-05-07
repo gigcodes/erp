@@ -495,6 +495,8 @@
 
                                     </li>
 
+                                    <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
+
 
 
                                     <li class="nav-item dropdown dropdown-submenu">
@@ -586,6 +588,12 @@
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
                                     <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+
+                                </div>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                    <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
 
                                 </div>
 

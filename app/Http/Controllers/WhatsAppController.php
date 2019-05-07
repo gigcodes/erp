@@ -230,6 +230,19 @@ class WhatsAppController extends FindByNumberController
           }
         }
 
+        // Auto Instruction
+        if (array_key_exists('message', $params) && (preg_match("/you photo/i", $params['message']) || preg_match("/pp/i", $params['message']) || preg_match("/how much/i", $params['message']))) {
+          if ($customer = Customer::find($params['customer_id'])) {
+            Instruction::create([
+              'customer_id' => $customer->id,
+              'instruction' => 'Please send the prices',
+              'category_id' => 1,
+              'assigned_to' => 7,
+              'assigned_from' => 6,
+            ]);
+          }
+        }
+
         // Auto Replies
         $auto_replies = AutoReply::all();
 
@@ -308,16 +321,13 @@ class WhatsAppController extends FindByNumberController
            'customer_id'  => $params['customer_id']
          ];
 
-         if (!$time->between($morning, $evening, true) || $time == $saturday || $time == $sunday) {
-           // $params['message'] = 'Our office is closed due to Good Friday we shall revert on all messages tomorrow.';
-           $params['message'] = 'Our office is currently closed - we work between 10 - 5.30 - Monday - Friday -  - if an associate is available - your messaged will be responded within 60 minutes or on the next working day -since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate shall respond accordingly.';
-         } else {
-           $params['message'] = 'Hello we have received your message - and the concerned asscociate will revert asap - since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate and response us time is 60 minutes  .Pls. note that we do not answer calls on this number as its linked to our servers.';
-         }
+        if ($time->between($morning, $evening, true) || $time == $saturday || $time == $sunday) {
+          $params['message'] = 'Hello we have received your message - and the concerned asscociate will revert asap - since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate and response us time is 60 minutes  .Pls. note that we do not answer calls on this number as its linked to our servers.';
 
-        $additional_message = ChatMessage::create($params);
+          $additional_message = ChatMessage::create($params);
 
-        $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
+          $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
+        }
       }
 
       if ($chat_messages_evening_count == 1) {
@@ -870,6 +880,10 @@ class WhatsAppController extends FindByNumberController
       // $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
 
       $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
+
+      if (Setting::get('show_automated_messages') == 0) {
+        $messages = $messages->where('status', '!=', 9);
+      }
       // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
       // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
 

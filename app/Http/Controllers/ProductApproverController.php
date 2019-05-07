@@ -8,6 +8,7 @@ use App\Stage;
 use App\Brand;
 use App\Category;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ProductApproverController extends Controller
 {
@@ -121,6 +122,15 @@ class ProductApproverController extends Controller
 					$errors++;
 				}
 			}
+		}
+
+		if ($errors == 0) {
+			$product->is_uploaded_date = Carbon::now();
+
+			$product->isFinal = 1;
+			$product->isListed = 1;
+
+			$product->save();
 		}
 
 		return $errors > 0 ? false : $result;

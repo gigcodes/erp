@@ -820,7 +820,8 @@ class PurchaseController extends Controller
         $emails_array[$key]['uid'] = $email->getUid();
         $emails_array[$key]['subject'] = $email->getSubject();
         $emails_array[$key]['date'] = $email->getDate();
-
+        $emails_array[$key]['from'] = $email->getFrom()[0]->mail;
+        
         $count++;
       }
 
@@ -831,6 +832,7 @@ class PurchaseController extends Controller
           $emails_array[$count + $key2]['id'] = $email->id;
           $emails_array[$count + $key2]['subject'] = $email->subject;
           $emails_array[$count + $key2]['date'] = $email->created_at;
+          $emails_array[$count + $key2]['from'] = $email->from;
         }
       }
 
@@ -905,7 +907,7 @@ class PurchaseController extends Controller
         }
       } else {
         $email = Email::find($request->uid);
-
+        $to_email = $email->to;
         // if ($email->template == 'customer-simple') {
         //   $content = (new CustomerEmail($email->subject, $email->message))->render();
         // } else {
@@ -932,7 +934,10 @@ class PurchaseController extends Controller
 
 
 
-      return response()->json(['email' => $content]);
+      return response()->json([
+        'email' => $content,
+        'to_email'  => isset($to_email) ? $to_email : ''
+      ]);
     }
 
     public function emailSend(Request $request)

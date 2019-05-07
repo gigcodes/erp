@@ -1,4 +1,32 @@
-<div class="row">
+<div id="emailAccordion">
+  @if (count($emails) > 0)
+    @foreach ($emails as $key => $email)
+      <div class="card">
+        <div class="card-header" id="headingEmail{{ $key }}">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed collapse-fix email-fetch" data-toggle="collapse" data-target="#emailAcc{{ $key }}" data-uid="{{ $email['uid'] ?? 'no' }}" data-id="{{ $email['id'] ?? '' }}" data-type="{{ $type }}" aria-expanded="false" aria-controls="">
+              {{ $email['subject'] }}
+              {{ $email['date'] }}
+            </button>
+          </h5>
+        </div>
+        <div id="emailAcc{{ $key }}" class="collapse collapse-element" aria-labelledby="headingInstruction" data-parent="#instructionAccordion">
+          <div class="email-content">
+            <div class="card p-3">
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {!! $emails->appends(Request::except('page'))->links() !!}
+    @endforeach
+  @else
+    No emails for this customer
+  @endif
+</div>
+
+{{-- <div class="row">
   <div class="col-md-4">
     <div class="card">
       @if (count($emails) > 0)
@@ -28,4 +56,4 @@
 
     </div>
   </div>
-</div>
+</div> --}}

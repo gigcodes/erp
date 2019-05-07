@@ -260,11 +260,11 @@ class InstructionController extends Controller
       $instruction->completed_at = Carbon::now();
       $instruction->save();
 
-      if ($instruction->instruction == '') {
-        $message_body = 'Images attached!';
-      } else {
-        $message_body = 'Instruction Complete!';
-      }
+      // if ($instruction->instruction == '') {
+      //   $message_body = 'Images attached!';
+      // } else {
+      //   $message_body = 'Instruction Complete!';
+      // }
 
       ChatMessage::create([
         'number'        => NULL,
@@ -272,7 +272,7 @@ class InstructionController extends Controller
         'status'        => 4,
         'user_id'       => Auth::id(),
         'assigned_to'   => $instruction->assigned_to,
-        'message'       => $message_body
+        'message'       => $instruction->instruction . " - Instruction Completed"
       ]);
 
       // $myRequest = new Request();

@@ -86,6 +86,8 @@ class ProductCropperController extends Controller
 		$data['price'] = $productimagecropper->price;
 
 		$data['isApproved'] = $productimagecropper->isApproved;
+		$data['isUploaded'] = $productimagecropper->isUploaded;
+		$data['isFinal'] = $productimagecropper->isFinal;
 		$data['rejected_note'] = $productimagecropper->rejected_note;
 
 		$data['images']  = $productimagecropper->getMedia(config('constants.media_tags'));

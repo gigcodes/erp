@@ -182,7 +182,7 @@ class ProductsCreator
         'dmeasurement' => '',
         'measurement_size_type' => '',
         'made_in' => isset($made_in) ? $made_in : '',
-        'category' => isset($category) ? $category : '',
+        'category' => isset($category) ? $category : 1,
       ];
     }
 
@@ -230,7 +230,7 @@ class ProductsCreator
         'dmeasurement' => '',
         'measurement_size_type' => '',
         'made_in' => '',
-        'category' => isset($category) ? $category : '',
+        'category' => isset($category) ? $category : 1,
       ];
     }
 
@@ -253,7 +253,7 @@ class ProductsCreator
         'dmeasurement' => '',
         'measurement_size_type' => '',
         'made_in' => '',
-        'category' => '',
+        'category' => 1,
       ];
     }
 
@@ -304,7 +304,7 @@ class ProductsCreator
         'dmeasurement' => isset($dmeasurement) ? $dmeasurement : '',
         'measurement_size_type' => isset($measurement_size_type) ? $measurement_size_type : '',
         'made_in' => isset($made_in) ? $made_in : '',
-        'category' => '',
+        'category' => 1,
       ];
     }
 
@@ -335,7 +335,7 @@ class ProductsCreator
         'dmeasurement' => '',
         'measurement_size_type' => isset($measurement_size_type) ? $measurement_size_type : '',
         'made_in' => '',
-        'category' => '',
+        'category' => 1,
       ];
     }
 
@@ -400,7 +400,7 @@ class ProductsCreator
         'dmeasurement' => isset($dmeasurement) ? $dmeasurement : '',
         'measurement_size_type' => isset($measurement_size_type) ? $measurement_size_type : '',
         'made_in' => '',
-        'category' => isset($category) ? $category : '',
+        'category' => isset($category) ? $category : 1,
       ];
     }
 
@@ -469,7 +469,7 @@ class ProductsCreator
         'dmeasurement' => '',
         'measurement_size_type' => '',
         'made_in' => isset($made_in) ? $made_in : '',
-        'category' => isset($category) ? $category : '',
+        'category' => isset($category) ? $category : 1,
       ];
     }
 }

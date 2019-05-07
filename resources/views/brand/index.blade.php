@@ -77,7 +77,8 @@
   <script type="text/javascript">
     $('#calculatePriceButton').on('click', function() {
       var price = $('#product_price').val();
-      var brand = $(':selected').data('brand');
+      var brand = $('#brand :selected').data('brand');
+      console.log(brand);
 
       var price_inr = Math.round(Math.round(price * brand.euro_to_inr) / 1000) * 1000;
       var price_special = Math.round(Math.round(price_inr - (price_inr * brand.deduction_percentage) / 100) / 1000) * 1000;

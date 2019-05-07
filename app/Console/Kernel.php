@@ -113,14 +113,22 @@ class Kernel extends ConsoleKernel
         }
       })->dailyAt('00:00');
 
-  	    $schedule->call(function () {
-  		    \Log::debug('deQueueNotficationNew Start');
-  	    	NotificationQueueController::deQueueNotficationNew();
-  	    })->everyFiveMinutes();
+  	    // $schedule->call(function () {
+  		  //   \Log::debug('deQueueNotficationNew Start');
+  	    // 	NotificationQueueController::deQueueNotficationNew();
+  	    // })->everyFiveMinutes();
 
         $schedule->call(function () {
           MagentoController::get_magento_orders();
         })->hourly();
+
+        $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
+        $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
+        $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
+
+        // Voucher Reminders
+        $schedule->command('send:voucher-reminder')->daily();
 
         // Updates Magento Products status on ERP
         // $schedule->command('update:magento-product-status')->dailyAt(03);
@@ -137,7 +145,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:messages-errors')->hourly();
         // $schedule->command('send:auto-messenger')->everyMinute();
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:activity-listings')->dailyAt('00:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
 
         $schedule->command('gebnegozionline:get-products-list')
             ->hourly()
@@ -200,13 +208,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:instagram-messagges')
             ->hourly();
 
-        $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
-        $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
-        $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
 
-        // Voucher Reminders
-        $schedule->command('send:voucher-reminder')->daily();
     }
 
     /**

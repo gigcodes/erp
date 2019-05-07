@@ -9,6 +9,7 @@
                 <strong>{{ $email['subject'] }}</strong>
               </a>
               <br>
+              {{ $email['from'] }}
               {{ $email['date'] }}
             </li>
           @endforeach
@@ -26,6 +27,10 @@
   <div class="col-md-8" id="email-content">
     <div class="mb-3">
       <button type="button" class="btn btn-xs btn-secondary resend-email-button" data-toggle="modal" data-target="#chooseRecipientModal" data-id="" data-emailtype="" data-type="">Resend</button>
+
+      @if (isset($to_email))
+        {{ $to_email }}
+      @endif
     </div>
 
     <div class="card p-3">

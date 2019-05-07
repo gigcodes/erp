@@ -118,6 +118,6 @@ class SendActivitiesListing extends Command
   		$data['total_data'] = $total_data;
   		$data['benchmark']  = $benchmark[0];
 
-      Mail::to('customercare@sololuxury.co.in')->send(new ActivityListings($data));
+      Mail::to('yogeshmordani@icloud.com')->send(new ActivityListings($data));
     }
 }

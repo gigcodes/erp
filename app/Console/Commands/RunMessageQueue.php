@@ -42,17 +42,22 @@ class RunMessageQueue extends Command
      */
     public function handle()
     {
-      $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now())->where('sent', 0)->where('status', '!=', 1)->limit(20);
+      $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now())->where('sent', 0)->where('status', '!=', 1)->orderBy('sending_time', 'ASC')->limit(20);
 
       if (count($message_queues->get()) > 0) {
         foreach ($message_queues->get() as $message) {
           if ($message->type == 'message_all') {
+
             $customer = Customer::find($message->customer_id);
 
             if ($customer && $customer->do_not_disturb == 0) {
               SendMessageToAll::dispatch($message->user_id, $customer, json_decode($message->data, true), $message->id);
 
               dump('sent to all');
+            } else {
+              $message->delete();
+              
+              dump('deleting queue');
             }
           } else {
             SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
