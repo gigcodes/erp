@@ -15,7 +15,7 @@ class AutoReplyController extends Controller
      */
     public function index()
     {
-      $auto_replies = AutoReply::paginate(Setting::get('pagination'));
+      $auto_replies = AutoReply::latest()->paginate(Setting::get('pagination'))->groupBy('reply');
       $show_automated_messages = Setting::get('show_automated_messages');
 
       return view('autoreplies.index', [
@@ -47,10 +47,14 @@ class AutoReplyController extends Controller
         'reply'   => 'required|min:3|string'
       ]);
 
-      $auto_reply = new AutoReply;
-      $auto_reply->keyword = $request->keyword;
-      $auto_reply->reply = $request->reply;
-      $auto_reply->save();
+      $exploded = explode(',', $request->keyword);
+
+      foreach ($exploded as $keyword) {
+        $auto_reply = new AutoReply;
+        $auto_reply->keyword = trim($keyword);
+        $auto_reply->reply = $request->reply;
+        $auto_reply->save();
+      }
 
       return redirect()->route('autoreply.index')->withSuccess('You have successfully created auto reply!');
     }

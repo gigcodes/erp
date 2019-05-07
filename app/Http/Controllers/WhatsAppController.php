@@ -11,6 +11,7 @@ use App\Jobs\SendMessageToSelected;
 use App\Category;
 use App\Notification;
 use App\AutoReply;
+use App\BroadcastImage;
 use App\Leads;
 use App\Order;
 use App\Status;
@@ -1057,7 +1058,7 @@ class WhatsAppController extends FindByNumberController
                'number'       => NULL,
                'user_id'      => Auth::id(),
                'approved'     => 1,
-               'status'       => 2,
+               'status'       => 9,
                'customer_id'  => $message->customer_id,
                'message'      => 'This Number is just for whats app messages and NOT CALLS , for calls pls. use our toll free number 0008000401700 - ( care to be taken not to dial with 91 or  + 91 ). Pls. leave a message if you cannot connect to our toll free number and we will call you back at the earliest.'
              ];
@@ -1078,7 +1079,7 @@ class WhatsAppController extends FindByNumberController
                  'number'       => NULL,
                  'user_id'      => Auth::id(),
                  'approved'     => 1,
-                 'status'       => 2,
+                 'status'       => 9,
                  'customer_id'  => $message->customer_id,
                  'message'      => 'Our whatsapp number has changed'
                ];
@@ -1246,7 +1247,18 @@ class WhatsAppController extends FindByNumberController
     }
 
     if ($request->linked_images != '') {
-      $content['linked_images'] = json_decode($request->linked_images);
+      foreach (json_decode($request->linked_images) as $key => $id) {
+        $broadcast_image = BroadcastImage::find($id);
+
+        if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
+          foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
+            $content['linked_images'][$key + $key2]['key'] = $brod_image->getKey();
+            $content['linked_images'][$key + $key2]['url'] = $brod_image->getUrl();
+          }
+        }
+
+      }
+      // $content['linked_images'] = json_decode($request->linked_images);
     }
 
     if ($request->to_all || $request->moduletype == 'customers') {
@@ -1533,6 +1545,57 @@ class WhatsAppController extends FindByNumberController
       $message = ChatMessage::find($request->get('id'));
       $message->status = $request->get('status');
       $message->save();
+
+      return response('success');
+    }
+
+    public function fixMessageError(Request $request, $id)
+    {
+      $chat_message = ChatMessage::find($id);
+
+      if ($customer = Customer::find($chat_message->customer_id)) {
+        $customer->is_error_flagged = 0;
+        $customer->save();
+
+        $messages = ChatMessage::where('customer_id', $customer->id)->where('error_status', '!=', 0)->get();
+
+        foreach ($messages as $message) {
+          $message->error_status = 0;
+          $message->save();
+        }
+      }
+
+      return response('success');
+    }
+
+    public function resendMessage(Request $request, $id)
+    {
+      $chat_message = ChatMessage::find($id);
+
+      if ($customer = Customer::find($chat_message->customer_id)) {
+        $params = [
+           'number'       => NULL,
+           'user_id'      => Auth::id(),
+           'approved'     => 1,
+           'status'       => 2,
+           'customer_id'  => $customer->id,
+           'message'      => $chat_message->message
+         ];
+
+        $additional_message = ChatMessage::create($params);
+
+        if ($additional_message->message != '') {
+          $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
+        }
+
+        if ($chat_message->hasMedia(config('constants.media_tags'))) {
+          foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+            $additional_message->attachMedia($image, config('constants.media_tags'));
+
+            $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), TRUE, $additional_message->id);
+          }
+        }
+      }
 
       return response('success');
     }

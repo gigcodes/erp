@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Setting;
 use App\Customer;
+use App\ChatMessage;
 use App\Order;
 use App\OrderProduct;
 use Carbon\Carbon;
@@ -251,33 +252,75 @@ class MagentoController extends Controller {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
-				$auto_message = "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.';
-				$followup_message = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
-				$requestData = new Request();
-				$requestData2 = new Request();
-				$requestData->setMethod('POST');
-				$requestData2->setMethod('POST');
-				$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-				$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+				$params = [
+					 'number'       => NULL,
+					 'user_id'      => 6,
+					 'approved'     => 1,
+					 'status'       => 9,
+					 'customer_id'  => $order->customer->id,
+					 'message'      => "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.'
+				 ];
 
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+				$chat_message = ChatMessage::create($params);
+
+				$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+
+				$params['message'] = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
+
+				$chat_message = ChatMessage::create($params);
+
+				$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+				// $requestData = new Request();
+				// $requestData2 = new Request();
+				// $requestData->setMethod('POST');
+				// $requestData2->setMethod('POST');
+				// $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+				// $requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+
+				// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+				// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
 		} elseif ($order->order_status == 'Prepaid' && ($results['state'] == 'processing' || $results['state'] == 'pending')) {
-			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
-			$requestData = new Request();
-			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$params = [
+				 'number'       => NULL,
+				 'user_id'      => 6,
+				 'approved'     => 1,
+				 'status'       => 9,
+				 'customer_id'  => $order->customer->id,
+				 'message'      => "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you."
+			 ];
 
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			$chat_message = ChatMessage::create($params);
+
+			$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+
+			// $auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
+			// $requestData = new Request();
+			// $requestData->setMethod('POST');
+			// $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			//
+			// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 		}
 
 		if ($results['state'] != 'processing' && $results['payment']['method'] != 'cashondelivery') {
-			$auto_message = "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?";
-			$requestData = new Request();
-			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$params = [
+				 'number'       => NULL,
+				 'user_id'      => 6,
+				 'approved'     => 1,
+				 'status'       => 9,
+				 'customer_id'  => $order->customer->id,
+				 'message'      => "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?"
+			 ];
 
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			$chat_message = ChatMessage::create($params);
+
+			$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+
+			// $auto_message = "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?";
+			// $requestData = new Request();
+			// $requestData->setMethod('POST');
+			// $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			//
+			// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 		}
 
 		if ($order->order_status == 'Proceed without Advance' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {

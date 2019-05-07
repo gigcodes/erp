@@ -13,7 +13,7 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>Keyword:</strong>
-            <input type="text" name="keyword" class="form-control" value="{{ old('keyword') }}" required>
+            <input type="text" name="keyword" class="form-control" value="{{ old('keyword') }}" placeholder="Enter Comma Separated Values" required>
 
             @if ($errors->has('keyword'))
               <div class="alert alert-danger">{{$errors->first('keyword')}}</div>

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\ChatMessage;
+use App\Customer;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
@@ -50,6 +51,10 @@ class CheckMessagesErrors extends Command
         $error = $error_status == 0 ? 1 : ($error_status == 1 ? 2 : 2);
         dump($error);
         foreach ($chat_messages as $chat_message) {
+          if ($customer = Customer::find($chat_message->customer_id)) {
+            $customer->is_error_flagged = 1;
+            $customer->save();
+          }
           // $params = [
           //   'number'        => NULL,
           //   'user_id'       => $chat_message->user_id,

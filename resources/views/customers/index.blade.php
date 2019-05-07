@@ -245,6 +245,10 @@
                         @else
                             {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
                         @endif
+
+                        @if ($customer->is_error_flagged == 1)
+                          <span class="btn btn-image"><img src="/images/flagged.png" /></span>
+                        @endif
                       @else
                         {{ $remark_message }}
                       @endif

@@ -266,14 +266,14 @@ class InstructionController extends Controller
       //   $message_body = 'Instruction Complete!';
       // }
 
-      ChatMessage::create([
-        'number'        => NULL,
-        'customer_id'   => $instruction->customer_id,
-        'status'        => 4,
-        'user_id'       => Auth::id(),
-        'assigned_to'   => $instruction->assigned_to,
-        'message'       => $instruction->instruction . " - Instruction Completed"
-      ]);
+      // ChatMessage::create([
+      //   'number'        => NULL,
+      //   'customer_id'   => $instruction->customer_id,
+      //   'status'        => 4,
+      //   'user_id'       => Auth::id(),
+      //   'assigned_to'   => $instruction->assigned_to,
+      //   'message'       => $instruction->instruction . " - Instruction Completed"
+      // ]);
 
       // $myRequest = new Request();
       // $myRequest->setMethod('POST');

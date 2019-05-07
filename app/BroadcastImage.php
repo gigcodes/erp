@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class BroadcastImage extends Model
 {
   use Mediable;
+
+  protected $fillable = [
+    'sending_time'
+  ];
 }

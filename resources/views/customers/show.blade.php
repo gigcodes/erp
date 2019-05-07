@@ -1288,16 +1288,17 @@
             <div class=" d-flex flex-column">
               <div class="">
                 <div class="upload-btn-wrapper btn-group px-0">
+                  <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                   <input type="file" name="image" />
-                  <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
 
                 </div>
-
                 <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+
               </div>
 
               <div class="">
-                <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+
 
                 <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
               </div>
@@ -2650,7 +2651,7 @@
                var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>');
                var p = $("<p class='collapsible-message'></p>");
 
-               var forward = $('<button class="btn btn-xs btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '">Forward >></button>');
+               var forward = $('<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button>');
 
 
 
@@ -2709,9 +2710,9 @@
 
                  var error_flag = '';
                  if (message.error_status == 1) {
-                   error_flag = "<span class='badge badge-warning'>Resent</span>";
+                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
                  } else if (message.error_status == 2) {
-                   error_flag = "<span class='badge badge-danger'>Error</span>";
+                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
                  }
 
 
@@ -3990,6 +3991,54 @@
 
       $(document).on('click', '.show-images-button', function() {
         $(this).siblings('.show-images-wrapper').toggleClass('hidden');
+      });
+
+      $(document).on('click', '.fix-message-error', function() {
+        var id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('whatsapp') }}/" + id + "/fixMessageError",
+          data: {
+            _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function() {
+            $(thiss).text('Fixing...');
+          }
+        }).done(function() {
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/flagged.png" />');
+
+          console.log(response);
+
+          alert('Could not mark as fixed');
+        });
+      });
+
+      $(document).on('click', '.resend-message', function() {
+        var id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('whatsapp') }}/" + id + "/resendMessage",
+          data: {
+            _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function() {
+            $(thiss).text('Sending...');
+          }
+        }).done(function() {
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Resend');
+
+          console.log(response);
+
+          alert('Could not resend message');
+        });
       });
   </script>
 @endsection
