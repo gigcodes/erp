@@ -1288,16 +1288,17 @@
             <div class=" d-flex flex-column">
               <div class="">
                 <div class="upload-btn-wrapper btn-group px-0">
+                  <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
                   <input type="file" name="image" />
-                  <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
 
                 </div>
-
                 <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+
               </div>
 
               <div class="">
-                <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+
 
                 <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
               </div>

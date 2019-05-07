@@ -1057,7 +1057,7 @@ class WhatsAppController extends FindByNumberController
                'number'       => NULL,
                'user_id'      => Auth::id(),
                'approved'     => 1,
-               'status'       => 2,
+               'status'       => 9,
                'customer_id'  => $message->customer_id,
                'message'      => 'This Number is just for whats app messages and NOT CALLS , for calls pls. use our toll free number 0008000401700 - ( care to be taken not to dial with 91 or  + 91 ). Pls. leave a message if you cannot connect to our toll free number and we will call you back at the earliest.'
              ];
