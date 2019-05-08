@@ -185,6 +185,10 @@
                             @endif
                           @endif
                         @endif
+
+                        <textarea name="instruction" class="form-control quick-add-instruction-textarea hidden" rows="8" cols="80"></textarea>
+
+                        <button type="button" class="btn-link quick-add-instruction" data-id="{{ $customer->id }}">Add Instruction</button>
                     </td>
                   @else
                     <td></td>
@@ -896,6 +900,41 @@
             alert('Could not send 20 images');
           });
         }
+      });
+
+      $(document).on('click', '.quick-add-instruction', function(e) {
+        var id = $(this).data('id');
+
+        $(this).siblings('.quick-add-instruction-textarea').removeClass('hidden');
+
+        $(this).siblings('.quick-add-instruction-textarea').keypress(function(e) {
+          var key = e.which;
+          var thiss = $(this);
+
+          if (key == 13) {
+            e.preventDefault();
+            var instruction = $(thiss).val();
+
+            $.ajax({
+              type: 'POST',
+              url: "{{ route('instruction.store') }}",
+              data: {
+                _token: "{{ csrf_token() }}",
+                instruction: instruction,
+                category_id: 1,
+                customer_id: id,
+                assigned_to: 7
+              }
+            }).done(function() {
+              $(thiss).addClass('hidden');
+              $(thiss).val('');
+            }).fail(function(response) {
+              console.log(response);
+
+              alert('Could not create instruction');
+            });
+          }
+        });
       });
   </script>
 @endsection
