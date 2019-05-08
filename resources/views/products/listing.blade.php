@@ -64,6 +64,8 @@
               <option value="">Select Type</option>
               <option value="Not Listed" {{ isset($type) && $type == "Not Listed" ? 'selected' : ''  }}>Not Listed</option>
               <option value="Listed" {{ isset($type) && $type == "Listed" ? 'selected' : ''  }}>Listed</option>
+              <option value="Approved" {{ isset($type) && $type == "Approved" ? 'selected' : ''  }}>Approved</option>
+              <option value="Image Cropped" {{ isset($type) && $type == "Image Cropped" ? 'selected' : ''  }}>Image Cropped</option>
             </select>
           </div>
 
@@ -102,6 +104,10 @@
           <tr id="product_{{ $product->id }}">
             @if (!Auth::user()->hasRole('ImageCropers'))
               <td>
+                @if ($product->is_approved == 1)
+                  <img src="/images/1.png" alt="">
+                @endif
+
                 @if ($product->hasMedia(config('constants.media_tags')))
                   <a href="{{ route('products.show', $product->id) }}" target="_blank">
                     <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
@@ -200,22 +206,27 @@
 
               <td>
                 {{ $product->isUploaded }} {{ $product->isFinal }}
-                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="{{ $product->isUploaded == 0 ? 'list' : ($product->isUploaded == 1 && $product->isFinal == 0 ? 'approve' : 'update') }}">
-                  @if ()
-                  @elseif ($product->isUploaded == 0)
-                    List
-                  @elseif ($product->isUploaded == 1 && $product->isFinal == 0)
-                    Approve
-                  @else
-                    Update
-                  @endif
-                </button>
+
+                @if ($product->is_approved == 0)
+                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
+                @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
+                @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
+                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                @else
+                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                @endif
+
                 {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
 
                 {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
               </td>
             @else
               <td>
+                @if ($product->is_approved == 1)
+                  <img src="/images/1.png" alt="">
+                @endif
+
                 @if ($product->hasMedia(config('constants.media_tags')))
                   <a href="{{ route('products.show', $product->id) }}" target="_blank">
                     <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
@@ -277,15 +288,16 @@
 
               <td>
                 {{ $product->isUploaded }} {{ $product->isFinal }}
-                <button type="button" disabled class="btn btn-xs btn-secondary">
-                  @if ($product->isUploaded == 0)
-                    List
-                  @elseif ($product->isUploaded == 1 && $product->isFinal == 0)
-                    Approve
-                  @else
-                    Update
-                  @endif
-                </button>
+
+                @if ($product->is_approved == 0)
+                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
+                @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
+                @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
+                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                @else
+                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                @endif
               </td>
             @endif
           </tr>
@@ -768,9 +780,11 @@
       var thiss = $(this);
       var url = '';
 
-      if (type == 'list') {
+      if (type == 'approve') {
+        url = "{{ url('products') }}/" + id + '/approveProduct';
+      } else if (type == 'list') {
         url = "{{ url('products') }}/" + id + '/listMagento';
-      } else if (type == 'approve') {
+      } else if (type == 'enable') {
         url = "{{ url('products') }}/" + id + '/approveMagento';
       } else {
         url = "{{ url('products') }}/" + id + '/updateMagento';
@@ -786,7 +800,9 @@
           $(thiss).text('Loading...');
         }
       }).done(function(response) {
-        if (response.result != false && response.status == 'listed') {
+        if (response.result != false && response.status == 'is_approved') {
+          $(thiss).closest('tr').remove();
+        } else if (response.result != false && response.status == 'listed') {
           $(thiss).text('Update');
           $(thiss).attr('data-type', 'update');
         } else if (response.result != false && response.status == 'approved') {
@@ -799,10 +815,12 @@
       }).fail(function(response) {
         console.log(response);
 
-        if (type == 'list') {
-          $(thiss).text('List');
-        } else if (type == 'approve') {
+        if (type == 'approve') {
           $(thiss).text('Approve');
+        } else if (type == 'list') {
+          $(thiss).text('List');
+        } else if (type == 'enable') {
+          $(thiss).text('Enable');
         } else {
           $(thiss).text('Update');
         }

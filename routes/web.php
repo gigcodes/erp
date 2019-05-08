@@ -52,6 +52,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('products/{id}/listMagento', 'ProductController@listMagento');
 	Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
 	Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');
+	Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
 	Route::resource('products','ProductController');
 	Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
 	Route::post('products/{id}/archive','ProductController@archive')->name('products.archive');

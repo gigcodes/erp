@@ -104,7 +104,7 @@ class ProductController extends Controller {
 
 		if ($request->brand[0] != null) {
 			$productQuery = ( new Product() )->newQuery()
-			->latest()->whereIn('brand', $request->brand);
+			->whereIn('brand', $request->brand);
 
 			$brand = $request->brand[0];
 		}
@@ -114,7 +114,7 @@ class ProductController extends Controller {
 				$productQuery = $productQuery->whereIn('color', $request->color);
 			} else {
 				$productQuery = ( new Product() )->newQuery()
-				->latest()->whereIn('color', $request->color);
+				->whereIn('color', $request->color);
 			}
 
 			$color = $request->color[0];
@@ -151,7 +151,7 @@ class ProductController extends Controller {
 				$productQuery = $productQuery->whereIn('category', $category_children);
 			} else {
 				$productQuery = ( new Product() )->newQuery()
-				->latest()->whereIn('category', $category_children);
+				->whereIn('category', $category_children);
 			}
 
 			$category = $request->category[0];
@@ -164,7 +164,7 @@ class ProductController extends Controller {
 				$productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
 			} else {
 				$productQuery = ( new Product() )->newQuery()->with('Suppliers')
-				->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+				->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
 			}
 
 			$supplier = $request->supplier;
@@ -174,14 +174,22 @@ class ProductController extends Controller {
 			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->supplier[0] != null) {
 				if ($request->type == 'Not Listed') {
 					$productQuery = $productQuery->where('isFinal', 0)->where('isUploaded', 0);
-				} else {
+				} else if ($request->type == 'Listed') {
 					$productQuery = $productQuery->where('isUploaded', 1);
+				} else if ($request->type == 'Approved') {
+					$productQuery = $productQuery->where('is_approved', 1)->whereNull('last_imagecropper');
+				} else if ($request->type == 'Image Cropped') {
+					$productQuery = $productQuery->where('is_approved', 1)->whereNotNull('last_imagecropper');
 				}
 			} else {
 				if ($request->type == 'Not Listed') {
-					$productQuery = ( new Product() )->newQuery()->latest()->where('isFinal', 0)->where('isUploaded', 0);
-				} else {
-					$productQuery = ( new Product() )->newQuery()->latest()->where('isUploaded', 1);
+					$productQuery = ( new Product() )->newQuery()->where('isFinal', 0)->where('isUploaded', 0);
+				} else if ($request->type == 'Listed') {
+					$productQuery = ( new Product() )->newQuery()->where('isUploaded', 1);
+				} else if ($request->type == 'Approved') {
+					$productQuery = (new Product())->newQuery()->where('is_approved', 1)->whereNull('last_imagecropper');
+				} else if ($request->type == 'Image Cropped') {
+					$productQuery = (new Product())->newQuery()->where('is_approved', 1)->whereNotNull('last_imagecropper');
 				}
 			}
 
@@ -190,7 +198,6 @@ class ProductController extends Controller {
 
 		if (trim($term) != '') {
 			$productQuery = ( new Product() )->newQuery()
-			->latest()
 			->orWhere( 'sku', 'LIKE', "%$term%" )
 			->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
 			;
@@ -214,11 +221,12 @@ class ProductController extends Controller {
 			}
 		} else {
 			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
-				$productQuery = ( new Product() )->newQuery()->latest();
+				$productQuery = ( new Product() )->newQuery();
 			}
 		}
 
-		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1)->latest()->paginate(Setting::get('pagination'));
+		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1)->orderBy('is_approved', 'ASC')->orderBy('last_imagecropper', 'ASC')->paginate(Setting::get('pagination'));
+
 		$selected_categories = $request->category ? $request->category : 1;
 		$category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
 		                                        ->selected($selected_categories)
@@ -500,6 +508,19 @@ class ProductController extends Controller {
 		]);
 	}
 
+	public function approveProduct(Request $request, $id)
+	{
+		$product = Product::find($id);
+
+		$product->is_approved = 1;
+		$product->save();
+
+		return response()->json([
+			'result'	=> true,
+			'status'	=> 'is_approved'
+		]);
+	}
+
 	public function archive($id) {
 		$product = Product::find($id);
 		$product->delete();
@@ -527,7 +548,7 @@ class ProductController extends Controller {
 	public function attachProducts( $model_type, $model_id, $type = null, $customer_id = null, Request $request ) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
-		$products = Product::where('stock', '>=', 1)->latest()
+		$products = Product::where('stock', '>=', 1)
 												->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
 												->paginate( Setting::get( 'pagination' ) );
 
@@ -562,7 +583,7 @@ class ProductController extends Controller {
 	public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
-		$products = Product::where('stock', '>=', 1)->latest();
+		$products = Product::where('stock', '>=', 1);
 		$filtered_category = '';
 		$brand = '';
 		$message_body = $request->message ? $request->message : '';
