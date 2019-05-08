@@ -4117,5 +4117,35 @@
           alert('Could not resend message');
         });
       });
+
+      $(document).on('click', '.quick-shortcut-button', function(e) {
+        e.preventDefault();
+
+        var customer_id = $(this).parent().find('input[name="customer_id"]').val();
+        var instruction = $(this).parent().find('input[name="instruction"]').val();
+        var category_id = $(this).parent().find('input[name="category_id"]').val();
+        var assigned_to = $(this).parent().find('input[name="assigned_to"]').val();
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('instruction.store') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id,
+            instruction: instruction,
+            category_id: category_id,
+            assigned_to: assigned_to,
+          },
+          beforeSend: function() {
+
+          }
+        }).done(function(response) {
+          window.location.reload();
+        }).fail(function(response) {
+          alert('Could not execute shortcut!');
+
+          console.log(response);
+        });
+      });
   </script>
 @endsection
