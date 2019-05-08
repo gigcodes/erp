@@ -35,7 +35,11 @@ class BroadcastMessageController extends Controller
       $query->where('sent', 1);
     })->count();
 
-    $message_groups = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->get()->groupBy(['group_id', 'sent', 'status']);
+    if ($request->sending_time != '') {
+      $message_groups = MessageQueue::where('sending_time', 'LIKE', "%$request->sending_time%")->get()->groupBy(['group_id', 'sent', 'status']);
+    } else {
+      $message_groups = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->get()->groupBy(['group_id', 'sent', 'status']);
+    }
 
     // dd($message_groups);
 
@@ -45,11 +49,18 @@ class BroadcastMessageController extends Controller
 
     $new_data = [];
 
-    for ($i = 1; $i <= $month_back->daysInMonth; $i++) {
-      $day = $i < 10 ? "0" . $i : $i;
-      $date = $month_back->format('Y-m-') . $day;
+    $month_days = $request->sending_time ? 1 : $month_back->daysInMonth;
 
-      $new_data[$date] = [];
+    for ($i = 1; $i <= $month_days; $i++) {
+      $day = $i < 10 ? "0" . $i : $i;
+
+      if ($month_days == 1) {
+        $new_data[$request->sending_time] = [];
+      } else {
+        $date = $month_back->format('Y-m-') . $day;
+
+        $new_data[$date] = [];
+      }
     }
 
     // dd($new_data);
@@ -66,7 +77,7 @@ class BroadcastMessageController extends Controller
             $sent_count += count($items);
 
             foreach ($items as $item) {
-              $received_count += ($item->chat_message && $item->chat_message->sent = 1) ? 1 : 0;
+              $received_count += ($item->chat_message && $item->chat_message->sent == 1) ? 1 : 0;
             }
           }
 

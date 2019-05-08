@@ -46,7 +46,7 @@
 
                             {{-- </div>
                             <div class="col-md-4"> --}}
-                             <div class="form-group ml-3">
+                             {{-- <div class="form-group ml-3">
                                <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer" title="Choose a Customer">
                                  @foreach ($customers_all as $customer)
                                    <option data-tokens="{{ $customer['name'] }} {{ $customer['email'] }}  {{ $customer['phone'] }} {{ $customer['instahandler'] }}" value="{{ $customer['id'] }}" {{ $selected_customer == $customer['id'] ? 'selected' : '' }}>{{ $customer['id'] }} - {{ $customer['name'] }} - {{ $customer['phone'] }}</option>
@@ -56,7 +56,7 @@
                                @if ($errors->has('customer'))
                                    <div class="alert alert-danger">{{$errors->first('customer')}}</div>
                                @endif
-                             </div>
+                             </div> --}}
 
 
                             {{-- </div>
@@ -64,6 +64,8 @@
                                 <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
                             {{-- </div>
                         </div> --}}
+
+                        <a href="{{ route('broadcast.index') }}" class="btn btn-xs btn-secondary">Clear</a>
                 </form>
             </div>
 
@@ -215,7 +217,7 @@
                         </td>
                         <td>
                           <div class="card activity-chart mb-3">
-                            <canvas id="horizontalBroadcastBarChart{{ $date }}{{ $group_id }}" style="height: 100px;"></canvas>
+                            <canvas id="horizontalBroadcastBarChart{{ $date }}{{ $group_id }}" style="height: 120px;"></canvas>
                           </div>
                         </td>
                         <td>
