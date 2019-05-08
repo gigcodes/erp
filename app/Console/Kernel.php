@@ -147,15 +147,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
         $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
 
-        $schedule->command('gebnegozionline:get-products-list')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
-
-        $schedule->command('gebnegozionline:get-products-detail')
-            ->everyThirtyMinutes()
-            ->withoutOverlapping()
-        ;
+//        $schedule->command('gebnegozionline:get-products-list')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
+//
+//        $schedule->command('gebnegozionline:get-products-detail')
+//            ->everyThirtyMinutes()
+//            ->withoutOverlapping()
+//        ;
 
 //        $schedule->command('gnb:update-price-via-dusk')
 //            ->hourly()
@@ -163,39 +163,39 @@ class Kernel extends ConsoleKernel
 //        ;
 
         $schedule->command('enrich:wiseboutique')
-            ->hourly()
+            ->daily()
             ->withoutOverlapping()
         ;
 
-        $schedule->command('wiseboutique:get-product-details')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
+//        $schedule->command('wiseboutique:get-product-details')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
+//
+//        $schedule->command('scrap:doublef-list')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
 
-        $schedule->command('scrap:doublef-list')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
+//        $schedule->command('doublef:get-product-details')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
+//
+//        $schedule->command('scrap:wiseboutique-list')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
 
-        $schedule->command('doublef:get-product-details')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
-
-        $schedule->command('scrap:wiseboutique-list')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
-
-        $schedule->command('scrap:tory-list')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
-
-        $schedule->command('tory:get-product-details')
-            ->hourly()
-            ->withoutOverlapping()
-        ;
+//        $schedule->command('scrap:tory-list')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
+//
+//        $schedule->command('tory:get-product-details')
+//            ->hourly()
+//            ->withoutOverlapping()
+//        ;
 
 //        $schedule->command('image:create-schedule')->dailyAt(14);
 //        $schedule->command('image:create-schedule')->dailyAt(17);
