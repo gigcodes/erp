@@ -235,7 +235,7 @@
                       @endif
                     </td>
                     <td>
-                      @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at)
+                      {{-- @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at) --}}
                         @if (isset($customer->message))
                             @if (strpos($customer->message, '<br>') !== false)
                                 {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
@@ -249,9 +249,9 @@
                         @if ($customer->is_error_flagged == 1)
                           <span class="btn btn-image"><img src="/images/flagged.png" /></span>
                         @endif
-                      @else
+                      {{-- @else
                         {{ $remark_message }}
-                      @endif
+                      @endif --}}
                     </td>
                     <td>
                       <div class="d-inline">

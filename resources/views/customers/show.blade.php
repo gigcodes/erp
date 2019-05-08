@@ -1615,6 +1615,83 @@
         <li>
           <a href="#6" class="mb-3" data-toggle="modal" data-target="#instructionModal">+ Add</a>
         </li>
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="Send images">
+            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('image_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/attach.png" /></button>
+          </form>
+        </li>
+
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="Send price">
+            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button">$</button>
+          </form>
+        </li>
+
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
+            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/call.png" /></button>
+          </form>
+        </li>
+
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="Attach image or screenshot physically">
+            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/upload.png" /></button>
+          </form>
+        </li>
+
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="Give details">
+            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('details_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button">Details</button>
+          </form>
+        </li>
+
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="Check for the Purchase">
+            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button">Check Purchase</button>
+          </form>
+        </li>
+
+        <li>
+          <div class="d-inline">
+            <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
+          </div>
+        </li>
       </ul>
     </div>
 

@@ -104,11 +104,13 @@
               <td>
                 @if ($product->hasMedia(config('constants.media_tags')))
                   <a href="{{ route('products.show', $product->id) }}" target="_blank">
-                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="">
+                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                   </a>
                 @else
                   <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
                 @endif
+
+                {{ (new \App\Stage)->getNameById($product->stage) }}
               </td>
               <td class="table-hover-cell quick-edit-name" data-id="{{ $product->id }}">
                 <span class="quick-name">{{ $product->name }}</span>
@@ -199,7 +201,8 @@
               <td>
                 {{ $product->isUploaded }} {{ $product->isFinal }}
                 <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="{{ $product->isUploaded == 0 ? 'list' : ($product->isUploaded == 1 && $product->isFinal == 0 ? 'approve' : 'update') }}">
-                  @if ($product->isUploaded == 0)
+                  @if ()
+                  @elseif ($product->isUploaded == 0)
                     List
                   @elseif ($product->isUploaded == 1 && $product->isFinal == 0)
                     Approve
@@ -215,11 +218,13 @@
               <td>
                 @if ($product->hasMedia(config('constants.media_tags')))
                   <a href="{{ route('products.show', $product->id) }}" target="_blank">
-                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="">
+                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                   </a>
                 @else
                   <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
                 @endif
+
+                {{ (new \App\Stage)->getNameById($product->stage) }}
               </td>
               <td>
                 <span>{{ $product->name }}</span>
@@ -316,6 +321,7 @@
 
       $('.dropify').dropify();
       $(".select-multiple").multiselect();
+      $("body").tooltip({selector: '[data-toggle=tooltip]'});
     });
 
     var category_tree = {!! json_encode($category_tree) !!};
