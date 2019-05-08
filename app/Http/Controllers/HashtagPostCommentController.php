@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\HashtagPostComment;
 use Illuminate\Http\Request;
+use InstagramAPI\Instagram;
 
 class HashtagPostCommentController extends Controller
 {
@@ -14,7 +15,7 @@ class HashtagPostCommentController extends Controller
      */
     public function index()
     {
-        //
+
     }
 
     /**
@@ -78,8 +79,13 @@ class HashtagPostCommentController extends Controller
      * @param  \App\HashtagPostComment  $hashtagPostComment
      * @return \Illuminate\Http\Response
      */
-    public function destroy(HashtagPostComment $hashtagPostComment)
+    public function destroy($id)
     {
-        //
+        $hashtagPostComment = HashtagPostComment::find($id);
+        if ($hashtagPostComment) {
+            $hashtagPostComment->delete();
+        }
+
+        return redirect()->back()->with('message', 'Comment Deleted!');
     }
 }

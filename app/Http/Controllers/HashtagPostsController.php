@@ -78,8 +78,13 @@ class HashtagPostsController extends Controller
      * @param  \App\HashtagPosts  $hashtagPosts
      * @return \Illuminate\Http\Response
      */
-    public function destroy(HashtagPosts $hashtagPosts)
+    public function destroy($id)
     {
-        //
+        $hashtagPosts = HashtagPosts::find($id);
+        if ($hashtagPosts) {
+            $hashtagPosts->delete();
+        }
+
+        return redirect()->back()->with('message', 'Post Deleted!');
     }
 }
