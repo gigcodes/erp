@@ -53,6 +53,8 @@
 
     @include('customers.partials.modal-shortcut')
 
+    @include('customers.partials.modal-category-brand')
+
     @include('partials.flash_messages')
 
     <?php
@@ -337,6 +339,10 @@
 
                       <div class="d-inline">
                         <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
+                      </div>
+
+                      <div class="d-inline">
+                        <button type="button" class="btn btn-image latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
                       </div>
                     </td>
                     <td>
@@ -819,9 +825,9 @@
         }).done(function(response) {
           $(thiss).text('Send In Stock');
         }).fail(function(response) {
-          $(thiss).text('Block on Twilio');
+          $(thiss).text('Send In Stock');
 
-          alert('Could not block customer!');
+          alert('Could not sent instock!');
 
           console.log(response);
         });
@@ -855,6 +861,41 @@
 
           console.log(response);
         });
+      });
+
+      $(document).on('click', '.latest-scraped-shortcut', function() {
+        var id = $(this).data('id');
+
+        $('#categoryBrandModal').find('input[name="customer_id"]').val(id);
+      });
+
+      $('#sendScrapedButton').on('click', function(e) {
+        e.preventDefault();
+
+        var formData = $('#categoryBrandModal').find('form').serialize();
+        var thiss = $(this);
+
+        if (!$(this).is(':disabled')) {
+          $.ajax({
+            type: "POST",
+            url: "{{ route('customer.send.scraped') }}",
+            data: formData,
+            beforeSend: function() {
+              $(thiss).text('Sending...');
+              $(thiss).attr('disabled', true);
+            }
+          }).done(function() {
+            $('#categoryBrandModal').find('.close').click();
+            $(thiss).text('Send');
+            $(thiss).attr('disabled', false);
+          }).fail(function(response) {
+            $(thiss).text('Send');
+            $(thiss).attr('disabled', false);
+            console.log(response);
+
+            alert('Could not send 20 images');
+          });
+        }
       });
   </script>
 @endsection
