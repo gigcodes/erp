@@ -255,13 +255,15 @@ class MagentoController extends Controller {
 				$params = [
 					 'number'       => NULL,
 					 'user_id'      => 6,
-					 'approved'     => 1,
-					 'status'       => 9,
+					 'approved'     => 0,
+					 'status'       => 2,
 					 'customer_id'  => $order->customer->id,
 					 'message'      => "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.'
 				 ];
 
 				$chat_message = ChatMessage::create($params);
+
+				// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
 				$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
 
@@ -269,7 +271,8 @@ class MagentoController extends Controller {
 
 				$chat_message = ChatMessage::create($params);
 
-				$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+				// $this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+
 				// $requestData = new Request();
 				// $requestData2 = new Request();
 				// $requestData->setMethod('POST');
@@ -283,15 +286,15 @@ class MagentoController extends Controller {
 			$params = [
 				 'number'       => NULL,
 				 'user_id'      => 6,
-				 'approved'     => 1,
-				 'status'       => 9,
+				 'approved'     => 0,
+				 'status'       => 2,
 				 'customer_id'  => $order->customer->id,
 				 'message'      => "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you."
 			 ];
 
 			$chat_message = ChatMessage::create($params);
 
-			$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			// $this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
 
 			// $auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 			// $requestData = new Request();
@@ -305,15 +308,15 @@ class MagentoController extends Controller {
 			$params = [
 				 'number'       => NULL,
 				 'user_id'      => 6,
-				 'approved'     => 1,
-				 'status'       => 9,
+				 'approved'     => 0,
+				 'status'       => 2,
 				 'customer_id'  => $order->customer->id,
 				 'message'      => "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?"
 			 ];
 
 			$chat_message = ChatMessage::create($params);
 
-			$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			// $this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
 
 			// $auto_message = "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?";
 			// $requestData = new Request();

@@ -488,7 +488,7 @@ class WhatsAppController extends FindByNumberController
       $data = $request->except( '_token');
       $data['user_id'] = Auth::id();
       $data['number'] = NULL;
-      $params['status'] = 1;
+      // $params['status'] = 1;
 
       if ($context == 'customer') {
         $data['customer_id'] = $request->customer_id;
