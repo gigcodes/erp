@@ -151,7 +151,7 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('post:scheduled-media')
 //            ->everyMinute();
 
-        $schedule->command('check:user-logins')->everyFiveMinutes();
+        // $schedule->command('check:user-logins')->everyFiveMinutes();
         $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
 
         // Sends Auto messages
@@ -220,8 +220,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('create:scraped-products')->everyMinute();
 //        $schedule->command('gnb:get-sku')->everyMinute();
 
-        $schedule->command('sync:instagram-messages')
-            ->hourly();
+        // $schedule->command('sync:instagram-messages')
+        //     ->hourly();
 
 
     }
