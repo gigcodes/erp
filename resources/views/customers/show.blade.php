@@ -372,7 +372,30 @@
 
               <div class="col-6">
                 <div class="form-group">
-                  <input type="text" name="shoe_size" id="customer_shoe_size" class="form-control input-sm" placeholder="Shoe Size" value="{{ $customer->shoe_size }}">
+                  <select class="form-control input-sm" name="shoe_size" id="customer_shoe_size">
+                    <option value="">Select a Shoe Size</option>
+                    <option value="34" {{ $customer->shoe_size == '34' }}>34</option>
+                    <option value="34.5" {{ $customer->shoe_size == '34.5' }}>34.5</option>
+                    <option value="35" {{ $customer->shoe_size == '35' }}>35</option>
+                    <option value="35.5" {{ $customer->shoe_size == '35.5' }}>35.5</option>
+                    <option value="36" {{ $customer->shoe_size == '36' }}>36</option>
+                    <option value="36.5" {{ $customer->shoe_size == '36.5' }}>36.5</option>
+                    <option value="37" {{ $customer->shoe_size == '37' }}>37</option>
+                    <option value="37.5" {{ $customer->shoe_size == '37.5' }}>37.5</option>
+                    <option value="38" {{ $customer->shoe_size == '38' }}>38</option>
+                    <option value="38.5" {{ $customer->shoe_size == '38.5' }}>38.5</option>
+                    <option value="39" {{ $customer->shoe_size == '39' }}>39</option>
+                    <option value="39.5" {{ $customer->shoe_size == '39.5' }}>39.5</option>
+                    <option value="40" {{ $customer->shoe_size == '40' }}>40</option>
+                    <option value="40.5" {{ $customer->shoe_size == '40.5' }}>40.5</option>
+                    <option value="41" {{ $customer->shoe_size == '41' }}>41</option>
+                    <option value="41.5" {{ $customer->shoe_size == '41.5' }}>41.5</option>
+                    <option value="42" {{ $customer->shoe_size == '42' }}>42</option>
+                    <option value="42.5" {{ $customer->shoe_size == '42.5' }}>42.5</option>
+                    <option value="43" {{ $customer->shoe_size == '43' }}>43</option>
+                    <option value="43.5" {{ $customer->shoe_size == '43.5' }}>43.5</option>
+                    <option value="44" {{ $customer->shoe_size == '44' }}>44</option>
+                  </select>
                 </div>
               </div>
 
@@ -1024,9 +1047,17 @@
 
                                               $sizes = \App\Helpers::explodeToArray($order_product->product->size);
                                               $size_name = 'order_products['.$order_product->id.'][size]';
-
-                                              echo Form::select($size_name,$sizes,( $order_product->size ), ['class' => 'form-control', 'placeholder' => 'Select a size'])
                                               ?>
+                                              <div class="form-inline">
+                                                {!! Form::select($size_name,$sizes,( $order_product->size ), ['class' => 'form-control', 'placeholder' => 'Select a size']) !!}
+
+                                                @if (($customer->shoe_size != '' || $customer->clothing_size != '') && $order_product->size != '' && $order->order_type == 'online')
+                                                  @if ($customer->shoe_size != $order_product->size && !preg_match("/{$customer->clothing_size}/i", $order_product->size))
+                                                    <span class="badge" data-toggle="tooltip" title="Customer and order sizes does not match">!</span>
+                                                  @endif
+                                                @endif
+                                              </div>
+
                                             @else
                                               <select hidden class="form-control" name="order_products[{{ $order_product->id }}][size]">
                                                 <option selected="selected" value=""></option>

@@ -1621,6 +1621,28 @@ class OrderController extends Controller {
 		$product = Product::where( 'id', '=', $product_id )->get()->first();
 
 		$order_product = OrderProduct::where( 'order_id', $model_id )->where( 'sku', $product->sku )->first();
+		$order = Order::find($model_id);
+		$size = '';
+
+		if ($order->customer && ($order->customer->shoe_size != '' || $order->customer->clothing_size != '')) {
+			if ($product->category != 1) {
+				if ($product->product_category->title != 'Clothing' || $product->product_category->title != 'Shoes') {
+					if ($product->product_category->parent && ($product->product_category->parent->title == 'Clothing' || $product->product_category->parent->title == 'Shoes')) {
+						if ($product->product_category->parent->title == 'Clothing') {
+							$size = $order->customer->clothing_size;
+						} else {
+							$size = $order->customer->shoe_size;
+						}
+					}
+				} else {
+					if ($product->product_category->title == 'Clothing') {
+						$size = $order->customer->clothing_size;
+					} else {
+						$size = $order->customer->shoe_size;
+					}
+				}
+			}
+		}
 
 		if ( empty( $order_product ) ) {
 
@@ -1629,6 +1651,7 @@ class OrderController extends Controller {
 				'sku'           => $product->sku,
 				'product_price' => $product->price_special,
 				'color' => $product->color,
+				'size' => $size,
 			] );
 
 			$action = 'Attached';
