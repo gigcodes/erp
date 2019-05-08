@@ -80,156 +80,12 @@
     </div>
   </div>
 
-  <div id="productModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">Create Product</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-
-        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
 
 
-        <div class="modal-body">
-          @csrf
-          <input type="hidden" name="supplier" value="In-stock">
-          <div class="form-group">
-              <strong>Image:</strong>
-              <input type="file" class="form-control" name="image"
-                     value="{{ old('image') }}" id="product-image" required/>
-              @if ($errors->has('image'))
-                  <div class="alert alert-danger">{{$errors->first('image')}}</div>
-              @endif
-          </div>
+  @include('instock.partials.product-modal')
+  @include('instock.partials.bulk-upload-modal')
 
-          <div class="form-group">
-              <strong>Name:</strong>
-              <input type="text" class="form-control" name="name" placeholder="Name"
-                     value="{{ old('name') }}"  id="product-name" required />
-              @if ($errors->has('name'))
-                  <div class="alert alert-danger">{{$errors->first('name')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>SKU:</strong>
-              <input type="text" class="form-control" name="sku" placeholder="SKU"
-                     value="{{ old('sku') }}"  id="product-sku" required/>
-              @if ($errors->has('sku'))
-                  <div class="alert alert-danger">{{$errors->first('sku')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Color:</strong>
-              <input type="text" class="form-control" name="color" placeholder="Color"
-                     value="{{ old('color') }}"  id="product-color"/>
-              @if ($errors->has('color'))
-                  <div class="alert alert-danger">{{$errors->first('color')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Brand:</strong>
-              <?php
-              $brands = \App\Brand::getAll();
-              echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
-                {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
-                @if ($errors->has('brand'))
-                    <div class="alert alert-danger">{{$errors->first('brand')}}</div>
-                @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Price:</strong>
-              <input type="number" class="form-control" name="price" placeholder="Price"
-                     value="{{ old('price') }}" step=".01"  id="product-price"/>
-              @if ($errors->has('price'))
-                  <div class="alert alert-danger">{{$errors->first('price')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Size:</strong>
-              <input type="text" class="form-control" name="size" placeholder="Size"
-                     value="{{ old('size') }}"  id="product-size"/>
-              @if ($errors->has('size'))
-                  <div class="alert alert-danger">{{$errors->first('size')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Quantity:</strong>
-              <input type="number" class="form-control" name="quantity" placeholder="Quantity"
-                     value="{{ old('quantity') }}"  id="product-quantity"/>
-              @if ($errors->has('quantity'))
-                  <div class="alert alert-danger">{{$errors->first('quantity')}}</div>
-              @endif
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Create</button>
-        </div>
-        </form>
-      </div>
-
-    </div>
-  </div>
-
-  <div id="updateBulkProductModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">Update Bulk</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-
-        <form action="{{ route('products.bulk.update') }}" method="POST" enctype="multipart/form-data">
-
-
-        <div class="modal-body">
-          @csrf
-          <input type="hidden" name="selected_products" id="selected_products" value="">
-
-          <div class="form-group">
-              <strong>Category:</strong>
-              {!! $category_selection !!}
-              @if ($errors->has('category'))
-                  <div class="alert alert-danger">{{$errors->first('category')}}</div>
-              @endif
-          </div>
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary" id="bulkUpdateButton">Update</button>
-        </div>
-        </form>
-      </div>
-
-    </div>
-  </div>
-
-
-  @if ($message = Session::get('success'))
-  <div class="alert alert-success">
-    {{ $message }}
-  </div>
-  @endif
-
-  @if ($errors->any())
-      <div class="alert alert-danger">
-          @foreach ($errors->all() as $msg)
-            <li>{{ $msg }}</li>
-          @endforeach
-      </div>
-  @endif
+  @include('partials.flash_messages')
 
   <div class="productGrid" id="productGrid">
     @include('instock.product-items')
@@ -352,5 +208,107 @@
 
       $(this).closest('form').submit();
     });
+
+    var category_tree = {!! json_encode($category_tree) !!};
+    var categories_array = {!! json_encode($categories_array) !!};
+
+    var id_list = {
+      41: ['34', '34.5', '35', '35.5', '36', '36.5', '37', '37.5', '38', '38.5', '39', '39.5', '40', '40.5', '41', '41.5', '42', '42.5', '43', '43.5', '44'], // Women Shoes
+      5: ['34', '34.5', '35', '35.5', '36', '36.5', '37', '37.5', '38', '38.5', '39', '39.5', '40', '40.5', '41', '41.5', '42', '42.5', '43', '43.5', '44'], // Men Shoes
+      40: ['36-36S', '38-38S', '40-40S', '42-42S', '44-44S', '46-46S', '48-48S', '50-50S'], // Women Clothing
+      12: ['36-36S', '38-38S', '40-40S', '42-42S', '44-44S', '46-46S', '48-48S', '50-50S'], // Men Clothing
+      63: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'], // Women T-Shirt
+      31: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'], // Men T-Shirt
+      120: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Sweat Pants
+      123: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Pants
+      128: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Denim
+      130: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Men Denim
+      131: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Men Sweat Pants
+      42: ['60', '65', '70', '75', '80', '85', '90', '95', '100', '105', '110', '115', '120'], // Women Belts
+      14: ['60', '65', '70', '75', '80', '85', '90', '95', '100', '105', '110', '115', '120'], // Men Belts
+    };
+
+    $('#product-category').on('change', function() {
+      updateSizes($(this).val());
+    });
+
+    function updateSizes(category_value) {
+      var found_id = 0;
+      var found_final = false;
+      var found_everything = false;
+      var category_id = category_value;
+
+      $('#size-selection').empty();
+
+      $('#size-selection').append($('<option>', {
+        value: '',
+        text: 'Select Category'
+      }));
+      console.log('PARENT ID', categories_array[category_id]);
+      if (categories_array[category_id] != 0) {
+
+        Object.keys(id_list).forEach(function(id) {
+          if (id == category_id) {
+            $('#size-selection').empty();
+
+            $('#size-selection').append($('<option>', {
+              value: '',
+              text: 'Select Category'
+            }));
+
+            id_list[id].forEach(function(value) {
+              $('#size-selection').append($('<option>', {
+                value: value,
+                text: value
+              }));
+            });
+
+            found_everything = true;
+            $('#size-manual-input').addClass('hidden');
+          }
+        });
+
+        if (!found_everything) {
+          Object.keys(category_tree).forEach(function(key) {
+            Object.keys(category_tree[key]).forEach(function(index) {
+              if (index == categories_array[category_id]) {
+                found_id = index;
+
+                return;
+              }
+            });
+          });
+
+          console.log('FOUND ID', found_id);
+
+          if (found_id != 0) {
+            Object.keys(id_list).forEach(function(id) {
+              if (id == found_id) {
+                $('#size-selection').empty();
+
+                $('#size-selection').append($('<option>', {
+                  value: '',
+                  text: 'Select Category'
+                }));
+
+                id_list[id].forEach(function(value) {
+                  $('#size-selection').append($('<option>', {
+                    value: value,
+                    text: value
+                  }));
+                });
+
+                $('#size-manual-input').addClass('hidden');
+                found_final = true;
+              }
+            });
+          }
+        }
+
+        if (!found_final) {
+          $('#size-manual-input').removeClass('hidden');
+        }
+      }
+    }
   </script>
 @endsection

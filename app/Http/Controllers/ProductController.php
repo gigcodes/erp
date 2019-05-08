@@ -738,11 +738,13 @@ class ProductController extends Controller {
 
 		$product->name = $request->name;
 		$product->sku = $request->sku;
-		$product->size = $request->size;
+		$product->size = implode(',', $request->size);
 		$product->brand = $request->brand;
 		$product->color = $request->color;
 		$product->supplier = $request->supplier;
+		$product->category = $request->category;
 		$product->price = $request->price;
+		$product->stock = 1;
 
 		$brand = Brand::find($request->brand);
 
