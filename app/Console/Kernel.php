@@ -220,7 +220,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('create:scraped-products')->everyMinute();
 //        $schedule->command('gnb:get-sku')->everyMinute();
 
-        $schedule->command('sync:instagram-messagges')
+        $schedule->command('sync:instagram-messages')
             ->hourly();
 
 

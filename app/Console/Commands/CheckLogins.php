@@ -44,7 +44,7 @@ class CheckLogins extends Command
     public function handle()
     {
       $report = CronJobReport::create([
-        'signature' => $signature,
+        'signature' => $this->signature,
         'start_time'  => Carbon::now()
       ]);
 
