@@ -42,6 +42,8 @@
             <th colspan="5" class="text-center">Wise Boutique</th>
             <th colspan="5" class="text-center">Double F</th>
             <th colspan="5" class="text-center">Lidia</th>
+            <th colspan="5" class="text-center">Tory</th>
+            <th colspan="5" class="text-center">Cuccuini</th>
           </tr>
           <tr>
             <th>Links</th>
@@ -67,6 +69,18 @@
             <th>New</th>
             <th>Inventory</th>
             <th>Removed</th>
+
+              <th>Links</th>
+              <th>Scraped</th>
+              <th>New</th>
+              <th>Inventory</th>
+              <th>Removed</th>
+
+              <th>Links</th>
+              <th>Scraped</th>
+              <th>New</th>
+              <th>Inventory</th>
+              <th>Removed</th>
           </tr>
         </thead>
 
@@ -97,6 +111,18 @@
               <td>{{ $item['lidiashopping']['created'] ?? 0 }}</td>
               <td>{{ $item['lidiashopping']['inventory'] ?? 0 }}</td>
               <td>{{ $item['lidiashopping']['removed'] ?? 0 }}</td>
+
+                <td>{{ $item['Tory']['links'] ?? 0 }}</td>
+                <td>{{ $item['Tory']['scraped'] ?? 0 }}</td>
+                <td>{{ $item['Tory']['created'] ?? 0 }}</td>
+                <td>{{ $item['Tory']['inventory'] ?? 0 }}</td>
+                <td>{{ $item['Tory']['removed'] ?? 0 }}</td>
+
+                <td>{{ $item['Cuccuini']['links'] ?? 0 }}</td>
+                <td>{{ $item['Cuccuini']['scraped'] ?? 0 }}</td>
+                <td>{{ $item['Cuccuini']['created'] ?? 0 }}</td>
+                <td>{{ $item['Cuccuini']['inventory'] ?? 0 }}</td>
+                <td>{{ $item['Cuccuini']['removed'] ?? 0 }}</td>
             </tr>
           @endforeach
         </tbody>

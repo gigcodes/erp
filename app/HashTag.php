@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class HashTag extends Model
 {
-    protected $casts = [
-        'comments' => 'array'
-    ];
+    public function posts() {
+        return $this->hasMany(HashtagPosts::class, 'hashtag_id', 'id');
+    }
+
 }

@@ -499,8 +499,10 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 
 Route::prefix('instagram')->group(function () {
     Route::get('posts', 'InstagramController@showPosts');
-    Route::get('hashtags', 'InstagramController@showHahstags');
-    Route::get('hashtags/comment/delete', 'InstagramController@deleteComment');
+    Route::resource('hashtagposts', 'HashtagPostsController');
+    Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
+    Route::get('hashtag/grid/{id}', 'HashtagController@showGrid');
+    Route::resource('hashtag', 'HashtagController');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
