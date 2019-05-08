@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\Services\Bots\CucProductExistsEmulator;
 use App\Services\Bots\WebsiteEmulator;
 use App\Supplier;
 use App\ScrapedProducts;
@@ -127,6 +128,34 @@ class UpdateInventory extends Command
                 ];
 
                 $supplier = 'Double F';
+            }
+
+            if ($scraped_product->website == 'Cuccuini') {
+                $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+                if (strpos($letters, 'C') === false) {
+                    return;
+                }
+
+                $url = 'http://shop.cuccuini.it/it/register.html';
+
+                $duskShell = new CucProductExistsEmulator();
+                $this->setCountry('IT');
+                $duskShell->prepare();
+
+                try {
+                    $status = $duskShell->emulate($this, $url, '', $scraped_product);
+                } catch (Exception $exception) {
+                    $status = false;
+                }
+
+                $params = [
+                    'website'             => 'Cuccini',
+                    'scraped_product_id'  => $scraped_product->id,
+                    'status'              => $status ? 1 : 0
+                ];
+
+                $supplier = 'Cuccini';
+
             }
 
             if ($scraped_product->website == 'Tory') {
