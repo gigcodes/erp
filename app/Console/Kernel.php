@@ -162,10 +162,10 @@ class Kernel extends ConsoleKernel
 //            ->withoutOverlapping()
 //        ;
 
-        $schedule->command('enrich:wiseboutique')
-            ->daily()
-            ->withoutOverlapping()
-        ;
+        // $schedule->command('enrich:wiseboutique')
+        //     ->daily()
+        //     ->withoutOverlapping()
+        // ;
 
 //        $schedule->command('wiseboutique:get-product-details')
 //            ->hourly()
@@ -200,8 +200,8 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('image:create-schedule')->dailyAt(14);
 //        $schedule->command('image:create-schedule')->dailyAt(17);
 //        $schedule->command('image:create-schedule')->dailyAt(20);
-        $schedule->command('inventory:refresh-stock')->dailyAt(12);
-        $schedule->command('gnb:get-sku')->hourly();
+        // $schedule->command('inventory:refresh-stock')->dailyAt(12);
+        // $schedule->command('gnb:get-sku')->hourly();
         // $schedule->command('create:scraped-products')->everyMinute();
 //        $schedule->command('gnb:get-sku')->everyMinute();
 
