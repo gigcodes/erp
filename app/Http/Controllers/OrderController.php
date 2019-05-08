@@ -549,8 +549,8 @@ class OrderController extends Controller {
 			$requestData2 = new Request();
 			$requestData->setMethod('POST');
 			$requestData2->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
+			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 2]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
@@ -570,7 +570,7 @@ class OrderController extends Controller {
 			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
@@ -817,8 +817,8 @@ class OrderController extends Controller {
 			$requestData2 = new Request();
 			$requestData->setMethod('POST');
 			$requestData2->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
+			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 2]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
@@ -835,7 +835,7 @@ class OrderController extends Controller {
 			$requestData->setMethod('POST');
 			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
 
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer', 'status' => 2);
 
 			CommunicationHistory::create([
 				'model_id'		=> $order->id,
@@ -904,7 +904,7 @@ class OrderController extends Controller {
 				$requestData->setMethod('POST');
 				$requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message]);
 
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer', 'status' => 2);
 
 				CommunicationHistory::create([
 					'model_id'		=> $order->id,
@@ -1011,6 +1011,26 @@ class OrderController extends Controller {
 					'type'				=> 'offline-confirmation',
 					'method'			=> 'email'
 				]);
+
+				// $params = [
+	      //   'number'      => NULL,
+	      //   'user_id'     => Auth::id(),
+	      //   'customer_id' => $order->customer->id,
+	      //   'approved'    => 1,
+	      //   'status'      => 9, // status for automated messages,
+				// 	'message'			=> ''
+	      // ];
+				//
+				// $chat_message = ChatMessage::create($params);
+				//
+				// app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
+				//
+				// CommunicationHistory::create([
+				// 	'model_id'		=> $order->id,
+				// 	'model_type'	=> Order::class,
+				// 	'type'				=> 'offline-confirmation',
+				// 	'method'			=> 'whatsapp'
+				// ]);
 			}
 		}
 
@@ -1288,8 +1308,8 @@ class OrderController extends Controller {
 			$requestData2 = new Request();
 			$requestData->setMethod('POST');
 			$requestData2->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
+			$requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 2]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
@@ -1304,7 +1324,7 @@ class OrderController extends Controller {
 			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
@@ -1364,7 +1384,7 @@ class OrderController extends Controller {
 			$auto_message = "Greetings from Solo Luxury Ref: order number #$order->order_id for $product_names we have initiated the refund process you should receive the refund within 7-10 days by the method that you made the payment.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 

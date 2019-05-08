@@ -1692,8 +1692,16 @@
             <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
           </div>
         </li>
+
+        <li>
+          <div class="d-inline">
+            <button type="button" class="btn latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
+          </div>
+        </li>
       </ul>
     </div>
+
+    @include('customers.partials.modal-category-brand')
 
     <div class="tab-content ">
 
@@ -2542,20 +2550,28 @@
                  console.error("error occured: " , error);
              }
              function approveMessage(element, message) {
-                 $.post( "/whatsapp/approve/customer", { messageId: message.id })
-                   .done(function( data ) {
-                     // console.log(data);
-                     // if (data != 'success') {
-                     //   data.forEach(function(id) {
-                     //     $('#waMessage_' + id).find('.btn-approve').remove();
-                     //   });
-                     // }
+               if (!$(element).attr('disabled')) {
+                 $.ajax({
+                   type: "POST",
+                   url: "/whatsapp/approve/customer",
+                   data: {
+                     _token: "{{ csrf_token() }}",
+                     messageId: message.id
+                   },
+                   beforeSend: function() {
+                     $(element).attr('disabled', true);
+                     $(element).text('Approving...');
+                   }
+                 }).done(function( data ) {
+                   element.remove();
+                 }).fail(function(response) {
+                   $(element).attr('disabled', false);
+                   $(element).text('Approve');
 
-                     element.remove();
-                   }).fail(function(response) {
-                     console.log(response);
-                     alert(response.responseJSON.message);
-                   });
+                   console.log(response);
+                   alert(response.responseJSON.message);
+                 });
+               }
              }
 
              // function createMessageArgs() {
@@ -4146,6 +4162,67 @@
 
           console.log(response);
         });
+      });
+
+      $(document).on('click', '.send-instock-shortcut', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.send.instock') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Sending...');
+          }
+        }).done(function(response) {
+          $(thiss).text('Send In Stock');
+        }).fail(function(response) {
+          $(thiss).text('Send In Stock');
+
+          alert('Could not sent instock!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.latest-scraped-shortcut', function() {
+        var id = $(this).data('id');
+
+        $('#categoryBrandModal').find('input[name="customer_id"]').val(id);
+      });
+
+      $('#sendScrapedButton').on('click', function(e) {
+        e.preventDefault();
+
+        var formData = $('#categoryBrandModal').find('form').serialize();
+        console.log(formData);
+        var thiss = $(this);
+
+        if (!$(this).is(':disabled')) {
+          $.ajax({
+            type: "POST",
+            url: "{{ route('customer.send.scraped') }}",
+            data: formData,
+            beforeSend: function() {
+              $(thiss).text('Sending...');
+              $(thiss).attr('disabled', true);
+            }
+          }).done(function() {
+            $('#categoryBrandModal').find('.close').click();
+            $(thiss).text('Send');
+            $(thiss).attr('disabled', false);
+          }).fail(function(response) {
+            $(thiss).text('Send');
+            $(thiss).attr('disabled', false);
+            console.log(response);
+
+            alert('Could not send 20 images');
+          });
+        }
       });
   </script>
 @endsection

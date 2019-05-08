@@ -53,6 +53,8 @@
 
     @include('customers.partials.modal-shortcut')
 
+    @include('customers.partials.modal-category-brand')
+
     @include('partials.flash_messages')
 
     <?php
@@ -338,6 +340,10 @@
                       <div class="d-inline">
                         <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
                       </div>
+
+                      <div class="d-inline">
+                        <button type="button" class="btn btn-image latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
+                      </div>
                     </td>
                     <td>
                       <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
@@ -517,35 +523,28 @@
         var id = $(this).data('id');
         var type = $(this).data('type');
 
-        // if (isNaN(type)) {
-        //   $.ajax({
-        //     url: "{{ url('whatsapp/updateAndCreate') }}",
-        //     type: 'POST',
-        //     data: {
-        //       _token: "{{ csrf_token() }}",
-        //       moduletype: "customer",
-        //       message_id: id
-        //     },
-        //     beforeSend: function() {
-        //       $(thiss).text('Approving...');
-        //     }
-        //   }).done( function(response) {
-        //     $(thiss).parent().html('Approved');
-        //   }).fail(function(errObj) {
-        //     $(thiss).text('Approve');
-        //     console.log(errObj);
-        //     alert("Could not create whatsapp message");
-        //   });
-        // }
-        // else {
-          $.post("/whatsapp/approve/customer", {messageId: id})
-            .done(function(data) {
-              $(thiss).parent().html('Approved');
-            }).fail(function(response) {
-              console.log(response);
-              alert(response.responseJSON.message);
-            });
-        // }
+        if (!$(thiss).is(':disabled')) {
+          $.ajax({
+            type: "POST",
+            url: "/whatsapp/approve/customer",
+            data: {
+              _token: "{{ csrf_token() }}",
+              messageId: id
+            },
+            beforeSend: function() {
+              $(thiss).attr('disabled', true);
+              $(thiss).text('Approving...');
+            }
+          }).done(function(data) {
+            $(thiss).parent().html('Approved');
+          }).fail(function(response) {
+            $(thiss).attr('disabled', false);
+            $(thiss).text('Approve');
+
+            console.log(response);
+            alert(response.responseJSON.message);
+          });
+        }
       });
 
       $(document).on('click', '.create-shortcut', function() {
@@ -621,51 +620,60 @@
         data.append("status", 1);
 
         if (message.length > 0) {
-          $.ajax({
-            url: '/whatsapp/sendMessage/customer',
-            type: 'POST',
-           "dataType"    : 'json',           // what to expect back from the PHP script, if anything
-           "cache"       : false,
-           "contentType" : false,
-           "processData" : false,
-           "data": data
-         }).done( function(response) {
-            $(thiss).siblings('input').val('');
+          if (!$(thiss).is(':disabled')) {
+            $.ajax({
+              url: '/whatsapp/sendMessage/customer',
+              type: 'POST',
+             "dataType"    : 'json',           // what to expect back from the PHP script, if anything
+             "cache"       : false,
+             "contentType" : false,
+             "processData" : false,
+             "data": data,
+             beforeSend: function() {
+               $(thiss).attr('disabled', true);
+             }
+           }).done( function(response) {
+              $(thiss).siblings('input').val('');
 
-            if (cached_suggestions) {
-              suggestions = JSON.parse(cached_suggestions);
+              if (cached_suggestions) {
+                suggestions = JSON.parse(cached_suggestions);
 
-              if (suggestions.length == 10) {
-                suggestions.push(message);
-                suggestions.splice(0, 1);
+                if (suggestions.length == 10) {
+                  suggestions.push(message);
+                  suggestions.splice(0, 1);
+                } else {
+                  suggestions.push(message);
+                }
+                localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                cached_suggestions = localStorage['message_suggestions'];
+
+                console.log('EXISTING');
+                console.log(suggestions);
               } else {
                 suggestions.push(message);
+                localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                cached_suggestions = localStorage['message_suggestions'];
+
+                console.log('NOT');
+                console.log(suggestions);
               }
-              localStorage['message_suggestions'] = JSON.stringify(suggestions);
-              cached_suggestions = localStorage['message_suggestions'];
 
-              console.log('EXISTING');
-              console.log(suggestions);
-            } else {
-              suggestions.push(message);
-              localStorage['message_suggestions'] = JSON.stringify(suggestions);
-              cached_suggestions = localStorage['message_suggestions'];
+              $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                .done(function( data ) {
 
-              console.log('NOT');
-              console.log(suggestions);
-            }
+                }).fail(function(response) {
+                  console.log(response);
+                  alert(response.responseJSON.message);
+                });
 
-            $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
-              .done(function( data ) {
+              $(thiss).attr('disabled', false);
+            }).fail(function(errObj) {
+              $(thiss).attr('disabled', false);
 
-              }).fail(function(response) {
-                console.log(response);
-                alert(response.responseJSON.message);
-              });
-          }).fail(function(errObj) {
-            alert("Could not send message");
-            console.log(errObj);
-          });
+              alert("Could not send message");
+              console.log(errObj);
+            });
+          }
         } else {
           alert('Please enter a message first');
         }
@@ -817,9 +825,9 @@
         }).done(function(response) {
           $(thiss).text('Send In Stock');
         }).fail(function(response) {
-          $(thiss).text('Block on Twilio');
+          $(thiss).text('Send In Stock');
 
-          alert('Could not block customer!');
+          alert('Could not sent instock!');
 
           console.log(response);
         });
@@ -853,6 +861,41 @@
 
           console.log(response);
         });
+      });
+
+      $(document).on('click', '.latest-scraped-shortcut', function() {
+        var id = $(this).data('id');
+
+        $('#categoryBrandModal').find('input[name="customer_id"]').val(id);
+      });
+
+      $('#sendScrapedButton').on('click', function(e) {
+        e.preventDefault();
+
+        var formData = $('#categoryBrandModal').find('form').serialize();
+        var thiss = $(this);
+
+        if (!$(this).is(':disabled')) {
+          $.ajax({
+            type: "POST",
+            url: "{{ route('customer.send.scraped') }}",
+            data: formData,
+            beforeSend: function() {
+              $(thiss).text('Sending...');
+              $(thiss).attr('disabled', true);
+            }
+          }).done(function() {
+            $('#categoryBrandModal').find('.close').click();
+            $(thiss).text('Send');
+            $(thiss).attr('disabled', false);
+          }).fail(function(response) {
+            $(thiss).text('Send');
+            $(thiss).attr('disabled', false);
+            console.log(response);
+
+            alert('Could not send 20 images');
+          });
+        }
       });
   </script>
 @endsection

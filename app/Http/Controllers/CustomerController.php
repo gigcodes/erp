@@ -78,6 +78,11 @@ class CustomerController extends Controller
       $customers_all = Customer::all();
       $customer_names = Customer::select(['name'])->get()->toArray();
 
+      $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
+                                              ->renderAsDropdown();
+
+      $brands = Brand::all()->toArray();
+
       foreach ($customer_names as $name) {
         $search_suggestions[] = $name['name'];
       }
@@ -104,6 +109,8 @@ class CustomerController extends Controller
         'reply_categories' => $reply_categories,
         'orders' => $orders,
         'api_keys' => $api_keys,
+        'category_suggestion' => $category_suggestion,
+        'brands' => $brands,
       ]);
     }
 
@@ -995,6 +1002,59 @@ class CustomerController extends Controller
             $product->suggestions()->attach($suggestion->id);
           }
         }
+      }
+
+      return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully created suggested message');
+    }
+
+    public function sendScraped(Request $request)
+    {
+      $customer = Customer::find($request->customer_id);
+
+      if ($request->brand[0] != null) {
+        $products = Product::whereIn('brand', $request->brand);
+      }
+
+      if ($request->category[0] != null && $request->category[0] != 1) {
+        if ($request->brand[0] != null) {
+          $products = $products->whereIn('category', $request->category);
+        } else {
+          $products = Product::whereIn('category', $request->category);
+        }
+      }
+
+      if ($request->brand[0] == null && ($request->category[0] == 1 || $request->category[0] == null)) {
+        $products = (new Product)->newQuery();
+      }
+
+      $products = $products->whereHas('scraped_products')->where('category', '!=', 1)->latest()->take(20)->get();
+
+      if (count($products) > 0) {
+        $params = [
+          'number'      => NULL,
+          'user_id'     => Auth::id(),
+          'approved'    => 0,
+          'status'      => 1,
+          'message'     => 'Suggested images',
+          'customer_id' => $customer->id
+        ];
+
+        $count = 0;
+
+        foreach ($products as $product) {
+          if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
+            if ($count == 0) {
+              $chat_message = ChatMessage::create($params);
+            }
+
+            $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
+            $count++;
+          }
+        }
+      }
+
+      if ($request->ajax()) {
+        return response('success');
       }
 
       return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully created suggested message');
