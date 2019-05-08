@@ -102,65 +102,70 @@ class ScrapController extends Controller
 
     public function activity()
     {
-      $links_count = ScrapEntries::select(['site_name', 'created_at'])->get()->groupBy(['site_name', function ($query) {
-        return Carbon::parse($query->created_at)->format('Y-m-d');
-      }]);
+      $date = Carbon::now()->subDays(7)->format('Y-m-d');
 
+      $links_count = DB::select( '
+									SELECT site_name, created_at, COUNT(*) as total FROM
+								 		(SELECT scrap_entries.site_name, DATE_FORMAT(scrap_entries.created_at, "%Y-%m-%d") as created_at
+								  		 FROM scrap_entries
+								  		 WHERE scrap_entries.created_at > ?)
+								    AS SUBQUERY
+								   	GROUP BY created_at, site_name;
+							', [$date]);
 
-      $scraped_count = ScrapedProducts::select(['website', 'created_at'])->get()->groupBy(['website', function ($query) {
-        return Carbon::parse($query->created_at)->format('Y-m-d');
-      }]);
+      $scraped_count = DB::select( '
+									SELECT website, created_at, COUNT(*) as total FROM
+								 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
+								  		 FROM scraped_products
+								  		 WHERE scraped_products.created_at > ?)
+								    AS SUBQUERY
+								   	GROUP BY created_at, website;
+							', [$date]);
 
+      $products_count = DB::select( '
+									SELECT website, created_at, COUNT(*) as total FROM
+								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
+								  		 FROM scraped_products
+								  		 WHERE scraped_products.created_at > ?
+                       AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku)
+                       )
 
-      $products_count = ScrapedProducts::select(['website', 'created_at'])->whereHas('Product')->get()->groupBy(['website', function ($query) {
-        return Carbon::parse($query->created_at)->format('Y-m-d');
-      }]);
+								    AS SUBQUERY
+								   	GROUP BY created_at, website;
+							', [$date]);
 
-
-      $activity_data_removed = ScrapActivity::select(['website', 'status', 'created_at'])->where('status', 0)->get()->groupBy(['website', function ($query) {
-        return Carbon::parse($query->created_at)->format('Y-m-d');
-      }]);
-
-      $activity_data_inventory = ScrapActivity::select(['website', 'status', 'created_at'])->where('status', 1)->get()->groupBy(['website', function ($query) {
-        return Carbon::parse($query->created_at)->format('Y-m-d');
-      }]);
+      $activity_data = DB::select( '
+									SELECT website, status, created_at, COUNT(*) as total FROM
+								 		(SELECT scrap_activities.website, scrap_activities.status, DATE_FORMAT(scrap_activities.created_at, "%Y-%m-%d") as created_at
+								  		 FROM scrap_activities
+								  		 WHERE scrap_activities.created_at > ?)
+								    AS SUBQUERY
+								   	GROUP BY created_at, website, status;
+							', [$date]);
 
       $data = [];
 
-      $link_entries = ScrapCounts::orderBy('created_at', 'DESC')->get();
+      $link_entries = ScrapCounts::where('created_at', '>', $date)->orderBy('created_at', 'DESC')->get();
 
-      foreach ($links_count as $website => $dates) {
-        if ($website == 'GNB') {
-          $website = 'G&B';
+
+      foreach ($links_count as $item) {
+        if ($item->site_name == 'GNB') {
+          $item->site_name = 'G&B';
         }
 
-        foreach ($dates as $date => $item) {
-          $data[$date][$website]['links'] = count($item);
-        }
+        $data[$item->created_at][$item->site_name]['links'] = $item->total;
       }
 
-      foreach ($scraped_count as $website => $dates) {
-        foreach ($dates as $date => $item) {
-          $data[$date][$website]['scraped'] = count($item);
-        }
+      foreach ($scraped_count as $item) {
+        $data[$item->created_at][$item->website]['scraped'] = $item->total;
       }
 
-      foreach ($products_count as $website => $dates) {
-        foreach ($dates as $date => $item) {
-          $data[$date][$website]['created'] = count($item);
-        }
+      foreach ($products_count as $item) {
+        $data[$item->created_at][$item->website]['created'] = $item->total;
       }
 
-      foreach ($activity_data_removed as $website => $dates) {
-        foreach ($dates as $date => $item) {
-          $data[$date][$website]['removed'] = count($item);
-        }
-      }
-
-      foreach ($activity_data_inventory as $website => $dates) {
-        foreach ($dates as $date => $item) {
-          $data[$date][$website]['inventory'] = count($item);
-        }
+      foreach ($activity_data as $item) {
+        $data[$item->created_at][$item->website][$item->status] = $item->total;
       }
 
       ksort($data);
@@ -171,13 +176,10 @@ class ScrapController extends Controller
   		$perPage = 24;
   		$currentItems = array_slice($data, $perPage * ($currentPage - 1), $perPage);
 
+
   		$data = new LengthAwarePaginator($currentItems, count($data), $perPage, $currentPage, [
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
-
-  		// $data['scraped_gnb_product_count'] = Product::where('supplier', 'G & B Negozionline')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
-  		// $data['scraped_wise_product_count'] = Product::where('supplier', 'Wise Boutique')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
-  		// $data['scraped_double_product_count'] = Product::where('supplier', 'Double F')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
 
       return view('scrap.activity', [
         'data'  => $data,
