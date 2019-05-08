@@ -7,6 +7,7 @@ use App\Product;
 use App\Brand;
 use App\Services\Bots\CucLoginEmulator;
 use App\Services\Bots\CucProductDataEmulator;
+use App\Services\Bots\CucProductExistsEmulator;
 use App\Setting;
 use App\Services\Bots\WebsiteEmulator;
 use GuzzleHttp\Client;
@@ -57,22 +58,21 @@ class GetCuccuiniDetailsWithEmulator extends Command
         }
     }
 
-    public function doesProductExist($url) {
-        $duskShell = new CucLoginEmulator();
+    public function doesProductExist($product) {
+
+        $url = 'http://shop.cuccuini.it/it/register.html';
+
+        $duskShell = new CucProductExistsEmulator();
         $this->setCountry('IT');
         $duskShell->prepare();
 
         try {
-            $content = $duskShell->emulate($this, $url, '');
+            $content = $duskShell->emulate($this, $url, '', $product);
         } catch (Exception $exception) {
-            $content = ['', ''];
+            $content = false;
         }
 
-        if (strlen($content[0]) > 3 && strlen($content[1]) > 4) {
-            return true;
-        }
-
-        return false;
+        return $content;
     }
 
     private function setCountry(): void
