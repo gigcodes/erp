@@ -833,9 +833,9 @@ class OrderController extends Controller {
 			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
 
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer', 'status' => 2);
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
 			CommunicationHistory::create([
 				'model_id'		=> $order->id,
@@ -902,9 +902,9 @@ class OrderController extends Controller {
 				$message = "Your Order has been delivered!";
 				$requestData = new Request();
 				$requestData->setMethod('POST');
-				$requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message]);
+				$requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message, 'status' => 2]);
 
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer', 'status' => 2);
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
 				CommunicationHistory::create([
 					'model_id'		=> $order->id,
