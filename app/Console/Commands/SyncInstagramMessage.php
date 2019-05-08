@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Customer;
 use App\InstagramThread;
+use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Services\Instagram\DirectMessage;
 
@@ -44,6 +46,11 @@ class SyncInstagramMessage extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $signature,
+        'start_time'  => Carbon::now()
+      ]);
+
         $inbox = $this->messages->getInbox()->asArray();
         if (isset($inbox['inbox']['threads'])) {
             $threads = $inbox['inbox']['threads'];
@@ -61,6 +68,8 @@ class SyncInstagramMessage extends Command
                 }
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     /**

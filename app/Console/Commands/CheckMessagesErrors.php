@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\ChatMessage;
 use App\Customer;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
@@ -40,6 +41,11 @@ class CheckMessagesErrors extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $hour_ago = Carbon::now()->subHour();
       $two_ago = Carbon::now()->subHours(2);
 
@@ -110,5 +116,7 @@ class CheckMessagesErrors extends Command
           ]);
         }
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

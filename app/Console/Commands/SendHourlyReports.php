@@ -9,6 +9,7 @@ use App\Exports\HourlyReportsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\HourlyReport;
+use App\CronJobReport;
 
 class SendHourlyReports extends Command
 {
@@ -43,6 +44,11 @@ class SendHourlyReports extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $now = Carbon::now();
       $date = Carbon::now()->format('Y-m-d');
       $nine = Carbon::parse('09:00');
@@ -80,6 +86,8 @@ class SendHourlyReports extends Command
         Mail::to('hr@sololuxury.co.in')
             ->send(new HourlyReport($path));
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
 
     }
 }

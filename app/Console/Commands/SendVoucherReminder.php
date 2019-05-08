@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 use App\Voucher;
+use App\CronJobReport;
 use App\Mail\VoucherReminder;
 use Illuminate\Support\Facades\Mail;
 
@@ -41,6 +42,11 @@ class SendVoucherReminder extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $before = Carbon::now()->subDays(5)->format('Y-m-d 00:00:00');
       $vouchers = Voucher::where('date', '<=', $before)->get();
 
@@ -53,5 +59,7 @@ class SendVoucherReminder extends Command
               ->send(new VoucherReminder($voucher));
         }
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

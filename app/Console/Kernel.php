@@ -43,6 +43,7 @@ use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -96,6 +97,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
       $schedule->call(function() {
+        $report = CronJobReport::create([
+          'signature' => 'update:benchmark',
+          'start_time'  => Carbon::now()
+        ]);
+
         $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
         $tasks = Task::where('is_statutory', 0 )->whereNotNull('is_completed')->get();
 
@@ -111,6 +117,8 @@ class Kernel extends ConsoleKernel
             $task->delete();
           }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
       })->dailyAt('00:00');
 
   	    // $schedule->call(function () {
@@ -119,7 +127,14 @@ class Kernel extends ConsoleKernel
   	    // })->everyFiveMinutes();
 
         $schedule->call(function () {
+          $report = CronJobReport::create([
+            'signature' => 'update:benchmark',
+            'start_time'  => Carbon::now()
+          ]);
+
           MagentoController::get_magento_orders();
+
+          $report->update(['end_time' => Carbon:: now()]);
         })->hourly();
 
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
