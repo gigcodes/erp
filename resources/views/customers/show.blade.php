@@ -2542,20 +2542,28 @@
                  console.error("error occured: " , error);
              }
              function approveMessage(element, message) {
-                 $.post( "/whatsapp/approve/customer", { messageId: message.id })
-                   .done(function( data ) {
-                     // console.log(data);
-                     // if (data != 'success') {
-                     //   data.forEach(function(id) {
-                     //     $('#waMessage_' + id).find('.btn-approve').remove();
-                     //   });
-                     // }
+               if (!$(element).attr('disabled')) {
+                 $.ajax({
+                   type: "POST",
+                   url: "/whatsapp/approve/customer",
+                   data: {
+                     _token: "{{ csrf_token() }}",
+                     messageId: message.id
+                   },
+                   beforeSend: function() {
+                     $(element).attr('disabled', true);
+                     $(element).text('Approving...');
+                   }
+                 }).done(function( data ) {
+                   element.remove();
+                 }).fail(function(response) {
+                   $(element).attr('disabled', false);
+                   $(element).text('Approve');
 
-                     element.remove();
-                   }).fail(function(response) {
-                     console.log(response);
-                     alert(response.responseJSON.message);
-                   });
+                   console.log(response);
+                   alert(response.responseJSON.message);
+                 });
+               }
              }
 
              // function createMessageArgs() {

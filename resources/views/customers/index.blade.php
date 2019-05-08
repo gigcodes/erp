@@ -517,35 +517,28 @@
         var id = $(this).data('id');
         var type = $(this).data('type');
 
-        // if (isNaN(type)) {
-        //   $.ajax({
-        //     url: "{{ url('whatsapp/updateAndCreate') }}",
-        //     type: 'POST',
-        //     data: {
-        //       _token: "{{ csrf_token() }}",
-        //       moduletype: "customer",
-        //       message_id: id
-        //     },
-        //     beforeSend: function() {
-        //       $(thiss).text('Approving...');
-        //     }
-        //   }).done( function(response) {
-        //     $(thiss).parent().html('Approved');
-        //   }).fail(function(errObj) {
-        //     $(thiss).text('Approve');
-        //     console.log(errObj);
-        //     alert("Could not create whatsapp message");
-        //   });
-        // }
-        // else {
-          $.post("/whatsapp/approve/customer", {messageId: id})
-            .done(function(data) {
-              $(thiss).parent().html('Approved');
-            }).fail(function(response) {
-              console.log(response);
-              alert(response.responseJSON.message);
-            });
-        // }
+        if (!$(thiss).is(':disabled')) {
+          $.ajax({
+            type: "POST",
+            url: "/whatsapp/approve/customer",
+            data: {
+              _token: "{{ csrf_token() }}",
+              messageId: id
+            },
+            beforeSend: function() {
+              $(thiss).attr('disabled', true);
+              $(thiss).text('Approving...');
+            }
+          }).done(function(data) {
+            $(thiss).parent().html('Approved');
+          }).fail(function(response) {
+            $(thiss).attr('disabled', false);
+            $(thiss).text('Approve');
+
+            console.log(response);
+            alert(response.responseJSON.message);
+          });
+        }
       });
 
       $(document).on('click', '.create-shortcut', function() {
@@ -621,51 +614,60 @@
         data.append("status", 1);
 
         if (message.length > 0) {
-          $.ajax({
-            url: '/whatsapp/sendMessage/customer',
-            type: 'POST',
-           "dataType"    : 'json',           // what to expect back from the PHP script, if anything
-           "cache"       : false,
-           "contentType" : false,
-           "processData" : false,
-           "data": data
-         }).done( function(response) {
-            $(thiss).siblings('input').val('');
+          if (!$(thiss).is(':disabled')) {
+            $.ajax({
+              url: '/whatsapp/sendMessage/customer',
+              type: 'POST',
+             "dataType"    : 'json',           // what to expect back from the PHP script, if anything
+             "cache"       : false,
+             "contentType" : false,
+             "processData" : false,
+             "data": data,
+             beforeSend: function() {
+               $(thiss).attr('disabled', true);
+             }
+           }).done( function(response) {
+              $(thiss).siblings('input').val('');
 
-            if (cached_suggestions) {
-              suggestions = JSON.parse(cached_suggestions);
+              if (cached_suggestions) {
+                suggestions = JSON.parse(cached_suggestions);
 
-              if (suggestions.length == 10) {
-                suggestions.push(message);
-                suggestions.splice(0, 1);
+                if (suggestions.length == 10) {
+                  suggestions.push(message);
+                  suggestions.splice(0, 1);
+                } else {
+                  suggestions.push(message);
+                }
+                localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                cached_suggestions = localStorage['message_suggestions'];
+
+                console.log('EXISTING');
+                console.log(suggestions);
               } else {
                 suggestions.push(message);
+                localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                cached_suggestions = localStorage['message_suggestions'];
+
+                console.log('NOT');
+                console.log(suggestions);
               }
-              localStorage['message_suggestions'] = JSON.stringify(suggestions);
-              cached_suggestions = localStorage['message_suggestions'];
 
-              console.log('EXISTING');
-              console.log(suggestions);
-            } else {
-              suggestions.push(message);
-              localStorage['message_suggestions'] = JSON.stringify(suggestions);
-              cached_suggestions = localStorage['message_suggestions'];
+              $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                .done(function( data ) {
 
-              console.log('NOT');
-              console.log(suggestions);
-            }
+                }).fail(function(response) {
+                  console.log(response);
+                  alert(response.responseJSON.message);
+                });
 
-            $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
-              .done(function( data ) {
+              $(thiss).attr('disabled', false);
+            }).fail(function(errObj) {
+              $(thiss).attr('disabled', false);
 
-              }).fail(function(response) {
-                console.log(response);
-                alert(response.responseJSON.message);
-              });
-          }).fail(function(errObj) {
-            alert("Could not send message");
-            console.log(errObj);
-          });
+              alert("Could not send message");
+              console.log(errObj);
+            });
+          }
         } else {
           alert('Please enter a message first');
         }
