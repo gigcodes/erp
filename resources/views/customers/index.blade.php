@@ -103,6 +103,12 @@
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
                     <td>
+                      @if ($customer->is_priority == 1)
+                        <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
+                      @else
+                        <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+                      @endif
+
                       <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
@@ -114,9 +120,11 @@
                       <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
 
                       @if ($customer->is_blocked == 1)
-                        <span class="badge badge-secondary">Blocked</span>
+                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
+                      @else
+                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
                       @endif
-                      <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
+
 
                       @if ($customer->is_flagged == 1)
                         <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
@@ -764,18 +772,12 @@
           }
         }).done(function(response) {
           if (response.is_blocked == 1) {
-            var badge = $('<span class="badge badge-secondary">Blocked</span>');
-
-            $(thiss).parent().append(badge);
-            $(thiss).html('<img src="/images/call-blocked.png" />');
+            $(thiss).html('<img src="/images/blocked-twilio.png" />');
           } else {
-            $(thiss).html('<img src="/images/call-blocked.png" />');
-            $(thiss).parent().find('.badge').remove();
+            $(thiss).html('<img src="/images/unblocked-twilio.png" />');
           }
-
-          // $(thiss).remove();
         }).fail(function(response) {
-          $(thiss).text('Block on Twilio');
+          $(thiss).html('<img src="/images/unblocked-twilio.png" />');
 
           alert('Could not block customer!');
 
@@ -813,6 +815,36 @@
           $(thiss).html('<img src="/images/unflagged.png" />');
 
           alert('Could not flag customer!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.priority-customer', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.priority') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Prioritizing...');
+          }
+        }).done(function(response) {
+          if (response.is_priority == 1) {
+            $(thiss).html('<img src="/images/customer-priority.png" />');
+          } else {
+            $(thiss).html('<img src="/images/customer-not-priority.png" />');
+          }
+
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/customer-not-priority.png" />');
+
+          alert('Could not prioritize customer!');
 
           console.log(response);
         });
