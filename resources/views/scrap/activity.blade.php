@@ -91,38 +91,38 @@
               <td>{{ $item['G&B']['links'] ?? 0 }}</td>
               <td>{{ $item['G&B']['scraped'] ?? 0 }}</td>
               <td>{{ $item['G&B']['created'] ?? 0 }}</td>
-              <td>{{ $item['G&B']['1'] ?? 0 }}</td>
-              <td>{{ $item['G&B']['0'] ?? 0 }}</td>
+              <td>{{ $item['G&B'][1] ?? 0 }}</td>
+              <td>{{ $item['G&B'][0] ?? 0 }}</td>
 
               <td>{{ $item['Wiseboutique']['links'] ?? 0 }}</td>
               <td>{{ $item['Wiseboutique']['scraped'] ?? 0 }}</td>
               <td>{{ $item['Wiseboutique']['created'] ?? 0 }}</td>
-              <td>{{ $item['Wiseboutique']['1'] ?? 0 }}</td>
-              <td>{{ $item['Wiseboutique']['0'] ?? 0 }}</td>
+              <td>{{ $item['Wiseboutique'][1] ?? 0 }}</td>
+              <td>{{ $item['Wiseboutique'][0] ?? 0 }}</td>
 
               <td>{{ $item['DoubleF']['links'] ?? 0 }}</td>
               <td>{{ $item['DoubleF']['scraped'] ?? 0 }}</td>
               <td>{{ $item['DoubleF']['created'] ?? 0 }}</td>
-              <td>{{ $item['DoubleF']['1'] ?? 0 }}</td>
-              <td>{{ $item['DoubleF']['0'] ?? 0 }}</td>
+              <td>{{ $item['DoubleF'][1] ?? 0 }}</td>
+              <td>{{ $item['DoubleF'][0] ?? 0 }}</td>
 
               <td>{{ $item['lidiashopping']['links'] ?? 0 }}</td>
               <td>{{ $item['lidiashopping']['scraped'] ?? 0 }}</td>
               <td>{{ $item['lidiashopping']['created'] ?? 0 }}</td>
-              <td>{{ $item['lidiashopping']['1'] ?? 0 }}</td>
-              <td>{{ $item['lidiashopping']['0'] ?? 0 }}</td>
+              <td>{{ $item['lidiashopping'][1] ?? 0 }}</td>
+              <td>{{ $item['lidiashopping'][0] ?? 0 }}</td>
 
                 <td>{{ $item['Tory']['links'] ?? 0 }}</td>
                 <td>{{ $item['Tory']['scraped'] ?? 0 }}</td>
                 <td>{{ $item['Tory']['created'] ?? 0 }}</td>
-                <td>{{ $item['Tory']['1'] ?? 0 }}</td>
-                <td>{{ $item['Tory']['0'] ?? 0 }}</td>
+                <td>{{ $item['Tory'][1] ?? 0 }}</td>
+                <td>{{ $item['Tory'][0] ?? 0 }}</td>
 
                 <td>{{ $item['Cuccuini']['links'] ?? 0 }}</td>
                 <td>{{ $item['Cuccuini']['scraped'] ?? 0 }}</td>
                 <td>{{ $item['Cuccuini']['created'] ?? 0 }}</td>
-                <td>{{ $item['Cuccuini']['1'] ?? 0 }}</td>
-                <td>{{ $item['Cuccuini']['0'] ?? 0 }}</td>
+                <td>{{ $item['Cuccuini'][1] ?? 0 }}</td>
+                <td>{{ $item['Cuccuini'][0] ?? 0 }}</td>
             </tr>
           @endforeach
         </tbody>
