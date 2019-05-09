@@ -2174,8 +2174,8 @@
           _token: "{{ csrf_token() }}",
           customer_id: customer_id,
           rating: 1,
-          status: 1,
-          assigned_user: "{{ Auth::id() }}",
+          status: 3,
+          assigned_user: 6,
           selected_product: selected_product_images,
           type: "product-lead",
           created_at: created_at
@@ -3385,8 +3385,8 @@
             _token: token,
             customer_id: customer_id,
             rating: 1,
-            status: 1,
-            assigned_user: "{{ Auth::id() }}",
+            status: 3,
+            assigned_user: 6,
             created_at: created_at
           },
           beforeSend: function() {
