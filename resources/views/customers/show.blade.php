@@ -761,7 +761,7 @@
                 <div class="card-header" id="headingOrder{{ $key + 1 }}">
                   <h5 class="mb-0">
                     <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#order{{ $key + 1 }}" aria-expanded="false" aria-controls="order{{ $key + 1 }}">
-                      Order {{ $key + 1 }}
+                      <span class="{{ $order->is_priority == 1 ? 'text-danger' : '' }}">Order {{ $key + 1 }}</span>
                       <a href="{{ route('order.show', $order->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
                       <span class="ml-3">
                         @if (isset($order->delivery_approval) && $order->delivery_approval->approved == 0)
@@ -780,6 +780,11 @@
 
                       <div class="row">
                           <div class="col-xs-12">
+
+                            <div class="form-group">
+                              <input type="checkbox" name="is_priority" {{ $order->is_priority == 1 ? 'checked' : '' }}>
+                              <label for="is_priority">Priority</label>
+                            </div>
 
                             <div class="form-group">
                                 <strong>Balance Amount:</strong>
@@ -1748,14 +1753,22 @@
               <th>Created at</th>
               <th>Remark</th>
             </tr>
-            @foreach ($customer->instructions()->where('verified', 0)->latest()->limit(3)->get() as $instruction)
+            @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                   <td>{{ $instruction->category->name }}</td>
-                  <td>{{ $instruction->instruction }}</td>
+                  <td>
+                    <div class="form-inline">
+                      @if ($instruction->is_priority == 1)
+                        <strong class="text-danger mr-1">!</strong>
+                      @endif
+
+                      {{ $instruction->instruction }}
+                    </div>
+                  </td>
                   <td>
                     @if ($instruction->completed_at)
                       {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
@@ -1808,14 +1821,22 @@
                   <div class="table-responsive">
                     <table class="table table-bordered">
                       <tbody>
-                        @foreach ($customer->instructions()->where('verified', 0)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
+                        @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                             <td>{{ $instruction->category->name }}</td>
-                            <td>{{ $instruction->instruction }}</td>
+                            <td>
+                              <div class="form-inline">
+                                @if ($instruction->is_priority == 1)
+                                  <strong class="text-danger mr-1">!</strong>
+                                @endif
+
+                                {{ $instruction->instruction }}
+                              </div>
+                            </td>
                             <td>
                               @if ($instruction->completed_at)
                                 {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
@@ -3981,6 +4002,7 @@
         var category_id = $('#instruction_category_id').val();
         var instruction = $('#instruction-body').val();
         var send_whatsapp = $('#sendWhatsappCheckbox').prop('checked') ? 'send' : '';
+        var is_priority = $('#instructionPriority').prop('checked') ? 'on' : '';
 
         console.log(send_whatsapp);
 
@@ -3995,6 +4017,7 @@
               instruction: instruction,
               customer_id: {{ $customer->id }},
               send_whatsapp: send_whatsapp,
+              is_priority: is_priority,
             }
           }).done(function() {
             $('#instructionModal').find('.close').click();

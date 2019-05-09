@@ -167,7 +167,13 @@
                           {{ array_key_exists($instructions[$customer->id][0]['assigned_to'], $users_array) ? $users_array[$instructions[$customer->id][0]['assigned_to']] : 'No User' }} -
 
 
-                          {{ $instructions[$customer->id][0]['instruction'] }}
+                          <div class="form-inline">
+                            @if ($instructions[$customer->id][0]['is_priority'] == 1)
+                              <strong class="text-danger mr-1">!</strong>
+                            @endif
+
+                            {{ $instructions[$customer->id][0]['instruction'] }}
+                          </div>
 
                           @if ($instructions[$customer->id][0]['completed_at'])
                             {{ Carbon\Carbon::parse($instructions[$customer->id][0]['completed_at'])->format('d-m H:i') }}

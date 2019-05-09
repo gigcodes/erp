@@ -111,10 +111,10 @@ class OrderController extends Controller {
 		}
 
 		if(empty($term))
-			$orders = $orders->latest();
+			$orders = $orders;
 		else{
 
-			$orders = $orders->latest()->whereHas('customer', function($query) use ($term) {
+			$orders = $orders->whereHas('customer', function($query) use ($term) {
 				return $query->where('name', 'LIKE', "%$term%");
 			})
 			               ->orWhere('order_id','like','%'.$term.'%')
@@ -130,7 +130,7 @@ class OrderController extends Controller {
 
 		$users  = Helpers::getUserArray( User::all() );
 
-		$orders_array = $orders->whereNull( 'deleted_at' )->get()->toArray();
+		$orders_array = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
 
 		if ($sortby == 'communication') {
 			if ($orderby == 'asc') {
@@ -779,6 +779,7 @@ class OrderController extends Controller {
 
 		$data = $request->except(['_token', '_method', 'status', 'purchase_status']);
 		$data['order_status'] = $request->status;
+		$data['is_priority'] = $request->is_priority == 'on' ? 1 : 0;
 		$order->update($data);
 
 		$this->calculateBalanceAmount($order);

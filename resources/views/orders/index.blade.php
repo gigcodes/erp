@@ -28,11 +28,7 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     <div class="table-responsive">
         <table class="table table-bordered">
@@ -50,7 +46,15 @@
         </tr>
         @foreach ($orders_array as $key => $order)
             <tr class="{{ \App\Helpers::statusClass($order['assign_status'] ) }} {{ ((!empty($order['communication']['body']) && $order['communication']['status'] == 0) || $order['communication']['status'] == 1 || $order['communication']['status'] == 5) ? 'row-highlight' : '' }} {{ ((!empty($order['communication']['message']) && $order['communication']['status'] == 0) || $order['communication']['status'] == 1 || $order['communication']['status'] == 5) ? 'row-highlight' : '' }}">
-                <td>{{ $order['order_id'] }}</td>
+                <td>
+                  <div class="form-inline">
+                    @if ($order['is_priority'] == 1)
+                      <strong class="text-danger mr-1">!</strong>
+                    @endif
+
+                    {{ $order['order_id'] }}
+                  </div>
+                </td>
                 <td>{{ Carbon\Carbon::parse($order['order_date'])->format('d-m') }}</td>
                 <td>{{ $order['sales_person'] ? $users[$order['sales_person']] : 'nil' }}</td>
                 <td>{{ $order['customer'] ? $order['customer']['name'] : '' }}</td>
