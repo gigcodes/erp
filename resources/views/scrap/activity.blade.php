@@ -118,11 +118,11 @@
                 <td>{{ $item['Tory']['inventory'] ?? 0 }}</td>
                 <td>{{ $item['Tory']['removed'] ?? 0 }}</td>
 
-                <td>{{ $item['Cuccuini']['links'] ?? 0 }}</td>
-                <td>{{ $item['Cuccuini']['scraped'] ?? 0 }}</td>
-                <td>{{ $item['Cuccuini']['created'] ?? 0 }}</td>
-                <td>{{ $item['Cuccuini']['inventory'] ?? 0 }}</td>
-                <td>{{ $item['Cuccuini']['removed'] ?? 0 }}</td>
+                <td>{{ $item['Cuccini']['links'] ?? 0 }}</td>
+                <td>{{ $item['Cuccini']['scraped'] ?? 0 }}</td>
+                <td>{{ $item['Cuccini']['created'] ?? 0 }}</td>
+                <td>{{ $item['Cuccini']['inventory'] ?? 0 }}</td>
+                <td>{{ $item['Cuccini']['removed'] ?? 0 }}</td>
             </tr>
           @endforeach
         </tbody>
