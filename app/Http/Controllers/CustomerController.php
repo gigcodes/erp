@@ -212,7 +212,7 @@ class CustomerController extends Controller
           // if ($start_time != '' && $end_time != '') {
           //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.created_at BETWEEN ' . $start_time . ' AND ' . $end_time . ' GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
           // } else {
-            $customers = $customers->join(DB::raw('(SELECT id as chat_message_id, chat_messages.customer_id as cmcid, created_at as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at, chat_messages.id ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
+            $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
           // }
           // dd($customers->get());
           $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('message_status', 'ASC')->orderBy('last_communicated_at', $orderby);
@@ -227,15 +227,15 @@ class CustomerController extends Controller
         // dd($start_time, $end_time);
 
         // if ($start_time != '' && $end_time != '') {
-          // $customers = $customers->selectRaw("customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
-          // (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id AND mm1.created_at BETWEEN $start_time AND $end_time) AS message,
-          // (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id AND mm2.created_at BETWEEN $start_time AND $end_time) AS message_status,
-          // (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id AND mm3.created_at BETWEEN $start_time AND $end_time) AS message_id,
-          // (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id AND mm4.created_at BETWEEN $start_time AND $end_time) AS message_type");
+          $customers = $customers->selectRaw("customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
+          (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
+          (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
+          (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,
+          (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type");
         // } else {
         // dd($customers->get());
-          $customers = $customers->selectRaw("customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, chat_message_created_at AS last_communicated_at,
-          message, status AS message_status, chat_message_id AS message_id, sent AS message_type");
+          // $customers = $customers->selectRaw("customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, chat_message_created_at AS last_communicated_at,
+          // message, status AS message_status, chat_message_id AS message_id, sent AS message_type");
         // }
 
 
