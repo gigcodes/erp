@@ -258,6 +258,16 @@
         <div class="row">
           <div class="col-xs-12">
             <div class="d-flex">
+              @if ($customer->is_priority == 1)
+                <div class="form-group">
+                  <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
+                </div>
+              @else
+                <div class="form-group">
+                  <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+                </div>
+              @endif
+
               <div class="form-group form-inline">
                 <input type="text" name="name" id="customer_name" class="form-control input-sm" placeholder="Name" value="{{ $customer->name }}">
               </div>
@@ -4277,6 +4287,36 @@
             alert('Could not send 20 images');
           });
         }
+      });
+
+      $(document).on('click', '.priority-customer', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.priority') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Prioritizing...');
+          }
+        }).done(function(response) {
+          if (response.is_priority == 1) {
+            $(thiss).html('<img src="/images/customer-priority.png" />');
+          } else {
+            $(thiss).html('<img src="/images/customer-not-priority.png" />');
+          }
+
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/customer-not-priority.png" />');
+
+          alert('Could not prioritize customer!');
+
+          console.log(response);
+        });
       });
   </script>
 @endsection
