@@ -5,9 +5,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 @endsection
 
-@section('content')
+@section('large_content')
 
     <div class="row">
+      <div class="col-md-12">
+        @if(Session::has('message'))
+          <div class="alert alert-success">
+            {{Session::get('message')}}
+          </div>
+          @endif
+      </div>
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Reviews</h2>
             <div class="pull-left">
@@ -318,7 +325,7 @@
                     <span class="text-muted">{{ ucwords($complaint->username) }}</span>
                   </td>
                   <td>
-                    {{ $complaint->complaint }}
+                    {!! $complaint->complaint !!}
 
                     @if ($complaint->threads)
                       <ul class="mx-0 px-4">
@@ -399,6 +406,61 @@
                     {!! Form::open(['method' => 'DELETE','route' => ['thread.destroy', $complaint->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
+
+                    @if($complaint->where == 'INSTAGRAM_HASHTAG')
+                    <!-- Button to Open the Modal -->
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#instagram-{{$complaint->id}}">
+                        <i class="fa fa-reply"></i>
+                      </button>
+
+                      <!-- The Modal -->
+                      <div class="modal" id="instagram-{{$complaint->id}}">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                              <h4 class="modal-title">Reply To Comment On Post</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                              <form action="{{ action('ReviewController@replyToPost') }}">
+                                <input type="hidden" name="media_id" value="{{$complaint->media_id}}">
+                                <input type="hidden" name="username" value="{{$complaint->receipt_username}}">
+                                <div class="form-group">
+                                  <label for="id">Username</label>
+                                  <select name="id" id="id" class="form-control">
+                                    <option value="0">Select Username</option>
+                                    @foreach($accounts as $account)
+                                      @if ($account->platform == 'instagram')
+                                        <option value="{{$account->id}}">{{ $account->last_name }}</option>
+                                      @endif
+                                    @endforeach
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label for="message">Message</label>
+                                  <input type="text" name="message" id="message" placeholder="Type message..." class="form-control">
+                                </div>
+                                <div class="form-group">
+                                  <button class="btn btn-success">
+                                    <i class="da fa-reply"></i> Reply
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    @endif
                   </td>
                 </tr>
               @endforeach

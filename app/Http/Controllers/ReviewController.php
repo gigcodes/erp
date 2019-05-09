@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\HashtagPostComment;
 use Illuminate\Http\Request;
 use App\Account;
 use App\Setting;
@@ -14,6 +15,9 @@ use App\StatusChange;
 use App\Helpers;
 use App\User;
 use Auth;
+use InstagramAPI\Instagram;
+
+Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class ReviewController extends Controller
 {
@@ -395,4 +399,61 @@ class ReviewController extends Controller
 
       return redirect()->route('review.index')->withSuccess('You have successfully deleted a review!');
     }
+
+
+    public function createFromInstagramHashtag(Request $request) {
+
+        $this->validate($request, [
+            'post' => 'required',
+            'comment' => 'required',
+            'poster' => 'required',
+            'commenter' => 'required',
+            'media_id' => 'required',
+            'date' => 'required',
+            'code' => 'required'
+        ]);
+
+        $review =  new Complaint();
+        $review->customer_id = null;
+        $review->platform = 'instagram';
+        $review->complaint = '<strong>@'.$request->get('poster'). ' => ' .$request->get('post').'</strong><li>@'.$request->get('commenter').' => '.$request->get('comment').'</li>';
+        $review->link = 'https://instagram.com/p/' . $request->get('code');
+        $review->status = 'pending';
+        $review->plan_of_action = 'instagram_reply';
+        $review->where = 'INSTAGRAM_HASHTAG';
+        $review->username = $request->get('poster');
+        $review->name = $request->get('poster');
+        $review->thread_type = 'thread';
+        $review->date = $request->get('date');
+        $review->media_id = $request->get('media_id');
+        $review->receipt_username = $request->get('commenter');
+        $review->save();
+
+        return redirect()->back()->with('message', 'Comment sent for review');
+
+    }
+
+    public function replyToPost(Request $request) {
+
+        $this->validate($request, [
+            'media_id' => 'required',
+            'id' => 'required',
+            'username' => 'required',
+            'message' => 'required',
+        ]);
+
+        $account = Account::find($request->get('id'));
+
+        $instagram = new Instagram();
+        $instagram->login($account->last_name, $account->password);
+
+        $mediaId = $request->get('media_id');
+        $message = $request->get('message');
+        $username = $request->get('username');
+        $message = "@$username $message";
+        $instagram->media->comment($mediaId, $message);
+
+        return redirect()->back()->with('message', "Replied sent to @$username by @".$account->last_name);
+    }
+
 }

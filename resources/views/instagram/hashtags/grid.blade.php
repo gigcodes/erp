@@ -19,57 +19,70 @@
                     <th>User</th>
                     <th>Post URL</th>
                     <th>Image</th>
+                    <th style="width: 400px;">Caption</th>
                     <th>Number of Likes</th>
-                    <th>Number Of Comments (Post)</th>
-                    <th>Number Of Comments (Scraped)</th>
+                    <th>Number Of Comments</th>
+                    <th>Created At</th>
                     <th>Comments</th>
-                    <th>Actions</th>
                 </tr>
-                @foreach($hashtag->posts as $key=>$post)
+                @foreach($medias as $key=>$post)
                     <tr>
                         <td>{{ $key+1 }}</td>
-                        <td><a href="https://instagram.com/{{$post->username}}">{{$post->username}}</a></td>
-                        <td><a href="{{$post->post_url}}">Visit Post</a></td>
-                        <td><a href="{{$post->image_url}}"><img src="{{ $post->image_url }}" style="width: 100px;"></a></td>
-                        <td>{{ $post->likes }}</td>
-                        <td>{{ $post->number_comments }}</td>
-                        <td>{{ $post->comments()->count() }}</td>
+                        <td><a href="https://instagram.com/{{$post['username']}}">{{$post['username']}}</a></td>
+                        <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
+                        <td>
+                            @if ($post['media_type'] === 1)
+                                <a href="{{$post['media']}}"><img src="{{ $post['media'] }}" style="width: 200px;"></a>
+                            @elseif ($post['media_type'] === 2)
+                                <video controls src="{{ $post['media'] }}" style="width: 200px"></video>
+                            @elseif ($post['media_type'] === 8)
+                                @foreach($post['media'] as $m)
+                                    @if ($m['media_type'] === 1)
+                                        <a href="{{$m['url']}}"><img src="{{ $m['url'] }}" style="width: 100px;"></a>
+                                    @elseif($m['media_type'] === 2)
+                                        <video controls src="{{ $m['url'] }}" style="width: 200px"></video>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </td>
+                        <td style="word-wrap: break-word">
+                            <div style="width:390px;">
+                                {{ $post['caption'] }}
+                            </div>
+                        </td>
+                        <td>{{ $post['like_count'] }}</td>
+                        <td>{{ $post['comment_count'] }}</td>
+                        <td>{{ $post['created_at'] }}</td>
                         <td style="width: 600px;">
-                            @if ($post->comments()->count())
+                            @if ($post['comments'])
                                 <table class="table">
                                     <tr>
-                                        <th>S.N</th>
                                         <th>Username</th>
-                                        <th>Comment</th>
+                                        <th style="width: 350px">Comment</th>
                                         <th>Commented On</th>
                                         <th>Action</th>
                                     </tr>
-                                    @foreach($post->comments as $keyy=>$comment)
-                                        <tr>
-                                            <td>{{ $keyy+1 }}</td>
-                                            <td><a href="https://instagram.com/{{$comment->username}}">{{$comment->username}}</a></td>
-                                            <td>{{$comment->comment}}</td>
-                                            <td>{{$comment->date_commented}}</td>
-                                            <td>
-                                                <form method="post" action="{{ action('HashtagPostCommentController@destroy', $comment->id) }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                    <tbody id="comments-{{$post['media_id']}}">
+                                        @foreach($post['comments'] as $keyy=>$comment)
+                                            <tr>
+                                                <td><a href="https://instagram.com/{{$comment['user']['username']}}">{{$comment['user']['username']}}</a></td>
+                                                <td style="word-wrap: break-word;word-break: break-all">{{$comment['text']}}</td>
+                                                <td>{{\Carbon\Carbon::createFromTimestamp($comment['created_at'])->diffForHumans()}}</td>
+                                                <td>
+                                                    <form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="code" value="{{$post['code']}}"> <input type="hidden" name="date" value="{{ \Carbon\Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString() }}"> <input type="hidden" name="post" value="{{ $post['caption'] }}"><input type="hidden" name="comment" value="{{ $comment['text'] }}"><input type="hidden" name="poster" value="{{ $post['username'] }}"><input type="hidden" name="commenter" value="{{ $comment['user']['username'] }}"><input type="hidden" name="media_id" value="{{ $post['media_id'] }}"><button class="btn btn-sm btn-success"><i class="fa fa-check"></i></button></form>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center" class="load-more-{{$post['media_id']}}">
+                                            <button data-post-code="{{ $post['code'] }}" class="btn btn-sm load-comment" id="load-more-{{$post['media_id']}}" data-media-id="{{$post['media_id']}}"> Load More...</button>
+                                        </td>
+                                    </tr>
                                 </table>
                             @else
                                 <strong>N/A</strong>
                             @endif
-                        </td>
-                        <td>
-                            <form method="post" action="{{ action('HashtagPostsController@destroy', $post->id) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </form>
                         </td>
                     </tr>
                 @endforeach
@@ -79,7 +92,7 @@
 @endsection
 
 @section('styles')
-    <link rel="stylesheet" href="{{ asset('css/media-card.css') }}">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 @endsection
 
 @section('scripts')
@@ -94,7 +107,30 @@
             $('.card-reveal .close').on('click',function(){
                 $(this).parent().slideToggle('slow');
             });
-
         });
+
+        $(document).on('click', '.load-comment', function() {
+            let mediaId = $(this).attr('data-media-id');
+            let postCode = $(this).attr('data-post-code');
+            $.ajax({
+                url: '{{ action('HashtagController@loadComments', '') }}'+'/'+mediaId,
+                success: function(response) {
+                    let comments = response.comments;
+                    if (response.has_more_comments==false) {
+                        $('.load-more-'+mediaId).hide();
+                    }
+                    $('#comments-'+mediaId).html('');
+                    comments.forEach(function(comment) {
+                        let form = '<form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="date" value="'+comment.created_at_time+'"><input type="hidden" name="code" value="'+postCode+'"><input type="hidden" name="post" value="'+response.caption.text+'"><input type="hidden" name="comment" value="'+comment.text+'"><input type="hidden" name="poster" value="'+response.caption.user.username+'"><input type="hidden" name="commenter" value="'+comment.user.username+'"><input type="hidden" name="media_id" value="'+mediaId+'"><button class="btn btn-sm btn-success"><i class="fa fa-check"></i></button></form>';
+                        let data = '<tr><td>'+comment.user.username+'</td><td>'+comment.text+'</td><td>'+comment.created_at+'</td><td>'+form+'</td></tr>';
+                        $('#comments-'+mediaId).append(data);
+                    });
+                }
+            });
+        });
+
+        function loadComments(postId) {
+
+        }
     </script>
 @endsection
