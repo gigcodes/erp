@@ -208,13 +208,13 @@ class CustomerController extends Controller
         if ($request->type == 'unread') {
           $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
 
-          $customers = $customers->orderBy('is_priority', 'DESC')->orderBy('is_flagged', 'DESC')->orderBy('message_status', 'ASC')->orderBy('last_communicated_at', $orderby);
+          $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('message_status', 'ASC')->orderBy('last_communicated_at', $orderby);
         } else {
           $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
         }
 
         if ($request->type != 'unread' && $sortby === 'communication') {
-            $customers = $customers->orderBy('is_priority', 'DESC')->orderBy('is_flagged', 'DESC')->orderBy('last_communicated_at', $orderby);
+            $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('last_communicated_at', $orderby);
         }
 
         $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
