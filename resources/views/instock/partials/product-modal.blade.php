@@ -88,6 +88,18 @@
           @endif
         </div>
 
+        <div class="form-group">
+          <strong>Location:</strong>
+
+          <select class="form-control" name="location">
+            <option value="">Select Location</option>
+
+            @foreach ($locations as $location)
+              <option value="{{ $location }}">{{ $location }}</option>
+            @endforeach
+          </select>
+        </div>
+
         {{-- <div class="form-group">
             <strong>Size:</strong>
             <input type="text" class="form-control" name="size" placeholder="Size"
