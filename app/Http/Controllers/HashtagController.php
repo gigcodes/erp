@@ -2,11 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\HashTag;
+use App\Services\Instagram\Hashtags;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use InstagramAPI\Instagram;
+use InstagramAPI\Signatures;
+
+Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class HashtagController extends Controller
 {
+
+    private $maxId;
     /**
      * Display a listing of the resource.
      *
@@ -43,6 +52,7 @@ class HashtagController extends Controller
 
         $hashtag = new HashTag();
         $hashtag->hashtag = $request->get('name');
+        $hashtag->rating = $request->get('rating');
         $hashtag->save();
 
         return redirect()->back()->with('message', 'Hashtag created successfully!');
@@ -66,9 +76,24 @@ class HashtagController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($hashtag, Request $request)
     {
-        //
+        $maxId = '';
+        if ($request->has('maxId')) {
+            $maxId = $request->get('maxId');
+        }
+
+        $hashtags = new Hashtags();
+        $hashtags->login();
+
+        [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
+        $media_count = $hashtags->getMediaCount($hashtag);
+        $relatedHashtags = $hashtags->getRelatedHashtags($hashtag);
+
+        $accounts = Account::all();
+
+        return view('instagram.hashtags.grid2', compact('medias', 'media_count', 'relatedHashtags', 'hashtag', 'accounts', 'maxId'));
+
     }
 
     /**
@@ -91,16 +116,61 @@ class HashtagController extends Controller
      */
     public function destroy($id)
     {
-        $hash = HashTag::findOrFail($id);
-        $hash->delete();
+
+        if (is_numeric($id)) {
+            $hash = HashTag::findOrFail($id);
+            $hash->delete();
+        } else {
+            HashTag::where('hashtag', $id)->delete();
+        }
+
 
         return redirect()->back()->with('message', 'Hashtag has been deleted successfuly!');
     }
 
-    public function showGrid($id) {
-        $hashtag = HashTag::findOrFail($id);
+    public function showGrid($id, Request $request)
+    {
+        $maxId = '';
 
-        return view('instagram.hashtags.grid', compact('hashtag'));
+        if ($request->has('maxId'))  {
+            $maxId = $request->get('maxId');
+        }
+
+        $txt = $id;
+        if (is_numeric($id)) {
+            $hashtag = HashTag::findOrFail($id);
+            $txt = $hashtag->hashtag;
+        }
+
+        $hashtag = $txt;
+        $hashtags = new Hashtags();
+        $hashtags->login();
+
+        [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
+        $media_count = $hashtags->getMediaCount($hashtag);
+        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId'));
+    }
+
+    public function loadComments($mediaId) {
+        $instagram = new Instagram();
+        $instagram->login('rishabh.aryal', 'R1shabh@123');
+        $token = Signatures::generateUUID();
+
+        $comments = $instagram->media->getComments($mediaId)->asArray();
+
+        $comments['comments'] = array_map(function($comment) {
+            $c = $comment['created_at'];
+            $comment['created_at'] = Carbon::createFromTimestamp($comment['created_at'])->diffForHumans();
+            $comment['created_at_time'] = Carbon::createFromTimestamp($c)->toDateTimeString();
+            return $comment;
+        }, $comments['comments']);
+
+
+        return response()->json([
+            'comments' => $comments['comments'] ?? [],
+            'has_more_comments' => $comments['has_more_comments'] ?? false,
+            'caption' => $comments['caption']
+        ]);
     }
 
     public function sendHashtagsApi() {

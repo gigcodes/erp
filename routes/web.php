@@ -418,6 +418,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::resource('dailycashflow', 'DailyCashFlowController');
 
 	// Reviews Module
+    Route::post('review/createFromInstagramHashtag', 'ReviewController@createFromInstagramHashtag');
+    Route::get('review/instagram/reply', 'ReviewController@replyToPost');
 	Route::post('review/{id}/updateStatus', 'ReviewController@updateStatus');
 	Route::post('review/{id}/updateReview', 'ReviewController@updateReview');
 	Route::resource('review', 'ReviewController');
@@ -502,6 +504,9 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
  */
 
 Route::prefix('instagram')->group(function () {
+    Route::get('hashtag/post/comments/{mediaId}', 'HashtagController@loadComments');
+    Route::get('profiles/followers/{id}', 'InstagramProfileController@getFollowers');
+    Route::resource('profiles', 'InstagramProfileController');
     Route::get('posts', 'InstagramController@showPosts');
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
