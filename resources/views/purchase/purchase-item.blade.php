@@ -9,6 +9,7 @@
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Purchase Handler</a></th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Supplier Name</a></th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Order Status</a></th>
+      <th>Retail Price</th>
       <th>Sold Price</th>
       <th>Actual Price</th>
       <th>Net</th>
@@ -40,6 +41,14 @@
             <td>{{ $purchase['purchase_handler'] ? $users[$purchase['purchase_handler']] : 'nil' }}</td>
             <td>{{ $purchase['supplier'] }}</td>
             <td>{{ $purchase['status']}}</td>
+            <td>
+              @php $retail_price = 0; @endphp
+              @foreach ($purchase['products'] as $product)
+                @php $retail_price += $product['price'] @endphp
+              @endforeach
+
+              {{ $retail_price }}
+            </td>
             <td>
               @php $sold_price = 0; @endphp
               @foreach ($purchase['products'] as $product)

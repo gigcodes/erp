@@ -10,6 +10,8 @@ use App\User;
 use App\Helpers;
 use App\ReadOnly\SoloNumbers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SupplierController extends Controller
 {
@@ -20,8 +22,34 @@ class SupplierController extends Controller
      */
     public function index()
     {
-      $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
+      // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
       $solo_numbers = (new SoloNumbers)->all();
+
+      $suppliers = DB::select('
+									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.address, suppliers.social_handle, suppliers.gst,
+                  (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+                  (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
+                  (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
+                  (SELECT mm4.created_at FROM purchases mm4 WHERE mm4.id = purchase_id) as purchase_created_at
+
+                  FROM (SELECT * FROM suppliers
+
+                  LEFT JOIN (SELECT MAX(id) as message_id, supplier_id, message, MAX(created_at) as message_created_At FROM chat_messages GROUP BY supplier_id ORDER BY created_at DESC) AS chat_messages
+                  ON suppliers.id = chat_messages.supplier_id
+
+                  LEFT JOIN (SELECT MAX(id) as purchase_id, supplier_id as purchase_supplier_id, created_at AS purchase_created_at FROM purchases GROUP BY purchase_supplier_id ORDER BY created_at DESC) AS purchases
+                  ON suppliers.id = purchases.purchase_supplier_id)
+
+                  AS suppliers ORDER BY purchase_created_at DESC, message_created_at DESC;
+							');
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		$perPage = Setting::get('pagination');
+  		$currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
+
+  		$suppliers = new LengthAwarePaginator($currentItems, count($suppliers), $perPage, $currentPage, [
+  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		]);
 
       return view('suppliers.index', [
         'suppliers' => $suppliers,
