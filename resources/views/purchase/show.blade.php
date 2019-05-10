@@ -7,12 +7,14 @@
 
 @section('content')
 
+<div class="row">
+  <div class="col-xs-12">
+    <h2 class="page-heading">Purchase Bulk Order</h2>
+  </div>
+</div>
 
 <div class="row">
-  <div class="col-lg-12 margin-tb">
-    <div class="pull-left">
-      <h2>Purchase Bulk Order</h2>
-    </div>
+  <div class="col-xs-12">
     <div class="pull-right">
       <a class="btn btn-secondary" href="{{ route('purchase.index') }}">Back</a>
     </div>
@@ -34,8 +36,7 @@
     </div>
 
     <div class="form-group">
-      <strong>Supplier:</strong>
-      <select class="form-control" name="supplier">
+      <select class="form-control input-sm" name="supplier">
         <option value="">Select Supplier</option>
         @foreach ($suppliers as $supplier)
           <option value="{{ $supplier->id }}" {{ $order->supplier_id == $supplier->id ? 'selected' : '' }}>{{ $supplier->supplier }}</option>
@@ -44,9 +45,8 @@
     </div>
 
     @if ($order->purchase_supplier)
-      <strong>Agent</strong>
       <div class="form-group">
-        <select class="form-control" name="agent_id">
+        <select class="form-control input-sm" name="agent_id">
           <option value="">Select an Agent</option>
           @foreach ($order->purchase_supplier->agents as $agent)
             <option value="{{ $agent->id }}" {{ $order->agent_id == $agent->id ? 'selected' : '' }}>{{ $agent->name }}</option>
@@ -56,8 +56,6 @@
     @endif
 
     <div class="form-group">
-      <strong>Status:</strong>
-
       @if (count($order->status_changes) > 0)
         <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
 
@@ -72,7 +70,7 @@
         </div>
       @endif
 
-      <Select name="status" class="form-control" id="change_status">
+      <Select name="status" class="form-control input-sm" id="change_status">
            @foreach($purchase_status as $key => $value)
             <option value="{{$value}}" {{$value == $order->status ? 'Selected=Selected':''}}>{{$key}}</option>
             @endforeach
@@ -80,46 +78,52 @@
       <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
     </div>
 
-    {{-- @if (isset($order->status) && $order->status != 'Ordered') --}}
-      <div class="form-group" id="bill-wrapper" style="display: {{ (isset($order->status) && $order->status != 'Ordered') ? 'block' : 'none' }}">
-        <strong>Bill number:</strong>
-        <input type="text" name="bill_number" class="form-control" value="{{ $order->bill_number }}">
+    @if ($order->status == 'Purchased' || $order->transaction_id != '')
+      <div class="form-group">
+        <input type="text" class="form-control input-sm" name="transaction_id" placeholder="Transaction ID" value="{{ $order->transaction_id }}">
       </div>
-    {{-- @endif --}}
 
-    {{-- @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status );
-    @endphp
+      <div class="form-group">
+        <div class='input-group date' id='transaction-datetime'>
+          <input type='text' class="form-control input-sm" name="transaction_date" placeholder="Transaction Date" value="{{ $order->transaction_date }}" />
 
-    <div class="form-group">
-      <strong>status:</strong>
-      <Select name="status" class="form-control" id="change_status">
-        @foreach($order_statuses as $key => $value)
-        <option value="{{$value}}" {{$value == $status ? 'Selected=Selected':''}}>{{$key}}</option>
-        @endforeach
-      </Select>
-      <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
-    </div> --}}
-    <div class="form-group">
-      <strong>Supplier Phone:</strong>
-      <input type="number" name="supplier_phone" class="form-control" value="{{ $order->supplier_phone }}">
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <input type="number" class="form-control input-sm" placeholder="Transaction Amount" name="transaction_amount" value="{{ $order->transaction_amount }}">
+      </div>
+    @endif
+
+    <div class="form-group" id="bill-wrapper" style="display: {{ (isset($order->status) && $order->status != 'Ordered') ? 'block' : 'none' }}">
+      <input type="text" name="bill_number" class="form-control input-sm" placeholder="Bill Number" value="{{ $order->bill_number }}">
     </div>
 
     <div class="form-group">
-        <strong>Solo Phone:</strong>
-     <Select name="whatsapp_number" class="form-control">
-               <option value>None</option>
-                <option value="919167152579" {{'919167152579' == $order->whatsapp_number ? 'Selected=Selected':''}}>00</option>
-                <option value="918291920452" {{'918291920452'== $order->whatsapp_number ? 'Selected=Selected':''}}>02</option>
-                <option value="918291920455" {{'918291920455'== $order->whatsapp_number ? 'Selected=Selected':''}}>03</option>
-                <option value="919152731483" {{'919152731483'== $order->whatsapp_number ? 'Selected=Selected':''}}>04</option>
-                <option value="919152731484" {{'919152731484'== $order->whatsapp_number ? 'Selected=Selected':''}}>05</option>
-                <option value="919152731486" {{'919152731486'== $order->whatsapp_number ? 'Selected=Selected':''}}>06</option>
-                <option value="918291352520" {{'918291352520'== $order->whatsapp_number ? 'Selected=Selected':''}}>08</option>
-                <option value="919004008983" {{'919004008983'== $order->whatsapp_number ? 'Selected=Selected':''}}>09</option>
-        </Select>
+      <input type="text" class="form-control input-sm" placeholder="Shipper" name="shipper" value="{{ $order->shipper }}">
+    </div>
+
+    <div class="form-group">
+      <input type="number" class="form-control input-sm" placeholder="Shipment Cost" name="shipment_cost" value="{{ $order->shipment_cost }}">
+    </div>
+
+    <div class="form-group">
+      <input type="text" class="form-control input-sm" placeholder="Shipment Status" name="shipment_status" value="{{ $order->shipment_status }}">
     </div>
 
     @if ($order->files)
+      <div class="form-group">
+        @if ($order->proforma_confirmed == 1)
+          <span class="badge">Proformo Confirmed</span>
+        @else
+          <button type="button" class="btn btn-xs btn-secondary" id="confirmProformaButton">Confirm Proforma</button>
+          <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
+        @endif
+      </div>
+
       <div class="form-group">
         <strong>Uploaded Files:</strong>
         <ul>
@@ -164,6 +168,7 @@
       </ul>
     </div>
   </div>
+
   <div class="col-md-6 col-12">
     <div class="row">
       <div class="col">
@@ -176,6 +181,7 @@
         </div>
       </div>
     </div>
+
     <div class="row">
       @foreach ($order->products as $product)
         <div class="col-md-4">
@@ -185,6 +191,13 @@
 
           <a href="{{ route('attachImages', ['purchase-replace', $product->id]) }}" class="btn btn-xs btn-secondary mt-2">Replace</a>
           <a href="#" class="btn btn-xs btn-secondary mt-2 replace-product-button" data-id="{{ $product->id }}" data-toggle="modal" data-target="#createProductModal">Create & Replace</a>
+
+          <form action="{{ route('purchase.product.remove', $product->id) }}" method="POST">
+            @csrf
+            <input type="hidden" name="purchase_id" value="{{ $order->id }}">
+
+            <button type="submit" class="btn btn-xs btn-secondary mt-2">Remove</button>
+          </form>
         </div>
       @endforeach
     </div>
@@ -472,196 +485,7 @@
     @endif
   </div>
 
-  <div id="exTab2" class="container">
-    <ul class="nav nav-tabs">
-      <li class="active">
-        <a href="#messages_tab" data-toggle="tab">Messages</a>
-      </li>
-      <li>
-        <a href="#emails_tab" data-toggle="tab" data-purchaseid="{{ $order->id }}" data-type="inbox">Emails</a>
-      </li>
-    </duv>
-  </div>
 
-  <div class="tab-content ">
-    <div class="tab-pane active mt-3" id="messages_tab">
-      <div class="row mt-5">
-        <div class="col-xs-12 col-sm-6">
-          <form action="{{ route('whatsapp.send', 'purchase') }}" method="POST" enctype="multipart/form-data">
-            <div class="d-flex">
-              @csrf
-
-              <div class="form-group">
-                <div class="upload-btn-wrapper btn-group">
-                  <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-                </div>
-              </div>
-
-              <div class="form-group flex-fill mr-3">
-                <textarea  class="form-control mb-3" style="height: 110px;" name="body" placeholder="Received from Supplier"></textarea>
-                <input type="hidden" name="status" value="0" />
-              </div>
-
-              <div class="form-group">
-                <input type="file" class="dropify" name="image" data-height="100" />
-              </div>
-            </div>
-           </form>
-         </div>
-
-         {{-- @include('customers.partials.modal-suggestion') --}}
-
-         <div class="col-xs-12 col-sm-6">
-           <form action="{{ route('whatsapp.send', 'purchase') }}" method="POST" enctype="multipart/form-data">
-             <div id="paste-container" style="width: 200px;">
-
-             </div>
-
-             <div class="d-flex">
-               @csrf
-
-               <div class="form-group">
-                 <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-                   {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
-                   {{-- <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal">X</button> --}}
-                   <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-                 </div>
-               </div>
-
-               <div class="form-group flex-fill mr-3">
-                 <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
-
-                 <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
-                 <input type="hidden" name="status" value="1" />
-
-                 <div class="paste-container"></div>
-
-                 <p class="pb-4 mt-3" style="display: block;">
-                   <select name="quickCategory" id="quickCategory" class="form-control mb-3">
-                     <option value="">Select Category</option>
-                     @foreach($reply_categories as $category)
-                       <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                     @endforeach
-                   </select>
-
-                   <select name="quickComment" id="quickComment" class="form-control">
-                     <option value="">Quick Reply</option>
-                   </select>
-                 </p>
-               </div>
-
-               <div class="form-group">
-                 <input type="file" class="dropify" name="image" data-height="100" />
-                 <button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
-               </div>
-             </div>
-
-
-           </form>
-         </div>
-
-         <hr>
-
-         @include('customers.partials.modal-reply')
-
-         <div class="col-xs-12 col-sm-6 mt-3">
-           <form action="{{ route('whatsapp.send', 'purchase') }}" method="POST" enctype="multipart/form-data">
-             <div class="d-flex">
-               @csrf
-
-               <div class="form-group">
-                 <div class="upload-btn-wrapper btn-group">
-                   <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-                 </div>
-               </div>
-
-               <div class="form-group flex-fill mr-3">
-                 <textarea class="form-control mb-3" style="height: 110px;" name="body" placeholder="Internal Communications" id="internal-message-body"></textarea>
-
-                 <input type="hidden" name="status" value="4" />
-
-                 <p class="pb-4" style="display: block;">
-                   <select name="quickCategoryInternal" id="quickCategoryInternal" class="form-control mb-3">
-                     <option value="">Select Category</option>
-                     @foreach($reply_categories as $category)
-                         <option value="{{ $category->internal_leads }}">{{ $category->name }}</option>
-                     @endforeach
-                   </select>
-
-                   <select name="quickCommentInternal" id="quickCommentInternal" class="form-control">
-                     <option value="">Quick Reply</option>
-                   </select>
-                 </p>
-               </div>
-
-               <div class="form-group">
-                 <input type="file" class="dropify" name="image" data-height="100" />
-
-                 <strong class="mt-3">Assign to</strong>
-                 <select name="assigned_to" class="form-control mb-3" required>
-                   <option value="">Select User</option>
-                   @foreach($users_array as $id => $user)
-                     <option value="{{ $id }}">{{ $user }}</option>
-                   @endforeach
-                 </select>
-
-                 <button type="button" class="btn btn-xs btn-secondary mb-3" data-toggle="modal" data-target="#ReplyModal" id="internal_reply">Create Quick Reply</button>
-               </div>
-             </div>
-
-           </form>
-         </div>
-
-        {{-- <div class="col-xs-12 col-sm-6 mt-3">
-          <div class="d-flex">
-            <div class="form-group">
-              <a href="{{ route('attachImages', ['customer', $customer->id, 9, 9]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
-              <button id="waMessageSend" class="btn btn-sm btn-image"><img src="/images/filled-sent.png" /></button>
-            </div>
-
-            <div class="form-group flex-fill mr-3">
-              <textarea id="waNewMessage" class="form-control mb-3" style="height: 110px;" placeholder="Whatsapp message"></textarea>
-            </div>
-
-            <div class="form-group">
-              <input type="file" id="waMessageMedia" class="dropify" name="image" data-height="100" />
-            </div>
-          </div>
-
-        </div> --}}
-      </div>
-
-      <div class="row">
-        <h3>Messages</h3>
-
-        <div class="col-xs-12" id="message-container"></div>
-      </div>
-
-      <div class="col-xs-12 text-center">
-        <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
-      </div>
-    </div>
-
-    <div class="tab-pane mt-3" id="emails_tab">
-      <div id="exTab3" class="container mb-3">
-        <ul class="nav nav-tabs">
-          <li class="active">
-            <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-purchaseid="{{ $order->id }}" data-type="inbox">Inbox</a>
-          </li>
-          <li>
-            <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-purchaseid="{{ $order->id }}" data-type="sent">Sent</a>
-          </li>
-          <li class="nav-item ml-auto">
-            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#emailSendModal"><img src="{{ asset('images/filled-sent.png') }}" /></button>
-          </li>
-        </ul>
-      </div>
-
-      <div id="email-container">
-        @include('purchase.partials.email')
-      </div>
-    </div>
-  </div>
 
   @include('purchase.partials.modal-email')
   @include('purchase.partials.modal-recipient')
@@ -894,7 +718,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
 
   <script type="text/javascript">
-    $('#completion-datetime').datetimepicker({
+    $('#completion-datetime, #transaction-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
 
@@ -2212,6 +2036,35 @@
       });
     });
 
+    $('#confirmProformaButton').on('click', function() {
+      var token = "{{ csrf_token() }}";
+      var id = {{ $order->id }};
+      var thiss = $(this);
+
+      $.ajax({
+        url: '/purchase/' + id + '/confirmProforma',
+        type: 'POST',
+        data: {
+          _token: token,
+        },
+        beforeSend: function() {
+          $(thiss).text('Confirming...');
+        }
+      }).done( function(response) {
+        $(thiss).parent('div').append('<span class="badge">Proforma Confirmed</span>');
+        $(thiss).remove();
+
+        $(thiss).siblings('.change_status_message').fadeIn(400);
+        setTimeout(function () {
+          $(thiss).siblings('.change_status_message').fadeOut(400);
+        }, 2000);
+      }).fail(function(response) {
+        $(thiss).text('Confirm Proforma');
+        console.log(response);
+        alert("Could not confirm proforma!");
+      });
+    });
+
     $(document).on('click', '.save-bill', function(e) {
       e.preventDefault();
 
@@ -2221,7 +2074,13 @@
       var token = "{{ csrf_token() }}";
       var supplier = $('select[name="supplier"]').val();
       var agent_id = $('select[name="agent_id"]').val();
+      var transaction_id = $('input[name="transaction_id"]').val();
+      var transaction_date = $('input[name="transaction_date"]').val();
+      var transaction_amount = $('input[name="transaction_amount"]').val();
       var bill_number = $('input[name="bill_number"]').val();
+      var shipper = $('input[name="shipper"]').val();
+      var shipment_cost = $('input[name="shipment_cost"]').val();
+      var shipment_status = $('input[name="shipment_status"]').val();
       var supplier_phone = $('input[name="supplier_phone"]').val();
       var whatsapp_number = $('select[name="whatsapp_number"]').val();
       var files = $("#uploaded_files").prop("files");
@@ -2237,6 +2096,12 @@
       data.append("bill_number", bill_number);
       data.append("supplier", supplier);
       data.append("agent_id", agent_id);
+      data.append("transaction_id", transaction_id);
+      data.append("transaction_date", transaction_date);
+      data.append("transaction_amount", transaction_amount);
+      data.append("shipper", shipper);
+      data.append("shipment_cost", shipment_cost);
+      data.append("shipment_status", shipment_status);
       data.append("supplier_phone", supplier_phone);
       data.append("whatsapp_number", whatsapp_number);
 

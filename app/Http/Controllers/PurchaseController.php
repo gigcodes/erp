@@ -225,7 +225,7 @@ class PurchaseController extends Controller
           //   $q->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
           // })
           ->get();
-          dd($orders);
+          // dd($orders);
         }
       }
 
@@ -439,6 +439,12 @@ class PurchaseController extends Controller
 
       Email::create($params);
 
+      foreach ($selected_purchases as $purchase_id) {
+        $purchase = Purchase::find($purchase_id);
+        $purchase->status = 'In Negotiation';
+        $purchase->save();
+      }
+
       return Storage::disk('files')->download($path);
 
       // return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
@@ -544,6 +550,16 @@ class PurchaseController extends Controller
       }
 
       return redirect()->route('purchase.index')->with('success', 'You have successfully replaced product!');
+    }
+
+    public function productRemove(Request $request, $id)
+    {
+      $product = Product::find($id);
+      $purchase = Purchase::find($request->purchase_id);
+
+      $purchase->products()->detach($product);
+
+      return redirect()->route('purchase.show', $request->purchase_id)->with('success', 'You have successfully removed product!');
     }
 
     public function productCreateReplace(Request $request)
@@ -668,6 +684,8 @@ class PurchaseController extends Controller
       $product->percentage = $request->percentage;
       $product->factor = $request->factor;
       $product->save();
+
+      return response('success');
     }
 
     public function saveBill(Request $request, $id)
@@ -675,7 +693,13 @@ class PurchaseController extends Controller
       $purchase = Purchase::find($id);
       $purchase->supplier_id = $request->supplier;
       $purchase->agent_id = $request->agent_id;
+      $purchase->transaction_id = $request->transaction_id;
+      $purchase->transaction_date = $request->transaction_date;
+      $purchase->transaction_amount = $request->transaction_amount;
       $purchase->bill_number = $request->bill_number;
+      $purchase->shipper = $request->shipper;
+      $purchase->shipment_cost = $request->shipment_cost;
+      $purchase->shipment_status = $request->shipment_status;
       $purchase->supplier_phone = $request->supplier_phone;
       $purchase->whatsapp_number = $request->whatsapp_number;
       $purchase->save();
@@ -699,6 +723,16 @@ class PurchaseController extends Controller
       }
 
       return response()->json(['data' => $request->all()]);
+    }
+
+    public function confirmProforma(Request $request, $id)
+    {
+      $purchase = Purchase::find($id);
+
+      $purchase->proforma_confirmed = 1;
+      $purchase->save();
+
+      return response('success');
     }
 
     /**
@@ -771,7 +805,7 @@ class PurchaseController extends Controller
 
       $imap->connect();
 
-      $purchase = Purchase::find($request->purchase_id);
+      $supplier = Supplier::find($request->supplier_id);
 
       if ($request->type == 'inbox') {
         $inbox_name = 'INBOX';
@@ -783,9 +817,9 @@ class PurchaseController extends Controller
 
       $inbox = $imap->getFolder($inbox_name);
 
-      if ($purchase->purchase_supplier->agents) {
-        if ($purchase->purchase_supplier->agents()->count() > 1) {
-          foreach ($purchase->purchase_supplier->agents as $key => $agent) {
+      if ($supplier->agents) {
+        if ($supplier->agents()->count() > 1) {
+          foreach ($supplier->agents as $key => $agent) {
             if ($key == 0) {
               $emails = $inbox->messages()->where($direction, $agent->email);
               $emails = $emails->setFetchFlags(false)
@@ -800,8 +834,8 @@ class PurchaseController extends Controller
               $emails = $emails->merge($additional);
             }
           }
-        } else if ($purchase->purchase_supplier->agents()->count() == 1) {
-          $emails = $inbox->messages()->where($direction, $purchase->purchase_supplier->agents[0]->email);
+        } else if ($supplier->agents()->count() == 1) {
+          $emails = $inbox->messages()->where($direction, $supplier->agents[0]->email);
           $emails = $emails->setFetchFlags(false)
                           ->setFetchBody(false)
                           ->setFetchAttachment(false)->leaveUnread()->get();
@@ -813,6 +847,36 @@ class PurchaseController extends Controller
         }
       }
 
+      // if ($purchase->purchase_supplier->agents) {
+      //   if ($purchase->purchase_supplier->agents()->count() > 1) {
+      //     foreach ($purchase->purchase_supplier->agents as $key => $agent) {
+      //       if ($key == 0) {
+      //         $emails = $inbox->messages()->where($direction, $agent->email);
+      //         $emails = $emails->setFetchFlags(false)
+      //                         ->setFetchBody(false)
+      //                         ->setFetchAttachment(false)->leaveUnread()->get();
+      //       } else {
+      //         $additional = $inbox->messages()->where($direction, $agent->email);
+      //         $additional = $additional->setFetchFlags(false)
+      //                         ->setFetchBody(false)
+      //                         ->setFetchAttachment(false)->leaveUnread()->get();
+      //
+      //         $emails = $emails->merge($additional);
+      //       }
+      //     }
+      //   } else if ($purchase->purchase_supplier->agents()->count() == 1) {
+      //     $emails = $inbox->messages()->where($direction, $purchase->purchase_supplier->agents[0]->email);
+      //     $emails = $emails->setFetchFlags(false)
+      //                     ->setFetchBody(false)
+      //                     ->setFetchAttachment(false)->leaveUnread()->get();
+      //   } else {
+      //     $emails = $inbox->messages()->where($direction, 'nonexisting@email.com');
+      //     $emails = $emails->setFetchFlags(false)
+      //                     ->setFetchBody(false)
+      //                     ->setFetchAttachment(false)->leaveUnread()->get();
+      //   }
+      // }
+
       $emails_array = [];
       $count = 0;
 
@@ -821,12 +885,12 @@ class PurchaseController extends Controller
         $emails_array[$key]['subject'] = $email->getSubject();
         $emails_array[$key]['date'] = $email->getDate();
         $emails_array[$key]['from'] = $email->getFrom()[0]->mail;
-        
+
         $count++;
       }
 
       if ($request->type != 'inbox') {
-        $db_emails = $purchase->emails;
+        $db_emails = $supplier->emails;
 
         foreach ($db_emails as $key2 => $email) {
           $emails_array[$count + $key2]['id'] = $email->id;
@@ -947,22 +1011,22 @@ class PurchaseController extends Controller
         'message' => 'required'
       ]);
 
-      $purchase = Purchase::find($request->purchase_id);
+      $supplier = Supplier::find($request->supplier_id);
 
-      if ($purchase->agent) {
+      if ($supplier->default_email != '') {
         // Backup your default mailer
-        $backup = Mail::getSwiftMailer();
-
-        // Setup your gmail mailer
-        $transport = new \Swift_SmtpTransport('c45729.sgvps.net', 465, 'ssl');
-        $transport->setUsername('buying@amourint.com');
-        $transport->setPassword('Buy@123');
-        // Any other mailer configuration stuff needed...
-
-        $gmail = new \Swift_Mailer($transport);
-
-        // Set the mailer as gmail
-        Mail::setSwiftMailer($gmail);
+        // $backup = Mail::getSwiftMailer();
+        //
+        // // Setup your gmail mailer
+        // $transport = new \Swift_SmtpTransport('c45729.sgvps.net', 465, 'ssl');
+        // $transport->setUsername('buying@amourint.com');
+        // $transport->setPassword('Cust123!@#');
+        // // Any other mailer configuration stuff needed...
+        //
+        // $gmail = new \Swift_Mailer($transport);
+        //
+        // // Set the mailer as gmail
+        // Mail::setSwiftMailer($gmail);
         // Send your message
 
         $file_paths = [];
@@ -978,15 +1042,15 @@ class PurchaseController extends Controller
         }
 
         // Restore your original mailer
-        Mail::to($purchase->agent->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        Mail::to($supplier->default_email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
-        Mail::setSwiftMailer($backup);
+        // Mail::setSwiftMailer($backup);
 
         $params = [
-          'model_id'        => $purchase->id,
-          'model_type'      => Purchase::class,
+          'model_id'        => $supplier->id,
+          'model_type'      => Supplier::class,
           'from'            => 'customercare@sololuxury.co.in',
-          'to'              => $purchase->agent->email,
+          'to'              => $supplier->default_email,
           'subject'         => $request->subject,
           'message'         => $request->message,
           'template'				=> 'customer-simple',
@@ -995,7 +1059,7 @@ class PurchaseController extends Controller
 
         Email::create($params);
 
-        return redirect()->route('purchase.show', $purchase->id)->withSuccess('You have successfully sent an email!');
+        return redirect()->route('supplier.show', $supplier->id)->withSuccess('You have successfully sent an email!');
       }
 
       return redirect()->route('purchase.show', $purchase->id)->withError('Please select an Agent first');

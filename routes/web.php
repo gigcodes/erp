@@ -234,6 +234,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/{id}/changestatus', 'PurchaseController@updateStatus');
 	Route::post('purchase/{id}/saveBill', 'PurchaseController@saveBill');
 	Route::post('purchase/{id}/downloadFile', 'PurchaseController@downloadFile')->name('purchase.file.download');
+	Route::post('purchase/{id}/confirmProforma', 'PurchaseController@confirmProforma')->name('purchase.confirm.Proforma');
 	Route::get('purchase/download/attachments', 'PurchaseController@downloadAttachments')->name('purchase.download.attachments');
 	Route::delete('purchase/{id}/delete', 'PurchaseController@destroy')->name('purchase.destroy');
 	Route::delete('purchase/{id}/permanentDelete', 'PurchaseController@permanentDelete')->name('purchase.permanentDelete');
@@ -243,6 +244,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/product/create/replace', 'PurchaseController@productCreateReplace')->name('purchase.product.create.replace');
 	Route::get('purchase/product/{id}', 'PurchaseController@productShow')->name('purchase.product.show');
 	Route::post('purchase/product/{id}', 'PurchaseController@updatePercentage')->name('purchase.product.percentage');
+	Route::post('purchase/product/{id}/remove', 'PurchaseController@productRemove')->name('purchase.product.remove');
 	Route::get('purchase/email/inbox', 'PurchaseController@emailInbox')->name('purchase.email.inbox');
 	Route::get('purchase/email/fetch', 'PurchaseController@emailFetch')->name('purchase.email.fetch');
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');

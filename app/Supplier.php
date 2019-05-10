@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
   protected $fillable = [
-    'supplier', 'address', 'phone', 'email', 'social_handle', 'instagram_handle', 'website', 'gst'
+    'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst'
   ];
 
   public function agents()
@@ -19,4 +19,14 @@ class Supplier extends Model
 	{
 		return $this->belongsToMany('App\Product', 'product_suppliers', 'supplier_id', 'product_id');
 	}
+
+  public function purchases()
+  {
+    return $this->hasMany('App\Purchase');
+  }
+
+  public function emails()
+  {
+    return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Purchase')->orWhere('model_type', 'App\Supplier');
+  }
 }

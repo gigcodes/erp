@@ -12,6 +12,7 @@ use App\Customer;
 use App\Order;
 use App\Status;
 use App\Agent;
+use App\Supplier;
 use App\Setting;
 use App\User;
 use App\Brand;
@@ -39,15 +40,15 @@ class FindByNumberController extends Controller
 		return Order::where('contact_detail', '=', $number)->first();
 	}
 
-	protected function findPurchaseByNumber($number)
+	protected function findSupplierByNumber($number)
 	{
 		if ($agent = Agent::where('phone', $number)->first()) {
-			if ($agent->purchase) {
-				return $agent->purchase;
+			if ($agent->purchase && $agent->purchase->purchase_supplier) {
+				return $agent->purchase->purchase_supplier;
 			}
 		}
 
-		return Purchase::where('supplier_phone', '=', $number)->first();
+		return Supplier::where('phone', $number)->first();
 	}
 
 	protected function findUserByNumber($number)

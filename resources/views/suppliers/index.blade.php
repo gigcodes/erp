@@ -78,7 +78,10 @@
               </td>
               <td>{{ $supplier->gst }}</td>
               <td>
+                <a href="{{ route('supplier.show', $supplier->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+
                 <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button>
+
                 <button type="button" class="btn btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ $supplier }}"><img src="/images/edit.png" /></button>
 
                 {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
