@@ -34,18 +34,25 @@
                 <tr>
                     <th>S.N</th>
                     <th>Tag Name</th>
-                    <th>Number Of Posts</th>
+                    <th>Rating</th>
                     <th>Actions</th>
                 </tr>
                 @foreach($hashtags as $key=>$hashtag)
                     <tr>
                         <td>{{ $key+1 }}</td>
-                        <td>{{ $hashtag->hashtag }}</td>
-                        <td>{{ $hashtag->posts()->count() }}</td>
+                        <td>
+                            <a href="{{ action('HashtagController@showGrid',$hashtag->id) }}">
+                                {{ $hashtag->hashtag }}
+                            </a>
+                        </td>
+                        <td>{{ $hashtag->rating }}</td>
                         <td>
                             <form method="post" action="{{ action('HashtagController@destroy', $hashtag->id) }}">
                                 <a class="btn btn-info" href="{{ action('HashtagController@showGrid', $hashtag->id) }}">
                                     <i class="fa fa-eye"></i>
+                                </a>
+                                <a class="btn btn-info" href="{{ action('HashtagController@edit', $hashtag->hashtag) }}">
+                                    <i class="fa fa-info"></i>
                                 </a>
                                 @csrf
                                 @method('DELETE')

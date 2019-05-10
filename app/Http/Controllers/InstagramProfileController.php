@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\HashTag;
 use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
@@ -68,6 +69,59 @@ class InstagramProfileController extends Controller
         $followers = $instagram->people->getFollowers($id, $rankToken);
 
         dd($followers);
+
+    }
+
+    public function getPosts() {
+
+        $customers = Customer::where('instahandler', '!=', '')->where('rating', '>', 5)->orderBy('rating', 'DESC')->get(10);
+
+        $instagram = new Instagram();
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+        $rankToken = Signatures::generateUUID();
+
+        foreach ($customers as $customer) {
+            $id = $instagram->people->getUserIdForName($customers->instahandler);
+            $posts = $instagram->usertag->getUserFeed($id);
+
+            dd($posts);
+
+        }
+    }
+
+    public function edit($d) {
+
+
+        $customers = Customer::where('instahandler', '!=', '')->where('rating', '>', 5)->orderBy('rating', 'DESC')->get();
+
+        $instagram = new Instagram();
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+//        $rankToken = Signatures::generateUUID();
+
+        $captions = '';
+
+        foreach ($customers as $customer) {
+            try {
+                $id = $instagram->people->getUserIdForName($customer->instahandler);
+            } catch (\Exception $exception) {
+                continue;
+            }
+            $posts = $instagram->usertag->getUserFeed($id);
+
+            $posts = $posts->asArray()['items'];
+
+            foreach ($posts as $post) {
+                $captions .= ($post['caption']['text'] . ' ');
+            }
+        }
+
+        preg_match_all("/(#\w+)/", $captions, $matches);
+
+        $hashtags = $matches[0];
+
+        $hashlist = HashTag::get()->pluck('hashtag')->toArray();
+
+        return view('instagram.profile.hashtags', compact('hashtags', 'hashlist'));
 
     }
 }

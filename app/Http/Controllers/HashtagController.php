@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\HashTag;
+use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
@@ -12,6 +14,8 @@ Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class HashtagController extends Controller
 {
+
+    private $maxId;
     /**
      * Display a listing of the resource.
      *
@@ -48,6 +52,7 @@ class HashtagController extends Controller
 
         $hashtag = new HashTag();
         $hashtag->hashtag = $request->get('name');
+        $hashtag->rating = $request->get('rating');
         $hashtag->save();
 
         return redirect()->back()->with('message', 'Hashtag created successfully!');
@@ -71,9 +76,24 @@ class HashtagController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($hashtag, Request $request)
     {
-        //
+        $maxId = '';
+        if ($request->has('maxId')) {
+            $maxId = $request->get('maxId');
+        }
+
+        $hashtags = new Hashtags();
+        $hashtags->login();
+
+        [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
+        $media_count = $hashtags->getMediaCount($hashtag);
+        $relatedHashtags = $hashtags->getRelatedHashtags($hashtag);
+
+        $accounts = Account::all();
+
+        return view('instagram.hashtags.grid2', compact('medias', 'media_count', 'relatedHashtags', 'hashtag', 'accounts', 'maxId'));
+
     }
 
     /**
@@ -96,68 +116,39 @@ class HashtagController extends Controller
      */
     public function destroy($id)
     {
-        $hash = HashTag::findOrFail($id);
-        $hash->delete();
+
+        if (is_numeric($id)) {
+            $hash = HashTag::findOrFail($id);
+            $hash->delete();
+        } else {
+            HashTag::where('hashtag', $id)->delete();
+        }
+
 
         return redirect()->back()->with('message', 'Hashtag has been deleted successfuly!');
     }
 
-    public function showGrid($id) {
-        $hashtag = HashTag::findOrFail($id);
+    public function showGrid($id, Request $request)
+    {
+        $maxId = '';
 
-        $instagram = new Instagram();
-        $instagram->login('rishabh.aryal', 'R1shabh@123');
-        $token = Signatures::generateUUID();
-        $media = $instagram->hashtag->getFeed($hashtag->hashtag, $token);
+        if ($request->has('maxId'))  {
+            $maxId = $request->get('maxId');
+        }
 
-        $medias = $media->asArray()['items'];
+        $txt = $id;
+        if (is_numeric($id)) {
+            $hashtag = HashTag::findOrFail($id);
+            $txt = $hashtag->hashtag;
+        }
 
-        $medias = array_map(function($item) use ($instagram) {
+        $hashtag = $txt;
+        $hashtags = new Hashtags();
+        $hashtags->login();
 
-
-            if ($item['media_type'] === 1) {
-                $media = $item['image_versions2']['candidates'][1]['url'];
-            } else if ($item['media_type'] === 2) {
-                $media = $item['video_versions'][0]['url'];
-            } else if ($item['media_type'] === 8) {
-                $crousal = $item['carousel_media'];
-                $media = [];
-                foreach ($crousal as $cro) {
-                    if ($cro['media_type'] === 1) {
-                        $media[] = [
-                            'media_type' => 1,
-                            'url' => $cro['image_versions2']['candidates'][0]['url']
-                        ];
-                    } else if ($cro['media_type'] === 2) {
-                        $media[] = [
-                            'media_type' => 2,
-                            'url' => $cro['video_versions'][0]['url']
-                        ];
-                    }
-                }
-            }
-
-            $comments = [];
-
-            if (isset($item['comment_count']) && $item['comment_count']) {
-                $comments = $item['preview_comments'];
-            }
-
-            return [
-                'username' => $item['user']['username'],
-                'media_id' => $item['id'],
-                'code' => $item['code'],
-                'caption' => $item['caption']['text'],
-                'like_count' => $item['like_count'],
-                'comment_count' => $item['comment_count'] ?? '0',
-                'media_type' => $item['media_type'],
-                'media' => $media,
-                'comments' => $comments,
-                'created_at' => Carbon::createFromTimestamp($item['taken_at'])->diffForHumans(),
-            ];
-        }, $medias);
-
-        return view('instagram.hashtags.grid', compact('medias', 'hashtag'));
+        [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
+        $media_count = $hashtags->getMediaCount($hashtag);
+        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId'));
     }
 
     public function loadComments($mediaId) {

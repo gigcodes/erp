@@ -1201,6 +1201,7 @@
                                     <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap Activity</a>
                                     <a class="dropdown-item" href="{{ action('HashtagController@index') }}">HashTags</a>
                                     <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">CUSTOMER IG PROFILES</a>
+                                    <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags used by top customers</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scraped</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'G&B') }}">G&B Product</a>

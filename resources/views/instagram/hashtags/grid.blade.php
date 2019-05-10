@@ -3,7 +3,13 @@
 @section('large_content')
     <div class="row">
         <div class="col-md-12">
-            <h1>Grid For: {{ $hashtag->hashtag }}</h1>
+            <h1>Grid For: #{{ $hashtag }} ({{ $media_count }} Posts)</h1>
+        </div>
+        <div class="col-md-12 text-center">
+            @if ($maxId !== '' || $maxId = 'END')
+                <a class="btn btn-info mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}">FIRST PAGE</a>
+                <a class="btn btn-info mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
+            @endif
         </div>
         <div class="col-md-12">
             @if(Session::has('message'))
@@ -22,6 +28,7 @@
                     <th style="width: 400px;">Caption</th>
                     <th>Number of Likes</th>
                     <th>Number Of Comments</th>
+                    <th>Location</th>
                     <th>Created At</th>
                     <th>Comments</th>
                 </tr>
@@ -52,6 +59,7 @@
                         </td>
                         <td>{{ $post['like_count'] }}</td>
                         <td>{{ $post['comment_count'] }}</td>
+                        <td>{!! $post['location']['name'] . '<br>' . $post['location']['city']  !!}</td>
                         <td>{{ $post['created_at'] }}</td>
                         <td style="width: 600px;">
                             @if ($post['comments'])
@@ -87,6 +95,13 @@
                     </tr>
                 @endforeach
             </table>
+        </div>
+
+        <div class="col-md-12 text-center">
+            @if ($maxId !== '' || $maxId = 'END')
+                <a class="btn btn-info mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}">FIRST PAGE</a>
+                <a class="btn btn-info mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
+            @endif
         </div>
     </div>
 @endsection
