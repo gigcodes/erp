@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\MessageQueue;
 use App\Customer;
+use App\CronJobReport;
 use Carbon\Carbon;
 use App\Jobs\SendMessageToAll;
 use App\Jobs\SendMessageToSelected;
@@ -42,6 +43,11 @@ class RunMessageQueue extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now())->where('sent', 0)->where('status', '!=', 1)->orderBy('sending_time', 'ASC')->limit(20);
 
       if (count($message_queues->get()) > 0) {
@@ -56,7 +62,7 @@ class RunMessageQueue extends Command
               dump('sent to all');
             } else {
               $message->delete();
-              
+
               dump('deleting queue');
             }
           } else {
@@ -66,7 +72,7 @@ class RunMessageQueue extends Command
           }
         }
 
-        // $message_queues->delete();
+        $report->update(['end_time' => Carbon:: now()]);
       }
     }
 }

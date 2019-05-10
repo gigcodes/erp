@@ -263,6 +263,10 @@ class TaskModuleController extends Controller {
 			}
 		}
 
+		if ($request->ajax()) {
+			return response('success');
+		}
+
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task created successfully.' );

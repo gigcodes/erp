@@ -32,18 +32,18 @@ class InstructionController extends Controller
 
       if (Auth::user()->hasRole('Admin')) {
         if ($request->user[0] != null) {
-          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->get()->toArray();
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->toArray();
           $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
           $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
           $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         } else {
-          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->orderBy('created_at', $orderby)->get()->toArray();
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->toArray();
           $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
           $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
           $completed_instructions = Instruction::where('verified', 1)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         }
       } else {
-        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->get()->toArray();
+        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->toArray();
         $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
         $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
         $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
@@ -173,6 +173,7 @@ class InstructionController extends Controller
       $instruction->customer_id = $request->customer_id;
       $instruction->assigned_from = Auth::id();
       $instruction->assigned_to = $request->assigned_to;
+      $instruction->is_priority = $request->is_priority == 'on' ? 1 : 0;
 
       $instruction->save();
 

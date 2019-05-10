@@ -38,6 +38,11 @@
           </div>
 
           <div class="form-group">
+            <input type="checkbox" name="is_priority" id="instructionPriority">
+            <label for="instructionPriority">Priority</label>
+          </div>
+
+          <div class="form-group">
             <strong>Instruction:</strong>
             <textarea type="text" class="form-control" id="instruction-body" name="instruction" placeholder="Instructions" required>{{ old('instruction') }}</textarea>
             @if ($errors->has('instruction'))

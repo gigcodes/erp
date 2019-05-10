@@ -11,48 +11,11 @@
   </div>
 </div>
 
-  <div id="imageModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">Upload Images</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-
-        <form action="{{ route('quicksell.store') }}" method="POST" enctype="multipart/form-data">
-          @csrf
-
-          <div class="modal-body text-left">
-            <div class="form-group">
-              <input type="file" name="images[]" multiple required />
-              @if ($errors->has('images'))
-              <div class="alert alert-danger">{{$errors->first('images')}}</div>
-              @endif
-            </div>
-
-            <div class="form-group">
-              <strong>SKU:</strong>
-              <input type="text" name="sku" class="form-control" />
-              @if ($errors->has('sku'))
-              <div class="alert alert-danger">{{$errors->first('sku')}}</div>
-              @endif
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-secondary">Upload</button>
-          </div>
-        </form>
-      </div>
-
-    </div>
-  </div>
+  {{-- @include('quicksell.partials.modal-image') --}}
 
   <div class="pull-right">
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button>
+    {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button> --}}
+    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload</button>
   </div>
 
   <form action="{{ route('quicksell.index') }}" method="GET" class="form-inline align-items-start mb-5">
@@ -93,11 +56,7 @@
 
 
 
-@if ($message = Session::get('success'))
-<div class="alert alert-success">
-  {{ $message }}
-</div>
-@endif
+@include('partials.flash_messages')
 
 <div class="row mt-6">
   @foreach ($products as $index => $product)
@@ -129,113 +88,7 @@
 
 {!! $products->links() !!}
 
-<div id="editModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Edit Quick Product</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-
-      <form action="" method="POST" enctype="multipart/form-data" id="updateForm">
-        @csrf
-
-        <div class="modal-body text-left">
-          <div class="form-group">
-            <input type="file" name="images[]" multiple />
-            @if ($errors->has('images'))
-            <div class="alert alert-danger">{{$errors->first('images')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group">
-            @php $supplier_list = (new \App\ReadOnly\SupplierList)->all();
-            @endphp
-            <select class="form-control" name="supplier" id="supplier_select">
-              <option value="">Select Supplier</option>
-              @foreach ($supplier_list as $index => $value)
-              <option value="{{ $index }}" {{ $index == old('supplier') ? 'selected' : '' }}>{{ $value }}</option>
-              @endforeach
-            </select>
-            @if ($errors->has('supplier'))
-            <div class="alert alert-danger">{{$errors->first('supplier')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group">
-            <strong>Price:</strong>
-            <input type="number" name="price" class="form-control" id="price_field" />
-            @if ($errors->has('price'))
-            <div class="alert alert-danger">{{$errors->first('price')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group">
-            <strong>Special Price (INR):</strong>
-
-            <input type="number" class="form-control" name="price_special" value="" id="price_special_field">
-
-            @if ($errors->has('price_special'))
-                <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group">
-            <strong>Size:</strong>
-            <input type="text" name="size" class="form-control" id="size_field" />
-            @if ($errors->has('size'))
-            <div class="alert alert-danger">{{$errors->first('size')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group">
-            <strong>Brand:</strong>
-            <select name="brand" class="form-control" id="brand_field">
-              <option value="">Select Brand</option>
-              @foreach ($brands as $id => $brand)
-              <option value="{{ $id }}">{{ $brand }}</option>
-              @endforeach
-            </select>
-            @if ($errors->has('brand'))
-            <div class="alert alert-danger">{{$errors->first('brand')}}</div>
-            @endif
-          </div>
-
-          @if (Auth::user()->hasRole('Admin'))
-            <div class="form-group">
-              <strong>Location:</strong>
-              <select name="location" class="form-control" id="location_field">
-                <option value="">Select a Location</option>
-                @foreach ($locations as $name)
-                <option value="{{ $name }}">{{ $name }}</option>
-                @endforeach
-              </select>
-              @if ($errors->has('location'))
-              <div class="alert alert-danger">{{$errors->first('location')}}</div>
-              @endif
-            </div>
-          @endif
-
-          <div class="form-group">
-            <strong>Category:</strong>
-            {!! $category_selection !!}
-            @if ($errors->has('category'))
-            <div class="alert alert-danger">{{$errors->first('category')}}</div>
-            @endif
-          </div>
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Update</button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-</div>
+@include('quicksell.partials.modal-product')
 
 @endsection
 
@@ -259,5 +112,107 @@
       @endif
       $('#category_selection').val(product.category);
     });
+
+    var category_tree = {!! json_encode($category_tree) !!};
+    var categories_array = {!! json_encode($categories_array) !!};
+
+    var id_list = {
+      41: ['34', '34.5', '35', '35.5', '36', '36.5', '37', '37.5', '38', '38.5', '39', '39.5', '40', '40.5', '41', '41.5', '42', '42.5', '43', '43.5', '44'], // Women Shoes
+      5: ['34', '34.5', '35', '35.5', '36', '36.5', '37', '37.5', '38', '38.5', '39', '39.5', '40', '40.5', '41', '41.5', '42', '42.5', '43', '43.5', '44'], // Men Shoes
+      40: ['36-36S', '38-38S', '40-40S', '42-42S', '44-44S', '46-46S', '48-48S', '50-50S'], // Women Clothing
+      12: ['36-36S', '38-38S', '40-40S', '42-42S', '44-44S', '46-46S', '48-48S', '50-50S'], // Men Clothing
+      63: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'], // Women T-Shirt
+      31: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'], // Men T-Shirt
+      120: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Sweat Pants
+      123: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Pants
+      128: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Women Denim
+      130: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Men Denim
+      131: ['24-24S', '25-25S', '26-26S', '27-27S', '28-28S', '29-29S', '30-30S', '31-31S', '32-32S'], // Men Sweat Pants
+      42: ['60', '65', '70', '75', '80', '85', '90', '95', '100', '105', '110', '115', '120'], // Women Belts
+      14: ['60', '65', '70', '75', '80', '85', '90', '95', '100', '105', '110', '115', '120'], // Men Belts
+    };
+
+    $('#product-category').on('change', function() {
+      updateSizes($(this).val());
+    });
+
+    function updateSizes(category_value) {
+      var found_id = 0;
+      var found_final = false;
+      var found_everything = false;
+      var category_id = category_value;
+
+      $('#size-selection').empty();
+
+      $('#size-selection').append($('<option>', {
+        value: '',
+        text: 'Select Category'
+      }));
+      console.log('PARENT ID', categories_array[category_id]);
+      if (categories_array[category_id] != 0) {
+
+        Object.keys(id_list).forEach(function(id) {
+          if (id == category_id) {
+            $('#size-selection').empty();
+
+            $('#size-selection').append($('<option>', {
+              value: '',
+              text: 'Select Category'
+            }));
+
+            id_list[id].forEach(function(value) {
+              $('#size-selection').append($('<option>', {
+                value: value,
+                text: value
+              }));
+            });
+
+            found_everything = true;
+            $('#size-manual-input').addClass('hidden');
+          }
+        });
+
+        if (!found_everything) {
+          Object.keys(category_tree).forEach(function(key) {
+            Object.keys(category_tree[key]).forEach(function(index) {
+              if (index == categories_array[category_id]) {
+                found_id = index;
+
+                return;
+              }
+            });
+          });
+
+          console.log('FOUND ID', found_id);
+
+          if (found_id != 0) {
+            Object.keys(id_list).forEach(function(id) {
+              if (id == found_id) {
+                $('#size-selection').empty();
+
+                $('#size-selection').append($('<option>', {
+                  value: '',
+                  text: 'Select Category'
+                }));
+
+                id_list[id].forEach(function(value) {
+                  $('#size-selection').append($('<option>', {
+                    value: value,
+                    text: value
+                  }));
+                });
+
+                $('#size-manual-input').addClass('hidden');
+                found_final = true;
+              }
+            });
+          }
+        }
+
+        if (!found_final) {
+          $('#size-manual-input').removeClass('hidden');
+        }
+      }
+    }
   </script>
 @endsection

@@ -583,7 +583,9 @@ class ProductController extends Controller {
 	public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request) {
 
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
-		$products = Product::where('stock', '>=', 1);
+		$products = Product::where(function($query) {
+			$query->where('stock', '>=', 1)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
+		});
 		$filtered_category = '';
 		$brand = '';
 		$message_body = $request->message ? $request->message : '';
@@ -738,10 +740,11 @@ class ProductController extends Controller {
 
 		$product->name = $request->name;
 		$product->sku = $request->sku;
-		$product->size = implode(',', $request->size);
+		$product->size = $request->size ? implode(',', $request->size) : $request->other_size;
 		$product->brand = $request->brand;
 		$product->color = $request->color;
 		$product->supplier = $request->supplier;
+		$product->location = $request->location;
 		$product->category = $request->category;
 		$product->price = $request->price;
 		$product->stock = 1;
@@ -761,6 +764,10 @@ class ProductController extends Controller {
 		}
 
 		$product->save();
+
+		if ($request->supplier == 'In-stock') {
+			$product->suppliers()->attach(11); // In-stock ID
+		}
 
 		$product->detachMediaTags(config('constants.media_tags'));
 		$media = MediaUploader::fromSource($request->file('image'))->upload();

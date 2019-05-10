@@ -144,17 +144,16 @@ class ProductInventoryController extends Controller
 		$data['term']     = $term;
 
 		if ($request->brand[0] != null) {
-			$productQuery = ( new Product() )->newQuery()->where('supplier', 'In-stock')
-			                                 ->latest()->whereIn('brand', $request->brand);
+			$productQuery = ( new Product() )->newQuery()->latest()->whereIn('brand', $request->brand);
 
 			$data['brand'] = $request->brand[0];
 		}
 
 		if ($request->color[0] != null) {
 			if ($request->brand[0] != null) {
-				$productQuery = $productQuery->where('supplier', 'In-stock')->whereIn('color', $request->color);
+				$productQuery = $productQuery->whereIn('color', $request->color);
 			} else {
-				$productQuery = ( new Product() )->newQuery()->where('supplier', 'In-stock')
+				$productQuery = ( new Product() )->newQuery()
 				                                 ->latest()->whereIn('color', $request->color);
 			}
 
@@ -186,9 +185,9 @@ class ProductInventoryController extends Controller
 			}
 
 			if ($request->brand[0] != null || $request->color[0] != null) {
-				$productQuery = $productQuery->where('supplier', 'In-stock')->whereIn('category', $category_children);
+				$productQuery = $productQuery->whereIn('category', $category_children);
 			} else {
-				$productQuery = (new Product())->newQuery()->where('supplier', 'In-stock')
+				$productQuery = (new Product())->newQuery()
 				                                 ->latest()->whereIn('category', $category_children);
 			}
 
@@ -204,7 +203,7 @@ class ProductInventoryController extends Controller
 				if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
 					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
 				} else {
-					$productQuery = ( new Product() )->newQuery()->where('supplier', 'In-stock')
+					$productQuery = ( new Product() )->newQuery()
 					                                 ->latest()->whereBetween('price_special', [$min, $max]);
 				}
 			}
@@ -218,7 +217,7 @@ class ProductInventoryController extends Controller
 				$productQuery = $productQuery->whereIn('location', $request->location);
 
 			} else {
-				$productQuery = ( new Product() )->newQuery()->latest()->where('supplier', 'In-stock')
+				$productQuery = ( new Product() )->newQuery()->latest()
 				                                 ->whereIn('location', $request->location);
 			}
 			$data['location'] = $request->location[0];
@@ -229,14 +228,14 @@ class ProductInventoryController extends Controller
 				$productQuery = $productQuery->whereNull('location');
 
 			} else {
-				$productQuery = ( new Product() )->newQuery()->latest()->where('supplier', 'In-stock')
+				$productQuery = ( new Product() )->newQuery()->latest()
 				                                 ->whereNull('location');
 			}
 			$data['no_locations'] = true;
 		}
 
 		if (trim($term) != '') {
-			$productQuery = (( new Product() )->newQuery()->where('supplier', 'In-stock'))
+			$productQuery = (( new Product() )->newQuery())
 			                                 ->latest()->where(function ($query) use ($term){
 															 	    		return $query->orWhere( 'sku', 'LIKE', "%$term%" )
 			                                 							->orWhere( 'id', 'LIKE', "%$term%" );
@@ -244,27 +243,26 @@ class ProductInventoryController extends Controller
 
 
 			if ( $term == - 1 ) {
-				$productQuery = $productQuery->where('supplier', 'In-stock')->where(function ($query){
+				$productQuery = $productQuery->where(function ($query){
 				 															return $query->orWhere( 'isApproved', - 1 );
 									 });
 			}
 
 			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
 				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
-				$productQuery = $productQuery->where('supplier', 'In-stock')->where(function ($query) use ($brand_id){
+				$productQuery = $productQuery->where(function ($query) use ($brand_id){
 																			return $query->orWhere( 'brand', 'LIKE', "%$brand_id%" );});
 			}
 
 			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
 				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
-				$productQuery = $productQuery->where('supplier', 'In-stock')->where(function ($query) use ($term){
+				$productQuery = $productQuery->where(function ($query) use ($term){
 								return $query->orWhere( 'category', CategoryController::getCategoryIdByName( $term ));} );
 			}
 
 		} else {
 			if ($request->brand[0] == null && $request->color[0] == null && (!isset($request->category) || $request->category[0] == 1) && (!isset($request->price) || $request->price == "0,10000000") && $request->location[0] == null && !isset($request->no_locations)) {
 				$productQuery = ( new Product() )->newQuery()
-																				 ->where('supplier', 'In-stock')
 				                                 ->latest();
 
 			}
@@ -294,7 +292,7 @@ class ProductInventoryController extends Controller
 		                                        ->renderAsDropdown();
 
 
-		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+		$data['products'] = $productQuery->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)")->paginate( Setting::get( 'pagination' ) );
 
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';

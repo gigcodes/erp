@@ -14,6 +14,7 @@ use App\Console\Commands\CheckLogins;
 use App\Console\Commands\AutoInterestMessage;
 use App\Console\Commands\AutoReminder;
 use App\Console\Commands\AutoMessenger;
+use App\Console\Commands\MessageScheduler;
 use App\Console\Commands\CheckMessagesErrors;
 use App\Console\Commands\SendProductSuggestion;
 use App\Console\Commands\SendActivitiesListing;
@@ -43,6 +44,7 @@ use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -62,6 +64,7 @@ class Kernel extends ConsoleKernel
         AutoInterestMessage::class,
         AutoReminder::class,
         AutoMessenger::class,
+        MessageScheduler::class,
         CheckMessagesErrors::class,
         SendProductSuggestion::class,
         SendActivitiesListing::class,
@@ -96,6 +99,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
       $schedule->call(function() {
+        $report = CronJobReport::create([
+          'signature' => 'update:benchmark',
+          'start_time'  => Carbon::now()
+        ]);
+
         $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
         $tasks = Task::where('is_statutory', 0 )->whereNotNull('is_completed')->get();
 
@@ -111,6 +119,8 @@ class Kernel extends ConsoleKernel
             $task->delete();
           }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
       })->dailyAt('00:00');
 
   	    // $schedule->call(function () {
@@ -119,7 +129,14 @@ class Kernel extends ConsoleKernel
   	    // })->everyFiveMinutes();
 
         $schedule->call(function () {
+          $report = CronJobReport::create([
+            'signature' => 'update:benchmark',
+            'start_time'  => Carbon::now()
+          ]);
+
           MagentoController::get_magento_orders();
+
+          $report->update(['end_time' => Carbon:: now()]);
         })->hourly();
 
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
@@ -136,16 +153,16 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('post:scheduled-media')
 //            ->everyMinute();
 
-        $schedule->command('check:user-logins')->everyFiveMinutes();
+        // $schedule->command('check:user-logins')->everyFiveMinutes();
         $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
 
         // Sends Auto messages
         $schedule->command('send:auto-reminder')->hourly();
         $schedule->command('send:auto-messenger')->hourly();
         $schedule->command('check:messages-errors')->hourly();
-        // $schedule->command('send:auto-messenger')->everyMinute();
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
         $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
+        $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
 
 //        $schedule->command('gebnegozionline:get-products-list')
 //            ->hourly()
@@ -162,10 +179,10 @@ class Kernel extends ConsoleKernel
 //            ->withoutOverlapping()
 //        ;
 
-        $schedule->command('enrich:wiseboutique')
-            ->daily()
-            ->withoutOverlapping()
-        ;
+        // $schedule->command('enrich:wiseboutique')
+        //     ->daily()
+        //     ->withoutOverlapping()
+        // ;
 
 //        $schedule->command('wiseboutique:get-product-details')
 //            ->hourly()
@@ -200,13 +217,13 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('image:create-schedule')->dailyAt(14);
 //        $schedule->command('image:create-schedule')->dailyAt(17);
 //        $schedule->command('image:create-schedule')->dailyAt(20);
-        $schedule->command('inventory:refresh-stock')->dailyAt(12);
-        $schedule->command('gnb:get-sku')->hourly();
+        // $schedule->command('inventory:refresh-stock')->dailyAt(12);
+        // $schedule->command('gnb:get-sku')->hourly();
         // $schedule->command('create:scraped-products')->everyMinute();
 //        $schedule->command('gnb:get-sku')->everyMinute();
 
-        $schedule->command('sync:instagram-messagges')
-            ->hourly();
+        // $schedule->command('sync:instagram-messages')
+        //     ->hourly();
 
 
     }

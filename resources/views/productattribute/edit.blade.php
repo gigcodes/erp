@@ -213,6 +213,11 @@
                 </div>
 
                 <div class="form-group">
+                    <strong> Special Offer Price (Broadcast):</strong>
+                    <input type="number" name="price_special_offer" class="form-control" placeholder="Special Offer Price" value="{{ $price_special_offer }}"/>
+                </div>
+
+                <div class="form-group">
                     <strong> Product Link :</strong>
                     <input type="text" class="form-control" name="product_link" placeholder="Product Link" value="{{ old('product_link') ? old('product_link') : $product_link }}"/>
                     @if ($errors->has('product_link'))

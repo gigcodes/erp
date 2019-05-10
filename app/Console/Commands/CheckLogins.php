@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Log;
 use Cache;
 use Carbon\Carbon;
+use App\CronJobReport;
 use App\User;
 use App\UserLogin;
 
@@ -42,6 +43,11 @@ class CheckLogins extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       Log::info(Carbon::now() . " begin checking users logins");
   		$users = User::all();
 
@@ -66,5 +72,7 @@ class CheckLogins extends Command
   		}
 
   		Log::info(Carbon::now() . " end of checking users logins");
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

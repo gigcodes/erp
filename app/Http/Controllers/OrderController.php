@@ -111,10 +111,10 @@ class OrderController extends Controller {
 		}
 
 		if(empty($term))
-			$orders = $orders->latest();
+			$orders = $orders;
 		else{
 
-			$orders = $orders->latest()->whereHas('customer', function($query) use ($term) {
+			$orders = $orders->whereHas('customer', function($query) use ($term) {
 				return $query->where('name', 'LIKE', "%$term%");
 			})
 			               ->orWhere('order_id','like','%'.$term.'%')
@@ -130,7 +130,7 @@ class OrderController extends Controller {
 
 		$users  = Helpers::getUserArray( User::all() );
 
-		$orders_array = $orders->whereNull( 'deleted_at' )->get()->toArray();
+		$orders_array = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
 
 		if ($sortby == 'communication') {
 			if ($orderby == 'asc') {
@@ -779,6 +779,7 @@ class OrderController extends Controller {
 
 		$data = $request->except(['_token', '_method', 'status', 'purchase_status']);
 		$data['order_status'] = $request->status;
+		$data['is_priority'] = $request->is_priority == 'on' ? 1 : 0;
 		$order->update($data);
 
 		$this->calculateBalanceAmount($order);
@@ -833,9 +834,9 @@ class OrderController extends Controller {
 			$auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
 			$requestData = new Request();
 			$requestData->setMethod('POST');
-			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
+			$requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
 
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer', 'status' => 2);
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
 			CommunicationHistory::create([
 				'model_id'		=> $order->id,
@@ -902,9 +903,9 @@ class OrderController extends Controller {
 				$message = "Your Order has been delivered!";
 				$requestData = new Request();
 				$requestData->setMethod('POST');
-				$requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message]);
+				$requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message, 'status' => 2]);
 
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer', 'status' => 2);
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
 				CommunicationHistory::create([
 					'model_id'		=> $order->id,
@@ -1621,14 +1622,37 @@ class OrderController extends Controller {
 		$product = Product::where( 'id', '=', $product_id )->get()->first();
 
 		$order_product = OrderProduct::where( 'order_id', $model_id )->where( 'sku', $product->sku )->first();
+		$order = Order::find($model_id);
+		$size = '';
+
+		if ($order->customer && ($order->customer->shoe_size != '' || $order->customer->clothing_size != '')) {
+			if ($product->category != 1) {
+				if ($product->product_category->title != 'Clothing' || $product->product_category->title != 'Shoes') {
+					if ($product->product_category->parent && ($product->product_category->parent->title == 'Clothing' || $product->product_category->parent->title == 'Shoes')) {
+						if ($product->product_category->parent->title == 'Clothing') {
+							$size = $order->customer->clothing_size;
+						} else {
+							$size = $order->customer->shoe_size;
+						}
+					}
+				} else {
+					if ($product->product_category->title == 'Clothing') {
+						$size = $order->customer->clothing_size;
+					} else {
+						$size = $order->customer->shoe_size;
+					}
+				}
+			}
+		}
 
 		if ( empty( $order_product ) ) {
 
 			OrderProduct::create( [
 				'order_id'      => $model_id,
 				'sku'           => $product->sku,
-				'product_price' => $product->price_special,
+				'product_price' => $product->price_special_offer ?? $product->price_special,
 				'color' => $product->color,
+				'size' => $size,
 			] );
 
 			$action = 'Attached';

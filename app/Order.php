@@ -38,6 +38,7 @@ class Order extends Model {
 		'remark',
         'whatsapp_number',
 		'user_id',
+		'is_priority'
 	];
 
 	protected $appends = ['communication', 'action'];

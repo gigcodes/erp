@@ -7,6 +7,8 @@ use App\Customer;
 use App\ChatMessage;
 use App\PrivateView;
 use App\CommunicationHistory;
+use App\CronJobReport;
+use App\ScheduledMessage;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
@@ -43,6 +45,11 @@ class AutoMessenger extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $params = [
         'number'      => NULL,
         'user_id'     => 6,
@@ -248,5 +255,27 @@ class AutoMessenger extends Command
     			// ]);
         }
       }
+
+      // SCHEDULED MESSAGES
+      $now = Carbon::now();
+      $scheduled_messages = ScheduledMessage::where('sent', 0)->where('sending_time', '<', $now)->get();
+
+      foreach ($scheduled_messages as $message) {
+        $params = [
+          'number'      => NULL,
+          'user_id'     => $message->user_id,
+          'customer_id' => $message->customer_id,
+          'approved'    => 0,
+          'status'      => 1,
+          'message'     => $message->message
+        ];
+
+        ChatMessage::create($params);
+
+        $message->sent = 1;
+        $message->save();
+      }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

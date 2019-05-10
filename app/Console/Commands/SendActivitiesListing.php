@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 use App\Benchmark;
+use App\CronJobReport;
 use Illuminate\Support\Facades\DB;
 use App\Mail\ActivityListings;
 use Illuminate\Support\Facades\Mail;
@@ -43,6 +44,11 @@ class SendActivitiesListing extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $start = Carbon::now()->format('Y-m-d 00:00:00');
 			$end = Carbon::now()->format('Y-m-d 23:59:00');
 
@@ -119,5 +125,7 @@ class SendActivitiesListing extends Command
   		$data['benchmark']  = $benchmark[0];
 
       Mail::to('yogeshmordani@icloud.com')->send(new ActivityListings($data));
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

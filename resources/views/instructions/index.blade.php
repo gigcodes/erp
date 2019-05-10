@@ -40,11 +40,7 @@
       </div>
     @endif
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     <div id="exTab3" class="container">
       <ul class="nav nav-tabs">
@@ -98,7 +94,16 @@
                   </td>
                   <td>{{ $users_array[$instruction['assigned_to']] ?? '' }}</td>
                   <td>{{ $instruction['category']['name'] }}</td>
-                  <td>{{ $instruction['instruction'] }}</td>
+                  <td>
+                    <div class="form-inline">
+                      @if ($instruction['is_priority'] == 1)
+                        <strong class="text-danger mr-1">!</strong>
+                      @endif
+
+                      {{ $instruction['instruction'] }}
+                    </div>
+
+                  </td>
                   <td>
                     @if ($instruction['completed_at'])
                       {{ Carbon\Carbon::parse($instruction['completed_at'])->format('d-m H:i') }}

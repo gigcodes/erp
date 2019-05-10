@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Supplier;
 use App\Agent;
 use App\Setting;
+use App\ReplyCategory;
+use App\User;
+use App\Helpers;
 use App\ReadOnly\SoloNumbers;
 use Illuminate\Http\Request;
 
@@ -45,15 +48,19 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
       $this->validate($request, [
-        'supplier'      => 'required|string|max:255',
-        'address'       => 'sometimes|nullable|string',
-        'phone'         => 'sometimes|nullable|numeric',
-        'email'         => 'sometimes|nullable|email',
-        'social_handle' => 'sometimes|nullable',
-        'gst'           => 'sometimes|nullable|max:255'
+        'supplier'        => 'required|string|max:255',
+        'address'         => 'sometimes|nullable|string',
+        'phone'           => 'sometimes|nullable|numeric',
+        'default_phone'   => 'sometimes|nullable|numeric',
+        'whatsapp_number' => 'sometimes|nullable|numeric',
+        'email'           => 'sometimes|nullable|email',
+        'social_handle'   => 'sometimes|nullable',
+        'gst'             => 'sometimes|nullable|max:255'
       ]);
 
       $data = $request->except('_token');
+      $data['default_phone'] = $request->phone ?? '';
+      $data['default_email'] = $request->email ?? '';
 
       Supplier::create($data);
 
@@ -68,7 +75,17 @@ class SupplierController extends Controller
      */
     public function show($id)
     {
-        //
+      $supplier = Supplier::find($id);
+      $reply_categories = ReplyCategory::all();
+      $users_array = Helpers::getUserArray(User::all());
+      $emails = [];
+
+      return view('suppliers.show', [
+        'supplier'  => $supplier,
+        'reply_categories'  => $reply_categories,
+        'users_array'  => $users_array,
+        'emails'  => $emails
+      ]);
     }
 
     /**
@@ -92,15 +109,20 @@ class SupplierController extends Controller
     public function update(Request $request, $id)
     {
       $this->validate($request, [
-        'supplier'      => 'required|string|max:255',
-        'address'       => 'sometimes|nullable|string',
-        'phone'         => 'sometimes|nullable|numeric',
-        'email'         => 'sometimes|nullable|email',
-        'social_handle' => 'sometimes|nullable',
-        'gst'           => 'sometimes|nullable|max:255'
+        'supplier'        => 'required|string|max:255',
+        'address'         => 'sometimes|nullable|string',
+        'phone'           => 'sometimes|nullable|numeric',
+        'default_phone'   => 'sometimes|nullable|numeric',
+        'whatsapp_number' => 'sometimes|nullable|numeric',
+        'email'           => 'sometimes|nullable|email',
+        'default_email'   => 'sometimes|nullable|email',
+        'social_handle'   => 'sometimes|nullable',
+        'gst'             => 'sometimes|nullable|max:255'
       ]);
 
       $data = $request->except('_token');
+      $data['default_phone'] = $request->default_phone != '' ? $request->default_phone : $request->phone;
+      $data['default_email'] = $request->default_email != '' ? $request->default_email : $request->email;
 
       Supplier::find($id)->update($data);
 

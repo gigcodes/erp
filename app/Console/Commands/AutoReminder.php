@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Customer;
 use App\ChatMessage;
+use App\CronJobReport;
 use Carbon\Carbon;
 
 class AutoReminder extends Command
@@ -40,6 +41,11 @@ class AutoReminder extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $params = [
         'number'  => NULL,
         'status'  => 1,
@@ -85,5 +91,7 @@ class AutoReminder extends Command
           }
         }
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

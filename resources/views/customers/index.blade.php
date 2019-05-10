@@ -4,6 +4,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 
 @section('content')
@@ -29,6 +30,16 @@
                     </optgroup>
                   </select>
                 </div>
+
+                {{-- <div class="form-group ml-3">
+                    <strong>Date Range</strong>
+                    <input type="text" value="" name="range_start" hidden/>
+                    <input type="text" value="" name="range_end" hidden/>
+                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                        <i class="fa fa-calendar"></i>&nbsp;
+                        <span></span> <i class="fa fa-caret-down"></i>
+                    </div>
+                </div> --}}
 
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
@@ -103,6 +114,12 @@
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
                     <td>
+                      @if ($customer->is_priority == 1)
+                        <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
+                      @else
+                        <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+                      @endif
+
                       <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
@@ -114,9 +131,11 @@
                       <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
 
                       @if ($customer->is_blocked == 1)
-                        <span class="badge badge-secondary">Blocked</span>
+                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
+                      @else
+                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
                       @endif
-                      <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/call-blocked.png" /></button>
+
 
                       @if ($customer->is_flagged == 1)
                         <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
@@ -167,7 +186,13 @@
                           {{ array_key_exists($instructions[$customer->id][0]['assigned_to'], $users_array) ? $users_array[$instructions[$customer->id][0]['assigned_to']] : 'No User' }} -
 
 
-                          {{ $instructions[$customer->id][0]['instruction'] }}
+                          <div class="form-inline">
+                            @if ($instructions[$customer->id][0]['is_priority'] == 1)
+                              <strong class="text-danger mr-1">!</strong>
+                            @endif
+
+                            {{ $instructions[$customer->id][0]['instruction'] }}
+                          </div>
 
                           @if ($instructions[$customer->id][0]['completed_at'])
                             {{ Carbon\Carbon::parse($instructions[$customer->id][0]['completed_at'])->format('d-m H:i') }}
@@ -185,6 +210,10 @@
                             @endif
                           @endif
                         @endif
+
+                        <textarea name="instruction" class="form-control quick-add-instruction-textarea hidden" rows="8" cols="80"></textarea>
+
+                        <button type="button" class="btn-link quick-add-instruction" data-id="{{ $customer->id }}">Add Instruction</button>
                     </td>
                   @else
                     <td></td>
@@ -344,6 +373,16 @@
                       <div class="d-inline">
                         <button type="button" class="btn btn-image latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
                       </div>
+
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="instruction" value="Please show client chat to Yogesh">
+                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
+
+                        <button type="submit" class="btn btn-image quick-shortcut-button">Client Chat</button>
+                      </form>
                     </td>
                     <td>
                       <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
@@ -381,6 +420,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
     var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
@@ -754,18 +794,12 @@
           }
         }).done(function(response) {
           if (response.is_blocked == 1) {
-            var badge = $('<span class="badge badge-secondary">Blocked</span>');
-
-            $(thiss).parent().append(badge);
-            $(thiss).html('<img src="/images/call-blocked.png" />');
+            $(thiss).html('<img src="/images/blocked-twilio.png" />');
           } else {
-            $(thiss).html('<img src="/images/call-blocked.png" />');
-            $(thiss).parent().find('.badge').remove();
+            $(thiss).html('<img src="/images/unblocked-twilio.png" />');
           }
-
-          // $(thiss).remove();
         }).fail(function(response) {
-          $(thiss).text('Block on Twilio');
+          $(thiss).html('<img src="/images/unblocked-twilio.png" />');
 
           alert('Could not block customer!');
 
@@ -803,6 +837,36 @@
           $(thiss).html('<img src="/images/unflagged.png" />');
 
           alert('Could not flag customer!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.priority-customer', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.priority') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Prioritizing...');
+          }
+        }).done(function(response) {
+          if (response.is_priority == 1) {
+            $(thiss).html('<img src="/images/customer-priority.png" />');
+          } else {
+            $(thiss).html('<img src="/images/customer-not-priority.png" />');
+          }
+
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/customer-not-priority.png" />');
+
+          alert('Could not prioritize customer!');
 
           console.log(response);
         });
@@ -896,6 +960,77 @@
             alert('Could not send 20 images');
           });
         }
+      });
+
+      $(document).on('click', '.quick-add-instruction', function(e) {
+        var id = $(this).data('id');
+
+        $(this).siblings('.quick-add-instruction-textarea').removeClass('hidden');
+
+        $(this).siblings('.quick-add-instruction-textarea').keypress(function(e) {
+          var key = e.which;
+          var thiss = $(this);
+
+          if (key == 13) {
+            e.preventDefault();
+            var instruction = $(thiss).val();
+
+            $.ajax({
+              type: 'POST',
+              url: "{{ route('instruction.store') }}",
+              data: {
+                _token: "{{ csrf_token() }}",
+                instruction: instruction,
+                category_id: 1,
+                customer_id: id,
+                assigned_to: 7
+              }
+            }).done(function() {
+              $(thiss).addClass('hidden');
+              $(thiss).val('');
+            }).fail(function(response) {
+              console.log(response);
+
+              alert('Could not create instruction');
+            });
+          }
+        });
+      });
+
+      let r_s = '';
+      let r_e = '{{ date('y-m-d') }}';
+
+      let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
+      let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+      jQuery('input[name="range_start"]').val();
+      jQuery('input[name="range_end"]').val();
+
+      function cb(start, end) {
+          $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+      }
+
+      $('#reportrange').daterangepicker({
+          startDate: start,
+          maxYear: 1,
+          endDate: end,
+          ranges: {
+              'Today': [moment(), moment()],
+              'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+              'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+              'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+              'This Month': [moment().startOf('month'), moment().endOf('month')],
+              'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+          }
+      }, cb);
+
+      cb(start, end);
+
+      $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+
+          jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+          jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
       });
   </script>
 @endsection

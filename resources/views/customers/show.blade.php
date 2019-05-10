@@ -258,6 +258,16 @@
         <div class="row">
           <div class="col-xs-12">
             <div class="d-flex">
+              @if ($customer->is_priority == 1)
+                <div class="form-group">
+                  <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
+                </div>
+              @else
+                <div class="form-group">
+                  <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+                </div>
+              @endif
+
               <div class="form-group form-inline">
                 <input type="text" name="name" id="customer_name" class="form-control input-sm" placeholder="Name" value="{{ $customer->name }}">
               </div>
@@ -372,7 +382,30 @@
 
               <div class="col-6">
                 <div class="form-group">
-                  <input type="text" name="shoe_size" id="customer_shoe_size" class="form-control input-sm" placeholder="Shoe Size" value="{{ $customer->shoe_size }}">
+                  <select class="form-control input-sm" name="shoe_size" id="customer_shoe_size">
+                    <option value="">Select a Shoe Size</option>
+                    <option value="34" {{ $customer->shoe_size == '34' }}>34</option>
+                    <option value="34.5" {{ $customer->shoe_size == '34.5' }}>34.5</option>
+                    <option value="35" {{ $customer->shoe_size == '35' }}>35</option>
+                    <option value="35.5" {{ $customer->shoe_size == '35.5' }}>35.5</option>
+                    <option value="36" {{ $customer->shoe_size == '36' }}>36</option>
+                    <option value="36.5" {{ $customer->shoe_size == '36.5' }}>36.5</option>
+                    <option value="37" {{ $customer->shoe_size == '37' }}>37</option>
+                    <option value="37.5" {{ $customer->shoe_size == '37.5' }}>37.5</option>
+                    <option value="38" {{ $customer->shoe_size == '38' }}>38</option>
+                    <option value="38.5" {{ $customer->shoe_size == '38.5' }}>38.5</option>
+                    <option value="39" {{ $customer->shoe_size == '39' }}>39</option>
+                    <option value="39.5" {{ $customer->shoe_size == '39.5' }}>39.5</option>
+                    <option value="40" {{ $customer->shoe_size == '40' }}>40</option>
+                    <option value="40.5" {{ $customer->shoe_size == '40.5' }}>40.5</option>
+                    <option value="41" {{ $customer->shoe_size == '41' }}>41</option>
+                    <option value="41.5" {{ $customer->shoe_size == '41.5' }}>41.5</option>
+                    <option value="42" {{ $customer->shoe_size == '42' }}>42</option>
+                    <option value="42.5" {{ $customer->shoe_size == '42.5' }}>42.5</option>
+                    <option value="43" {{ $customer->shoe_size == '43' }}>43</option>
+                    <option value="43.5" {{ $customer->shoe_size == '43.5' }}>43.5</option>
+                    <option value="44" {{ $customer->shoe_size == '44' }}>44</option>
+                  </select>
                 </div>
               </div>
 
@@ -738,7 +771,7 @@
                 <div class="card-header" id="headingOrder{{ $key + 1 }}">
                   <h5 class="mb-0">
                     <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#order{{ $key + 1 }}" aria-expanded="false" aria-controls="order{{ $key + 1 }}">
-                      Order {{ $key + 1 }}
+                      <span class="{{ $order->is_priority == 1 ? 'text-danger' : '' }}">Order {{ $key + 1 }}</span>
                       <a href="{{ route('order.show', $order->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
                       <span class="ml-3">
                         @if (isset($order->delivery_approval) && $order->delivery_approval->approved == 0)
@@ -757,6 +790,11 @@
 
                       <div class="row">
                           <div class="col-xs-12">
+
+                            <div class="form-group">
+                              <input type="checkbox" name="is_priority" {{ $order->is_priority == 1 ? 'checked' : '' }}>
+                              <label for="is_priority">Priority</label>
+                            </div>
 
                             <div class="form-group">
                                 <strong>Balance Amount:</strong>
@@ -1024,9 +1062,17 @@
 
                                               $sizes = \App\Helpers::explodeToArray($order_product->product->size);
                                               $size_name = 'order_products['.$order_product->id.'][size]';
-
-                                              echo Form::select($size_name,$sizes,( $order_product->size ), ['class' => 'form-control', 'placeholder' => 'Select a size'])
                                               ?>
+                                              <div class="form-inline">
+                                                {!! Form::select($size_name,$sizes,( $order_product->size ), ['class' => 'form-control', 'placeholder' => 'Select a size']) !!}
+
+                                                @if (($customer->shoe_size != '' || $customer->clothing_size != '') && $order_product->size != '' && $order->order_type == 'online')
+                                                  @if ($customer->shoe_size != $order_product->size && !preg_match("/{$customer->clothing_size}/i", $order_product->size))
+                                                    <span class="badge" data-toggle="tooltip" title="Customer and order sizes does not match">!</span>
+                                                  @endif
+                                                @endif
+                                              </div>
+
                                             @else
                                               <select hidden class="form-control" name="order_products[{{ $order_product->id }}][size]">
                                                 <option selected="selected" value=""></option>
@@ -1698,6 +1744,18 @@
             <button type="button" class="btn latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
           </div>
         </li>
+
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="Please show client chat to Yogesh">
+            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button">Client Chat</button>
+          </form>
+        </li>
       </ul>
     </div>
 
@@ -1717,14 +1775,22 @@
               <th>Created at</th>
               <th>Remark</th>
             </tr>
-            @foreach ($customer->instructions()->where('verified', 0)->latest()->limit(3)->get() as $instruction)
+            @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                   <td>{{ $instruction->category->name }}</td>
-                  <td>{{ $instruction->instruction }}</td>
+                  <td>
+                    <div class="form-inline">
+                      @if ($instruction->is_priority == 1)
+                        <strong class="text-danger mr-1">!</strong>
+                      @endif
+
+                      {{ $instruction->instruction }}
+                    </div>
+                  </td>
                   <td>
                     @if ($instruction->completed_at)
                       {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
@@ -1777,14 +1843,22 @@
                   <div class="table-responsive">
                     <table class="table table-bordered">
                       <tbody>
-                        @foreach ($customer->instructions()->where('verified', 0)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
+                        @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                             <td>{{ $instruction->category->name }}</td>
-                            <td>{{ $instruction->instruction }}</td>
+                            <td>
+                              <div class="form-inline">
+                                @if ($instruction->is_priority == 1)
+                                  <strong class="text-danger mr-1">!</strong>
+                                @endif
+
+                                {{ $instruction->instruction }}
+                              </div>
+                            </td>
                             <td>
                               @if ($instruction->completed_at)
                                 {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
@@ -2122,8 +2196,8 @@
           _token: "{{ csrf_token() }}",
           customer_id: customer_id,
           rating: 1,
-          status: 1,
-          assigned_user: "{{ Auth::id() }}",
+          status: 3,
+          assigned_user: 6,
           selected_product: selected_product_images,
           type: "product-lead",
           created_at: created_at
@@ -2173,7 +2247,8 @@
           customer_id: customer_id,
           order_type: "offline",
           convert_order: 'convert_order',
-          selected_product: selected_product_images
+          selected_product: selected_product_images,
+          order_status: "Follow up for advance"
         },
         beforeSend: function() {
           $(thiss).text('Creating...');
@@ -3333,8 +3408,8 @@
             _token: token,
             customer_id: customer_id,
             rating: 1,
-            status: 1,
-            assigned_user: "{{ Auth::id() }}",
+            status: 3,
+            assigned_user: 6,
             created_at: created_at
           },
           beforeSend: function() {
@@ -3363,7 +3438,8 @@
           data: {
             _token: token,
             customer_id: customer_id,
-            order_type: "offline"
+            order_type: "offline",
+            order_status: "Follow up for advance"
           },
           beforeSend: function() {
             $(thiss).text('Creating...');
@@ -3950,6 +4026,7 @@
         var category_id = $('#instruction_category_id').val();
         var instruction = $('#instruction-body').val();
         var send_whatsapp = $('#sendWhatsappCheckbox').prop('checked') ? 'send' : '';
+        var is_priority = $('#instructionPriority').prop('checked') ? 'on' : '';
 
         console.log(send_whatsapp);
 
@@ -3964,6 +4041,7 @@
               instruction: instruction,
               customer_id: {{ $customer->id }},
               send_whatsapp: send_whatsapp,
+              is_priority: is_priority,
             }
           }).done(function() {
             $('#instructionModal').find('.close').click();
@@ -4223,6 +4301,36 @@
             alert('Could not send 20 images');
           });
         }
+      });
+
+      $(document).on('click', '.priority-customer', function() {
+        var customer_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('customer.priority') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Prioritizing...');
+          }
+        }).done(function(response) {
+          if (response.is_priority == 1) {
+            $(thiss).html('<img src="/images/customer-priority.png" />');
+          } else {
+            $(thiss).html('<img src="/images/customer-not-priority.png" />');
+          }
+
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/customer-not-priority.png" />');
+
+          alert('Could not prioritize customer!');
+
+          console.log(response);
+        });
       });
   </script>
 @endsection

@@ -193,7 +193,7 @@ class MagentoController extends Controller {
 				$order_status = 'Prepaid';
 				$payment_method = 'paytm';
 			} elseif ($results['payment']['method'] == 'cashondelivery') {
-				$order_status = 'Proceed without Advance';
+				$order_status = 'Follow up for advance';
 				$payment_method = 'cash on delivery';
 			}
 

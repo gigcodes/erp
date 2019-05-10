@@ -63,9 +63,26 @@ class SendMessageToAll implements ShouldQueue
           $chat_message = ChatMessage::create($params);
 
           foreach ($this->content['linked_images'] as $image) {
-            $broadcast_image = BroadcastImage::find($image);
 
-            $product_ids = json_decode($broadcast_image->products, true);
+            if (is_array($image)) {
+              $image_key = $image['key'];
+              $mediable_type = "BroadcastImage";
+
+              $broadcast = BroadcastImage::with('Media')
+              ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
+              ->first();
+
+              $product_ids = json_decode($broadcast->products, true);
+            } else {
+              $broadcast_image = BroadcastImage::find($image);
+              // dump($broadcast_image);
+              $product_ids = json_decode($broadcast_image->products, true);
+            }
+
+
+
+            // $product_img = $product_image->getMedia(config('constanst.media_tags'))->first();
+            // $chat_message->attachMedia($product_img, config('constants.media_tags'));
 
             foreach ($product_ids as $product_id) {
               $product = Product::find($product_id);
@@ -94,19 +111,31 @@ class SendMessageToAll implements ShouldQueue
           $chat_message = ChatMessage::create($params);
 
           foreach ($this->content['linked_images'] as $image) {
-            $broadcast_image = BroadcastImage::find($image);
+            if (is_array($image)) {
+              $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
-            if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
-              foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $brod_image) {
-                $chat_message->attachMedia($brod_image->getKey(), config('constants.media_tags'));
+              try {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+              } catch (\Exception $e) {
 
-                try {
-                  app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
-                } catch (\Exception $e) {
+              }
+            } else {
+              $broadcast_image = BroadcastImage::find($image);
 
+              if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
+                foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $brod_image) {
+                  $chat_message->attachMedia($brod_image, config('constants.media_tags'));
+
+                  try {
+                    app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
+                  } catch (\Exception $e) {
+
+                  }
                 }
               }
             }
+
+
           }
         }
 

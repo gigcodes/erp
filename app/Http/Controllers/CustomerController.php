@@ -55,7 +55,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-      $instructions = Instruction::with('remarks')->latest()->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'created_at'])->get()->groupBy('customer_id')->toArray();
+      $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
       // dd(';s');
       // $customers = Customer::with('whatsapps')->get();
@@ -205,9 +205,16 @@ class CustomerController extends Controller
             $customers = $customers->orderBy($sortby, $orderby);
         }
 
-        if ($request->type == 'unread') {
-          $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
+        $start_time = $request->input('range_start') ?? '';
+    		$end_time   = $request->input('range_end') ?? '';
 
+        if ($request->type == 'unread') {
+          // if ($start_time != '' && $end_time != '') {
+          //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.created_at BETWEEN ' . $start_time . ' AND ' . $end_time . ' GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
+          // } else {
+            $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
+          // }
+          // dd($customers->get());
           $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('message_status', 'ASC')->orderBy('last_communicated_at', $orderby);
         } else {
           $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
@@ -217,18 +224,35 @@ class CustomerController extends Controller
             $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('last_communicated_at', $orderby);
         }
 
-        $customers = $customers->selectRaw('customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
-        (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
-        (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
-        (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,
-        (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type');
+        // dd($start_time, $end_time);
+
+        // if ($start_time != '' && $end_time != '') {
+          $customers = $customers->selectRaw("customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
+          (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
+          (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
+          (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,
+          (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type");
+        // } else {
+        // dd($customers->get());
+          // $customers = $customers->selectRaw("customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, chat_message_created_at AS last_communicated_at,
+          // message, status AS message_status, chat_message_id AS message_id, sent AS message_type");
+        // }
+
+
+
+
 
         $ids_list = [];
         foreach ($customers->get() as $customer) {
           $ids_list[] = $customer->id;
         }
 
-        $customers = $customers->paginate(Setting::get('pagination'));
+        if ($start_time != '' && $end_time != '') {
+          $customers = $customers->whereBetween('chat_message_created_at', [$start_time, $end_time])->paginate(Setting::get('pagination'));
+        } else {
+          $customers = $customers->paginate(Setting::get('pagination'));
+        }
+
 
         return [$customers, $ids_list];
     }
@@ -292,6 +316,21 @@ class CustomerController extends Controller
       $customer->save();
 
       return response()->json(['is_flagged' => $customer->is_flagged]);
+    }
+
+    public function prioritize(Request $request)
+    {
+      $customer = Customer::find($request->customer_id);
+
+      if ($customer->is_priority == 0) {
+        $customer->is_priority = 1;
+      } else {
+        $customer->is_priority = 0;
+      }
+
+      $customer->save();
+
+      return response()->json(['is_priority' => $customer->is_priority]);
     }
 
     public function sendInstock(Request $request)

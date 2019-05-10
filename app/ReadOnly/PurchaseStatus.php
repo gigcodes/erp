@@ -15,6 +15,7 @@ class PurchaseStatus extends ReadOnlyBase {
 
 	protected $data = [
 		'Pending Purchase'	=> 'Pending Purchase',
+		'In Negotiation'	=> 'In Negotiation',
 		'Payment to be made to supplier'	=> 'Payment to be made to supplier',
 		'Purchased'	=> 'Purchased',
 		'Follow up for shipment'	=> 'Follow up for shipment',

@@ -6,6 +6,8 @@ use App\Customer;
 use App\Product;
 use App\Suggestion;
 use App\ChatMessage;
+use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SendProductSuggestion extends Command
@@ -41,6 +43,11 @@ class SendProductSuggestion extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $suggestions = Suggestion::all();
 
       foreach ($suggestions as $suggestion) {
@@ -136,5 +143,7 @@ class SendProductSuggestion extends Command
           }
         }
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

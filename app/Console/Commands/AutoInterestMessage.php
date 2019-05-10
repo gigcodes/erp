@@ -7,6 +7,8 @@ use App\Customer;
 use App\Product;
 use App\ChatMessage;
 use App\Category;
+use App\CronJobReport;
+use Carbon\Carbon;
 
 class AutoInterestMessage extends Command
 {
@@ -41,6 +43,11 @@ class AutoInterestMessage extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
       $params = [
         'number'  => NULL,
         'status'  => 7, // message status for auto messaging
@@ -148,5 +155,7 @@ class AutoInterestMessage extends Command
           }
         }
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }
