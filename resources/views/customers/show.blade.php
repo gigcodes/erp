@@ -1744,6 +1744,18 @@
             <button type="button" class="btn latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
           </div>
         </li>
+
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="Please show client chat to Yogesh">
+            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button">Client Chat</button>
+          </form>
+        </li>
       </ul>
     </div>
 
