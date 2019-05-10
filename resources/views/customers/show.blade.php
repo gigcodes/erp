@@ -2247,7 +2247,8 @@
           customer_id: customer_id,
           order_type: "offline",
           convert_order: 'convert_order',
-          selected_product: selected_product_images
+          selected_product: selected_product_images,
+          order_status: "Follow up for advance"
         },
         beforeSend: function() {
           $(thiss).text('Creating...');
@@ -3437,7 +3438,8 @@
           data: {
             _token: token,
             customer_id: customer_id,
-            order_type: "offline"
+            order_type: "offline",
+            order_status: "Follow up for advance"
           },
           beforeSend: function() {
             $(thiss).text('Creating...');
