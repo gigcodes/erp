@@ -9,7 +9,7 @@ class Purchase extends Model
 {
   use SoftDeletes;
 
-  protected $appends = ['communication'];
+  // protected $appends = ['communication'];
 	protected $communication = '';
   protected $fillable = ['whatsapp_number'];
 
@@ -18,10 +18,10 @@ class Purchase extends Model
 		return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'purchase')->latest()->first();
 	}
 
-	public function getCommunicationAttribute()
-	{
-		return $this->messages();
-	}
+	// public function getCommunicationAttribute()
+	// {
+	// 	return $this->messages();
+	// }
 
   public function products()
   {

@@ -198,6 +198,21 @@
 
             <button type="submit" class="btn btn-xs btn-secondary mt-2">Remove</button>
           </form>
+
+          <div class="form-group">
+            <strong>Purchase price:</strong> <span class="purchase-price">{{ isset($product->percentage) || isset($product->factor) ? (($product->price - ($product->price * $product->percentage / 100) - $product->factor) * 80) : ($product->price) }}</span>
+          </div>
+
+          <div class="form-group">
+            <strong>Percentage %:</strong>
+            <input type="number" name="percentage" class="form-control input-sm" placeholder="10%" value="{{ $product->percentage }}" min="0" max="100" data-price="{{ $product->price }}">
+          </div>
+
+          <div class="form-group">
+            <strong>Amount:</strong>
+            <input type="number" name="factor" class="form-control input-sm" placeholder="1.22" value="{{ $product->factor }}" min="0" step="0.01" data-price="{{ $product->price }}">
+            <a href="#" class="btn-link save-purchase-price" data-id="{{ $product->id }}">Save</a>
+          </div>
         </div>
       @endforeach
     </div>
@@ -2228,6 +2243,49 @@
       $('#resend_email_id').val(id);
       $('#resend_email_type').val(email_type);
       $('#resend_type').val(type);
+    });
+
+    $('input[name="percentage"], input[name="factor"]').on('keyup', function() {
+      var thiss = $(this);
+      var price = $(this).data('price');
+
+      if ($(thiss).parent('div').parent('div').find('input[name="percentage"]').val() < 0) {
+        $(thiss).parent('div').parent('div').find('input[name="percentage"]').val(0);
+      } else if ($(thiss).parent('div').parent('div').find('input[name="percentage"]').val() > 100) {
+        $(thiss).parent('div').parent('div').find('input[name="percentage"]').val(100);
+      }
+
+      var percentage = $(thiss).parent('div').parent('div').find('input[name="percentage"]').val();
+      var factor = $(thiss).parent('div').parent('div').find('input[name="factor"]').val();
+
+      $(thiss).parent('div').parent('div').find('.purchase-price').text((price - (price * percentage / 100) - factor) * 80);
+    });
+
+    $('.save-purchase-price').on('click', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+      var thiss = $(this);
+      var url = "{{ url('purchase/product') }}/" + id;
+      var token = "{{ csrf_token() }}";
+      var percentage = $(this).parent('div').parent('div').find('input[name="percentage"]').val();
+      var factor = $(this).parent('div').parent('div').find('input[name="factor"]').val();
+
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+          _token: token,
+          percentage: percentage,
+          factor: factor
+        },
+        beforeSend: function() {
+          $(thiss).text('Saving');
+        },
+        success: function() {
+          $(thiss).text('Save');
+        }
+      });
     });
   </script>
 @endsection

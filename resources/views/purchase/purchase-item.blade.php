@@ -9,12 +9,13 @@
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Purchase Handler</a></th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Supplier Name</a></th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Order Status</a></th>
+      <th>Qty</th>
       <th>Retail Price</th>
       <th>Sold Price</th>
       <th>Actual Price</th>
       <th>Net</th>
-      <th>Message Status</th>
-      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Communication</a></th>
+      {{-- <th>Message Status</th>
+      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Communication</a></th> --}}
       <th width="280px">Action</th>
     </tr>
     @foreach ($purchases_array as $key => $purchase)
@@ -39,8 +40,28 @@
               @endforeach
             </td>
             <td>{{ $purchase['purchase_handler'] ? $users[$purchase['purchase_handler']] : 'nil' }}</td>
-            <td>{{ $purchase['supplier'] }}</td>
+            <td>{{ $purchase['purchase_supplier']['supplier'] }}</td>
             <td>{{ $purchase['status']}}</td>
+            <td>
+              @php
+                $qty = 0;
+              @endphp
+              <ul>
+                @foreach ($purchase['products'] as $product)
+                  @if (count($product['orderproducts']) > 0)
+                    @foreach ($product['orderproducts'] as $order_product)
+                      @php
+                        $qty += $order_product['qty'];
+                      @endphp
+                    @endforeach
+                  @endif
+
+                  <li>
+                    {{ $qty }}
+                  </li>
+                @endforeach
+              </ul>
+            </td>
             <td>
               @php $retail_price = 0; @endphp
               @foreach ($purchase['products'] as $product)
@@ -70,7 +91,7 @@
             <td>
               {{ $sold_price - ($actual_price * 78) }}
             </td>
-            <td>
+            {{-- <td>
               @if ($purchase['communication']['status'] != null && $purchase['communication']['status'] == 0)
                 Unread
               @elseif ($purchase['communication']['status'] == 5)
@@ -91,7 +112,7 @@
               @else
                 {{ $purchase['communication']['body'] }}
               @endif
-            </td>
+            </td> --}}
             <td>
               <a class="btn btn-image" href="{{ route('purchase.show',$purchase['id']) }}"><img src="/images/view.png" /></a>
 

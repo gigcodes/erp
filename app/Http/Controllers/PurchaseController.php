@@ -10,6 +10,7 @@ use App\Setting;
 use App\Purchase;
 use App\Customer;
 use App\Helpers;
+use App\ChatMessage;
 use App\User;
 use App\Comment;
 use App\Reply;
@@ -81,7 +82,7 @@ class PurchaseController extends Controller
             $q->with('customer');
           }]);
         }]);
-      }]);
+      }, 'purchase_supplier']);
 
       // $purchases_new = DB::table('purchases');
 
@@ -98,9 +99,11 @@ class PurchaseController extends Controller
         });
       }
 
+
       if ($sortby != 'communication') {
   			$purchases = $purchases->orderBy($sortby, $orderby);
   		}
+      // dd($purchases->get());
 
       // $order_products = DB::table('order_products')->join(DB::raw('(SELECT sku as product_sku FROM `products`)'), 'order_products.sku', '=', 'products.product_sku', 'LEFT');
       // dd($order_products->get());
@@ -119,21 +122,21 @@ class PurchaseController extends Controller
 
   		$users  = Helpers::getUserArray( User::all());
 
-  		$purchases_array = $purchases->select(['id', 'purchase_handler', 'supplier', 'status', 'created_at'])->get()->toArray();
-
-  		if ($sortby == 'communication') {
-  			if ($orderby == 'asc') {
-  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
-  						return $value['communication']['created_at'];
-  				}));
-
-  				$purchases_array = array_reverse($purchases_array);
-  			} else {
-  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
-  						return $value['communication']['created_at'];
-  				}));
-  			}
-  		}
+  		$purchases_array = $purchases->select(['id', 'purchase_handler', 'supplier', 'supplier_id', 'status', 'created_at'])->get()->toArray();
+      // dd($purchases_array);
+  		// if ($sortby == 'communication') {
+  		// 	if ($orderby == 'asc') {
+  		// 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  		// 				return $value['communication']['created_at'];
+  		// 		}));
+      //
+  		// 		$purchases_array = array_reverse($purchases_array);
+  		// 	} else {
+  		// 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  		// 				return $value['communication']['created_at'];
+  		// 		}));
+  		// 	}
+  		// }
 
   		$currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = 10;
@@ -657,6 +660,65 @@ class PurchaseController extends Controller
 
       $order->status = $request->status;
       $order->save();
+
+      if ($request->status == 'In transit in Dubai') {
+        if ($order->products) {
+          foreach ($order->products as $product) {
+            $supplier = Supplier::where('supplier', 'In-stock')->first();
+
+            $product->supplier = 'In-stock';
+            $product->location = 'Dubai';
+            $product->save();
+
+            $product->suppliers()->attach($supplier);
+
+            if ($product->orderproducts) {
+              $params = [
+                 'number'       => NULL,
+                 'user_id'      => Auth::id(),
+                 'approved'     => 0,
+                 'status'       => 1,
+                 'message'      => 'Your Order is in transit in Dubai'
+               ];
+
+              foreach ($product->orderproducts as $order_product) {
+                if ($order_product->order) {
+                  $params['customer_id'] = $order_product->order->customer->id;
+
+                  ChatMessage::create($params);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if ($request->status == 'Received in Mumbai') {
+        if ($order->products) {
+          foreach ($order->products as $product) {
+            $product->location = 'Mumbai';
+            $product->save();
+
+            // if ($product->orderproducts) {
+            //   $params = [
+            //      'number'       => NULL,
+            //      'user_id'      => Auth::id(),
+            //      'approved'     => 0,
+            //      'status'       => 1,
+            //      'message'      => 'Your Order is in transit in Dubai'
+            //    ];
+            //
+            //   foreach ($product->orderproducts as $order_product) {
+            //     if ($order_product->order) {
+            //       $params['customer_id'] = $order_product->order->customer->id;
+            //
+            //       ChatMessage::create($params);
+            //     }
+            //   }
+            // }
+          }
+        }
+      }
 
       foreach ($order->products as $product) {
         foreach ($product->orderproducts as $order_product) {

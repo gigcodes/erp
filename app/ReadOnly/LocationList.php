@@ -20,5 +20,6 @@ class LocationList extends ReadOnlyBase {
 		'Pune'				=> 'Pune',
 		'Dubai'				=> 'Dubai',
 		'Customs'			=> 'Customs',
+		'Mumbai'			=> 'Mumbai',
 	];
 }
