@@ -233,7 +233,7 @@ class WhatsAppController extends FindByNumberController
         }
 
         // Auto Instruction
-        if (array_key_exists('message', $params) && (preg_match("/you photo/i", $params['message']) || preg_match("/pp/i", $params['message']) || preg_match("/how much/i", $params['message']) || preg_match("/cost/i", $params['message']))) {
+        if (array_key_exists('message', $params) && (preg_match("/you photo/i", $params['message']) || preg_match("/pp/i", $params['message']) || preg_match("/how much/i", $params['message']) || preg_match("/cost/i", $params['message']) || preg_match("/rate/i", $params['message']))) {
           if ($customer = Customer::find($params['customer_id'])) {
             Instruction::create([
               'customer_id' => $customer->id,
