@@ -90,6 +90,7 @@ class ProductAttributeController extends Controller
 		$data['price'] = $productattribute->price;
 		$data['price_inr'] = $productattribute->price_inr;
 		$data['price_special'] = $productattribute->price_special;
+		$data['price_special_offer'] = $productattribute->price_special_offer;
 		$data['euro_to_inr'] = $productattribute->euro_to_inr;
 		$data['suppliers'] = Supplier::all();
 		$data['product_suppliers'] = $productattribute->suppliers;
@@ -156,6 +157,7 @@ class ProductAttributeController extends Controller
 		$productattribute->brand = $request->input('brand');
 		$productattribute->color = $request->input('color');
 		$productattribute->price = $request->input('price');
+		$productattribute->price_special_offer = $request->input('price_special_offer');
 
 		if(!empty($productattribute->brand)) {
 			$productattribute->price_inr     = $this->euroToInr( $productattribute->price, $productattribute->brand );
