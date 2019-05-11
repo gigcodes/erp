@@ -38,7 +38,7 @@
       @endphp
       {{-- @foreach ($images as $image) --}}
         <div class="col-md-3 col-xs-6 text-center mb-5">
-          <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }}">
+          <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
             <img data-src="{{ $image->getUrl() }}" class="lazy img-responsive grid-image" alt="" />
             <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
             <p>Id : {{ $product->id }}</p>

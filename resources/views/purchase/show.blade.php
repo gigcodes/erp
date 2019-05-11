@@ -116,15 +116,6 @@
 
     @if ($order->files)
       <div class="form-group">
-        @if ($order->proforma_confirmed == 1)
-          <span class="badge">Proformo Confirmed</span>
-        @else
-          <button type="button" class="btn btn-xs btn-secondary" id="confirmProformaButton">Confirm Proforma</button>
-          <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
-        @endif
-      </div>
-
-      <div class="form-group">
         <strong>Uploaded Files:</strong>
         <ul>
           @foreach ($order->files as $file)
@@ -154,11 +145,29 @@
       <strong>Customers List</strong>
       <ul>
         @foreach ($order->products as $product)
-          @foreach ($product->orderproducts as $order_product)
+          @php
+            $duplicates_array = [];
+          @endphp
+          @foreach ($product->orderproducts as $key => $order_product)
             <li>
               @if ($order_product->order && $order_product->order->customer)
+                @php
+                  $duplicates_array[] = $order_product->order->customer->id;
+                  $dups = array();
+                  foreach(array_count_values($duplicates_array) as $val => $c) {
+                    if($c > 1) {
+                      $duplicate = $dups[] = $val;
+                    }
+                  }
+
+                @endphp
+
                 <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
                  - ({{ $order_product->purchase_status }})
+
+                 @if (in_array($order_product->order->customer->id, $dups))
+                   <span class="badge">Duplicate</span>
+                 @endif
                @else
                  No Customer
                @endif
@@ -173,8 +182,9 @@
     <div class="row">
       <div class="col">
         @php $purchase_price = 0;
-          foreach ($order->products as $product)
-            $purchase_price += $product->price;
+          foreach ($order->products as $product) {
+            $purchase_price += round(($product->price - ($product->price * $product->percentage / 100)) / 1.22, 2);
+          }
         @endphp
         <div class="form-group">
           <strong>Purchase Price:</strong> {{ $purchase_price }}
@@ -189,6 +199,15 @@
             <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive" alt="">
           </a>
 
+          <div class="form-group mt-3">
+            <select class="form-control input-sm change-product-status" name="purchase_status" data-id="{{ $product->id }}">
+              <option value="">Product Status</option>
+              <option value="Not Available with Supplier" {{ "Not Available with Supplier" == $product->purchase_status ? 'selected' : '' }}>Not Available with Supplier</option>
+            </select>
+
+            <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
+          </div>
+
           <a href="{{ route('attachImages', ['purchase-replace', $product->id]) }}" class="btn btn-xs btn-secondary mt-2">Replace</a>
           <a href="#" class="btn btn-xs btn-secondary mt-2 replace-product-button" data-id="{{ $product->id }}" data-toggle="modal" data-target="#createProductModal">Create & Replace</a>
 
@@ -200,198 +219,98 @@
           </form>
 
           <div class="form-group">
-            <strong>Purchase price:</strong> <span class="purchase-price">{{ isset($product->percentage) || isset($product->factor) ? (($product->price - ($product->price * $product->percentage / 100) - $product->factor) * 80) : ($product->price) }}</span>
+            <strong>Purchase price:</strong> <span class="purchase-price">{{ isset($product->percentage) || isset($product->factor) ? round(($product->price - ($product->price * $product->percentage / 100)) / 1.22, 2) : ($product->price) }}</span>
           </div>
 
           <div class="form-group">
             <strong>Percentage %:</strong>
-            <input type="number" name="percentage" class="form-control input-sm" placeholder="10%" value="{{ $product->percentage }}" min="0" max="100" data-price="{{ $product->price }}">
+            <input type="number" name="percentage" class="form-control input-sm" placeholder="10%" value="{{ $product->percentage }}" min="0" max="100" data-price="{{ $product->price }}" data-productid="{{ $product->id }}">
           </div>
 
-          <div class="form-group">
-            <strong>Amount:</strong>
-            <input type="number" name="factor" class="form-control input-sm" placeholder="1.22" value="{{ $product->factor }}" min="0" step="0.01" data-price="{{ $product->price }}">
-            <a href="#" class="btn-link save-purchase-price" data-id="{{ $product->id }}">Save</a>
-          </div>
+
         </div>
       @endforeach
     </div>
-  </div>
-</div>
 
-<div id="createProductModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Create & Replace Product</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <form action="{{ route('purchase.product.create.replace') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-
-        <div class="modal-body">
-          <input type="hidden" name="product_id" id="replace_product_id" value="">
-          <div class="form-group">
-              <strong>Image:</strong>
-              <input type="file" class="form-control" name="image"
-                     value="{{ old('image') }}" id="product-image"/>
-              @if ($errors->has('image'))
-                  <div class="alert alert-danger">{{$errors->first('image')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Name:</strong>
-              <input type="text" class="form-control" name="name" placeholder="Name"
-                     value="{{ old('name') }}"  id="product-name"/>
-              @if ($errors->has('name'))
-                  <div class="alert alert-danger">{{$errors->first('name')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>SKU:</strong>
-              <input type="text" class="form-control" name="sku" placeholder="SKU"
-                     value="{{ old('sku') }}"  id="product-sku"/>
-              @if ($errors->has('sku'))
-                  <div class="alert alert-danger">{{$errors->first('sku')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Color:</strong>
-              <input type="text" class="form-control" name="color" placeholder="Color"
-                     value="{{ old('color') }}"  id="product-color"/>
-              @if ($errors->has('color'))
-                  <div class="alert alert-danger">{{$errors->first('color')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Brand:</strong>
-              <?php
-              $brands = \App\Brand::getAll();
-              echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
-                {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
-                @if ($errors->has('brand'))
-                    <div class="alert alert-danger">{{$errors->first('brand')}}</div>
-                @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Price: (Euro)</strong>
-              <input type="number" class="form-control" name="price" placeholder="Price (Euro)"
-                     value="{{ old('price') }}" step=".01"  id="product-price"/>
-              @if ($errors->has('price'))
-                  <div class="alert alert-danger">{{$errors->first('price')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Price:</strong>
-              <input type="number" class="form-control" name="price_special" placeholder="Price"
-                     value="{{ old('price_special') }}" step=".01"  id="product-price-special"/>
-              @if ($errors->has('price_special'))
-                  <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Size:</strong>
-              <input type="text" class="form-control" name="size" placeholder="Size"
-                     value="{{ old('size') }}"  id="product-size"/>
-              @if ($errors->has('size'))
-                  <div class="alert alert-danger">{{$errors->first('size')}}</div>
-              @endif
-          </div>
-
-          <div class="form-group">
-              <strong>Quantity:</strong>
-              <input type="number" class="form-control" name="quantity" placeholder="Quantity"
-                     value="{{ old('quantity') }}"  id="product-quantity"/>
-              @if ($errors->has('quantity'))
-                  <div class="alert alert-danger">{{$errors->first('quantity')}}</div>
-              @endif
-          </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="form-group">
+          {{-- <strong>Amount:</strong>
+          <input type="number" name="factor" class="form-control input-sm" placeholder="1.22" value="{{ $product->factor }}" min="0" step="0.01" data-price="{{ $product->price }}"> --}}
+          <a href="#" class="btn btn-secondary save-purchase-price" data-id="{{ $product->id }}">Save</a>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Create & Replace</button>
+
+        <div class="table-responsive">
+          <table class="table table-bordered" id="purchaseDiscounts">
+            <tbody>
+              @foreach ($purchase_discounts as $date => $items)
+                @php
+                  if ($loop->first) {
+                    $last_index = $date;
+                  }
+                @endphp
+                <tr>
+                  <td>{{ $date }}</td>
+
+                  @foreach ($items as $id => $discounts)
+                    <td>{{ $id }} - {{ $discounts[0]->percentage }} %</td>
+                  @endforeach
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
         </div>
-      </form>
-    </div>
 
-  </div>
-</div>
+        @if (isset($last_index))
+          <h4>Proforma</h4>
 
-<div id="taskModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Create Task</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-
-      <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-
-        <input type="hidden" name="task_type" value="quick_task">
-        <input type="hidden" name="model_type" value="purchase">
-        <input type="hidden" name="model_id" value="{{ $order->id }}">
-
-        <div class="modal-body">
           <div class="form-group">
-            <strong>Task Subject:</strong>
-            <input type="text" class="form-control" name="task_subject" placeholder="Task Subject" id="task_subject" required />
-            @if ($errors->has('task_subject'))
-            <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Task Details:</strong>
-            <textarea class="form-control" name="task_details" placeholder="Task Details" required></textarea>
-            @if ($errors->has('task_details'))
-            <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
-            @endif
+            <input type="text" name="proforma_id" class="form-control input-sm" placeholder="Proforma Number" value="{{ $order->proforma_id }}">
           </div>
 
-          <div class="form-group" id="completion_form_group">
-            <strong>Completion Date:</strong>
-            <div class='input-group date' id='completion-datetime'>
-              <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" required />
+          <div class="form-group">
+            <div class='input-group date' id='proforma-datetime'>
+              <input type='text' class="form-control input-sm" name="proforma_date" placeholder="Proforma Date" value="{{ $order->proforma_date }}" />
 
               <span class="input-group-addon">
                 <span class="glyphicon glyphicon-calendar"></span>
               </span>
             </div>
+          </div>
 
-            @if ($errors->has('completion_date'))
-            <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-            @endif
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <tbody>
+                <tr>
+                  <th>Proforma</th>
+                  @foreach ($purchase_discounts[$last_index] as $id => $discounts)
+                    <td>
+                      <input type="number" name="proforma" class="form-control input-sm" placeholder="amount" value="" data-productid="{{ $discounts[0]->product_id }}">
+                    </td>
+                  @endforeach
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <div class="form-group">
-            <strong>Assigned To:</strong>
-            <select name="assign_to[]" class="form-control" multiple required>
-              @foreach($users as $user)
-              <option value="{{$user['id']}}">{{$user['name']}}</option>
-              @endforeach
-            </select>
+            @if ($order->proforma_confirmed == 1)
+              <span class="badge">Proforma Confirmed</span>
+            @else
+              <button type="button" class="btn btn-xs btn-secondary" id="confirmProformaButton">Confirm Proforma</button>
+              <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
+            @endif
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Create</button>
-        </div>
-      </form>
+        @endif
+      </div>
     </div>
 
   </div>
 </div>
+
+
+@include('purchase.partials.modal-product')
+@include('purchase.partials.modal-task')
 
 
 
@@ -733,7 +652,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
 
   <script type="text/javascript">
-    $('#completion-datetime, #transaction-datetime').datetimepicker({
+    $('#completion-datetime, #transaction-datetime, #proforma-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
 
@@ -2051,28 +1970,73 @@
       });
     });
 
+    $('.change-product-status').on('change', function() {
+      var token = "{{ csrf_token() }}";
+      var status = $(this).val();
+      var id = {{ $order->id }};
+      var product_id = $(this).data('id');
+      var thiss = $(this);
+
+      $.ajax({
+        url: '/purchase/' + id + '/changeProductStatus',
+        type: 'POST',
+        data: {
+          _token: token,
+          status: status,
+          product_id: product_id,
+        }
+      }).done( function(response) {
+        $(thiss).siblings('.change_status_message').fadeIn(400);
+        setTimeout(function () {
+          $(thiss).siblings('.change_status_message').fadeOut(400);
+        }, 2000);
+      }).fail(function(errObj) {
+        alert("Could not change status");
+      });
+    });
+
     $('#confirmProformaButton').on('click', function() {
       var token = "{{ csrf_token() }}";
       var id = {{ $order->id }};
       var thiss = $(this);
+      var proformas = $('input[name="proforma"]');
+      var proformas_array = [];
+      var proforma_id = $('input[name="proforma_id"]').val();
+      var proforma_date = $('input[name="proforma_date"]').val();
+
+      for (var i = 0; i < proformas.length; i++) {
+        product_id = $(proformas[i]).data('productid');
+        value = $(proformas[i]).val();
+        proformas_array[i] = [];
+        proformas_array[i].push(product_id);
+        proformas_array[i].push(value);
+      }
 
       $.ajax({
         url: '/purchase/' + id + '/confirmProforma',
         type: 'POST',
         data: {
           _token: token,
+          proformas: proformas_array,
+          proforma_id: proforma_id,
+          proforma_date: proforma_date,
         },
         beforeSend: function() {
           $(thiss).text('Confirming...');
         }
       }).done( function(response) {
-        $(thiss).parent('div').append('<span class="badge">Proforma Confirmed</span>');
-        $(thiss).remove();
+        if (response.proforma_confirmed == 1) {
+          $(thiss).parent('div').append('<span class="badge">Proforma Confirmed</span>');
+          $(thiss).remove();
 
-        $(thiss).siblings('.change_status_message').fadeIn(400);
-        setTimeout(function () {
-          $(thiss).siblings('.change_status_message').fadeOut(400);
-        }, 2000);
+          $(thiss).siblings('.change_status_message').fadeIn(400);
+          setTimeout(function () {
+            $(thiss).siblings('.change_status_message').fadeOut(400);
+          }, 2000);
+        } else {
+          $(thiss).text('Confirm Proforma');
+          $(thiss).addClass('btn-danger');
+        }
       }).fail(function(response) {
         $(thiss).text('Confirm Proforma');
         console.log(response);
@@ -2256,34 +2220,62 @@
       }
 
       var percentage = $(thiss).parent('div').parent('div').find('input[name="percentage"]').val();
-      var factor = $(thiss).parent('div').parent('div').find('input[name="factor"]').val();
+      // var factor = $(thiss).parent('div').parent('div').find('input[name="factor"]').val();
 
-      $(thiss).parent('div').parent('div').find('.purchase-price').text((price - (price * percentage / 100) - factor) * 80);
+      $(thiss).parent('div').parent('div').find('.purchase-price').text(parseFloat((price - (price * percentage / 100)) / 1.22).toFixed(2));
     });
 
     $('.save-purchase-price').on('click', function(e) {
       e.preventDefault();
 
-      var id = $(this).data('id');
+      // var id = $(this).data('id');
+      var id = {{ $order->id }};
       var thiss = $(this);
       var url = "{{ url('purchase/product') }}/" + id;
       var token = "{{ csrf_token() }}";
-      var percentage = $(this).parent('div').parent('div').find('input[name="percentage"]').val();
-      var factor = $(this).parent('div').parent('div').find('input[name="factor"]').val();
+      var percentages = $('input[name="percentage"]');
+      var percentages_array = [];
+      var value;
+
+      for (var i = 0; i < percentages.length; i++) {
+        product_id = $(percentages[i]).data('productid');
+        value = $(percentages[i]).val();
+        percentages_array[i] = [];
+        percentages_array[i].push(product_id);
+        percentages_array[i].push(value);
+      }
+
+      console.log(percentages);
+      console.log(percentages_array);
+      // var factor = $(this).parent('div').parent('div').find('input[name="factor"]').val();
 
       $.ajax({
         type: 'POST',
         url: url,
         data: {
           _token: token,
-          percentage: percentage,
-          factor: factor
+          percentages: percentages_array,
+          purchase_id: {{ $order->id }},
+          type: "product"
+          // factor: factor
         },
         beforeSend: function() {
           $(thiss).text('Saving');
         },
         success: function() {
           $(thiss).text('Save');
+          var row = '<tr><td>' + moment().format('Y-MM-DD') + '</td>';
+
+          for (var i = 0; i < percentages.length; i++) {
+            product_id = $(percentages[i]).data('productid');
+            value = $(percentages[i]).val();
+
+            row += '<td>' + product_id + ' - ' + value + ' %</td>';
+          }
+
+          row += '</tr>';
+
+          $('#purchaseDiscounts').find('tbody').prepend(row);
         }
       });
     });
