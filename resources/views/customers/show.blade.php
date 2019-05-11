@@ -2521,6 +2521,7 @@
           var price_special = $('#product-price-special').val();
           var size = $('#product-size').val();
           var quantity = $('#product-quantity').val();
+          var thiss = $(this);
 
           var form_data = new FormData();
           form_data.append('_token', token);
@@ -2542,42 +2543,53 @@
             contentType: false,
             enctype: 'multipart/form-data',
             data: form_data,
-            success: function(response) {
-              var brands_array = {!! json_encode(\App\Helpers::getUserArray(\App\Brand::all())) !!};
-              var show_url = "{{ url('products') }}/" + response.product.id;
-              var delete_url = "{{ url('deleteOrderProduct') }}/" + response.order.id;
-              var product_row = '<tr><td><img width="200" src="' + response.product_image + '" /></td>';
-                  product_row += '<td>' + response.product.name + '</td>';
-                  product_row += '<td>' + response.product.sku + '</td>';
-                  product_row += '<td>' + response.product.color + '</td>';
-                  product_row += '<td>' + brands_array[response.product.brand] + '</td>';
-                  product_row += '<td><input class="table-input" type="text" value="' + response.order.product_price + '" name="order_products[' + response.order.id + '][product_price]"></td>';
-                  // product_row += '<th>' + response.product.size + '</th>';
-
-                  if (response.product.size != null) {
-                    var exploded = response.product.size.split(',');
-
-                    product_row += '<td><select class="form-control" name="order_products[' + response.order.id + '][size]">';
-                    product_row += '<option selected="selected" value="">Select</option>';
-
-                    $(exploded).each(function(index, value) {
-                      product_row += '<option value="' + value + '">' + value + '</option>';
-                    });
-
-                    product_row += '</select></td>';
-
-                  } else {
-                      product_row += '<td><select hidden class="form-control" name="order_products[' + response.order.id + '][size]"><option selected="selected" value=""></option></select>nil</td>';
-                  }
-
-                  product_row += '<td><input class="table-input" type="number" min="1" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></td>';
-                  product_row += '<td></td>';
-                  product_row += '<td><a class="btn btn-image" href="' + show_url + '"><img src="/images/view.png" /></a>';
-                  product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></td>';
-                  product_row += '</tr>';
-
-              $('#products-table-' + order_id).append(product_row);
+            beforeSend: function() {
+              $(thiss).text('Creating...');
             }
+          }).done(function(response) {
+            $(thiss).text('Create');
+
+            var brands_array = {!! json_encode(\App\Helpers::getUserArray(\App\Brand::all())) !!};
+            var show_url = "{{ url('products') }}/" + response.product.id;
+            var delete_url = "{{ url('deleteOrderProduct') }}/" + response.order.id;
+            var product_row = '<tr><td><img width="200" src="' + response.product_image + '" /></td>';
+                product_row += '<td>' + response.product.name + '</td>';
+                product_row += '<td>' + response.product.sku + '</td>';
+                product_row += '<td>' + response.product.color + '</td>';
+                product_row += '<td>' + brands_array[response.product.brand] + '</td>';
+                product_row += '<td><input class="table-input" type="text" value="' + response.order.product_price + '" name="order_products[' + response.order.id + '][product_price]"></td>';
+                // product_row += '<th>' + response.product.size + '</th>';
+
+                if (response.product.size != null) {
+                  var exploded = response.product.size.split(',');
+
+                  product_row += '<td><select class="form-control" name="order_products[' + response.order.id + '][size]">';
+                  product_row += '<option selected="selected" value="">Select</option>';
+
+                  $(exploded).each(function(index, value) {
+                    product_row += '<option value="' + value + '">' + value + '</option>';
+                  });
+
+                  product_row += '</select></td>';
+
+                } else {
+                    product_row += '<td><select hidden class="form-control" name="order_products[' + response.order.id + '][size]"><option selected="selected" value=""></option></select>nil</td>';
+                }
+
+                product_row += '<td><input class="table-input" type="number" min="1" value="' + response.order.qty + '" name="order_products[' + response.order.id + '][qty]"></td>';
+                product_row += '<td></td>';
+                product_row += '<td><a class="btn btn-image" href="' + show_url + '"><img src="/images/view.png" /></a>';
+                product_row += '<a class="btn btn-image remove-product" href="#" data-product="' + response.order.id + '"><img src="/images/delete.png" /></a></td>';
+                product_row += '</tr>';
+
+            $('#products-table-' + order_id).append(product_row);
+
+            $('#productModal').find('.close').click();
+          }).fail(function(response) {
+            $(thiss).text('Create');
+
+            console.log(response);
+            alert('Could not create a product!');
           });
         });
 
