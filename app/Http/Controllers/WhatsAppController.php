@@ -238,37 +238,48 @@ class WhatsAppController extends FindByNumberController
                     ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
                     ->first();
 
-                    $brod_products = json_decode($broadcast->products, true);
+                    if ($broadcast) {
+                      $brod_products = json_decode($broadcast->products, true);
 
-                    if (count($brod_products) > 0) {
-                      foreach ($brod_products as $brod_pro) {
-                        $selected_products[] = $brod_pro;
+                      if (count($brod_products) > 0) {
+                        foreach ($brod_products as $brod_pro) {
+                          $selected_products[] = $brod_pro;
+                        }
                       }
                     }
                   }
 
+                  if (isset($broadcast)) {
+                    $quick_lead = Leads::create([
+                      'customer_id' => $customer->id,
+                      'rating'  => 1,
+                      'status'  => 3,
+                      'assigned_user' => 6,
+                      'selected_product'  => json_encode($selected_products),
+                      'created_at'  => Carbon::now()
+                    ]);
 
-                  $quick_lead = Leads::create([
-                    'customer_id' => $customer->id,
-                    'rating'  => 1,
-                    'status'  => 3,
-                    'assigned_user' => 6,
-                    'selected_product'  => json_encode($selected_products),
-                    'created_at'  => Carbon::now()
-                  ]);
+                    $requestData = new Request();
+                    $requestData->setMethod('POST');
+                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                  $requestData = new Request();
-                  $requestData->setMethod('POST');
-                  $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
+                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
 
-                  app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
-
-                  CommunicationHistory::create([
-            				'model_id'		=> $latest_broadcast_message->id,
-            				'model_type'	=> ChatMessage::class,
-            				'type'				=> 'broadcast-prices',
-            				'method'			=> 'whatsapp'
-            			]);
+                    CommunicationHistory::create([
+              				'model_id'		=> $latest_broadcast_message->id,
+              				'model_type'	=> ChatMessage::class,
+              				'type'				=> 'broadcast-prices',
+              				'method'			=> 'whatsapp'
+              			]);
+                  } else {
+                    Instruction::create([
+                      'customer_id' => $customer->id,
+                      'instruction' => 'Please send the prices',
+                      'category_id' => 1,
+                      'assigned_to' => 7,
+                      'assigned_from' => 6
+                    ]);
+                  }
                 }
               }
             } else {
