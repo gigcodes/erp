@@ -859,6 +859,7 @@
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
                                     <a class="dropdown-item" href="{{ route('customer.index') }}">Customers</a>
+                                    <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}">Cold Leads</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
