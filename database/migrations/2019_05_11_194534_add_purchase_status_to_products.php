@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class MakeCustomerIdNullableInComplaintsTable extends Migration
+class AddPurchaseStatusToProducts extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class MakeCustomerIdNullableInComplaintsTable extends Migration
      */
     public function up()
     {
-        Schema::table('complaints', function (Blueprint $table) {
-            $table->integer('customer_id')->nullable()->change();
+        Schema::table('products', function (Blueprint $table) {
+          $table->string('purchase_status')->nullable()->after('stock');
         });
     }
 
@@ -25,8 +25,8 @@ class MakeCustomerIdNullableInComplaintsTable extends Migration
      */
     public function down()
     {
-        Schema::table('complaints', function (Blueprint $table) {
-            $table->integer('customer_id')->unsigned()->change();
+        Schema::table('products', function (Blueprint $table) {
+          $table->dropColumn('purchase_status');
         });
     }
 }

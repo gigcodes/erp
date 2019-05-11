@@ -9,7 +9,7 @@ class Purchase extends Model
 {
   use SoftDeletes;
 
-  protected $appends = ['communication'];
+  // protected $appends = ['communication'];
 	protected $communication = '';
   protected $fillable = ['whatsapp_number'];
 
@@ -18,10 +18,10 @@ class Purchase extends Model
 		return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'purchase')->latest()->first();
 	}
 
-	public function getCommunicationAttribute()
-	{
-		return $this->messages();
-	}
+	// public function getCommunicationAttribute()
+	// {
+	// 	return $this->messages();
+	// }
 
   public function products()
   {
@@ -51,5 +51,26 @@ class Purchase extends Model
   public function status_changes()
 	{
 		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Purchase')->latest();
+	}
+
+  public function is_sent_in_italy()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Purchase')->where('type', 'purchase-in-italy')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
+  public function is_sent_in_dubai()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Purchase')->where('type', 'purchase-in-dubai')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
+  public function is_sent_in_mumbai()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Purchase')->where('type', 'purchase-in-mumbai')->count();
+
+		return $count > 0 ? TRUE : FALSE;
 	}
 }

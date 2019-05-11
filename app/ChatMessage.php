@@ -19,4 +19,11 @@ class ChatMessage extends Model
   	{
   		return $this->belongsTo('App\Customer');
   	}
+
+    public function is_sent_broadcast_price()
+  	{
+  		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\ChatMessage')->where('type', 'broadcast-prices')->count();
+
+  		return $count > 0 ? TRUE : FALSE;
+  	}
 }

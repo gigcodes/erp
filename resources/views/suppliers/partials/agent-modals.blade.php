@@ -5,7 +5,7 @@
     <div class="modal-content">
       <form action="{{ route('agent.store') }}" method="POST">
         @csrf
-        <input type="hidden" name="model_id" id="agent_supplier_id" value="">
+        <input type="hidden" name="model_id" id="agent_supplier_id" value="{{ $supplier->id }}">
         <input type="hidden" name="model_type" value="App\Supplier">
 
         <div class="modal-header">
@@ -33,12 +33,13 @@
 
           <div class="form-group">
     				<strong>Solo Phone:</strong>
-    				<select name="whatsapp_number" class="form-control">
+            <input type="number" name="whatsapp_number" class="form-control" value="">
+    				{{-- <select name="whatsapp_number" class="form-control">
     					<option value>None</option>
     					@foreach ($solo_numbers as $number => $name)
     						<option value="{{ $number }}" {{ old('whatsapp_number') == $number ? 'selected' : '' }}>{{ $name }}</option>
     					@endforeach
-    				</select>
+    				</select> --}}
     				@if ($errors->has('whatsapp_number'))
     						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
     				@endif
@@ -106,12 +107,13 @@
 
           <div class="form-group">
     				<strong>Solo Phone:</strong>
-    				<select name="whatsapp_number" class="form-control" id="agent_whatsapp_number">
+            <input type="number" name="whatsapp_number" class="form-control" value="">
+    				{{-- <select name="whatsapp_number" class="form-control" id="agent_whatsapp_number">
     					<option value>None</option>
     					@foreach ($solo_numbers as $number => $name)
     						<option value="{{ $number }}">{{ $name }}</option>
     					@endforeach
-    				</select>
+    				</select> --}}
     				@if ($errors->has('whatsapp_number'))
     						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
     				@endif

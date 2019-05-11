@@ -538,7 +538,7 @@ class LeadsController extends Controller
     {
       $params = [
         'number'      => NULL,
-        'user_id'     => 6,
+        'user_id'     => Auth::id() ?? 6,
         'approved'    => 0,
         'status'      => 1,
       ];

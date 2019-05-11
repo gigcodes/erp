@@ -10,14 +10,17 @@ use App\Setting;
 use App\Purchase;
 use App\Customer;
 use App\Helpers;
+use App\ChatMessage;
 use App\User;
 use App\Comment;
 use App\Reply;
 use App\Message;
 use App\ReplyCategory;
+use App\CommunicationHistory;
 use App\Task;
 use App\Brand;
 use App\Email;
+use App\PurchaseDiscount;
 use App\StatusChange;
 use App\Mail\CustomerEmail;
 use App\Mail\PurchaseEmail;
@@ -81,7 +84,7 @@ class PurchaseController extends Controller
             $q->with('customer');
           }]);
         }]);
-      }]);
+      }, 'purchase_supplier']);
 
       // $purchases_new = DB::table('purchases');
 
@@ -98,9 +101,11 @@ class PurchaseController extends Controller
         });
       }
 
+
       if ($sortby != 'communication') {
   			$purchases = $purchases->orderBy($sortby, $orderby);
   		}
+      // dd($purchases->get());
 
       // $order_products = DB::table('order_products')->join(DB::raw('(SELECT sku as product_sku FROM `products`)'), 'order_products.sku', '=', 'products.product_sku', 'LEFT');
       // dd($order_products->get());
@@ -119,21 +124,21 @@ class PurchaseController extends Controller
 
   		$users  = Helpers::getUserArray( User::all());
 
-  		$purchases_array = $purchases->select(['id', 'purchase_handler', 'supplier', 'status', 'created_at'])->get()->toArray();
-
-  		if ($sortby == 'communication') {
-  			if ($orderby == 'asc') {
-  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
-  						return $value['communication']['created_at'];
-  				}));
-
-  				$purchases_array = array_reverse($purchases_array);
-  			} else {
-  				$purchases_array = array_values(array_sort($purchases_array, function ($value) {
-  						return $value['communication']['created_at'];
-  				}));
-  			}
-  		}
+  		$purchases_array = $purchases->select(['id', 'purchase_handler', 'supplier', 'supplier_id', 'status', 'created_at'])->get()->toArray();
+      // dd($purchases_array);
+  		// if ($sortby == 'communication') {
+  		// 	if ($orderby == 'asc') {
+  		// 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  		// 				return $value['communication']['created_at'];
+  		// 		}));
+      //
+  		// 		$purchases_array = array_reverse($purchases_array);
+  		// 	} else {
+  		// 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+  		// 				return $value['communication']['created_at'];
+  		// 		}));
+  		// 	}
+  		// }
 
   		$currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = 10;
@@ -509,6 +514,9 @@ class PurchaseController extends Controller
       $data['purchase_status'] = (new PurchaseStatus)->all();
       $data['reply_categories'] = ReplyCategory::all();
       $data['suppliers'] = Supplier::all();
+      $data['purchase_discounts'] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->get()->groupBy([function($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d');
+      }, 'product_id']);
 
   		return view('purchase.show', $data)->withOrder($purchase);
     }
@@ -549,6 +557,8 @@ class PurchaseController extends Controller
         $order_product->delete();
       }
 
+      PurchaseDiscount::where('product_id', $old_product->id)->delete();
+
       return redirect()->route('purchase.index')->with('success', 'You have successfully replaced product!');
     }
 
@@ -558,6 +568,8 @@ class PurchaseController extends Controller
       $purchase = Purchase::find($request->purchase_id);
 
       $purchase->products()->detach($product);
+
+      PurchaseDiscount::where('product_id', $id)->delete();
 
       return redirect()->route('purchase.show', $request->purchase_id)->with('success', 'You have successfully removed product!');
     }
@@ -617,6 +629,8 @@ class PurchaseController extends Controller
         $order_product->delete();
       }
 
+      PurchaseDiscount::where('product_id', $old_product->id)->delete();
+
       return redirect()->back()->with('success', 'You have successfully created and replaced product!');
     }
 
@@ -645,20 +659,136 @@ class PurchaseController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-      $order = Purchase::find($id);
+      $purchase = Purchase::find($id);
 
       StatusChange::create([
-        'model_id'    => $order->id,
+        'model_id'    => $purchase->id,
         'model_type'  => Purchase::class,
         'user_id'     => Auth::id(),
-        'from_status' => $order->status,
+        'from_status' => $purchase->status,
         'to_status'   => $request->status
       ]);
 
-      $order->status = $request->status;
-      $order->save();
+      $purchase->status = $request->status;
+      $purchase->save();
 
-      foreach ($order->products as $product) {
+      if ($request->status == 'Shipped' || $request->status == 'In transit in Italy') {
+        if ($purchase->products) {
+          foreach ($purchase->products as $product) {
+            $supplier = Supplier::where('supplier', 'In-stock')->first();
+
+            $product->supplier = 'In-stock';
+            $product->location = 'Italy';
+            $product->save();
+
+            $product->suppliers()->syncWithoutDetaching($supplier);
+
+            if ($product->orderproducts) {
+              $params = [
+                 'number'       => NULL,
+                 'user_id'      => Auth::id(),
+                 'approved'     => 0,
+                 'status'       => 1,
+                 'message'      => 'Your Order is shipped from Italy'
+               ];
+
+              foreach ($product->orderproducts as $order_product) {
+                if ($order_product->order && !$purchase->is_sent_in_italy()) {
+                  $params['customer_id'] = $order_product->order->customer->id;
+
+                  ChatMessage::create($params);
+
+                  CommunicationHistory::create([
+            				'model_id'		=> $purchase->id,
+            				'model_type'	=> Purchase::class,
+            				'type'				=> 'purchase-in-italy',
+            				'method'			=> 'whatsapp'
+            			]);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if ($request->status == 'In transit in Dubai') {
+        if ($purchase->products) {
+          foreach ($purchase->products as $product) {
+            $supplier = Supplier::where('supplier', 'In-stock')->first();
+
+            $product->supplier = 'In-stock';
+            $product->location = 'Dubai';
+            $product->save();
+
+            $product->suppliers()->syncWithoutDetaching($supplier);
+
+            if ($product->orderproducts) {
+              $params = [
+                 'number'       => NULL,
+                 'user_id'      => Auth::id(),
+                 'approved'     => 0,
+                 'status'       => 1,
+                 'message'      => 'Your Order is in transit in Dubai'
+               ];
+
+              foreach ($product->orderproducts as $order_product) {
+                if ($order_product->order && !$purchase->is_sent_in_dubai()) {
+                  $params['customer_id'] = $order_product->order->customer->id;
+
+                  ChatMessage::create($params);
+
+                  CommunicationHistory::create([
+            				'model_id'		=> $purchase->id,
+            				'model_type'	=> Purchase::class,
+            				'type'				=> 'purchase-in-dubai',
+            				'method'			=> 'whatsapp'
+            			]);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if ($request->status == 'Received in Mumbai') {
+        if ($purchase->products) {
+          foreach ($purchase->products as $product) {
+            $supplier = Supplier::where('supplier', 'In-stock')->first();
+
+            $product->location = 'Mumbai';
+            $product->save();
+
+            $product->suppliers()->syncWithoutDetaching($supplier);
+
+            if ($product->orderproducts) {
+              $params = [
+                 'number'       => NULL,
+                 'user_id'      => Auth::id(),
+                 'approved'     => 0,
+                 'status'       => 1,
+                 'message'      => 'Your Order is received in Mumbai'
+               ];
+
+              foreach ($product->orderproducts as $order_product) {
+                if ($order_product->order && !$purchase->is_sent_in_mumbai()) {
+                  $params['customer_id'] = $order_product->order->customer->id;
+
+                  ChatMessage::create($params);
+
+                  CommunicationHistory::create([
+            				'model_id'		=> $purchase->id,
+            				'model_type'	=> Purchase::class,
+            				'type'				=> 'purchase-in-mumbai',
+            				'method'			=> 'whatsapp'
+            			]);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      foreach ($purchase->products as $product) {
         foreach ($product->orderproducts as $order_product) {
           if ($request->status != $order_product->purchase_status) {
             StatusChange::create([
@@ -673,17 +803,62 @@ class PurchaseController extends Controller
           $order_product->purchase_status = $request->status;
           $order_product->save();
         }
+
+        $product->purchase_status = $purchase->status;
+        $product->save();
       }
 
-      return response($order->status);
+      return response($purchase->status);
+    }
+
+    public function updateProductStatus(Request $request, $id)
+    {
+      $product = Product::find($request->product_id);
+      $product->purchase_status = $request->status;
+      $product->save();
+
+      $params = [
+        'number'       => NULL,
+        'user_id'      => Auth::id(),
+        'approved'     => 0,
+        'status'       => 1,
+        'message'      => 'Your Product is not available with the Supplier. Please choose alternative'
+      ];
+
+      foreach ($product->purchases as $purchase) {
+        if ($purchase->id == $id) {
+          foreach ($purchase->products as $related_product) {
+            if ($related_product->id == $product->id) {
+              foreach ($product->orderproducts as $order_product) {
+                if ($order_product->order) {
+                  $params['customer_id'] = $order_product->order->customer->id;
+
+                  ChatMessage::create($params);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return response('success');
     }
 
     public function updatePercentage(Request $request, $id)
     {
-      $product = Product::find($id);
-      $product->percentage = $request->percentage;
-      $product->factor = $request->factor;
-      $product->save();
+      foreach ($request->percentages as $percentage) {
+        $product = Product::find($percentage[0]);
+        $product->percentage = $percentage[1];
+        $product->save();
+
+        PurchaseDiscount::create([
+          'purchase_id' => $request->purchase_id,
+          'product_id'  => $percentage[0],
+          'percentage'  => $percentage[1],
+          'amount'      => $request->amount,
+          'type'        => $request->type
+        ]);
+      }
 
       return response('success');
     }
@@ -728,11 +903,28 @@ class PurchaseController extends Controller
     public function confirmProforma(Request $request, $id)
     {
       $purchase = Purchase::find($id);
+      $matched = 0;
 
-      $purchase->proforma_confirmed = 1;
-      $purchase->save();
+      foreach ($request->proformas as $data) {
+        $product = Product::find($data[0]);
+        $discounted_price = round(($product->price - ($product->price * $product->percentage / 100)) / 1.22, 2);
+        $proforma = $data[1];
 
-      return response('success');
+        if (($proforma - $discounted_price) < 10) {
+          $matched++;
+        }
+      }
+
+      if ($matched == count($request->proformas)) {
+        $purchase->proforma_confirmed = 1;
+        $purchase->proforma_id = $request->proforma_id;
+        $purchase->proforma_date = $request->proforma_date;
+        $purchase->save();
+      }
+
+      return response()->json([
+        'proforma_confirmed' => $purchase->proforma_confirmed
+      ]);
     }
 
     /**

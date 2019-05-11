@@ -246,7 +246,7 @@ class BroadcastMessageController extends Controller
 
     $group = $group->get();
 
-    $minutes = 6;
+    $minutes = round(60 / $request->frequency);
     $now = Carbon::now();
     $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
     $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);

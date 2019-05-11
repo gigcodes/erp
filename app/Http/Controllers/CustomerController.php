@@ -208,7 +208,7 @@ class CustomerController extends Controller
         $start_time = $request->input('range_start') ?? '';
     		$end_time   = $request->input('range_end') ?? '';
 
-        if ($request->type == 'unread') {
+        if ($request->type == 'unread' || $request->type == 'unapproved') {
           // if ($start_time != '' && $end_time != '') {
           //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.created_at BETWEEN ' . $start_time . ' AND ' . $end_time . ' GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
           // } else {
@@ -220,7 +220,7 @@ class CustomerController extends Controller
           $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
         }
 
-        if ($request->type != 'unread' && $sortby === 'communication') {
+        if ($request->type != 'unread' && $request->type != 'unapproved' && $sortby === 'communication') {
             $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('last_communicated_at', $orderby);
         }
 
@@ -249,6 +249,9 @@ class CustomerController extends Controller
 
         if ($start_time != '' && $end_time != '') {
           $customers = $customers->whereBetween('chat_message_created_at', [$start_time, $end_time])->paginate(Setting::get('pagination'));
+        } else if ($request->type == 'unapproved') {
+          // dd($customers->get());
+          $customers = $customers->where('status', 1)->paginate(Setting::get('pagination'));
         } else {
           $customers = $customers->paginate(Setting::get('pagination'));
         }

@@ -232,6 +232,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');
 	Route::get('purchase/{id}/edit', 'PurchaseController@edit')->name('purchase.edit');
 	Route::post('purchase/{id}/changestatus', 'PurchaseController@updateStatus');
+	Route::post('purchase/{id}/changeProductStatus', 'PurchaseController@updateProductStatus');
 	Route::post('purchase/{id}/saveBill', 'PurchaseController@saveBill');
 	Route::post('purchase/{id}/downloadFile', 'PurchaseController@downloadFile')->name('purchase.file.download');
 	Route::post('purchase/{id}/confirmProforma', 'PurchaseController@confirmProforma')->name('purchase.confirm.Proforma');

@@ -220,28 +220,77 @@ class WhatsAppController extends FindByNumberController
         }
 
         // Auto Instruction
-        if (array_key_exists('message', $params) && preg_match("/price/i", $params['message'])) {
+        if (array_key_exists('message', $params) && (preg_match("/price/i", $params['message']) || preg_match("/you photo/i", $params['message']) || preg_match("/pp/i", $params['message']) || preg_match("/how much/i", $params['message']) || preg_match("/cost/i", $params['message']) || preg_match("/rate/i", $params['message']))) {
           if ($customer = Customer::find($params['customer_id'])) {
-            Instruction::create([
-              'customer_id' => $customer->id,
-              'instruction' => 'Please send the prices',
-              'category_id' => 1,
-              'assigned_to' => 7,
-              'assigned_from' => 6,
-            ]);
-          }
-        }
+            $two_hours = Carbon::now()->subHours(2);
+            $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->latest()->first();
 
-        // Auto Instruction
-        if (array_key_exists('message', $params) && (preg_match("/you photo/i", $params['message']) || preg_match("/pp/i", $params['message']) || preg_match("/how much/i", $params['message']) || preg_match("/cost/i", $params['message']) || preg_match("/rate/i", $params['message']))) {
-          if ($customer = Customer::find($params['customer_id'])) {
-            Instruction::create([
-              'customer_id' => $customer->id,
-              'instruction' => 'Please send the prices',
-              'category_id' => 1,
-              'assigned_to' => 7,
-              'assigned_from' => 6,
-            ]);
+            if ($latest_broadcast_message) {
+              if (!$latest_broadcast_message->is_sent_broadcast_price()) {
+                if ($latest_broadcast_message->hasMedia(config('constants.media_tags'))) {
+                  $selected_products = [];
+
+                  foreach ($latest_broadcast_message->getMedia(config('constants.media_tags')) as $image) {
+                    $image_key = $image->getKey();
+                    $mediable_type = "BroadcastImage";
+
+                    $broadcast = BroadcastImage::with('Media')
+                    ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
+                    ->first();
+
+                    if ($broadcast) {
+                      $brod_products = json_decode($broadcast->products, true);
+
+                      if (count($brod_products) > 0) {
+                        foreach ($brod_products as $brod_pro) {
+                          $selected_products[] = $brod_pro;
+                        }
+                      }
+                    }
+                  }
+
+                  if (isset($broadcast)) {
+                    $quick_lead = Leads::create([
+                      'customer_id' => $customer->id,
+                      'rating'  => 1,
+                      'status'  => 3,
+                      'assigned_user' => 6,
+                      'selected_product'  => json_encode($selected_products),
+                      'created_at'  => Carbon::now()
+                    ]);
+
+                    $requestData = new Request();
+                    $requestData->setMethod('POST');
+                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
+
+                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
+
+                    CommunicationHistory::create([
+              				'model_id'		=> $latest_broadcast_message->id,
+              				'model_type'	=> ChatMessage::class,
+              				'type'				=> 'broadcast-prices',
+              				'method'			=> 'whatsapp'
+              			]);
+                  } else {
+                    Instruction::create([
+                      'customer_id' => $customer->id,
+                      'instruction' => 'Please send the prices',
+                      'category_id' => 1,
+                      'assigned_to' => 7,
+                      'assigned_from' => 6
+                    ]);
+                  }
+                }
+              }
+            } else {
+              Instruction::create([
+                'customer_id' => $customer->id,
+                'instruction' => 'Please send the prices',
+                'category_id' => 1,
+                'assigned_to' => 7,
+                'assigned_from' => 6
+              ]);
+            }
           }
         }
 
@@ -304,16 +353,20 @@ class WhatsAppController extends FindByNumberController
 
       // Auto Respond
       $today_date = Carbon::now()->format('Y-m-d');
-      $chat_messages_count = ChatMessage::where('customer_id', $params['customer_id'])->where('created_at', 'LIKE', "%$today_date%")->whereNotNull('number')->count();
-      $chat_messages_evening_count = ChatMessage::where('customer_id', $params['customer_id'])->where('created_at', '>', "$today_date 17:30")->whereNotNull('number')->count();
+      $time = Carbon::now();
+      $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
+      $not_morning = Carbon::create($time->year, $time->month, $time->day, 0, 0, 0);
+      $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
+      $not_evening = Carbon::create($time->year, $time->month, $time->day, 23, 59, 0);
+      $saturday = Carbon::now()->endOfWeek()->subDay()->format('Y-m-d');
+      $sunday = Carbon::now()->endOfWeek()->format('Y-m-d');
 
-      if ($chat_messages_count == 1) {
-        $time = Carbon::now();
-        $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
-        $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
-        $saturday = Carbon::now()->endOfWeek()->subDay();
-        $sunday = Carbon::now()->endOfWeek();
+      $chat_messages_count = ChatMessage::where('customer_id', $params['customer_id'])->whereBetween('created_at', [$morning, $evening])->whereNotNull('number')->count();
+      $chat_messages_evening_count = ChatMessage::where('customer_id', $params['customer_id'])->where(function($query) use ($not_morning, $morning, $evening, $not_evening) {
+        $query->whereBetween('created_at', [$not_morning, $morning])->orWhereBetween('created_at', [$evening, $not_evening]);
+      })->whereNotNull('number')->count();
 
+      if ($chat_messages_count == 1 && ($saturday != $today_date && $sunday != $today_date)) {
         $customer = Customer::find($params['customer_id']);
         $params = [
            'number'       => NULL,
@@ -323,16 +376,16 @@ class WhatsAppController extends FindByNumberController
            'customer_id'  => $params['customer_id']
          ];
 
-        if ($time->between($morning, $evening, true) || $time == $saturday || $time == $sunday) {
+        if ($time->between($morning, $evening, true)) {
           $params['message'] = 'Hello we have received your message - and the concerned asscociate will revert asap - since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate and response us time is 60 minutes  .Pls. note that we do not answer calls on this number as its linked to our servers.';
 
+          sleep(1);
           $additional_message = ChatMessage::create($params);
-
           $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
         }
       }
 
-      if ($chat_messages_evening_count == 1) {
+      if ($chat_messages_evening_count == 1 || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
         $customer = Customer::find($params['customer_id']);
         $params = [
            'number'       => NULL,
@@ -343,8 +396,8 @@ class WhatsAppController extends FindByNumberController
            'message'      => 'Our office is currently closed - we work between 10 - 5.30 - Monday - Friday -  - if an associate is available - your messaged will be responded within 60 minutes or on the next working day -since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate shall respond accordingly.'
          ];
 
+         sleep(1);
          $additional_message = ChatMessage::create($params);
-
          $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
       }
     } else {

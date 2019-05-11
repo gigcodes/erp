@@ -249,6 +249,11 @@
                                 </select>
                               </div>
 
+                              <div class="form-group">
+                                <strong>Frequency</strong>
+                                <input type="number" class="form-control input-sm" name="frequency" value="10" min="1" required>
+                              </div>
+
                               <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
                             </form>
 

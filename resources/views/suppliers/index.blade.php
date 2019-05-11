@@ -41,8 +41,10 @@
             <th>Name</th>
             <th>Address</th>
             <th>Social handle</th>
-            <th>Agents</th>
+            {{-- <th>Agents</th> --}}
             <th>GST</th>
+            <th>Order</th>
+            <th>Communication</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -62,7 +64,7 @@
               </td>
               <td>{{ $supplier->address }}</td>
               <td>{{ $supplier->social_handle }}</td>
-              <td>
+              {{-- <td>
                 @if ($supplier->agents)
                   <ul>
                     @foreach ($supplier->agents as $agent)
@@ -75,14 +77,25 @@
                     @endforeach
                   </ul>
                 @endif
-              </td>
+              </td> --}}
+
               <td>{{ $supplier->gst }}</td>
+              <td>
+                @if ($supplier->purchase_id != '')
+                  <a href="{{ route('purchase.show', $supplier->purchase_id) }}" target="_blank">Purchase ID {{ $supplier->purchase_id }}</a>
+                  <br>
+                  {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
+                @endif
+              </td>
+              <td>
+                {{ $supplier->message }}
+              </td>
               <td>
                 <a href="{{ route('supplier.show', $supplier->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
 
-                <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button>
+                {{-- <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
 
-                <button type="button" class="btn btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ $supplier }}"><img src="/images/edit.png" /></button>
+                <button type="button" class="btn btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
 
                 {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -97,7 +110,7 @@
     {!! $suppliers->appends(Request::except('page'))->links() !!}
 
     @include('suppliers.partials.supplier-modals')
-    @include('suppliers.partials.agent-modals')
+    {{-- @include('suppliers.partials.agent-modals') --}}
 
 @endsection
 
@@ -116,23 +129,23 @@
       $('#supplier_gst').val(supplier.gst);
     });
 
-    $(document).on('click', '.create-agent', function() {
-      var id = $(this).data('id');
+    // $(document).on('click', '.create-agent', function() {
+    //   var id = $(this).data('id');
+    //
+    //   $('#agent_supplier_id').val(id);
+    // });
 
-      $('#agent_supplier_id').val(id);
-    });
-
-    $(document).on('click', '.edit-agent-button', function() {
-      var agent = $(this).data('agent');
-      var url = "{{ url('agent') }}/" + agent.id;
-      $('#agent_whatsapp_number option[value=""]').prop('selected', 'selected');
-
-      $('#editAgentModal form').attr('action', url);
-      $('#agent_name').val(agent.name);
-      $('#agent_address').val(agent.address);
-      $('#agent_phone').val(agent.phone);
-      $('#agent_whatsapp_number option[value="' + agent.whatsapp_number + '"]').prop('selected', 'selected');
-      $('#agent_email').val(agent.email);
-    });
+    // $(document).on('click', '.edit-agent-button', function() {
+    //   var agent = $(this).data('agent');
+    //   var url = "{{ url('agent') }}/" + agent.id;
+    //   $('#agent_whatsapp_number option[value=""]').prop('selected', 'selected');
+    //
+    //   $('#editAgentModal form').attr('action', url);
+    //   $('#agent_name').val(agent.name);
+    //   $('#agent_address').val(agent.address);
+    //   $('#agent_phone').val(agent.phone);
+    //   $('#agent_whatsapp_number option[value="' + agent.whatsapp_number + '"]').prop('selected', 'selected');
+    //   $('#agent_email').val(agent.email);
+    // });
   </script>
 @endsection

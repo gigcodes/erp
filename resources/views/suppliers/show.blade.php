@@ -148,7 +148,11 @@
         </div>
       </div>
 
+      @include('suppliers.partials.agent-modals')
+
       <div class="tab-pane mt-3" id="agents-tab">
+        <button type="button" class="btn btn-xs btn-secondary mb-3 create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button>
+
         <div id="agentAccordion">
           @foreach ($supplier->agents as $key => $agent)
             <div class="card">
