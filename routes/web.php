@@ -421,6 +421,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Reviews Module
     Route::post('review/createFromInstagramHashtag', 'ReviewController@createFromInstagramHashtag');
     Route::get('review/instagram/reply', 'ReviewController@replyToPost');
+    Route::post('review/instagram/dm', 'ReviewController@sendDm');
 	Route::post('review/{id}/updateStatus', 'ReviewController@updateStatus');
 	Route::post('review/{id}/updateReview', 'ReviewController@updateReview');
 	Route::resource('review', 'ReviewController');
@@ -504,8 +505,12 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
  * feature in this ERP
  */
 
+
+Route::resource('cold-leads', 'ColdLeadsController');
+
 Route::prefix('instagram')->group(function () {
     Route::get('hashtag/post/comments/{mediaId}', 'HashtagController@loadComments');
+    Route::post('leads/store', 'InstagramProfileController@add');
     Route::get('profiles/followers/{id}', 'InstagramProfileController@getFollowers');
     Route::resource('profiles', 'InstagramProfileController');
     Route::get('posts', 'InstagramController@showPosts');

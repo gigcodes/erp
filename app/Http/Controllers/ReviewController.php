@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\File;
 use App\HashtagPostComment;
+use App\Product;
 use Illuminate\Http\Request;
 use App\Account;
 use App\Setting;
@@ -454,6 +456,45 @@ class ReviewController extends Controller
         $instagram->media->comment($mediaId, $message);
 
         return redirect()->back()->with('message', "Replied sent to @$username by @".$account->last_name);
+    }
+
+    public function sendDm(Request $request) {
+
+        $this->validate($request, [
+            'product_id' => 'required',
+            'id' => 'required',
+            'username' => 'required',
+            'message' => 'required',
+        ]);
+
+        $account = Account::find($request->get('id'));
+
+        $instagram = new Instagram();
+        $instagram->login($account->last_name, $account->password);
+
+        $message = $request->get('message');
+        $username = $request->get('username');
+
+        $product = Product::findOrFail($request->get('product_id'));
+
+
+        $id = $instagram->people->getUserIdForName($username);
+
+        $file = $product->imageurl;
+
+        $file = explode('/', $file);
+        $file = $file[count($file)-1];
+
+        $file = 'uploads/'.$file;
+
+        $instagram->direct->sendText([
+            'users' => [$id]
+        ], $message);
+        $instagram->direct->sendPhoto([
+            'users' => [$id]
+        ], $file);
+
+        return redirect()->back()->with('message', "Message sent to @$username by @".$account->last_name);
     }
 
 }

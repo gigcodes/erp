@@ -47,12 +47,12 @@ class HashtagController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required'
+            'name' => 'required',
         ]);
 
         $hashtag = new HashTag();
         $hashtag->hashtag = $request->get('name');
-        $hashtag->rating = $request->get('rating');
+        $hashtag->rating = $request->get('rating') ?? 8;
         $hashtag->save();
 
         return redirect()->back()->with('message', 'Hashtag created successfully!');
@@ -153,7 +153,7 @@ class HashtagController extends Controller
 
     public function loadComments($mediaId) {
         $instagram = new Instagram();
-        $instagram->login('rishabh.aryal', 'R1shabh@123');
+        $instagram->login('sololuxury.official', 'Insta123!');
         $token = Signatures::generateUUID();
 
         $comments = $instagram->media->getComments($mediaId)->asArray();

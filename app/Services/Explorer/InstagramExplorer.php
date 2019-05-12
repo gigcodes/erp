@@ -18,7 +18,7 @@ class InstagramExplorer {
 
     public function loginToInstagram() {
         $instagram = new Instagram();
-        $instagram->login('rishabh.aryal', 'R1shabh@123');
+        $instagram->login('sololuxury.official', 'Insta123!');
 
         $this->instagram = $instagram;
         $this->signature = Signatures::generateUUID();
