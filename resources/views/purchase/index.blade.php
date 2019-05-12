@@ -4,7 +4,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Purchase List</h2>
+            <h2 class="page-heading">Prepurchase List</h2>
             <div class="pull-left">
 
                 <form action="/purchases/" method="GET" id="searchForm">

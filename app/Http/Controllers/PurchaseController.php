@@ -224,8 +224,8 @@ class PurchaseController extends Controller
 
           }
 
-          $orders = $orders->with('products')
-          ->whereRaw("order_products.products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))")
+          $orders = $orders
+          ->whereRaw("order_products.sku IN (SELECT products.sku FROM products WHERE id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list)))")
           // ->whereHas('Product', function($q) use ($supplier_list) {
           //   $q->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
           // })
@@ -446,7 +446,7 @@ class PurchaseController extends Controller
 
       foreach ($selected_purchases as $purchase_id) {
         $purchase = Purchase::find($purchase_id);
-        $purchase->status = 'In Negotiation';
+        $purchase->status = 'Request Sent to Supplier';
         $purchase->save();
       }
 
@@ -514,9 +514,20 @@ class PurchaseController extends Controller
       $data['purchase_status'] = (new PurchaseStatus)->all();
       $data['reply_categories'] = ReplyCategory::all();
       $data['suppliers'] = Supplier::all();
-      $data['purchase_discounts'] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->get()->groupBy([function($query) {
-        return Carbon::parse($query->created_at)->format('Y-m-d');
+      $data['purchase_discounts'] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->take(3)->get()->groupBy([function($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d H:i:s');
       }, 'product_id']);
+
+      $data['purchase_discounts_rest'] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->skip(3)->take(30)->get()->groupBy([function($query) {
+        return Carbon::parse($query->created_at)->format('Y-m-d H:i:s');
+      }, 'product_id']);
+
+      $data['agents_array'] = [];
+      $agents = Agent::all();
+
+      foreach ($agents as $agent) {
+        $data['agents_array'][$agent->model_id][$agent->id] = $agent->name . " - " . $agent->email;
+      }
 
   		return view('purchase.show', $data)->withOrder($purchase);
     }
@@ -672,7 +683,7 @@ class PurchaseController extends Controller
       $purchase->status = $request->status;
       $purchase->save();
 
-      if ($request->status == 'Shipped' || $request->status == 'In transit in Italy') {
+      if ($request->status == 'In Transit from Italy to Dubai') {
         if ($purchase->products) {
           foreach ($purchase->products as $product) {
             $supplier = Supplier::where('supplier', 'In-stock')->first();
@@ -711,7 +722,7 @@ class PurchaseController extends Controller
         }
       }
 
-      if ($request->status == 'In transit in Dubai') {
+      if ($request->status == 'Shipment Received in Dubai' || $request->status == 'Shipment in Transit from Dubai to India') {
         if ($purchase->products) {
           foreach ($purchase->products as $product) {
             $supplier = Supplier::where('supplier', 'In-stock')->first();
@@ -728,7 +739,7 @@ class PurchaseController extends Controller
                  'user_id'      => Auth::id(),
                  'approved'     => 0,
                  'status'       => 1,
-                 'message'      => 'Your Order is in transit in Dubai'
+                 'message'      => 'Your Order is received in Dubai and is being shipped to Dubai'
                ];
 
               foreach ($product->orderproducts as $order_product) {
@@ -750,7 +761,7 @@ class PurchaseController extends Controller
         }
       }
 
-      if ($request->status == 'Received in Mumbai') {
+      if ($request->status == 'Shipment Received in India') {
         if ($purchase->products) {
           foreach ($purchase->products as $product) {
             $supplier = Supplier::where('supplier', 'In-stock')->first();
@@ -766,7 +777,7 @@ class PurchaseController extends Controller
                  'user_id'      => Auth::id(),
                  'approved'     => 0,
                  'status'       => 1,
-                 'message'      => 'Your Order is received in Mumbai'
+                 'message'      => 'Your Order is received in India'
                ];
 
               foreach ($product->orderproducts as $order_product) {
@@ -860,6 +871,10 @@ class PurchaseController extends Controller
         ]);
       }
 
+      $purchase = Purchase::find($request->purchase_id);
+      $purchase->status = 'Price under Negotiation';
+      $purchase->save();
+
       return response('success');
     }
 
@@ -877,6 +892,11 @@ class PurchaseController extends Controller
       $purchase->shipment_status = $request->shipment_status;
       $purchase->supplier_phone = $request->supplier_phone;
       $purchase->whatsapp_number = $request->whatsapp_number;
+
+      if ($request->bill_number != '') {
+        $purchase->status = 'AWB Details Received';
+      }
+
       $purchase->save();
 
       if ($request->hasFile('files')) {
@@ -907,7 +927,7 @@ class PurchaseController extends Controller
 
       foreach ($request->proformas as $data) {
         $product = Product::find($data[0]);
-        $discounted_price = round(($product->price - ($product->price * $product->percentage / 100)) / 1.22, 2);
+        $discounted_price = round(($product->price - ($product->price * $product->percentage / 100)) / 1.22);
         $proforma = $data[1];
 
         if (($proforma - $discounted_price) < 10) {
@@ -919,6 +939,8 @@ class PurchaseController extends Controller
         $purchase->proforma_confirmed = 1;
         $purchase->proforma_id = $request->proforma_id;
         $purchase->proforma_date = $request->proforma_date;
+
+        $purchase->status = 'Price Confirmed - Payment in Process';
         $purchase->save();
       }
 

@@ -8,12 +8,12 @@
       <th>Products</th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Purchase Handler</a></th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Supplier Name</a></th>
-      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Order Status</a></th>
+      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Supplier Purchase Status</a></th>
       <th>Qty</th>
       <th>Retail Price</th>
       <th>Sold Price</th>
-      <th>Actual Price</th>
-      <th>Net</th>
+      <th>Buying Price</th>
+      <th>Gross Price</th>
       {{-- <th>Message Status</th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Communication</a></th> --}}
       <th width="280px">Action</th>
@@ -63,30 +63,44 @@
               </ul>
             </td>
             <td>
-              @php $retail_price = 0; @endphp
+              {{-- @php $retail_price = 0; @endphp
               @foreach ($purchase['products'] as $product)
                 @php $retail_price += $product['price'] @endphp
               @endforeach
 
-              {{ $retail_price }}
-            </td>
-            <td>
-              @php $sold_price = 0; @endphp
-              @foreach ($purchase['products'] as $product)
-                @foreach ($product['orderproducts'] as $order_product)
-                  @php $sold_price += $order_product['product_price'] @endphp
+              {{ $retail_price }} --}}
+
+              <ul>
+                @foreach ($purchase['products'] as $product)
+                  <li>
+                    {{ $product['price'] }}
+                  </li>
                 @endforeach
-              @endforeach
-
-              {{ $sold_price }}
+              </ul>
             </td>
             <td>
-              @php $actual_price = 0; @endphp
-              @foreach ($purchase['products'] as $product)
-                @php $actual_price += $product['price'] @endphp
-              @endforeach
+              <ul>
+                @php $sold_price = 0; @endphp
+                @foreach ($purchase['products'] as $product)
+                  @foreach ($product['orderproducts'] as $order_product)
+                    <li>{{ $order_product['product_price'] }}</li>
 
-              {{ $actual_price * 78 }}
+                    @php
+                      $sold_price += $order_product['product_price'];
+                    @endphp
+                  @endforeach
+                @endforeach
+              </ul>
+            </td>
+            <td>
+              <ul>
+                @php $actual_price = 0; @endphp
+                @foreach ($purchase['products'] as $product)
+                  @php $actual_price += $product['price'] @endphp
+
+                  <li>{{ $product['price'] * 78 }}</li>
+                @endforeach
+              </ul>
             </td>
             <td>
               {{ $sold_price - ($actual_price * 78) }}

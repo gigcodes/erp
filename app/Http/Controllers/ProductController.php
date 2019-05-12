@@ -745,7 +745,7 @@ class ProductController extends Controller {
 		$product->color = $request->color;
 		$product->supplier = $request->supplier;
 		$product->location = $request->location;
-		$product->category = $request->category;
+		$product->category = $request->category ?? 1;
 		$product->price = $request->price;
 		$product->stock = 1;
 
@@ -757,8 +757,9 @@ class ProductController extends Controller {
 			else
 				$product->price_inr = Setting::get('euro_to_inr') * $product->price;
 
+			$deduction_percentage = $brand && $brand->deduction_percentage ? $brand->deduction_percentage : 1;
 			$product->price_inr = round($product->price_inr, -3);
-			$product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+			$product->price_special = $product->price_inr - ($product->price_inr * $deduction_percentage) / 100;
 
 			$product->price_special = round($product->price_special, -3);
 		}
