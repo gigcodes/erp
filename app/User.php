@@ -41,6 +41,11 @@ class User extends Authenticatable
 	    return $this->hasMany(Message::class);
 	}
 
+    public function actions()
+    {
+        return $this->hasMany(UserActions::class);
+    }
+
 	public function isOnline()
 	{
 	    return Cache::has('user-is-online-' . $this->id);
