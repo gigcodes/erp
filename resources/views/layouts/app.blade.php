@@ -1464,8 +1464,8 @@
       @php
         $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
         $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
-        $sushil_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_from', Auth::id())->where('assign_to', 7)->whereNull('is_completed')->count();
-        $andy_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_from', Auth::id())->where('assign_to', 56)->whereNull('is_completed')->count();
+        $sushil_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 7)->whereNull('is_completed')->count();
+        $andy_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 56)->whereNull('is_completed')->count();
       @endphp
 
       <a href="/#1">
