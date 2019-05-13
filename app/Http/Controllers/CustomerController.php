@@ -807,6 +807,7 @@ class CustomerController extends Controller
             'pincode'       => 'sometimes|nullable|max:6',
             'shoe_size'     => 'sometimes|nullable',
             'clothing_size' => 'sometimes|nullable',
+            'gender'        => 'sometimes|nullable|string',
             'credit'        => 'sometimes|nullable|numeric',
         ]);
 
@@ -825,6 +826,7 @@ class CustomerController extends Controller
         $customer->credit = $request->credit;
         $customer->shoe_size = $request->shoe_size;
         $customer->clothing_size = $request->clothing_size;
+        $customer->gender = $request->gender;
 
         $customer->save();
 

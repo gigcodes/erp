@@ -417,6 +417,15 @@
 
               <div class="col-6">
                 <div class="form-group">
+                  <select class="form-control input-sm" name="gender" id="customer_gender">
+                    <option value="female" {{ 'female' == $customer->gender ? 'selected' : '' }}>Female</option>
+                    <option value="male" {{ 'male' == $customer->gender ? 'selected' : '' }}>Male</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-6">
+                <div class="form-group">
                   <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
                 </div>
               </div>
@@ -4085,6 +4094,7 @@
         var rating = $('#customer_rating').val();
         var shoe_size = $('#customer_shoe_size').val();
         var clothing_size = $('#customer_clothing_size').val();
+        var gender = $('#customer_gender').val();
 
         $.ajax({
           type: "POST",
@@ -4102,6 +4112,7 @@
             rating: rating,
             shoe_size: shoe_size,
             clothing_size: clothing_size,
+            gender: gender,
             do_not_disturb: "{{ $customer->do_not_disturb == 1 ? "on" : '' }}",
             is_blocked: "{{ $customer->is_blocked == 1 ? "on" : '' }}"
           },
