@@ -23,6 +23,7 @@ class SearchController extends Controller {
 		$term     = $request->input( 'term' );
 		$roletype = $request->input( 'roletype' );
 		$model_type = $request->input( 'model_type' );
+		$data['customer_id'] = $request->input('customer_id');
 
 		$data['term']     = $term;
 		$data['roletype'] = $roletype;

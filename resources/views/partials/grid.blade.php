@@ -51,7 +51,7 @@
                                     <input hidden name="model_type" type="text" value="{{ $model_type ?? '' }}">
                                 @endif
 
-                                @if (isset($attachImages))
+                                @if (isset($attachImages) && $attachImages == true)
                                   <input type="hidden" name="model_type" value="broadcast-images">
                                 @endif
                               </div>
@@ -127,6 +127,10 @@
                                   </span>
                               </div>
                             </div>
+
+                            @if (isset($customer_id) && $customer_id != null)
+                              <input type="hidden" name="customer_id" value="{{ $customer_id }}">
+                            @endif
 
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
