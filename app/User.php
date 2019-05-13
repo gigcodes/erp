@@ -26,6 +26,11 @@ class User extends Authenticatable
 		'name', 'email', 'phone', 'password', 'responsible_user', 'agent_role', 'whatsapp_number'
 	];
 
+    public function getIsAdminAttribute()
+    {
+        return true;
+    }
+
 
 	/**
 	 * The attributes that should be hidden for arrays.

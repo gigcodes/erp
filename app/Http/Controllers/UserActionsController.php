@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\ColdLeads;
+use App\Customer;
 use App\User;
 use App\UserActions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PragmaRX\Tracker\Tracker;
+use PragmaRX\Tracker\Vendor\Laravel\Models\Log;
+use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserActionsController extends Controller
 {
@@ -65,7 +70,24 @@ class UserActionsController extends Controller
         $user = User::find($id);
         $actions = $user->actions()->orderBy('created_at', 'DESC')->get();
 
-        return view('users.track', compact('actions'));
+        $tracks = Session::where('user_id', $id)->orderBy('created_at', 'DESC')->get();
+
+        $routeActions = [
+            'users.index' => 'Viewed Users Page',
+            'users.show' => 'Viewed A User',
+            'customer.index' => 'Viewed Customer Page',
+            'customer.show' => 'Viewed A Customer Page',
+            'cold-leads.index' => 'Viewed Cold Leads Page',
+            'home' => 'Landed Homepage'
+        ];
+
+        $models = [
+            'users.show' => new User(),
+            'customer.show' => new Customer(),
+            'cold-leads.show' => new ColdLeads(),
+        ];
+
+        return view('users.track', compact('actions', 'tracks', 'routeActions', 'models'));
     }
 
     /**

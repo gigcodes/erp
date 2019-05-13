@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\UserActions;
 use Illuminate\Http\Request;
 use App\Instruction;
 use App\Setting;
@@ -24,6 +25,13 @@ class InstructionController extends Controller
      */
     public function index(Request $request)
     {
+
+        $a = new UserActions();
+        $a->action = "List";
+        $a->page = "Instructions";
+        $a->details = "Opened Instruction Page!";
+        $a->save();
+
       $orderby = 'desc';
 
       if($request->orderby == '') {
@@ -91,6 +99,13 @@ class InstructionController extends Controller
 
     public function list(Request $request)
     {
+
+        $a = new UserActions();
+        $a->action = 'List';
+        $a->page = 'Instructions';
+        $a->details = 'Oened Instructions List Page';
+        $a->save();
+
       $orderby = 'desc';
 
       if($request->orderby == '') {
@@ -196,6 +211,12 @@ class InstructionController extends Controller
         app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
   			app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
       }
+
+        $a = new UserActions();
+        $a->action = 'List';
+        $a->page = 'Instructions';
+        $a->details = 'Oened Instructions List Page';
+        $a->save();
 
       if ($request->ajax()) {
         return response('success');
