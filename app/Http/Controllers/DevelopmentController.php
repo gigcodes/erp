@@ -150,27 +150,27 @@ class DevelopmentController extends Controller
         }
       }
 
-      // if ($task->status == 'Done') {
-      //   NotificationQueueController::createNewNotification([
-      //     'message' => 'New Task to Verify',
-      //     'timestamps' => ['+0 minutes'],
-      //     'model_type' => DeveloperTask::class,
-      //     'model_id' =>  $task->id,
-      //     'user_id' => Auth::id(),
-      //     'sent_to' => 6,
-      //     'role' => '',
-      //   ]);
-      //
-      //   NotificationQueueController::createNewNotification([
-      //     'message' => 'New Task to Verify',
-      //     'timestamps' => ['+0 minutes'],
-      //     'model_type' => DeveloperTask::class,
-      //     'model_id' =>  $task->id,
-      //     'user_id' => Auth::id(),
-      //     'sent_to' => 56,
-      //     'role' => '',
-      //   ]);
-      // }
+      if ($task->status == 'Done') {
+        NotificationQueueController::createNewNotification([
+          'message' => 'New Task to Verify',
+          'timestamps' => ['+0 minutes'],
+          'model_type' => DeveloperTask::class,
+          'model_id' =>  $task->id,
+          'user_id' => Auth::id(),
+          'sent_to' => 6,
+          'role' => '',
+        ]);
+
+        NotificationQueueController::createNewNotification([
+          'message' => 'New Task to Verify',
+          'timestamps' => ['+0 minutes'],
+          'model_type' => DeveloperTask::class,
+          'model_id' =>  $task->id,
+          'user_id' => Auth::id(),
+          'sent_to' => 56,
+          'role' => '',
+        ]);
+      }
 
       if ($request->ajax()) {
         return response()->json(['task' => $task]);
@@ -344,28 +344,6 @@ class DevelopmentController extends Controller
         }
       }
 
-      // if ($task->status == 'Done' && $task->completed == 0) {
-      //   NotificationQueueController::createNewNotification([
-      //     'message' => 'New Task to Verify',
-      //     'timestamps' => ['+0 minutes'],
-      //     'model_type' => DeveloperTask::class,
-      //     'model_id' =>  $task->id,
-      //     'user_id' => Auth::id(),
-      //     'sent_to' => 6,
-      //     'role' => '',
-      //   ]);
-      //
-      //   NotificationQueueController::createNewNotification([
-      //     'message' => 'New Task to Verify',
-      //     'timestamps' => ['+0 minutes'],
-      //     'model_type' => DeveloperTask::class,
-      //     'model_id' =>  $task->id,
-      //     'user_id' => Auth::id(),
-      //     'sent_to' => 56,
-      //     'role' => '',
-      //   ]);
-      // }
-
       return redirect()->route('development.index')->with('success', 'You have successfully updated task!');
     }
 
@@ -395,6 +373,28 @@ class DevelopmentController extends Controller
       }
 
       $task->save();
+
+      if ($task->status == 'Done' && $task->completed == 0) {
+        NotificationQueueController::createNewNotification([
+          'message' => 'New Task to Verify',
+          'timestamps' => ['+0 minutes'],
+          'model_type' => DeveloperTask::class,
+          'model_id' =>  $task->id,
+          'user_id' => Auth::id(),
+          'sent_to' => 6,
+          'role' => '',
+        ]);
+
+        NotificationQueueController::createNewNotification([
+          'message' => 'New Task to Verify',
+          'timestamps' => ['+0 minutes'],
+          'model_type' => DeveloperTask::class,
+          'model_id' =>  $task->id,
+          'user_id' => Auth::id(),
+          'sent_to' => 56,
+          'role' => '',
+        ]);
+      }
 
       return response('success');
     }
@@ -468,7 +468,7 @@ class DevelopmentController extends Controller
         //   'role' => '',
         // ]);
 
-        return redirect(url("/development?tab=review#review_task_$request->id"));
+        return redirect(url("/development#task_$request->id"));
       } else {
         $message = 'New Task Remark';
 
@@ -504,13 +504,14 @@ class DevelopmentController extends Controller
           // ]);
         }
 
-        if ($task->status == 'Done' && $task->completed == 1) {
-          return redirect(url("/development?tab=3#completed_task_$task->id"));
-        } elseif ($task->status == 'Done' && $task->completed == 0) {
-          return redirect(url("/development?tab=review#review_task_$request->id"));
-        } else {
-          return redirect(url("/development?tab=1#task_$task->id"));
-        }
+        return redirect(url("/development#task_$task->id"));
+
+        // if ($task->status == 'Done' && $task->completed == 1) {
+        // } elseif ($task->status == 'Done' && $task->completed == 0) {
+        //   return redirect(url("/development#task_$request->id"));
+        // } else {
+        //   return redirect(url("/development#task_$task->id"));
+        // }
       }
     }
 

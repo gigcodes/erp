@@ -123,10 +123,10 @@ class Kernel extends ConsoleKernel
         $report->update(['end_time' => Carbon:: now()]);
       })->dailyAt('00:00');
 
-  	    // $schedule->call(function () {
-  		  //   \Log::debug('deQueueNotficationNew Start');
-  	    // 	NotificationQueueController::deQueueNotficationNew();
-  	    // })->everyFiveMinutes();
+  	    $schedule->call(function () {
+  		    \Log::debug('deQueueNotficationNew Start');
+  	    	NotificationQueueController::deQueueNotficationNew();
+  	    })->everyFiveMinutes();
 
         $schedule->call(function () {
           $report = CronJobReport::create([
