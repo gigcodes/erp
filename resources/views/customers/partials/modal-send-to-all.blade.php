@@ -86,6 +86,14 @@
                       </select>
                     </div>
 
+                    <div class="form-group">
+                      <select class="form-control" name="gender">
+                        <option value>Both Genders</option>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                      </select>
+                    </div>
+
                     <hr>
 
                     <div class="form-group">

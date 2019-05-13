@@ -1214,7 +1214,8 @@ class WhatsAppController extends FindByNumberController
         'sending_time'    => 'required|date',
         'whatsapp_number' => 'required_with:file',
         'frequency'       => 'required|numeric',
-        'rating'          => 'sometimes|nullable|numeric'
+        'rating'          => 'sometimes|nullable|numeric',
+        'gender'          => 'sometimes|nullable|string',
       ]);
     }
 
@@ -1265,6 +1266,10 @@ class WhatsAppController extends FindByNumberController
 
       if ($request->rating != '') {
         $data = $data->where('rating', $request->rating);
+      }
+
+      if ($request->gender != '') {
+        $data = $data->where('gender', $request->gender);
       }
 
       $data = $data->get()->groupBy('whatsapp_number');

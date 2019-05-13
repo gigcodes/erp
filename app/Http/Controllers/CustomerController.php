@@ -525,7 +525,8 @@ class CustomerController extends Controller
         $purchase_status = (new PurchaseStatus)->all();
         $solo_numbers = (new SoloNumbers)->all();
         $api_keys = ApiKey::select(['number'])->get();
-        $suppliers = Supplier::select(['id', 'supplier'])->get();
+        $suppliers = Supplier::select(['id', 'supplier'])
+        ->whereRaw("suppliers.id IN (SELECT product_suppliers.supplier_id FROM product_suppliers)")->get();
         $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
     		                                        ->renderAsDropdown();
 
@@ -807,6 +808,7 @@ class CustomerController extends Controller
             'pincode'       => 'sometimes|nullable|max:6',
             'shoe_size'     => 'sometimes|nullable',
             'clothing_size' => 'sometimes|nullable',
+            'gender'        => 'sometimes|nullable|string',
             'credit'        => 'sometimes|nullable|numeric',
         ]);
 
@@ -825,6 +827,7 @@ class CustomerController extends Controller
         $customer->credit = $request->credit;
         $customer->shoe_size = $request->shoe_size;
         $customer->clothing_size = $request->clothing_size;
+        $customer->gender = $request->gender;
 
         $customer->save();
 

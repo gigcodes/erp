@@ -30,15 +30,37 @@ class DevelopmentController extends Controller
 
     public function index(Request $request)
     {
-      $user = $request->user ? $request->user : Auth::id();
-      $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
-      $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
-      $tab = $request->tab ? $request->tab : NULL;
+      $user = $request->user ?? Auth::id();
+      $start = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->startOfWeek();
+      $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
+      $tab = $request->tab ?? NULL;
+      $type = $request->type ?? '';
 
-      $tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', '!=', 'Done')->orderBy('priority')->get()->groupBy('module_id');
-      $review_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->where('completed', 0)->orderBy('priority')->get()->groupBy('module_id');
-      $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->where('completed', 1)->whereBetween('start_time', [$start, $end])->orderBy('priority')->get()->groupBy('module_id');
+      $tasks = DeveloperTask::where('user_id', $user)->where('module', 0);
 
+      if ($request->range_start != '') {
+        $tasks = $tasks->whereBetween('created_at', [$start, $end]);
+      }
+
+      if ($type != '') {
+        if ($type == 'Planned' || $type == 'In Progress' || $type == 'Discussing') {
+          $tasks = $tasks->where('status', $type);
+        }
+
+        if ($type == 'Done To be Reviewed') {
+          $tasks = $tasks->where('status', 'Done')->where('completed', 0);
+        }
+
+        if ($type == 'Completed') {
+          $tasks = $tasks->where('status', 'Completed')->where('completed', 0);
+        }
+      }
+
+      // $review_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->where('completed', 0)->orderBy('priority')->get()->groupBy('module_id');
+      // $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->where('completed', 1)->whereBetween('start_time', [$start, $end])->orderBy('priority')->get()->groupBy('module_id');
+
+      // dd($tasks);
+      $tasks = $tasks->orderBy('priority')->get()->groupBy(['module_id', 'status']);
       $total_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->get();
 
       $all_time_cost = 0;
@@ -58,11 +80,14 @@ class DevelopmentController extends Controller
 
       return view('development.index', [
         'tasks' => $tasks,
-        'review_tasks' => $review_tasks,
-        'completed_tasks' => $completed_tasks,
+        // 'review_tasks' => $review_tasks,
+        // 'completed_tasks' => $completed_tasks,
         'users' => $users,
         'modules' => $modules,
         'user'  => $user,
+        'type'  => $type,
+        'start'  => $start,
+        'end'  => $end,
         'module_names'  => $module_names,
         'comments'  => $comments,
         'amounts'  => $amounts,
@@ -109,7 +134,7 @@ class DevelopmentController extends Controller
         'priority'  => 'required|integer',
         'subject'   => 'sometimes|nullable|string',
         'task'      => 'required|string|min:3',
-        'cost'      => 'sometimes||nullable|integer',
+        'cost'      => 'sometimes|nullable|integer',
         'status'    => 'required'
       ]);
 
@@ -361,8 +386,11 @@ class DevelopmentController extends Controller
       $task = DeveloperTask::find($id);
       $task->status = $request->status;
 
-      if ($request->status == 'Done') {
+      if ($request->status == 'In Progress') {
         $task->start_time = Carbon::now();
+      }
+
+      if ($request->status == 'Done') {
         $task->end_time = Carbon::now();
       }
 
@@ -378,6 +406,17 @@ class DevelopmentController extends Controller
       $task->save();
 
       return response('success');
+    }
+
+    public function updatePriority(Request $request, $id)
+    {
+      $task = DeveloperTask::find($id);
+      $task->priority = $request->priority;
+      $task->save();
+
+      return response()->json([
+        'priority'  => $task->priority
+      ]);
     }
 
     public function verify(Request $request, $id)

@@ -23,4 +23,9 @@ class DeveloperTask extends Model
   {
     return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-detail')->latest();
   }
+
+  public function development_discussion()
+  {
+    return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-discussion')->latest();
+  }
 }
