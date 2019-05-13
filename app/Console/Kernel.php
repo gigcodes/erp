@@ -145,7 +145,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
 
         // Voucher Reminders
-        $schedule->command('send:voucher-reminder')->daily();
+        // $schedule->command('send:voucher-reminder')->daily();
 
         // Updates Magento Products status on ERP
         // $schedule->command('update:magento-product-status')->dailyAt(03);
