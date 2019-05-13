@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\UserActions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,18 +38,20 @@ class UserActionsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'page' => 'required',
+            'url' => 'required',
             'type' => 'required',
             'data' => 'required'
         ]);
 
         $action = new UserActions();
         $action->user_id = Auth::user()->id;
-        $action->page = $request->get('page');
-        $action->details = $request->get('details');
-        $action->action = $request->get('action');
-        $action->date = $request->get('date');
+        $action->page = $request->get('url');
+        $action->details = strip_tags($request->get('data'));
+        $action->action = $request->get('type');
+        $action->date = date('Y-m-d');
         $action->save();
+
+        return response()->json('success');
     }
 
     /**
@@ -57,9 +60,12 @@ class UserActionsController extends Controller
      * @param  \App\UserActions  $userActions
      * @return \Illuminate\Http\Response
      */
-    public function show(UserActions $userActions)
+    public function show($id)
     {
-        //
+        $user = User::find($id);
+        $actions = $user->actions()->orderBy('created_at', 'DESC')->get();
+
+        return view('users.track', compact('actions'));
     }
 
     /**

@@ -17,7 +17,7 @@
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-image">
-                                    <img style="width: 100%;" src="{!! $product->images[0] ? asset('uploads/social-media/'.$product->images[0]) : 'http://lorempixel.com/555/300/black' !!}">
+                                    <img style="width: 100%;" src="{!! (strpos($product->images[0], 'http')===false) ? asset('uploads/social-media/'.$product->images[0]) : $product->images[0] !!}">
                                 </div><!-- card image -->
 
                                 <div class="card-content">

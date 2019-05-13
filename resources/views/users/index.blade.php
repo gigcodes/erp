@@ -47,6 +47,7 @@
                     {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
+                    <a href="{{ action('UserActionsController@show', $user->id) }}">Info</a>
                 </td>
             </tr>
         @endforeach

