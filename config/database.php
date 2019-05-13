@@ -56,6 +56,15 @@ return [
                 \PDO::ATTR_PERSISTENT => true
             ]
         ],
+
+        'tracker' => [
+            'driver'   => 'mysql',
+            'host'     => 'localhost',
+            'database' => env('DB_DATABASE', 'solo'),
+            'username' => env('DB_USERNAME', 'solo'),
+            'password' => env('DB_PASSWORD', 'solo'),
+            'strict' => false,    // to avoid problems on some MySQL installs
+        ],
         
 
 

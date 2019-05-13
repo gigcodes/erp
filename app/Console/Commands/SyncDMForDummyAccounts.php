@@ -55,8 +55,13 @@ class SyncDMForDummyAccounts extends Command
             try {
                 $this->messages->login($account->last_name, $account->password);
             } catch (\Exception $e) {
+                dd($e);
+                echo "ERROR $account->last_name \n";
                 continue;
             }
+
+            $this->messages->logout();
+
             $inbox = $this->messages->direct->getInbox()->asArray();
             if (isset($inbox['inbox']['threads'])) {
                 $threads = $inbox['inbox']['threads'];
