@@ -30,6 +30,17 @@
               </div>
             </div>
 
+            <div class="form-group ml-3">
+              <select class="form-control" name="type">
+                <option value="">Select Type</option>
+                <option value="Discussing" {{ "Discussing" == $type ? 'selected' : '' }}>Discussing</option>
+                <option value="Planned" {{ "Planned" == $type ? 'selected' : '' }}>Planned</option>
+                <option value="In Progress" {{ "In Progress" == $type ? 'selected' : '' }}>In Progress</option>
+                <option value="Done To be Reviewed" {{ "Done To be Reviewed" == $type ? 'selected' : '' }}>Done To be Reviewed</option>
+                <option value="Completed" {{ "Completed" == $type ? 'selected' : '' }}>Completed</option>
+              </select>
+            </div>
+
             <button type="submit" class="btn btn-secondary ml-3">Submit</button>
           </form>
         </div>
@@ -47,7 +58,7 @@
 
   @include('partials.flash_messages')
 
-  <div id="exTab2" class="container">
+  {{-- <div id="exTab2" class="container">
     <ul class="nav nav-tabs">
       <li class="active">
         <a href="#1" data-toggle="tab">Tasks</a>
@@ -59,19 +70,21 @@
         <a href="#3" data-toggle="tab">Completed Tasks</a>
       </li>
     </ul>
-  </div>
+  </div> --}}
 
   <div class="tab-content ">
     <div class="tab-pane active mt-3" id="1">
       <div class="table-responsive">
         <table class="table table-bordered">
           <tr>
-            <th width="10%">Priority</th>
+            <th width="5%">Created at</th>
+            <th width="5%">Start</th>
+            <th width="5%">End</th>
+            <th width="5%">Priority</th>
             <th width="40%">Task</th>
             <th width="10%">Cost</th>
-            <th width="10%">Status</th>
-            <th width="10%">Created at</th>
-            <th width="10%">Comments</th>
+            <th width="20%">Status</th>
+            {{-- <th width="10%">Comments</th> --}}
             <th width="10%">Action</th>
           </tr>
           @php
@@ -88,9 +101,169 @@
                 <button type="button" class="btn btn-xs btn-secondary ml-3 quick-task-add-button" data-toggle="modal" data-target="#quickDevTaskModal" data-id="{{ $key }}">+</button>
               </td>
             </tr>
+
+            @foreach ($module_tasks as $task_status => $data)
+              @foreach ($data as $task)
+                <tr id="task_{{ $task->id }}" class="{{ $task->status == 'In Progress' ? 'task-border-success' : '' }}">
+                  <td>{{ $task->created_at ? \Carbon\Carbon::parse($task->created_at)->format('H:i d-m') : '' }}</td>
+                  <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
+                  <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+                  <td>
+                    <div class="d-flex flex-column">
+                      @if ($task->priority == 1)
+                        <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="1"><img src="/images/flagged.png" /></button>
+                      @else
+                        <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="1"><img src="/images/unflagged.png" /></button>
+                      @endif
+
+                      @if ($task->priority == 2)
+                        <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="2"><img src="/images/flagged-yellow.png" /></button>
+                      @else
+                        <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="2"><img src="/images/unflagged.png" /></button>
+                      @endif
+
+                      @if ($task->priority == 3)
+                        <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="3"><img src="/images/flagged-green.png" /></button>
+                      @else
+                        <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="3"><img src="/images/unflagged.png" /></button>
+                      @endif
+                    </div>
+
+
+                    {{-- {{ $priorities[$task->priority] }} --}}
+                  </td>
+                  <td class="read-more-button table-hover-cell">
+                    <span class="short-task-container">{{ $task->subject ?? (substr($task->task, 0, 100) . (strlen($task->task) > 100 ? '...' : '')) }}</span>
+
+                    <span class="long-task-container hidden">
+                      {{ ($task->subject ? ($task->subject . '. ') : '') }} <span class="task-container">{{ $task->task }}</span>
+
+                      <textarea name="task" class="form-control quick-task-edit-textarea hidden" rows="8" cols="80">{{ $task->task }}</textarea>
+
+                      <button type="button" class="btn-link quick-edit-task" data-id="{{ $task->id }}">Edit</button>
+
+                      @if ($task->development_details)
+                        <ul class="task-details-container">
+                          @foreach ($task->development_details as $detail)
+                            <li>{{ $detail->remark }} - {{ \Carbon\Carbon::parse($detail->created_at)->format('H:i d-m') }}</li>
+                          @endforeach
+                        </ul>
+                      @endif
+
+                      <input type="text" name="message" class="form-control quick-message-input" data-type="task" placeholder="Details" value="" data-id="{{ $task->id }}">
+
+                      <h4>Discussion</h4>
+
+                      <input type="text" name="message" class="form-control quick-message-input" data-type="task-discussion" placeholder="Message" value="" data-id="{{ $task->id }}">
+
+                      @if ($task->development_discussion)
+                        <ul class="task-discussion-container">
+                          @foreach ($task->development_discussion as $detail)
+                            <li>{{ $detail->remark }} - {{ \Carbon\Carbon::parse($detail->created_at)->format('H:i d-m') }}</li>
+                          @endforeach
+                        </ul>
+                      @endif
+                    </span>
+
+                    @if ($task->getMedia(config('constants.media_tags'))->first())
+                      <br>
+                      @foreach ($task->getMedia(config('constants.media_tags')) as $image)
+                        <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                          <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                        </a>
+                      @endforeach
+                    @endif
+                  </td>
+                  <td class="{{ $task->user_id == Auth::id() ? 'table-hover-cell quick-edit-price' : '' }}" data-id="{{ $task->id }}">
+                    <span class="quick-price">
+                      @if ($task->cost == '' && $task->status == 'Done')
+                        <span class="text-danger"><strong>!!!</strong></span>
+                      @else
+                        {{ $task->cost }}
+                      @endif
+                    </span>
+                    <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $task->cost }}">
+                  </td>
+                  <td>
+                    <div class="form-group">
+                      <select class="form-control update-task-status" name="status" data-id="{{ $task->id }}">
+                        <option value="Discussing" {{ $task->status == 'Discussing' ? 'selected' : '' }}>Discussing</option>
+                        <option value="Planned" {{ $task->status == 'Planned' ? 'selected' : '' }}>Planned</option>
+                        <option value="In Progress" {{ $task->status == 'In Progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="Done" {{ $task->status == 'Done' ? 'selected' : '' }}>Done</option>
+                      </select>
+
+                      <span class="text-success change_status_message" style="display: none;">Successfully changed task status</span>
+                    </div>
+                  </td>
+                  {{-- <td>
+                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $task->id }}">Add</a>
+                    <span> | </span>
+                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
+                  </td> --}}
+                  <td>
+                    @if ($task->completed == 0 && $task->status == 'Done')
+                      <button type="button" class="btn btn-xs btn-secondary task-verify-button" data-id="{{ $task->id }}">Verify</button>
+                    @endif
+                    <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+
+                    {{-- {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                    {!! Form::close() !!} --}}
+                    {{-- {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!} --}}
+                    <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button>
+                    {{-- {!! Form::close() !!} --}}
+                  </td>
+                </tr>
+              @endforeach
+            @endforeach
+          @endforeach
+        </table>
+      </div>
+
+      {{-- <div class="table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th width="5%">Created at</th>
+            <th width="5%">Start</th>
+            <th width="5%">End</th>
+            <th width="5%">Priority</th>
+            <th width="40%">Task</th>
+            <th width="10%">Cost</th>
+            <th width="20%">Status</th>
+            <th width="10%">Action</th>
+          </tr>
+
+          @foreach ($review_tasks as $key => $module_tasks)
+            <tr>
+              <td colspan="9"><strong class="ml-5">{{$key != '' && array_key_exists($key, $module_names) ? $module_names[$key]  : 'General Tasks' }}</strong></td>
+            </tr>
             @foreach ($module_tasks as $task)
-              <tr id="task_{{ $task->id }}">
-                <td>{{ $priorities[$task->priority] }}</td>
+              <tr id="review_task_{{ $task->id }}">
+                <td>{{ $task->created_at ? \Carbon\Carbon::parse($task->created_at)->format('H:i d-m') : '' }}</td>
+                <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
+                <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+                <td>
+                  <div class="d-flex.flex-column">
+                    @if ($task->priority == 1)
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="1"><img src="/images/flagged.png" /></button>
+                    @else
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="1"><img src="/images/unflagged.png" /></button>
+                    @endif
+
+                    @if ($task->priority == 2)
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="2"><img src="/images/flagged-yellow.png" /></button>
+                    @else
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="2"><img src="/images/unflagged.png" /></button>
+                    @endif
+
+                    @if ($task->priority == 3)
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="3"><img src="/images/flagged-green.png" /></button>
+                    @else
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="3"><img src="/images/unflagged.png" /></button>
+                    @endif
+                  </div>
+                </td>
                 <td class="read-more-button table-hover-cell">
                   <span class="short-task-container">{{ $task->subject ?? (substr($task->task, 0, 100) . (strlen($task->task) > 100 ? '...' : '')) }}</span>
 
@@ -110,6 +283,18 @@
                     @endif
 
                     <input type="text" name="message" class="form-control quick-message-input" data-type="task" placeholder="Details" value="" data-id="{{ $task->id }}">
+
+                    <h4>Discussion</h4>
+
+                    <input type="text" name="message" class="form-control quick-message-input" data-type="task-discussion" placeholder="Message" value="" data-id="{{ $task->id }}">
+
+                    @if ($task->development_discussion)
+                      <ul class="task-discussion-container">
+                        @foreach ($task->development_discussion as $detail)
+                          <li>{{ $detail->remark }} - {{ \Carbon\Carbon::parse($detail->created_at)->format('H:i d-m') }}</li>
+                        @endforeach
+                      </ul>
+                    @endif
                   </span>
 
                   @if ($task->getMedia(config('constants.media_tags'))->first())
@@ -136,30 +321,115 @@
                     <span class="text-success change_status_message" style="display: none;">Successfully changed task status</span>
                   </div>
                 </td>
-                <td>{{ $task->created_at ? \Carbon\Carbon::parse($task->created_at)->format('H:i d-m') : '' }}</td>
                 <td>
-                  <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $task->id }}">Add</a>
-                  <span> | </span>
-                  <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
-                </td>
-                <td>
+                  <button type="button" class="btn btn-xs btn-secondary task-verify-button" data-id="{{ $task->id }}">Verify</button>
                   <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
-
-                  {{-- {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-                  {!! Form::close() !!} --}}
-                  {{-- {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!} --}}
                   <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button>
-                  {{-- {!! Form::close() !!} --}}
                 </td>
               </tr>
             @endforeach
           @endforeach
         </table>
       </div>
-    </div>
 
-    <div class="tab-pane mt-3" id="2">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th width="5%">Created at</th>
+            <th width="5%">Start</th>
+            <th width="5%">End</th>
+            <th width="5%">Priority</th>
+            <th width="40%">Task</th>
+            <th width="10%">Cost</th>
+            <th width="20%">Status</th>
+            <th width="10%">Action</th>
+          </tr>
+          @php $total_cost = 0 @endphp
+          @foreach ($completed_tasks as $key => $module_tasks)
+            <tr>
+              <td colspan="9"><strong class="ml-5">{{ $key != '' && array_key_exists($key, $module_names) ? $module_names[$key]  : 'General Tasks' }}</strong></td>
+            </tr>
+            @foreach ($module_tasks as $task)
+              <tr id="completed_task_{{ $task->id }}">
+                <td>{{ $task->created_at ? \Carbon\Carbon::parse($task->created_at)->format('H:i d-m') : '' }}</td>
+                <td>{{ $task->start_time ? \Carbon\Carbon::parse($task->start_time)->format('H:i d-m') : '' }}</td>
+                <td>{{ $task->end_time ? \Carbon\Carbon::parse($task->end_time)->format('H:i d-m') : '' }}</td>
+                <td>
+                  <div class="d-flex.flex-column">
+                    @if ($task->priority == 1)
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="1"><img src="/images/flagged.png" /></button>
+                    @else
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="1"><img src="/images/unflagged.png" /></button>
+                    @endif
+
+                    @if ($task->priority == 2)
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="2"><img src="/images/flagged-yellow.png" /></button>
+                    @else
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="2"><img src="/images/unflagged.png" /></button>
+                    @endif
+
+                    @if ($task->priority == 3)
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="3"><img src="/images/flagged-green.png" /></button>
+                    @else
+                      <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}" data-priority="3"><img src="/images/unflagged.png" /></button>
+                    @endif
+                  </div>
+                </td>
+                <td class="read-more-button table-hover-cell">
+                  <span class="short-task-container">{{ $task->subject ?? (substr($task->task, 0, 100) . (strlen($task->task) > 100 ? '...' : '')) }}</span>
+
+                  <span class="long-task-container hidden">
+                    {{ ($task->subject ? ($task->subject . '. ') : '') }} <span class="task-container">{{ $task->task }}</span>
+
+                    @if ($task->development_details)
+                      <ul class="task-details-container">
+                        @foreach ($task->development_details as $detail)
+                          <li>{{ $detail->remark }} - {{ \Carbon\Carbon::parse($detail->created_at)->format('H:i d-m') }}</li>
+                        @endforeach
+                      </ul>
+                    @endif
+
+                    <h4>Discussion</h4>
+
+                    @if ($task->development_discussion)
+                      <ul class="task-discussion-container">
+                        @foreach ($task->development_discussion as $detail)
+                          <li>{{ $detail->remark }} - {{ \Carbon\Carbon::parse($detail->created_at)->format('H:i d-m') }}</li>
+                        @endforeach
+                      </ul>
+                    @endif
+                  </span>
+
+                  @if ($task->getMedia(config('constants.media_tags'))->first())
+                    <br>
+                    @foreach ($task->getMedia(config('constants.media_tags')) as $image)
+                      <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                        <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                      </a>
+                    @endforeach
+                  @endif
+                </td>
+                <td>{{ $task->cost }}</td>
+                <td>{{ $task->status }}</td>
+                <td>
+                  <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+                  <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button>
+                </td>
+              </tr>
+
+              @php $total_cost += $task->cost @endphp
+            @endforeach
+          @endforeach
+          <tr>
+            <td colspan="2" class="text-right"><strong>Total:</strong></td>
+            <td><strong>{{ $total_cost }}</strong></td>
+            <td colspan="6"></td>
+          </tr>
+        </table>
+      </div> --}}
+    {{-- </div> --}}
+
+    {{-- <div class="tab-pane mt-3" id="2">
       <div class="table-responsive">
         <table class="table table-bordered">
           <tr>
@@ -235,15 +505,11 @@
                   <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $task->id }}">View</a>
                 </td>
                 <td>
-                  {{-- <form action="{{ route('development.verify', $task->id) }}" method="POST">
-                    @csrf --}}
+
                     <button type="button" class="btn btn-xs btn-secondary task-verify-button" data-id="{{ $task->id }}">Verify</button>
-                  {{-- </form> --}}
                   <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
 
-                  {{-- {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-                  {!! Form::close() !!} --}}
+
                   <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button>
                 </td>
               </tr>
@@ -251,10 +517,10 @@
           @endforeach
         </table>
       </div>
-    </div>
+    </div> --}}
 
-    <div class="tab-pane mt-3" id="3">
-      <div class="table-responsive">
+    {{-- <div class="tab-pane mt-3" id="3"> --}}
+      {{-- <div class="table-responsive">
         <table class="table table-bordered">
           <tr>
             <th width="10%">Priority</th>
@@ -312,9 +578,6 @@
                 <td>
                   <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
 
-                  {{-- {!! Form::open(['method' => 'DELETE','route' => ['development.destroy', $task->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-                  {!! Form::close() !!} --}}
                   <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button>
                 </td>
               </tr>
@@ -328,9 +591,9 @@
             <td colspan="6"></td>
           </tr>
         </table>
-      </div>
+      </div> --}}
 
-      <h3>Amount Paid</h3>
+      {{-- <h3>Amount Paid</h3>
 
       <form class="form-inline mb-3" action="{{ route('development.cost.store') }}" method="POST">
         @csrf
@@ -360,9 +623,9 @@
         </div>
 
         <button type="submit" class="btn btn-secondary ml-3">Add Amount</button>
-      </form>
+      </form> --}}
 
-      <div class="table-responsive">
+      {{-- <div class="table-responsive">
         <table class="table table-bordered">
           <tr>
             <th>Paid On</th>
@@ -382,9 +645,9 @@
             <td><strong>Left:</strong> {{ $all_time_cost - $total_paid }}</td>
           </tr>
         </table>
-      </div>
-    </div>
-  </div>
+      </div> --}}
+    {{-- </div>
+  </div> --}}
 
   <h3>Modules</h3>
 
@@ -566,6 +829,7 @@
         $('#user_field').val(task.user_id);
       @endcan
       $('#priority_field').val(task.priority);
+      $('#module_id_field option[value="' + task.module_id + '"]').attr('selected', true);
       $('#task_field').val(task.task);
       $('#task_subject').val(task.subject);
       $('#cost_field').val(task.cost);
@@ -609,8 +873,8 @@
       });
     });
 
-    let r_s = '';
-    let r_e = '{{ date('y-m-d') }}';
+    let r_s = '{{ $start }}';
+    let r_e = '{{ $end }}';
 
     let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
     let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
@@ -634,7 +898,7 @@
             'This Month': [moment().startOf('month'), moment().endOf('month')],
             'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
         }
-    }, cb);
+    });
 
     cb(start, end);
 
@@ -749,7 +1013,10 @@
       }).done(function() {
         if (status == 'Done') {
           $(thiss).closest('tr').remove();
+        } else if (status == 'In Progress') {
+          $(thiss).closest('tr').addClass('task-border-success');
         } else {
+          $(thiss).closest('tr').removeClass('task-border-success');
           $(thiss).siblings('.change_status_message').fadeIn(400);
 
           setTimeout(function () {
@@ -864,6 +1131,9 @@
       if (type == 'task') {
         var module_type = 'task-detail';
         var container = '.task-details-container';
+      } else if (type == 'task-discussion') {
+        var module_type = 'task-discussion';
+        var container = '.task-discussion-container';
       }
       //  else {
       //   var module_type = 'complaint-plan-comment';
@@ -919,8 +1189,8 @@
           _token: "{{ csrf_token() }}",
           module_id: module_id,
           user_id: {{ $user }},
-          priority: 2,
-          status: 'Planned',
+          priority: 3,
+          status: 'Discussing',
           task: task
         },
         beforeSend: function() {
@@ -934,7 +1204,16 @@
 
         var class_name = response.task.user_id == auth_id ? 'table-hover-cell quick-edit-price' : '';
         var task_html = `<tr id="task_` + response.task.id + `">
-          <td>Urgent</td>
+          <td>` + moment(response.task.created_at).format('HH:mm DD-MM') +  `</td>
+          <td></td>
+          <td></td>
+          <td>
+            <div class="d-flex flex-column">
+              <button type="button" class="btn btn-image flag-task" data-id="` + response.task.id + `" data-priority="1"><img src="/images/unflagged.png" /></button>
+              <button type="button" class="btn btn-image flag-task" data-id="` + response.task.id + `" data-priority="2"><img src="/images/unflagged.png" /></button>
+              <button type="button" class="btn btn-image flag-task" data-id="` + response.task.id + `" data-priority="3"><img src="/images/flagged-green.png" /></button>
+            </div>
+          </td>
           <td class="read-more-button table-hover-cell">
             <span class="short-task-container">` + response.task.task.substr(0, 100) + `</span>
 
@@ -950,6 +1229,14 @@
               </ul>
 
               <input type="text" name="message" class="form-control quick-message-input" data-type="task" placeholder="Details" value="" data-id="` + response.task.id + `">
+
+              <h4>Discussion</h4>
+
+              <input type="text" name="message" class="form-control quick-message-input" data-type="task-discussion" placeholder="Message" value="" data-id="` + response.task.id + `">
+
+              <ul class="task-discussion-container">
+
+              </ul>
             </span>
           </td>
           <td class="` + class_name + `" data-id="` + response.task.id + `">
@@ -959,6 +1246,7 @@
           <td>
             <div class="form-group">
               <select class="form-control update-task-status" name="status" data-id="` + response.task.id + `">
+                <option value="Discussing">Discussing</option>
                 <option value="Planned">Planned</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Done">Done</option>
@@ -966,12 +1254,6 @@
 
               <span class="text-success change_status_message" style="display: none;">Successfully changed task status</span>
             </div>
-          </td>
-          <td>` + moment(response.task.created_at).format('HH:mm DD-MM') + `</td>
-          <td>
-            <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="` + response.task.id + `">Add</a>
-            <span> | </span>
-            <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="` + response.task.id + `">View</a>
           </td>
           <td>
             <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="` + response.task + `" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
@@ -988,6 +1270,58 @@
 
         console.log(response);
         alert('Could not create a quick task');
+      });
+    });
+
+    $(document).on('click', '.flag-task', function() {
+      var task_id = $(this).data('id');
+      var priority = $(this).data('priority');
+      var thiss = $(this);
+
+      $.ajax({
+        type: "POST",
+        url: "{{ url('development') }}/" + task_id + '/updatePriority',
+        data: {
+          _token: "{{ csrf_token() }}",
+          priority: priority
+        },
+        beforeSend: function() {
+          $(thiss).text('Flagging...');
+        }
+      }).done(function(response) {
+        if (response.priority == 1) {
+          // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+          //
+          // $(thiss).parent().append(badge);
+          // $(thiss).html('<img src="/images/flagged.png" />');
+          var buttons = $(thiss).closest('div').find('button');
+
+          $(buttons[0]).html('<img src="/images/flagged.png" />');
+          $(buttons[1]).html('<img src="/images/unflagged.png" />');
+          $(buttons[2]).html('<img src="/images/unflagged.png" />');
+        } else if (response.priority == 2) {
+          // $(thiss).html('<img src="/images/unflagged.png" />');
+          // $(thiss).parent().find('.badge').remove();
+          var buttons = $(thiss).closest('div').find('button');
+
+          $(buttons[0]).html('<img src="/images/unflagged.png" />');
+          $(buttons[1]).html('<img src="/images/flagged-yellow.png" />');
+          $(buttons[2]).html('<img src="/images/unflagged.png" />');
+        } else if (response.priority == 3) {
+          var buttons = $(thiss).closest('div').find('button');
+
+          $(buttons[0]).html('<img src="/images/unflagged.png" />');
+          $(buttons[1]).html('<img src="/images/unflagged.png" />');
+          $(buttons[2]).html('<img src="/images/flagged-green.png" />');
+        }
+
+        // $(thiss).remove();
+      }).fail(function(response) {
+        $(thiss).html('<img src="/images/unflagged.png" />');
+
+        alert('Could not change priority!');
+
+        console.log(response);
       });
     });
   </script>

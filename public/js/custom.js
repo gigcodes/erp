@@ -45,6 +45,28 @@ jQuery(document).ready(function () {
     });
   });
 
+  $('#quickDevelopmentSubmit').on('click', function(e) {
+    e.preventDefault();
+
+    var form = $('#quickDevelopmentForm');
+    var data = form.serialize();
+
+    $.ajax({
+      type: "POST",
+      url: "/development/create",
+      data: data
+    }).done(function() {
+      $('#quick_development_task_textarea').val('');
+      // $('#quick_instruction_assiged_to select[value=""]');
+      // $('#quick_instruction_assiged_to select[value=""]');
+
+      $('#quickDevelopmentModal').find('.close').click();
+    }).fail(function(response) {
+      alert('Could not create quick development task!');
+      console.log(response);
+    });
+  });
+
     jQuery('li.notification-dropdown .dropdown-toggle').on('click', function (event) {
         event.preventDefault();
         jQuery(this).parent().toggleClass('show');

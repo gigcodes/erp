@@ -51,9 +51,9 @@
           <div class="form-group">
             <strong>Priority:</strong>
             <select class="form-control" name="priority" required>
-              <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
-              <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
               <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
+              <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
+              <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
            </select>
 
             @if ($errors->has('priority'))
@@ -94,6 +94,7 @@
           <div class="form-group">
             <strong>Status:</strong>
             <select class="form-control" name="status" required>
+              <option value="Discussing" {{ old('status') == 'Discussing' ? 'selected' : '' }}>Discussing</option>
               <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
               <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
               <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option>
@@ -154,13 +155,27 @@
           <div class="form-group">
             <strong>Priority:</strong>
             <select class="form-control" name="priority" id="priority_field" required>
-              <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
-              <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
               <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
+              <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
+              <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
            </select>
 
             @if ($errors->has('priority'))
                 <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Module:</strong>
+            <select class="form-control" name="module_id" id="module_id_field">
+              <option value>Select a Module</option>
+              @foreach ($modules as $module)
+                <option value="{{ $module->id }}">{{ $module->name }}</option>
+              @endforeach
+           </select>
+
+            @if ($errors->has('module_id'))
+                <div class="alert alert-danger">{{$errors->first('module_id')}}</div>
             @endif
           </div>
 
@@ -197,6 +212,7 @@
           <div class="form-group">
             <strong>Status:</strong>
             <select class="form-control" name="status" id="status_field" required>
+              <option value="Discussing" {{ old('status') == 'Discussing' ? 'selected' : '' }}>Discussing</option>
               <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
               <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
               <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option>

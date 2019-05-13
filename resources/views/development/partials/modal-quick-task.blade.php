@@ -9,6 +9,7 @@
       </div>
 
       <input type="hidden" name="module_id" value="" id="quick_module_id">
+      <input type="hidden" name="status" value="Discussing">
 
       <div class="modal-body">
         <div class="form-group">

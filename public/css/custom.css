@@ -411,7 +411,7 @@ form.display-inline{
 }
 
 .border{
-  border: 8px solid #666;
+  border: 1px solid #666;
 }
 .round{
   border-radius: 30px;
@@ -1142,7 +1142,11 @@ form.display-inline{
 }
 
 .instruction-float {
-  bottom: 80px;
+  bottom: 90px;
+}
+
+.developer-float {
+  bottom: 160px;
 }
 
 .badge-task-pending {
@@ -1166,6 +1170,20 @@ form.display-inline{
   background-color: red !important;
 }
 
+.badge-task-other.right {
+  left: auto;
+  right: -15px;
+}
+
+.badge-task-other.completed {
+  background-color: green !important;
+}
+
 .table-hover-cell:hover {
   background-color: #eee;
+}
+
+.task-border-success {
+  border: 2px solid green;
+  transition: 1s ease-in-out;
 }
