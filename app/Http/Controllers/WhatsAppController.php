@@ -936,10 +936,13 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context)
     {
+
+
+
       $this->validate($request, [
         'message'         => 'nullable|required_without:image,screenshot_path|string',
-        'image'           => 'nullable|required_without:message',
-        'screenshot_path' => 'nullable|required_without:message',
+//        'image'           => 'nullable|required_without:message',
+//        'screenshot_path' => 'nullable|required_without:message',
         'customer_id'     => 'sometimes|nullable|numeric',
         'supplier_id'     => 'sometimes|nullable|numeric',
         'status'          => 'required|numeric',
