@@ -3,4 +3,5 @@
 !files/
 !purchase_exports/
 !hourly_exports/
+!email-attachments/
 !.gitignore
