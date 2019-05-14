@@ -449,7 +449,7 @@
                 if (notification.message.indexOf('Remark') >= 0) {
                   link = "{{ route('development.verify.view') }}" + "?id=" + notification.model_id + '&user=' + notification.user_id;
                 } else {
-                  link = "{{ route('development.verify.view') }}" + "?tab=review&id=" + notification.model_id;
+                  link = "{{ route('development.verify.view') }}" + "?id=" + notification.model_id + '&user=' + notification.user_id;
                 }
 
                 $('#developerAlertUrl').attr('href', link);

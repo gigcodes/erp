@@ -1183,6 +1183,23 @@ class PurchaseController extends Controller
         } else {
           $content = $email->getTextBody();
         }
+
+        $attachments_array = [];
+        $attachments = $email->getAttachments();
+
+        $attachments->each(function ($attachment) use (&$content) {
+          file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+          $path = "email-attachments/" . $attachment->name;
+          $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $path . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
+        });
+        // dd($content);
+
+        // if (count($attachments_array) > 0) {
+        //   foreach ($attachments_array as $attach) {
+        //     $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
+        //   }
+        // }
+        // dd($attachments_array);
       } else {
         $email = Email::find($request->uid);
         $to_email = $email->to;

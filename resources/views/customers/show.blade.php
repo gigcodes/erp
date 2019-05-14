@@ -2660,6 +2660,7 @@
                    }
                  }).done(function( data ) {
                    element.remove();
+                   console.log(data);
                  }).fail(function(response) {
                    $(element).attr('disabled', false);
                    $(element).text('Approve');

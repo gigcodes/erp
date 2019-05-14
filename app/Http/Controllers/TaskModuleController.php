@@ -366,6 +366,28 @@ class TaskModuleController extends Controller {
 			'user_name'	=> $request->user_name ? $request->user_name : Auth::user()->name
 		]);
 
+		if ($request->module_type == 'task-discussion') {
+			NotificationQueueController::createNewNotification([
+				'message' => 'Remark for Developer Task',
+				'timestamps' => ['+0 minutes'],
+				'model_type' => DeveloperTask::class,
+				'model_id' =>  $id,
+				'user_id' => Auth::id(),
+				'sent_to' => 6,
+				'role' => '',
+			]);
+
+			NotificationQueueController::createNewNotification([
+				'message' => 'Remark for Developer Task',
+				'timestamps' => ['+0 minutes'],
+				'model_type' => DeveloperTask::class,
+				'model_id' =>  $id,
+				'user_id' => Auth::id(),
+				'sent_to' => 56,
+				'role' => '',
+			]);
+		}
+
 		// if ($request->module_type == 'developer') {
 		// 	$task = DeveloperTask::find($id);
 		//

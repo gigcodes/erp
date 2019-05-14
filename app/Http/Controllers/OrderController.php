@@ -1650,7 +1650,7 @@ class OrderController extends Controller {
 			OrderProduct::create( [
 				'order_id'      => $model_id,
 				'sku'           => $product->sku,
-				'product_price' => $product->price_special_offer ?? $product->price_special,
+				'product_price' => $product->price_special_offer != '' ? $product->price_special_offer : $product->price_special,
 				'color' => $product->color,
 				'size' => $size,
 			] );
