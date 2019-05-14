@@ -39,10 +39,17 @@
                         @foreach($tracks as $track)
                             @foreach($track->log()->orderBy('created_at', 'DESC')->get() as $log)
                                 @if ($log->routePath()->count())
-                                    @if (!in_array($log->routePath->route->name, ['pushNotifications', 'track.store', 'track.show', 'dailyActivity.get']))
+                                    @if (!in_array($log->routePath->route->name, ['pushNotifications', 'track.store', 'track.show', 'dailyActivity.get', '/whatsapp/pollMessagesCustomer']))
                                         <tr>
                                             <td>
-                                                <a href="{{ route($log->routePath->route->name, $log->routePath->parameters()->first()->value ?? '') }}">Visit Page ({{ $log->routePath->route->name }})</a>
+                                                <?php
+                                                    $action = $log->routePath->route->action;
+                                                    $a = explode("\\", $action);
+                                                    $action = $a[count($a)-1];
+                                                    $params = $log->routePath->parameters()->get()->pluck('value')->toArray();
+
+                                                ?>
+                                                <a href="{{ action($action, count($params) ? $params : '') }}">Visit Page ({{ $log->routePath->route->name }})</a>
                                             </td>
                                             <td>
                                                 {{ $routeActions[$log->routePath->route->name] ?? $log->routePath->route->name }}
@@ -136,7 +143,6 @@
                     </table>
                 </div>
                 <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-
                 </div>
             </div>
         </div>

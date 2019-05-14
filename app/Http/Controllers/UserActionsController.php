@@ -78,7 +78,8 @@ class UserActionsController extends Controller
             'customer.index' => 'Viewed Customer Page',
             'customer.show' => 'Viewed A Customer Page',
             'cold-leads.index' => 'Viewed Cold Leads Page',
-            'home' => 'Landed Homepage'
+            'home' => 'Landed Homepage',
+            'purchase.index' => 'Viewed Purchase Page'
         ];
 
         $models = [

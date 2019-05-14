@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\CompetitorPage;
 use Illuminate\Http\Request;
+use InstagramAPI\Instagram;
+use InstagramAPI\Signatures;
+
+Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class CompetitorPageController extends Controller
 {
@@ -14,7 +18,8 @@ class CompetitorPageController extends Controller
      */
     public function index()
     {
-        //
+        $pages = CompetitorPage::all();
+        return view('instagram.comp.index', compact('pages'));
     }
 
     /**
@@ -35,7 +40,19 @@ class CompetitorPageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required',
+            'username' => 'required',
+            'platform' => 'required'
+        ]);
+
+        $com = new CompetitorPage();
+        $com->name = $request->get('name');
+        $com->username = $request->get('username');
+        $com->platform = $request->get('platform');
+        $com->save();
+
+        return redirect()->back()->with('message', 'Competitor page added!');
     }
 
     /**
@@ -46,7 +63,62 @@ class CompetitorPageController extends Controller
      */
     public function show(CompetitorPage $competitorPage)
     {
-        //
+        $username = $competitorPage->username;
+
+        $item = $this->getInstagramUserData($username);
+
+        return view('instagram.comp.grid', compact('item'));
+
+
+    }
+
+    private function getInstagramUserData($username) {
+        $instagram = new Instagram();
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+
+        $request = $instagram->request('https://www.instagram.com/'.$username.'/?__a=1')->getDecodedResponse();
+        $preparedMedia = [];
+        if (isset($request["graphql"]['user']['edge_owner_to_timeline_media']['edges'])) {
+            $medias = $request["graphql"]['user']['edge_owner_to_timeline_media']['edges'];
+            $captions = '';
+
+        foreach ($medias as $key=>$media) {
+            $preparedMedia[$key] = $media['node'];
+            $preparedMedia[$key]['comments'] = $instagram->media->getComments($media['node']['id'])->asArray();
+        }
+
+        }
+        try {
+            $profileData = $instagram->people->getInfoByName($username)->asArray();
+        } catch (\Exception $exception) {
+            $profileData = [];
+        }
+
+        if (!isset($profileData['user'])) {
+            return [];
+        }
+
+
+        $profileData = $profileData['user'];
+        $rank = Signatures::generateUUID();
+        $followers = $instagram->people->getFollowers($profileData['pk'], $rank)->asArray()['users'];
+        $following = $instagram->people->getFollowing($profileData['pk'], $rank)->asArray()['users'];
+
+        return [
+            'id' => $profileData['pk'],
+            'name' => $profileData['full_name'],
+            'username' => $profileData['username'],
+            'followers_count' => $profileData['follower_count'],
+            'following_count' => $profileData['following_count'],
+            'media' => $profileData['media_count'],
+            'profile_pic_url' => $profileData['profile_pic_url'],
+            'is_verified' => $profileData['is_verified'],
+            'bio' => $profileData['biography'],
+            'followers' => $followers,
+            'following' => $following,
+            'medias' => $preparedMedia
+        ];
+
     }
 
     /**
