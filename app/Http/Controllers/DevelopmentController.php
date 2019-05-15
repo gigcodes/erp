@@ -69,7 +69,7 @@ class DevelopmentController extends Controller
       }
 
       $modules = DeveloperModule::all();
-      $users = Helpers::getUserArray(User::all());
+      $users = Helpers::getUserArray(User::role('Developer')->get());
       $comments = DeveloperComment::where('send_to', $user)->latest()->get();
       $amounts = DeveloperCost::where('user_id', $user)->orderBy('paid_date')->get();
       $module_names = [];
@@ -504,7 +504,7 @@ class DevelopmentController extends Controller
           // ]);
         }
 
-        return redirect(url("/development#task_$task->id"));
+        return redirect(url("/development?user=$request->user#task_$task->id"));
 
         // if ($task->status == 'Done' && $task->completed == 1) {
         // } elseif ($task->status == 'Done' && $task->completed == 0) {
