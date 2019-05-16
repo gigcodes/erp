@@ -13,7 +13,7 @@
       <th>Retail Price</th>
       <th>Sold Price</th>
       <th>Buying Price</th>
-      <th>Gross Price</th>
+      <th>Gross Profit</th>
       {{-- <th>Message Status</th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Communication</a></th> --}}
       <th width="280px">Action</th>
@@ -59,6 +59,10 @@
                   <li>
                     {{ $qty }}
                   </li>
+
+                  @php
+                    $qty = 0;
+                  @endphp
                 @endforeach
               </ul>
             </td>
