@@ -251,6 +251,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
 	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
 
+	// Master Plan
+	Route::resource('mastercontrol', 'MasterControlController');
+
 	// Cash Vouchers
 	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');
 	Route::resource('voucher', 'VoucherController');
