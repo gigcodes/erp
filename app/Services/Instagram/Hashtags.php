@@ -3,6 +3,8 @@
 namespace App\Services\Instagram;
 
 
+use App\InstagramUsersList;
+use App\TargetLocation;
 use Carbon\Carbon;
 use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
@@ -14,7 +16,8 @@ class Hashtags {
 
     public function login() {
         $instagram = new Instagram();
-        $instagram->login('sololuxury.official', 'Insta123!');
+        $instagram->login('rishabh_aryal', 'R1shabh@12345');
+//        $instagram->login('sololuxury.official', 'Insta123!');
         $this->token = Signatures::generateUUID();
         $this->instagram = $instagram;
     }
@@ -66,7 +69,25 @@ class Hashtags {
             $x =  $item['location']['lat'] ?? 0;
             $y = $item['location']['lng'] ?? 0;
 
-            if ($this->pointInPolygon($x, $y)) {
+            $point = new Location();
+            $location = $point->pointInPolygon($x, $y);
+            if ($location[0]) {
+
+                $l = InstagramUsersList::where('user_id', $item['user']['pk'])->first();
+
+                if (!$l) {
+                    $l = new InstagramUsersList();
+                }
+
+                $l->username = $item['user']['username'];
+                $l->user_id = $item['user']['pk'];
+                $l->image_url = $item['user']['profile_pic_url'];
+                $l->bio = $item['user']['biography'] ?? 'N/A';
+                $l->rating = 0;
+                $l->location_id = $location[1]->id;
+                $l->because_of = "Hashtags: $hashtag";
+                $l->save();
+
                 $filteredMedia[] = [
                     'username' => $item['user']['username'],
                     'media_id' => $item['id'],
@@ -80,6 +101,7 @@ class Hashtags {
                     'location' => $item['location'],
                     'created_at' => Carbon::createFromTimestamp($item['taken_at'])->diffForHumans(),
                 ];
+
             }
         }
 
@@ -89,39 +111,5 @@ class Hashtags {
     public function getRelatedHashtags($hashtag)
     {
         return $this->instagram->hashtag->getRelated($hashtag)->asArray();
-    }
-
-    function pointInPolygon($x,$y) {
-        $polySides = 18;
-        $polyX[] = '7.687694'; $polyY[] = '77.379244';
-        $polyX[] = '9.859114';  $polyY[] = '80.279635';
-        $polyX[] = '15.261506';  $polyY[] = '80.543307';
-        $polyX[] = '19.371891';  $polyY[] = '85.640963';
-        $polyX[] = '20.198903';  $polyY[] = '87.047213';
-        $polyX[] = '21.185539';  $polyY[] = '87.222994';
-        $polyX[] = '21.512977';  $polyY[] = '88.980807';
-        $polyX[] = '24.585693';  $polyY[] = '87.926119';
-        $polyX[] = '25.302914';  $polyY[] = '88.453463';
-        $polyX[] = '26.173779';  $polyY[] = '87.926119';
-        $polyX[] = '28.515619';  $polyY[] = '80.015963';
-        $polyX[] = '30.130449';  $polyY[] = '80.8157';
-        $polyX[] = '32.235619';  $polyY[] = '78.354763';
-        $polyX[] = '32.680581';  $polyY[] = '76.245388';
-        $polyX[] = '30.43404';  $polyY[] = '74.663357';
-        $polyX[] = '27.200461';  $polyY[] = '71.147732';
-        $polyX[] = '27.200461';  $polyY[] = '69.214138';
-        $polyX[] = '23.548428';  $polyY[] = '68.686794';
-        $j = $polySides-1 ;
-        $oddNodes = 0;
-        for ($i=0; $i<$polySides; $i++) {
-            if (($polyY[$i]<$y && $polyY[$j]>=$y) ||  ($polyY[$j]<$y && $polyY[$i]>=$y)) {
-                if ($polyX[$i]+($y-$polyY[$i])/($polyY[$j]-$polyY[$i])*($polyX[$j]-$polyX[$i])<$x) {
-                    $oddNodes=!$oddNodes;
-                }
-            }
-            $j=$i;
-        }
-
-        return $oddNodes;
     }
 }

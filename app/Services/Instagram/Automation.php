@@ -24,6 +24,8 @@ class Automation {
     private $rudewords;
     private $hashtags;
 
+    private $locationId;
+
 
     private $usernamePercentage = 0;
     private $bioPercentage = 0;

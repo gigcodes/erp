@@ -73,6 +73,7 @@ class AutomateLeadsAsColdOrCustomers extends Command
                     $customer->because_of = implode(' ', $automation->getHashtagUsed());
                     $customer->save();
 
+
                     $automation->sendMessageTo($customer->platform_id);
 
                 } else {
