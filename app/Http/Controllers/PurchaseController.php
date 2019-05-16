@@ -1024,35 +1024,131 @@ class PurchaseController extends Controller
       if ($request->type == 'inbox') {
         $inbox_name = 'INBOX';
         $direction = 'from';
+        $type = 'incoming';
       } else {
         $inbox_name = 'INBOX.Sent';
         $direction = 'to';
+        $type = 'outgoing';
       }
 
       $inbox = $imap->getFolder($inbox_name);
+      $latest_email = Email::where('type', $type)->where('model_id', $supplier->id)->where(function($query) {
+        $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
+      })->latest()->first();
+
+      if ($latest_email) {
+        $latest_email_date = Carbon::parse($latest_email->created_at);
+      } else {
+        $latest_email_date = Carbon::parse('1990-01-01');
+      }
+
+      // dd(Carbon::parse($latest_email_date)->format('d M y 11:i:50'));
 
       if ($supplier->agents) {
         if ($supplier->agents()->count() > 1) {
           foreach ($supplier->agents as $key => $agent) {
             if ($key == 0) {
-              $emails = $inbox->messages()->where($direction, $agent->email);
-              $emails = $emails->setFetchFlags(false)
-                              ->setFetchBody(false)
-                              ->setFetchAttachment(false)->leaveUnread()->get();
+              $emails = $inbox->messages()->where($direction, $agent->email)->where([
+                  ['SINCE', $latest_email_date->format('d M y H:i')]
+              ]);
+              // $emails = $emails->setFetchFlags(false)
+              //                 ->setFetchBody(false)
+              //                 ->setFetchAttachment(false)->leaveUnread()->get();
+
+              $emails = $emails->leaveUnread()->get();
+
+              foreach ($emails as $email) {
+                if ($email->hasHTMLBody()) {
+                  $content = $email->getHTMLBody();
+                } else {
+                  $content = $email->getTextBody();
+                }
+
+                if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                  $params = [
+                    'model_id'        => $supplier->id,
+                    'model_type'      => Supplier::class,
+                    'type'            => $type,
+                    'from'            => $email->getFrom()[0]->mail,
+                    'to'              => $email->getTo()[0]->mail,
+                    'subject'         => $email->getSubject(),
+                    'message'         => $content,
+                    'template'				=> 'customer-simple',
+          					'additional_data'	=> "",
+                    'created_at'      => $email->getDate()
+                  ];
+
+                  Email::create($params);
+                }
+              }
             } else {
-              $additional = $inbox->messages()->where($direction, $agent->email);
-              $additional = $additional->setFetchFlags(false)
-                              ->setFetchBody(false)
-                              ->setFetchAttachment(false)->leaveUnread()->get();
+              $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+              // $additional = $additional->setFetchFlags(false)
+              //                 ->setFetchBody(false)
+              //                 ->setFetchAttachment(false)->leaveUnread()->get();
+
+              $additional = $additional->leaveUnread()->get();
+
+              foreach ($additional as $email) {
+                if ($email->hasHTMLBody()) {
+                  $content = $email->getHTMLBody();
+                } else {
+                  $content = $email->getTextBody();
+                }
+
+                if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                  $params = [
+                    'model_id'        => $supplier->id,
+                    'model_type'      => Supplier::class,
+                    'type'            => $type,
+                    'from'            => $email->getFrom()[0]->mail,
+                    'to'              => $email->getTo()[0]->mail,
+                    'subject'         => $email->getSubject(),
+                    'message'         => $content,
+                    'template'				=> 'customer-simple',
+          					'additional_data'	=> "",
+                    'created_at'      => $email->getDate()
+                  ];
+
+                  Email::create($params);
+                }
+              }
 
               $emails = $emails->merge($additional);
             }
           }
         } else if ($supplier->agents()->count() == 1) {
-          $emails = $inbox->messages()->where($direction, $supplier->agents[0]->email);
-          $emails = $emails->setFetchFlags(false)
-                          ->setFetchBody(false)
-                          ->setFetchAttachment(false)->leaveUnread()->get();
+          $emails = $inbox->messages()->where($direction, $supplier->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+          // $emails = $emails->setFetchFlags(false)
+          //                 ->setFetchBody(false)
+          //                 ->setFetchAttachment(false)->leaveUnread()->get();
+
+          $emails = $emails->leaveUnread()->get();
+
+          foreach ($emails as $email) {
+            if ($email->hasHTMLBody()) {
+              $content = $email->getHTMLBody();
+            } else {
+              $content = $email->getTextBody();
+            }
+
+            if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+              $params = [
+                'model_id'        => $supplier->id,
+                'model_type'      => Supplier::class,
+                'type'            => $type,
+                'from'            => $email->getFrom()[0]->mail,
+                'to'              => $email->getTo()[0]->mail,
+                'subject'         => $email->getSubject(),
+                'message'         => $content,
+                'template'				=> 'customer-simple',
+                'additional_data'	=> "",
+                'created_at'      => $email->getDate()
+              ];
+
+              Email::create($params);
+            }
+          }
         } else {
           $emails = $inbox->messages()->where($direction, 'nonexisting@email.com');
           $emails = $emails->setFetchFlags(false)
@@ -1094,17 +1190,26 @@ class PurchaseController extends Controller
       $emails_array = [];
       $count = 0;
 
-      foreach ($emails as $key => $email) {
-        $emails_array[$key]['uid'] = $email->getUid();
-        $emails_array[$key]['subject'] = $email->getSubject();
-        $emails_array[$key]['date'] = $email->getDate();
-        $emails_array[$key]['from'] = $email->getFrom()[0]->mail;
-
-        $count++;
-      }
+      // foreach ($emails as $key => $email) {
+      //   $emails_array[$key]['uid'] = $email->getUid();
+      //   $emails_array[$key]['subject'] = $email->getSubject();
+      //   $emails_array[$key]['date'] = $email->getDate();
+      //   $emails_array[$key]['from'] = $email->getFrom()[0]->mail;
+      //
+      //   $count++;
+      // }
 
       if ($request->type != 'inbox') {
-        $db_emails = $supplier->emails;
+        $db_emails = $supplier->emails()->where('type', 'incoming')->get();
+
+        foreach ($db_emails as $key2 => $email) {
+          $emails_array[$count + $key2]['id'] = $email->id;
+          $emails_array[$count + $key2]['subject'] = $email->subject;
+          $emails_array[$count + $key2]['date'] = $email->created_at;
+          $emails_array[$count + $key2]['from'] = $email->from;
+        }
+      } else {
+        $db_emails = $supplier->emails()->where('type', 'outgoing')->get();
 
         foreach ($db_emails as $key2 => $email) {
           $emails_array[$count + $key2]['id'] = $email->id;

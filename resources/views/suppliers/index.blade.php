@@ -37,15 +37,16 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Social handle</th>
+            <th width="5%">ID</th>
+            <th width="15%">Name</th>
+            <th width="15%">Address</th>
+            <th width="10%">Social handle</th>
             {{-- <th>Agents</th> --}}
-            <th>GST</th>
-            <th>Order</th>
-            <th>Communication</th>
-            <th>Action</th>
+            <th width="5%">GST</th>
+            <th width="10%">Order</th>
+            <th width="15%">Emails</th>
+            <th width="15%">Communication</th>
+            <th width="10%">Action</th>
           </tr>
         </thead>
 
@@ -86,6 +87,9 @@
                   <br>
                   {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
                 @endif
+              </td>
+              <td>
+                {{ strlen(strip_tags($supplier->email_message)) > 200 ? substr(strip_tags($supplier->email_message), 0, 200) . '...' : strip_tags($supplier->email_message) }}
               </td>
               <td>
                 {{ $supplier->message }}
