@@ -49,6 +49,8 @@ class SearchController extends Controller {
 			Cache::forget('filter-brand-' . Auth::id());
 		}
 
+
+
 		if ($request->color[0] != null) {
 			if ($request->brand[0] != null) {
 				$productQuery = $productQuery->whereIn('color', $request->color);
@@ -62,6 +64,8 @@ class SearchController extends Controller {
 		} else {
 			Cache::forget('filter-color-' . Auth::id());
 		}
+
+
 
 		if ($request->category[0] != null && $request->category[0] != 1) {
 			$category_children = [];
@@ -103,6 +107,8 @@ class SearchController extends Controller {
 			Cache::forget('filter-category-' . Auth::id());
 		}
 
+
+
 		if ($request->price != null) {
 			$exploded = explode(',', $request->price);
 			$min = $exploded[0];
@@ -123,7 +129,7 @@ class SearchController extends Controller {
 		} else {
 			Cache::forget('filter-price-' . Auth::id());
 		}
-
+// dd($productQuery->get());
 		if ($request->supplier[0] != null) {
 			$suppliers_list = implode(',', $request->supplier);
 
@@ -253,18 +259,18 @@ class SearchController extends Controller {
 				$productQuery = $productQuery->where( 'stage', '>=', $stage->get( $roletype ) );
 			}
 
-			if ( $roletype != 'Selection' && $roletype != 'Searcher' ) {
+			if ($roletype != 'Selection' && $roletype != 'Searcher') {
 
 				$productQuery = $productQuery->whereNull( 'dnf' );
 			}
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->price == "0,400000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type == null && $request->location[0] == null) {
-				$productQuery = ( new Product() )->newQuery()->latest();
+			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->price == "0,400000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type[0] == null && $request->location[0] == null) {
+				$productQuery = (new Product())->newQuery()->latest();
 			}
 		}
 
 		if ($request->ids[0] != null) {
-			$productQuery = ( new Product() )->newQuery()
+			$productQuery = (new Product())->newQuery()
 																		 ->latest()->whereIn('id', $request->ids);
 		}
 
