@@ -48,31 +48,39 @@ class RunMessageQueue extends Command
         'start_time'  => Carbon::now()
       ]);
 
-      $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now())->where('sent', 0)->where('status', '!=', 1)->orderBy('sending_time', 'ASC')->limit(20);
+      $time = Carbon::now();
+      $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
+      $evening = Carbon::create($time->year, $time->month, $time->day, 22, 00, 0);
 
-      if (count($message_queues->get()) > 0) {
-        foreach ($message_queues->get() as $message) {
-          if ($message->type == 'message_all') {
+      if ($time->between($morning, $evening, true)) {
+        $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now())->where('sent', 0)->where('status', '!=', 1)->orderBy('sending_time', 'ASC')->limit(20);
 
-            $customer = Customer::find($message->customer_id);
+        if (count($message_queues->get()) > 0) {
+          foreach ($message_queues->get() as $message) {
+            if ($message->type == 'message_all') {
 
-            if ($customer && $customer->do_not_disturb == 0) {
-              SendMessageToAll::dispatch($message->user_id, $customer, json_decode($message->data, true), $message->id);
+              $customer = Customer::find($message->customer_id);
 
-              dump('sent to all');
+              if ($customer && $customer->do_not_disturb == 0) {
+                SendMessageToAll::dispatch($message->user_id, $customer, json_decode($message->data, true), $message->id);
+
+                dump('sent to all');
+              } else {
+                $message->delete();
+
+                dump('deleting queue');
+              }
             } else {
-              $message->delete();
+              SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
 
-              dump('deleting queue');
+              dump('sent to selected');
             }
-          } else {
-            SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
-
-            dump('sent to selected');
           }
-        }
 
-        $report->update(['end_time' => Carbon:: now()]);
+          $report->update(['end_time' => Carbon:: now()]);
+        }
+      } else {
+        dump('Not the right time for sending');
       }
     }
 }
