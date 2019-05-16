@@ -128,7 +128,7 @@ class MasterControlController extends Controller
   		//                                     ->get()->groupBy('assign_to')->toArray();
 
       $tasks['last_pending'] = Task::where( 'is_statutory', '=', 0 )
-  		                                    ->whereNotNull( 'is_completed'  )
+  		                                    ->whereNull( 'is_completed'  )
   											->where( function ($query ) use ($userid) {
   												return $query->orWhere( 'assign_from', '=', $userid )
   												             ->orWhere( 'assign_to', '=', $userid );

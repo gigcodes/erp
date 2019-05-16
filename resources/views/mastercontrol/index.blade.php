@@ -103,7 +103,7 @@
                 $count = 0;
               @endphp
               @foreach ($message_groups as $date => $data)
-                @if ($count == 0)
+                @if ($date == \Carbon\Carbon::now()->subDay()->format('Y-m-d'))
                   <div class="col-md-4">
                     <h4>Live - {{ $date }}</h4>
                     @foreach ($data as $group_id => $group)
@@ -121,7 +121,7 @@
                     $count++;
                   @endphp
 
-                @elseif ($count == 1)
+                @elseif ($date == \Carbon\Carbon::now()->format('Y-m-d'))
                   <div class="col-md-4">
                     <h4>Planned - {{ $date }}</h4>
                     @foreach ($data as $group_id => $group)
@@ -138,21 +138,25 @@
                   @php
                     $count++;
                   @endphp
-                @else
-                  <div class="col-md-4">
-                    <h4>Future - {{ $date }}</h4>
-                    @foreach ($data as $group_id => $group)
-                        <div class="card activity-chart mb-3">
-                          <div class="card-header" data-toggle="tooltip" data-placement="top" data-html="true" title="<strong>Message: </strong>{{ $group['message'] }}<br /><strong>Expected Delivery: </strong>{{ $group['expecting_time'] }}">
-                            Group ID {{ $group_id }}
-                          </div>
-
-                          <canvas id="horizontalBroadcastBarChart{{ $date }}{{ $group_id }}" style="height: 120px;"></canvas>
-                        </div>
-                    @endforeach
-                  </div>
                 @endif
               @endforeach
+
+              <div class="col-md-4">
+                <h4>Future - {{ $date }}</h4>
+                @foreach ($message_groups as $date => $data)
+                  @if ($date > \Carbon\Carbon::now()->format('Y-m-d'))
+                    @foreach ($data as $group_id => $group)
+                      <div class="card activity-chart mb-3">
+                        <div class="card-header" data-toggle="tooltip" data-placement="top" data-html="true" title="<strong>Message: </strong>{{ $group['message'] }}<br /><strong>Expected Delivery: </strong>{{ $group['expecting_time'] }}">
+                          Group ID {{ $group_id }}
+                        </div>
+
+                        <canvas id="horizontalBroadcastBarChart{{ $date }}{{ $group_id }}" style="height: 120px;"></canvas>
+                      </div>
+                    @endforeach
+                  @endif
+                @endforeach
+              </div>
             </div>
           </div>
 
@@ -184,7 +188,9 @@
                   @endforeach
 
                   <li class="list-group-item">
-                    <strong>{{ array_key_exists($tasks['last_pending']['assign_to'], $users_array) ? $users_array[$tasks['last_pending']['assign_to']] : 'User Doesnt Exist' }}</strong> - {{ $tasks['last_pending']['task_details'] }} on <strong>{{ \Carbon\Carbon::parse($tasks['last_pending']['created_at'])->format('d-m') }}</strong>
+                    <strong>{{ array_key_exists($tasks['last_pending']['assign_to'], $users_array) ? $users_array[$tasks['last_pending']['assign_to']] : 'User Doesnt Exist' }}</strong> -
+                    <a href="{{ url('/') }}?selected_user={{ $tasks['last_pending']['assign_to'] }}#task_{{ $tasks['last_pending']['id'] }}" target="_blank">{{ $tasks['last_pending']['task_details'] }}</a>
+                     on <strong>{{ \Carbon\Carbon::parse($tasks['last_pending']['created_at'])->format('d-m') }}</strong>
                   </li>
                 </ul>
               </div>
@@ -215,7 +221,9 @@
                   @endforeach
 
                   <li class="list-group-item">
-                    <strong>{{ array_key_exists($last_pending_instruction['assigned_to'], $users_array) ? $users_array[$last_pending_instruction['assigned_to']] : 'User Doesnt Exist' }}</strong> - {{ $last_pending_instruction['instruction'] }} on <strong>{{ \Carbon\Carbon::parse($last_pending_instruction['created_at'])->format('d-m') }}</strong>
+                    <strong>{{ array_key_exists($last_pending_instruction['assigned_to'], $users_array) ? $users_array[$last_pending_instruction['assigned_to']] : 'User Doesnt Exist' }}</strong> -
+                    <a href="{{ route('instruction.index') }}?user%5B%5D={{ $last_pending_instruction['assigned_to'] }}" target="_blank">{{ $last_pending_instruction['instruction'] }}</a>
+                     on <strong>{{ \Carbon\Carbon::parse($last_pending_instruction['created_at'])->format('d-m') }}</strong>
                   </li>
                 </ul>
               </div>
@@ -246,7 +254,9 @@
                   @endforeach
 
                   <li class="list-group-item">
-                    <strong>{{ array_key_exists($last_pending_developer_task['user_id'], $users_array) ? $users_array[$last_pending_developer_task['user_id']] : 'User Doesnt Exist' }}</strong> - {{ $last_pending_developer_task['task'] }} on <strong>{{ \Carbon\Carbon::parse($last_pending_developer_task['created_at'])->format('d-m') }}</strong>
+                    <strong>{{ array_key_exists($last_pending_developer_task['user_id'], $users_array) ? $users_array[$last_pending_developer_task['user_id']] : 'User Doesnt Exist' }}</strong> -
+                    <a href="{{ route('development.index') }}?user={{ $last_pending_developer_task['user_id'] }}#task_{{ $last_pending_developer_task['id'] }}" target="_blank">{{ $last_pending_developer_task['task'] }}</a>
+                     on <strong>{{ \Carbon\Carbon::parse($last_pending_developer_task['created_at'])->format('d-m') }}</strong>
                   </li>
                 </ul>
               </div>
