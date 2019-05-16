@@ -1187,6 +1187,7 @@
                               <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">CUSTOMER IG PROFILES</a>
                               <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags used by top customers</a>
                               <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}">Competitor Page</a>
+                              <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Locations</a>
                           </div>
                         </li>
                       @endcan

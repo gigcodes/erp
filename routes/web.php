@@ -565,3 +565,4 @@ Route::get('test', 'WhatsAppController@getAllMessages');
 
 Route::resource('track', 'UserActionsController');
 Route::resource('competitor-page', 'CompetitorPageController');
+Route::resource('target-location', 'TargetLocationController');

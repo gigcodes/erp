@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\InstagramUsersList;
 use App\TargetLocation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TargetLocationController extends Controller
 {
@@ -14,7 +16,9 @@ class TargetLocationController extends Controller
      */
     public function index()
     {
-        //
+        $locations = TargetLocation::all();
+
+        return view('instagram.location.index', compact('locations'));
     }
 
     /**
@@ -35,7 +39,24 @@ class TargetLocationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required',
+            'region' => 'required',
+            'lat' => 'required',
+            'lng' => 'required',
+        ]);
+
+
+        $location = new TargetLocation();
+        $location->country = $request->get('name');
+        $location->region = $request->get('region');
+        $polyY = explode(',', $request->get('lat'));
+        $polyX = explode(',', $request->get('lng'));
+        $location->region_data = [$polyX,$polyY];
+
+        $location->save();
+
+        return redirect()->back()->with('message', 'Location added successfully!');
     }
 
     /**
@@ -46,7 +67,7 @@ class TargetLocationController extends Controller
      */
     public function show(TargetLocation $targetLocation)
     {
-        //
+        return view('instagram.location.show', compact('targetLocation'));
     }
 
     /**
@@ -55,9 +76,25 @@ class TargetLocationController extends Controller
      * @param  \App\TargetLocation  $targetLocation
      * @return \Illuminate\Http\Response
      */
-    public function edit(TargetLocation $targetLocation)
+    public function edit($review)
     {
-        //
+        $stats = DB::table('instagram_users_lists')
+            ->select(DB::raw('COUNT(`instagram_users_lists`.`id`) AS count, `target_locations`.`id` as location_id, `target_locations`.`country`, `target_locations`.`region`'))
+            ->leftJoin('target_locations', 'instagram_users_lists.location_id', '=', 'target_locations.id')
+            ->groupBy('location_id')->get()->toArray();
+
+        $data = [];
+        $labels = [];
+        foreach ($stats as $stat) {
+            $data[] = $stat->count;
+            $labels[] = "\"$stat->country ($stat->region)\"";
+        }
+
+        $data = implode(', ', $data);
+        $labels = implode(', ', $labels);
+
+        return view('instagram.location.report', compact('data', 'labels', 'stats'));
+
     }
 
     /**
