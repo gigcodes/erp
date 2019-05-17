@@ -272,25 +272,25 @@ class WhatsAppController extends FindByNumberController
               				'method'			=> 'whatsapp'
               			]);
                   } else {
-                    Instruction::create([
-                      'customer_id' => $customer->id,
-                      'instruction' => 'Please send the prices',
-                      'category_id' => 1,
-                      'assigned_to' => 7,
-                      'assigned_from' => 6
-                    ]);
+                    // Instruction::create([
+                    //   'customer_id' => $customer->id,
+                    //   'instruction' => 'Please send the prices',
+                    //   'category_id' => 1,
+                    //   'assigned_to' => 7,
+                    //   'assigned_from' => 6
+                    // ]);
                   }
                 }
               }
-            } else {
-              Instruction::create([
-                'customer_id' => $customer->id,
-                'instruction' => 'Please send the prices',
-                'category_id' => 1,
-                'assigned_to' => 7,
-                'assigned_from' => 6
-              ]);
             }
+
+            Instruction::create([
+              'customer_id' => $customer->id,
+              'instruction' => 'Please send the prices',
+              'category_id' => 1,
+              'assigned_to' => 7,
+              'assigned_from' => 6
+            ]);
           }
         }
 
@@ -612,25 +612,25 @@ class WhatsAppController extends FindByNumberController
               				'method'			=> 'whatsapp'
               			]);
                   } else {
-                    Instruction::create([
-                      'customer_id' => $customer->id,
-                      'instruction' => 'Please send the prices',
-                      'category_id' => 1,
-                      'assigned_to' => 7,
-                      'assigned_from' => 6
-                    ]);
+                    // Instruction::create([
+                    //   'customer_id' => $customer->id,
+                    //   'instruction' => 'Please send the prices',
+                    //   'category_id' => 1,
+                    //   'assigned_to' => 7,
+                    //   'assigned_from' => 6
+                    // ]);
                   }
                 }
               }
-            } else {
-              Instruction::create([
-                'customer_id' => $customer->id,
-                'instruction' => 'Please send the prices',
-                'category_id' => 1,
-                'assigned_to' => 7,
-                'assigned_from' => 6
-              ]);
             }
+
+            Instruction::create([
+              'customer_id' => $customer->id,
+              'instruction' => 'Please send the prices',
+              'category_id' => 1,
+              'assigned_to' => 7,
+              'assigned_from' => 6
+            ]);
           }
         }
 
