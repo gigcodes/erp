@@ -1411,87 +1411,89 @@
 
     </nav>
 
-    <div class="float-container developer-float">
-      @php
-        $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
-        $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
-        $rishab_pending_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', '!=', 'Done')->count();
-        $rishab_completed_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', 'Done')->count();
-      @endphp
+    @if (Auth::check())
+      <div class="float-container developer-float">
+        @php
+          $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
+          $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
+          $rishab_pending_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', '!=', 'Done')->count();
+          $rishab_completed_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', 'Done')->count();
+        @endphp
 
-      <a href="{{ route('development.index') }}">
-        <span class="badge badge-task-pending">L-{{ $lukas_pending_devtasks_count }}</span>
-      </a>
+        <a href="{{ route('development.index') }}">
+          <span class="badge badge-task-pending">L-{{ $lukas_pending_devtasks_count }}</span>
+        </a>
 
-      <a href="{{ route('development.index') }}">
-        <span class="badge badge-task-completed">L-{{ $lukas_completed_devtasks_count }}</span>
-      </a>
+        <a href="{{ route('development.index') }}">
+          <span class="badge badge-task-completed">L-{{ $lukas_completed_devtasks_count }}</span>
+        </a>
 
-      <a href="{{ route('development.index') }}">
-        <span class="badge badge-task-other">R-{{ $rishab_pending_devtasks_count }}</span>
-      </a>
+        <a href="{{ route('development.index') }}">
+          <span class="badge badge-task-other">R-{{ $rishab_pending_devtasks_count }}</span>
+        </a>
 
-      <a href="{{ route('development.index') }}">
-        <span class="badge badge-task-other right completed">R-{{ $rishab_completed_devtasks_count }}</span>
-      </a>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
-    </div>
+        <a href="{{ route('development.index') }}">
+          <span class="badge badge-task-other right completed">R-{{ $rishab_completed_devtasks_count }}</span>
+        </a>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
+      </div>
 
-    <div class="float-container instruction-float">
-      @php
-        $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
-        $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
-        $sushil_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 7)->whereNull('completed_at')->count();
-        $andy_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 56)->whereNull('completed_at')->count();
-      @endphp
+      <div class="float-container instruction-float">
+        @php
+          $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
+          $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
+          $sushil_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 7)->whereNull('completed_at')->count();
+          $andy_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 56)->whereNull('completed_at')->count();
+        @endphp
 
-      <a href="{{ route('instruction.index') }}">
-        <span class="badge badge-task-pending">{{ $pending_instructions_count }}</span>
-      </a>
+        <a href="{{ route('instruction.index') }}">
+          <span class="badge badge-task-pending">{{ $pending_instructions_count }}</span>
+        </a>
 
-      <a href="{{ route('instruction.index') }}#verify-instructions">
-        <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
-      </a>
+        <a href="{{ route('instruction.index') }}#verify-instructions">
+          <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
+        </a>
 
-      <a href="{{ route('instruction.list') }}">
-        <span class="badge badge-task-other">S-{{ $sushil_pending_instructions_count }}</span>
-      </a>
+        <a href="{{ route('instruction.list') }}">
+          <span class="badge badge-task-other">S-{{ $sushil_pending_instructions_count }}</span>
+        </a>
 
-      <a href="{{ route('instruction.list') }}">
-        <span class="badge badge-task-other right">A-{{ $andy_pending_instructions_count }}</span>
-      </a>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
-    </div>
+        <a href="{{ route('instruction.list') }}">
+          <span class="badge badge-task-other right">A-{{ $andy_pending_instructions_count }}</span>
+        </a>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
+      </div>
 
-    <div class="float-container">
-      @php
-        $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
-        $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
-        $sushil_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 7)->whereNull('is_completed')->count();
-        $andy_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 56)->whereNull('is_completed')->count();
-      @endphp
+      <div class="float-container">
+        @php
+          $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
+          $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
+          $sushil_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 7)->whereNull('is_completed')->count();
+          $andy_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 56)->whereNull('is_completed')->count();
+        @endphp
 
-      <a href="/#1">
-        <span class="badge badge-task-pending">{{ $pending_tasks_count }}</span>
-      </a>
+        <a href="/#1">
+          <span class="badge badge-task-pending">{{ $pending_tasks_count }}</span>
+        </a>
 
-      <a href="/#3">
-        <span class="badge badge-task-completed">{{ $completed_tasks_count }}</span>
-      </a>
+        <a href="/#3">
+          <span class="badge badge-task-completed">{{ $completed_tasks_count }}</span>
+        </a>
 
-      <a href="{{ route('task.list') }}">
-        <span class="badge badge-task-other">S-{{ $sushil_pending_tasks_count }}</span>
-      </a>
+        <a href="{{ route('task.list') }}">
+          <span class="badge badge-task-other">S-{{ $sushil_pending_tasks_count }}</span>
+        </a>
 
-      <a href="{{ route('task.list') }}">
-        <span class="badge badge-task-other right">A-{{ $andy_pending_tasks_count }}</span>
-      </a>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
-    </div>
+        <a href="{{ route('task.list') }}">
+          <span class="badge badge-task-other right">A-{{ $andy_pending_tasks_count }}</span>
+        </a>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
+      </div>
 
-    @include('partials.modals.quick-task')
-    @include('partials.modals.quick-instruction')
-    @include('partials.modals.quick-development-task')
+      @include('partials.modals.quick-task')
+      @include('partials.modals.quick-instruction')
+      @include('partials.modals.quick-development-task')
+    @endif
 
     <main class="container">
 
