@@ -260,6 +260,23 @@ class CustomerController extends Controller
         return [$customers, $ids_list];
     }
 
+    public function loadMoreMessages(Request $request)
+    {
+      $customer = Customer::find($request->customer_id);
+
+      $chat_messages = $customer->whatsapps_all()->skip(1)->take(3)->get();
+
+      $messages = [];
+
+      foreach ($chat_messages as $chat_message) {
+        $messages[] = $chat_message->message;
+      }
+
+      return response()->json([
+        'messages'  => $messages
+      ]);
+    }
+
     public function initiateFollowup(Request $request, $id)
     {
       CommunicationHistory::create([

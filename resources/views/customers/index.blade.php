@@ -281,6 +281,12 @@
                         @if ($customer->is_error_flagged == 1)
                           <span class="btn btn-image"><img src="/images/flagged.png" /></span>
                         @endif
+
+                        <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $customer->id }}">Load More</button>
+
+                        <ul class="more-communication-container">
+                          
+                        </ul>
                       {{-- @else
                         {{ $remark_message }}
                       @endif --}}
@@ -1032,6 +1038,36 @@
           jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
           jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
 
+      });
+
+      $(document).on('click', '.load-more-communication', function() {
+        var thiss = $(this);
+        var customer_id = $(this).data('id');
+
+        $.ajax({
+          type: "GET",
+          url: "{{ url('customers') }}/" + customer_id + '/loadMoreMessages',
+          data: {
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Loading...');
+          }
+        }).done(function(response) {
+          (response.messages).forEach(function(index) {
+            var li = '<li>' + index + '</li>';
+
+            $(thiss).closest('td').find('.more-communication-container').append(li);
+          });
+
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Load More');
+
+          alert('Could not load more messages');
+
+          console.log(response);
+        });
       });
   </script>
 @endsection

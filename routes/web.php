@@ -185,6 +185,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// Customers
 	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
+	Route::get('customers/{id}/loadMoreMessages', 'CustomerController@loadMoreMessages');
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
 	Route::post('customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup')->name('customer.initiate.followup');

@@ -75,7 +75,7 @@ class Customer extends Model
 
   public function whatsapps_all()
 	{
-		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest();
+		return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9'])->latest();
 	}
 
   public function credits_issued()
