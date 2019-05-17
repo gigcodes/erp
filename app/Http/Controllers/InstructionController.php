@@ -60,17 +60,17 @@ class InstructionController extends Controller
       $users_array = Helpers::getUserArray(User::all());
       $user = $request->user ? $request->user : [];
 
-      if ($request->sortby != 'created_at') {
-        $instructions = array_values(array_sort($instructions, function ($value) {
-          if ($value['remarks']) {
-            return $value['remarks'][0]['created_at'];
-          }
-
-          return NULL;
-  			}));
-      }
-
-      $instructions = array_reverse($instructions);
+      // if ($request->sortby != 'created_at') {
+      //   $instructions = array_values(array_sort($instructions, function ($value) {
+      //     if ($value['remarks']) {
+      //       return $value['remarks'][0]['created_at'];
+      //     }
+      //
+      //     return NULL;
+  		// 	}));
+      // }
+      //
+      // $instructions = array_reverse($instructions);
 
       $ids_list = [];
       foreach ($instructions as $instruction) {
@@ -127,17 +127,17 @@ class InstructionController extends Controller
       $users_array = Helpers::getUserArray(User::all());
       $user = $request->user ? $request->user : [];
 
-      if ($request->sortby != 'created_at') {
-        $instructions = array_values(array_sort($instructions, function ($value) {
-          if ($value['remarks']) {
-            return $value['remarks'][0]['created_at'];
-          }
-
-          return NULL;
-  			}));
-      }
-
-      $instructions = array_reverse($instructions);
+      // if ($request->sortby != 'created_at') {
+      //   $instructions = array_values(array_sort($instructions, function ($value) {
+      //     if ($value['remarks']) {
+      //       return $value['remarks'][0]['created_at'];
+      //     }
+      //
+      //     return NULL;
+  		// 	}));
+      // }
+      //
+      // $instructions = array_reverse($instructions);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = Setting::get('pagination');

@@ -1784,7 +1784,7 @@
               <th>Created at</th>
               <th>Remark</th>
             </tr>
-            @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
+            @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'ASC')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
@@ -1852,7 +1852,7 @@
                   <div class="table-responsive">
                     <table class="table table-bordered">
                       <tbody>
-                        @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $instruction)
+                        @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'ASC')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
