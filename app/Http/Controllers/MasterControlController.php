@@ -11,6 +11,8 @@ use App\ReplyCategory;
 use App\DeveloperTask;
 use App\Order;
 use App\Purchase;
+use App\Email;
+use App\Supplier;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -261,6 +263,32 @@ class MasterControlController extends Controller
   								    AS SUBQUERY;
   							', [$two_days_ago]);
 
+      $emails = Email::where('type', 'incoming')->where(function($query) {
+        $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
+      })->latest()->get()->groupBy(['model_id', 'seen']);
+
+      $emails_array = [];
+
+      foreach ($emails as $supplier_id => $data) {
+        $emails_array[$supplier_id]['0'] = 0;
+        $emails_array[$supplier_id]['1'] = 0;
+        foreach ($data as $seen => $info) {
+          if ($seen == 0) {
+            $emails_array[$supplier_id]['0'] = count($info);
+          } else {
+            $emails_array[$supplier_id]['1'] = count($info);
+          }
+        }
+      }
+
+      // dd($emails_array);
+      $suppliers_array = [];
+      $suppliers = Supplier::all();
+
+      foreach ($suppliers as $supplier) {
+        $suppliers_array[$supplier->id] = $supplier->supplier;
+      }
+
               // dd($scraped_count);
       // dd($unread_messages);
 
@@ -283,6 +311,8 @@ class MasterControlController extends Controller
         'scraped_days_ago_count'     => $scraped_days_ago_count,
         'products_count'     => $products_count,
         'listed_days_ago_count'     => $listed_days_ago_count,
+        'emails'     => $emails_array,
+        'suppliers_array'     => $suppliers_array,
       ]);
     }
 

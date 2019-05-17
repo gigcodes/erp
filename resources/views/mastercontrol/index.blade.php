@@ -285,7 +285,7 @@
                 <tbody>
                   @foreach ($orders['orders'] as $order)
                     <tr>
-                      @if ($order->order_product)
+                      @if (count($order->order_product) > 0)
                         <td>
                           {{ $order->order_product[0]->product ? $order->order_product[0]->product->name : 'No Product' }}
                         </td>
@@ -296,7 +296,7 @@
                           {{ $order->order_product[0]->qty }}
                         </td>
                         <td>
-                            {{ $order->order_product[0]->product_price * $order->order_product[0]->qty }}
+                            {{ (int) $order->order_product[0]->product_price * $order->order_product[0]->qty }}
                         </td>
                       @else
                         <td></td>
@@ -470,7 +470,43 @@
           </div>
 
           <div class="tab-pane mt-3" id="emails-tab">
-            Supplier Emails
+            <div class="row">
+              <div class="col-xs-4">
+                <div class="col">
+                  <ul class="list-group">
+                    <li class="list-group-item">
+                      <a href="{{ route('supplier.index') }}" target="_blank"><h4>Suppliers</h4></a>
+                    </li>
+                    @foreach ($emails as $supplier_id => $data)
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>{{ array_key_exists($supplier_id, $suppliers_array) ? $suppliers_array[$supplier_id] : 'Supplier Doesnt Exist' }}</strong>
+
+                        <span>
+                          {{-- @if (array_key_exists('no', $data)) --}}
+                            <span class="badge badge-red badge-pill">{{ $data['0'] }}</span>
+                          {{-- @else
+                            <span class="badge badge-red badge-pill">0</span>
+                          @endif --}}
+
+                          {{-- {{dd($data)}} --}}
+                          {{-- @if (array_key_exists('yes', $data)) --}}
+                            <span class="badge badge-green badge-pill">{{ $data['1'] }}</span>
+                          {{-- @else
+                            <span class="badge badge-green badge-pill">0</span>
+                          @endif --}}
+                        </span>
+                       </li>
+                    @endforeach
+
+                    {{-- <li class="list-group-item">
+                      <strong>{{ array_key_exists($last_pending_instruction['assigned_to'], $users_array) ? $users_array[$last_pending_instruction['assigned_to']] : 'User Doesnt Exist' }}</strong> -
+                      <a href="{{ route('instruction.index') }}?user%5B%5D={{ $last_pending_instruction['assigned_to'] }}" target="_blank">{{ $last_pending_instruction['instruction'] }}</a>
+                       on <strong>{{ \Carbon\Carbon::parse($last_pending_instruction['created_at'])->format('d-m') }}</strong>
+                    </li> --}}
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="tab-pane mt-3" id="accounting-tab">
