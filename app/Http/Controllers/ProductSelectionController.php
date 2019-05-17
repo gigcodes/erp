@@ -95,6 +95,7 @@ class ProductSelectionController extends Controller
 		$productselection->last_selector = Auth::id();
 
 		$productselection->stage = $stage->get('Selection');
+		$productselection->stock = 1;
 
 		if(!empty($productselection->brand) && !empty($productselection->price)) {
 			$productselection->price_inr     = $this->euroToInr($productselection->price, $productselection->brand);
