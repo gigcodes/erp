@@ -50,7 +50,7 @@ class RunMessageQueue extends Command
 
       $time = Carbon::now();
       $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
-      $evening = Carbon::create($time->year, $time->month, $time->day, 22, 00, 0);
+      $evening = Carbon::create($time->year, $time->month, $time->day, 18, 00, 0);
 
       if ($time->between($morning, $evening, true)) {
         $message_queues = MessageQueue::where('sending_time', '<=', Carbon::now())->where('sent', 0)->where('status', '!=', 1)->orderBy('sending_time', 'ASC')->limit(20);

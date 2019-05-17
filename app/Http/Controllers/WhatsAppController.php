@@ -1667,7 +1667,7 @@ class WhatsAppController extends FindByNumberController
       foreach ($data as $whatsapp_number => $customers) {
         $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
         $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-        $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+        $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
 
         if ($whatsapp_number == '919152731486') {
           foreach ($customers as $customer) {
@@ -1677,12 +1677,12 @@ class WhatsAppController extends FindByNumberController
                 $now->addDay();
                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
               } else {
                 // dont add day
                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
               }
             }
 
@@ -1709,13 +1709,13 @@ class WhatsAppController extends FindByNumberController
                 $now->addDay();
                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
               } else {
                 // dont add day
 
                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
               }
             }
 
@@ -1737,7 +1737,7 @@ class WhatsAppController extends FindByNumberController
       $minutes = round(60 / $frequency);
       $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
       $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-      $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+      $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
       $max_group_id = MessageQueue::max('group_id') + 1;
       $array = Excel::toArray(new CustomerNumberImport, $request->file('file'));
 
@@ -1751,12 +1751,12 @@ class WhatsAppController extends FindByNumberController
               $now->addDay();
               $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
               $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-              $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+              $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
             } else {
               // dont add day
               $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
               $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-              $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+              $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
             }
           }
 
