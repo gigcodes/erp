@@ -14,6 +14,7 @@ use App\Console\Commands\CheckLogins;
 use App\Console\Commands\AutoInterestMessage;
 use App\Console\Commands\AutoReminder;
 use App\Console\Commands\AutoMessenger;
+use App\Console\Commands\FetchEmails;
 use App\Console\Commands\MessageScheduler;
 use App\Console\Commands\CheckMessagesErrors;
 use App\Console\Commands\SendProductSuggestion;
@@ -64,6 +65,7 @@ class Kernel extends ConsoleKernel
         AutoInterestMessage::class,
         AutoReminder::class,
         AutoMessenger::class,
+        FetchEmails::class,
         MessageScheduler::class,
         CheckMessagesErrors::class,
         SendProductSuggestion::class,
@@ -163,6 +165,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
         $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
         $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
+
+        // Fetches Emails
+        $schedule->command('fetch:emails')->everyFifteenMinutes();
 
 //        $schedule->command('gebnegozionline:get-products-list')
 //            ->hourly()

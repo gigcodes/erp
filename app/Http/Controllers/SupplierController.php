@@ -32,7 +32,8 @@ class SupplierController extends Controller
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
                   (SELECT mm4.created_at FROM purchases mm4 WHERE mm4.id = purchase_id) as purchase_created_at,
                   (SELECT mm5.message FROM emails mm5 WHERE mm5.id = email_id) as email_message,
-                  (SELECT mm6.created_at FROM emails mm6 WHERE mm6.id = email_id) as email_created_at
+                  (SELECT mm6.seen FROM emails mm6 WHERE mm6.id = email_id) as email_seen,
+                  (SELECT mm7.created_at FROM emails mm7 WHERE mm7.id = email_id) as email_created_at
 
                   FROM (SELECT * FROM suppliers
 

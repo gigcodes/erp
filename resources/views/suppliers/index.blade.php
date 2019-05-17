@@ -88,7 +88,7 @@
                   {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
                 @endif
               </td>
-              <td>
+              <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}">
                 {{ strlen(strip_tags($supplier->email_message)) > 200 ? substr(strip_tags($supplier->email_message), 0, 200) . '...' : strip_tags($supplier->email_message) }}
               </td>
               <td>

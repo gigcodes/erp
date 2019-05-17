@@ -1069,6 +1069,7 @@ class PurchaseController extends Controller
 
               $emails = $emails->leaveUnread()->get();
 
+
               foreach ($emails as $email) {
                 if ($email->hasHTMLBody()) {
                   $content = $email->getHTMLBody();
@@ -1081,6 +1082,7 @@ class PurchaseController extends Controller
                     'model_id'        => $supplier->id,
                     'model_type'      => Supplier::class,
                     'type'            => $type,
+                    'seen'            => $email->getFlags()['seen'],
                     'from'            => $email->getFrom()[0]->mail,
                     'to'              => $email->getTo()[0]->mail,
                     'subject'         => $email->getSubject(),
@@ -1113,6 +1115,7 @@ class PurchaseController extends Controller
                     'model_id'        => $supplier->id,
                     'model_type'      => Supplier::class,
                     'type'            => $type,
+                    'seen'            => $email->getFlags()['seen'],
                     'from'            => $email->getFrom()[0]->mail,
                     'to'              => $email->getTo()[0]->mail,
                     'subject'         => $email->getSubject(),
@@ -1149,6 +1152,7 @@ class PurchaseController extends Controller
                 'model_id'        => $supplier->id,
                 'model_type'      => Supplier::class,
                 'type'            => $type,
+                'seen'            => $email->getFlags()['seen'],
                 'from'            => $email->getFrom()[0]->mail,
                 'to'              => $email->getTo()[0]->mail,
                 'subject'         => $email->getSubject(),
@@ -1211,12 +1215,13 @@ class PurchaseController extends Controller
       //   $count++;
       // }
 
-      if ($request->type != 'inbox') {
+      if ($request->type == 'inbox') {
         $db_emails = $supplier->emails()->where('type', 'incoming')->get();
 
         foreach ($db_emails as $key2 => $email) {
           $emails_array[$count + $key2]['id'] = $email->id;
           $emails_array[$count + $key2]['subject'] = $email->subject;
+          $emails_array[$count + $key2]['seen'] = $email->seen;
           $emails_array[$count + $key2]['date'] = $email->created_at;
           $emails_array[$count + $key2]['from'] = $email->from;
         }
@@ -1226,6 +1231,7 @@ class PurchaseController extends Controller
         foreach ($db_emails as $key2 => $email) {
           $emails_array[$count + $key2]['id'] = $email->id;
           $emails_array[$count + $key2]['subject'] = $email->subject;
+          $emails_array[$count + $key2]['seen'] = $email->seen;
           $emails_array[$count + $key2]['date'] = $email->created_at;
           $emails_array[$count + $key2]['from'] = $email->from;
         }
@@ -1319,6 +1325,9 @@ class PurchaseController extends Controller
         // dd($attachments_array);
       } else {
         $email = Email::find($request->uid);
+        $email->seen = 1;
+        $email->save();
+        
         $to_email = $email->to;
         // if ($email->template == 'customer-simple') {
         //   $content = (new CustomerEmail($email->subject, $email->message))->render();
