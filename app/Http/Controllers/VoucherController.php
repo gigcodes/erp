@@ -9,6 +9,7 @@ use App\Helpers;
 use App\User;
 use Auth;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class VoucherController extends Controller
 {
@@ -23,15 +24,27 @@ class VoucherController extends Controller
 
       if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
         if ($request->user[0] != null) {
-          $vouchers = Voucher::whereIn('user_id', $request->user)->whereBetween('date', [$start, $end])->latest();
+          $vouchers = Voucher::whereIn('user_id', $request->user)->whereBetween('date', [$start, $end]);
         } else {
-          $vouchers = Voucher::whereBetween('date', [$start, $end])->latest();
+          $vouchers = Voucher::whereBetween('date', [$start, $end]);
         }
       } else {
-        $vouchers = Voucher::where('user_id', Auth::id())->whereBetween('date', [$start, $end])->latest();
+        $vouchers = Voucher::where('user_id', Auth::id())->whereBetween('date', [$start, $end]);
       }
 
-      $vouchers = $vouchers->paginate(Setting::get('pagination'));
+      $vouchers = $vouchers->orderBy('date', 'DESC')->get()->groupBy('user_id');
+      // dd($vouchers);
+      //
+      // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		// $perPage = Setting::get('pagination');
+  		// $currentItems = array_slice($vouchers, $perPage * ($currentPage - 1), $perPage);
+      //
+  		// $vouchers = new LengthAwarePaginator($currentItems, count($vouchers), $perPage, $currentPage, [
+  		// 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		// ]);
+      //
+      // dd($vouchers);
+      // paginate(Setting::get('pagination'));
       $users_array = Helpers::getUserArray(User::all());
 
       return view('vouchers.index', [
