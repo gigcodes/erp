@@ -185,6 +185,8 @@ class PurchaseController extends Controller
         ->get();
   		}
 
+
+
       if ($request->supplier[0] != null) {
         $supplier = $request->supplier[0];
         $supplier_list = implode(',', $request->supplier);
@@ -234,10 +236,12 @@ class PurchaseController extends Controller
         }
       }
 
+
+
       if ($request->brand[0] != null) {
         $brand = $request->brand[0];
 
-        if ($request->status[0] != null) {
+        if ($request->status[0] != null || $request->supplier[0] != null) {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
           // ->whereHas('Order', function($q) use ($status) {
@@ -277,6 +281,8 @@ class PurchaseController extends Controller
         }
       }
 
+
+
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
         if ($page == 'canceled-refunded') {
           $orders = OrderProduct::with('Order')
@@ -303,6 +309,8 @@ class PurchaseController extends Controller
         $orders = $orders->select('sku')->get()->toArray();
       }
 
+
+
       $new_orders = [];
       foreach ($orders as $order) {
         array_push($new_orders, $order['sku']);
@@ -312,6 +320,8 @@ class PurchaseController extends Controller
         $query->with('Order');
       }, 'Purchases', 'Suppliers'])->whereIn('sku', $new_orders);
 
+
+
       if ($page == 'ordered') {
         $products = $products->whereHas('Purchases', function ($query) {
           $query->where('status', 'Ordered');
@@ -319,6 +329,8 @@ class PurchaseController extends Controller
       } else {
         $products = $products->whereNotIn('sku', $not_include_products);
       }
+
+
 
       $term = $request->input('term');
       $status = isset($status) ? $status : '';
@@ -345,9 +357,12 @@ class PurchaseController extends Controller
 		    });
 	    }
 
+
+
       $new_products = [];
       $products = $products->select(['id', 'sku', 'supplier'])->get()->sortBy('supplier');
-
+      $count = 0;
+      
       foreach($products as $key => $product) {
         $supplier_list = '';
         $single_supplier = '';
@@ -365,7 +380,7 @@ class PurchaseController extends Controller
 
         foreach ($product->orderproducts as $key => $order_product) {
           if ($order_product->order && $order_product->order->customer) {
-            if ($key == 0) {
+            if ($count == 0) {
               $customer_names .= $order_product->order->customer->name;
             } else {
               $customer_names .= ", " . $order_product->order->customer->name;
@@ -373,16 +388,18 @@ class PurchaseController extends Controller
           }
         }
 
-        $new_products[$key]['id'] = $product->id;
-        $new_products[$key]['sku'] = $product->sku;
-        $new_products[$key]['supplier'] = $product->supplier;
-        $new_products[$key]['supplier_list'] = $supplier_list;
-        $new_products[$key]['single_supplier'] = $single_supplier;
-        $new_products[$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
-        $new_products[$key]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
-        $new_products[$key]['customer_names'] = $customer_names;
-        $new_products[$key]['order_price'] = $product->orderproducts->first()->product_price;
-        $new_products[$key]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
+        $new_products[$count]['id'] = $product->id;
+        $new_products[$count]['sku'] = $product->sku;
+        $new_products[$count]['supplier'] = $product->supplier;
+        $new_products[$count]['supplier_list'] = $supplier_list;
+        $new_products[$count]['single_supplier'] = $single_supplier;
+        $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+        $new_products[$count]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
+        $new_products[$count]['customer_names'] = $customer_names;
+        $new_products[$count]['order_price'] = $product->orderproducts->first()->product_price;
+        $new_products[$count]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
+
+        $count++;
       }
 
       $new_products = array_values(array_sort($new_products, function ($value) {
@@ -1327,7 +1344,7 @@ class PurchaseController extends Controller
         $email = Email::find($request->uid);
         $email->seen = 1;
         $email->save();
-        
+
         $to_email = $email->to;
         // if ($email->template == 'customer-simple') {
         //   $content = (new CustomerEmail($email->subject, $email->message))->render();
