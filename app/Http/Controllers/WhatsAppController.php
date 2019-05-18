@@ -949,6 +949,14 @@ class WhatsAppController extends FindByNumberController
         File::delete('uploads/temp_screenshot.png');
       }
 
+      if (Auth::id() == 6) {
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        $this->approveMessage($context, $myRequest);
+      }
+
       if ($request->ajax()) {
         return response()->json(['message' => $chat_message]);
       }

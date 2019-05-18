@@ -715,13 +715,13 @@
                 console.log(suggestions);
               }
 
-              $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
-                .done(function( data ) {
-
-                }).fail(function(response) {
-                  console.log(response);
-                  alert(response.responseJSON.message);
-                });
+              // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+              //   .done(function( data ) {
+              //
+              //   }).fail(function(response) {
+              //     console.log(response);
+              //     alert(response.responseJSON.message);
+              //   });
 
               $(thiss).attr('disabled', false);
             }).fail(function(errObj) {
