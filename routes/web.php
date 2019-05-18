@@ -184,7 +184,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
 
 	// Customers
+	Route::get('customer/test', 'CustomerController@customerstest');
 	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
+	Route::post('customers/{id}/sendAdvanceLink', 'CustomerController@sendAdvanceLink')->name('customer.send.advanceLink');
+	Route::get('customers/{id}/loadMoreMessages', 'CustomerController@loadMoreMessages');
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
 	Route::post('customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup')->name('customer.initiate.followup');
@@ -250,6 +253,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('purchase/email/fetch', 'PurchaseController@emailFetch')->name('purchase.email.fetch');
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
 	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
+
+	// Master Plan
+	Route::resource('mastercontrol', 'MasterControlController');
 
 	// Cash Vouchers
 	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');
@@ -455,6 +461,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Suppliers Module
 	// Route::post('supplier/agent/store', 'SupplierController@agentStore')->name('supplier.agent.store');
 	// Route::put('supplier/agent/update/{id}', 'SupplierController@agentUpdate')->name('supplier.agent.update');
+	Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
 	Route::resource('supplier', 'SupplierController');
 
 	// Agent Routes

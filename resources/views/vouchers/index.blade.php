@@ -9,7 +9,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb mb-3">
-            <h2 class="page-heading">Cash Vouchers</h2>
+            <h2 class="page-heading">Convenience Vouchers</h2>
 
             <div class="pull-right">
               <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a>
@@ -50,35 +50,33 @@
       </div>
     @endif
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     <div class="table-responsive">
         <table class="table table-bordered">
         <tr>
-          <th>User Name</th>
-          <th>Description</th>
-          <th>Travel Type</th>
-          <th>Amount</th>
-          <th>Paid</th>
-          <th>Credit</th>
           <th>Date</th>
+          <th>Travel Type</th>
+          <th>Description</th>
+          <th>Amount Spent</th>
+          <th>Amount Paid</th>
+          <th>Balance</th>
           <th colspan="3" class="text-center">Action</th>
         </tr>
-        @foreach ($vouchers as $voucher)
+        @foreach ($vouchers as $user_id => $data)
+          <tr>
+            <td colspan="9"><strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'Not Existing User' }}</strong></td>
+          </tr>
+          @foreach ($data as $voucher)
             <tr>
-              <td>{{ $voucher->user->name }}</td>
-              <td>{{ $voucher->description }}</td>
+              <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
               <td>{{ ucwords($voucher->travel_type) }}</td>
+              <td>{{ $voucher->description }}</td>
               <td>{{ $voucher->amount }}</td>
               <td>{{ $voucher->paid }}</td>
               <td>
                 {{ ($voucher->amount - $voucher->paid) * -1 }}
               </td>
-              <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
               <td>
                 @if ($voucher->approved > 0)
                   Approved
@@ -117,11 +115,12 @@
                 {!! Form::close() !!}
               </td>
             </tr>
+          @endforeach
         @endforeach
       </table>
     </div>
 
-    {!! $vouchers->appends(Request::except('page'))->links() !!}
+    {{-- {!! $vouchers->appends(Request::except('page'))->links() !!} --}}
 
 @endsection
 

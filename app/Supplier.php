@@ -27,6 +27,8 @@ class Supplier extends Model
 
   public function emails()
   {
-    return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Purchase')->orWhere('model_type', 'App\Supplier');
+    return $this->hasMany('App\Email', 'model_id')->where(function($query) {
+      $query->where('model_type', 'App\Purchase')->orWhere('model_type', 'App\Supplier');
+    });
   }
 }

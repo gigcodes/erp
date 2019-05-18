@@ -292,6 +292,10 @@
                 @else
                   <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
                 @endif
+
+                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
+
+                @include('customers.partials.modal-advance-link')
               </div>
             </div>
 
@@ -1675,10 +1679,10 @@
             @csrf
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
             <input type="hidden" name="instruction" value="Send images">
-            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="category_id" value="6">
             <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('image_shortcut') }}">
 
-            <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/attach.png" /></button>
+            <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Images"><img src="/images/attach.png" /></button>
           </form>
         </li>
 
@@ -1687,10 +1691,10 @@
             @csrf
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
             <input type="hidden" name="instruction" value="Send price">
-            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="category_id" value="3">
             <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
 
-            <button type="submit" class="btn btn-image quick-shortcut-button">$</button>
+            <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Price"><img src="/images/price.png" /></button>
           </form>
         </li>
 
@@ -1699,10 +1703,10 @@
             @csrf
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
             <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
-            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="category_id" value="10">
             <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
-            <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/call.png" /></button>
+            <button type="submit" class="btn btn-image quick-shortcut-button" title="Call this Client"><img src="/images/call.png" /></button>
           </form>
         </li>
 
@@ -1710,11 +1714,23 @@
           <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
             @csrf
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="Attach image or screenshot physically">
-            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="instruction" value="Attach image">
+            <input type="hidden" name="category_id" value="8">
             <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
 
-            <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/upload.png" /></button>
+            <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Image"><img src="/images/upload.png" /></button>
+          </form>
+        </li>
+
+        <li>
+          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+            <input type="hidden" name="instruction" value="Attach screenshot">
+            <input type="hidden" name="category_id" value="12">
+            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
+
+            <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Screenshot"><img src="/images/screenshot.png" /></button>
           </form>
         </li>
 
@@ -1723,10 +1739,10 @@
             @csrf
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
             <input type="hidden" name="instruction" value="Give details">
-            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="category_id" value="14">
             <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('details_shortcut') }}">
 
-            <button type="submit" class="btn btn-image quick-shortcut-button">Details</button>
+            <button type="submit" class="btn btn-image quick-shortcut-button" title="Give Details"><img src="/images/details.png" /></button>
           </form>
         </li>
 
@@ -1735,10 +1751,10 @@
             @csrf
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
             <input type="hidden" name="instruction" value="Check for the Purchase">
-            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="category_id" value="7">
             <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
 
-            <button type="submit" class="btn btn-image quick-shortcut-button">Check Purchase</button>
+            <button type="submit" class="btn btn-image quick-shortcut-button" title="Check for Purchase"><img src="/images/purchase.png" /></button>
           </form>
         </li>
 
@@ -1759,10 +1775,10 @@
             @csrf
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
             <input type="hidden" name="instruction" value="Please show client chat to Yogesh">
-            <input type="hidden" name="category_id" value="1">
+            <input type="hidden" name="category_id" value="13">
             <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
 
-            <button type="submit" class="btn btn-image quick-shortcut-button">Client Chat</button>
+            <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png" /></button>
           </form>
         </li>
       </ul>
@@ -1784,13 +1800,13 @@
               <th>Created at</th>
               <th>Remark</th>
             </tr>
-            @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
+            @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'ASC')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                  <td>{{ $instruction->category->name }}</td>
+                  <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                   <td>
                     <div class="form-inline">
                       @if ($instruction->is_priority == 1)
@@ -1852,13 +1868,13 @@
                   <div class="table-responsive">
                     <table class="table table-bordered">
                       <tbody>
-                        @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $instruction)
+                        @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'ASC')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                            <td>{{ $instruction->category->name }}</td>
+                            <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                             <td>
                               <div class="form-inline">
                                 @if ($instruction->is_priority == 1)
@@ -1930,7 +1946,7 @@
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                  <td>{{ $instruction->category->name }}</td>
+                  <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                   <td>{{ $instruction->instruction }}</td>
                   <td>
                     @if ($instruction->completed_at)
@@ -1990,7 +2006,7 @@
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                            <td>{{ $instruction->category->name }}</td>
+                            <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                             <td>{{ $instruction->instruction }}</td>
                             <td>
                               @if ($instruction->completed_at)
@@ -3240,6 +3256,39 @@
            $('#load-more-messages').text('Loading...');
 
            pollMessages(next_page, true);
+         });
+
+         $(document).on('click', '#sendAdvanceLink', function(e) {
+           e.preventDefault();
+
+           var thiss = $(this);
+           var price_inr = $(this).closest('form').find('input[name="price_inr"]').val();
+           var price_special = $(this).closest('form').find('input[name="price_special"]').val();
+
+           $.ajax({
+             type: "POST",
+             url: "{{ url('customers') }}/" + {{ $customer->id }} + "/sendAdvanceLink",
+             data: {
+               _token: "{{ csrf_token() }}",
+               price_inr: price_inr,
+               price_special: price_special,
+             },
+             beforeSend: function() {
+               $(thiss).text('Sending...');
+             }
+           }).done(function() {
+             pollMessages();
+
+             $(thiss).text('Send Link');
+
+             $('#advancePaymentModal').find('.close').click();
+           }).fail(function(response) {
+             $(thiss).text('Send Link');
+
+             console.log(response);
+
+             alert('Could not send link');
+           });
          });
       });
 

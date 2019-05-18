@@ -1156,7 +1156,8 @@
             data: {
               id:id,
               remark:remark,
-              module_type: module_type
+              module_type: module_type,
+              user: {{ $user }},
             },
         }).done(response => {
             // alert('Remark Added Success!')

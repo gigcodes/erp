@@ -66,6 +66,11 @@ class ProductsCreator
           $formatted_details = $this->getDivoDetails($properties_array);
 
           break;
+        case 'Spinnaker':
+          $supplier = 'Spinnaker 101';
+          $formatted_details = $this->getSpinnakerDetails($properties_array);
+
+          break;
         default:
           $supplier = '';
 
@@ -464,6 +469,88 @@ class ProductsCreator
         'composition' => isset($composition) ? $composition : '',
         'color' => isset($color) ? $color : '',
         'size' => '',
+        'lmeasurement' => '',
+        'hmeasurement' => '',
+        'dmeasurement' => '',
+        'measurement_size_type' => '',
+        'made_in' => isset($made_in) ? $made_in : '',
+        'category' => isset($category) ? $category : 1,
+      ];
+    }
+
+    public function getSpinnakerDetails($properties_array)
+    {
+      if (array_key_exists('material_used', $properties_array)) {
+        $composition = (string) $properties_array['material_used'];
+      }
+
+      if (array_key_exists('color', $properties_array)) {
+        $color = $properties_array['color'];
+      }
+
+      if (array_key_exists('sizes', $properties_array)) {
+        $sizes = $properties_array['sizes'];
+        $size = implode(',', $sizes)
+        // if (array_key_exists('Length', $sizes)) {
+        //   preg_match_all('/\s((.*))\s/', $sizes['Length'], $match);
+        //
+        //   if (array_key_exists('0', $match[1])) {
+        //     $lmeasurement = (int) $match[1][0];
+        //     $measurement_size_type = 'measurement';
+        //   }
+        // }
+      }
+
+      // foreach ($properties_array as $property) {
+      //   if (!is_array($property)) {
+      //     if (strpos($property, 'Width:') !== false) {
+      //       preg_match_all('/Width: ([\d]+)/', $property, $match);
+      //
+      //       $lmeasurement = (int) $match[1];
+      //       $measurement_size_type = 'measurement';
+      //     }
+      //
+      //     if (strpos($property, 'Height:') !== false) {
+      //       preg_match_all('/Height: ([\d]+)/', $property, $match);
+      //
+      //       $hmeasurement = (int) $match[1];
+      //     }
+      //
+      //     if (strpos($property, 'Depth:') !== false) {
+      //       preg_match_all('/Depth: ([\d]+)/', $property, $match);
+      //
+      //       $dmeasurement = (int) $match[1];
+      //     }
+      //   }
+      // }
+
+      // if (array_key_exists('category', $properties_array)) {
+      //   $categories = Category::all();
+      //   $category_id = 1;
+      //   $cat = strtoupper($properties_array['category']);
+      //   // foreach ($properties_array['category'] as $cat) {
+      //     if ($cat == 'WOMAN') {
+      //       $cat = 'WOMEN';
+      //     }
+      //
+      //     foreach ($categories as $category) {
+      //       if (strtoupper($category->title) == $cat) {
+      //         $category_id = $category->id;
+      //       }
+      //     }
+      //   // }
+      //
+      //   $category = $category_id;
+      // }
+
+      if (array_key_exists('country', $properties_array)) {
+        $made_in = $properties_array['country'];
+      }
+
+      return [
+        'composition' => isset($composition) ? $composition : '',
+        'color' => isset($color) ? $color : '',
+        'size' => isset($size) ? $size : '',
         'lmeasurement' => '',
         'hmeasurement' => '',
         'dmeasurement' => '',

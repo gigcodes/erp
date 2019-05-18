@@ -5,10 +5,19 @@
         <div class="card-header" id="headingEmail{{ $key }}">
           <h5 class="mb-0">
             <p class="btn-link collapsed collapse-fix email-fetch" data-toggle="collapse" data-target="#emailAcc{{ $key }}" data-uid="{{ $email['uid'] ?? 'no' }}" data-id="{{ $email['id'] ?? 'null' }}" data-type="{{ $type }}" aria-expanded="false" aria-controls="">
-              <strong>{{ $email['subject'] }}</strong>
-              {{ $email['from'] }}
-              <br>
-              {{ $email['date'] }}
+              @if ($email['seen'] == 0)
+                <u>
+                  <strong>{{ $email['subject'] }}</strong>
+                  {{ $email['from'] }}
+                  <br>
+                  {{ $email['date'] }}
+                </u>
+              @else
+                <strong>{{ $email['subject'] }}</strong>
+                {{ $email['from'] }}
+                <br>
+                {{ $email['date'] }}
+              @endif
             </p>
           </h5>
         </div>

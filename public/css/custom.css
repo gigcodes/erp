@@ -1179,6 +1179,14 @@ form.display-inline{
   background-color: green !important;
 }
 
+.badge-green {
+  background-color: green !important;
+}
+
+.badge-red {
+  background-color: red !important;
+}
+
 .table-hover-cell:hover {
   background-color: #eee;
 }

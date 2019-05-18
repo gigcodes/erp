@@ -32,7 +32,7 @@
                   </select>
                 </div>
 
-                {{-- <div class="form-group ml-3">
+                <div class="form-group ml-3">
                     <strong>Date Range</strong>
                     <input type="text" value="" name="range_start" hidden/>
                     <input type="text" value="" name="range_end" hidden/>
@@ -40,7 +40,7 @@
                         <i class="fa fa-calendar"></i>&nbsp;
                         <span></span> <i class="fa fa-caret-down"></i>
                     </div>
-                </div> --}}
+                </div>
 
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
@@ -220,21 +220,19 @@
                     <td></td>
                   @endif
                     <td>
-                      @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at)
-                        @if (!empty($customer->message))
-                            @if ($customer->message_status == 5)
-                                Read
-                            @elseif ($customer->message_status == 6)
-                                Replied
-                            @elseif ($customer->message_status == 1)
-                              <span>Waiting for Approval</span>
-                              <button type="button" class="btn btn-xs btn-secondary approve-message" data-id="{{ $customer->message_id }}" data-type="{{ $customer->message_type }}">Approve</button>
-                            @elseif ($customer->message_status == 2)
-                                Approved
-                            @elseif ($customer->message_status == 0)
-                                Unread
-                            @endif
-                        @endif
+                      @if (!empty($customer->message))
+                          @if ($customer->message_status == 5)
+                              Read
+                          @elseif ($customer->message_status == 6)
+                              Replied
+                          @elseif ($customer->message_status == 1)
+                            <span>Waiting for Approval</span>
+                            <button type="button" class="btn btn-xs btn-secondary approve-message" data-id="{{ $customer->message_id }}" data-type="{{ $customer->message_type }}">Approve</button>
+                          @elseif ($customer->message_status == 2)
+                              Approved
+                          @elseif ($customer->message_status == 0)
+                              Unread
+                          @endif
                       @endif
                     </td>
                     <td>
@@ -281,6 +279,12 @@
                         @if ($customer->is_error_flagged == 1)
                           <span class="btn btn-image"><img src="/images/flagged.png" /></span>
                         @endif
+
+                        <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $customer->id }}">Load More</button>
+
+                        <ul class="more-communication-container">
+
+                        </ul>
                       {{-- @else
                         {{ $remark_message }}
                       @endif --}}
@@ -311,60 +315,70 @@
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Send images">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="6">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('image_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/attach.png" /></button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Images"><img src="/images/attach.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Send price">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="3">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button">$</button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Price"><img src="/images/price.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="10">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/call.png" /></button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Call this Client"><img src="/images/call.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                        <input type="hidden" name="instruction" value="Attach image or screenshot physically">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="instruction" value="Attach image">
+                        <input type="hidden" name="category_id" value="8">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/upload.png" /></button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Images"><img src="/images/upload.png" /></button>
+                      </form>
+
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="instruction" value="Attach screenshot">
+                        <input type="hidden" name="category_id" value="12">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
+
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Screenshot"><img src="/images/screenshot.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Give details">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="14">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('details_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button">Details</button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Give Details"><img src="/images/details.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Check for the Purchase">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="7">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button">Check Purchase</button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Check for the Purchase"><img src="/images/purchase.png" /></button>
                       </form>
 
                       <div class="d-inline">
@@ -379,10 +393,10 @@
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Please show client chat to Yogesh">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="13">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button">Client Chat</button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png" /></button>
                       </form>
                     </td>
                     <td>
@@ -699,13 +713,13 @@
                 console.log(suggestions);
               }
 
-              $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
-                .done(function( data ) {
-
-                }).fail(function(response) {
-                  console.log(response);
-                  alert(response.responseJSON.message);
-                });
+              // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+              //   .done(function( data ) {
+              //
+              //   }).fail(function(response) {
+              //     console.log(response);
+              //     alert(response.responseJSON.message);
+              //   });
 
               $(thiss).attr('disabled', false);
             }).fail(function(errObj) {
@@ -998,8 +1012,8 @@
         });
       });
 
-      let r_s = '';
-      let r_e = '{{ date('y-m-d') }}';
+      let r_s = "{{ $start_time }}";
+      let r_e = "{{ $end_time }}";
 
       let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
       let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
@@ -1032,6 +1046,36 @@
           jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
           jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
 
+      });
+
+      $(document).on('click', '.load-more-communication', function() {
+        var thiss = $(this);
+        var customer_id = $(this).data('id');
+
+        $.ajax({
+          type: "GET",
+          url: "{{ url('customers') }}/" + customer_id + '/loadMoreMessages',
+          data: {
+            customer_id: customer_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Loading...');
+          }
+        }).done(function(response) {
+          (response.messages).forEach(function(index) {
+            var li = '<li>' + index + '</li>';
+
+            $(thiss).closest('td').find('.more-communication-container').append(li);
+          });
+
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).text('Load More');
+
+          alert('Could not load more messages');
+
+          console.log(response);
+        });
       });
   </script>
 @endsection

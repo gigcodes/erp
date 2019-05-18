@@ -225,7 +225,9 @@ class ProductController extends Controller {
 			}
 		}
 
-		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1)->orderBy('is_approved', 'ASC')->orderBy('last_imagecropper', 'ASC')->paginate(Setting::get('pagination'));
+		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1)->orderBy('is_approved', 'ASC')->orderBy('last_imagecropper', 'ASC');
+		$products_count = $products->count();
+		$products = $products->paginate(Setting::get('pagination'));
 
 		$selected_categories = $request->category ? $request->category : 1;
 		$category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
@@ -234,6 +236,7 @@ class ProductController extends Controller {
 
 		return view('products.listing', [
 			'products'					=> $products,
+			'products_count'		=> $products_count,
 			'colors'						=> $colors,
 			'brands'						=> $brands,
 			'suppliers'					=> $suppliers,

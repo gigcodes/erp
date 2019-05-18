@@ -40,50 +40,79 @@ class InstructionController extends Controller
 
       if (Auth::user()->hasRole('Admin')) {
         if ($request->user[0] != null) {
-          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->toArray();
-          $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
-          $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
-          $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->groupBy('category_id')->toArray();
+          // $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page')->groupBy('category_id');
+          $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+          // $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page')->groupBy('category_id');
+          $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+          $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+          // $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
+
+          // dd($instructions);
+
+          // $instruction_categories = InstructionCategory::with('instructions')->whereHas('instructions', function ($query) use ($request, $orderby) {
+          //   $query->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby);
+          // })->get();
+
+          // dd($instructions);
         } else {
-          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->toArray();
-          $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
-          $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
-          $completed_instructions = Instruction::where('verified', 1)->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+          $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->orderBy('category_id', 'ASC')->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+          // $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page')->groupBy('category_id');
+          $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+          // $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page')->groupBy('category_id');
+          $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+          // $completed_instructions = Instruction::where('verified', 1)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
+          $completed_instructions = Instruction::where('verified', 1)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
         }
       } else {
-        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->toArray();
-        $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
-        $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
-        $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id())->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+        // $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page')->groupBy('category_id');
+        $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+        // $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page')->groupBy('category_id');
+        $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
+        // $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
+        $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->get()->groupBy('category_id');
       }
 
       $users_array = Helpers::getUserArray(User::all());
       $user = $request->user ? $request->user : [];
 
-      if ($request->sortby != 'created_at') {
-        $instructions = array_values(array_sort($instructions, function ($value) {
-          if ($value['remarks']) {
-            return $value['remarks'][0]['created_at'];
-          }
-
-          return NULL;
-  			}));
-      }
-
-      $instructions = array_reverse($instructions);
-
+      // if ($request->sortby != 'created_at') {
+      //   $instructions = array_values(array_sort($instructions, function ($value) {
+      //     if ($value['remarks']) {
+      //       return $value['remarks'][0]['created_at'];
+      //     }
+      //
+      //     return NULL;
+  		// 	}));
+      // }
+      //
+      // $instructions = array_reverse($instructions);
+      // dd('at');
       $ids_list = [];
-      foreach ($instructions as $instruction) {
-        $ids_list[] = $instruction['customer']['id'];
+      foreach ($instructions as $data) {
+        foreach ($data as $instruction) {
+          $ids_list[] = $instruction['customer'] ? $instruction['customer']['id'] : '';
+        }
       }
 
-      $currentPage = LengthAwarePaginator::resolveCurrentPage();
-  		$perPage = Setting::get('pagination');
-  		$currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
+      $categories_array = [];
+      $instruction_categories = InstructionCategory::all();
 
-  		$instructions = new LengthAwarePaginator($currentItems, count($instructions), $perPage, $currentPage, [
-  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
-  		]);
+      foreach ($instruction_categories as $category) {
+        $categories_array[$category->id]['name'] = $category->name;
+        $categories_array[$category->id]['icon'] = $category->icon;
+      }
+
+      // dd($instructions);
+
+      // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		// $perPage = Setting::get('pagination');
+  		// $currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
+      //
+  		// $instructions = new LengthAwarePaginator($currentItems, count($instructions), $perPage, $currentPage, [
+  		// 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		// ]);
 
       return view('instructions.index')->with([
         'instructions'            => $instructions,
@@ -93,6 +122,7 @@ class InstructionController extends Controller
         'users_array'             => $users_array,
         'user'                    => $user,
         'orderby'                 => $orderby,
+        'categories_array'        => $categories_array,
         'customer_ids_list'       => json_encode($ids_list)
       ]);
     }
@@ -127,17 +157,17 @@ class InstructionController extends Controller
       $users_array = Helpers::getUserArray(User::all());
       $user = $request->user ? $request->user : [];
 
-      if ($request->sortby != 'created_at') {
-        $instructions = array_values(array_sort($instructions, function ($value) {
-          if ($value['remarks']) {
-            return $value['remarks'][0]['created_at'];
-          }
-
-          return NULL;
-  			}));
-      }
-
-      $instructions = array_reverse($instructions);
+      // if ($request->sortby != 'created_at') {
+      //   $instructions = array_values(array_sort($instructions, function ($value) {
+      //     if ($value['remarks']) {
+      //       return $value['remarks'][0]['created_at'];
+      //     }
+      //
+      //     return NULL;
+  		// 	}));
+      // }
+      //
+      // $instructions = array_reverse($instructions);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = Setting::get('pagination');

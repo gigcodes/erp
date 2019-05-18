@@ -26,26 +26,31 @@
               </form> --}}
             </div>
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#supplierCreateModal">+</a>
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Emai</a>
+              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</a>
             </div>
         </div>
     </div>
 
     @include('partials.flash_messages')
 
+    @include('purchase.partials.modal-email')
+    @include('suppliers.partials.modal-emailToAll')
+
     <div class="table-responsive mt-3">
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Social handle</th>
+            <th width="5%">ID</th>
+            <th width="15%">Name</th>
+            <th width="15%">Address</th>
+            <th width="10%">Social handle</th>
             {{-- <th>Agents</th> --}}
-            <th>GST</th>
-            <th>Order</th>
-            <th>Communication</th>
-            <th>Action</th>
+            <th width="5%">GST</th>
+            <th width="10%">Order</th>
+            <th width="15%">Emails</th>
+            <th width="15%">Communication</th>
+            <th width="10%">Action</th>
           </tr>
         </thead>
 
@@ -59,7 +64,7 @@
                 <span class="text-muted">
                   {{ $supplier->phone }}
                   <br>
-                  {{ $supplier->email }}
+                  <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
                 </span>
               </td>
               <td>{{ $supplier->address }}</td>
@@ -86,6 +91,9 @@
                   <br>
                   {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
                 @endif
+              </td>
+              <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}">
+                {{ strlen(strip_tags($supplier->email_message)) > 200 ? substr(strip_tags($supplier->email_message), 0, 200) . '...' : strip_tags($supplier->email_message) }}
               </td>
               <td>
                 {{ $supplier->message }}
@@ -127,6 +135,12 @@
       $('#supplier_email').val(supplier.email);
       $('#supplier_social_handle').val(supplier.social_handle);
       $('#supplier_gst').val(supplier.gst);
+    });
+
+    $(document).on('click', '.send-supplier-email', function() {
+      var id = $(this).data('id');
+
+      $('#emailSendModal').find('input[name="supplier_id"]').val(id);
     });
 
     // $(document).on('click', '.create-agent', function() {

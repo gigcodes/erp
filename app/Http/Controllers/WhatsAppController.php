@@ -272,25 +272,25 @@ class WhatsAppController extends FindByNumberController
               				'method'			=> 'whatsapp'
               			]);
                   } else {
-                    Instruction::create([
-                      'customer_id' => $customer->id,
-                      'instruction' => 'Please send the prices',
-                      'category_id' => 1,
-                      'assigned_to' => 7,
-                      'assigned_from' => 6
-                    ]);
+                    // Instruction::create([
+                    //   'customer_id' => $customer->id,
+                    //   'instruction' => 'Please send the prices',
+                    //   'category_id' => 1,
+                    //   'assigned_to' => 7,
+                    //   'assigned_from' => 6
+                    // ]);
                   }
                 }
               }
-            } else {
-              Instruction::create([
-                'customer_id' => $customer->id,
-                'instruction' => 'Please send the prices',
-                'category_id' => 1,
-                'assigned_to' => 7,
-                'assigned_from' => 6
-              ]);
             }
+
+            Instruction::create([
+              'customer_id' => $customer->id,
+              'instruction' => 'Please send the prices',
+              'category_id' => 1,
+              'assigned_to' => 7,
+              'assigned_from' => 6
+            ]);
           }
         }
 
@@ -612,25 +612,25 @@ class WhatsAppController extends FindByNumberController
               				'method'			=> 'whatsapp'
               			]);
                   } else {
-                    Instruction::create([
-                      'customer_id' => $customer->id,
-                      'instruction' => 'Please send the prices',
-                      'category_id' => 1,
-                      'assigned_to' => 7,
-                      'assigned_from' => 6
-                    ]);
+                    // Instruction::create([
+                    //   'customer_id' => $customer->id,
+                    //   'instruction' => 'Please send the prices',
+                    //   'category_id' => 1,
+                    //   'assigned_to' => 7,
+                    //   'assigned_from' => 6
+                    // ]);
                   }
                 }
               }
-            } else {
-              Instruction::create([
-                'customer_id' => $customer->id,
-                'instruction' => 'Please send the prices',
-                'category_id' => 1,
-                'assigned_to' => 7,
-                'assigned_from' => 6
-              ]);
             }
+
+            Instruction::create([
+              'customer_id' => $customer->id,
+              'instruction' => 'Please send the prices',
+              'category_id' => 1,
+              'assigned_to' => 7,
+              'assigned_from' => 6
+            ]);
           }
         }
 
@@ -947,6 +947,14 @@ class WhatsAppController extends FindByNumberController
         $chat_message->attachMedia($media,config('constants.media_tags'));
 
         File::delete('uploads/temp_screenshot.png');
+      }
+
+      if (Auth::id() == 6) {
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        $this->approveMessage($context, $myRequest);
       }
 
       if ($request->ajax()) {
@@ -1311,7 +1319,11 @@ class WhatsAppController extends FindByNumberController
       } else if ($request->supplierId) {
         $column = 'supplier_id';
         $value = $request->supplierId;
+      } else {
+        $column = 'customer_id';
+        $value = $request->customerId;
       }
+
 
       $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->latest();
 
@@ -1667,7 +1679,7 @@ class WhatsAppController extends FindByNumberController
       foreach ($data as $whatsapp_number => $customers) {
         $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
         $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-        $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+        $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
 
         if ($whatsapp_number == '919152731486') {
           foreach ($customers as $customer) {
@@ -1677,12 +1689,12 @@ class WhatsAppController extends FindByNumberController
                 $now->addDay();
                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
               } else {
                 // dont add day
                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
               }
             }
 
@@ -1709,13 +1721,13 @@ class WhatsAppController extends FindByNumberController
                 $now->addDay();
                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
               } else {
                 // dont add day
 
                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
               }
             }
 
@@ -1737,7 +1749,7 @@ class WhatsAppController extends FindByNumberController
       $minutes = round(60 / $frequency);
       $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
       $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-      $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+      $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
       $max_group_id = MessageQueue::max('group_id') + 1;
       $array = Excel::toArray(new CustomerNumberImport, $request->file('file'));
 
@@ -1751,12 +1763,12 @@ class WhatsAppController extends FindByNumberController
               $now->addDay();
               $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
               $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-              $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+              $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
             } else {
               // dont add day
               $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
               $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-              $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+              $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
             }
           }
 

@@ -185,6 +185,8 @@ class PurchaseController extends Controller
         ->get();
   		}
 
+
+
       if ($request->supplier[0] != null) {
         $supplier = $request->supplier[0];
         $supplier_list = implode(',', $request->supplier);
@@ -234,10 +236,12 @@ class PurchaseController extends Controller
         }
       }
 
+
+
       if ($request->brand[0] != null) {
         $brand = $request->brand[0];
 
-        if ($request->status[0] != null) {
+        if ($request->status[0] != null || $request->supplier[0] != null) {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
           // ->whereHas('Order', function($q) use ($status) {
@@ -277,6 +281,8 @@ class PurchaseController extends Controller
         }
       }
 
+
+
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
         if ($page == 'canceled-refunded') {
           $orders = OrderProduct::with('Order')
@@ -303,6 +309,8 @@ class PurchaseController extends Controller
         $orders = $orders->select('sku')->get()->toArray();
       }
 
+
+
       $new_orders = [];
       foreach ($orders as $order) {
         array_push($new_orders, $order['sku']);
@@ -312,6 +320,8 @@ class PurchaseController extends Controller
         $query->with('Order');
       }, 'Purchases', 'Suppliers'])->whereIn('sku', $new_orders);
 
+
+
       if ($page == 'ordered') {
         $products = $products->whereHas('Purchases', function ($query) {
           $query->where('status', 'Ordered');
@@ -319,6 +329,8 @@ class PurchaseController extends Controller
       } else {
         $products = $products->whereNotIn('sku', $not_include_products);
       }
+
+
 
       $term = $request->input('term');
       $status = isset($status) ? $status : '';
@@ -345,8 +357,11 @@ class PurchaseController extends Controller
 		    });
 	    }
 
+
+
       $new_products = [];
       $products = $products->select(['id', 'sku', 'supplier'])->get()->sortBy('supplier');
+      $count = 0;
 
       foreach($products as $key => $product) {
         $supplier_list = '';
@@ -361,16 +376,30 @@ class PurchaseController extends Controller
           $single_supplier = $supplier->id;
         }
 
-        $new_products[$key]['id'] = $product->id;
-        $new_products[$key]['sku'] = $product->sku;
-        $new_products[$key]['supplier'] = $product->supplier;
-        $new_products[$key]['supplier_list'] = $supplier_list;
-        $new_products[$key]['single_supplier'] = $single_supplier;
-        $new_products[$key]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
-        $new_products[$key]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
-        $new_products[$key]['customer_name'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->name : 'No Customer') : 'No Order';
-        $new_products[$key]['order_price'] = $product->orderproducts->first()->product_price;
-        $new_products[$key]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
+        $customer_names = '';
+
+        foreach ($product->orderproducts as $key => $order_product) {
+          if ($order_product->order && $order_product->order->customer) {
+            if ($count == 0) {
+              $customer_names .= $order_product->order->customer->name;
+            } else {
+              $customer_names .= ", " . $order_product->order->customer->name;
+            }
+          }
+        }
+
+        $new_products[$count]['id'] = $product->id;
+        $new_products[$count]['sku'] = $product->sku;
+        $new_products[$count]['supplier'] = $product->supplier;
+        $new_products[$count]['supplier_list'] = $supplier_list;
+        $new_products[$count]['single_supplier'] = $single_supplier;
+        $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+        $new_products[$count]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
+        $new_products[$count]['customer_names'] = $customer_names;
+        $new_products[$count]['order_price'] = $product->orderproducts->first()->product_price;
+        $new_products[$count]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
+
+        $count++;
       }
 
       $new_products = array_values(array_sort($new_products, function ($value) {
@@ -1024,35 +1053,162 @@ class PurchaseController extends Controller
       if ($request->type == 'inbox') {
         $inbox_name = 'INBOX';
         $direction = 'from';
+        $type = 'incoming';
       } else {
         $inbox_name = 'INBOX.Sent';
         $direction = 'to';
+        $type = 'outgoing';
       }
 
       $inbox = $imap->getFolder($inbox_name);
+      $latest_email = Email::where('type', $type)->where('model_id', $supplier->id)->where(function($query) {
+        $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
+      })->latest()->first();
+
+      if ($latest_email) {
+        $latest_email_date = Carbon::parse($latest_email->created_at);
+      } else {
+        $latest_email_date = Carbon::parse('1990-01-01');
+      }
+
+      // dd(Carbon::parse($latest_email_date)->format('d M y 11:i:50'));
 
       if ($supplier->agents) {
         if ($supplier->agents()->count() > 1) {
           foreach ($supplier->agents as $key => $agent) {
             if ($key == 0) {
-              $emails = $inbox->messages()->where($direction, $agent->email);
-              $emails = $emails->setFetchFlags(false)
-                              ->setFetchBody(false)
-                              ->setFetchAttachment(false)->leaveUnread()->get();
+              $emails = $inbox->messages()->where($direction, $agent->email)->where([
+                  ['SINCE', $latest_email_date->format('d M y H:i')]
+              ]);
+              // $emails = $emails->setFetchFlags(false)
+              //                 ->setFetchBody(false)
+              //                 ->setFetchAttachment(false)->leaveUnread()->get();
+
+              $emails = $emails->leaveUnread()->get();
+
+
+              foreach ($emails as $email) {
+                if ($email->hasHTMLBody()) {
+                  $content = $email->getHTMLBody();
+                } else {
+                  $content = $email->getTextBody();
+                }
+
+                if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                  $attachments_array = [];
+                  $attachments = $email->getAttachments();
+
+                  $attachments->each(function ($attachment) use (&$content) {
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = "email-attachments/" . $attachment->name;
+                    $attachments_array[] = $path;
+                  });
+
+                  $params = [
+                    'model_id'        => $supplier->id,
+                    'model_type'      => Supplier::class,
+                    'type'            => $type,
+                    'seen'            => $email->getFlags()['seen'],
+                    'from'            => $email->getFrom()[0]->mail,
+                    'to'              => $email->getTo()[0]->mail,
+                    'subject'         => $email->getSubject(),
+                    'message'         => $content,
+                    'template'				=> 'customer-simple',
+          					'additional_data'	=> json_encode(['attachment' => $attachments_array]),
+                    'created_at'      => $email->getDate()
+                  ];
+
+                  Email::create($params);
+                }
+              }
             } else {
-              $additional = $inbox->messages()->where($direction, $agent->email);
-              $additional = $additional->setFetchFlags(false)
-                              ->setFetchBody(false)
-                              ->setFetchAttachment(false)->leaveUnread()->get();
+              $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+              // $additional = $additional->setFetchFlags(false)
+              //                 ->setFetchBody(false)
+              //                 ->setFetchAttachment(false)->leaveUnread()->get();
+
+              $additional = $additional->leaveUnread()->get();
+
+              foreach ($additional as $email) {
+                if ($email->hasHTMLBody()) {
+                  $content = $email->getHTMLBody();
+                } else {
+                  $content = $email->getTextBody();
+                }
+
+                if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                  $attachments_array = [];
+                  $attachments = $email->getAttachments();
+
+                  $attachments->each(function ($attachment) use (&$content) {
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = "email-attachments/" . $attachment->name;
+                    $attachments_array[] = $path;
+                  });
+
+                  $params = [
+                    'model_id'        => $supplier->id,
+                    'model_type'      => Supplier::class,
+                    'type'            => $type,
+                    'seen'            => $email->getFlags()['seen'],
+                    'from'            => $email->getFrom()[0]->mail,
+                    'to'              => $email->getTo()[0]->mail,
+                    'subject'         => $email->getSubject(),
+                    'message'         => $content,
+                    'template'				=> 'customer-simple',
+          					'additional_data'	=> json_encode(['attachment' => $attachments_array]),
+                    'created_at'      => $email->getDate()
+                  ];
+
+                  Email::create($params);
+                }
+              }
 
               $emails = $emails->merge($additional);
             }
           }
         } else if ($supplier->agents()->count() == 1) {
-          $emails = $inbox->messages()->where($direction, $supplier->agents[0]->email);
-          $emails = $emails->setFetchFlags(false)
-                          ->setFetchBody(false)
-                          ->setFetchAttachment(false)->leaveUnread()->get();
+          $emails = $inbox->messages()->where($direction, $supplier->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+          // $emails = $emails->setFetchFlags(false)
+          //                 ->setFetchBody(false)
+          //                 ->setFetchAttachment(false)->leaveUnread()->get();
+
+          $emails = $emails->leaveUnread()->get();
+
+          foreach ($emails as $email) {
+            if ($email->hasHTMLBody()) {
+              $content = $email->getHTMLBody();
+            } else {
+              $content = $email->getTextBody();
+            }
+
+            if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+              $attachments_array = [];
+              $attachments = $email->getAttachments();
+
+              $attachments->each(function ($attachment) use (&$content) {
+                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                $path = "email-attachments/" . $attachment->name;
+                $attachments_array[] = $path;
+              });
+
+              $params = [
+                'model_id'        => $supplier->id,
+                'model_type'      => Supplier::class,
+                'type'            => $type,
+                'seen'            => $email->getFlags()['seen'],
+                'from'            => $email->getFrom()[0]->mail,
+                'to'              => $email->getTo()[0]->mail,
+                'subject'         => $email->getSubject(),
+                'message'         => $content,
+                'template'				=> 'customer-simple',
+                'additional_data'	=> json_encode(['attachment' => $attachments_array]),
+                'created_at'      => $email->getDate()
+              ];
+
+              Email::create($params);
+            }
+          }
         } else {
           $emails = $inbox->messages()->where($direction, 'nonexisting@email.com');
           $emails = $emails->setFetchFlags(false)
@@ -1094,21 +1250,32 @@ class PurchaseController extends Controller
       $emails_array = [];
       $count = 0;
 
-      foreach ($emails as $key => $email) {
-        $emails_array[$key]['uid'] = $email->getUid();
-        $emails_array[$key]['subject'] = $email->getSubject();
-        $emails_array[$key]['date'] = $email->getDate();
-        $emails_array[$key]['from'] = $email->getFrom()[0]->mail;
+      // foreach ($emails as $key => $email) {
+      //   $emails_array[$key]['uid'] = $email->getUid();
+      //   $emails_array[$key]['subject'] = $email->getSubject();
+      //   $emails_array[$key]['date'] = $email->getDate();
+      //   $emails_array[$key]['from'] = $email->getFrom()[0]->mail;
+      //
+      //   $count++;
+      // }
 
-        $count++;
-      }
-
-      if ($request->type != 'inbox') {
-        $db_emails = $supplier->emails;
+      if ($request->type == 'inbox') {
+        $db_emails = $supplier->emails()->where('type', 'incoming')->get();
 
         foreach ($db_emails as $key2 => $email) {
           $emails_array[$count + $key2]['id'] = $email->id;
           $emails_array[$count + $key2]['subject'] = $email->subject;
+          $emails_array[$count + $key2]['seen'] = $email->seen;
+          $emails_array[$count + $key2]['date'] = $email->created_at;
+          $emails_array[$count + $key2]['from'] = $email->from;
+        }
+      } else {
+        $db_emails = $supplier->emails()->where('type', 'outgoing')->get();
+
+        foreach ($db_emails as $key2 => $email) {
+          $emails_array[$count + $key2]['id'] = $email->id;
+          $emails_array[$count + $key2]['subject'] = $email->subject;
+          $emails_array[$count + $key2]['seen'] = $email->seen;
           $emails_array[$count + $key2]['date'] = $email->created_at;
           $emails_array[$count + $key2]['from'] = $email->from;
         }
@@ -1202,6 +1369,9 @@ class PurchaseController extends Controller
         // dd($attachments_array);
       } else {
         $email = Email::find($request->uid);
+        $email->seen = 1;
+        $email->save();
+
         $to_email = $email->to;
         // if ($email->template == 'customer-simple') {
         //   $content = (new CustomerEmail($email->subject, $email->message))->render();
@@ -1244,7 +1414,7 @@ class PurchaseController extends Controller
 
       $supplier = Supplier::find($request->supplier_id);
 
-      if ($supplier->default_email != '') {
+      if ($supplier->default_email != '' || $supplier->email != '') {
         // Backup your default mailer
         // $backup = Mail::getSwiftMailer();
         //
@@ -1273,7 +1443,7 @@ class PurchaseController extends Controller
         }
 
         // Restore your original mailer
-        Mail::to($supplier->default_email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        Mail::to($supplier->default_email ?? $supplier->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
         // Mail::setSwiftMailer($backup);
 
@@ -1281,7 +1451,7 @@ class PurchaseController extends Controller
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
           'from'            => 'customercare@sololuxury.co.in',
-          'to'              => $supplier->default_email,
+          'to'              => $supplier->default_email ?? $supplier->email,
           'subject'         => $request->subject,
           'message'         => $request->message,
           'template'				=> 'customer-simple',
@@ -1293,7 +1463,7 @@ class PurchaseController extends Controller
         return redirect()->route('supplier.show', $supplier->id)->withSuccess('You have successfully sent an email!');
       }
 
-      return redirect()->route('purchase.show', $purchase->id)->withError('Please select an Agent first');
+      return redirect()->route('supplier.show', $supplier->id)->withError('Please add an email first');
     }
 
     public function emailResend(Request $request)
