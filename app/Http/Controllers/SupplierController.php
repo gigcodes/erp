@@ -49,7 +49,7 @@ class SupplierController extends Controller
                   LEFT JOIN (SELECT MAX(id) as email_id, model_id as email_model_id, created_at AS email_created_at FROM emails WHERE model_type LIKE "%Supplier%" OR "%Purchase%" GROUP BY model_id ORDER BY created_at DESC) AS emails
                   ON suppliers.id = emails.email_model_id)
 
-                  AS suppliers ORDER BY purchase_created_at DESC, message_created_at DESC, email_created_at DESC;
+                  AS suppliers ORDER BY message_created_at DESC, email_created_at DESC;
 							');
 
       $suppliers_all = Supplier::all();
