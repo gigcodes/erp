@@ -285,7 +285,7 @@
                         <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $customer->id }}">Load More</button>
 
                         <ul class="more-communication-container">
-                          
+
                         </ul>
                       {{-- @else
                         {{ $remark_message }}
@@ -317,7 +317,7 @@
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Send images">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="6">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('image_shortcut') }}">
 
                         <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/attach.png" /></button>
@@ -327,10 +327,10 @@
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Send price">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="3">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button">$</button>
+                        <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/price.png" /></button>
                       </form>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
@@ -347,7 +347,7 @@
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Attach image or screenshot physically">
-                        <input type="hidden" name="category_id" value="1">
+                        <input type="hidden" name="category_id" value="8">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
 
                         <button type="submit" class="btn btn-image quick-shortcut-button"><img src="/images/upload.png" /></button>

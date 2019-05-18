@@ -5,35 +5,28 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" /> --}}
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 
 @section('content')
 
 
-    <div class="row">
+    <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Master Control - {{ date('Y-m-d') }}</h2>
             <div class="pull-left">
-              {{-- <form action="/customers/" method="GET" class="form-inline">
-                <input name="term" type="text" class="form-control"
-                       value="{{ isset($term) ? $term : '' }}"
-                       placeholder="Search" id="customer-search">
-
+              <form class="form-inline" action="{{ route('mastercontrol.index') }}" method="GET">
                 <div class="form-group ml-3">
-                  <select class="form-control" name="type">
-                    <optgroup label="Type">
-                      <option value="">Select</option>
-                      <option value="new" {{ isset($type) && $type == 'new' ? 'selected' : '' }}>New</option>
-                      <option value="delivery" {{ isset($type) && $type == 'delivery' ? 'selected' : '' }}>Delivery</option>
-                      <option value="Refund to be processed" {{ isset($type) && $type == 'Refund to be processed' ? 'selected' : '' }}>Refund</option>
-                      <option value="unread" {{ isset($type) && $type == 'unread' ? 'selected' : '' }}>Unread</option>
-                      <option value="unapproved" {{ isset($type) && $type == 'unapproved' ? 'selected' : '' }}>Unapproved</option>
-                    </optgroup>
-                  </select>
+                  <input type="text" value="" name="range_start" hidden/>
+                  <input type="text" value="" name="range_end" hidden/>
+                  <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                    <i class="fa fa-calendar"></i>&nbsp;
+                    <span></span> <i class="fa fa-caret-down"></i>
+                  </div>
                 </div>
 
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-              </form> --}}
+                <button type="submit" class="btn btn-secondary ml-3">Submit</button>
+              </form>
             </div>
 
             <div class="pull-right mt-4">
@@ -84,7 +77,7 @@
                   <a href="{{ route('broadcast.index') }}" target="_blank"><h3>Broadcasts</h3></a>
                 </div>
 
-                <div class="pull-right">
+                {{-- <div class="pull-right">
                   <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="customer_id" value="2150">
@@ -94,7 +87,7 @@
 
                     <button type="submit" class="btn quick-shortcut-button">+ Broadcast</button>
                   </form>
-                </div>
+                </div> --}}
               </div>
             </div>
 
@@ -105,12 +98,22 @@
               @foreach ($message_groups as $date => $data)
                 @if ($date == \Carbon\Carbon::now()->subDay()->format('Y-m-d'))
                   <div class="col-md-4">
-                    <h4>Live - {{ $date }}</h4>
+                    <h4>Updated as of - {{ $date }}</h4>
                     @foreach ($data as $group_id => $group)
                         <div class="card activity-chart mb-3">
                           <div class="card-header" data-toggle="tooltip" data-placement="top" data-html="true" title="<strong>Message: </strong>{{ $group['message'] }}<br /><strong>Expected Delivery: </strong>{{ $group['expecting_time'] }}">
-                            Group ID {{ $group_id }}
+                            Group ID {{ $group_id }} - expected delivery on {{ \Carbon\Carbon::parse($group['expecting_time'])->format('d-m H:i') }}
                           </div>
+
+                          @if (count($group['image']) > 0)
+                            @foreach ($group['image'] as $image)
+                              <img src="{{ $image['url'] }}" alt="" class="img-responsive thumbnail-200">
+                            @endforeach
+                          @elseif (count($group['linked_images']) > 0)
+                            @foreach ($group['linked_images'] as $image)
+                              <img src="{{ $image['url'] }}" alt="" class="img-responsive thumbnail-200">
+                            @endforeach
+                          @endif
 
                           <canvas id="horizontalBroadcastBarChart{{ $date }}{{ $group_id }}" style="height: 120px;"></canvas>
                         </div>
@@ -123,12 +126,22 @@
 
                 @elseif ($date == \Carbon\Carbon::now()->format('Y-m-d'))
                   <div class="col-md-4">
-                    <h4>Planned - {{ $date }}</h4>
+                    <h4>Live - {{ $date }}</h4>
                     @foreach ($data as $group_id => $group)
                         <div class="card activity-chart mb-3">
                           <div class="card-header" data-toggle="tooltip" data-placement="top" data-html="true" title="<strong>Message: </strong>{{ $group['message'] }}<br /><strong>Expected Delivery: </strong>{{ $group['expecting_time'] }}">
-                            Group ID {{ $group_id }}
+                            Group ID {{ $group_id }} - expected delivery on {{ \Carbon\Carbon::parse($group['expecting_time'])->format('d-m H:i') }}
                           </div>
+
+                          @if (count($group['image']) > 0)
+                            @foreach ($group['image'] as $image)
+                              <img src="{{ $image['url'] }}" alt="" class="img-responsive thumbnail-200">
+                            @endforeach
+                          @elseif (count($group['linked_images']) > 0)
+                            @foreach ($group['linked_images'] as $image)
+                              <img src="{{ $image['url'] }}" alt="" class="img-responsive thumbnail-200">
+                            @endforeach
+                          @endif
 
                           <canvas id="horizontalBroadcastBarChart{{ $date }}{{ $group_id }}" style="height: 120px;"></canvas>
                         </div>
@@ -142,14 +155,24 @@
               @endforeach
 
               <div class="col-md-4">
-                <h4>Future - {{ $date }}</h4>
+                <h4>Future - till {{ array_search(end($message_groups), $message_groups) }}</h4>
                 @foreach ($message_groups as $date => $data)
                   @if ($date > \Carbon\Carbon::now()->format('Y-m-d'))
                     @foreach ($data as $group_id => $group)
                       <div class="card activity-chart mb-3">
                         <div class="card-header" data-toggle="tooltip" data-placement="top" data-html="true" title="<strong>Message: </strong>{{ $group['message'] }}<br /><strong>Expected Delivery: </strong>{{ $group['expecting_time'] }}">
-                          Group ID {{ $group_id }}
+                          Group ID {{ $group_id }} - expected delivery on {{ \Carbon\Carbon::parse($group['expecting_time'])->format('d-m H:i') }}
                         </div>
+
+                        @if (count($group['image']) > 0)
+                          @foreach ($group['image'] as $image)
+                            <img src="{{ $image['url'] }}" alt="" class="img-responsive thumbnail-200">
+                          @endforeach
+                        @elseif (count($group['linked_images']) > 0)
+                          @foreach ($group['linked_images'] as $image)
+                            <img src="{{ $image['url'] }}" alt="" class="img-responsive thumbnail-200">
+                          @endforeach
+                        @endif
 
                         <canvas id="horizontalBroadcastBarChart{{ $date }}{{ $group_id }}" style="height: 120px;"></canvas>
                       </div>
@@ -169,7 +192,13 @@
                   </li>
                   @foreach ($tasks['tasks'] as $user_id => $task_data)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'User Doesnt Exist' }}</strong>
+                      <strong>
+                        @if (array_key_exists($user_id, $users_array))
+                          <a href="{{ url('/') }}?selected_user={{ $user_id }}" target="_blank">{{ $users_array[$user_id] }}</a>
+                        @else
+                          User Doesnt Exist
+                        @endif
+                      </strong>
 
                       <span>
                         @if (array_key_exists(0, $task_data))
@@ -202,21 +231,43 @@
                   </li>
                   @foreach ($instructions as $user_id => $data)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'User Doesnt Exist' }}</strong>
-
-                      <span>
-                        @if (array_key_exists(0, $data))
-                          <span class="badge badge-red badge-pill">{{ count($data[0]) }}</span>
+                      <strong>
+                        @if (array_key_exists($user_id, $users_array))
+                          <a href="{{ route('instruction.index') }}?user%5B%5D={{ $user_id }}" target="_blank">{{ $users_array[$user_id] }}</a>
                         @else
-                          <span class="badge badge-red badge-pill">0</span>
+                          User Doesnt Exist
                         @endif
+                      </strong>
 
-                        @if (array_key_exists(1, $data))
-                          <span class="badge badge-green badge-pill">{{ count($data[1]) }}</span>
-                        @else
-                          <span class="badge badge-green badge-pill">0</span>
-                        @endif
-                      </span>
+                      <ul class="list-unstyled">
+                        @foreach ($data as $category_id => $info)
+                          <li>
+                            @if (array_key_exists($category_id, $instruction_categories_array) && $instruction_categories_array[$category_id]['icon'] != '')
+                              <a href="{{ route('instruction.index') }}?user%5B%5D={{ $user_id }}#instructions_{{ $category_id }}" class="btn btn-image" target="_blank"><img src="/images/{{ $instruction_categories_array[$category_id]['icon'] }}" alt=""></a>
+                            @else
+                              @if (array_key_exists($category_id, $instruction_categories_array))
+                                <a href="{{ route('instruction.index') }}?user%5B%5D={{ $user_id }}#instructions_{{ $category_id }}" target="_blank">{{ $instruction_categories_array[$category_id]['name'] }}</a>
+                              @else
+                                No Category
+                              @endif
+                            @endif
+
+                            <span>
+                              @if (array_key_exists(0, $info))
+                                <span class="badge badge-red badge-pill">{{ count($info[0]) }}</span>
+                              @else
+                                <span class="badge badge-red badge-pill">0</span>
+                              @endif
+
+                              @if (array_key_exists(1, $info))
+                                <span class="badge badge-green badge-pill">{{ count($info[1]) }}</span>
+                              @else
+                                <span class="badge badge-green badge-pill">0</span>
+                              @endif
+                            </span>
+                          </li>
+                        @endforeach
+                      </ul>
                      </li>
                   @endforeach
 
@@ -235,7 +286,13 @@
                   </li>
                   @foreach ($developer_tasks as $user_id => $data)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'User Doesnt Exist' }}</strong>
+                      <strong>
+                        @if (array_key_exists($user_id, $users_array))
+                          <a href="{{ route('development.index') }}?user={{ $user_id }}" target="_blank">{{ $users_array[$user_id] }}</a>
+                        @else
+                          User Doesnt Exist
+                        @endif
+                      </strong>
 
                       <span>
                         @if (array_key_exists('0', $data))
@@ -265,10 +322,44 @@
           </div>
 
           <div class="tab-pane mt-3" id="orders-tab">
-            <a href="{{ route('order.index') }}" target="_blank"><h4>Orders</h4></a>
+            <div class="pull-left">
+              <a href="{{ route('order.index') }}" target="_blank"><h4>Orders</h4></a>
+            </div>
+
             <div class="table-responsive">
               <table class="table table-bordered">
                 <thead>
+                  <tr>
+                    <th>Total Orders</th>
+                    <th>Total Value</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>
+                      {{ count($orders['orders']) }}
+                    </td>
+                    <td>
+                      @php
+                        $total_value = 0;
+                      @endphp
+
+                      @foreach ($orders['orders'] as $order)
+                        @if ($order->order_product)
+                          @foreach ($order->order_product as $order_product)
+                            @php
+                              $total_value += (int) $order_product->qty * (int) $order_product->product_price;
+                            @endphp
+                          @endforeach
+                        @endif
+                      @endforeach
+
+                      {{ $total_value }}
+                    </td>
+                  </tr>
+                </tbody>
+                {{-- <thead>
                   <tr>
                     <th rowspan="2">Product Name</th>
                     <th rowspan="2">Price</th>
@@ -306,7 +397,7 @@
                       @endif
                     </tr>
                   @endforeach
-                </tbody>
+                </tbody> --}}
               </table>
             </div>
           </div>
@@ -445,16 +536,48 @@
                 <tbody>
                   <tr>
                     <td>
-                      {{ $scraped_count['0']->total }}
+                      <ul class="list-group">
+                        @foreach ($scraped_count as $data)
+                          <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ $data->website }}
+
+                            <span class="badge badge-pill">{{ $data->total }}</span>
+                           </li>
+                        @endforeach
+                      </ul>
                     </td>
                     <td>
-                      {{ $products_count['0']->total }}
+                      <ul class="list-group">
+                        @foreach ($products_count as $data)
+                          <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ $data->website }}
+
+                            <span class="badge badge-pill">{{ $data->total }}</span>
+                           </li>
+                        @endforeach
+                      </ul>
                     </td>
                     <td>
-                      {{ $scraped_days_ago_count['0']->total }}
+                      <ul class="list-group">
+                        @foreach ($scraped_days_ago_count as $data)
+                          <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ $data->website }}
+
+                            <span class="badge badge-pill">{{ $data->total }}</span>
+                           </li>
+                        @endforeach
+                      </ul>
                     </td>
                     <td>
-                      {{ $listed_days_ago_count['0']->total }}
+                      <ul class="list-group">
+                        @foreach ($listed_days_ago_count as $data)
+                          <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ $data->website }}
+
+                            <span class="badge badge-pill">{{ $data->total }}</span>
+                           </li>
+                        @endforeach
+                      </ul>
                     </td>
                     <td>
 
@@ -466,7 +589,32 @@
           </div>
 
           <div class="tab-pane mt-3" id="reviews-tab">
-            Reviews
+            <div class="row">
+              <div class="col-md-4">
+                <ul class="list-group">
+                  <li class="list-group-item">
+                    <a href="{{ route('review.index') }}" target="_blank"><h4>Reviews</h4></a>
+                  </li>
+                  @foreach ($reviews as $platform => $data)
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <strong>
+                        @if ($platform == '')
+                          No Platform
+                        @else
+                          {{ ucwords($platform) }}
+                        @endif
+                      </strong>
+
+                      <span>
+                        <span class="badge badge-red badge-pill">{{ $data['notposted'] }}</span>
+
+                        <span class="badge badge-green badge-pill">{{ $data['posted'] }}</span>
+                      </span>
+                     </li>
+                  @endforeach
+                </ul>
+              </div>
+            </div>
           </div>
 
           <div class="tab-pane mt-3" id="emails-tab">
@@ -479,7 +627,13 @@
                     </li>
                     @foreach ($emails as $supplier_id => $data)
                       <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <strong>{{ array_key_exists($supplier_id, $suppliers_array) ? $suppliers_array[$supplier_id] : 'Supplier Doesnt Exist' }}</strong>
+                        <strong>
+                          @if (array_key_exists($supplier_id, $suppliers_array))
+                            <a href="{{ route('supplier.show', $supplier_id) }}" target="_blank">{{ $suppliers_array[$supplier_id] }}</a>
+                          @else
+                            Supplier Doesnt Exist
+                          @endif
+                        </strong>
 
                         <span>
                           {{-- @if (array_key_exists('no', $data)) --}}
@@ -534,6 +688,7 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script> --}}
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
   $(document).ready(function() {
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
@@ -623,6 +778,42 @@
 
         console.log(response);
       });
+    });
+
+    let r_s = '{{ $start }}';
+    let r_e = '{{ $end }}';
+
+    let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(1, 'days');
+    let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+    jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
+    jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
+
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#reportrange').daterangepicker({
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    });
+
+    cb(start, end);
+
+    $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+
+        jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+        jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
     });
   </script>
 @endsection

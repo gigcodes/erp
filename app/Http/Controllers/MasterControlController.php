@@ -7,12 +7,14 @@ use App\Task;
 use App\Helpers;
 use App\User;
 use App\Instruction;
+use App\InstructionCategory;
 use App\ReplyCategory;
 use App\DeveloperTask;
 use App\Order;
 use App\Purchase;
 use App\Email;
 use App\Supplier;
+use App\Review;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -25,13 +27,18 @@ class MasterControlController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
       $today = Carbon::now()->format('Y-m-d');
       $yesterday = Carbon::now()->subDay()->format('Y-m-d');
       $two_days_ago = Carbon::now()->subDays(2)->format('Y-m-d');
       $yesterday_day = Carbon::now()->subDay()->format('d');
       $after_week = Carbon::now()->addWeek()->format('Y-m-d');
+
+      $start = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay();
+      $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
+
+      // dd($start, $end);
 
       $message_groups = MessageQueue::whereBetween('sending_time', ["$yesterday 00:00", "$after_week 23:59"])->get()->groupBy([function($query) {
         return Carbon::parse($query->sending_time)->format('Y-m-d');
@@ -102,6 +109,7 @@ class MasterControlController extends Controller
         }
       }
 
+      ksort($new_data);
       // dd($new_data);
 
       $tasks = [];
@@ -139,13 +147,22 @@ class MasterControlController extends Controller
 
       $users_array = Helpers::getUserArray(User::all());
 
-      $instructions = Instruction::where('assigned_from', Auth::id())->get()->groupBy(['assigned_to', function ($query) {
+      $instruction_categories_array = [];
+      $instructions_categories = InstructionCategory::all();
+      $instructions = Instruction::where('assigned_from', Auth::id())->get()->groupBy(['assigned_to', 'category_id', function ($query) {
         if ($query->completed_at != '') {
           return 1;
         } else {
           return 0;
         }
       }])->toArray();
+
+      foreach ($instructions_categories as $category) {
+        $instruction_categories_array[$category->id]['name'] = $category->name;
+        $instruction_categories_array[$category->id]['icon'] = $category->icon;
+      }
+
+      // dd($instructions);
       $last_pending_instruction = Instruction::where('assigned_from', Auth::id())->whereNull('completed_at')->first();
       // $completed_instructions = Instruction::where('assigned_from', Auth::id())->whereNotNull('completed_at')->get()->groupBy('assigned_to');
 
@@ -198,12 +215,12 @@ class MasterControlController extends Controller
       $reply_categories = ReplyCategory::all();
 
       // $orders = Order::where('order_date', $today)->count();
-      $orders_data = Order::where('order_date', $yesterday)->get();
+      $orders_data = Order::whereBetween('order_date', [$start, $end])->get();
 
       // foreach ($orders as $key => $order) {
         $orders = [];
         $orders['orders'] = $orders_data;
-        $orders['cod'] = Order::where('order_date', $yesterday)->where('payment_mode', 'cash on delivery')->count();
+        $orders['cod'] = Order::whereBetween('order_date', [$start, $end])->where('payment_mode', 'cash on delivery')->count();
 
       // }
 
@@ -223,14 +240,18 @@ class MasterControlController extends Controller
             $q->with('customer');
           }]);
         }]);
-      }, 'purchase_supplier'])->where('created_at', 'LIKE', "%$yesterday%")->get()->toArray();
+      }, 'purchase_supplier'])->whereBetween('created_at', [$start, $end])
+      ->whereNotIn('status', ['Pending Purchase', 'Request Sent to Supplier', 'Price under Negotiation'])->get()->toArray();
+
+      // dd($purchases);
 
       $scraped_count = DB::select( '
 									SELECT website, created_at, COUNT(*) as total FROM
 								 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
 								  		 FROM scraped_products
 								  		 WHERE scraped_products.created_at LIKE "%?%")
-								    AS SUBQUERY;
+								    AS SUBQUERY
+                    GROUP BY website;
 							', [$yesterday]);
 
       $scraped_days_ago_count = DB::select( '
@@ -238,7 +259,8 @@ class MasterControlController extends Controller
 								 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
 								  		 FROM scraped_products
 								  		 WHERE scraped_products.created_at LIKE "%?%")
-								    AS SUBQUERY;
+								    AS SUBQUERY
+                    GROUP BY website;
 							', [$two_days_ago]);
 
       $products_count = DB::select( '
@@ -249,8 +271,11 @@ class MasterControlController extends Controller
                        AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku)
                        )
 
-								    AS SUBQUERY;
+								    AS SUBQUERY
+                    GROUP BY website;
 							', [$yesterday]);
+
+              // dd($scraped_count);
 
         $listed_days_ago_count = DB::select( '
   									SELECT website, created_at, COUNT(*) as total FROM
@@ -260,7 +285,8 @@ class MasterControlController extends Controller
                          AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku AND products.isUploaded = 1)
                          )
 
-  								    AS SUBQUERY;
+  								    AS SUBQUERY
+                      GROUP BY website;
   							', [$two_days_ago]);
 
       $emails = Email::where('type', 'incoming')->where(function($query) {
@@ -289,6 +315,29 @@ class MasterControlController extends Controller
         $suppliers_array[$supplier->id] = $supplier->supplier;
       }
 
+      $reviews_array = [];
+      $reviews = Review::whereBetween('created_at', [$start, $end])->get()->groupBy(['platform', function($query) {
+        if ($query->status == 'posted') {
+          return 'posted';
+        } else {
+          return 'notposted';
+        }
+      }]);
+
+      foreach ($reviews as $platform => $data) {
+        $reviews_array[$platform]['notposted'] = 0;
+        $reviews_array[$platform]['posted'] = 0;
+        foreach ($data as $status => $review) {
+          if ($status == 'notposted') {
+            $reviews_array[$platform]['notposted'] = count($review);
+          } else {
+            $reviews_array[$platform]['posted'] = count($review);
+          }
+        }
+      }
+
+      // dd($reviews);
+
               // dd($scraped_count);
       // dd($unread_messages);
 
@@ -313,6 +362,10 @@ class MasterControlController extends Controller
         'listed_days_ago_count'     => $listed_days_ago_count,
         'emails'     => $emails_array,
         'suppliers_array'     => $suppliers_array,
+        'start'     => $start,
+        'end'     => $end,
+        'reviews'     => $reviews_array,
+        'instruction_categories_array'     => $instruction_categories_array,
       ]);
     }
 

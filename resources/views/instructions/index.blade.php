@@ -78,7 +78,19 @@
               <th>End</th>
               <th>Action</th>
             </tr>
-            @foreach ($instructions as $instruction)
+            @foreach ($instructions as $category_id => $data)
+              <tr>
+                <th colspan="11" id="instructions_{{ $category_id }}">
+                  @if (array_key_exists($category_id, $categories_array))
+                    {{ $categories_array[$category_id]['name'] }}
+
+                    <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$category_id]['icon'] }}" alt=""></button>
+                  @else
+                    No Category
+                  @endif
+                </th>
+              </tr>
+              @foreach ($data as $instruction)
                 <tr>
                   <td>
                     {{-- <a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a> --}}
@@ -151,10 +163,11 @@
                     <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
                   </td>
                 </tr>
+              @endforeach
             @endforeach
           </table>
         </div>
-        {!! $instructions->appends(Request::except('page'))->links() !!}
+        {{-- {!! $instructions->appends(Request::except('page'))->links() !!} --}}
       </div>
 
       <div class="tab-pane mt-3" id="pending-instructions">
@@ -177,7 +190,19 @@
               <th>End</th>
               <th>Action</th>
             </tr>
-            @foreach ($pending_instructions as $instruction)
+            @foreach ($pending_instructions as $category_id => $data)
+              <tr>
+                <th colspan="11" id="pending_instructions_{{ $category_id }}">
+                  @if (array_key_exists($category_id, $categories_array))
+                    {{ $categories_array[$category_id]['name'] }}
+
+                    <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$category_id]['icon'] }}" alt=""></button>
+                  @else
+                    No Category
+                  @endif
+                </th>
+              </tr>
+              @foreach ($data as $instruction)
                 <tr>
                   <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
                   <td>
@@ -233,10 +258,11 @@
                     <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
                   </td>
                 </tr>
+              @endforeach
             @endforeach
           </table>
         </div>
-        {!! $pending_instructions->appends(Request::except('pending_page'))->links() !!}
+        {{-- {!! $pending_instructions->appends(Request::except('pending_page'))->links() !!} --}}
       </div>
 
       <div class="tab-pane mt-3" id="verify-instructions">
@@ -274,7 +300,20 @@
               <th>End</th>
               <th>Action</th>
             </tr>
-            @foreach ($verify_instructions as $instruction)
+            @foreach ($verify_instructions as $category_id => $data)
+              <tr>
+                <th colspan="11" id="verify_instructions_{{ $category_id }}">
+                  @if (array_key_exists($category_id, $categories_array))
+                    {{ $categories_array[$category_id]['name'] }}
+
+                    <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$category_id]['icon'] }}" alt=""></button>
+                  @else
+                    No Category
+                  @endif
+                </th>
+              </tr>
+              @foreach ($data as $instruction)
+
                 <tr>
                   <td>
                     <input type="checkbox" name="selected_instructions[]" class="select-instruction" data-id="{{ $instruction['id'] }}">
@@ -333,10 +372,11 @@
                     <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
                   </td>
                 </tr>
+              @endforeach
             @endforeach
           </table>
         </div>
-        {!! $verify_instructions->appends(Request::except('verify_page'))->links() !!}
+        {{-- {!! $verify_instructions->appends(Request::except('verify_page'))->links() !!} --}}
       </div>
 
         <div class="tab-pane mt-3" id="5">
@@ -360,14 +400,26 @@
                 <th>End</th>
                 <th>Action</th>
               </tr>
-              @foreach ($completed_instructions as $instruction)
+              @foreach ($completed_instructions as $category_id => $data)
+                <tr>
+                  <th colspan="11" id="completed_instructions{{ $category_id }}">
+                    @if (array_key_exists($category_id, $categories_array))
+                      {{ $categories_array[$category_id]['name'] }}
+
+                      <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$category_id]['icon'] }}" alt=""></button>
+                    @else
+                      No Category
+                    @endif
+                  </th>
+                </tr>
+                @foreach ($data as $instruction)
                   <tr>
                     <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ isset($instruction->customer) ? $instruction->customer->name : '' }}</a></td>
                     <td>
                       <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer_id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
                     </td>
                     <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                    <td>{{ $instruction->category->name }}</td>
+                    <td>{{ $instruction->category ? $instruction->category->name : 'No Category' }}</td>
                     <td>{{ $instruction->instruction }}</td>
                     <td>
                       @if ($instruction->completed_at)
@@ -416,10 +468,11 @@
                       <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
                     </td>
                   </tr>
+                @endforeach
               @endforeach
           </table>
           </div>
-          {!! $completed_instructions->appends(Request::except('completed_page'))->links() !!}
+          {{-- {!! $completed_instructions->appends(Request::except('completed_page'))->links() !!} --}}
       </div>
 
 
