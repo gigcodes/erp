@@ -32,7 +32,7 @@
                   </select>
                 </div>
 
-                {{-- <div class="form-group ml-3">
+                <div class="form-group ml-3">
                     <strong>Date Range</strong>
                     <input type="text" value="" name="range_start" hidden/>
                     <input type="text" value="" name="range_end" hidden/>
@@ -40,7 +40,7 @@
                         <i class="fa fa-calendar"></i>&nbsp;
                         <span></span> <i class="fa fa-caret-down"></i>
                     </div>
-                </div> --}}
+                </div>
 
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
@@ -220,21 +220,19 @@
                     <td></td>
                   @endif
                     <td>
-                      @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at)
-                        @if (!empty($customer->message))
-                            @if ($customer->message_status == 5)
-                                Read
-                            @elseif ($customer->message_status == 6)
-                                Replied
-                            @elseif ($customer->message_status == 1)
-                              <span>Waiting for Approval</span>
-                              <button type="button" class="btn btn-xs btn-secondary approve-message" data-id="{{ $customer->message_id }}" data-type="{{ $customer->message_type }}">Approve</button>
-                            @elseif ($customer->message_status == 2)
-                                Approved
-                            @elseif ($customer->message_status == 0)
-                                Unread
-                            @endif
-                        @endif
+                      @if (!empty($customer->message))
+                          @if ($customer->message_status == 5)
+                              Read
+                          @elseif ($customer->message_status == 6)
+                              Replied
+                          @elseif ($customer->message_status == 1)
+                            <span>Waiting for Approval</span>
+                            <button type="button" class="btn btn-xs btn-secondary approve-message" data-id="{{ $customer->message_id }}" data-type="{{ $customer->message_type }}">Approve</button>
+                          @elseif ($customer->message_status == 2)
+                              Approved
+                          @elseif ($customer->message_status == 0)
+                              Unread
+                          @endif
                       @endif
                     </td>
                     <td>
@@ -1014,8 +1012,8 @@
         });
       });
 
-      let r_s = '';
-      let r_e = '{{ date('y-m-d') }}';
+      let r_s = "{{ $start_time }}";
+      let r_e = "{{ $end_time }}";
 
       let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
       let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();

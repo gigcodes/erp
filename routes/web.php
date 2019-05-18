@@ -184,6 +184,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
 
 	// Customers
+	Route::get('customer/test', 'CustomerController@customerstest');
 	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::post('customers/{id}/sendAdvanceLink', 'CustomerController@sendAdvanceLink')->name('customer.send.advanceLink');
 	Route::get('customers/{id}/loadMoreMessages', 'CustomerController@loadMoreMessages');
