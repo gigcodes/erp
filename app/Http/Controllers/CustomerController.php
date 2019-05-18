@@ -277,6 +277,51 @@ class CustomerController extends Controller
       ]);
     }
 
+    public function sendAdvanceLink(Request $request, $id)
+    {
+      $customer = Customer::find($id);
+
+      $options = array(
+  			'trace' => true,
+  			'connection_timeout' => 120,
+  			'wsdl_cache' => WSDL_CACHE_NONE,
+  		);
+
+  		$proxy = new \SoapClient(config('magentoapi.url'), $options);
+  		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+
+  		$errors = 0;
+
+			$productData = array(
+				'price'                 => $request->price_inr,
+				'special_price'         => $request->price_special,
+			);
+
+			try {
+				$result = $proxy->catalogProductUpdate($sessionId, "QUICKADVANCEPAYMENT", $productData);
+
+        $params = [
+          'customer_id' => $customer->id,
+          'number'      => NULL,
+          'message'     => "https://www.sololuxury.co.in/advance-payment-product.html",
+          'user_id'     => Auth::id(),
+          'approve'     => 0,
+          'status'      => 1
+        ];
+
+        ChatMessage::create($params);
+
+        return response('success');
+        // return redirect()->back()->withSuccess('You have successfully sent a link');
+			} catch (\Exception $e) {
+				$errors++;
+
+        return response($e->getMessage());
+        // dd($e);
+        // return redirect()->back()->withError('You have failed sending a link');
+			}
+    }
+
     public function initiateFollowup(Request $request, $id)
     {
       CommunicationHistory::create([

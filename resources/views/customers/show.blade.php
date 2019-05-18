@@ -292,6 +292,10 @@
                 @else
                   <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
                 @endif
+
+                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
+
+                @include('customers.partials.modal-advance-link')
               </div>
             </div>
 
@@ -3240,6 +3244,39 @@
            $('#load-more-messages').text('Loading...');
 
            pollMessages(next_page, true);
+         });
+
+         $(document).on('click', '#sendAdvanceLink', function(e) {
+           e.preventDefault();
+
+           var thiss = $(this);
+           var price_inr = $(this).closest('form').find('input[name="price_inr"]').val();
+           var price_special = $(this).closest('form').find('input[name="price_special"]').val();
+
+           $.ajax({
+             type: "POST",
+             url: "{{ url('customers') }}/" + {{ $customer->id }} + "/sendAdvanceLink",
+             data: {
+               _token: "{{ csrf_token() }}",
+               price_inr: price_inr,
+               price_special: price_special,
+             },
+             beforeSend: function() {
+               $(thiss).text('Sending...');
+             }
+           }).done(function() {
+             pollMessages();
+
+             $(thiss).text('Send Link');
+
+             $('#advancePaymentModal').find('.close').click();
+           }).fail(function(response) {
+             $(thiss).text('Send Link');
+
+             console.log(response);
+
+             alert('Could not send link');
+           });
          });
       });
 
