@@ -1319,7 +1319,11 @@ class WhatsAppController extends FindByNumberController
       } else if ($request->supplierId) {
         $column = 'supplier_id';
         $value = $request->supplierId;
+      } else {
+        $column = 'customer_id';
+        $value = $request->customerId;
       }
+
 
       $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->latest();
 
