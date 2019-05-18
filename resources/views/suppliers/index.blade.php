@@ -26,7 +26,8 @@
               </form> --}}
             </div>
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#supplierCreateModal">+</a>
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Emai</a>
+              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</a>
             </div>
         </div>
     </div>
@@ -34,6 +35,7 @@
     @include('partials.flash_messages')
 
     @include('purchase.partials.modal-email')
+    @include('suppliers.partials.modal-emailToAll')
 
     <div class="table-responsive mt-3">
       <table class="table table-bordered">

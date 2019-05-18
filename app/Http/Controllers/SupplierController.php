@@ -8,9 +8,12 @@ use App\Setting;
 use App\ReplyCategory;
 use App\User;
 use App\Helpers;
+use App\Email;
+use App\Mail\PurchaseEmail;
 use App\ReadOnly\SoloNumbers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class SupplierController extends Controller
@@ -26,7 +29,7 @@ class SupplierController extends Controller
       $solo_numbers = (new SoloNumbers)->all();
 
       $suppliers = DB::select('
-									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.address, suppliers.social_handle, suppliers.gst,
+									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -49,6 +52,8 @@ class SupplierController extends Controller
                   AS suppliers ORDER BY purchase_created_at DESC, message_created_at DESC, email_created_at DESC;
 							');
 
+      $suppliers_all = Supplier::all();
+
               // dd($suppliers);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -60,8 +65,9 @@ class SupplierController extends Controller
   		]);
 
       return view('suppliers.index', [
-        'suppliers' => $suppliers,
-        'solo_numbers' => $solo_numbers
+        'suppliers'     => $suppliers,
+        'suppliers_all' => $suppliers_all,
+        'solo_numbers'  => $solo_numbers
       ]);
     }
 
@@ -163,6 +169,59 @@ class SupplierController extends Controller
       Supplier::find($id)->update($data);
 
       return redirect()->route('supplier.index')->withSuccess('You have successfully updated a supplier!');
+    }
+
+    public function sendEmailBulk(Request $request)
+    {
+      $this->validate($request, [
+        'subject' => 'required|min:3|max:255',
+        'message' => 'required'
+      ]);
+
+      $suppliers = Supplier::whereIn('id', $request->suppliers)->where(function ($query) {
+        $query->whereNotNull('default_email')->orWhereNotNull('email');
+      })->get();
+
+      $first_email = '';
+      $bcc_emails = [];
+      foreach ($suppliers as $key => $supplier) {
+        if ($key == 0) {
+          $first_email = $supplier->default_email ?? $supplier->email;
+        } else {
+          $bcc_emails[] = $supplier->default_email ?? $supplier->email;
+        }
+      }
+
+      $file_paths = [];
+
+      if ($request->hasFile('file')) {
+        foreach ($request->file('file') as $file) {
+          $filename = $file->getClientOriginalName();
+
+          $file->storeAs("documents", $filename, 'files');
+
+          $file_paths[] = "documents/$filename";
+        }
+      }
+
+      Mail::to($first_email)->bcc($bcc_emails)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
+      foreach ($suppliers as $supplier) {
+        $params = [
+          'model_id'        => $supplier->id,
+          'model_type'      => Supplier::class,
+          'from'            => 'customercare@sololuxury.co.in',
+          'to'              => $supplier->default_email ?? $supplier->email,
+          'subject'         => $request->subject,
+          'message'         => $request->message,
+          'template'				=> 'customer-simple',
+  				'additional_data'	=> json_encode(['attachment' => $file_paths])
+        ];
+
+        Email::create($params);
+      }
+
+      return redirect()->route('supplier.index')->withSuccess('You have successfully sent emails in bulk!');
     }
 
     /**
