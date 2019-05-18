@@ -14,68 +14,70 @@
                     <th>Following</th>
                 </tr>
                 @foreach($instagramProfiles as $key=>$item)
-                    <tr>
-                        <td style="vertical-align: top">
-                            {{ $key+1 }}
-                        </td>
-                        <td style="vertical-align: top">
-                            <table class="table table-striped">
-                                <tr><td>Customer Name</td> <th> {{ $item['customer']['name'] }}</th></tr>
-                                <tr><td>Customer IG Name</td> <th> {{ $item['name'] }}</th></tr>
-                                <tr><td>Customer IG Username</td> <th> {{ $item['username'] }}</th></tr>
-                                <tr><td>Followers</td> <td> {{ $item['followers_count'] }}</td></tr>
-                                <tr><td>Following</td> <td> {{ $item['following_count'] }}</td></tr>
-                                <tr><td>Bio</td> <td> {{ $item['bio'] }}</tr>
-                            </table>
-                        </td>
-                        <td style="vertical-align: top">
-                            <table class="table table-striped">
-                                @foreach($item['followers'] as $follower)
-                                    <tr>
-                                        <td>
-                                            <a class="show-overview" data-username="{{$follower['username']}}" data-uid="{{$follower['pk']}}">{{ '@' . $follower['username'] }}</a>
-                                        </td>
-                                        <td>
-                                            @if(!\App\ColdLeads::where('username', $follower['username'])->first() && !\App\Customer::where('instahandler', $follower['username'])->first())
-                                                <button  class="btn btn-info btn-sm add add-to-cold-leads username-{{$follower['username']}}" data-type="cold" data-username="{{$follower['username']}}" data-id="{{$follower['pk']}}" data-name="{{$follower['name'] ?? $follower['username']}}" data-bio="{{$follower['bio'] ?? ''}}" data-imageurl="{{$follower['profile_pic_url']}}" class="btn btn-sm btn-info" title="Add To Cold Leads">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            @endif
-                                            @if(!\App\Customer::where('instahandler', $follower['username'])->first())
-                                                <button class="btn btn-sm btn-success add add-to-customers username-{{$follower['username']}}" data-type="customer" data-username="{{$follower['username']}}" data-id="{{$follower['pk']}}" data-name="{{$follower['name'] ?? $follower['username']}}" data-bio="{{$follower['bio'] ?? ''}}" data-imageurl="{{$follower['profile_pic_url']}}" class="btn btn-sm btn-success" title="Add to Customers">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
-                        </td>
-                        <td style="vertical-align: top">
-                            <table class="table">
-                                @foreach($item['following'] as $follower)
-                                    <tr>
-                                        <td>
-                                            <a class="show-overview" data-username="{{$follower['username']}}" data-uid="{{$follower['pk']}}">{{ '@' . $follower['username'] }}</a>
-                                        </td>
-                                        <td>
-                                        <td>
-                                            @if(!\App\ColdLeads::where('username', $follower['username'])->first() && !\App\Customer::where('instahandler', $follower['username'])->first())
-                                                <button  class="btn btn-info btn-sm add add-to-cold-leads username-{{$follower['username']}}" data-type="cold" data-username="{{$follower['username']}}" data-id="{{$follower['pk']}}" data-name="{{$follower['name'] ?? $follower['username']}}" data-bio="{{$follower['bio'] ?? ''}}" data-imageurl="{{$follower['profile_pic_url']}}" class="btn btn-sm btn-info" title="Add To Cold Leads">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            @endif
-                                            @if(!\App\Customer::where('instahandler', $follower['username'])->first())
-                                                <button class="btn btn-sm btn-success add add-to-customers username-{{$follower['username']}}" data-type="customer" data-username="{{$follower['username']}}" data-id="{{$follower['pk']}}" data-name="{{$follower['name'] ?? $follower['username']}}" data-bio="{{$follower['bio'] ?? ''}}" data-imageurl="{{$follower['profile_pic_url']}}" class="btn btn-sm btn-success" title="Add to Customers">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
-                        </td>
-                    </tr>
+                    @if ($item)
+                        <tr>
+                            <td style="vertical-align: top">
+                                {{ $key+1 }}
+                            </td>
+                            <td style="vertical-align: top">
+                                <table class="table table-striped">
+                                    <tr><td>Customer Name</td> <th> {{ $item['customer']['name'] ?? 'N/A' }}</th></tr>
+                                    <tr><td>Customer IG Name</td> <th> {{ $item['name'] }}</th></tr>
+                                    <tr><td>Customer IG Username</td> <th> {{ $item['username'] }}</th></tr>
+                                    <tr><td>Followers</td> <td> {{ $item['followers_count'] }}</td></tr>
+                                    <tr><td>Following</td> <td> {{ $item['following_count'] }}</td></tr>
+                                    <tr><td>Bio</td> <td> {{ $item['bio'] }}</tr>
+                                </table>
+                            </td>
+                            <td style="vertical-align: top">
+                                <table class="table table-striped">
+                                    @foreach($item['followers'] as $follower)
+                                        <tr>
+                                            <td>
+                                                <a class="show-overview" data-username="{{$follower['username']}}" data-uid="{{$follower['pk']}}">{{ '@' . $follower['username'] }}</a>
+                                            </td>
+                                            <td>
+                                                @if(!\App\ColdLeads::where('username', $follower['username'])->first() && !\App\Customer::where('instahandler', $follower['username'])->first())
+                                                    <button  class="btn btn-info btn-sm add add-to-cold-leads username-{{$follower['username']}}" data-type="cold" data-username="{{$follower['username']}}" data-id="{{$follower['pk']}}" data-name="{{$follower['name'] ?? $follower['username']}}" data-bio="{{$follower['bio'] ?? ''}}" data-imageurl="{{$follower['profile_pic_url']}}" class="btn btn-sm btn-info" title="Add To Cold Leads">
+                                                        <i class="fa fa-plus"></i>
+                                                    </button>
+                                                @endif
+                                                @if(!\App\Customer::where('instahandler', $follower['username'])->first())
+                                                    <button class="btn btn-sm btn-success add add-to-customers username-{{$follower['username']}}" data-type="customer" data-username="{{$follower['username']}}" data-id="{{$follower['pk']}}" data-name="{{$follower['name'] ?? $follower['username']}}" data-bio="{{$follower['bio'] ?? ''}}" data-imageurl="{{$follower['profile_pic_url']}}" class="btn btn-sm btn-success" title="Add to Customers">
+                                                        <i class="fa fa-plus"></i>
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </table>
+                            </td>
+                            <td style="vertical-align: top">
+                                <table class="table">
+                                    @foreach($item['following'] as $follower)
+                                        <tr>
+                                            <td>
+                                                <a class="show-overview" data-username="{{$follower['username']}}" data-uid="{{$follower['pk']}}">{{ '@' . $follower['username'] }}</a>
+                                            </td>
+                                            <td>
+                                            <td>
+                                                @if(!\App\ColdLeads::where('username', $follower['username'])->first() && !\App\Customer::where('instahandler', $follower['username'])->first())
+                                                    <button  class="btn btn-info btn-sm add add-to-cold-leads username-{{$follower['username']}}" data-type="cold" data-username="{{$follower['username']}}" data-id="{{$follower['pk']}}" data-name="{{$follower['name'] ?? $follower['username']}}" data-bio="{{$follower['bio'] ?? ''}}" data-imageurl="{{$follower['profile_pic_url']}}" class="btn btn-sm btn-info" title="Add To Cold Leads">
+                                                        <i class="fa fa-plus"></i>
+                                                    </button>
+                                                @endif
+                                                @if(!\App\Customer::where('instahandler', $follower['username'])->first())
+                                                    <button class="btn btn-sm btn-success add add-to-customers username-{{$follower['username']}}" data-type="customer" data-username="{{$follower['username']}}" data-id="{{$follower['pk']}}" data-name="{{$follower['name'] ?? $follower['username']}}" data-bio="{{$follower['bio'] ?? ''}}" data-imageurl="{{$follower['profile_pic_url']}}" class="btn btn-sm btn-success" title="Add to Customers">
+                                                        <i class="fa fa-plus"></i>
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </table>
+                            </td>
+                        </tr>
+                    @endif
                 @endforeach
             </table>
         </div>

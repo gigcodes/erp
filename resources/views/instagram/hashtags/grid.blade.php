@@ -4,6 +4,12 @@
     <div class="row">
         <div class="col-md-12">
             <h1>Grid For: #{{ $hashtag }} ({{ $media_count }} Posts)</h1>
+            <form action="{{ action('HashtagController@showGrid', 'x') }}">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" id="name" class="form-control">
+                </div>
+            </form>
         </div>
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')

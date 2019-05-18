@@ -11,7 +11,10 @@ use InstagramAPI\Signatures;
 
 class Hashtags {
 
-    private $instagram;
+    /**
+     * Instagram $instagram
+     */
+    public $instagram;
     private $token;
 
     public function login() {
@@ -90,6 +93,7 @@ class Hashtags {
 
                 $filteredMedia[] = [
                     'username' => $item['user']['username'],
+                    'user_id' => $item['user']['pk'],
                     'media_id' => $item['id'],
                     'code' => $item['code'],
                     'caption' => $item['caption']['text'],
@@ -100,6 +104,7 @@ class Hashtags {
                     'comments' => $comments,
                     'location' => $item['location'],
                     'created_at' => Carbon::createFromTimestamp($item['taken_at'])->diffForHumans(),
+                    'posted_at' => Carbon::createFromTimestamp($item['taken_at'])->toDateTimeString(),
                 ];
 
             }

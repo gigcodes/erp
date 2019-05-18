@@ -511,10 +511,18 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 
 Route::resource('cold-leads', 'ColdLeadsController');
 
+Route::prefix('sitejabber')->group(function() {
+    Route::get('accounts', 'SitejabberQAController@accounts');
+    Route::get('reviews', 'SitejabberQAController@reviews');
+    Route::resource('qa', 'SitejabberQAController');
+});
+
 Route::prefix('instagram')->group(function () {
+    Route::get('comments/processed', 'HashtagController@showProcessedComments');
     Route::get('hashtag/post/comments/{mediaId}', 'HashtagController@loadComments');
     Route::post('leads/store', 'InstagramProfileController@add');
     Route::get('profiles/followers/{id}', 'InstagramProfileController@getFollowers');
+    Route::resource('keyword', 'KeywordsController');
     Route::resource('profiles', 'InstagramProfileController');
     Route::get('posts', 'InstagramController@showPosts');
     Route::resource('hashtagposts', 'HashtagPostsController');

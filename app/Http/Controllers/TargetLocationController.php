@@ -39,16 +39,18 @@ class TargetLocationController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->validate($request, [
-            'name' => 'required',
+            'country' => 'required',
             'region' => 'required',
             'lat' => 'required',
             'lng' => 'required',
         ]);
 
 
+
         $location = new TargetLocation();
-        $location->country = $request->get('name');
+        $location->country = $request->get('country');
         $location->region = $request->get('region');
         $polyY = explode(',', $request->get('lat'));
         $polyX = explode(',', $request->get('lng'));

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\HashTag;
+use App\InstagramPosts;
 use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -140,6 +141,8 @@ class HashtagController extends Controller
         if (is_numeric($id)) {
             $hashtag = HashTag::findOrFail($id);
             $txt = $hashtag->hashtag;
+        } else if ($txt == 'x') {
+            $txt = $request->get('name');
         }
 
         $hashtag = $txt;
@@ -177,5 +180,12 @@ class HashtagController extends Controller
         $hashtags = HashTag::get(['hashtag', 'id']);
 
         return response()->json($hashtags);
+    }
+
+    public function showProcessedComments(Request $request) {
+         $posts = InstagramPosts::all();
+
+
+        return view('instagram.comments', compact('posts'));
     }
 }

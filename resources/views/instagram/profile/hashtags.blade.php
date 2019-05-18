@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h1 class="text-center" style="background: #CCCCCC;padding: 20px">Customer Instagram Profiles</h1>
+            <h1 class="text-center" style="background: #CCCCCC;padding: 20px">Hahstag Used by Sololuxury Customers</h1>
         </div>
         <div class="col-md-12">
             <table class="table table-striped">
