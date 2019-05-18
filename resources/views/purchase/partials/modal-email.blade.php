@@ -10,7 +10,7 @@
 
       <form action="{{ route('purchase.email.send') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <input type="hidden" name="supplier_id" value="{{ $supplier->id }}">
+        <input type="hidden" name="supplier_id" value="{{ isset($supplier) ? $supplier->id : '' }}">
 
         <div class="modal-body">
           <div class="form-group">

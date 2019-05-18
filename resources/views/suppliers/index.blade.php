@@ -33,6 +33,8 @@
 
     @include('partials.flash_messages')
 
+    @include('purchase.partials.modal-email')
+
     <div class="table-responsive mt-3">
       <table class="table table-bordered">
         <thead>
@@ -60,7 +62,7 @@
                 <span class="text-muted">
                   {{ $supplier->phone }}
                   <br>
-                  {{ $supplier->email }}
+                  <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
                 </span>
               </td>
               <td>{{ $supplier->address }}</td>
@@ -131,6 +133,12 @@
       $('#supplier_email').val(supplier.email);
       $('#supplier_social_handle').val(supplier.social_handle);
       $('#supplier_gst').val(supplier.gst);
+    });
+
+    $(document).on('click', '.send-supplier-email', function() {
+      var id = $(this).data('id');
+
+      $('#emailSendModal').find('input[name="supplier_id"]').val(id);
     });
 
     // $(document).on('click', '.create-agent', function() {

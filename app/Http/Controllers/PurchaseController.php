@@ -362,7 +362,7 @@ class PurchaseController extends Controller
       $new_products = [];
       $products = $products->select(['id', 'sku', 'supplier'])->get()->sortBy('supplier');
       $count = 0;
-      
+
       foreach($products as $key => $product) {
         $supplier_list = '';
         $single_supplier = '';
@@ -1095,6 +1095,15 @@ class PurchaseController extends Controller
                 }
 
                 if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                  $attachments_array = [];
+                  $attachments = $email->getAttachments();
+
+                  $attachments->each(function ($attachment) use (&$content) {
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = "email-attachments/" . $attachment->name;
+                    $attachments_array[] = $path;
+                  });
+
                   $params = [
                     'model_id'        => $supplier->id,
                     'model_type'      => Supplier::class,
@@ -1105,7 +1114,7 @@ class PurchaseController extends Controller
                     'subject'         => $email->getSubject(),
                     'message'         => $content,
                     'template'				=> 'customer-simple',
-          					'additional_data'	=> "",
+          					'additional_data'	=> json_encode(['attachment' => $attachments_array]),
                     'created_at'      => $email->getDate()
                   ];
 
@@ -1128,6 +1137,15 @@ class PurchaseController extends Controller
                 }
 
                 if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                  $attachments_array = [];
+                  $attachments = $email->getAttachments();
+
+                  $attachments->each(function ($attachment) use (&$content) {
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = "email-attachments/" . $attachment->name;
+                    $attachments_array[] = $path;
+                  });
+
                   $params = [
                     'model_id'        => $supplier->id,
                     'model_type'      => Supplier::class,
@@ -1138,7 +1156,7 @@ class PurchaseController extends Controller
                     'subject'         => $email->getSubject(),
                     'message'         => $content,
                     'template'				=> 'customer-simple',
-          					'additional_data'	=> "",
+          					'additional_data'	=> json_encode(['attachment' => $attachments_array]),
                     'created_at'      => $email->getDate()
                   ];
 
@@ -1165,6 +1183,15 @@ class PurchaseController extends Controller
             }
 
             if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+              $attachments_array = [];
+              $attachments = $email->getAttachments();
+
+              $attachments->each(function ($attachment) use (&$content) {
+                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                $path = "email-attachments/" . $attachment->name;
+                $attachments_array[] = $path;
+              });
+
               $params = [
                 'model_id'        => $supplier->id,
                 'model_type'      => Supplier::class,
@@ -1175,7 +1202,7 @@ class PurchaseController extends Controller
                 'subject'         => $email->getSubject(),
                 'message'         => $content,
                 'template'				=> 'customer-simple',
-                'additional_data'	=> "",
+                'additional_data'	=> json_encode(['attachment' => $attachments_array]),
                 'created_at'      => $email->getDate()
               ];
 
@@ -1387,7 +1414,7 @@ class PurchaseController extends Controller
 
       $supplier = Supplier::find($request->supplier_id);
 
-      if ($supplier->default_email != '') {
+      if ($supplier->default_email != '' || $supplier->email != '') {
         // Backup your default mailer
         // $backup = Mail::getSwiftMailer();
         //
@@ -1416,7 +1443,7 @@ class PurchaseController extends Controller
         }
 
         // Restore your original mailer
-        Mail::to($supplier->default_email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        Mail::to($supplier->default_email ?? $supplier->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
         // Mail::setSwiftMailer($backup);
 
@@ -1424,7 +1451,7 @@ class PurchaseController extends Controller
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
           'from'            => 'customercare@sololuxury.co.in',
-          'to'              => $supplier->default_email,
+          'to'              => $supplier->default_email ?? $supplier->email,
           'subject'         => $request->subject,
           'message'         => $request->message,
           'template'				=> 'customer-simple',
@@ -1436,7 +1463,7 @@ class PurchaseController extends Controller
         return redirect()->route('supplier.show', $supplier->id)->withSuccess('You have successfully sent an email!');
       }
 
-      return redirect()->route('purchase.show', $purchase->id)->withError('Please select an Agent first');
+      return redirect()->route('supplier.show', $supplier->id)->withError('Please add an email first');
     }
 
     public function emailResend(Request $request)
