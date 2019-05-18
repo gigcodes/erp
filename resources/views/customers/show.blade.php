@@ -1806,7 +1806,7 @@
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                  <td>{{ $instruction->category->name }}</td>
+                  <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                   <td>
                     <div class="form-inline">
                       @if ($instruction->is_priority == 1)
@@ -1874,7 +1874,7 @@
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                            <td>{{ $instruction->category->name }}</td>
+                            <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                             <td>
                               <div class="form-inline">
                                 @if ($instruction->is_priority == 1)
@@ -1946,7 +1946,7 @@
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                  <td>{{ $instruction->category->name }}</td>
+                  <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                   <td>{{ $instruction->instruction }}</td>
                   <td>
                     @if ($instruction->completed_at)
@@ -2006,7 +2006,7 @@
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                            <td>{{ $instruction->category->name }}</td>
+                            <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                             <td>{{ $instruction->instruction }}</td>
                             <td>
                               @if ($instruction->completed_at)

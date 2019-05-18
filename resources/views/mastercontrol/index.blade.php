@@ -815,5 +815,39 @@
         jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
 
     });
+    var tabs = [];
+    var red_tabs = localStorage['red_tabs'];
+
+    if (red_tabs) {
+      tabs = JSON.parse(red_tabs);
+      tabs.forEach(function(index) {
+        $('a[href="' + index + '"]').addClass('text-danger');
+      });
+    }
+
+    $('#exTab2 li').on('dblclick', function() {
+      var href = $(this).find('a').attr('href');
+
+      if (red_tabs) {
+        tabs = JSON.parse(red_tabs);
+        console.log(red_tabs);
+
+        if (tabs.indexOf(href) < 0) {
+          tabs.push(href);
+        } else {
+          tabs.splice(tabs.indexOf(href), 1);
+        }
+
+        localStorage['red_tabs'] = JSON.stringify(tabs);
+        red_tabs = localStorage['red_tabs'];
+
+      } else {
+        tabs.push(href);
+        localStorage['red_tabs'] = JSON.stringify(tabs);
+        red_tabs = localStorage['red_tabs'];
+      }
+
+      $(this).find('a').toggleClass('text-danger');
+    });
   </script>
 @endsection
