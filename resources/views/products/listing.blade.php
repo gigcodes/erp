@@ -15,7 +15,7 @@
 @section('content')
   <div class="row">
     <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Product Listing</h2>
+      <h2 class="page-heading">Product Listing ({{ $products_count }})</h2>
 
       <div class="pull-left">
         <form class="form-inline" action="{{ route('products.listing') }}" method="GET">
