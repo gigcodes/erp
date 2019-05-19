@@ -101,7 +101,11 @@ class SendMessageToAll implements ShouldQueue
           $chat_message = ChatMessage::create($params);
 
           try {
-            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
+            if ($send_number == '919152731483') {
+              app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, $message, NULL, $chat_message->id);
+            } else {
+              app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
+            }
           } catch (\Exception $e) {
 
           }
@@ -115,7 +119,11 @@ class SendMessageToAll implements ShouldQueue
               $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
               try {
-                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+                if ($send_number == '919152731483') {
+                  app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
+                } else {
+                  app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+                }
               } catch (\Exception $e) {
 
               }
@@ -127,7 +135,11 @@ class SendMessageToAll implements ShouldQueue
                   $chat_message->attachMedia($brod_image, config('constants.media_tags'));
 
                   try {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
+                    if ($send_number == '919152731483') {
+                      app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $brod_image->getUrl()), $chat_message->id);
+                    } else {
+                      app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
+                    }
                   } catch (\Exception $e) {
 
                   }
@@ -148,7 +160,11 @@ class SendMessageToAll implements ShouldQueue
             $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
             try {
-              app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+              if ($send_number == '919152731483') {
+                app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
+              } else {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+              }
             } catch (\Exception $e) {
 
             }

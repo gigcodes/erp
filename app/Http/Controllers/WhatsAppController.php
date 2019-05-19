@@ -1510,10 +1510,10 @@ class WhatsAppController extends FindByNumberController
 
             $additional_message = ChatMessage::create($params);
 
-            $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
-
-            if (Auth::id() == 3) {
-              $data = $this->sendWithNewApi($phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
+            if ($customer->whatsapp_number == '919152731483') {
+              $data = $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
+            } else {
+              $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
             }
 
             sleep(5);
@@ -1535,10 +1535,10 @@ class WhatsAppController extends FindByNumberController
 
               $additional_message = ChatMessage::create($params);
 
-              $this->sendWithWhatsApp($customer->phone, $default_api->number, $additional_message->message, TRUE, $additional_message->id);
-
-              if (Auth::id() == 3) {
-                $data = $this->sendWithNewApi($phone, $default_api->number, $additional_message->message, NULL, $additional_message->id);
+              if ($default_api->number == '919152731483') {
+                $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id);
+              } else {
+                $this->sendWithWhatsApp($customer->phone, $default_api->number, $additional_message->message, TRUE, $additional_message->id);
               }
 
               sleep(5);
@@ -1567,18 +1567,20 @@ class WhatsAppController extends FindByNumberController
         }
         $data = '';
         if ($message->message != '') {
-          $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
 
-          if (Auth::id() == 3) {
+          if ($whatsapp_number == '919152731483') {
             $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
+          } else {
+            $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
           }
         }
 
         if ($message->media_url != '') {
-          $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
 
-          if (Auth::id() == 3) {
+          if ($whatsapp_number == '919152731483') {
             $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $message->media_url, $message->id);
+          } else {
+            $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
           }
         }
 
@@ -1586,10 +1588,10 @@ class WhatsAppController extends FindByNumberController
           foreach ($images as $image) {
             $send = str_replace(' ', '%20', $image->getUrl());
 
-            $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
-
-            if (Auth::id() == 3) {
+            if ($whatsapp_number == '919152731483') {
               $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
+            } else {
+              $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
             }
           }
         }
@@ -1948,7 +1950,7 @@ class WhatsAppController extends FindByNumberController
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
+        CURLOPT_TIMEOUT => 300,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => json_encode($array),
@@ -1986,7 +1988,7 @@ class WhatsAppController extends FindByNumberController
       'message' => (string) $encodedText,
       'reference' => (string) $chat_message_id,
       'device'  => "$wa_device",
-      'enqueue' => 'never',
+      'enqueue' => 'opportunistic',
     ];
 
     if (isset($image_id)) {
@@ -2014,16 +2016,17 @@ class WhatsAppController extends FindByNumberController
 
     $response = curl_exec($curl);
     $err = curl_error($curl);
+    $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
     curl_close($curl);
 
     if ($err) {
       throw new \Exception("cURL Error #:" . $err);
     } else {
-      $result = json_decode($response);
+      $result = json_decode($response, true);
 
-      if (array_key_exists('status', $result)) {
-        throw new \Exception("Something was wrong with image: " . $result['message']);
+      if ($http_code != 201) {
+        throw new \Exception("Something was wrong with message: " . $result['message']);
       }
     }
 
