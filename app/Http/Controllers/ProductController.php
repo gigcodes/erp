@@ -803,4 +803,16 @@ class ProductController extends Controller {
 
 		return redirect()->back()->with('success', 'You have successfully uploaded product!');
 	}
+
+	public function giveImage() {
+	    $product = Product::where('is_image_processed', 0)->first();
+
+	    return response()->json([
+	        'product_id' => $product->id,
+            'image_urls' => $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']),
+            'sizes' => $product->size,
+            'category' => $product->product_category->title
+        ]);
+
+    }
 }
