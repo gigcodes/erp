@@ -58,7 +58,7 @@
                     @endforeach
                   </ul>
                 @else
-                  No Order Product
+                  <li>No Order Product</li>
                 @endif
               </td>
               <td>

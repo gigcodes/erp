@@ -217,7 +217,11 @@
                         <button type="button" class="btn-link quick-add-instruction" data-id="{{ $customer->id }}">Add Instruction</button>
                     </td>
                   @else
-                    <td></td>
+                    <td>
+                      <textarea name="instruction" class="form-control quick-add-instruction-textarea hidden" rows="8" cols="80"></textarea>
+
+                      <button type="button" class="btn-link quick-add-instruction" data-id="{{ $customer->id }}">Add Instruction</button>
+                    </td>
                   @endif
                     <td>
                       @if (!empty($customer->message))

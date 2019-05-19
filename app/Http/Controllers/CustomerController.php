@@ -409,7 +409,7 @@ class CustomerController extends Controller
                           ON orders.order_id = order_products.purchase_order_id
                       ON customers.id = orders.ocid
 
-                      ' . $join . ' JOIN (SELECT MAX(id) as message_id, customer_id, message, MAX(created_at) as message_created_At FROM chat_messages GROUP BY customer_id ORDER BY chat_messages.created_at ' . $orderby . ') AS chat_messages
+                      ' . $join . ' JOIN (SELECT MAX(id) as message_id, customer_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY customer_id ORDER BY chat_messages.created_at ' . $orderby . ') AS chat_messages
                       ON customers.id = chat_messages.customer_id
 
 
