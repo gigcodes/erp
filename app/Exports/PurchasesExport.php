@@ -34,7 +34,7 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
       foreach ($purchases as $purchase) {
         foreach ($purchase->products as $product) {
           foreach ($product->orderproducts as $order_product) {
-            if ($order_product->purchase_status == 'Ordered') {
+            if ($order_product->purchase_status == 'Request Sent to Supplier') {
               $path = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
               $this->path[] = $path;
 

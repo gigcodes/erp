@@ -442,6 +442,13 @@ class PurchaseController extends Controller
     public function export(Request $request)
     {
       $selected_purchases = json_decode($request->selected_purchases);
+
+      foreach ($selected_purchases as $purchase_id) {
+        $purchase = Purchase::find($purchase_id);
+        $purchase->status = 'Request Sent to Supplier';
+        $purchase->save();
+      }
+
       $path = "purchase_exports/" . Carbon::now()->format('Y-m-d') . "_purchases_export.xlsx";
 
       Excel::store(new PurchasesExport($selected_purchases), $path, 'files');
@@ -472,12 +479,6 @@ class PurchaseController extends Controller
       ];
 
       Email::create($params);
-
-      foreach ($selected_purchases as $purchase_id) {
-        $purchase = Purchase::find($purchase_id);
-        $purchase->status = 'Request Sent to Supplier';
-        $purchase->save();
-      }
 
       return Storage::disk('files')->download($path);
 
