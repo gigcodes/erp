@@ -449,7 +449,7 @@ class PurchaseController extends Controller
         $purchase->save();
       }
 
-      $path = "purchase_exports/" . Carbon::now()->format('Y-m-d') . "_purchases_export.xlsx";
+      $path = "purchase_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
 
       Excel::store(new PurchasesExport($selected_purchases), $path, 'files');
 
@@ -1099,7 +1099,7 @@ class PurchaseController extends Controller
                   $attachments_array = [];
                   $attachments = $email->getAttachments();
 
-                  $attachments->each(function ($attachment) use (&$content) {
+                  $attachments->each(function ($attachment) use (&$attachments_array) {
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                     $path = "email-attachments/" . $attachment->name;
                     $attachments_array[] = $path;
@@ -1141,7 +1141,7 @@ class PurchaseController extends Controller
                   $attachments_array = [];
                   $attachments = $email->getAttachments();
 
-                  $attachments->each(function ($attachment) use (&$content) {
+                  $attachments->each(function ($attachment) use (&$attachments_array) {
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                     $path = "email-attachments/" . $attachment->name;
                     $attachments_array[] = $path;
@@ -1187,7 +1187,7 @@ class PurchaseController extends Controller
               $attachments_array = [];
               $attachments = $email->getAttachments();
 
-              $attachments->each(function ($attachment) use (&$content) {
+              $attachments->each(function ($attachment) use (&$attachments_array) {
                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                 $path = "email-attachments/" . $attachment->name;
                 $attachments_array[] = $path;
