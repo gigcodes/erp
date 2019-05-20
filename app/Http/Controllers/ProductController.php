@@ -805,12 +805,16 @@ class ProductController extends Controller {
 	}
 
 	public function giveImage() {
-	    $product = Product::where('is_image_processed', 0)->first();
+	    $product = Product::where('is_image_processed', 0)
+            ->where('lmeasurement', '>', 0)
+            ->first();
 
 	    return response()->json([
 	        'product_id' => $product->id,
             'image_urls' => $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']),
-            'sizes' => $product->size,
+            'l_measurement' => $product->lmeasurement,
+            'h_measurement' => $product->hmeasurement,
+            'd_measurement' => $product->dmeasurement,
             'category' => $product->product_category->title
         ]);
 

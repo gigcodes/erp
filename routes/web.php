@@ -525,6 +525,8 @@ Route::prefix('sitejabber')->group(function() {
 });
 
 Route::prefix('instagram')->group(function () {
+    Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
+    Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
     Route::get('hashtag/post/comments/{mediaId}', 'HashtagController@loadComments');
     Route::post('leads/store', 'InstagramProfileController@add');

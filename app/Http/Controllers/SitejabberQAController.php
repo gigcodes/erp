@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\ActivitiesRoutines;
 use App\Review;
+use App\Setting;
 use App\SitejabberQA;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -61,9 +63,29 @@ class SitejabberQAController extends Controller
      * @param  \App\SitejabberQA  $sitejabberQA
      * @return \Illuminate\Http\Response
      */
-    public function edit(SitejabberQA $sitejabberQA)
+    public function edit(Request $request)
     {
-        //
+        $this->validate($request, [
+            'range' => 'required',
+            'range2' => 'required',
+        ]);
+
+        $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
+        if (!$setting) {
+            $setting = new ActivitiesRoutines();
+        }
+        $setting->action = 'sitejabber_review';
+        $setting->times_a_day = $request->get('range');
+        $setting->save();
+        $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
+        if (!$setting2) {
+            $setting2 = new ActivitiesRoutines();
+        }
+        $setting2->action = 'sitejabber_account_creation';
+        $setting2->times_a_day = $request->get('range2');
+        $setting2->save();
+
+        return redirect()->back()->with('message', 'Sitejabber review settings updated!');
     }
 
     /**
@@ -104,9 +126,24 @@ class SitejabberQAController extends Controller
     }
 
     public function accounts() {
-        $accounts = Account::where('platform', 'sitejabber')->get();
+        $accounts = Account::where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->get();
+        $sjs = SitejabberQA::where('type', 'question')->get();
+        $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
+        if (!$setting) {
+            $setting = new ActivitiesRoutines();
+            $setting->action = 'sitejabber_review';
+            $setting->times_a_day = 5;
+            $setting->save();
+        }
+        $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
+        if (!$setting2) {
+            $setting2 = new ActivitiesRoutines();
+            $setting2->action = 'sitejabber_account_creation';
+            $setting2->times_a_day = 5;
+            $setting2->save();
+        }
 
-        return view('sitejabber.accounts', compact('accounts'));
+        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2'));
     }
 
     public function reviews() {

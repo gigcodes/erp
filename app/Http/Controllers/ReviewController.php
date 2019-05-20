@@ -128,7 +128,19 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'title' => 'required',
+            'review' => 'required',
+            'account_id' => 'required',
+        ]);
 
+        $review = new Review();
+        $review->account_id = $request->get('account_id');
+        $review->review = $request->get('review');
+        $review->title = $request->get('title');
+        $review->save();
+
+        return redirect()->back()->with('message', 'Review added successfully!');
     }
 
     public function accountStore(Request $request)

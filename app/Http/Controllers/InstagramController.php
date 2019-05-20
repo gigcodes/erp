@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\AdsSchedules;
 use App\Brand;
 use App\Category;
 use App\Customer;
 use App\HashTag;
+use App\HashtagPostHistory;
 use App\Image;
 use App\ImageSchedule;
+use App\InstagramAutomatedMessages;
 use App\Product;
 use App\ScheduleGroup;
 use App\Services\Instagram\DirectMessage;
@@ -32,7 +35,11 @@ class InstagramController extends Controller
     }
 
     public function index() {
-
+        $accounts = Account::where('platform', 'instagram')->get()->count();
+        $automatedMessages = InstagramAutomatedMessages::get()->count();
+        $commentsToday = HashtagPostHistory::where('type', 'comment')->where('post_date', date('Y-m-d'))->count();
+        $commentsTotal = HashtagPostHistory::where('type', 'comment')->count();
+        return view('instagram.dashboard', compact('accounts', 'automatedMessages', 'commentsToday', 'commentsTotal'));
     }
 
 

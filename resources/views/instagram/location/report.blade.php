@@ -32,7 +32,7 @@
                         <td>{{ $stat->region }}</td>
                         <td>{{ $stat->count }}</td>
                         <td>
-                            <a class="btn btn-info btn-sm" href="{{ action('TargetLocationController@show', $stat->location_id) }}">
+                            <a class="btn btn-info btn-sm" href="@{{ action('TargetLocationController@show', $stat->location_id) }}">
                                 <i class="fa fa-eye"></i>
                             </a>
                         </td>
