@@ -453,6 +453,21 @@ class PurchaseController extends Controller
 
       Excel::store(new PurchasesExport($selected_purchases), $path, 'files');
 
+      return Storage::disk('files')->download($path);
+
+      // return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
+    }
+
+    public function sendExport(Request $request)
+    {
+      $path = "purchase_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
+      $filename = Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
+
+      if ($request->hasFile('file')) {
+        $file = $request->file('file');
+        $file->storeAs("purchase_exports", $filename, 'files');
+      }
+
       $first_agent_email = '';
       $cc_agents_emails = [];
       foreach ($request->agent_id as $key => $agent_id) {
@@ -480,9 +495,7 @@ class PurchaseController extends Controller
 
       Email::create($params);
 
-      return Storage::disk('files')->download($path);
-
-      // return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
+      return redirect()->back()->withSuccess('You have successfully sent an email!');
     }
 
     public function downloadFile(Request $request, $id)

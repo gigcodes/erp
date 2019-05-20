@@ -8,12 +8,10 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
 
-      <form action="{{ route('purchase.export') }}" id="purchaseExportForm" method="POST">
+      <form action="{{ route('purchase.send.export') }}" id="" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="modal-body">
-          <input type="hidden" name="selected_purchases" id="selected_purchases" value="">
-
           <div class="form-group">
             <select class="form-control" name="supplier_id" id="export_supplier" required>
               <option value="">Select Supplier</option>
@@ -40,10 +38,15 @@
             <strong>Message</strong>
             <textarea name="message" class="form-control" rows="8" cols="80" required>{{ old('message') }}</textarea>
           </div>
+
+          <div class="form-group">
+            <strong>Attachment</strong>
+            <input type="file" name="file" required>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary" id="purchaseExportButton">Send</button>
+          <button type="submit" class="btn btn-secondary">Send</button>
         </div>
       </form>
     </div>
