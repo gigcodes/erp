@@ -4135,6 +4135,7 @@
         var thiss = $(this);
         var name = $('#customer_name').val();
         var phone = $('#customer_phone').val();
+        var whatsapp_number = $('#whatsapp_change').val();
         var address = $('#customer_address').val();
         var city = $('#customer_city').val();
         var country = $('#customer_country').val();
@@ -4153,6 +4154,7 @@
             _token: "{{ csrf_token() }}",
             name: name,
             phone: phone,
+            whatsapp_number: whatsapp_number,
             address: address,
             city: city,
             country: country,
