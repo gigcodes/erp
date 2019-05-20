@@ -442,9 +442,31 @@ class PurchaseController extends Controller
     public function export(Request $request)
     {
       $selected_purchases = json_decode($request->selected_purchases);
-      $path = "purchase_exports/" . Carbon::now()->format('Y-m-d') . "_purchases_export.xlsx";
+
+      foreach ($selected_purchases as $purchase_id) {
+        $purchase = Purchase::find($purchase_id);
+        $purchase->status = 'Request Sent to Supplier';
+        $purchase->save();
+      }
+
+      $path = "purchase_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
 
       Excel::store(new PurchasesExport($selected_purchases), $path, 'files');
+
+      return Storage::disk('files')->download($path);
+
+      // return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
+    }
+
+    public function sendExport(Request $request)
+    {
+      $path = "purchase_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
+      $filename = Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
+
+      if ($request->hasFile('file')) {
+        $file = $request->file('file');
+        $file->storeAs("purchase_exports", $filename, 'files');
+      }
 
       $first_agent_email = '';
       $cc_agents_emails = [];
@@ -473,15 +495,7 @@ class PurchaseController extends Controller
 
       Email::create($params);
 
-      foreach ($selected_purchases as $purchase_id) {
-        $purchase = Purchase::find($purchase_id);
-        $purchase->status = 'Request Sent to Supplier';
-        $purchase->save();
-      }
-
-      return Storage::disk('files')->download($path);
-
-      // return redirect()->route('purchase.index')->with('success', 'You have successfully exported purchases');
+      return redirect()->back()->withSuccess('You have successfully sent an email!');
     }
 
     public function downloadFile(Request $request, $id)
@@ -1098,7 +1112,7 @@ class PurchaseController extends Controller
                   $attachments_array = [];
                   $attachments = $email->getAttachments();
 
-                  $attachments->each(function ($attachment) use (&$content) {
+                  $attachments->each(function ($attachment) use (&$attachments_array) {
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                     $path = "email-attachments/" . $attachment->name;
                     $attachments_array[] = $path;
@@ -1140,7 +1154,7 @@ class PurchaseController extends Controller
                   $attachments_array = [];
                   $attachments = $email->getAttachments();
 
-                  $attachments->each(function ($attachment) use (&$content) {
+                  $attachments->each(function ($attachment) use (&$attachments_array) {
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                     $path = "email-attachments/" . $attachment->name;
                     $attachments_array[] = $path;
@@ -1186,7 +1200,7 @@ class PurchaseController extends Controller
               $attachments_array = [];
               $attachments = $email->getAttachments();
 
-              $attachments->each(function ($attachment) use (&$content) {
+              $attachments->each(function ($attachment) use (&$attachments_array) {
                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                 $path = "email-attachments/" . $attachment->name;
                 $attachments_array[] = $path;

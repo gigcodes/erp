@@ -373,13 +373,16 @@ class CustomerController extends Controller
           $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
           $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
           $filterWhereClause = " WHERE message_status = $type";
+          $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
+          // $messageWhereClause = " WHERE chat_messages.status = $type";
 
           if ($start_time != '' && $end_time != '') {
-            $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
+            $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = CASE WHEN";
           }
         } else if ($sortby === 'communication') {
           $join = "LEFT";
           $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
+          $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
         }
 
         $customers = DB::select('
@@ -409,12 +412,12 @@ class CustomerController extends Controller
                           ON orders.order_id = order_products.purchase_order_id
                       ON customers.id = orders.ocid
 
-                      ' . $join . ' JOIN (SELECT MAX(id) as message_id, customer_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY customer_id ORDER BY chat_messages.created_at ' . $orderby . ') AS chat_messages
+                      ' . $join . ' JOIN (SELECT MAX(id) as message_id, customer_id, message, MAX(created_at) as message_created_At FROM chat_messages ' . $messageWhereClause . ' GROUP BY customer_id ORDER BY chat_messages.created_at ' . $orderby . ') AS chat_messages
                       ON customers.id = chat_messages.customer_id
 
 
                     ) AS customers
-                    WHERE (deleted_at IS NULL)
+                    WHERE (deleted_at IS NULL) AND (id IS NOT NULL)
                     ' . $searchWhereClause . '
                     ' . $orderByClause . '
                   ) AS customers

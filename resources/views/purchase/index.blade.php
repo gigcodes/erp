@@ -22,9 +22,16 @@
                     </div>
                 </form>
             </div>
-            <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendExportModal">Export</button>
-              <a class="btn btn-secondary" href="{{ route('purchase.grid') }}">+</a>
+            <div class="pull-right form-inline">
+              <form action="{{ route('purchase.export') }}" id="purchaseExportForm" method="POST">
+                @csrf
+
+                <input type="hidden" name="selected_purchases" id="selected_purchases" value="">
+                <button type="submit" class="btn btn-secondary" id="purchaseExportButton">Export</button>
+              </form>
+
+              <button type="button" class="btn btn-secondary ml-1" data-toggle="modal" data-target="#sendExportModal">Email</button>
+              <a class="btn btn-secondary ml-1" href="{{ route('purchase.grid') }}">+</a>
             </div>
         </div>
     </div>
@@ -92,7 +99,7 @@
 
         if ($('#purchaseExportForm')[0].checkValidity()) {
           $('#purchaseExportForm').submit();
-          $('#sendExportModal').find('.close').click();
+          // $('#sendExportModal').find('.close').click();
         } else {
           $('#purchaseExportForm')[0].reportValidity();
         }

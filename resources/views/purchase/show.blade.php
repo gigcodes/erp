@@ -15,9 +15,16 @@
 
 <div class="row">
   <div class="col-xs-12">
-    <div class="pull-right">
-      <button type="button" class="btn btn-secondary mr-3" data-toggle="modal" data-target="#sendExportModal">Export</button>
-      <a class="btn btn-secondary" href="{{ route('purchase.index') }}">Back</a>
+    <div class="pull-right form-inline">
+      <form action="{{ route('purchase.export') }}" id="purchaseExportForm" method="POST">
+        @csrf
+
+        <input type="hidden" name="selected_purchases" id="selected_purchases" value="">
+        <button type="submit" class="btn btn-secondary" id="purchaseExportButton">Export</button>
+      </form>
+
+      <button type="button" class="btn btn-secondary ml-1" data-toggle="modal" data-target="#sendExportModal">Email</button>
+      <a class="btn btn-secondary ml-1" href="{{ route('purchase.index') }}">Back</a>
     </div>
   </div>
 </div>
@@ -225,7 +232,7 @@
           </div>
 
           <div class="form-group">
-            <strong>Sold Price:</strong> {{ $product->orderproducts[0]->product_price }}
+            <strong>Sold Price:</strong> {{ count($product->orderproducts) > 0 ? $product->orderproducts[0]->product_price : 'No Order Product' }}
           </div>
 
           <div class="form-group">

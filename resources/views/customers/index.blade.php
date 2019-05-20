@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="form-group ml-3">
-                    <strong>Date Range</strong>
+                    {{-- <strong>Date Range</strong> --}}
                     <input type="text" value="" name="range_start" hidden/>
                     <input type="text" value="" name="range_end" hidden/>
                     <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
