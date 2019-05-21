@@ -16,6 +16,7 @@
                         <th>Keywords</th>
                         <th>Requirement</th>
                         <th>Body</th>
+                        <th>Phone #</th>
                         <th>Post</th>
                     </tr>
                 </thead>
@@ -29,6 +30,7 @@
                             <td style="word-break: break-all !important; word-wrap: break-word !important;">{{ $post->keywords }}</td>
                             <td style="word-break: break-all !important; word-wrap: break-word !important;">{{ $post->requirements }}</td>
                             <td style="word-break: break-all !important; word-wrap: break-word !important;">{{ $post->body }}</td>
+                            <td>{{ $post->phone_number }}</td>
                             <td>{{ $post->post_date }}</td>
                         </tr>
                     @endforeach

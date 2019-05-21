@@ -268,9 +268,14 @@ class ReviewController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+
       $review = Review::find($id);
-      $review->is_approved = $request->is_approved;
+      $review->is_approved = 1;
       $review->save();
+
+      if (!$request->isXmlHttpRequest()) {
+          return redirect()->back()->with('message', 'The review has been approved!');
+      }
 
       return response()->json(['status' => $request->is_approved]);
     }

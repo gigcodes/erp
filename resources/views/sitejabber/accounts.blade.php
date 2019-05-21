@@ -88,6 +88,11 @@
                                                     <a href="{{ action('ReviewController@edit', $answer->id) }}" class="btn btn-sm btn-info">
                                                         <i class="fa fa-edit"></i>
                                                     </a>
+                                                    @if(!$answer->is_approved)
+                                                        <a title="Approve" href="{{ action('ReviewController@updateStatus', $answer->id) }}?id_approved=1" class="btn btn-sm btn-info">
+                                                            <i class="fa fa-check"></i>
+                                                        </a>
+                                                    @endif
                                                     <button class="btn btn-sm btn-danger">
                                                         <i class="fa fa-trash"></i>
                                                     </button>
@@ -202,7 +207,7 @@
                                                         <option value="{{ $account->id }}">
                                                             {{ $account->first_name }} {{ $account->last_name }}
                                                             @if ($account->reviews()->first())
-                                                                (Review: {{ $account->reviews()->->title }})
+                                                                (Review: {{ $account->reviews()->first()->title }})
                                                             @endif
                                                         </option>
                                                     @endforeach
