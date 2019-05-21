@@ -225,7 +225,9 @@ class ReviewController extends Controller
      */
     public function edit($id)
     {
-        //
+        $review = Review::findOrFail($id);
+
+        return view('sitejabber.edit', compact('review'));
     }
 
     /**
@@ -249,11 +251,19 @@ class ReviewController extends Controller
 
       $review = Review::find($id);
 
-      $data = $request->except(['_token', '_method']);
 
-      $review->update($data);
+        $data = $request->except(['_token', '_method', 'account_id']);
 
-      return redirect()->route('review.index')->withSuccess('You have successfully updated the review!');
+        $review->update($data);
+
+//        dd($review->platform);
+
+//        if ($review->platform == 'sitejabber') {
+            return redirect()->action('SitejabberQAController@accounts')->with('message', 'Review has been posted successfully!');
+//        }
+
+
+        return redirect()->route('review.index')->withSuccess('You have successfully updated the review!');
     }
 
     public function updateStatus(Request $request, $id)

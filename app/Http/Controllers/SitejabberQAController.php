@@ -52,6 +52,7 @@ class SitejabberQAController extends Controller
         $question->status = 0;
         $question->text = $request->get('question');
         $question->type = 'question';
+        $question->is_approved = 1;
         $question->save();
 
         return redirect()->back()->with('message', 'Question added successfully. Note: This will be posted within 24 hours.');

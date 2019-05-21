@@ -123,8 +123,8 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td class="text-center">{!! isset($answer) && $answer->is_approved ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
-                                <td class="text-center">{!! isset($answer) && $answer->status==='posted' ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
+                                <td class="text-center">{!! (isset($answer) && $answer->is_approved) ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
+                                <td class="text-center">{!! (isset($answer) && $answer->status =='posted') ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
                             </tr>
                         @endforeach
                         </tbody>
@@ -145,6 +145,14 @@
                                         <div class="form-group">
                                             <label for="question">Question</label>
                                             <input name="question" type="text" id="question" class="form-control" placeholder="Type your question..">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="account_id">Poster</label>
+                                            <select name="account_id" type="text" id="account_id" class="form-control">
+                                                @foreach($accounts as $account)
+                                                    <option value="{{ $account->id }}">{{ $account->first_name }} {{ $account->last_name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                         <div class="text-right">
                                             <button class="btn btn-success">Add Question</button>
@@ -187,6 +195,19 @@
                                             @csrf
                                             @method('put')
                                             <textarea type="text" name="reply" class="form-control" placeholder="Type reply..."></textarea>
+                                            <div class="form-group">
+                                                <label for="account_id">Poster</label>
+                                                <select name="account_id" type="text" id="account_id" class="form-control">
+                                                    @foreach($accounts as $account)
+                                                        <option value="{{ $account->id }}">
+                                                            {{ $account->first_name }} {{ $account->last_name }}
+                                                            @if ($account->reviews()->first())
+                                                                (Review: {{ $account->reviews()->->title }})
+                                                            @endif
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                             <div class="text-right">
                                                 <button class="btn btn-success mt-1">Reply To Thread</button>
                                             </div>
@@ -198,6 +219,7 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
         </div>
     </div>
 @endsection
