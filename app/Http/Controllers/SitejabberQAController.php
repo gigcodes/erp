@@ -43,7 +43,18 @@ class SitejabberQAController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'question' => 'required'
+        ]);
+
+
+        $question = new SitejabberQA();
+        $question->status = 0;
+        $question->text = $request->get('question');
+        $question->type = 'question';
+        $question->save();
+
+        return redirect()->back()->with('message', 'Question added successfully. Note: This will be posted within 24 hours.');
     }
 
     /**
@@ -68,6 +79,7 @@ class SitejabberQAController extends Controller
         $this->validate($request, [
             'range' => 'required',
             'range2' => 'required',
+            'range3' => 'required',
         ]);
 
         $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
@@ -84,6 +96,16 @@ class SitejabberQAController extends Controller
         $setting2->action = 'sitejabber_account_creation';
         $setting2->times_a_day = $request->get('range2');
         $setting2->save();
+
+
+        $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
+        if (!$setting3) {
+            $setting3 = new ActivitiesRoutines();
+        }
+        $setting3->action = 'sitejabber_qa_post';
+        $setting3->times_a_week = $request->get('range3');
+        $setting3->save();
+
 
         return redirect()->back()->with('message', 'Sitejabber review settings updated!');
     }
@@ -143,7 +165,15 @@ class SitejabberQAController extends Controller
             $setting2->save();
         }
 
-        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2'));
+        $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
+        if (!$setting3) {
+            $setting3 = new ActivitiesRoutines();
+            $setting3->action = 'sitejabber_qa_post';
+            $setting3->times_a_week = 1;
+            $setting3->save();
+        }
+
+        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3'));
     }
 
     public function reviews() {

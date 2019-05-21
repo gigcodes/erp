@@ -1271,6 +1271,7 @@
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'cuccuini') }}">Cuccuini</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'Divo') }}">Divo</a>
                                     <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
+                                    <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubbizle</a>
                                 </div>
 
 

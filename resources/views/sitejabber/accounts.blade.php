@@ -5,27 +5,6 @@
         <div class="col-md-12">
             <h2 class="page-heading">Sitejabber Accounts, Reviews & Q/A</h2>
         </div>
-        <div class="col-md-12">
-            <div class="row">
-                <form method="get" action="{{action('SitejabberQAController@edit', 'routines')}}">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="range">Post this number of reviews in a day</label>
-                            <input name="range" id="range" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting->times_a_day }}">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="range2">Create this number of SJ account in a day</label>
-                            <input name="range2" id="range2" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting2->times_a_day }}">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <button class="mt-4 btn btn-primary">Ok</button>
-                    </div>
-                </form>
-            </div>
-        </div>
         <div class="col-md-12 mb-5">
             <div id="exTab2" class="container">
                 <ul class="nav nav-tabs">
@@ -35,9 +14,39 @@
                     <li>
                         <a href="#two" data-toggle="tab" class="btn btn-image">Q&A</a>
                     </li>
+                    <li>
+                        <a href="#three" data-toggle="tab" class="btn btn-image">Settings</a>
+                    </li>
                 </ul>
             </div>
             <div class="tab-content">
+                <div class="tab-pane mt-3" id="three">
+                    <div class="row">
+                        <form method="get" action="{{action('SitejabberQAController@edit', 'routines')}}">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="range">Post this number of reviews in a day</label>
+                                    <input name="range" id="range" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting->times_a_day }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="range2">Create this number of SJ account in a day</label>
+                                    <input name="range2" id="range2" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting2->times_a_day }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="range3">Post this number of question every week</label>
+                                    <input name="range3" id="range3" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting3->times_a_week }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="mt-4 btn btn-primary">Ok</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <div class="tab-pane active mt-3" id="one">
                     <table id="table" class="table table-striped">
                         <thead>
@@ -105,20 +114,45 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td class="text-center">{!! $sj->is_approved==1 ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
-                                <td class="text-center">{!! $sj->status=='posted' ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
+                                <td class="text-center">{!! isset($answer) && $answer->is_approved ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
+                                <td class="text-center">{!! isset($answer) && $answer->status==='posted' ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
                 </div>
                 <div class="tab-pane active mt-3" id="two">
+                    <div class="accordion" id="accordionExample">
+                        <div class="card mt-0">
+                            <div class="card-header">
+                                <div style="cursor: pointer;font-size: 20px;font-weight: bolder;" data-toggle="collapse" data-target="#form_amx" aria-expanded="true" aria-controls="form_amx">
+                                    Attach A New Question
+                                </div>
+                            </div>
+                            <div id="form_amx" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                <div class="card-body">
+                                    <form action="{{ action('SitejabberQAController@store') }}" method="post">
+                                        @csrf
+                                        <div class="form-group">
+                                            <label for="question">Question</label>
+                                            <input name="question" type="text" id="question" class="form-control" placeholder="Type your question..">
+                                        </div>
+                                        <div class="text-right">
+                                            <button class="btn btn-success">Add Question</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
                     <table id="table2" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>I.D</th>
                                 <th>Question</th>
                                 <th>Answers</th>
+                                <th>Status</th>
                                 <th>Reply</th>
                             </tr>
                         </thead>
@@ -131,12 +165,13 @@
                                     <table class="table table-striped">
                                         @foreach($sj->answers as $answer)
                                             <tr>
-                                                <td>{{ $answer->author }} <span class="badge badge-success">{{$answer->type}}</span> @if ($answer->type == 'reply') <span class="badge badge-primary">Posted</span> @endif</td>
+                                                <td>{{ $answer->author }} <span class="badge badge-success">{{$answer->type}}</span> @if ($answer->status == 1) <span class="badge badge-primary">Posted</span> @endif</td>
                                                 <td>{{ $answer->text }}</td>
                                             </tr>
                                         @endforeach
                                     </table>
                                 </td>
+                                <td class="text-center">{!! $sj->status==1 ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
                                 <td>
                                     <div class="form-group" style="width: 400px;">
                                         <form action="{{ action('SitejabberQAController@update', $sj->id) }}" method="post">

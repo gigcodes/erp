@@ -33,7 +33,7 @@
                                             <label for="sender_type">Sender Type</label>
                                             <select class="form-control" name="sender_type" id="sender_type">
                                                 <option value="normal">Normal</option>
-                                                <option value="legit">Paid / Legit Accounts</option>
+                                                <option disabled value="legit">Paid / Legit Accounts</option>
                                             </select>
                                         </div>
                                     </div>
@@ -42,7 +42,7 @@
                                             <label for="receiver_type">Receiver Type</label>
                                             <select class="form-control" name="receiver_type" id="receiver_type">
                                                 <option value="hashtag">Hahstags</option>
-                                                <option value="product_inquiry">Product Inquiry / Query</option>
+                                                <option disabled value="product_inquiry">Product Inquiry / Query</option>
                                             </select>
                                         </div>
                                     </div>
@@ -50,8 +50,8 @@
                                         <div class="form-group">
                                             <label for="reusable">Reusable</label>
                                             <select class="form-control" name="reusable" id="reusable">
-                                                <option value="1">Yes</option>
                                                 <option value="0">Only once</option>
+                                                <option disabled value="1">Yes</option>
                                             </select>
                                         </div>
                                     </div>

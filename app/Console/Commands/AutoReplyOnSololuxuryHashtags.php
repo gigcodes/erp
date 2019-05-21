@@ -70,7 +70,7 @@ class AutoReplyOnSololuxuryHashtags extends Command
                 }
 
                 $mediaId = $post['media_id'];
-                $usernameToIgnore = HashtagPostHistory::where('account_id')->take(2)->get()->pluck('account_id')->asArray();
+                $usernameToIgnore = HashtagPostHistory::where('account_id')->take(2)->get()->pluck('account_id')->toArray();
                 $account = Account::where('platform', 'instagram')
                     ->whereNotIn('id', $usernameToIgnore)
                     ->inRandomOrder()
@@ -79,7 +79,7 @@ class AutoReplyOnSololuxuryHashtags extends Command
 
                 $message = InstagramAutomatedMessages::where('type', 'text')
                     ->where('sender_type', 'normal')
-                    ->where('receiver_type', 'hashtag_posts')
+                    ->where('receiver_type', 'hashtag')
                     ->where('status', '1')
                     ->orderBy('use_count', 'ASC')
                     ->first();
@@ -90,6 +90,7 @@ class AutoReplyOnSololuxuryHashtags extends Command
                 $instagram->media->comment($mediaId, $message->message);
 
                 ++$message->use_count;
+                $message->status = 2;
                 $message->save();
 
                 $postHistory = new HashtagPostHistory();
