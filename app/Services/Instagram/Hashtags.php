@@ -38,6 +38,8 @@ class Hashtags {
         $ranked_medias = $media->asArray()['ranked_items'] ?? [];
 
         $medias = array_merge($ranked_medias, $medias);
+
+
         $filteredMedia = [];
 
         foreach ($medias as $item) {
@@ -63,6 +65,7 @@ class Hashtags {
                 }
             }
 
+
             $comments = [];
 
             if (isset($item['comment_count']) && $item['comment_count']) {
@@ -74,7 +77,7 @@ class Hashtags {
 
             $point = new Location();
             $location = $point->pointInPolygon($x, $y);
-            if ($location[0]) {
+//            if ($location[0]) {
 
                 $l = InstagramUsersList::where('user_id', $item['user']['pk'])->first();
 
@@ -87,7 +90,7 @@ class Hashtags {
                 $l->image_url = $item['user']['profile_pic_url'];
                 $l->bio = $item['user']['biography'] ?? 'N/A';
                 $l->rating = 0;
-                $l->location_id = $location[1]->id;
+                $l->location_id = $location[1]->id ?? 1;
                 $l->because_of = "Hashtags: $hashtag";
                 $l->save();
 
@@ -102,12 +105,12 @@ class Hashtags {
                     'media_type' => $item['media_type'],
                     'media' => $media,
                     'comments' => $comments,
-                    'location' => $item['location'],
+                    'location' => $item['location'] ?? '',
                     'created_at' => Carbon::createFromTimestamp($item['taken_at'])->diffForHumans(),
                     'posted_at' => Carbon::createFromTimestamp($item['taken_at'])->toDateTimeString(),
                 ];
 
-            }
+//            }
         }
 
         return [$filteredMedia, $maxId];

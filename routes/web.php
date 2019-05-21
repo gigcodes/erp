@@ -527,6 +527,8 @@ Route::prefix('sitejabber')->group(function() {
 });
 
 Route::prefix('instagram')->group(function () {
+    Route::get('accounts', 'InstagramController@accounts');
+    Route::resource('influencer', 'InfluencersController');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
@@ -568,6 +570,7 @@ Route::prefix('comments')->group(function () {
 });
 
 Route::prefix('scrap')->group(function () {
+    Route::resource('facebook', 'FacebookController');
     Route::get('/dubbizle', 'DubbizleController@index');
     Route::get('/products', 'ScrapController@showProductStat');
     Route::get('/activity', 'ScrapController@activity')->name('scrap.activity');

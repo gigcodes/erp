@@ -68,7 +68,7 @@ class HashtagController extends Controller
      */
     public function show($id)
     {
-        //
+
     }
 
     /**

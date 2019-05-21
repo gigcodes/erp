@@ -10,4 +10,8 @@ class HashtagPosts extends Model
         return $this->hasMany(HashtagPostComment::class, 'hashtag_post_id', 'id');
     }
 
+    public function likes_data() {
+        return $this->hasMany(HashtagPostLikes::class, 'hashtag_post_id', 'id');
+    }
+
 }

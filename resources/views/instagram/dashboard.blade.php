@@ -21,10 +21,10 @@
         <div class="col-md-3">
             <div class="card text-white bg-primary mb-3" style="width: 100%;">
                 <div class="card-body">
-                    <h3 class="card-title">Accounts</h3>
+                    <h3 class="card-title">Normal Accounts</h3>
                     <h1 class="card-title">{{ $accounts }}</h1>
                     <div class="text-right">
-                        <a class="text-light">Show</a>
+                        <a href="{{ action('InstagramController@accounts') }}" class="text-light">Show</a>
                     </div>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                     <h3 class="card-title">Comments Today</h3>
                     <h1 class="card-title">{{ $commentsToday }}</h1>
                     <div class="text-right">
-                        <a class="text-light">Show</a>
+                        <a class="text-light" href="{{ action('InstagramAutomatedMessagesController@show', '1') }}">Show</a>
                     </div>
                 </div>
             </div>
@@ -52,12 +52,23 @@
             </div>
         </div>
         <div class="col-md-3">
+            <div class="card bg-light mb-3" style="width: 100%;">
+                <div class="card-body">
+                    <h3 class="card-title">Influencers Accounts</h3>
+                    <h1 class="card-title">{{ $influencersTotal }}</h1>
+                    <div class="text-right">
+                        <a href="{{ action('InfluencersController@index') }}" class="text-dark">Show</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="card text-white bg-secondary mb-3" style="width: 100%;">
                 <div class="card-body">
-                    <h3 class="card-title">DM Today</h3>
-                    <h1 class="card-title">{{ $accounts }}</h1>
+                    <h3 class="card-title">Influencers DM Today</h3>
+                    <h1 class="card-title">{{ $infDmToday }}</h1>
                     <div class="text-right">
-                        <a class="text-light">Show</a>
+                        <a href="{{ action('InfluencersController@show', 1) }}" class="text-light">Show</a>
                     </div>
                 </div>
             </div>
@@ -65,10 +76,10 @@
         <div class="col-md-3">
             <div class="card text-white bg-success mb-3" style="width: 100%;">
                 <div class="card-body">
-                    <h3 class="card-title">DM Total</h3>
-                    <h1 class="card-title">{{ $accounts }}</h1>
+                    <h3 class="card-title">Influencers DM Total</h3>
+                    <h1 class="card-title">{{ $infDm }}</h1>
                     <div class="text-right">
-                        <a class="text-light">Show</a>
+                        <a href="{{ action('InfluencersController@show', 1)  }}" class="text-light">Show</a>
                     </div>
                 </div>
             </div>

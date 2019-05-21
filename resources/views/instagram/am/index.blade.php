@@ -42,6 +42,7 @@
                                             <label for="receiver_type">Receiver Type</label>
                                             <select class="form-control" name="receiver_type" id="receiver_type">
                                                 <option value="hashtag">Hahstags</option>
+                                                <option value="inf_dm">DM Influencers</option>
                                                 <option disabled value="product_inquiry">Product Inquiry / Query</option>
                                             </select>
                                         </div>

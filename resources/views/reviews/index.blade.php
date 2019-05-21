@@ -243,7 +243,7 @@
                       <a href="{{ route('customer.show', $review->customer->id) }}" target="_blank">{{ $review->customer->name }}</a>
                     @endif
                   </td>
-                  <td>{{ ucwords($review->review_schedule->platform) }}</td>
+                  <td>{{ ucwords($review->review_schedule->platform ?? 'N/A') }}</td>
                   <td>
                     @php
                       preg_match_all('/(#\w*)/', $review->review, $match);

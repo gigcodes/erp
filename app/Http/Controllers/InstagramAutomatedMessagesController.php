@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\AutomatedMessages;
+use App\HashtagPostHistory;
 use App\InstagramAutomatedMessages;
 use Illuminate\Http\Request;
 
@@ -67,9 +68,11 @@ class InstagramAutomatedMessagesController extends Controller
      * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
      * @return \Illuminate\Http\Response
      */
-    public function show(InstagramAutomatedMessages $instagramAutomatedMessages)
+    public function show($id)
     {
-        //
+        $comments = HashtagPostHistory::all();
+
+        return view('instagram.am.comments', compact('comments'));
     }
 
     /**

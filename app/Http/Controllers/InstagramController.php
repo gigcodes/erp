@@ -11,6 +11,8 @@ use App\HashTag;
 use App\HashtagPostHistory;
 use App\Image;
 use App\ImageSchedule;
+use App\Influencers;
+use App\InfluencersDM;
 use App\InstagramAutomatedMessages;
 use App\Product;
 use App\ScheduleGroup;
@@ -39,7 +41,11 @@ class InstagramController extends Controller
         $automatedMessages = InstagramAutomatedMessages::get()->count();
         $commentsToday = HashtagPostHistory::where('type', 'comment')->where('post_date', date('Y-m-d'))->count();
         $commentsTotal = HashtagPostHistory::where('type', 'comment')->count();
-        return view('instagram.dashboard', compact('accounts', 'automatedMessages', 'commentsToday', 'commentsTotal'));
+        $influencersTotal = Influencers::get()->count();
+        $date = date('Y-m-d');
+        $infDmToday = InfluencersDM::where('created_at', 'LIKE', "%$date%")->get()->count();
+        $infDm = InfluencersDM::get()->count();
+        return view('instagram.dashboard', compact('accounts', 'automatedMessages', 'commentsToday', 'commentsTotal', 'influencersTotal', 'infDmToday', 'infDm'));
     }
 
 
@@ -538,5 +544,10 @@ class InstagramController extends Controller
         return view('instagram.hashtag_grid', compact('comments', 'request'));
 
 
+    }
+
+    public function accounts() {
+        $accounts = Account::where('platform', 'instagram')->get();
+        return view('instagram.am.accounts', compact('accounts'));
     }
 }

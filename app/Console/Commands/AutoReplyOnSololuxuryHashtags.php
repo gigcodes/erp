@@ -44,10 +44,10 @@ class AutoReplyOnSololuxuryHashtags extends Command
      */
     public function handle()
     {
-        $hashtag = HashTag::where('hashtag', 'sololuxury')->first();
+        $hashtag = HashTag::where('hashtag', 'sololuxuryindia')->first();
         if (!$hashtag) {
             $hashtag = new HashTag();
-            $hashtag->hashtag = 'sololuxury';
+            $hashtag->hashtag = 'sololuxuryindia';
             $hashtag->rating = 10;
             $hashtag->save();
         }
@@ -61,6 +61,8 @@ class AutoReplyOnSololuxuryHashtags extends Command
 
         do {
             $postsAll = $hashtags->getFeed($hashtag->hashtag);
+
+
             [$posts, $cursor] = $postsAll;
 
             foreach ($posts as $post) {
@@ -70,11 +72,14 @@ class AutoReplyOnSololuxuryHashtags extends Command
                 }
 
                 $mediaId = $post['media_id'];
+                $code = $post['code'];
                 $usernameToIgnore = HashtagPostHistory::where('account_id')->take(2)->get()->pluck('account_id')->toArray();
                 $account = Account::where('platform', 'instagram')
                     ->whereNotIn('id', $usernameToIgnore)
-                    ->inRandomOrder()
+//                    ->inRandomOrder()
                     ->first();
+
+                echo "$account->last_name \n" ;
 
 
                 $message = InstagramAutomatedMessages::where('type', 'text')
@@ -83,6 +88,7 @@ class AutoReplyOnSololuxuryHashtags extends Command
                     ->where('status', '1')
                     ->orderBy('use_count', 'ASC')
                     ->first();
+
 
 
                 $instagram = new Instagram();
@@ -97,7 +103,7 @@ class AutoReplyOnSololuxuryHashtags extends Command
                 $postHistory->hashtag = 'sololuxury';
                 $postHistory->account_id = $account->id;
                 $postHistory->instagram_automated_message_id = $message->id;
-                $postHistory->post_id = $mediaId;
+                $postHistory->post_id = $code;
                 $postHistory->cursor = $cursor;
                 $postHistory->post_date = date('Y-m-d');
                 $postHistory->type = 'comment';
