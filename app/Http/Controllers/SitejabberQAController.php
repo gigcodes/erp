@@ -149,6 +149,9 @@ class SitejabberQAController extends Controller
 
     public function accounts() {
         $accounts = Account::where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->get();
+        $accountsRemaining = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->count();
+        $remainingReviews = Review::whereHas('account')->whereNotIn('status', ['posted', 'posted_one'])->count();
+        $totalAccounts = $accounts->count();
         $sjs = SitejabberQA::where('type', 'question')->get();
         $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
         if (!$setting) {
@@ -173,7 +176,7 @@ class SitejabberQAController extends Controller
             $setting3->save();
         }
 
-        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3'));
+        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews'));
     }
 
     public function reviews() {

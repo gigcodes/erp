@@ -381,9 +381,9 @@ class ReviewController extends Controller
     {
       $review = Review::find($id);
 
-      $review->delete();
+      $review->forceDelete();
 
-      return redirect()->route('review.index')->withSuccess('You have successfully deleted a review!');
+      return redirect()->bak()->with('message', 'You have successfully deleted a review!');
     }
 
     public function accountDestroy($id)

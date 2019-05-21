@@ -22,6 +22,11 @@
             <div class="tab-content">
                 <div class="tab-pane mt-3" id="three">
                     <div class="row">
+                        <div class="col-md-12" style="font-size: 22px;">
+                            1. Accounts Remaining: {{ $accountsRemaining }}<br>
+                            2. Total Accounts: {{ $totalAccounts }}<br>
+                            3. Reviews Remaining: {{ $remainingReviews }}<br><br>
+                        </div>
                         <form method="get" action="{{action('SitejabberQAController@edit', 'routines')}}">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -77,12 +82,16 @@
                                                 <strong>{{ $answer->title }}</strong><br>{{ $answer->review }}
                                             </div>
                                             @if($answer->status!= 'posted' && $answer->status!= 'posted_one')
-                                                <a href="" class="btn btn-sm btn-info">
-                                                    <i class="fa fa-edit"></i>
-                                                </a>
-                                                <a href="" class="btn btn-sm btn-danger">
-                                                    <i class="fa fa-trash"></i>
-                                                </a>
+                                                <form method="post" action="{{ action('ReviewController@destroy', $answer->id) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <a href="{{ action('ReviewController@edit', $answer->id) }}" class="btn btn-sm btn-info">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-danger">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             @endif
                                         @endforeach
                                     @else
