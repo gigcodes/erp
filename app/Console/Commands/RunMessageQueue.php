@@ -76,11 +76,11 @@ class RunMessageQueue extends Command
               dump('sent to selected');
             }
           }
-
-          $report->update(['end_time' => Carbon:: now()]);
         }
       } else {
         dump('Not the right time for sending');
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

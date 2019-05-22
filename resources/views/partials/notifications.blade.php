@@ -173,6 +173,10 @@
                                 this.taskcount--;
 
                                 break;
+                            case 'MasterControl':
+                                this.taskcount--;
+
+                                break;
                             case 'User':
                                 this.taskcount--;
 
@@ -250,7 +254,7 @@
                             }
                         }
 
-                        if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task' || this.items[i].model_type == 'App\\Instruction' || this.items[i].model_type == 'App\\DeveloperTask') {
+                        if (this.items[i].model_type == 'App\\Task' || this.items[i].model_type == 'App\\SatutoryTask' || this.items[i].model_type == 'User' || this.items[i].model_type == 'App\\Http\\Controllers\\Task' || this.items[i].model_type == 'App\\Instruction' || this.items[i].model_type == 'App\\DeveloperTask' || this.items[i].model_type == 'MasterControl') {
 
                             if (this.taskcount !== 5) {
                                 this.items[i]['isShown'] = true;
@@ -305,6 +309,10 @@
 
                                 break;
                             case 'App\\DeveloperTask':
+                                this.taskcount--;
+
+                                break;
+                            case 'MasterControl':
                                 this.taskcount--;
 
                                 break;
@@ -455,6 +463,15 @@
                 $('#developerAlertUrl').attr('href', link);
                 $('#developerAlertModal .modal-body').html(notification.message);
                 $('#developerAlertModal').modal('show');
+
+                break;
+
+            case 'MasterControl':
+                link = "{{ route('mastercontrol.clear.alert') }}";
+
+                $('#masterControlAlertUrl').attr('href', link);
+                $('#masterControlAlertModal .modal-body').html(notification.message);
+                $('#masterControlAlertModal').modal('show');
 
                 break;
 

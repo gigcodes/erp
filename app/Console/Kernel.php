@@ -34,6 +34,7 @@ use App\Console\Commands\UpdateDoubleProducts;
 
 use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\RunMessageQueue;
+use App\Console\Commands\MonitorCronJobs;
 use App\Console\Commands\SendVoucherReminder;
 
 use App\Console\Commands\UpdateMagentoProductStatus;
@@ -86,6 +87,7 @@ class Kernel extends ConsoleKernel
         DoubleFScraper::class,
         SendHourlyReports::class,
         RunMessageQueue::class,
+        MonitorCronJobs::class,
         SendVoucherReminder::class,
         GetGebnegozionlineProductDetailsWithEmulator::class,
         UpdateInventory::class,
@@ -144,7 +146,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
-        $schedule->command('run:message-queues')->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command('run:message-queues')->everyFiveMinutes()->between('9:00', '18:00')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com');
+        $schedule->command('monitor:cron-jobs')->everyMinute();
 
         // Voucher Reminders
         // $schedule->command('send:voucher-reminder')->daily();

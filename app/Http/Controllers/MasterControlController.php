@@ -15,6 +15,8 @@ use App\Purchase;
 use App\Email;
 use App\Supplier;
 use App\Review;
+use App\PushNotification;
+use App\CronJob;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -357,6 +359,8 @@ class MasterControlController extends Controller
         }
       }
 
+      $cron_job = CronJob::where('signature', 'run:message-queues')->first();
+
       // dd($reviews);
 
               // dd($scraped_count);
@@ -388,6 +392,7 @@ class MasterControlController extends Controller
         'end'     => $end,
         'reviews'     => $reviews_array,
         'instruction_categories_array'     => $instruction_categories_array,
+        'cron_job'     => $cron_job,
       ]);
     }
 
@@ -399,6 +404,13 @@ class MasterControlController extends Controller
     public function create()
     {
         //
+    }
+
+    public function clearAlert(Request $request)
+    {
+      PushNotification::where('model_type', 'MasterControl')->delete();
+
+      return redirect()->route('mastercontrol.index');
     }
 
     /**
