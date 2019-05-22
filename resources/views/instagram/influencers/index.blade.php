@@ -30,45 +30,100 @@
             </form>
         </div>
         <div class="col-md-12">
-            <table class="table-striped table table-sm">
-                <tr>
-                    <th>S.N</th>
-                    <th>Username</th>
-                    <th>Actions</th>
-                </tr>
-                @foreach($hashtags as $key=>$hashtag)
+            <table id="table" class="table-striped table table-sm">
+                <thead>
                     <tr>
-                        <td>{{ $key+1 }}</td>
-                        <td>
-                            <a href="https://instagram.com/{{$hashtag->username}}">
-                                {{ $hashtag->username }}
-                            </a>
-                        </td>
-{{--                        <td>{{ $hashtag->rating }}</td>--}}
-                        <td>
-                            <form method="post" action="{{ action('InfluencersController@destroy', $hashtag->id) }}">
-{{--                                <a class="btn btn-info" href="{{ action('HashtagController@showGrid', $hashtag->id) }}">--}}
-{{--                                    <i class="fa fa-eye"></i>--}}
-{{--                                </a>--}}
-{{--                                <a class="btn btn-info" href="{{ action('HashtagController@edit', $hashtag->hashtag) }}">--}}
-{{--                                    <i class="fa fa-info"></i>--}}
-{{--                                </a>--}}
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
+                        <th>S.N</th>
+                        <th>Username</th>
+                        <th>Brand Name</th>
+                        <th>Blogger</th>
+                        <th>First Post</th>
+                        <th>Second Post</th>
+                        <th>City</th>
+                        <th>deals</th>
+                        <th>Link first Post</th>
+                        <th>Link second Post</th>
                     </tr>
-                @endforeach
+                </thead>
+                <tbody>
+                    @foreach($hashtags as $key=>$hashtag)
+                        <tr>
+                            <td>{{ $key+1 }}</td>
+                            <td>
+                                <a href="https://instagram.com/{{$hashtag->username}}">
+                                    {{ $hashtag->username ?? 'N/A' }}
+                                </a>
+                            </td>
+                            <td>{{ $hashtag->brand_name }}</td>
+                            <td>{{ $hashtag->blogger }}</td>
+                            <td>{{ $hashtag->first_post }}</td>
+                            <td>{{ $hashtag->second_post }}</td>
+                            <td>{{ $hashtag->city }}</td>
+                            <td>{{ $hashtag->deals }}</td>
+                            <td>{{ $hashtag->list_first_post }}</td>
+                            <td>{{ $hashtag->list_second_post }}</td>
+                            {{--                        <td>{{ $hashtag->rating }}</td>--}}
+                            <td>
+                                <form method="post" action="{{ action('InfluencersController@destroy', $hashtag->id) }}">
+                                    {{--                                <a class="btn btn-info" href="{{ action('HashtagController@showGrid', $hashtag->id) }}">--}}
+                                    {{--                                    <i class="fa fa-eye"></i>--}}
+                                    {{--                                </a>--}}
+                                    {{--                                <a class="btn btn-info" href="{{ action('HashtagController@edit', $hashtag->hashtag) }}">--}}
+                                    {{--                                    <i class="fa fa-info"></i>--}}
+                                    {{--                                </a>--}}
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
             </table>
         </div>
     </div>
 @endsection
 
 @section('styles')
-    <link rel="stylesheet" href="{{ asset('css/media-card.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <style>
+        thead input {
+            width: 100%;
+        }
+    </style>
+@endsection
+
+@section('scripts')
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#table thead tr').clone(true).appendTo( '#table thead' );
+            $('#table thead tr:eq(1) th').each( function (i) {
+                var title = $(this).text();
+                $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+
+                $( 'input', this ).on( 'keyup change', function () {
+                    if ( table.column(i).search() !== this.value ) {
+                        table
+                            .column(i)
+                            .search( this.value )
+                            .draw();
+                    }
+                } );
+            } );
+            var table = $('#table').dataTable({
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+    </script>
+    @if (Session::has('message'))
+        <script>
+            toastr["success"]("{{ Session::get('message') }}", "Message")
+        </script>
+    @endif
 @endsection
 
 @section('scripts')

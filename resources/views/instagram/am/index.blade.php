@@ -100,7 +100,7 @@
                             <td>{{$reply->message}}</td>
                             <td class="text-center">{!! $reply->status ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
                             <td class="text-center">{!! $reply->reusable ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
-                            <td>{{ $reply->use_count }}</td>
+                            <td>{{ $reply->use_count>0 ? 'Used ('. $reply->use_count. ')' : 'Unused' }}</td>
                             <td>
                                 <form method="post" action="{{ action('InstagramAutomatedMessagesController@destroy', $reply->id) }}">
                                     @csrf

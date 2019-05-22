@@ -58,4 +58,16 @@ class AccountController extends Controller
         ]);
 
     }
+
+    public function test($id) {
+        $account = Account::find($id);
+        $instagram = new Instagram();
+        try {
+            $instagram->login($account->last_name, $account->password);
+        } catch (\Exception $exception) {
+            dd($exception);
+        }
+
+        return redirect()->back()->with('message', 'test passed!');
+    }
 }
