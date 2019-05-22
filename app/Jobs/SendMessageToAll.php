@@ -102,6 +102,7 @@ class SendMessageToAll implements ShouldQueue
 
           try {
             if ($send_number == '919152731483') {
+              dump('sending message with NEW API');
               app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, $message, NULL, $chat_message->id);
             } else {
               app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
@@ -120,6 +121,7 @@ class SendMessageToAll implements ShouldQueue
 
               try {
                 if ($send_number == '919152731483') {
+                  dump('sending linked images with NEW API');
                   app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
                 } else {
                   app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
@@ -136,6 +138,7 @@ class SendMessageToAll implements ShouldQueue
 
                   try {
                     if ($send_number == '919152731483') {
+                      dump('sending images with NEW API');
                       app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $brod_image->getUrl()), $chat_message->id);
                     } else {
                       app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);

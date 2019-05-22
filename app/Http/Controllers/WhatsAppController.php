@@ -1909,7 +1909,7 @@ class WhatsAppController extends FindByNumberController
     }
 	}
 
-  public function sendWithNewApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null)
+  public function sendWithNewApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
 	{
     $configs = \Config::get("wassenger.api_keys");
     $encodedNumber = "+" . $number;
@@ -1988,7 +1988,7 @@ class WhatsAppController extends FindByNumberController
       'message' => (string) $encodedText,
       'reference' => (string) $chat_message_id,
       'device'  => "$wa_device",
-      'enqueue' => 'opportunistic',
+      'enqueue' => "$enqueue",
     ];
 
     if (isset($image_id)) {
