@@ -14,8 +14,8 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>Suppliers</strong>
-            <select class="form-control" name="suppliers[]" required multiple>
-              <option value="">Select Suppliers</option>
+            <select class="form-control select-multiple" name="suppliers[]" required multiple>
+              {{-- <option value="">Select Suppliers</option> --}}
 
               @foreach ($suppliers_all as $supplier)
                 <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>

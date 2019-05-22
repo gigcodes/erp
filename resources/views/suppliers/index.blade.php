@@ -2,6 +2,7 @@
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 @endsection
 
 @section('content')
@@ -97,6 +98,15 @@
               </td>
               <td>
                 {{ $supplier->message }}
+
+                @if ($supplier->message != '')
+                  <br>
+                  <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
+
+                  <ul class="more-communication-container">
+
+                  </ul>
+                @endif
               </td>
               <td>
                 <a href="{{ route('supplier.show', $supplier->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
@@ -123,7 +133,14 @@
 @endsection
 
 @section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
+    $(document).ready(function() {
+       $(".select-multiple").multiselect({
+         buttonWidth: '100%'
+       });
+    });
+
     $(document).on('click', '.edit-supplier', function() {
       var supplier = $(this).data('supplier');
       var url = "{{ url('supplier') }}/" + supplier.id;
@@ -141,6 +158,36 @@
       var id = $(this).data('id');
 
       $('#emailSendModal').find('input[name="supplier_id"]').val(id);
+    });
+
+    $(document).on('click', '.load-more-communication', function() {
+      var thiss = $(this);
+      var supplier_id = $(this).data('id');
+
+      $.ajax({
+        type: "GET",
+        url: "{{ url('supplier') }}/" + supplier_id + '/loadMoreMessages',
+        data: {
+          supplier_id: supplier_id
+        },
+        beforeSend: function() {
+          $(thiss).text('Loading...');
+        }
+      }).done(function(response) {
+        (response.messages).forEach(function(index) {
+          var li = '<li>' + index + '</li>';
+
+          $(thiss).closest('td').find('.more-communication-container').append(li);
+        });
+
+        $(thiss).remove();
+      }).fail(function(response) {
+        $(thiss).text('Load More');
+
+        alert('Could not load more messages');
+
+        console.log(response);
+      });
     });
 
     // $(document).on('click', '.create-agent', function() {

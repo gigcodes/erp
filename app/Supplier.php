@@ -31,4 +31,9 @@ class Supplier extends Model
       $query->where('model_type', 'App\Purchase')->orWhere('model_type', 'App\Supplier');
     });
   }
+
+  public function whatsapps()
+	{
+		return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+	}
 }

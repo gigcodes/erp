@@ -171,6 +171,17 @@ class SupplierController extends Controller
       return redirect()->route('supplier.index')->withSuccess('You have successfully updated a supplier!');
     }
 
+    public function loadMoreMessages(Request $request, $id)
+    {
+      $supplier = Supplier::find($id);
+
+      $chat_messages = $supplier->whatsapps()->skip(1)->take(3)->pluck('message');
+
+      return response()->json([
+        'messages'  => $chat_messages
+      ]);
+    }
+
     public function sendEmailBulk(Request $request)
     {
       $this->validate($request, [
