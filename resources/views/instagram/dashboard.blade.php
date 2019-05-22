@@ -19,17 +19,6 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-primary mb-3" style="width: 100%;">
-                <div class="card-body">
-                    <h3 class="card-title">Normal Accounts</h3>
-                    <h1 class="card-title">{{ $accounts }}</h1>
-                    <div class="text-right">
-                        <a href="{{ action('InstagramController@accounts') }}" class="text-light">Show</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
             <div class="card text-white bg-info mb-3" style="width: 100%;">
                 <div class="card-body">
                     <h3 class="card-title">Comments Today</h3>
@@ -46,7 +35,18 @@
                     <h3 class="card-title">Comments Total</h3>
                     <h1 class="card-title">{{ $commentsTotal }}</h1>
                     <div class="text-right">
-                        <a class="text-dark">Show</a>
+                        <a class="text-dark" href="{{ action('InstagramAutomatedMessagesController@show', 1) }}">Show</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3" style="width: 100%;">
+                <div class="card-body">
+                    <h3 class="card-title">Normal Accounts</h3>
+                    <h1 class="card-title">{{ $accounts }}</h1>
+                    <div class="text-right">
+                        <a href="{{ action('InstagramController@accounts') }}" class="text-light">Show</a>
                     </div>
                 </div>
             </div>

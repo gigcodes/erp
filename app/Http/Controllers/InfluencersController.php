@@ -44,6 +44,9 @@ class InfluencersController extends Controller
 
         $i = new Influencers();
         $i->username = $request->get('name');
+        $i->brand_name = $request->get('brand_name');
+        $i->blogger = $request->get('blogger');
+        $i->city = $request->get('city');
         $i->save();
 
         return redirect()->back()->with('message', 'Added instagram influencer.');
