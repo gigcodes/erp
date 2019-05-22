@@ -14,10 +14,28 @@
             <form method="post" action="{{ action('InfluencersController@store') }}">
                 @csrf
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="name">Username (without @)</label>
                             <input type="text" name="name" id="name" placeholder="sololuxuryindia (without @)" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="brand_name">Brand Name</label>
+                            <input type="text" name="brand_name" id="brand_name" placeholder="Brand Name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="blogger">Blogger</label>
+                            <input type="text" name="blogger" id="blogger" placeholder="Blogger Name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" name="city" id="city" placeholder="City" class="form-control">
                         </div>
                     </div>
                     <div class="col-md-2">
