@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BrandFans;
 use App\GroupMembers;
 use App\HashtagPosts;
 use Illuminate\Http\Request;
@@ -19,6 +20,11 @@ class FacebookController extends Controller
             $groups = GroupMembers::all();
 
             return view('scrap.facebook_groups', compact('groups'));
+        }
+        if ($type == 'brand') {
+            $brands = BrandFans::all();
+
+            return view('scrap.facebook_brand_fans', compact('brands'));
         }
     }
 }

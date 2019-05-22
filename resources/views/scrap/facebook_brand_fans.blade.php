@@ -3,25 +3,25 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Facebook Group Data</h2>
+            <h2 class="page-heading">Facebook Brand Pages Fan</h2>
         </div>
         <div class="col-md-12">
             <table id="table" class="table table-striped">
                 <thead>
                     <tr>
                         <th>S.N</th>
-                        <th>Group</th>
-                        <th>Group URL</th>
+                        <th>Brand</th>
+                        <th>Brand URL</th>
                         <th>User</th>
                         <th>Created date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($groups as $key=>$group)
+                    @foreach($brands as $key=>$group)
                         <tr>
                             <td>{{$key+1}}</td>
-                            <td>{{ $group->group_name }}</td>
-                            <td><a href="{{ $group->group_url }}">Visit Group</a></td>
+                            <td>{{ $group->brand_name }}</td>
+                            <td><a href="{{ $group->brand_url }}">Visit Brand Page</a></td>
                             <td><a href="{{ $group->profile_url }}">{{ $group->username }}</a></td>
                             <td>{{ $group->created_at }}</td>
                         </tr>

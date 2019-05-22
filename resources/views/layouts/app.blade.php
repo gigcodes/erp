@@ -1262,6 +1262,7 @@
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
                                     <a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Posts</a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups </a>
+                                    <a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brands Fan </a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@excel_import') }}">Import Excel Document Type 1</a>
                                     <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap Activity</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scraped</a>
