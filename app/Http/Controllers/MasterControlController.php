@@ -35,8 +35,8 @@ class MasterControlController extends Controller
       $yesterday_day = Carbon::now()->subDay()->format('d');
       $after_week = Carbon::now()->addWeek()->format('Y-m-d');
 
-      $start = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay();
-      $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
+      $start = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay()->format('Y-m-d 00:00');
+      $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay()->format('Y-m-d 23:59');
 
       // dd($start, $end);
 
@@ -114,12 +114,12 @@ class MasterControlController extends Controller
 
       $tasks = [];
       $userid = Auth::id();
-  		$tasks['tasks']      = Task::with('remarks')->where( 'is_statutory', '=', 0 )
-  										->where( function ($query ) use ($userid) {
-  											return $query->orWhere( 'assign_from', '=', $userid )
-  											             ->orWhere( 'assign_to', '=', $userid );
+  		$tasks['tasks']      = Task::where('is_statutory', '=', 0)
+  										->where(function ($query) use ($userid) {
+  											return $query->orWhere('assign_from', '=', $userid)
+  											             ->orWhere('assign_to', '=', $userid);
   										})
-  		                               ->get()->groupBy(['assign_to', function ($query) {
+  		                               ->oldest()->get()->groupBy(['assign_to', function ($query) {
                                        // return $query->is_completed;
                                        if ($query->is_completed != '') {
                                          return 1;
@@ -127,7 +127,7 @@ class MasterControlController extends Controller
                                          return 0;
                                        }
                                      }])->toArray();
-                                     // dd($tasks['pending']);
+                                     // dd($tasks['tasks']);
 
   		// $tasks['completed']  = Task::where( 'is_statutory', '=', 0 )
   		//                                     ->whereNotNull( 'is_completed'  )
@@ -137,19 +137,19 @@ class MasterControlController extends Controller
   		// 									})
   		//                                     ->get()->groupBy('assign_to')->toArray();
 
-      $tasks['last_pending'] = Task::where( 'is_statutory', '=', 0 )
-  		                                    ->whereNull( 'is_completed'  )
-  											->where( function ($query ) use ($userid) {
-  												return $query->orWhere( 'assign_from', '=', $userid )
-  												             ->orWhere( 'assign_to', '=', $userid );
-  											})
-  		                                    ->latest()->first()->toArray();
+      // $tasks['last_pending'] = Task::where( 'is_statutory', '=', 0 )
+  		//                                     ->whereNull( 'is_completed'  )
+  		// 									->where( function ($query ) use ($userid) {
+  		// 										return $query->orWhere( 'assign_from', '=', $userid )
+  		// 										             ->orWhere( 'assign_to', '=', $userid );
+  		// 									})
+  		//                                     ->latest()->first()->toArray();
 
       $users_array = Helpers::getUserArray(User::all());
 
       $instruction_categories_array = [];
       $instructions_categories = InstructionCategory::all();
-      $instructions = Instruction::where('assigned_from', Auth::id())->get()->groupBy(['assigned_to', 'category_id', function ($query) {
+      $instructions = Instruction::where('assigned_from', Auth::id())->oldest()->get()->groupBy(['assigned_to', 'category_id', function ($query) {
         if ($query->completed_at != '') {
           return 1;
         } else {
@@ -157,16 +157,18 @@ class MasterControlController extends Controller
         }
       }])->toArray();
 
+      // dd($instructions);
+
       foreach ($instructions_categories as $category) {
         $instruction_categories_array[$category->id]['name'] = $category->name;
         $instruction_categories_array[$category->id]['icon'] = $category->icon;
       }
 
       // dd($instructions);
-      $last_pending_instruction = Instruction::where('assigned_from', Auth::id())->whereNull('completed_at')->first();
+      // $last_pending_instruction = Instruction::where('assigned_from', Auth::id())->whereNull('completed_at')->first();
       // $completed_instructions = Instruction::where('assigned_from', Auth::id())->whereNotNull('completed_at')->get()->groupBy('assigned_to');
 
-      $developer_tasks = DeveloperTask::get()->groupBy(['user_id', function ($query) {
+      $developer_tasks = DeveloperTask::oldest()->get()->groupBy(['user_id', function ($query) {
         if ($query->status == 'Done') {
           return '1';
         } else {
@@ -174,7 +176,7 @@ class MasterControlController extends Controller
         }
       }])->toArray();
       // dd($developer_tasks);
-      $last_pending_developer_task = DeveloperTask::where('status', '!=', 'Done')->first();
+      // $last_pending_developer_task = DeveloperTask::where('status', '!=', 'Done')->first();
       // $completed_developer_tasks = DeveloperTask::where('status', 'Done')->get()->groupBy('user_id');
 
       $customers = DB::select( '
@@ -241,53 +243,72 @@ class MasterControlController extends Controller
           }]);
         }]);
       }, 'purchase_supplier'])->whereBetween('created_at', [$start, $end])
-      ->whereNotIn('status', ['Pending Purchase', 'Request Sent to Supplier', 'Price under Negotiation'])->get()->toArray();
+      ->whereNotIn('status', ['Pending Purchase', 'Request Sent to Supplier', 'Price under Negotiation'])->get()
+      ->groupBy('supplier_id')->toArray();
 
       // dd($purchases);
 
-      $scraped_count = DB::select( '
+      $scraped_count = DB::select("
 									SELECT website, created_at, COUNT(*) as total FROM
-								 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
+								 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, '%Y-%m-%d') as created_at
 								  		 FROM scraped_products
-								  		 WHERE scraped_products.created_at LIKE "%?%")
+								  		 WHERE scraped_products.created_at BETWEEN '$start' AND '$end')
 								    AS SUBQUERY
                     GROUP BY website;
-							', [$yesterday]);
+							");
 
-      $scraped_days_ago_count = DB::select( '
-									SELECT website, created_at, COUNT(*) as total FROM
-								 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
-								  		 FROM scraped_products
-								  		 WHERE scraped_products.created_at LIKE "%?%")
-								    AS SUBQUERY
-                    GROUP BY website;
-							', [$two_days_ago]);
+      // $scraped_days_ago_count = DB::select( '
+			// 						SELECT website, created_at, COUNT(*) as total FROM
+			// 					 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
+			// 					  		 FROM scraped_products
+			// 					  		 WHERE scraped_products.created_at LIKE "%?%"
+      //                  AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku)
+      //                  )
+			// 					    AS SUBQUERY
+      //               GROUP BY website;
+			// 				', [$two_days_ago]);
 
-      $products_count = DB::select( '
+      $products_count = DB::select("
 									SELECT website, created_at, COUNT(*) as total FROM
-								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
+								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, '%Y-%m-%d') as created_at
 								  		 FROM scraped_products
-								  		 WHERE scraped_products.created_at LIKE "%?%"
+								  		 WHERE scraped_products.created_at BETWEEN '$start' AND '$end'
                        AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku)
                        )
 
 								    AS SUBQUERY
                     GROUP BY website;
-							', [$yesterday]);
+							");
 
               // dd($scraped_count);
 
-        $listed_days_ago_count = DB::select( '
+        $listed_days_ago_count = DB::select("
   									SELECT website, created_at, COUNT(*) as total FROM
-  								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
+  								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, '%Y-%m-%d') as created_at
   								  		 FROM scraped_products
-  								  		 WHERE scraped_products.created_at LIKE "%?%"
+  								  		 WHERE scraped_products.created_at BETWEEN '$start' AND '$end'
                          AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku AND products.isUploaded = 1)
                          )
 
   								    AS SUBQUERY
                       GROUP BY website;
-  							', [$two_days_ago]);
+  							");
+
+        $inventory_data = DB::select("
+  									SELECT website, status, created_at, COUNT(*) as total FROM
+  								 		(SELECT scrap_activities.website, scrap_activities.status, DATE_FORMAT(scrap_activities.created_at, '%Y-%m-%d') as created_at
+  								  		 FROM scrap_activities
+  								  		 WHERE scrap_activities.created_at BETWEEN '$start' AND '$end')
+  								    AS SUBQUERY
+  								   	GROUP BY website, status;
+  							");
+
+        $new_inventory = [];
+        foreach ($inventory_data as $data) {
+          $new_inventory[$data->website][$data->status] = $data->total;
+        }
+
+                // dd($new_inventory);
 
       $emails = Email::where('type', 'incoming')->where(function($query) {
         $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
@@ -346,20 +367,21 @@ class MasterControlController extends Controller
         'tasks'           => $tasks,
         'users_array'     => $users_array,
         'instructions'     => $instructions,
-        'last_pending_instruction'     => $last_pending_instruction,
+        // 'last_pending_instruction'     => $last_pending_instruction,
         // 'completed_instructions'     => $completed_instructions,
         'customers'     => $customers,
         'reply_categories'     => $reply_categories,
         'developer_tasks'     => $developer_tasks,
-        'last_pending_developer_task'     => $last_pending_developer_task,
+        // 'last_pending_developer_task'     => $last_pending_developer_task,
         // 'completed_developer_tasks'     => $completed_developer_tasks,
         'orders'     => $orders,
         'purchases'     => $purchases,
         'unread_messages'     => $unread_messages,
         'scraped_count'     => $scraped_count,
-        'scraped_days_ago_count'     => $scraped_days_ago_count,
+        // 'scraped_days_ago_count'     => $scraped_days_ago_count,
         'products_count'     => $products_count,
         'listed_days_ago_count'     => $listed_days_ago_count,
+        'inventory_data'     => $new_inventory,
         'emails'     => $emails_array,
         'suppliers_array'     => $suppliers_array,
         'start'     => $start,

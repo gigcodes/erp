@@ -91,7 +91,7 @@
                 </th>
               </tr>
               @foreach ($data as $instruction)
-                <tr>
+                <tr id="instruction_{{ $instruction['id'] }}">
                   <td>
                     {{-- <a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a> --}}
                     <form class="d-inline" action="{{ route('customer.post.show', $instruction['customer_id']) }}" method="POST">

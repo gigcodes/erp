@@ -1,27 +1,31 @@
 <div class="table-responsive">
     <table class="table table-bordered">
     <tr>
-      <th></th>
-      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">ID</a></th>
-      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Date</a></th>
-      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Purchase Handler</a></th>
-      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Supplier Name</a></th>
-      <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Supplier Purchase Status</a></th>
-      <th>Customer Names</th>
-      <th>Products</th>
-      <th>Qty</th>
-      <th>Retail Price</th>
-      <th>Sold Price</th>
-      <th>Buying Price</th>
-      <th>Gross Profit</th>
+      <th width="5%"></th>
+      <th width="5%"><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">ID</a></th>
+      <th width="5%"><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Date</a></th>
+      <th width="5%"><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=purchase_handler{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Purchase Handler</a></th>
+      <th width="10%"><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=supplier{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Supplier Name</a></th>
+      <th width="10%"><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Supplier Purchase Status</a></th>
+      <th width="20%">Customer Names</th>
+      <th width="5%">Products</th>
+      {{-- <th>Qty</th> --}}
+      <th width="5%">Retail Price</th>
+      {{-- <th>Sold Price</th> --}}
+      <th width="5%">Buying Price</th>
+      <th width="5%">Gross Profit</th>
       {{-- <th>Message Status</th>
       <th><a href="/purchases{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="ajax-sort-link">Communication</a></th> --}}
-      <th width="280px">Action</th>
+      <th width="10%">Action</th>
     </tr>
     @foreach ($purchases_array as $key => $purchase)
       @php
         $products_count = 1;
         if (count($purchase['products']) > 0) {
+          // foreach ($purchase['products'] as $product) {
+          //   $products_count += count($product['orderproducts']);
+          // }
+
           $products_count = count($purchase['products']) + 1;
         }
       @endphp
@@ -39,24 +43,35 @@
         @if ($purchase['products'])
           @php
             $qty = 0;
+            $sold_price = 0;
           @endphp
           @foreach ($purchase['products'] as $product)
             <tr>
               <td>
                 @if ($product['orderproducts'])
-                  <ul>
+                  {{-- <ul> --}}
                     @foreach ($product['orderproducts'] as $order_product)
-                      @if ($order_product['order'])
-                        @if ($order_product['order']['customer'])
-                          <li>{{ $order_product['order']['customer']['name'] }}</li>
+                      <li>
+                        @if ($order_product['order'])
+                          @if ($order_product['order']['customer'])
+                            {{ $order_product['order']['customer']['name'] }}
+                          @else
+                            No Customer
+                          @endif
                         @else
-                          <li>No Customer</li>
+                          No Order
                         @endif
-                      @else
-                        <li>No Order</li>
-                      @endif
+
+                         - Qty. <strong>{{ $qty = $order_product['qty'] }}</strong>
+                         - Sold Price: <strong>{{ $order_product['product_price'] }}</strong>
+
+                        @php
+                          $sold_price += $order_product['product_price'];
+                        @endphp
+                      </li>
+                      @php $qty = 0; @endphp
                     @endforeach
-                  </ul>
+                  {{-- </ul> --}}
                 @else
                   <li>No Order Product</li>
                 @endif
@@ -64,7 +79,7 @@
               <td>
                 <img src="{{ $product['imageurl'] }}" class="img-responsive" width="50px">
               </td>
-              <td>
+              {{-- <td>
                 @if (count($product['orderproducts']) > 0)
                   <ul>
                     @foreach ($product['orderproducts'] as $order_product)
@@ -76,9 +91,9 @@
                     @endforeach
                   </ul>
                 @endif
-              </td>
+              </td> --}}
               <td>{{ $product['price'] }}</td>
-              <td>
+              {{-- <td>
                 @php $sold_price = 0; @endphp
                 <ul>
                   @foreach ($product['orderproducts'] as $order_product)
@@ -89,7 +104,7 @@
                     @endphp
                   @endforeach
                 </ul>
-              </td>
+              </td> --}}
               <td>
                 @php $actual_price = 0; @endphp
                 @php $actual_price += $product['price'] @endphp
@@ -104,7 +119,7 @@
           @endforeach
         @endif
         <tr>
-          <td colspan="14">
+          <td colspan="12">
             <div class="pull-right">
               <a class="btn btn-image" href="{{ route('purchase.show',$purchase['id']) }}"><img src="/images/view.png" /></a>
 

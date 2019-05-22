@@ -214,13 +214,20 @@
                         @endif
                       </span>
                      </li>
+                     @if (array_key_exists(0, $task_data))
+                       <li class="list-group-item">
+                         <strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'User Doesnt Exist' }}</strong> -
+                         <a href="{{ url('/') }}?selected_user={{ $user_id }}#task_{{ $task_data[0][0]['id'] }}" target="_blank">{{ $task_data[0][0]['task_details'] }}</a>
+                          on <strong>{{ \Carbon\Carbon::parse($task_data[0][0]['created_at'])->format('d-m') }}</strong>
+                       </li>
+                     @endif
                   @endforeach
 
-                  <li class="list-group-item">
+                  {{-- <li class="list-group-item">
                     <strong>{{ array_key_exists($tasks['last_pending']['assign_to'], $users_array) ? $users_array[$tasks['last_pending']['assign_to']] : 'User Doesnt Exist' }}</strong> -
                     <a href="{{ url('/') }}?selected_user={{ $tasks['last_pending']['assign_to'] }}#task_{{ $tasks['last_pending']['id'] }}" target="_blank">{{ $tasks['last_pending']['task_details'] }}</a>
                      on <strong>{{ \Carbon\Carbon::parse($tasks['last_pending']['created_at'])->format('d-m') }}</strong>
-                  </li>
+                  </li> --}}
                 </ul>
               </div>
 
@@ -240,8 +247,9 @@
                       </strong>
 
                       <ul class="list-unstyled">
+                        @php $count = 0; $last_pending_user = 0; $last_category_id = 0; @endphp
                         @foreach ($data as $category_id => $info)
-                          <li>
+                          <li class="d-flex justify-content-between align-items-center">
                             @if (array_key_exists($category_id, $instruction_categories_array) && $instruction_categories_array[$category_id]['icon'] != '')
                               <a href="{{ route('instruction.index') }}?user%5B%5D={{ $user_id }}#instructions_{{ $category_id }}" class="btn btn-image" target="_blank"><img src="/images/{{ $instruction_categories_array[$category_id]['icon'] }}" alt=""></a>
                             @else
@@ -252,9 +260,15 @@
                               @endif
                             @endif
 
-                            <span>
+                            <span class="ml-2">
                               @if (array_key_exists(0, $info))
                                 <span class="badge badge-red badge-pill">{{ count($info[0]) }}</span>
+                                @php
+                                if ($count == 0) {
+                                  $last_pending_user = $user_id;
+                                  $last_category_id = $category_id;
+                                  $count++;
+                                } @endphp
                               @else
                                 <span class="badge badge-red badge-pill">0</span>
                               @endif
@@ -269,13 +283,14 @@
                         @endforeach
                       </ul>
                      </li>
+                     @if ($last_pending_user != 0)
+                       <li class="list-group-item">
+                         <strong>{{ array_key_exists($last_pending_user, $users_array) ? $users_array[$last_pending_user] : 'User Doesnt Exist' }}</strong> -
+                         <a href="{{ route('instruction.index') }}?user%5B%5D={{ $instructions[$last_pending_user][$last_category_id][0][0]['assigned_to'] }}#instruction_{{ $instructions[$last_pending_user][$last_category_id][0][0]['id'] }}" target="_blank">{{ $instructions[$last_pending_user][$last_category_id][0][0]['instruction'] }}</a>
+                          on <strong>{{ \Carbon\Carbon::parse($instructions[$last_pending_user][$last_category_id][0][0]['created_at'])->format('d-m') }}</strong>
+                       </li>
+                     @endif
                   @endforeach
-
-                  <li class="list-group-item">
-                    <strong>{{ array_key_exists($last_pending_instruction['assigned_to'], $users_array) ? $users_array[$last_pending_instruction['assigned_to']] : 'User Doesnt Exist' }}</strong> -
-                    <a href="{{ route('instruction.index') }}?user%5B%5D={{ $last_pending_instruction['assigned_to'] }}" target="_blank">{{ $last_pending_instruction['instruction'] }}</a>
-                     on <strong>{{ \Carbon\Carbon::parse($last_pending_instruction['created_at'])->format('d-m') }}</strong>
-                  </li>
                 </ul>
               </div>
 
@@ -308,13 +323,15 @@
                         @endif
                       </span>
                      </li>
-                  @endforeach
 
-                  <li class="list-group-item">
-                    <strong>{{ array_key_exists($last_pending_developer_task['user_id'], $users_array) ? $users_array[$last_pending_developer_task['user_id']] : 'User Doesnt Exist' }}</strong> -
-                    <a href="{{ route('development.index') }}?user={{ $last_pending_developer_task['user_id'] }}#task_{{ $last_pending_developer_task['id'] }}" target="_blank">{{ $last_pending_developer_task['task'] }}</a>
-                     on <strong>{{ \Carbon\Carbon::parse($last_pending_developer_task['created_at'])->format('d-m') }}</strong>
-                  </li>
+                     @if (array_key_exists('0', $data))
+                       <li class="list-group-item">
+                         <strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'User Doesnt Exist' }}</strong> -
+                         <a href="{{ route('development.index') }}?user={{ $user_id }}#task_{{ $data['0'][0]['id'] }}" target="_blank">{{ $data['0'][0]['task'] }}</a>
+                          on <strong>{{ \Carbon\Carbon::parse($data['0'][0]['created_at'])->format('d-m') }}</strong>
+                       </li>
+                     @endif
+                  @endforeach
                 </ul>
               </div>
             </div>
@@ -404,115 +421,155 @@
 
           <div class="tab-pane mt-3" id="purchases-tab">
             <a href="{{ route('purchase.index') }}" target="_blank"><h4>Purchases</h4></a>
-            <div class="table-responsive">
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>Purchase ID</th>
-                    <th>Customers</th>
-                    <th>Products</th>
-                    <th>Qty</th>
-                    <th>Retail Price</th>
-                    <th>Sold Price</th>
-                    <th>Buying Price</th>
-                    <th>Gross Profit</th>
-                  </tr>
-                </thead>
 
-                <tbody>
-                  @foreach ($purchases as $purchase)
-                    <tr>
-                      <td><a href="{{ route('purchase.show', $purchase['id']) }}">{{ $purchase['id'] }}</a></td>
-                      <td>
-                        <ul>
+            <div id="purchaseAccordion">
+              @foreach ($purchases as $supplier_id => $data)
+                <div class="card">
+                  <div class="card-header" id="headingPurchase{{ $supplier_id }}">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#purchase{{ $supplier_id }}" aria-expanded="false" aria-controls="purchase{{ $supplier_id }}">
+                        <strong>{{ array_key_exists($supplier_id, $suppliers_array) ? $suppliers_array[$supplier_id] : 'Supplier doesn`t exist' }}</strong>
+
+                        @php $sold_price = 0; $actual_price = 0; @endphp
+                        @foreach ($data as $purchase)
                           @foreach ($purchase['products'] as $product)
-                            @if (count($product['orderproducts']) > 0)
-                              @foreach ($product['orderproducts'] as $order_product)
-                                <li>
-                                  {{ $order_product['order'] ? ($order_product['order']['customer'] ? $order_product['order']['customer']['name'] : 'No Customer') : 'No Order' }}
-                                </li>
-                              @endforeach
-                            @endif
-                          @endforeach
-                        </ul>
-                      </td>
-                      <td>
-                        @foreach ($purchase['products'] as $product)
-                          <img src="{{ $product['imageurl'] }}" class="img-responsive" width="50px">
-                        @endforeach
-                      </td>
-                      {{-- <td>{{ $purchase['purchase_supplier']['supplier'] }}</td> --}}
-                      <td>
-                        @php
-                          $qty = 0;
-                        @endphp
-                        <ul>
-                          @foreach ($purchase['products'] as $product)
-                            @if (count($product['orderproducts']) > 0)
-                              @foreach ($product['orderproducts'] as $order_product)
-                                @php
-                                  $qty += $order_product['qty'];
-                                @endphp
-                              @endforeach
-                            @endif
+                            @php $actual_price += $product['price'] @endphp
 
-                            <li>
-                              {{ $qty }}
-                            </li>
-
-                            @php
-                              $qty = 0;
-                            @endphp
-                          @endforeach
-                        </ul>
-                      </td>
-                      <td>
-                        {{-- @php $retail_price = 0; @endphp
-                        @foreach ($purchase['products'] as $product)
-                          @php $retail_price += $product['price'] @endphp
-                        @endforeach
-
-                        {{ $retail_price }} --}}
-
-                        <ul>
-                          @foreach ($purchase['products'] as $product)
-                            <li>
-                              {{ $product['price'] }}
-                            </li>
-                          @endforeach
-                        </ul>
-                      </td>
-                      <td>
-                        <ul>
-                          @php $sold_price = 0; @endphp
-                          @foreach ($purchase['products'] as $product)
                             @foreach ($product['orderproducts'] as $order_product)
-                              <li>{{ $order_product['product_price'] }}</li>
-
                               @php
                                 $sold_price += $order_product['product_price'];
                               @endphp
                             @endforeach
                           @endforeach
-                        </ul>
-                      </td>
-                      <td>
-                        <ul>
-                          @php $actual_price = 0; @endphp
-                          @foreach ($purchase['products'] as $product)
-                            @php $actual_price += $product['price'] @endphp
+                        @endforeach
 
-                            <li>{{ $product['price'] * 78 }}</li>
-                          @endforeach
-                        </ul>
-                      </td>
-                      <td>
-                        {{ $sold_price - ($actual_price * 78) }}
-                      </td>
-                    </tr>
-                  @endforeach
-                </tbody>
-              </table>
+                        Gross Profit: {{ $sold_price - ($actual_price * 78) }}
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="purchase{{ $supplier_id }}" class="collapse collapse-element" aria-labelledby="headingPurchase{{ $supplier_id }}" data-parent="#purchaseAccordion">
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <thead>
+                            <tr>
+                              <th>Purchase ID</th>
+                              <th>Status</th>
+                              <th>Date</th>
+                              <th>Customers</th>
+                              <th>Products</th>
+                              {{-- <th>Qty</th> --}}
+                              <th>Retail Price</th>
+                              {{-- <th>Sold Price</th> --}}
+                              <th>Buying Price</th>
+                              <th>Gross Profit</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            @foreach ($data as $purchase)
+                              @php
+                                $purchase_products_count = 1;
+                                if (count($purchase['products']) > 0) {
+                                  $purchase_products_count = count($purchase['products']) + 1;
+                                }
+                              @endphp
+                                <tr>
+                                  <td rowspan="{{ $purchase_products_count }}"><a href="{{ route('purchase.show', $purchase['id']) }}" target="_blank">{{ $purchase['id'] }}</a></td>
+                                  <td rowspan="{{ $purchase_products_count }}">{{ $purchase['status'] }}</td>
+                                  <td rowspan="{{ $purchase_products_count }}">{{ Carbon\Carbon::parse($purchase['created_at'])->format('d-m-Y') }}</td>
+                                  {{-- <td rowspan="{{ $purchase_products_count }}">{{ Carbon\Carbon::parse($purchase['created_at'])->format('d-m-Y') }}</td> --}}
+                                  {{-- <td rowspan="{{ $purchase_products_count }}">{{ $purchase['purchase_handler'] ? $users[$purchase['purchase_handler']] : 'nil' }}</td> --}}
+                                  {{-- <td rowspan="{{ $purchase_products_count }}">{{ $purchase['purchase_supplier']['supplier'] }}</td> --}}
+                                  {{-- <td rowspan="{{ $purchase_products_count }}">{{ $purchase['status']}}</td> --}}
+                                </tr>
+
+                                @if ($purchase['products'])
+                                  @php
+                                    $qty = 0;
+                                    $sold_price = 0;
+                                  @endphp
+                                  @foreach ($purchase['products'] as $product)
+                                    <tr>
+                                      <td>
+                                        @if ($product['orderproducts'])
+                                          {{-- <ul> --}}
+                                            @foreach ($product['orderproducts'] as $order_product)
+                                              <li>
+                                                @if ($order_product['order'])
+                                                  @if ($order_product['order']['customer'])
+                                                    <a href="{{ route('customer.show', $order_product['order']['customer']['id']) }}" target="_blank">{{ $order_product['order']['customer']['name'] }}</a>
+                                                  @else
+                                                    No Customer
+                                                  @endif
+                                                @else
+                                                  No Order
+                                                @endif
+
+                                                 - Qty. <strong>{{ $qty = $order_product['qty'] }}</strong>
+                                                 - Sold Price: <strong>{{ $order_product['product_price'] }}</strong>
+
+                                                @php
+                                                  $sold_price += $order_product['product_price'];
+                                                @endphp
+                                              </li>
+                                              @php $qty = 0; @endphp
+                                            @endforeach
+                                          {{-- </ul> --}}
+                                        @else
+                                          <li>No Order Product</li>
+                                        @endif
+                                      </td>
+                                      <td>
+                                        <img src="{{ $product['imageurl'] }}" class="img-responsive" width="50px">
+                                      </td>
+                                      {{-- <td>
+                                        @if (count($product['orderproducts']) > 0)
+                                          <ul>
+                                            @foreach ($product['orderproducts'] as $order_product)
+                                              <li>{{ $qty = $order_product['qty'] }}</li>
+                                              @php
+
+                                                $qty = 0;
+                                              @endphp
+                                            @endforeach
+                                          </ul>
+                                        @endif
+                                      </td> --}}
+                                      <td>{{ $product['price'] }}</td>
+                                      {{-- <td>
+                                        @php $sold_price = 0; @endphp
+                                        <ul>
+                                          @foreach ($product['orderproducts'] as $order_product)
+                                            <li>{{ $order_product['product_price'] }}</li>
+
+                                            @php
+                                              $sold_price += $order_product['product_price'];
+                                            @endphp
+                                          @endforeach
+                                        </ul>
+                                      </td> --}}
+                                      <td>
+                                        @php $actual_price = 0; @endphp
+                                        @php $actual_price += $product['price'] @endphp
+
+                                        {{ $product['price'] * 78 }}
+                                      </td>
+                                      <td>
+                                        {{ $sold_price - ($actual_price * 78) }}
+                                      </td>
+
+                                    </tr>
+                                  @endforeach
+                                @endif
+                            @endforeach
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              @endforeach
             </div>
           </div>
 
@@ -521,15 +578,10 @@
               <table class="table table-bordered">
                 <thead>
                   <tr>
-                    <th rowspan="2"><a href="{{ route('scrap.activity') }}" target="_blank">Scraped</a></th>
-                    <th rowspan="2"><a href="{{ route('products.listing') }}" target="_blank">Created</a></th>
-                    <th colspan="2">On {{ \Carbon\Carbon::now()->subDays(2)->format('d-m') }}</th>
-                    <th rowspan="2">Actions</th>
-                  </tr>
-
-                  <tr>
-                    <th>Scraped</th>
-                    <th>Listed</th>
+                    <th><a href="{{ route('scrap.activity') }}" target="_blank">Scraped</a></th>
+                    <th><a href="{{ route('products.listing') }}" target="_blank">Scraped Created</a></th>
+                    <th><a href="{{ route('products.listing') }}" target="_blank">Listed</a></th>
+                    <th><a href="{{ route('scrap.activity') }}" target="_blank">Inventory</a></th>
                   </tr>
                 </thead>
 
@@ -559,17 +611,6 @@
                     </td>
                     <td>
                       <ul class="list-group">
-                        @foreach ($scraped_days_ago_count as $data)
-                          <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ $data->website }}
-
-                            <span class="badge badge-pill">{{ $data->total }}</span>
-                           </li>
-                        @endforeach
-                      </ul>
-                    </td>
-                    <td>
-                      <ul class="list-group">
                         @foreach ($listed_days_ago_count as $data)
                           <li class="list-group-item d-flex justify-content-between align-items-center">
                             {{ $data->website }}
@@ -580,8 +621,43 @@
                       </ul>
                     </td>
                     <td>
+                      <ul class="list-group">
+                        @foreach ($inventory_data as $website => $data)
+                          <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ $website }}
 
+                            <span>
+                              @if (array_key_exists('0', $data))
+                                <span class="badge badge-red badge-pill">{{ $data['0'] }}</span>
+                              @else
+                                <span class="badge badge-red badge-pill">0</span>
+                              @endif
+
+                              @if (array_key_exists('1', $data))
+                                <span class="badge badge-green badge-pill">{{ $data['1'] }}</span>
+                              @else
+                                <span class="badge badge-green badge-pill">0</span>
+                              @endif
+                            </span>
+                           </li>
+                        @endforeach
+                      </ul>
                     </td>
+                    {{-- <td>
+                      <ul class="list-group">
+                        @foreach ($scraped_days_ago_count as $data)
+                          <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ $data->website }}
+
+                            <span class="badge badge-pill">{{ $data->total }}</span>
+                           </li>
+                        @endforeach
+                      </ul>
+                    </td> --}}
+
+                    {{-- <td>
+
+                    </td> --}}
                   </tr>
                 </tbody>
               </table>
