@@ -40,6 +40,36 @@ class TaskModuleController extends Controller {
 										})
 		                               ->get()->toArray();
 
+	 $data['task']['pending'] = DB::select('
+               SELECT *,
+							 (SELECT mm5.remark FROM remarks mm5 WHERE mm5.id = remark_id) AS remark,
+							 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
+               (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+               (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
+               (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
+               (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
+
+               FROM (
+                 SELECT * FROM tasks
+
+                 LEFT JOIN (
+                   SELECT MAX(id) as remark_id, taskid
+                   FROM remarks
+									 WHERE module_type = "task"
+                   GROUP BY taskid
+                 ) AS remarks
+                 ON tasks.id = remarks.taskid
+
+                 LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
+                 ON tasks.id = chat_messages.task_id
+
+               ) AS tasks
+               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR assign_to = ' . $userid . ')
+               ORDER BY last_communicated_at DESC;
+						');
+
+						// dd($data['task']['pending']);
+
 		$data['task']['completed']  = Task::where( 'is_statutory', '=', 0 )
 		                                    ->whereNotNull( 'is_completed'  )
 											->where( function ($query ) use ($userid) {
@@ -270,6 +300,17 @@ class TaskModuleController extends Controller {
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task created successfully.' );
+	}
+
+	public function show($id)
+	{
+		$task = Task::find($id);
+		$users_array = Helpers::getUserArray(User::all());
+
+		return view('task-module.task-show', [
+			'task'	=> $task,
+			'users_array'	=> $users_array,
+		]);
 	}
 
 	public function update() {
@@ -581,12 +622,12 @@ class TaskModuleController extends Controller {
 	public static function getClasses($task){
 
 		$classes = ' ';
+		// dump($task);
+		$classes .= ' '. ( (empty($task) && $task->assign_from == Auth::user()->id) ? 'mytask' : '' ) . ' ';
+		$classes .= ' '.( (empty($task) && time() > strtotime( $task->completion_date. ' 23:59:59'  ))  ? 'isOverdue' : '').' ';
 
-		$classes .= ' '. ( $task['assign_from'] == Auth::user()->id ? 'mytask' : '' ) . ' ';
-		$classes .= ' '.( time() > strtotime( $task['completion_date']. ' 23:59:59'  )  ? 'isOverdue' : '').' ';
 
-
-		$task_status = Helpers::statusClass($task['assign_status']);
+		$task_status = empty($task) ? Helpers::statusClass($task->assign_status) : '';
 
 		$classes .= $task_status;
 

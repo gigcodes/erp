@@ -306,45 +306,81 @@
                             <table class="table">
                                 <thead>
                                   <tr>
-                                      <th>Sr No</th>
-                                      <th>Date</th>
-                                      <th class="category">Category</th>
-                                      <th>Task Subject</th>
-                                      <th>Est Completion Date</th>
-                                      <th>Assigned From</th>
-                                      <th>&nbsp;</th>
+                                      <th width="5%">Sr No</th>
+                                      <th width="5%">Date</th>
+                                      <th width="10%" class="category">Category</th>
+                                      <th width="25%">Task Subject</th>
+                                      <th width="5%">Est Completion Date</th>
+                                      <th width="5%">Assigned From</th>
+                                      <th width="5%">&nbsp;</th>
+                                      <th width="20%">Communication</th>
+                                      <th width="10%">Send Message</th>
                                       {{-- <th>Remarks</th> --}}
-                                      <th>Action</th>
+                                      <th width="10%">Action</th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                     <?php $i = 1 ?>
                                   @foreach($data['task']['pending'] as $task)
-                                <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task['id'] }}">
+                                <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task->id }}">
                                     <td>{{$i++}}</td>
-                                    <td>{{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
-                                    <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                                    <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
-                                    <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i')  }}</td>
-                                    <td>{{ $users[$task['assign_from']] }}</td>
-                                    @if( $task['assign_to'] == Auth::user()->id )
-                                        <td><a href="/task/complete/{{$task['id']}}">Complete</a></td>
+                                    <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
+                                    <td> {{ isset( $categories[$task->category] ) ? $categories[$task->category] : '' }}</td>
+                                    <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0">{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</td>
+                                    <td> {{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i')  }}</td>
+                                    <td>{{ $users[$task->assign_from] }}</td>
+                                    @if( $task->assign_to == Auth::user()->id )
+                                        <td><a href="/task/complete/{{$task->id}}">Complete</a></td>
                                     @else
-                                        <td>Assign to  {{ $task['assign_to'] ?? ($users[$task['assign_to']] ? $users[$task['assign_to']] : 'Nil')}}</td>
+                                        <td>Assign to  {{ $task->assign_to ?? ($users[$task->assign_to] ? $users[$task->assign_to] : 'Nil')}}</td>
                                     @endif
-                                    {{-- <td> --}}
-                                      <!-- @include('task-module.partials.remark',$task)  -->
-                                    {{-- </td> --}}
+
                                     <td>
-                                        <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task['id']}}" data-id="{{$task['id']}}">Add</a>
+                                      {{-- @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at) --}}
+                                        @if (isset($task->message))
+                                          {{ strlen($task->message) > 100 ? substr($task->message, 0, 97) . '...' : $task->message }}
+                                        @endif
+
+                                        {{-- <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $customer->id }}">Load More</button>
+
+                                        <ul class="more-communication-container">
+
+                                        </ul> --}}
+                                      {{-- @else
+                                        {{ $remark_message }}
+                                      @endif --}}
+                                    </td>
+                                    <td>
+                                      <div class="d-inline">
+                                        <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                        <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
+                                      </div>
+
+                                      {{-- <p class="pb-4 mt-3" style="display: block;">
+                                        <select name="quickCategory" class="form-control mb-3 quickCategory">
+                                          <option value="">Select Category</option>
+                                          @foreach($reply_categories as $category)
+                                              <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                                          @endforeach
+                                        </select>
+
+                                        <select name="quickComment" class="form-control quickComment">
+                                          <option value="">Quick Reply</option>}}
+                                        </select>
+                                      </p> --}}
+                                    </td>
+
+                                    <td>
+                                        <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                                        <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task->id}}" data-id="{{$task->id}}">Add</a>
                                         <span> | </span>
-                                        <a href id="view-remark-list-btn" class="view-remark  {{ $task['remarks'] ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View</a>
-                                      <!--<button class="delete-task" data-id="{{$task['id']}}">Delete</button>-->
+                                        <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a>
                                     </td>
                                 </tr>
 
+
                                 <!-- Modal -->
-                                <div id="add-new-remark_{{$task['id']}}" class="modal fade" role="dialog">
+                                <div id="add-new-remark_{{$task->id}}" class="modal fade" role="dialog">
                                   <div class="modal-dialog">
 
                                     <!-- Modal content-->
@@ -357,8 +393,8 @@
                                       <div class="modal-body">
                                         <form id="add-remark">
                                           <input type="hidden" name="id" value="">
-                                          <textarea id="remark-text_{{$task['id']}}" rows="1" name="remark" class="form-control"></textarea>
-                                          <button type="button" class="mt-2 " onclick="addNewRemark({{$task['id']}})">Add Remark</button>
+                                          <textarea id="remark-text_{{$task->id}}" rows="1" name="remark" class="form-control"></textarea>
+                                          <button type="button" class="mt-2 " onclick="addNewRemark({{$task->id}})">Add Remark</button>
                                       </form>
                                       </div>
                                       <div class="modal-footer">
@@ -580,6 +616,9 @@
         }
     </style>
     <script>
+
+    var cached_suggestions = localStorage['message_suggestions'];
+    var suggestions = [];
 
     $(document).ready(function() {
       var hash = window.location.hash.substr(1);
@@ -852,6 +891,76 @@
             });
 
             $(".table").tablesorter();
+        });
+
+        $(document).on('click', '.send-message', function() {
+          var thiss = $(this);
+          var data = new FormData();
+          var task_id = $(this).data('taskid');
+          var message = $(this).siblings('input').val();
+
+          data.append("task_id", task_id);
+          data.append("message", message);
+          data.append("status", 1);
+
+          if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+              $.ajax({
+                url: '/whatsapp/sendMessage/task',
+                type: 'POST',
+               "dataType"    : 'json',           // what to expect back from the PHP script, if anything
+               "cache"       : false,
+               "contentType" : false,
+               "processData" : false,
+               "data": data,
+               beforeSend: function() {
+                 $(thiss).attr('disabled', true);
+               }
+             }).done( function(response) {
+                $(thiss).siblings('input').val('');
+
+                if (cached_suggestions) {
+                  suggestions = JSON.parse(cached_suggestions);
+
+                  if (suggestions.length == 10) {
+                    suggestions.push(message);
+                    suggestions.splice(0, 1);
+                  } else {
+                    suggestions.push(message);
+                  }
+                  localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                  cached_suggestions = localStorage['message_suggestions'];
+
+                  console.log('EXISTING');
+                  console.log(suggestions);
+                } else {
+                  suggestions.push(message);
+                  localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                  cached_suggestions = localStorage['message_suggestions'];
+
+                  console.log('NOT');
+                  console.log(suggestions);
+                }
+
+                // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                //   .done(function( data ) {
+                //
+                //   }).fail(function(response) {
+                //     console.log(response);
+                //     alert(response.responseJSON.message);
+                //   });
+
+                $(thiss).attr('disabled', false);
+              }).fail(function(errObj) {
+                $(thiss).attr('disabled', false);
+
+                alert("Could not send message");
+                console.log(errObj);
+              });
+            }
+          } else {
+            alert('Please enter a message first');
+          }
         });
 
     </script>

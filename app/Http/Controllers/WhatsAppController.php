@@ -14,6 +14,7 @@ use App\AutoReply;
 use App\BroadcastImage;
 use App\Leads;
 use App\Order;
+use App\Task;
 use App\Status;
 use App\Supplier;
 use App\Setting;
@@ -86,6 +87,13 @@ class WhatsAppController extends FindByNumberController
           'sent_to' => $instruction->assigned_from,
           'role' => '',
         ]);
+
+        $params['erp_user'] = $user->id;
+
+        $params = $this->modifyParamsWithMessage($params, $data);
+        $message = ChatMessage::create($params);
+        $model_type = 'user';
+        $model_id = $user->id;
       }
 
       if ($supplier) {
@@ -463,6 +471,13 @@ class WhatsAppController extends FindByNumberController
           'sent_to' => $instruction->assigned_from,
           'role' => '',
         ]);
+
+        $params['erp_user'] = $user->id;
+
+        $params = $this->modifyParamsWithMessage($params, $data);
+        $message = ChatMessage::create($params);
+        $model_type = 'user';
+        $model_id = $user->id;
       }
 
       if ($supplier) {
@@ -904,6 +919,8 @@ class WhatsAppController extends FindByNumberController
 //        'screenshot_path' => 'nullable|required_without:message',
         'customer_id'     => 'sometimes|nullable|numeric',
         'supplier_id'     => 'sometimes|nullable|numeric',
+        'task_id'         => 'sometimes|nullable|numeric',
+        'erp_user'        => 'sometimes|nullable|numeric',
         'status'          => 'required|numeric',
         'assigned_to'     => 'sometimes|nullable',
       ]);
@@ -922,19 +939,50 @@ class WhatsAppController extends FindByNumberController
       } elseif ($context == 'supplier') {
         $data['supplier_id'] = $request->supplier_id;
         $module_id = $request->supplier_id;
+      } elseif ($context == 'task') {
+        $data['task_id'] = $request->task_id;
+        $data['status'] = 0;
+        $task = Task::find($request->task_id);
+
+        if ($task->assign_from == Auth::id()) {
+          $data['erp_user'] = $task->assign_to;
+        } else {
+          $data['erp_user'] = $task->assign_from;
+        }
+
+        $module_id = $request->task_id;
+      } elseif ($context == 'user') {
+        $data['erp_user'] = $request->user_id;
+        $module_id = $request->user_id;
       }
 
       $chat_message = ChatMessage::create($data);
 
+      $data['status'] = 1;
+
+      if ($context == 'task') {
+        $data['erp_user'] = Auth::id();
+
+        $another_message = ChatMessage::create($data);
+      }
+
       if ($request->hasFile('image')) {
         $media = MediaUploader::fromSource($request->file('image'))->upload();
         $chat_message->attachMedia($media,config('constants.media_tags'));
+
+        if ($context == 'task') {
+          $another_message->attachMedia($media,config('constants.media_tags'));
+        }
       }
 
       if ($request->images) {
         foreach (json_decode($request->images) as $image) {
           $media = Media::find($image);
           $chat_message->attachMedia($media,config('constants.media_tags'));
+
+          if ($context == 'task') {
+            $another_message->attachMedia($media,config('constants.media_tags'));
+          }
         }
       }
 
@@ -945,6 +993,10 @@ class WhatsAppController extends FindByNumberController
 
         $media = MediaUploader::fromSource($image_path)->upload();
         $chat_message->attachMedia($media,config('constants.media_tags'));
+
+        if ($context == 'task') {
+          $another_message->attachMedia($media,config('constants.media_tags'));
+        }
 
         File::delete('uploads/temp_screenshot.png');
       }
@@ -1319,6 +1371,12 @@ class WhatsAppController extends FindByNumberController
       } else if ($request->supplierId) {
         $column = 'supplier_id';
         $value = $request->supplierId;
+      } else if ($request->taskId) {
+        $column = 'task_id';
+        $value = $request->taskId;
+      } else if ($request->erpUser) {
+        $column = 'erp_user';
+        $value = $request->erpUser;
       } else {
         $column = 'customer_id';
         $value = $request->customerId;
@@ -1564,7 +1622,16 @@ class WhatsAppController extends FindByNumberController
           $supplier = Supplier::find($message->supplier_id);
           $phone = $supplier->default_phone;
           $whatsapp_number = $supplier->whatsapp_number;
+        } else if ($context == 'task') {
+          $user = User::find($message->user_id);
+          $phone = $user->phone;
+          $whatsapp_number = $user->whatsapp_number;
+        } else if ($context == 'user') {
+          $user = User::find($message->erp_user);
+          $phone = $user->phone;
+          $whatsapp_number = $user->whatsapp_number;
         }
+
         $data = '';
         if ($message->message != '') {
 

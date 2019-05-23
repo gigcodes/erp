@@ -183,7 +183,7 @@
 <div class="row">
   <div class="col-lg-12 margin-tb">
     <div class="pull-left">
-      <h3>User Page</h3>
+      <h3>Task Page</h3>
     </div>
     <div class="pull-right mt-4">
       {{-- <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
@@ -198,48 +198,248 @@
 
 <div class="row">
   <div class="col-xs-12 col-md-4 border">
-        <div class="form-group">
-            <strong>Name:</strong>
-            {{ str_replace( '_' , ' ' ,$user->name) }}
-        </div>
+    <div class="form-group">
+      {{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
+    </div>
 
-        <div class="form-group">
-            <strong>Email:</strong>
-            {{ $user->email }}
-        </div>
+    <div class="form-group">
+      {{ isset($categories[$task->category]) ? $categories[$task->category] : 'No Category' }}
+    </div>
 
-        <div class="form-group">
-            <strong>Phone:</strong>
-            {{ $user->phone }}
-        </div>
+    <div class="form-group">
+      @if ($task->task_subject)
+        <strong>{{ $task->task_subject }}</strong>
+      @endif
 
-        <div class="form-group">
-            <strong>Solo Phone:</strong>
-            {{ $user->whatsapp_number }}
-        </div>
+      {{ $task->task_details }}
+    </div>
 
-        <div class="form-group">
-            <strong>Roles:</strong>
-            @if(!empty($user->getRoleNames()))
-                @foreach($user->getRoleNames() as $v)
-                    <label class="badge badge-success">{{ $v }}</label>
-                @endforeach
-            @endif
-        </div>
+    <div class="form-group">
+      {{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i') }}
+    </div>
 
+    <div class="form-group">
+      {{ array_key_exists($task->assign_from, $users_array) ? $users_array[$task->assign_from] : 'User Does Not Exist' }}
+    </div>
+
+    <div class="form-group">
+      <strong>Assigned to:</strong>
+      @if (array_key_exists($task->assign_to, $users_array))
+        <a href="{{ route('users.show', $task->assign_to) }}">{{ $users_array[$task->assign_to] }}</a>
+      @else
+        User Does Not Exist
+      @endif
+    </div>
+
+    <div class="form-group">
+      @if($task->assign_to == Auth::user()->id)
+        <a href="/task/complete/{{$task->id}}">Complete</a>
+      @else
+        Assign to {{ $task->assign_to ?? ($users_array[$task->assign_to] ? $users_array[$task->assign_to] : 'User Does Not Exist')}}
+      @endif
+    </div>
+
+    <div class="form-group">
+        <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task->id}}" data-id="{{$task->id}}">Add</a>
+        <span> | </span>
+        <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a>
+    </div>
+    {{-- <div class="d-flex">
+      @if ($customer->is_priority == 1)
         <div class="form-group">
-            <strong>Responsible User:</strong>
-            @if($user->responsible_user)
-              {{ $users_array[$user->responsible_user] }}
-            @endif
+          <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
         </div>
+      @else
+        <div class="form-group">
+          <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+        </div>
+      @endif
+
+      <div class="form-group form-inline">
+        <input type="text" name="name" id="customer_name" class="form-control input-sm" placeholder="Name" value="{{ $customer->name }}">
+      </div>
+
+      <div class="form-group">
+        <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
+
+        @if ($customer->is_blocked == 1)
+          <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
+        @else
+          <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
+        @endif
+
+        @if ($customer->do_not_disturb == 1)
+          <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-not-disturb.png" /></button>
+        @else
+          <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-disturb.png" /></button>
+        @endif
+
+        @if ($customer->is_flagged == 1)
+          <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
+        @else
+          <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
+        @endif
+
+        <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
+
+        @include('customers.partials.modal-advance-link')
+      </div>
+    </div>
+
+    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+      <div class="form-group form-inline">
+        <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
+
+        @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
+          <span class="badge badge-danger ml-3" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+        @endif
+      </div>
+    @endif
+
+    <div class="form-group">
+      <textarea name="address" id="customer_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address">{{ $customer->address }}</textarea>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <div class="form-group">
+          <input type="text" name="city" id="customer_city" class="form-control input-sm" placeholder="City" value="{{ $customer->city }}">
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-group">
+          <input type="text" name="country" id="customer_country" class="form-control input-sm" placeholder="Country" value="{{ $customer->country }}">
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-group">
+          <input type="number" name="pincode" id="customer_pincode" class="form-control input-sm" placeholder="91111" value="{{ $customer->pincode }}">
+        </div>
+      </div>
+    </div>
+
+    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+      <div class="form-group">
+        <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
+      </div>
+
+      <div class="form-group">
+        <input type="text" name="insta_handle" id="customer_insta_handle" class="form-control input-sm" placeholder="Instagram Handle" value="{{ $customer->insta_handle }}">
+      </div>
+
+      <div class="form-group">
+        <select name="whatsapp_number" class="form-control input-sm" id="whatsapp_change">
+          <option value>Whatsapp Number</option>
+
+          @foreach ($api_keys as $api_key)
+            <option value="{{ $api_key->number }}" {{ $customer->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
+          @endforeach
+        </select>
+
+        <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
+      </div>
+    @endif
+
+    <div class="row">
+      <div class="col-6">
+        <div class="form-group">
+          <select name="rating" class="form-control input-sm" id="customer_rating">
+            <option value>Select Rating</option>
+            <option value="1" {{ '1' == $customer->rating ? 'selected' : '' }}>1</option>
+            <option value="2" {{ '2' == $customer->rating ? 'selected' : '' }}>2</option>
+            <option value="3" {{ '3' == $customer->rating ? 'selected' : '' }}>3</option>
+            <option value="4" {{ '4' == $customer->rating ? 'selected' : '' }}>4</option>
+            <option value="5" {{ '5' == $customer->rating ? 'selected' : '' }}>5</option>
+            <option value="6" {{ '6' == $customer->rating ? 'selected' : '' }}>6</option>
+            <option value="7" {{ '7' == $customer->rating ? 'selected' : '' }}>7</option>
+            <option value="8" {{ '8' == $customer->rating ? 'selected' : '' }}>8</option>
+            <option value="9" {{ '9' == $customer->rating ? 'selected' : '' }}>9</option>
+            <option value="10" {{ '10' == $customer->rating ? 'selected' : '' }}>10</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-group">
+          <select class="form-control input-sm" name="shoe_size" id="customer_shoe_size">
+            <option value="">Select a Shoe Size</option>
+            <option value="34" {{ $customer->shoe_size == '34' }}>34</option>
+            <option value="34.5" {{ $customer->shoe_size == '34.5' }}>34.5</option>
+            <option value="35" {{ $customer->shoe_size == '35' }}>35</option>
+            <option value="35.5" {{ $customer->shoe_size == '35.5' }}>35.5</option>
+            <option value="36" {{ $customer->shoe_size == '36' }}>36</option>
+            <option value="36.5" {{ $customer->shoe_size == '36.5' }}>36.5</option>
+            <option value="37" {{ $customer->shoe_size == '37' }}>37</option>
+            <option value="37.5" {{ $customer->shoe_size == '37.5' }}>37.5</option>
+            <option value="38" {{ $customer->shoe_size == '38' }}>38</option>
+            <option value="38.5" {{ $customer->shoe_size == '38.5' }}>38.5</option>
+            <option value="39" {{ $customer->shoe_size == '39' }}>39</option>
+            <option value="39.5" {{ $customer->shoe_size == '39.5' }}>39.5</option>
+            <option value="40" {{ $customer->shoe_size == '40' }}>40</option>
+            <option value="40.5" {{ $customer->shoe_size == '40.5' }}>40.5</option>
+            <option value="41" {{ $customer->shoe_size == '41' }}>41</option>
+            <option value="41.5" {{ $customer->shoe_size == '41.5' }}>41.5</option>
+            <option value="42" {{ $customer->shoe_size == '42' }}>42</option>
+            <option value="42.5" {{ $customer->shoe_size == '42.5' }}>42.5</option>
+            <option value="43" {{ $customer->shoe_size == '43' }}>43</option>
+            <option value="43.5" {{ $customer->shoe_size == '43.5' }}>43.5</option>
+            <option value="44" {{ $customer->shoe_size == '44' }}>44</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-group">
+          <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control input-sm" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-group">
+          <select class="form-control input-sm" name="gender" id="customer_gender">
+            <option value="female" {{ 'female' == $customer->gender ? 'selected' : '' }}>Female</option>
+            <option value="male" {{ 'male' == $customer->gender ? 'selected' : '' }}>Male</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-group">
+          <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <button type="button" id="updateCustomerButton" class="btn btn-xs btn-secondary">Save</button>
+    </div>
+
+    @if ($customer->credit > 0)
+      <div class="form-group">
+        <strong>Credit:</strong> {{ $customer->credit }}
+      </div>
+
+      <div class="form-group">
+        <button type="button" class="btn btn-xs btn-secondary issue-credit-button" data-id="{{ $customer->id }}">Issue Credit</button>
+      </div>
+
+      @if ($customer->credits_issued)
+        <ul>
+          @foreach ($customer->credits_issued as $credit)
+            <li>Email sent on {{ \Carbon\Carbon::parse($credit->created_at)->format('H:i d-m') }}</li>
+          @endforeach
+        </ul>
+      @endif
+    @endif --}}
   </div>
 
 
 
   <div class="col-xs-12 col-md-4 mb-3">
     <div class="border">
-      {{-- <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
         <div class="d-flex">
           @csrf
 
@@ -258,6 +458,12 @@
             <input type="hidden" name="status" value="0" />
           </div>
 
+          {{-- <div class="form-group">
+            <div class="upload-btn-wrapper">
+              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+              <input type="file" name="image" />
+            </div>
+          </div> --}}
         </div>
 
       </form>
@@ -282,6 +488,12 @@
 
               </div>
 
+              <div class="">
+                {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
+
+
+                {{-- <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button> --}}
+              </div>
             </div>
           </div>
 
@@ -298,8 +510,27 @@
 
         </div>
 
+        {{-- <div class="pb-4 mt-3">
+          <div class="row">
+            <div class="col">
+              <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
+                <option value="">Select Category</option>
+                @foreach($reply_categories as $category)
+                  <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                @endforeach
+              </select>
 
-      </form> --}}
+              <select name="quickComment" id="quickComment" class="form-control input-sm">
+                <option value="">Quick Reply</option>
+              </select>
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
+            </div>
+          </div>
+        </div> --}}
+
+      </form>
 
     </div>
   </div>
@@ -400,7 +631,7 @@
         var container = $("div#message-container");
         var suggestion_container = $("div#suggestion-container");
         // var sendBtn = $("#waMessageSend");
-        var erpUser = "{{ $user->id }}";
+        var taskId = "{{ $task->id }}";
              var addElapse = false;
              function errorHandler(error) {
                  console.error("error occured: " , error);
@@ -409,7 +640,7 @@
                if (!$(element).attr('disabled')) {
                  $.ajax({
                    type: "POST",
-                   url: "/whatsapp/approve/user",
+                   url: "/whatsapp/approve/task",
                    data: {
                      _token: "{{ csrf_token() }}",
                      messageId: message.id
@@ -606,7 +837,7 @@
 
 
                if (message.status == 0 || message.status == 5 || message.status == 6) {
-                 var meta = $("<em>" + users_array[message.user_id] + " " + moment(message.created_at).format('DD-MM H:mm') + " </em>");
+                 var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:mm') + " </em>");
                  var mark_read = $("<a href data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
                  var mark_replied = $('<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
 
@@ -833,7 +1064,7 @@
         }
         function pollMessages(page = null, tobottom = null, addElapse = null) {
                  var qs = "";
-                 qs += "?erpUser=" + erpUser;
+                 qs += "?taskId=" + taskId;
                  if (page) {
                    qs += "&page=" + page;
                  }
@@ -920,14 +1151,14 @@
            var file = $($(this).closest('form').find('input[type="file"]'))[0].files[0];
            var status = $(this).closest('form').find('input[name="status"]').val();
            var screenshot_path = $('#screenshot_path').val();
-           var user_id = {{ $user->id }};
+           var task_id = {{ $task->id }};
            var formData = new FormData();
 
            formData.append("_token", token);
            formData.append("image", file);
            formData.append("message", $(this).closest('form').find('textarea').val());
            // formData.append("moduletype", $(this).closest('form').find('input[name="moduletype"]').val());
-           formData.append("user_id", user_id);
+           formData.append("task_id", task_id);
            formData.append("assigned_to", $(this).closest('form').find('select[name="assigned_to"]').val());
            formData.append("status", status);
            formData.append("screenshot_path", screenshot_path);
@@ -1428,7 +1659,7 @@
       });
 
       $('#updateCustomerButton').on('click', function() {
-        var id = {{ $user->id }};
+        var id = {{ $task->id }};
         var thiss = $(this);
         var name = $('#customer_name').val();
         var phone = $('#customer_phone').val();

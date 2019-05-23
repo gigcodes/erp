@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\User;
 use App\UserLogin;
 use App\Setting;
+use App\Helpers;
 use App\NotificationQueue;
 use App\PushNotification;
 use Spatie\Permission\Models\Role;
@@ -110,7 +111,12 @@ class UserController extends Controller
 	public function show($id)
 	{
 		$user = User::find($id);
-		return view('users.show',compact('user'));
+		$users_array = Helpers::getUserArray(User::all());
+
+		return view('users.show', [
+			'user'	=> $user,
+			'users_array'	=> $users_array,
+		]);
 	}
 
 
