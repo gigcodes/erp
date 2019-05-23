@@ -56,6 +56,7 @@
                     <th>Platform</th>
                     <th>Name</th>
                     <th>Username</th>
+                    <th>All Followers</th>
                     <th>Action</th>
                 </tr>
                 @foreach($pages as $key=>$page)
@@ -64,6 +65,9 @@
                         <td>{{$page->name}}</td>
                         <td>{{$page->platform}}</td>
                         <td><a href="https://instagram.com/{{$page->username}}">{{$page->username}}</a></td>
+                        <td>
+                            <a href="{{ action('CompetitorPageController@edit', $page->id) }}">Show All</a>
+                        </td>
                         <td>
                             <a href="{{ action('CompetitorPageController@show',$page->id) }}">
                                 Show Data
