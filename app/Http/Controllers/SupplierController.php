@@ -193,15 +193,15 @@ class SupplierController extends Controller
         $query->whereNotNull('default_email')->orWhereNotNull('email');
       })->get();
 
-      $first_email = '';
-      $bcc_emails = [];
-      foreach ($suppliers as $key => $supplier) {
-        if ($key == 0) {
-          $first_email = $supplier->default_email ?? $supplier->email;
-        } else {
-          $bcc_emails[] = $supplier->default_email ?? $supplier->email;
-        }
-      }
+      // $first_email = '';
+      // $bcc_emails = [];
+      // foreach ($suppliers as $key => $supplier) {
+      //   if ($key == 0) {
+      //     $first_email = $supplier->default_email ?? $supplier->email;
+      //   } else {
+      //     $bcc_emails[] = $supplier->default_email ?? $supplier->email;
+      //   }
+      // }
 
       $file_paths = [];
 
@@ -215,9 +215,10 @@ class SupplierController extends Controller
         }
       }
 
-      Mail::to($first_email)->bcc($bcc_emails)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
       foreach ($suppliers as $supplier) {
+        Mail::to($supplier->default_email ?? $supplier->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        
         $params = [
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
