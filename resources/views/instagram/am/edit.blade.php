@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Instagram Automated Messages</h2>
+            <h2 class="page-heading">Edit Message</h2>
         </div>
     </div>
     <div class="row">
@@ -12,13 +12,14 @@
                 <div class="card">
                     <div class="card-header">
                         <div style="cursor: pointer;font-size: 20px;font-weight: bolder;" data-toggle="collapse" data-target="#form_am" aria-expanded="true" aria-controls="form_am">
-                            Create New Reply / DM
+                            Edit Message
                         </div>
                     </div>
-                    <div id="form_am" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                    <div id="form_am" class="show" aria-labelledby="headingOne" data-parent="#accordionExample">
                         <div class="card-body">
-                            <form method="post" action="{{ action('InstagramAutomatedMessagesController@store') }}">
+                            <form method="post" action="{{ action('InstagramAutomatedMessagesController@update', $reply->id) }}">
                                 @csrf
+                                @method('PUT')
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
@@ -41,8 +42,8 @@
                                         <div class="form-group">
                                             <label for="receiver_type">Receiver Type</label>
                                             <select class="form-control" name="receiver_type" id="receiver_type">
-                                                <option value="hashtag">Hahstags</option>
-                                                <option value="inf_dm">DM Influencers</option>
+                                                <option {{ $reply->receiver_type == 'hashtag' ? 'selected' : '' }} value="hashtag">Hahstags</option>
+                                                <option {{ $reply->receiver_type == 'inf_dm' ? 'selected' : '' }} value="inf_dm">DM Influencers</option>
                                                 <option disabled value="product_inquiry">Product Inquiry / Query</option>
                                             </select>
                                         </div>
@@ -58,11 +59,11 @@
                                     </div>
                                     <div class="col-md-9">
                                         <div class="form-group">
-                                            <textarea class="form-control" name="message" id="message" rows="4" placeholder="Type message or reply..."></textarea>
+                                            <textarea class="form-control" name="message" id="message" rows="4" placeholder="Type message or reply...">{{ $reply->message }}</textarea>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
-                                        <button class="btn btn-info btn-block">Add Message</button>
+                                        <button class="btn btn-info btn-block">Update Message</button>
                                     </div>
                                 </div>
                             </form>
@@ -72,51 +73,6 @@
             </div>
             <br>
             <br>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <table id="table" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>S.N</th>
-                        <th>Type</th>
-                        <th>Sender Type</th>
-                        <th>Receiver Type</th>
-                        <th>Message</th>
-                        <th>Status</th>
-                        <th>Reusable</th>
-                        <th>Used for</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($replies as $key=>$reply)
-                        <tr>
-                            <td>{{$key+1}}</td>
-                            <td>{{$reply->type}}</td>
-                            <td>{{$reply->sender_type}}</td>
-                            <td>{{$reply->receiver_type}}</td>
-                            <td>{{$reply->message}}</td>
-                            <td class="text-center">{!! $reply->status ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
-                            <td class="text-center">{!! $reply->reusable ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
-                            <td>{{ $reply->use_count>0 ? 'Used ('. $reply->use_count. ')' : 'Unused' }}</td>
-                            <td>
-                                <form method="post" action="{{ action('InstagramAutomatedMessagesController@destroy', $reply->id) }}">
-                                    @csrf
-                                    @method('delete')
-                                    <a class="btn btn-info" href="{{ action('InstagramAutomatedMessagesController@edit', $reply->id) }}">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                    <button class="btn btn-sm btn-danger">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
         </div>
     </div>
 @endsection

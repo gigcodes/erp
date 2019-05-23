@@ -6,6 +6,7 @@ use App\AutomatedMessages;
 use App\HashtagPostHistory;
 use App\InstagramAutomatedMessages;
 use Illuminate\Http\Request;
+use InstagramAPI\Instagram;
 
 class InstagramAutomatedMessagesController extends Controller
 {
@@ -81,9 +82,11 @@ class InstagramAutomatedMessagesController extends Controller
      * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
      * @return \Illuminate\Http\Response
      */
-    public function edit(InstagramAutomatedMessages $instagramAutomatedMessages)
+    public function edit($id)
     {
-        //
+        $reply = InstagramAutomatedMessages::findOrFail($id);
+
+        return view('instagram.am.edit', compact('reply'));
     }
 
     /**
@@ -93,9 +96,23 @@ class InstagramAutomatedMessagesController extends Controller
      * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, InstagramAutomatedMessages $instagramAutomatedMessages)
+    public function update(Request $request, $id)
     {
-        //
+        $reply = InstagramAutomatedMessages::findOrFail($id);
+
+        $this->validate($request, [
+            'message' => 'required'
+        ]);
+
+        $reply->type = $request->get('type');
+        $reply->sender_type = $request->get('sender_type');
+        $reply->receiver_type = $request->get('receiver_type');
+        $reply->reusable = $request->get('reusable');
+        $reply->message = $request->get('message');
+        $reply->save();
+
+        return redirect()->action('InstagramAutomatedMessagesController@index')->with('message', 'Update successful!');
+
     }
 
     /**
@@ -104,8 +121,14 @@ class InstagramAutomatedMessagesController extends Controller
      * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
      * @return \Illuminate\Http\Response
      */
-    public function destroy(InstagramAutomatedMessages $instagramAutomatedMessages)
+    public function destroy($id)
     {
-        //
+        $msg = AutomatedMessages::findOrFail($id);
+
+        if ($msg) {
+            $msg->delete();
+        }
+
+        return redirect()->action('AutomatedMessagesController@index')->with('success', 'Message deleted successfully!');
     }
 }

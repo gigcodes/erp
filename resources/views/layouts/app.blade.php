@@ -1203,6 +1203,7 @@
 
                           <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
                             <a class="dropdown-item" href="{{ action('InstagramController@index') }}">INSTAGRAM | DASHBOARD</a>
+                            <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">INSTAGRAM | Recent Comments (Notifications)</a>
                             <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">INSTAGRAM | All Posts</a>
                             <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">INSTAGRAM | Create A Post</a>
                             <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">INSTAGRAM | Scheduled Posts</a>
@@ -1336,11 +1337,7 @@
                                       </a>
 
                                       <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
-
-
-
                               </div>
-
                           </li>
                         @endcan
 

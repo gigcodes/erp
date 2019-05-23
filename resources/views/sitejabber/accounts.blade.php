@@ -73,7 +73,7 @@
                                 <td>{{ $sj->first_name ?? 'N/A' }} {{ $sj->first_name ?? 'N/A' }}</td>
                                 <td>{{ $sj->email }}</td>
                                 <td>{{ $sj->password }}</td>
-                                <td>{{ $sj->created_at->diffForHumans() }}</td>
+                                <td>{{ $sj->created_at->format('Y-m-d') }}</td>
 
                                 <td>
                                     @if ($sj->reviews()->count())

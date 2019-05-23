@@ -530,6 +530,7 @@ Route::prefix('sitejabber')->group(function() {
 Route::prefix('instagram')->group(function () {
     Route::get('test/{id}', 'AccountController@test');
     Route::get('accounts', 'InstagramController@accounts');
+    Route::get('notification', 'HashtagController@showNotification');
     Route::resource('influencer', 'InfluencersController');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');

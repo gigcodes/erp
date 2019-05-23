@@ -182,6 +182,43 @@ class HashtagController extends Controller
         return response()->json($hashtags);
     }
 
+    public function showNotification() {
+        $hashtags = new Hashtags();
+        $hashtags->login();
+        $maxId = '';
+        $commentsFinal = [];
+
+        do {
+            $hashtagPostsAll = $hashtags->getFeed('sololuxury', $maxId);
+            [$hashtagPosts, $maxId] = $hashtagPostsAll;
+
+            foreach ($hashtagPosts as $hashtagPost) {
+                $comments = $hashtagPost['comments'] ?? [];
+
+                if ($comments === []) {
+                    continue;
+                }
+
+                $postId = $hashtagPost['media_id'];
+                $commentsFinal[$postId]['text'] = $hashtagPost['caption'];
+                $commentsFinal[$postId]['code'] = $hashtagPost['code'];
+                foreach ($comments as $comment) {
+                    $createdAt = Carbon::createFromTimestamp($comment['created_at'])->diffForHumans();
+                    $commentsFinal[$postId]['comments'][]    = [
+                        'username' => $comment['user']['username'],
+                        'text' => $comment['text'],
+                        'created_at' => $createdAt,
+                    ];
+                }
+
+            }
+
+        } while($maxId!='END');
+
+        return view('instagram.notifications', compact('commentsFinal'));
+
+    }
+
     public function showProcessedComments(Request $request) {
          $posts = InstagramPosts::all();
 

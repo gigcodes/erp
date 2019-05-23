@@ -92,7 +92,11 @@ class AutoReplyOnSololuxuryHashtags extends Command
 
 
                 $instagram = new Instagram();
-                $instagram->login($account->last_name, $account->password);
+                try {
+                    $instagram->login($account->last_name, $account->password);
+                } catch (\Exception $exception) {
+                    continue;
+                }
                 $instagram->media->comment($mediaId, $message->message);
 
                 ++$message->use_count;

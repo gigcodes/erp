@@ -65,7 +65,7 @@
                         </td>
                         <td>{{ $post['like_count'] }}</td>
                         <td>{{ $post['comment_count'] }}</td>
-                        <td>{!! $post['location']['name'] . '<br>' . $post['location']['city']  !!}</td>
+                        <td>{!! ($post['location']['name'] ?? 'N/A') . '<br>' . ($post['location']['city'] ?? 'N/A')  !!}</td>
                         <td>{{ $post['created_at'] }}</td>
                         <td style="width: 600px;">
                             @if ($post['comments'])
