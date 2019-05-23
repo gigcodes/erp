@@ -28,9 +28,9 @@
                             <td>{{ $account->password }}</td>
                             <td>{{ $account->created_at }}</td>
                             <td>
-                                <button class="btn btn-danger btn-sm">
-                                    <i class="fa fa-trash"></i>
-                                </button>
+{{--                                <button class="btn btn-danger btn-sm">--}}
+{{--                                    <i class="fa fa-trash"></i>--}}
+{{--                                </button>--}}
                                 <a class="btn btn-success" href="{{ action('AccountController@test', $account->id) }}">
                                     <i class="fa fa-check"></i>
                                 </a>

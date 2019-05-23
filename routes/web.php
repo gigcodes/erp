@@ -522,6 +522,7 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::resource('cold-leads', 'ColdLeadsController');
 
 Route::prefix('sitejabber')->group(function() {
+    Route::get('review/{id}/confirm', 'SitejabberQAController@confirmReviewAsPosted');
     Route::get('review/{id}/delete', 'SitejabberQAController@detachBrandReviews');
     Route::get('review/{id}', 'SitejabberQAController@attachBrandReviews');
     Route::get('accounts', 'SitejabberQAController@accounts');
@@ -530,6 +531,7 @@ Route::prefix('sitejabber')->group(function() {
 });
 
 Route::prefix('instagram')->group(function () {
+    Route::post('media/comment', 'HashtagController@commentOnHashtag');
     Route::get('test/{id}', 'AccountController@test');
     Route::get('accounts', 'InstagramController@accounts');
     Route::get('notification', 'HashtagController@showNotification');

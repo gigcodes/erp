@@ -47,10 +47,14 @@ class InstagramAutomatedMessagesController extends Controller
             'receiver_type' => 'required',
             'reusable' => 'required',
             'message' => 'required',
+            'account_id' => 'required',
+            'target_id' => 'required'
         ]);
 
         $reply = new InstagramAutomatedMessages();
         $reply->type = $request->get('type');
+        $reply->account_id = $request->get('account_id');
+        $reply->target_id = $request->get('target_id');
         $reply->sender_type = $request->get('sender_type');
         $reply->receiver_type = $request->get('receiver_type');
         $reply->reusable = $request->get('reusable');
@@ -118,17 +122,17 @@ class InstagramAutomatedMessagesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
+     * @param $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $msg = AutomatedMessages::findOrFail($id);
+        $msg = InstagramAutomatedMessages::findOrFail($id);
 
         if ($msg) {
             $msg->delete();
         }
 
-        return redirect()->action('AutomatedMessagesController@index')->with('success', 'Message deleted successfully!');
+        return redirect()->action('InstagramAutomatedMessagesController@index')->with('success', 'Message deleted successfully!');
     }
 }

@@ -95,8 +95,21 @@
                                     </tr>
                                 </table>
                             @else
-                                <strong>N/A</strong>
+                                <strong>No Comments yet!</strong>
                             @endif
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <select class="form-control" name="account_id" id="account_id_{{$post['media_id']}}">
+                                        <?php $accs = \App\Account::where('platform', 'instagram')->get(); ?>
+                                        @foreach($accs as $cc)
+                                            <option value="{{ $cc->id }}">{{ $cc->last_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-9">
+                                    <input type="text" class="comment-it form-control" data-mediaId="{{$post['media_id']}}" placeholder="Type comment...">
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -150,8 +163,26 @@
             });
         });
 
-        function loadComments(postId) {
+        $('.comment-it').keyup(function(event) {
+            if (event.keyCode == 13) {
+                let message = $(this).val();
+                let mediaId = $(this).attr('data-mediaId');
+                let accountId = $('#account_id_'+mediaId).val();
 
-        }
+                $.ajax({
+                    url: '{{action('HashtagController@commentOnHashtag')}}',
+                    type: 'POST',
+                    data: {
+                        message: message,
+                        post_id: mediaId,
+                        account_id: accountId,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function() {
+                        alert('Comment added successfully!');
+                    }
+                });
+            }
+        });
     </script>
 @endsection

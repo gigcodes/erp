@@ -41,7 +41,7 @@
                         @foreach($accounts as $key=>$sj)
                             <tr>
                                 <td>{{ $key+1 }}</td>
-                                <td>{{ $sj->first_name ?? 'N/A' }} {{ $sj->first_name ?? 'N/A' }}</td>
+                                <td>{{ $sj->first_name ?? 'N/A' }} {{ $sj->last_name ?? 'N/A' }}</td>
                                 <td>{{ $sj->email }}</td>
                                 <td>{{ $sj->password }}</td>
                                 <td>{{ $sj->created_at->format('Y-m-d') }}</td>
@@ -100,7 +100,7 @@
                                     @endif
                                 </td>
                                 <td class="text-center">{!! (isset($answer) && $answer->is_approved) ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
-                                <td class="text-center">{!! (isset($answer) && $answer->status =='posted') ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
+                                <td class="text-center"><a href="{{ action('SitejabberQAController@confirmReviewAsPosted', isset($answer) ? $answer->id : '') }}">{!! (isset($answer) && $answer->status =='posted') ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</a></td>
                             </tr>
                         @endforeach
                         </tbody>

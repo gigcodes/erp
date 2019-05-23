@@ -225,4 +225,23 @@ class HashtagController extends Controller
 
         return view('instagram.comments', compact('posts'));
     }
+
+    public function commentOnHashtag(Request $request) {
+        $this->validate($request, [
+            'message' => 'required',
+            'post_id' => 'required',
+            'account_id' => 'required'
+        ]);
+
+        $acc = Account::findOrFail($request->get('account_id'));
+
+        $instagram = new Instagram();
+        $instagram->login($acc->last_name, $acc->password);
+        $instagram->media->comment($request->get('post_id'), $request->get('message'));
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+
+    }
 }

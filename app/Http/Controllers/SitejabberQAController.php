@@ -214,4 +214,12 @@ class SitejabberQAController extends Controller
         return redirect()->back()->with('message', 'Attached to a customer!');
 
     }
+
+    public function confirmReviewAsPosted($id) {
+        Review::where('id', $id)->update([
+            'status' => 'posted'
+        ]);
+
+        return redirect()->back();
+    }
 }
