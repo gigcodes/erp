@@ -50,17 +50,26 @@ class BroadcastMessageController extends Controller
 
     $new_data = [];
 
-    $month_days = $request->sending_time ? 1 : $month_back->daysInMonth;
+    // $month_days = $request->sending_time ? 1 : $month_back->daysInMonth;
+    //
+    // for ($i = $month_back->format('d'); $i <= $month_days; $i++) {
+    //   $day = $i < 10 ? "0" . $i : $i;
+    //
+    //   if ($month_days == 1) {
+    //     $new_data[$request->sending_time] = [];
+    //   } else {
+    //     $date = $month_back->format('Y-m-') . $day;
+    //
+    //     $new_data[$date] = [];
+    //   }
+    // }
 
-    for ($i = 1; $i <= $month_days; $i++) {
-      $day = $i < 10 ? "0" . $i : $i;
-
-      if ($month_days == 1) {
-        $new_data[$request->sending_time] = [];
-      } else {
-        $date = $month_back->format('Y-m-') . $day;
-
-        $new_data[$date] = [];
+    if ($request->sending_time) {
+      $new_data[$request->sending_time] = [];
+    } else {
+      while ($month_back->lte(Carbon::parse($date))) {
+        $new_data[$month_back->copy()->format('Y-m-d')] = [];
+        $month_back->addDay();
       }
     }
 
@@ -126,6 +135,7 @@ class BroadcastMessageController extends Controller
     $api_keys = ApiKey::select('number')->get();
     $broadcast_images = BroadcastImage::paginate(Setting::get('pagination'));
     $cron_job = CronJob::where('signature', 'run:message-queues')->first();
+    $pending_messages_count = MessageQueue::where('sent', 0)->where('status', '!=', 1)->where('sending_time', '<', Carbon::now())->count();
 
     return view('customers.broadcast', [
       'message_queues'            => $message_queues,
@@ -140,6 +150,7 @@ class BroadcastMessageController extends Controller
       'api_keys'                  => $api_keys,
       'broadcast_images'          => $broadcast_images,
       'cron_job'                  => $cron_job,
+      'pending_messages_count'    => $pending_messages_count,
     ]);
   }
 
@@ -252,7 +263,7 @@ class BroadcastMessageController extends Controller
     $minutes = round(60 / $request->frequency);
     $now = Carbon::now();
     $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-    $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+    $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
 
     foreach ($group as $set) {
 
@@ -262,12 +273,12 @@ class BroadcastMessageController extends Controller
           $now->addDay();
           $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
           $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-          $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+          $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
         } else {
           // dont add day
           $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
           $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-          $evening = Carbon::create($now->year, $now->month, $now->day, 22, 0, 0);
+          $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
         }
       }
 

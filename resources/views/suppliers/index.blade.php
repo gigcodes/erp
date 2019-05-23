@@ -137,7 +137,8 @@
   <script type="text/javascript">
     $(document).ready(function() {
        $(".select-multiple").multiselect({
-         buttonWidth: '100%'
+         buttonWidth: '100%',
+         includeSelectAllOption: true
        });
     });
 

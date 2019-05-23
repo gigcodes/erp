@@ -15,7 +15,7 @@
               Broadcast Messages
 
               @if ($cron_job->last_status == 'error')
-                <span class="badge">Cron Job Error</span>
+                <span class="badge" data-toggle="tooltip" title="Pending messages {{ $pending_messages_count }}">Cron Job Error</span>
               @endif
             </h2>
 
@@ -530,6 +530,10 @@
   <script type="text/javascript">
     $('#schedule-datetime').datetimepicker({
       format: 'YYYY-MM-DD'
+    });
+
+    $(document).ready(function() {
+      $("body").tooltip({ selector: '[data-toggle=tooltip]' });
     });
 
     $(document).on('click', '.quick-edit-phone-button', function(e) {

@@ -360,6 +360,7 @@ class MasterControlController extends Controller
       }
 
       $cron_job = CronJob::where('signature', 'run:message-queues')->first();
+      $pending_messages_count = MessageQueue::where('sent', 0)->where('status', '!=', 1)->where('sending_time', '<', Carbon::now())->count();
 
       // dd($reviews);
 
@@ -393,6 +394,7 @@ class MasterControlController extends Controller
         'reviews'     => $reviews_array,
         'instruction_categories_array'     => $instruction_categories_array,
         'cron_job'     => $cron_job,
+        'pending_messages_count'     => $pending_messages_count,
       ]);
     }
 
