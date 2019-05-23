@@ -8,6 +8,7 @@ use App\Setting;
 use App\Customer;
 use App\BroadcastImage;
 use App\ApiKey;
+use App\CronJob;
 use Carbon\Carbon;
 use File;
 use Plank\Mediable\Media;
@@ -124,6 +125,7 @@ class BroadcastMessageController extends Controller
     $customers_all = Customer::select(['id', 'name', 'phone', 'email'])->get();
     $api_keys = ApiKey::select('number')->get();
     $broadcast_images = BroadcastImage::paginate(Setting::get('pagination'));
+    $cron_job = CronJob::where('signature', 'run:message-queues')->first();
 
     return view('customers.broadcast', [
       'message_queues'            => $message_queues,
@@ -136,7 +138,8 @@ class BroadcastMessageController extends Controller
       'customers_all'             => $customers_all,
       'selected_customer'         => $selected_customer,
       'api_keys'                  => $api_keys,
-      'broadcast_images'          => $broadcast_images
+      'broadcast_images'          => $broadcast_images,
+      'cron_job'                  => $cron_job,
     ]);
   }
 

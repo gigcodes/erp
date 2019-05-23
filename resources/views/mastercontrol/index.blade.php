@@ -75,6 +75,10 @@
               <div class="col">
                 <div class="pull-left">
                   <a href="{{ route('broadcast.index') }}" target="_blank"><h3>Broadcasts</h3></a>
+
+                  @if ($cron_job->last_status == 'error')
+                    <span class="badge">Cron Job Error</span>
+                  @endif
                 </div>
 
                 {{-- <div class="pull-right">

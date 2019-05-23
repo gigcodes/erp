@@ -11,7 +11,13 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Broadcast Messages</h2>
+            <h2 class="page-heading">
+              Broadcast Messages
+
+              @if ($cron_job->last_status == 'error')
+                <span class="badge">Cron Job Error</span>
+              @endif
+            </h2>
 
             {{-- <div class="row mb-3">
               <div class="col">

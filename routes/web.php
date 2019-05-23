@@ -18,7 +18,6 @@
 Auth::routes();
 
 //Route::get('/home', 'HomeController@index')->name('home');
-
 Route::get('/productselection/list','ProductSelectionController@sList')->name('productselection.list');
 Route::get('/productsearcher/list','ProductSearcherController@sList')->name('productsearcher.list');
 // adding chat contro
@@ -256,6 +255,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
 
 	// Master Plan
+	Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');
 	Route::resource('mastercontrol', 'MasterControlController');
 
 	// Cash Vouchers
