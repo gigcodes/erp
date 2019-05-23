@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\ActivitiesRoutines;
+use App\BrandReviews;
 use App\Review;
 use App\Setting;
 use App\SitejabberQA;
@@ -150,6 +151,7 @@ class SitejabberQAController extends Controller
 
     public function accounts() {
         $accounts = Account::where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->get();
+        $brandReviews = BrandReviews::where('used', 0)->take(1500)->get();
         $accountsRemaining = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->count();
         $remainingReviews = Review::whereHas('account')->whereNotIn('status', ['posted', 'posted_one'])->count();
         $totalAccounts = $accounts->count();
@@ -177,12 +179,39 @@ class SitejabberQAController extends Controller
             $setting3->save();
         }
 
-        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews'));
+        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews'));
     }
 
     public function reviews() {
         $reviews = Review::where('platform', 'sitejabber')->get();
 
         return view('sitejabber.reviews', compact('reviews'));
+    }
+
+    public function attachBrandReviews($id) {
+        $reviewx = BrandReviews::findOrFail($id);
+        $account = Account::whereDoesntHave('reviews')->orderBy('created_at', 'DESC')->first();
+
+        $review = new Review();
+        $review->account_id = $account->id;
+        $review->review = $reviewx->body;
+        $review->platform = 'sitejabber';
+        $review->title = $reviewx->title;
+        $review->save();
+
+        $reviewx->used = 1;
+        $reviewx->save();
+
+        return redirect()->back()->with('message', 'Attached to a customer!');
+
+    }
+
+    public function detachBrandReviews($id) {
+        $reviewx = BrandReviews::findOrFail($id);
+
+        $reviewx->delete();
+
+        return redirect()->back()->with('message', 'Attached to a customer!');
+
     }
 }

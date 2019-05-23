@@ -522,6 +522,8 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::resource('cold-leads', 'ColdLeadsController');
 
 Route::prefix('sitejabber')->group(function() {
+    Route::get('review/{id}/delete', 'SitejabberQAController@detachBrandReviews');
+    Route::get('review/{id}', 'SitejabberQAController@attachBrandReviews');
     Route::get('accounts', 'SitejabberQAController@accounts');
     Route::get('reviews', 'SitejabberQAController@reviews');
     Route::resource('qa', 'SitejabberQAController');
