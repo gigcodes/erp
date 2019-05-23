@@ -3,38 +3,27 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Comments On #sololuxury</h2>
+            <h2 class="page-heading">Facebook Brand Pages Fan</h2>
         </div>
-    </div>
-    <div class="row">
         <div class="col-md-12">
             <table id="table" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>I.D</th>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Created At</th>
-                        <th>Action</th>
+                        <th>S.N</th>
+                        <th>Brand</th>
+                        <th>Brand URL</th>
+                        <th>User</th>
+                        <th>Created date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($accounts as $key=>$account)
+                    @foreach($brands as $key=>$group)
                         <tr>
-                            <td>{{ $key+1 }}</td>
-                            <td>{{ $account->first_name }}</td>
-                            <td>{{ $account->last_name }}</td>
-                            <td>{{ $account->password }}</td>
-                            <td>{{ $account->created_at }}</td>
-                            <td>
-{{--                                <button class="btn btn-danger btn-sm">--}}
-{{--                                    <i class="fa fa-trash"></i>--}}
-{{--                                </button>--}}
-                                <a class="btn btn-success" href="{{ action('AccountController@test', $account->id) }}">
-                                    <i class="fa fa-check"></i>
-                                </a>
-                            </td>
+                            <td>{{$key+1}}</td>
+                            <td>{{ $group->brand_name }}</td>
+                            <td><a href="{{ $group->brand_url }}">Visit Brand Page</a></td>
+                            <td><a href="{{ $group->profile_url }}">{{ $group->username }}</a></td>
+                            <td>{{ $group->created_at }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -70,9 +59,10 @@
                     }
                 } );
             } );
-            var table = $('#table').dataTable({
+            var table = $('#table').DataTable({
                 orderCellsTop: true,
-                fixedHeader: true
+                fixedHeader: true,
+                pageLength: 500
             });
         });
     </script>

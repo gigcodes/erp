@@ -182,10 +182,66 @@ class HashtagController extends Controller
         return response()->json($hashtags);
     }
 
+    public function showNotification() {
+        $hashtags = new Hashtags();
+        $hashtags->login();
+        $maxId = '';
+        $commentsFinal = [];
+
+        do {
+            $hashtagPostsAll = $hashtags->getFeed('sololuxury', $maxId);
+            [$hashtagPosts, $maxId] = $hashtagPostsAll;
+
+            foreach ($hashtagPosts as $hashtagPost) {
+                $comments = $hashtagPost['comments'] ?? [];
+
+                if ($comments === []) {
+                    continue;
+                }
+
+                $postId = $hashtagPost['media_id'];
+                $commentsFinal[$postId]['text'] = $hashtagPost['caption'];
+                $commentsFinal[$postId]['code'] = $hashtagPost['code'];
+                foreach ($comments as $comment) {
+                    $createdAt = Carbon::createFromTimestamp($comment['created_at'])->diffForHumans();
+                    $commentsFinal[$postId]['comments'][]    = [
+                        'username' => $comment['user']['username'],
+                        'text' => $comment['text'],
+                        'created_at' => $createdAt,
+                    ];
+                }
+
+            }
+
+        } while($maxId!='END');
+
+        return view('instagram.notifications', compact('commentsFinal'));
+
+    }
+
     public function showProcessedComments(Request $request) {
          $posts = InstagramPosts::all();
 
 
         return view('instagram.comments', compact('posts'));
+    }
+
+    public function commentOnHashtag(Request $request) {
+        $this->validate($request, [
+            'message' => 'required',
+            'post_id' => 'required',
+            'account_id' => 'required'
+        ]);
+
+        $acc = Account::findOrFail($request->get('account_id'));
+
+        $instagram = new Instagram();
+        $instagram->login($acc->last_name, $acc->password);
+        $instagram->media->comment($request->get('post_id'), $request->get('message'));
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+
     }
 }

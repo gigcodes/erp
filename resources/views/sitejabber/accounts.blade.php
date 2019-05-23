@@ -17,41 +17,12 @@
                     <li>
                         <a href="#three" data-toggle="tab" class="btn btn-image">Settings</a>
                     </li>
+                    <li>
+                        <a href="#four" data-toggle="tab" class="btn btn-image">Review Templates</a>
+                    </li>
                 </ul>
             </div>
             <div class="tab-content">
-                <div class="tab-pane mt-3" id="three">
-                    <div class="row">
-                        <div class="col-md-12" style="font-size: 22px;">
-                            1. Accounts Remaining: {{ $accountsRemaining }}<br>
-                            2. Total Accounts: {{ $totalAccounts }}<br>
-                            3. Reviews Remaining: {{ $remainingReviews }}<br><br>
-                        </div>
-                        <form method="get" action="{{action('SitejabberQAController@edit', 'routines')}}">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="range">Post this number of reviews in a day</label>
-                                    <input name="range" id="range" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting->times_a_day }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="range2">Create this number of SJ account in a day</label>
-                                    <input name="range2" id="range2" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting2->times_a_day }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="range3">Post this number of question every week</label>
-                                    <input name="range3" id="range3" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting3->times_a_week }}">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <button class="mt-4 btn btn-primary">Ok</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
                 <div class="tab-pane active mt-3" id="one">
                     <table id="table" class="table table-striped">
                         <thead>
@@ -70,10 +41,10 @@
                         @foreach($accounts as $key=>$sj)
                             <tr>
                                 <td>{{ $key+1 }}</td>
-                                <td>{{ $sj->first_name ?? 'N/A' }} {{ $sj->first_name ?? 'N/A' }}</td>
+                                <td>{{ $sj->first_name ?? 'N/A' }} {{ $sj->last_name ?? 'N/A' }}</td>
                                 <td>{{ $sj->email }}</td>
                                 <td>{{ $sj->password }}</td>
-                                <td>{{ $sj->created_at->diffForHumans() }}</td>
+                                <td>{{ $sj->created_at->format('Y-m-d') }}</td>
 
                                 <td>
                                     @if ($sj->reviews()->count())
@@ -129,13 +100,13 @@
                                     @endif
                                 </td>
                                 <td class="text-center">{!! (isset($answer) && $answer->is_approved) ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
-                                <td class="text-center">{!! (isset($answer) && $answer->status =='posted') ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
+                                <td class="text-center"><a href="{{ action('SitejabberQAController@confirmReviewAsPosted', isset($answer) ? $answer->id : '') }}">{!! (isset($answer) && $answer->status =='posted') ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</a></td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
                 </div>
-                <div class="tab-pane active mt-3" id="two">
+                <div class="tab-pane mt-3" id="two">
                     <div class="accordion" id="accordionExample">
                         <div class="card mt-0">
                             <div class="card-header">
@@ -224,6 +195,73 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="tab-pane mt-3" id="three">
+                    <div class="row">
+                        <div class="col-md-12" style="font-size: 22px;">
+                            1. Accounts Remaining: {{ $accountsRemaining }}<br>
+                            2. Total Accounts: {{ $totalAccounts }}<br>
+                            3. Reviews Remaining: {{ $remainingReviews }}<br><br>
+                        </div>
+                        <form method="get" action="{{action('SitejabberQAController@edit', 'routines')}}">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="range">Post this number of reviews in a day</label>
+                                    <input name="range" id="range" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting->times_a_day }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="range2">Create this number of SJ account in a day</label>
+                                    <input name="range2" id="range2" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting2->times_a_day }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="range3">Post this number of question every week</label>
+                                    <input name="range3" id="range3" type="number" class="form-control" placeholder="Eg: 6" value="{{ $setting3->times_a_week }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="mt-4 btn btn-primary">Ok</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-panel mt-3" id="four">
+                    <table id="table3" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>S.N</th>
+                            <th>Platform</th>
+                            <th>brand</th>
+                            <th>Title</th>
+                            <th>Body</th>
+                            <th>Created At</th>
+                            <th>Attach For Approval</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($brandReviews as $key=>$brandReview)
+                            <tr>
+                                <th>{{ $key+1 }}</th>
+                                <td>{{ $brandReview->website }}</td>
+                                <td>{{ $brandReview->brand }}</td>
+                                <td>{{ $brandReview->title }}</td>
+                                <td>{{ $brandReview->body }}</td>
+                                <td>{{ $brandReview->created_at->format('Y-m-d') }}</td>
+                                <td width="100px;">
+                                    <a class="btn btn-info btn-sm" href="{{ action('SitejabberQAController@attachBrandReviews', $brandReview->id) }}">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                    <a class="btn btn-danger btn-sm" href="{{ action('SitejabberQAController@detachBrandReviews', $brandReview->id) }}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -258,7 +296,7 @@
                     }
                 } );
             } );
-            var table = $('#table').dataTable({
+            var table = $('#table').DataTable({
                 orderCellsTop: true,
                 fixedHeader: true
             });
@@ -277,7 +315,26 @@
                     }
                 } );
             } );
-            var table2 = $('#table2').dataTable({
+            var table2 = $('#table2').DataTable({
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+
+            $('#table3 thead tr').clone(true).appendTo( '#table3 thead' );
+            $('#table3 thead tr:eq(1) th').each( function (i) {
+                var title = $(this).text();
+                $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+
+                $( 'input', this ).on( 'keyup change', function () {
+                    if ( table3.column(i).search() !== this.value ) {
+                        table3
+                            .column(i)
+                            .search( this.value )
+                            .draw();
+                    }
+                } );
+            } );
+            var table3 = $('#table3').dataTable({
                 orderCellsTop: true,
                 fixedHeader: true
             });

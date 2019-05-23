@@ -1219,6 +1219,7 @@
 
                           <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
                             <a class="dropdown-item" href="{{ action('InstagramController@index') }}">INSTAGRAM | DASHBOARD</a>
+                            <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">INSTAGRAM | Recent Comments (Notifications)</a>
                             <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">INSTAGRAM | All Posts</a>
                             <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">INSTAGRAM | Create A Post</a>
                             <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">INSTAGRAM | Scheduled Posts</a>
@@ -1278,6 +1279,7 @@
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
                                     <a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Posts</a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups </a>
+                                    <a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brands Fan </a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@excel_import') }}">Import Excel Document Type 1</a>
                                     <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap Activity</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scraped</a>
@@ -1351,11 +1353,7 @@
                                       </a>
 
                                       <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
-
-
-
                               </div>
-
                           </li>
                         @endcan
 

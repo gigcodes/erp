@@ -56,6 +56,28 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="account_id">Sender Account</label>
+                                            <select class="form-control" name="account_id" id="account_id">
+                                                <?php $accs = \App\Account::where('platform', 'instagram')->get(); ?>
+                                                @foreach($accs as $acc)
+                                                        <option value="{{ $acc->id }}">{{ $acc->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="account_id">Receiver Account</label>
+                                            <select class="form-control" name="account_id" id="account_id">
+                                                <?php $accis = \App\Influencers::all(); ?>
+                                                @foreach($accis as $acc)
+                                                    <option value="{{ $acc->id }}">{{ $acc->username }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div class="col-md-9">
                                         <div class="form-group">
                                             <textarea class="form-control" name="message" id="message" rows="4" placeholder="Type message or reply..."></textarea>
@@ -83,6 +105,8 @@
                         <th>Type</th>
                         <th>Sender Type</th>
                         <th>Receiver Type</th>
+                        <th>Sender</th>
+                        <th>Receiver</th>
                         <th>Message</th>
                         <th>Status</th>
                         <th>Reusable</th>
@@ -97,6 +121,8 @@
                             <td>{{$reply->type}}</td>
                             <td>{{$reply->sender_type}}</td>
                             <td>{{$reply->receiver_type}}</td>
+                            <td>{{ isset($reply->account) ? $reply->account->last_name : 'N/A' }}</td>
+                            <td>{{ isset($reply->account) ? $reply->account->username : 'N/A'  }}</td>
                             <td>{{$reply->message}}</td>
                             <td class="text-center">{!! $reply->status ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
                             <td class="text-center">{!! $reply->reusable ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
@@ -104,7 +130,10 @@
                             <td>
                                 <form method="post" action="{{ action('InstagramAutomatedMessagesController@destroy', $reply->id) }}">
                                     @csrf
-                                    @method('delete')
+                                    @method('DELETE')
+                                    <a class="btn btn-info" href="{{ action('InstagramAutomatedMessagesController@edit', $reply->id) }}">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
                                     <button class="btn btn-sm btn-danger">
                                         <i class="fa fa-trash"></i>
                                     </button>

@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Account;
 use App\Influencers;
+use App\InfluencersDM;
+use App\InstagramAutomatedMessages;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
 
@@ -40,22 +42,46 @@ class SendMessagesToBloggers extends Command
      */
     public function handle()
     {
-        $bloggers = Influencers::whereDoesntHave('messages')->get();
+        $bloggers = Influencers::whereDoesntHave('message')->get();
 
         foreach ($bloggers as $blogger) {
             $targetUsername = $blogger->username;
+            echo "$targetUsername \n";
+
+            if (!$targetUsername) {
+                continue;
+            }
+
             $account = Account::where('platform', 'instagram')->inRandomOrder()->first();
             $message = '';
 
             $ig = new Instagram();
-            $ig->login($account->last_name, $account->password);
-            $userinfo = $ig->people->getInfoByName($targetUsername);
+
+            try {
+                  $ig->login($account->last_name, $account->password);
+//                $ig->login('rishabh_aryal', 'R1shabh@12345');
+                $userinfo = $ig->people->getInfoByName($targetUsername)->asArray();
+            } catch (\Exception $exception) {
+                continue;
+            }
+
+            $message = InstagramAutomatedMessages::where('type', 'text')
+                ->where('sender_type', 'normal')
+                ->where('receiver_type', 'inf_dm')
+                ->where('status', '1')
+                ->orderBy('use_count', 'ASC')
+                ->first();
 
             $ig->direct->sendText([
                 'users' => [
                     $userinfo['user']['pk']
                 ]
-            ], $message);
+            ], $message->message);
+
+            $msg = new InfluencersDM();
+            $msg->influencer_id = $blogger->id;
+            $msg->message_id = $message->id;
+            $msg->save();
 
 
         }
