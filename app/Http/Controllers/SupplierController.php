@@ -52,7 +52,9 @@ class SupplierController extends Controller
                   AS suppliers ORDER BY message_created_at DESC, email_created_at DESC;
 							');
 
-      $suppliers_all = Supplier::all();
+      $suppliers_all = Supplier::where(function ($query) {
+        $query->whereNotNull('email')->orWhereNotNull('default_email');
+      })->get();
 
               // dd($suppliers);
 
@@ -218,7 +220,7 @@ class SupplierController extends Controller
 
       foreach ($suppliers as $supplier) {
         Mail::to($supplier->default_email ?? $supplier->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
-        
+
         $params = [
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
