@@ -77,7 +77,7 @@
                   <a href="{{ route('broadcast.index') }}" target="_blank"><h3>Broadcasts</h3></a>
 
                   @if ($cron_job->last_status == 'error')
-                    <span class="badge">Cron Job Error</span>
+                    <span class="badge" data-toggle="tooltip" title="Pending messages {{ $pending_messages_count }}">Cron Job Error</span>
                   @endif
                 </div>
 
@@ -155,6 +155,10 @@
                   @php
                     $count++;
                   @endphp
+                @else
+                  <div class="col-md-4">
+                    <h4>Updated as of - Yesterday</h4>
+                  </div>
                 @endif
               @endforeach
 

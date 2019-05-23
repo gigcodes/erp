@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\CronJob;
 use App\CronJobReport;
+use App\MessageQueue;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -45,7 +46,9 @@ class MonitorCronJobs extends Command
         'start_time'  => Carbon::now()
       ]);
 
+      $now = Carbon::now();
       $cron_jobs = CronJob::all();
+      $message_queues_count = MessageQueue::where('sent', 0)->where('status', '!=', 1)->where('sending_time', '<', $now)->count();
 
       foreach ($cron_jobs as $cron_job) {
         $now = Carbon::now();
@@ -58,7 +61,7 @@ class MonitorCronJobs extends Command
             dump('cron job error');
 
             app('App\Http\Controllers\NotificationQueueController')->createNewNotification([
-              'message' => 'Broadcast Cron Job Error',
+              'message' => "Broadcast Cron Job Error - Pending messages: $message_queues_count",
               'timestamps' => ['+0 minutes'],
               'model_type' => 'MasterControl',
               'model_id' =>  1,
@@ -68,7 +71,7 @@ class MonitorCronJobs extends Command
             ]);
 
             app('App\Http\Controllers\NotificationQueueController')->createNewNotification([
-              'message' => 'Broadcast Cron Job Error',
+              'message' => "Broadcast Cron Job Error - Pending messages: $message_queues_count",
               'timestamps' => ['+0 minutes'],
               'model_type' => 'MasterControl',
               'model_id' =>  1,
@@ -78,7 +81,7 @@ class MonitorCronJobs extends Command
             ]);
 
             app('App\Http\Controllers\NotificationQueueController')->createNewNotification([
-              'message' => 'Broadcast Cron Job Error',
+              'message' => "Broadcast Cron Job Error - Pending messages: $message_queues_count",
               'timestamps' => ['+0 minutes'],
               'model_type' => 'MasterControl',
               'model_id' =>  1,
