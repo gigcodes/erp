@@ -377,14 +377,15 @@ class PurchaseController extends Controller
         }
 
         $customer_names = '';
-
+        $customers = [];
         foreach ($product->orderproducts as $key => $order_product) {
           if ($order_product->order && $order_product->order->customer) {
-            if ($count == 0) {
-              $customer_names .= $order_product->order->customer->name;
-            } else {
-              $customer_names .= ", " . $order_product->order->customer->name;
-            }
+            // if ($count == 0) {
+            //   $customer_names .= $order_product->order->customer->name;
+            // } else {
+            //   $customer_names .= ", " . $order_product->order->customer->name;
+            // }
+            $customers[] = $order_product->order->customer;
           }
         }
 
@@ -393,11 +394,15 @@ class PurchaseController extends Controller
         $new_products[$count]['supplier'] = $product->supplier;
         $new_products[$count]['supplier_list'] = $supplier_list;
         $new_products[$count]['single_supplier'] = $single_supplier;
+        $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
         $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
         $new_products[$count]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
-        $new_products[$count]['customer_names'] = $customer_names;
+        $new_products[$count]['customers'] = $customers;
+        $new_products[$count]['customer_names'] = '';
+        $new_products[$count]['order_products'] = $product->orderproducts;
         $new_products[$count]['order_price'] = $product->orderproducts->first()->product_price;
         $new_products[$count]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
+        $new_products[$count]['order_advance'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->advance_detail : 'No Order';
 
         $count++;
       }
@@ -523,7 +528,7 @@ class PurchaseController extends Controller
         // 'supplier'          => 'required',
         'products'          => 'required'
       ]);
-
+      
       $purchase = new Purchase;
 
       $purchase->purchase_handler = $request->purchase_handler;
