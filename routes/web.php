@@ -532,6 +532,9 @@ Route::prefix('sitejabber')->group(function() {
 });
 
 Route::prefix('instagram')->group(function () {
+    Route::get('thread/{id}', 'ColdLeadsController@getMessageThread');
+    Route::post('thread/{id}', 'ColdLeadsController@sendMessage');
+    Route::resource('brand-tagged', 'BrandTaggedPostsController');
     Route::post('media/comment', 'HashtagController@commentOnHashtag');
     Route::get('test/{id}', 'AccountController@test');
     Route::get('accounts', 'InstagramController@accounts');
@@ -595,5 +598,6 @@ Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
 Route::get('test', 'WhatsAppController@getAllMessages');
 
 Route::resource('track', 'UserActionsController');
+Route::get('competitor-page/hide/{id}', 'CompetitorPageController@hideLead');
 Route::resource('competitor-page', 'CompetitorPageController');
 Route::resource('target-location', 'TargetLocationController');

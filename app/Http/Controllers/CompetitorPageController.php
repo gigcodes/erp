@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CompetitorFollowers;
 use App\CompetitorPage;
 use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
@@ -127,10 +128,70 @@ class CompetitorPageController extends Controller
      * @param  \App\CompetitorPage  $competitorPage
      * @return \Illuminate\Http\Response
      */
-    public function edit(CompetitorPage $competitorPage)
+    public function edit($id)
     {
-        //
+        $followers = CompetitorFollowers::where('competitor_id', $id)->paginate(1);
+
+        $processedFollowers = [];
+
+        foreach ($followers as $follower) {
+            $processedFollowers[] = $this->getInstagramUserDataWithoutFollowers($follower->username, $follower->id);
+        }
+
+        return view('instagram.comp.followers', compact('processedFollowers', 'followers'));
+
     }
+
+    private function getInstagramUserDataWithoutFollowers($user, $id) {
+        $instagram = new Instagram();
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+        try {
+            $profileData = $instagram->people->getInfoByName($user)->asArray();
+        } catch (\Exception $exception) {
+            $profileData = [];
+        }
+
+        if (!isset($profileData['user'])) {
+            return [];
+        }
+
+
+        $profileData = $profileData['user'];
+
+        return [
+            'id' => $profileData['pk'],
+            'uid' => $id,
+            'name' => $profileData['full_name'],
+            'username' => $profileData['username'],
+            'followers_count' => $profileData['follower_count'],
+            'following_count' => $profileData['following_count'],
+            'profile_pic_url' => $profileData['profile_pic_url'],
+            'is_verified' => $profileData['is_verified'],
+            'bio' => $profileData['biography']
+        ];
+
+    }
+
+    public function hideLead($id) {
+        $c = CompetitorFollowers::findOrFail($id);
+        $c->status = 0;
+        $c->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function approveLead($id) {
+        $c = CompetitorFollowers::findOrFail($id);
+        $c->status = 2;
+        $c->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
 
     /**
      * Update the specified resource in storage.

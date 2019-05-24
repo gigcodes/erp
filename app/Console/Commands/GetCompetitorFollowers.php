@@ -66,8 +66,10 @@ class GetCompetitorFollowers extends Command
                 $followers = $followersAll['users'];
                 $lastId = $followersAll['next_max_id'];
 
+
                 foreach ($followers as $follower)
                 {
+                    echo $follower['username'] . "\n";
 
                     $u = CompetitorPage::where('username', $follower['username'])->first();
                     if ($u) {
