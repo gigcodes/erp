@@ -98,10 +98,10 @@
         <div class="col-md-3">
             <div class="card text-white bg-warning mb-3" style="width: 100%;">
                 <div class="card-body">
-                    <h3 class="card-title">Posts Total</h3>
-                    <h1 class="card-title">{{ $accounts }}</h1>
+                    <h3 class="card-title">Brand Tagged Users</h3>
+                    <h1 class="card-title">{{ \App\BrandTaggedPosts::get()->count() }}</h1>
                     <div class="text-right">
-                        <a class="text-light">Show</a>
+                        <a class="text-light" href="{{ action('BrandTaggedPostsController@index') }}">Show</a>
                     </div>
                 </div>
             </div>

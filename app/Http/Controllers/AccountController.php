@@ -6,12 +6,15 @@ use App\Account;
 use GuzzleHttp\Client;
 use InstagramAPI\Instagram;
 use Illuminate\Http\Request;
+use InstagramAPI\Response\GenericResponse;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class AccountController extends Controller
 {
+
+    private  $ig;
     public function show($id) {
         $account = Account::findOrFail($id);
         $accounts = Account::where('platform', 'instagram')->get();
@@ -61,13 +64,47 @@ class AccountController extends Controller
 
     public function test($id) {
         $account = Account::find($id);
-        $instagram = new Instagram();
+        $this->ig = new Instagram();
         try {
-            $instagram->login($account->last_name, $account->password);
+            $this->ig->login($account->last_name, $account->password);
         } catch (\Exception $exception) {
-            dd($exception);
+            $account->forceDelete();
         }
 
         return redirect()->back()->with('message', 'test passed!');
+    }
+
+    public function agreeConsentFirstStep()
+    {
+        return $this->ig->request('consent/existing_user_flow/')
+            ->setNeedsAuth(false)
+            ->addPost('_csrftoken', $this->ig->client->getToken())
+            ->addPost('_uid', $this->ig->account_id)
+            ->addPost('_uuid', $this->ig->uuid)
+            ->getResponse(new GenericResponse());
+    }
+
+    public function agreeConsentSecondStep()
+    {
+        return $this->ig->request('consent/existing_user_flow/')
+            ->setNeedsAuth(false)
+            ->addPost('current_screen_key', 'qp_intro')
+            ->addPost('updates', ['existing_user_intro_state' => '2'])
+            ->addPost('_csrftoken', $this->ig->client->getToken())
+            ->addPost('_uid', $this->ig->account_id)
+            ->addPost('_uuid', $this->ig->uuid)
+            ->getResponse(new GenericResponse());
+    }
+
+    public function agreeConsentThirdStep()
+    {
+        return $this->ig->request('consent/existing_user_flow/')
+            ->setNeedsAuth(false)
+            ->addPost('current_screen_key', 'tos_and_two_age_button')
+            ->addPost('updates', ['age_consent_state' => '2', 'tos_data_policy_consent_state' => '2'])
+            ->addPost('_csrftoken', $this->ig->client->getToken())
+            ->addPost('_uid', $this->ig->account_id)
+            ->addPost('_uuid', $this->ig->uuid)
+            ->getResponse(new GenericResponse());
     }
 }

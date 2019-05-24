@@ -182,6 +182,16 @@ class CompetitorPageController extends Controller
         ]);
     }
 
+    public function approveLead($id) {
+        $c = CompetitorFollowers::findOrFail($id);
+        $c->status = 2;
+        $c->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
 
     /**
      * Update the specified resource in storage.

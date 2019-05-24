@@ -31,8 +31,8 @@
                                 </table>
                             </td>
                             <td>
-                                <button class="btn btn-success">Approve Lead For DM</button>
                                 <button data-id="{{$item['uid']}}" class="btn btn-info reject-lead">Reject/Hide Lead</button>
+                                <button data-id="{{$item['uid']}}" class="btn btn-info approve-lead">Approve Lead For DM</button>
                             </td>
                         </tr>
                     @endif
@@ -143,7 +143,19 @@
                 $.ajax({
                     url: "{{ action('CompetitorPageController@hideLead', '') }}" + '/' + id,
                     success: function() {
-                        $('#rec_'+id).hide();
+                        $('#rec_'+id).hide('slow');
+                    }
+                });
+            });
+
+            $('.accept-lead').click(function (event) {
+                $(this).attr('disabled', 'true');
+                let id = $(this).attr('data-id');
+                $.ajax({
+                    url: "{{ action('CompetitorPageController@approveLead', '') }}" + '/' + id,
+                    success: function() {
+                        $('#rec_'+id).hide('slow');
+                        alert("Lead Approved!");
                     }
                 });
             });
