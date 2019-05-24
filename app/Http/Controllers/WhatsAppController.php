@@ -99,6 +99,7 @@ class WhatsAppController extends FindByNumberController
       if ($supplier) {
         // $params['lead_id'] = null;
         // $params['order_id'] = null;
+        $params['erp_user'] = NULL;
         $params['supplier_id'] = $supplier->id;
 
         $params = $this->modifyParamsWithMessage($params, $data);
@@ -146,6 +147,8 @@ class WhatsAppController extends FindByNumberController
       // }
 
       if ($customer) {
+        $params['erp_user'] = NULL;
+        $params['supplier_id'] = NULL;
         $params['customer_id'] = $customer->id;
 
         $params = $this->modifyParamsWithMessage($params, $data);
@@ -369,12 +372,23 @@ class WhatsAppController extends FindByNumberController
       $saturday = Carbon::now()->endOfWeek()->subDay()->format('Y-m-d');
       $sunday = Carbon::now()->endOfWeek()->format('Y-m-d');
 
-      $chat_messages_count = ChatMessage::where('customer_id', $params['customer_id'])->whereBetween('created_at', [$morning, $evening])->whereNotNull('number')->count();
-      $chat_messages_evening_count = ChatMessage::where('customer_id', $params['customer_id'])->where(function($query) use ($not_morning, $morning, $evening, $not_evening) {
-        $query->whereBetween('created_at', [$not_morning, $morning])->orWhereBetween('created_at', [$evening, $not_evening]);
-      })->whereNotNull('number')->count();
+      $chat_messages_query = ChatMessage::where('customer_id', $params['customer_id'])->whereBetween('created_at', [$morning, $evening])->whereNotNull('number');
+      $chat_messages_count = $chat_messages_query->count();
 
-      if ($chat_messages_count == 1 && ($saturday != $today_date && $sunday != $today_date)) {
+      $chat_messages_evening_query = ChatMessage::where('customer_id', $params['customer_id'])->where(function($query) use ($not_morning, $morning, $evening, $not_evening) {
+        $query->whereBetween('created_at', [$not_morning, $morning])->orWhereBetween('created_at', [$evening, $not_evening]);
+      })->whereNotNull('number');
+      $chat_messages_evening_count = $chat_messages_evening_query->count();
+
+      if ($chat_messages_count == 1) {
+        $chat_messages_query_first = $chat_messages_query->first();
+      }
+
+      if ($chat_messages_evening_count == 1) {
+        $chat_messages_evening_query_first = $chat_messages_evening_query->first();
+      }
+
+      if ($chat_messages_count == 1 && (isset($chat_messages_query_first) && $chat_messages_query_first->id == $message->id) && ($saturday != $today_date && $sunday != $today_date)) {
         $customer = Customer::find($params['customer_id']);
         $params = [
            'number'       => NULL,
@@ -391,9 +405,7 @@ class WhatsAppController extends FindByNumberController
           $additional_message = ChatMessage::create($params);
           $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
         }
-      }
-
-      if ($chat_messages_evening_count == 1 || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
+      } else if (($chat_messages_evening_count == 1 && (isset($chat_messages_evening_query_first) && $chat_messages_evening_query_first->id == $message->id)) || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
         $customer = Customer::find($params['customer_id']);
         $params = [
            'number'       => NULL,
@@ -474,13 +486,14 @@ class WhatsAppController extends FindByNumberController
 
         $params['erp_user'] = $user->id;
 
-        $params = $this->modifyParamsWithMessage($params, $data);
+        // $params = $this->modifyParamsWithMessage($params, $data);
         $message = ChatMessage::create($params);
         $model_type = 'user';
         $model_id = $user->id;
       }
 
       if ($supplier) {
+        $params['erp_user'] = NULL;
         $params['supplier_id'] = $supplier->id;
 
         $message = ChatMessage::create($params);
@@ -489,6 +502,8 @@ class WhatsAppController extends FindByNumberController
       }
 
       if ($customer) {
+        $params['erp_user'] = NULL;
+        $params['supplier_id'] = NULL;
         $params['customer_id'] = $customer->id;
 
         $message = ChatMessage::create($params);
@@ -716,12 +731,23 @@ class WhatsAppController extends FindByNumberController
       $saturday = Carbon::now()->endOfWeek()->subDay()->format('Y-m-d');
       $sunday = Carbon::now()->endOfWeek()->format('Y-m-d');
 
-      $chat_messages_count = ChatMessage::where('customer_id', $params['customer_id'])->whereBetween('created_at', [$morning, $evening])->whereNotNull('number')->count();
-      $chat_messages_evening_count = ChatMessage::where('customer_id', $params['customer_id'])->where(function($query) use ($not_morning, $morning, $evening, $not_evening) {
-        $query->whereBetween('created_at', [$not_morning, $morning])->orWhereBetween('created_at', [$evening, $not_evening]);
-      })->whereNotNull('number')->count();
+      $chat_messages_query = ChatMessage::where('customer_id', $params['customer_id'])->whereBetween('created_at', [$morning, $evening])->whereNotNull('number');
+      $chat_messages_count = $chat_messages_query->count();
 
-      if ($chat_messages_count == 1 && ($saturday != $today_date && $sunday != $today_date)) {
+      $chat_messages_evening_query = ChatMessage::where('customer_id', $params['customer_id'])->where(function($query) use ($not_morning, $morning, $evening, $not_evening) {
+        $query->whereBetween('created_at', [$not_morning, $morning])->orWhereBetween('created_at', [$evening, $not_evening]);
+      })->whereNotNull('number');
+      $chat_messages_evening_count = $chat_messages_evening_query->count();
+
+      if ($chat_messages_count == 1) {
+        $chat_messages_query_first = $chat_messages_query->first();
+      }
+
+      if ($chat_messages_evening_count == 1) {
+        $chat_messages_evening_query_first = $chat_messages_evening_query->first();
+      }
+
+      if ($chat_messages_count == 1 && (isset($chat_messages_query_first) && $chat_messages_query_first->id == $message->id) && ($saturday != $today_date && $sunday != $today_date)) {
         $customer = Customer::find($params['customer_id']);
         $params = [
            'number'       => NULL,
@@ -739,9 +765,7 @@ class WhatsAppController extends FindByNumberController
           // $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
           $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
         }
-      }
-
-      if ($chat_messages_evening_count == 1 || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
+      } else if (($chat_messages_evening_count == 1 && (isset($chat_messages_evening_query_first) && $chat_messages_evening_query_first->id == $message->id)) || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
         $customer = Customer::find($params['customer_id']);
         $params = [
            'number'       => NULL,
@@ -941,7 +965,6 @@ class WhatsAppController extends FindByNumberController
         $module_id = $request->supplier_id;
       } elseif ($context == 'task') {
         $data['task_id'] = $request->task_id;
-        $data['status'] = 0;
         $task = Task::find($request->task_id);
 
         if ($task->assign_from == Auth::id()) {
@@ -951,6 +974,10 @@ class WhatsAppController extends FindByNumberController
         }
 
         $module_id = $request->task_id;
+
+        if ($data['erp_user'] != Auth::id()) {
+          $data['status'] = 0;
+        }
       } elseif ($context == 'user') {
         $data['erp_user'] = $request->user_id;
         $module_id = $request->user_id;
@@ -960,7 +987,7 @@ class WhatsAppController extends FindByNumberController
 
       $data['status'] = 1;
 
-      if ($context == 'task') {
+      if ($context == 'task' && $data['erp_user'] != Auth::id()) {
         $data['erp_user'] = Auth::id();
 
         $another_message = ChatMessage::create($data);
@@ -970,7 +997,7 @@ class WhatsAppController extends FindByNumberController
         $media = MediaUploader::fromSource($request->file('image'))->upload();
         $chat_message->attachMedia($media,config('constants.media_tags'));
 
-        if ($context == 'task') {
+        if ($context == 'task' && $data['erp_user'] != Auth::id()) {
           $another_message->attachMedia($media,config('constants.media_tags'));
         }
       }
@@ -980,7 +1007,7 @@ class WhatsAppController extends FindByNumberController
           $media = Media::find($image);
           $chat_message->attachMedia($media,config('constants.media_tags'));
 
-          if ($context == 'task') {
+          if ($context == 'task' && $data['erp_user'] != Auth::id()) {
             $another_message->attachMedia($media,config('constants.media_tags'));
           }
         }
@@ -994,7 +1021,7 @@ class WhatsAppController extends FindByNumberController
         $media = MediaUploader::fromSource($image_path)->upload();
         $chat_message->attachMedia($media,config('constants.media_tags'));
 
-        if ($context == 'task') {
+        if ($context == 'task' && $data['erp_user'] != Auth::id()) {
           $another_message->attachMedia($media,config('constants.media_tags'));
         }
 
@@ -2007,13 +2034,13 @@ class WhatsAppController extends FindByNumberController
 
       $array = [
         'url' => "$file_encoded",
-        'reference' => "$chat_message_id"
+        // 'reference' => "$chat_message_id"
       ];
 
       $curl = curl_init();
 
       curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://api.wassenger.com/v1/files",
+        CURLOPT_URL => "https://api.wassenger.com/v1/files?reference=$chat_message_id",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
@@ -2031,7 +2058,7 @@ class WhatsAppController extends FindByNumberController
       $err = curl_error($curl);
 
       curl_close($curl);
-
+      // throw new \Exception("cURL Error #: whatttt");
       if ($err) {
         throw new \Exception("cURL Error #:" . $err);
       } else {
