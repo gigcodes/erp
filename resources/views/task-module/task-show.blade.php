@@ -439,7 +439,7 @@
 
   <div class="col-xs-12 col-md-4 mb-3">
     <div class="border">
-      <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('whatsapp.send', 'task') }}" method="POST" enctype="multipart/form-data">
         <div class="d-flex">
           @csrf
 
@@ -454,7 +454,7 @@
 
           <div class="form-group flex-fill mr-3">
             <button type="button" id="customerMessageButton" class="btn btn-image"><img src="/images/support.png" /></button>
-            <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
+            <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from User"></textarea>
             <input type="hidden" name="status" value="0" />
           </div>
 
@@ -468,7 +468,7 @@
 
       </form>
 
-      <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('whatsapp.send', 'task') }}" method="POST" enctype="multipart/form-data">
         <div id="paste-container" style="width: 200px;">
 
         </div>

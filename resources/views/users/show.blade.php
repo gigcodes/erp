@@ -198,41 +198,65 @@
 
 <div class="row">
   <div class="col-xs-12 col-md-4 border">
-        <div class="form-group">
-            <strong>Name:</strong>
-            {{ str_replace( '_' , ' ' ,$user->name) }}
-        </div>
+    {!! Form::model($user, ['method' => 'PATCH','route' => ['users.update', $user->id], 'class' => 'my-3']) !!}
+      <div class="form-group">
+        {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control input-sm')) !!}
+      </div>
 
-        <div class="form-group">
-            <strong>Email:</strong>
-            {{ $user->email }}
-        </div>
+      <div class="form-group">
+        {!! Form::text('email', null, array('placeholder' => 'Email','class' => 'form-control input-sm')) !!}
+      </div>
 
-        <div class="form-group">
-            <strong>Phone:</strong>
-            {{ $user->phone }}
-        </div>
+      <div class="form-group">
+        <input type="number" class="form-control input-sm" name="phone" placeholder="Phone Number" value="{{ $user->phone }}" />
+        @if ($errors->has('phone'))
+          <div class="alert alert-danger">{{$errors->first('phone')}}</div>
+        @endif
+      </div>
 
-        <div class="form-group">
-            <strong>Solo Phone:</strong>
-            {{ $user->whatsapp_number }}
-        </div>
+      <div class="form-group">
+        <select name="whatsapp_number" class="form-control input-sm">
+          <option value>Whatsapp Number</option>
 
-        <div class="form-group">
-            <strong>Roles:</strong>
-            @if(!empty($user->getRoleNames()))
-                @foreach($user->getRoleNames() as $v)
-                    <label class="badge badge-success">{{ $v }}</label>
-                @endforeach
-            @endif
-        </div>
+          @foreach ($api_keys as $api_key)
+            <option value="{{ $api_key->number }}" {{ $user->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
+          @endforeach
+        </select>
 
-        <div class="form-group">
-            <strong>Responsible User:</strong>
-            @if($user->responsible_user)
-              {{ $users_array[$user->responsible_user] }}
-            @endif
-        </div>
+        @if ($errors->has('whatsapp_number'))
+          <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
+        @endif
+      </div>
+
+      <div class="form-group">
+        {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control input-sm')) !!}
+      </div>
+
+      <div class="form-group">
+        {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control input-sm')) !!}
+      </div>
+
+      <div class="form-group">
+        <strong>Role:</strong>
+        {!! Form::select('roles[]', $roles, $userRole, array('class' => 'form-control input-sm','multiple')) !!}
+      </div>
+
+      <div class="form-group">
+        <strong>Agent Role:</strong>
+        {!! Form::select('agent_role[]', $agent_roles, $user_agent_roles, array('class' => 'form-control input-sm', 'multiple')) !!}
+      </div>
+
+      <div class="form-group">
+        <select name="responsible_user" class="form-control input-sm">
+          <option value="">Select Responsible User</option>
+          @foreach($users as $useritem)
+            <option value="{{$useritem->id}}" {{ $useritem->id == $user->responsible_user ? 'selected' : '' }}>{{$useritem->name}}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-xs btn-secondary">Save</button>
+    {!! Form::close() !!}
   </div>
 
 

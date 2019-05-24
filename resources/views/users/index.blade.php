@@ -42,7 +42,7 @@
                 </td>
                 <td>
                     <a class="btn btn-image" href="{{ route('users.show',$user->id) }}"><img src="/images/view.png" /></a>
-                    <a class="btn btn-image" href="{{ route('users.edit',$user->id) }}"><img src="/images/edit.png" /></a>
+                    {{-- <a class="btn btn-image" href="{{ route('users.edit',$user->id) }}"><img src="/images/edit.png" /></a> --}}
 
                     {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>

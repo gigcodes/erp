@@ -113,10 +113,22 @@ class UserController extends Controller
 	{
 		$user = User::find($id);
 		$users_array = Helpers::getUserArray(User::all());
+		$roles = Role::pluck('name','name')->all();
+		$users = User::all();
+		$userRole = $user->roles->pluck('name','name')->all();
+		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
+    $user_agent_roles = explode(',', $user->agent_role);
+		$api_keys = ApiKey::select('number')->get();
 
 		return view('users.show', [
 			'user'	=> $user,
 			'users_array'	=> $users_array,
+			'roles'	=> $roles,
+			'users'	=> $users,
+			'userRole'	=> $userRole,
+			'agent_roles'	=> $agent_roles,
+			'user_agent_roles'	=> $user_agent_roles,
+			'api_keys'	=> $api_keys,
 		]);
 	}
 
@@ -188,7 +200,7 @@ class UserController extends Controller
 		$user->assignRole($request->input('roles'));
 
 
-		return redirect()->route('users.index')
+		return redirect()->route('users.show', $id)
 		                 ->with('success','User updated successfully');
 	}
 
