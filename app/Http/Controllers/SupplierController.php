@@ -170,7 +170,7 @@ class SupplierController extends Controller
 
       Supplier::find($id)->update($data);
 
-      return redirect()->route('supplier.index')->withSuccess('You have successfully updated a supplier!');
+      return redirect()->back()->withSuccess('You have successfully updated a supplier!');
     }
 
     public function loadMoreMessages(Request $request, $id)

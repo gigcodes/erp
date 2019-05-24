@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ChatMessage extends Model
 {
     use Mediable;
-    protected $fillable = ['lead_id', 'order_id', 'customer_id', 'supplier_id', 'user_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'created_at'];
+    protected $fillable = ['lead_id', 'order_id', 'customer_id', 'supplier_id', 'user_id', 'task_id', 'erp_user', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'created_at'];
 	protected $table ="chat_messages";
 	protected $dates = ['created_at', 'updated_at'];
     protected $casts = array(

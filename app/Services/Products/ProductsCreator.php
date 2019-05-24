@@ -490,7 +490,7 @@ class ProductsCreator
 
       if (array_key_exists('sizes', $properties_array)) {
         $sizes = $properties_array['sizes'];
-        $size = implode(',', $sizes)
+        $size = implode(',', $sizes);
         // if (array_key_exists('Length', $sizes)) {
         //   preg_match_all('/\s((.*))\s/', $sizes['Length'], $match);
         //

@@ -8,8 +8,10 @@ use App\Http\Controllers\Controller;
 use App\User;
 use App\UserLogin;
 use App\Setting;
+use App\Helpers;
 use App\NotificationQueue;
 use App\PushNotification;
+use App\ApiKey;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -110,7 +112,24 @@ class UserController extends Controller
 	public function show($id)
 	{
 		$user = User::find($id);
-		return view('users.show',compact('user'));
+		$users_array = Helpers::getUserArray(User::all());
+		$roles = Role::pluck('name','name')->all();
+		$users = User::all();
+		$userRole = $user->roles->pluck('name','name')->all();
+		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
+    $user_agent_roles = explode(',', $user->agent_role);
+		$api_keys = ApiKey::select('number')->get();
+
+		return view('users.show', [
+			'user'	=> $user,
+			'users_array'	=> $users_array,
+			'roles'	=> $roles,
+			'users'	=> $users,
+			'userRole'	=> $userRole,
+			'agent_roles'	=> $agent_roles,
+			'user_agent_roles'	=> $user_agent_roles,
+			'api_keys'	=> $api_keys,
+		]);
 	}
 
 
@@ -127,10 +146,11 @@ class UserController extends Controller
 		$users = User::all();
 		$userRole = $user->roles->pluck('name','name')->all();
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-        $user_agent_roles = explode(',', $user->agent_role);
+    $user_agent_roles = explode(',', $user->agent_role);
+		$api_keys = ApiKey::select('number')->get();
 
 
-		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles'));
+		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles', 'api_keys'));
 	}
 
 
@@ -180,7 +200,7 @@ class UserController extends Controller
 		$user->assignRole($request->input('roles'));
 
 
-		return redirect()->route('users.index')
+		return redirect()->route('users.show', $id)
 		                 ->with('success','User updated successfully');
 	}
 

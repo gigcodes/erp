@@ -245,7 +245,7 @@ class MagentoController extends Controller {
 			Setting::add( 'lastid', $orderlist[ $j ]->order_id, 'int' );
 
 			$order = Order::find($id);
-			if ($order->order_status == 'Proceed without Advance') {
+			if ($results['payment']['method'] == 'cashondelivery') {
 				$product_names = '';
 				foreach (OrderProduct::where('order_id', $id)->get() as $order_product) {
 
@@ -326,7 +326,7 @@ class MagentoController extends Controller {
 			// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 		}
 
-		if ($order->order_status == 'Proceed without Advance' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
+		if ($results['payment']['method'] == 'cashondelivery' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
 			$order->update([
 				'auto_messaged' => 1,
 				'auto_messaged_date'	=> Carbon::now()
