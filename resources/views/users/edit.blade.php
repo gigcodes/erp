@@ -52,7 +52,7 @@
 
         <div class="col-xs-12">
     			<div class="form-group">
-    				<strong>Solo phone:</strong>
+    				{{-- <strong>Solo phone:</strong>
     				<Select name="whatsapp_number" class="form-control">
     					<option value>None</option>
     					<option value="919167152579" {{ $user->whatsapp_number == '919167152579' ? 'selected' : '' }}>00</option>
@@ -63,7 +63,15 @@
     					<option value="919152731486" {{ $user->whatsapp_number == '919152731486' ? 'selected' : '' }}>06</option>
     					<option value="918291352520" {{ $user->whatsapp_number == '918291352520' ? 'selected' : '' }}>08</option>
     					<option value="919004008983" {{ $user->whatsapp_number == '919004008983' ? 'selected' : '' }}>09</option>
-    				</Select>
+    				</Select> --}}
+            <select name="whatsapp_number" class="form-control" id="whatsapp_change">
+              <option value>Whatsapp Number</option>
+
+              @foreach ($api_keys as $api_key)
+                <option value="{{ $api_key->number }}" {{ $user->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
+              @endforeach
+            </select>
+
     				@if ($errors->has('whatsapp_number'))
     						<div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
     				@endif

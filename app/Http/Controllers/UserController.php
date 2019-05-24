@@ -11,6 +11,7 @@ use App\Setting;
 use App\Helpers;
 use App\NotificationQueue;
 use App\PushNotification;
+use App\ApiKey;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -133,10 +134,11 @@ class UserController extends Controller
 		$users = User::all();
 		$userRole = $user->roles->pluck('name','name')->all();
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-        $user_agent_roles = explode(',', $user->agent_role);
+    $user_agent_roles = explode(',', $user->agent_role);
+		$api_keys = ApiKey::select('number')->get();
 
 
-		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles'));
+		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles', 'api_keys'));
 	}
 
 
