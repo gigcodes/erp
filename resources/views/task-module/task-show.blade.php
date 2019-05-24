@@ -244,6 +244,16 @@
         <span> | </span>
         <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a>
     </div>
+
+    @if ($task->assign_to == Auth::id())
+      <div class="form-group">
+        @if ($task->is_private == 1)
+          <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
+        @else
+          <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
+        @endif
+      </div>
+    @endif
     {{-- <div class="d-flex">
       @if ($customer->is_priority == 1)
         <div class="form-group">
@@ -1766,6 +1776,34 @@
           console.log(response);
 
           alert('Could not resend message');
+        });
+      });
+
+      $(document).on('click', '.make-private-task', function() {
+        var task_id = $(this).data('taskid');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('task') }}/" + task_id + "/makePrivate",
+          data: {
+            _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function() {
+            $(thiss).text('Changing...');
+          }
+        }).done(function(response) {
+          if (response.task.is_private == 1) {
+            $(thiss).html('<img src="/images/private.png" />');
+          } else {
+            $(thiss).html('<img src="/images/not-private.png" />');
+          }
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/not-private.png" />');
+
+          console.log(response);
+
+          alert('Could not make task private');
         });
       });
   </script>
