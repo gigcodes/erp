@@ -445,8 +445,6 @@ class WhatsAppController extends FindByNumberController
     {
 		$data = $request->json()->all();
 
-    file_put_contents(__DIR__."/response.txt", json_encode($data));
-
     if ($data['event'] == 'message:in:new') {
       $to = str_replace('+', '', $data['data']['toNumber']);
   		$from = str_replace('+', '', $data['data']['fromNumber']);
@@ -501,6 +499,63 @@ class WhatsAppController extends FindByNumberController
         $message = ChatMessage::create($params);
         $model_type = 'user';
         $model_id = $user->id;
+
+        if ($user->id == 3) {
+          file_put_contents(__DIR__."/response.txt", json_encode($data));
+
+          if (array_key_exists('quoted', $data['data'])) {
+            $quoted_id = $data['data']['quoted']['wid'];
+
+            $configs = \Config::get("wassenger.api_keys");
+            // $encodedNumber = "+" . $number;
+            // $encodedText = $message;
+            $wa_token = $configs[0]['key'];
+            $wa_device = $configs[1]['device'];
+
+            // $array = [
+            //   'phone' => $encodedNumber,
+            //   'message' => (string) $encodedText,
+            //   'reference' => (string) $chat_message_id,
+            //   'device'  => "$wa_device",
+            //   'enqueue' => "$enqueue",
+            // ];
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => "https://api.wassenger.com/v1/io/$wa_device/messages/$quoted_id",
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => "",
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 30,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => "GET",
+              // CURLOPT_POSTFIELDS => json_encode($array),
+              CURLOPT_HTTPHEADER => array(
+                // "content-type: application/json",
+                "token: $wa_token"
+              ),
+            ));
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+            curl_close($curl);
+
+            file_put_contents(__DIR__."/wow.txt", json_encode($response));
+
+            if ($err) {
+              throw new \Exception("cURL Error #:" . $err);
+            } else {
+              $result = json_decode($response, true);
+
+              if ($http_code != 201) {
+                throw new \Exception("Something was wrong with message: " . $result['message']);
+              }
+            }
+          }
+        }
       }
 
       if ($supplier) {
@@ -951,7 +1006,7 @@ class WhatsAppController extends FindByNumberController
 
 
       $this->validate($request, [
-        'message'         => 'nullable|required_without:image,screenshot_path|string',
+        // 'message'         => 'nullable|required_without:image,images,screenshot_path|string',
 //        'image'           => 'nullable|required_without:message',
 //        'screenshot_path' => 'nullable|required_without:message',
         'customer_id'     => 'sometimes|nullable|numeric',
@@ -1429,6 +1484,10 @@ class WhatsAppController extends FindByNumberController
 
       if (Setting::get('show_automated_messages') == 0) {
         $messages = $messages->where('status', '!=', 9);
+      }
+
+      if ($request->erpUser) {
+        $messages = $messages->whereNull('task_id');
       }
       // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
       // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
@@ -2059,7 +2118,7 @@ class WhatsAppController extends FindByNumberController
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
+        CURLOPT_TIMEOUT => 120,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => json_encode($array),
@@ -2113,7 +2172,7 @@ class WhatsAppController extends FindByNumberController
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => "",
       CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 30,
+      CURLOPT_TIMEOUT => 120,
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => "POST",
       CURLOPT_POSTFIELDS => json_encode($array),

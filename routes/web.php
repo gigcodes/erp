@@ -132,6 +132,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('order/report/store','OrderReportController@store')->name('status.report.store');
 
 	Route::get('task/list', 'TaskModuleController@list')->name('task.list');
+	Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
 	Route::resource('task','TaskModuleController');
 	Route::resource('task_category','TaskCategoryController');
 	Route::get('/', 'TaskModuleController@index')->name('home');

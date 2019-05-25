@@ -12,10 +12,12 @@ use App\Helpers;
 use App\NotificationQueue;
 use App\PushNotification;
 use App\ApiKey;
+use App\Task;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
 use Cache;
+use Auth;
 use Log;
 use Carbon\Carbon;
 
@@ -112,6 +114,11 @@ class UserController extends Controller
 	public function show($id)
 	{
 		$user = User::find($id);
+
+		if (Auth::id() != $id) {
+			return redirect()->route('users.index')->withWarning("You don't have access to this page!");
+		}
+
 		$users_array = Helpers::getUserArray(User::all());
 		$roles = Role::pluck('name','name')->all();
 		$users = User::all();
@@ -119,6 +126,15 @@ class UserController extends Controller
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
     $user_agent_roles = explode(',', $user->agent_role);
 		$api_keys = ApiKey::select('number')->get();
+
+		$pending_tasks = Task::where('is_statutory', 0)
+		                     ->whereNull('is_completed')
+												 ->where(function ($query) use ($id) {
+													 	return $query->orWhere('assign_from', $id)
+											             				->orWhere('assign_to', $id);
+													})->get();
+
+		// dd($pending_tasks);
 
 		return view('users.show', [
 			'user'	=> $user,
@@ -129,6 +145,7 @@ class UserController extends Controller
 			'agent_roles'	=> $agent_roles,
 			'user_agent_roles'	=> $user_agent_roles,
 			'api_keys'	=> $api_keys,
+			'pending_tasks'	=> $pending_tasks,
 		]);
 	}
 
