@@ -867,6 +867,50 @@ class WhatsAppController extends FindByNumberController
     return response("success", 200);
     }
 
+    public function webhook(Request $request)
+    {
+      $data = $request->json()->all();
+
+      file_put_contents(__DIR__."/webhook.txt", json_encode($data));
+
+      // $to = str_replace('+', '', $data['data']['toNumber']);
+  		$from = str_replace('@c.us', '', $data['messages'][0]['author']);
+  		$text = $data['messages'][0]['body'];
+      $supplier = $this->findSupplierByNumber($from);
+
+      $params = [
+        'number'  => $from,
+        'message' => ''
+      ];
+
+      if ($data['messages'][0]['fromMe'] == false) {
+        // if ($data['data']['type'] == 'text') {
+          $params['message'] = $text;
+        // }
+        // else if ($data['data']['type'] == 'image') {
+        //   $image_data = $data['data']['media']['preview']['image'];
+        //   $image_path = public_path() . '/uploads/temp_image.png';
+        //   $img = Image::make(base64_decode($image_data))->encode('jpeg')->save($image_path);
+        //
+        //   $media = MediaUploader::fromSource($image_path)->upload();
+        //
+        //   File::delete('uploads/temp_image.png');
+        // }
+
+        if ($supplier) {
+          $params['erp_user'] = NULL;
+          $params['task_id'] = NULL;
+          $params['supplier_id'] = $supplier->id;
+
+          $message = ChatMessage::create($params);
+          // $model_type = 'supplier';
+          // $model_id = $supplier->id;
+        }
+      }
+
+      return response('success', 200);
+    }
+
     public function outgoingProcessed(Request $request)
     {
       $data = $request->json()->all();
@@ -1736,10 +1780,14 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-          if ($whatsapp_number == '919152731483') {
-            $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
+          if ($context == 'supplier') {
+            $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
-            $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
+            if ($whatsapp_number == '919152731483') {
+              $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
+            } else {
+              $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
+            }
           }
         }
 
@@ -2194,7 +2242,135 @@ class WhatsAppController extends FindByNumberController
       $result = json_decode($response, true);
 
       if ($http_code != 201) {
-        throw new \Exception("Something was wrong with message: " . $result['message']);
+        throw new \Exception("Something was wrong with message: " . $response);
+      }
+    }
+
+    return $result;
+	}
+
+  public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
+	{
+    // $configs = \Config::get("wassenger.api_keys");
+    $encodedNumber = "+" . $number;
+    $encodedText = $message;
+    // $wa_token = $configs[0]['key'];
+    $instanceId = "42987";
+    $token = "l3ap13b72y8bbza6";
+
+    // throw new \Exception("Yesah");
+
+    // if ($whatsapp_number != NULL) {
+    //   foreach ($configs as $key => $config) {
+    //     if ($config['number'] == $whatsapp_number) {
+    //       $wa_device = $config['device'];
+    //
+    //       break;
+    //     }
+    //
+    //     $wa_device = $configs[0]['device'];
+    //   }
+    // } else {
+    //   $wa_device = $configs[0]['device'];
+    // }
+
+    // if ($file != NULL) {
+    //   $file_exploded = explode('/', $file);
+    //   $encoded_part = str_replace('%25', '%', urlencode(str_replace(' ', '%20', $file_exploded[count($file_exploded) - 1])));
+    //   array_pop($file_exploded);
+    //   array_push($file_exploded, $encoded_part);
+    //
+    //   $file_encoded = implode('/', $file_exploded);
+    //
+    //   $array = [
+    //     'url' => "$file_encoded",
+    //     // 'reference' => "$chat_message_id"
+    //   ];
+    //
+    //   $curl = curl_init();
+    //
+    //   curl_setopt_array($curl, array(
+    //     CURLOPT_URL => "https://api.wassenger.com/v1/files?reference=$chat_message_id",
+    //     CURLOPT_RETURNTRANSFER => true,
+    //     CURLOPT_ENCODING => "",
+    //     CURLOPT_MAXREDIRS => 10,
+    //     CURLOPT_TIMEOUT => 120,
+    //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    //     CURLOPT_CUSTOMREQUEST => "POST",
+    //     CURLOPT_POSTFIELDS => json_encode($array),
+    //     CURLOPT_HTTPHEADER => array(
+    //       "content-type: application/json",
+    //       "token: $wa_token"
+    //     ),
+    //   ));
+    //
+    //   $response = curl_exec($curl);
+    //   $err = curl_error($curl);
+    //
+    //   curl_close($curl);
+    //   // throw new \Exception("cURL Error #: whatttt");
+    //   if ($err) {
+    //     throw new \Exception("cURL Error #:" . $err);
+    //   } else {
+    //     $result = json_decode($response, true);
+    //
+    //     if (array_key_exists('status', $result)) {
+    //       if ($result['status'] == 409) {
+    //         $image_id = $result['meta']['file'];
+    //       } else {
+    //         throw new \Exception("Something was wrong with image: " . $result['message']);
+    //       }
+    //     } else {
+    //       $image_id = $result[0]['id'];
+    //     }
+    //   }
+    // }
+
+
+    $array = [
+      'phone' => $encodedNumber,
+      'body' => (string) $encodedText,
+      // 'reference' => (string) $chat_message_id,
+      // 'device'  => "$wa_device",
+      // 'enqueue' => "$enqueue",
+    ];
+
+    // if (isset($image_id)) {
+    //   $array['media'] = [
+    //     'file'  => "$image_id"
+    //   ];
+    // }
+
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/sendMessage?token=$token",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => "",
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 30,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($array),
+      CURLOPT_HTTPHEADER => array(
+        "content-type: application/json",
+        // "token: $wa_token"
+      ),
+    ));
+
+    $response = curl_exec($curl);
+    $err = curl_error($curl);
+    // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+    curl_close($curl);
+
+    if ($err) {
+      throw new \Exception("cURL Error #:" . $err);
+    } else {
+      $result = json_decode($response, true);
+      // throw new \Exception("Something was wrong with message: " . $response);
+      if (!$result['sent']) {
+        throw new \Exception("Something was wrong with message: " . $response);
       }
     }
 
