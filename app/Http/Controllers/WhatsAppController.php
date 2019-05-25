@@ -951,7 +951,7 @@ class WhatsAppController extends FindByNumberController
 
 
       $this->validate($request, [
-        'message'         => 'nullable|required_without:image,screenshot_path|string',
+//        'message'         => 'nullable|required_without:image,screenshot_path|string',
 //        'image'           => 'nullable|required_without:message',
 //        'screenshot_path' => 'nullable|required_without:message',
         'customer_id'     => 'sometimes|nullable|numeric',

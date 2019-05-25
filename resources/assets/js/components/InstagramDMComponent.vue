@@ -1,40 +1,5 @@
 <template>
     <div>
-        <div class="modal" id="myModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-
-                    <!-- Modal Header -->
-                    <div class="modal-header">
-                        <h4 class="modal-title">Send Broadcasts</h4>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-
-                    <!-- Modal body -->
-                    <div class="modal-body">
-<!--                        <div class="form-group">-->
-<!--                            <label for="sender">Sender</label>-->
-<!--                            <select class="form-control" name="sender" id="sender" v-model="sender">-->
-<!--                                <option v-for="account in accounts" :value="account.id" :key="accounts.id" v-text="account.last_name"></option>-->
-<!--                            </select>-->
-<!--                        </div>-->
-<!--                        <div class="form-group">-->
-<!--                            <label for="receivers">Receivers</label>-->
-<!--                            <select class="form-control" name="receivers" id="receivers" v-model="receivers">-->
-<!--                                <option v-for="lead in leads" :value="lead.id" :key="lead.id" v-text="lead.username"></option>-->
-<!--                            </select>-->
-<!--                        </div>-->
-
-                    </div>
-
-                    <!-- Modal footer -->
-<!--                    <div class="modal-footer">-->
-<!--                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>-->
-<!--                    </div>-->
-
-                </div>
-            </div>
-        </div>
         <div class="actions">
             <div class="row">
                 <div class="col-md-8">
@@ -77,9 +42,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">
-                        Broadcast Messages
-                    </button>
+                    <a href="/cold-leads-broadcasts" class="btn btn-primary btn-sm">Broadcasts</a>
                 </div>
             </div>
         </div>
@@ -179,13 +142,10 @@
                         </div>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-success mt-2">
+                        <button @click="addColdLeadToCustomer(lead.id)" class="btn btn-sm btn-success mt-2">
                             <i class="fa fa-plus"></i>
                         </button>
-                        <button class="btn btn-sm btn-info mt-2">
-                            <i class="fa fa-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger mt-2">
+                        <button @click="deleteColdLead(lead.id)" class="btn btn-sm btn-danger mt-2">
                             <i class="fa fa-trash"></i>
                         </button>
                     </td>
@@ -378,6 +338,12 @@
                 this.query = '';
                 this.paginationData.currentPage = 1;
                 this.getColdLeads();
+            },
+            deleteColdLead(id) {
+                //delete cold lead..
+            },
+            addColdLeadToCustomer(id) {
+                //add cold lead to customer...
             }
         }
     }

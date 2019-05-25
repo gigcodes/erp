@@ -34,6 +34,7 @@ class ReviewController extends Controller
 
     public function index(Request $request)
     {
+
       $filter_platform = $request->platform ?? '';
       $filter_posted_date = $request->posted_date ?? '';
       $users_array = Helpers::getUserArray(User::all());
@@ -239,6 +240,7 @@ class ReviewController extends Controller
      */
     public function update(Request $request, $id)
     {
+        dd($request->all());
       $this->validate($request, [
         'review'        => 'required|string',
         'posted_date'   => 'sometimes|nullable|date',
@@ -300,10 +302,15 @@ class ReviewController extends Controller
         'platform'        => 'required|string',
         'followers_count' => 'sometimes|nullable|numeric',
         'posts_count'     => 'sometimes|nullable|numeric',
-        'dp_count'        => 'sometimes|nullable|numeric'
+        'dp_count'        => 'sometimes|nullable|numeric',
       ]);
 
       $data = $request->except(['_token', '_method']);
+        $data['broadcast'] = 0;
+
+      if ($request->get('broadcast') == 'on') {
+          $data['broadcast'] = 1;
+      }
 
       Account::find($id)->update($data);
 

@@ -519,7 +519,7 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
  * feature in this ERP
  */
 
-
+Route::resource('cold-leads-broadcasts', 'ColdLeadBroadcastsController');
 Route::resource('cold-leads', 'ColdLeadsController');
 
 Route::prefix('sitejabber')->group(function() {
