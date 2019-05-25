@@ -18,6 +18,9 @@
                         <th>Body</th>
                         <th>Phone #</th>
                         <th>Post</th>
+                        <th>Communication</th>
+                        <th>Send Message</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,6 +35,26 @@
                             <td style="word-break: break-all !important; word-wrap: break-word !important;">{{ $post->body }}</td>
                             <td>{{ $post->phone_number }}</td>
                             <td>{{ $post->post_date }}</td>
+                            <td>
+                              @if (isset($post->message))
+                                {{ strlen($post->message) > 100 ? substr($post->message, 0, 97) . '...' : $post->message }}
+                              @endif
+
+                              {{-- <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $customer->id }}">Load More</button>
+
+                              <ul class="more-communication-container">
+
+                              </ul> --}}
+                            </td>
+                            <td>
+                              <div class="d-inline">
+                                <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                <button class="btn btn-sm btn-image send-message" data-dubbizleid="{{ $post->id }}"><img src="/images/filled-sent.png" /></button>
+                              </div>
+                            </td>
+                            <td>
+                              <a href="{{ route('dubbizle.show', $post->id) }}" class="btn btn-image"><img src="/images/view.png" /></a>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -56,7 +79,7 @@
             $('#table thead tr').clone(true).appendTo( '#table thead' );
             $('#table thead tr:eq(1) th').each( function (i) {
                 var title = $(this).text();
-                $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+                $(this).html( '<input type="text" class="form-control input-sm" placeholder="Search '+title+'" />' );
 
                 $( 'input', this ).on( 'keyup change', function () {
                     if ( table.column(i).search() !== this.value ) {
@@ -71,6 +94,79 @@
                 orderCellsTop: true,
                 fixedHeader: true
             });
+        });
+
+        var cached_suggestions = localStorage['message_suggestions'];
+        var suggestions = [];
+
+        $(document).on('click', '.send-message', function() {
+          var thiss = $(this);
+          var data = new FormData();
+          var dubbizle_id = $(this).data('dubbizleid');
+          var message = $(this).siblings('input').val();
+
+          data.append("dubbizle_id", dubbizle_id);
+          data.append("message", message);
+          data.append("status", 1);
+
+          if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+              $.ajax({
+                url: '/whatsapp/sendMessage/dubbizle',
+                type: 'POST',
+               "dataType"    : 'json',           // what to expect back from the PHP script, if anything
+               "cache"       : false,
+               "contentType" : false,
+               "processData" : false,
+               "data": data,
+               beforeSend: function() {
+                 $(thiss).attr('disabled', true);
+               }
+             }).done( function(response) {
+                $(thiss).siblings('input').val('');
+
+                if (cached_suggestions) {
+                  suggestions = JSON.parse(cached_suggestions);
+
+                  if (suggestions.length == 10) {
+                    suggestions.push(message);
+                    suggestions.splice(0, 1);
+                  } else {
+                    suggestions.push(message);
+                  }
+                  localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                  cached_suggestions = localStorage['message_suggestions'];
+
+                  console.log('EXISTING');
+                  console.log(suggestions);
+                } else {
+                  suggestions.push(message);
+                  localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                  cached_suggestions = localStorage['message_suggestions'];
+
+                  console.log('NOT');
+                  console.log(suggestions);
+                }
+
+                // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                //   .done(function( data ) {
+                //
+                //   }).fail(function(response) {
+                //     console.log(response);
+                //     alert(response.responseJSON.message);
+                //   });
+
+                $(thiss).attr('disabled', false);
+              }).fail(function(errObj) {
+                $(thiss).attr('disabled', false);
+
+                alert("Could not send message");
+                console.log(errObj);
+              });
+            }
+          } else {
+            alert('Please enter a message first');
+          }
         });
     </script>
     @if (Session::has('message'))
