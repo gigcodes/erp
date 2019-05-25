@@ -576,6 +576,18 @@ class ScrapController extends Controller
         $this->validate($request, [
             'supplier' => 'required'
         ]);
+
+        $s = Supplier::where('supplier', $request->get('supplier'))->first();
+
+        if ($s) {
+            $s->email = $request->get('email');
+            $s->save();
+
+            return response()->json([
+                'message' => 'Added successfully!'
+            ]);
+        }
+
         $params = [
             'supplier' => ucwords($request->get('supplier')),
             'phone'	=> str_replace('+', '', $request->get('phone')),

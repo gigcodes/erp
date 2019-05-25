@@ -168,6 +168,9 @@
                 let message = $(this).val();
                 let mediaId = $(this).attr('data-mediaId');
                 let accountId = $('#account_id_'+mediaId).val();
+                let self = this;
+
+                $(this).attr('disabled', true);
 
                 $.ajax({
                     url: '{{action('HashtagController@commentOnHashtag')}}',
@@ -180,6 +183,8 @@
                     },
                     success: function() {
                         alert('Comment added successfully!');
+                        location.reload();
+                        $(self).removeAttr('disabled');
                     }
                 });
             }

@@ -12,18 +12,18 @@
 
                     <!-- Modal body -->
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="sender">Sender</label>
-                            <select class="form-control" name="sender" id="sender" v-model="sender">
-                                <option v-for="account in accounts" :value="account.id" :key="accounts.id" v-text="account.last_name"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="receivers">Receivers</label>
-                            <select class="form-control" multiple name="receivers" id="receivers" v-model="sender">
-                                <option v-for="lead in leads" :value="lead.id" :key="lead.id" v-text="lead.username"></option>
-                            </select>
-                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label for="sender">Sender</label>-->
+<!--                            <select class="form-control" name="sender" id="sender" v-model="sender">-->
+<!--                                <option v-for="account in accounts" :value="account.id" :key="accounts.id" v-text="account.last_name"></option>-->
+<!--                            </select>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="receivers">Receivers</label>-->
+<!--                            <select class="form-control" name="receivers" id="receivers" v-model="receivers">-->
+<!--                                <option v-for="lead in leads" :value="lead.id" :key="lead.id" v-text="lead.username"></option>-->
+<!--                            </select>-->
+<!--                        </div>-->
 
                     </div>
 
@@ -41,6 +41,7 @@
                     <div class="row">
                         <div class="col-md-2 form-horizontal">
                             <select class="form-control form-control-sm" v-model="pagination" name="show" id="show" @change="search">
+                                <option value="2">2 Records</option>
                                 <option value="25">25 Records</option>
                                 <option value="50">50 Records</option>
                                 <option value="100">100 Records</option>
@@ -50,7 +51,28 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input @keyup="search" v-model="query" type="text" name="query" class="form-control form-control-sm">
+                            <input v-on:keyup.13="search" v-model="query" type="text" name="query" class="form-control form-control-sm" placeholder="Search Query...">
+                        </div>
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-right pb-2 mb-3 float-right">
+                            <div v-if="paginationData.show" class="input-group mr-2 pull-right">
+                                <input v-on:keyup.13="getColdLeads()" v-model="paginationData.currentPage" type="text" value="" name="page_id" id="page_id" class="form-control form-control-sm" placeholder="Page #" style="width:50px !important;">
+                                <div class="input-group-append">
+                                    <button style="height: 34px;" v-on:click="getColdLeads()" class="btn btn-sm btn-primary">
+                                        Go
+                                    </button>
+                                    <button style="height: 34px;" v-on:click="previousPage" class="btn btn-sm btn-info">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left" color="#FFFFFF"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                                    </button>
+                                    <button style="height: 34px;" v-on:click="nextPage" class="btn btn-sm btn-info">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right" color="#FFFFFF"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="btn-group mr-2">
+                                <button disabled type="button" class="btn btn-primary disabled btn-sm">
+                                    Pages <span class="badge badge-light">{{ paginationData.lastPage }}</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -75,7 +97,7 @@
             </thead>
             <tbody>
                 <tr v-if="isLoading">
-                    <td colspan="4">
+                    <td colspan="6">
                         <h1 class="text-center">
                             Loading cold leads...
                         </h1>
@@ -98,8 +120,8 @@
                                 <strong class="pull-left">Chat</strong>
                                 <div class="pull-right">
                                     <div class="form-group form-group-sm">
-                                        <select class="form-control form-control-sm" name="account_id" id="account_id">
-                                            <option v-for="account in accounts" :value="account.id" :key="accounts.id" v-text="account.last_name"></option>
+                                        <select class="form-control form-control-sm" name="account_id" id="account_id" v-model="selectedAccounts[lead.id]">
+                                            <option v-for="(account, key) in accounts" :value="key" :key="key" v-text="account.last_name"></option>
                                         </select>
                                     </div>
                                 </div>
@@ -181,14 +203,15 @@
         data: function() {
             return {
                 query: '',
-                pagination: 25,
+                pagination: 2,
                 leads: [],
                 accounts: [],
                 isLoading: true,
                 paginationData: {
                     lastPage: 1,
                     currentPage: 1,
-                    perPage: 25
+                    perPage: 2,
+                    show: false
                 },
                 dm: {
                     currentLeadId: null,
@@ -200,11 +223,13 @@
                 currentDisabledLead: null,
                 currentUploadingFileLead: null,
                 currentLeadId: null,
+                sender: null,
+                receivers: []
             }
         },
         methods: {
             search(paginate = false) {
-                if (this.query.length >= 4) {
+                if (this.query.length >= 4 || this.query.length == 0) {
                     this.getColdLeads();
                 }
             },
@@ -221,7 +246,12 @@
                     let leadsData = response.data.leads;
                     self.leads = leadsData.data;
                     self.paginationData.currentPage = leadsData.current_page;
-                    self.paginationData.lastPage = leadsData.current_page;
+                    self.paginationData.lastPage = leadsData.last_page;
+                    if (leadsData.last_page>1) {
+                        self.paginationData.show = true;
+                    } else {
+                        self.paginationData.show = false;
+                    }
                     self.paginationData.perPage = leadsData.per_page;
                     self.isLoading = false;
                     self.startLoadingDirectMessages();
@@ -270,7 +300,9 @@
                     })
                     .then(function (response) {
                         if (response.data.status == 'success') {
-                            self.updateMessageForAlead(leadId, response.data.message, response.data.receiver_id, response.data.sender_id);
+                            self.allDirectMessages[leadId] = [];
+                            self.startLoadingForOneCustomer(leadId);
+                            // self.updateMessageForAlead(leadId, response.data.message, response.data.receiver_id, response.data.sender_id);
                             self.message[leadId] = '';
                             self.currentDisabledLead = null;
                         }
@@ -291,28 +323,32 @@
             startLoadingDirectMessages() {
                 let self = this;
                 self.leads.forEach(function(item) {
-                    axios
-                        .get('/instagram/thread/'+item.id)
-                        .then(function(response) {
-                            self.allDirectMessages[item.id] = response.data;
-                            if (self.allDirectMessages[item.id].length > 0) {
-                                self.leadActiveMessages[item.id] = self.allDirectMessages[item.id][0];
-                                let AccId = self.allDirectMessages[item.id][0].account_id;
-                                let x = 0;
-                                self.accounts.forEach(function(acc) {
-                                    if (acc.id == AccId) {
-                                        self.selectedAccounts[item.id] = x;
-                                        return;
-                                    }
-                                    x++;
-                                });
-                            } else {
-                                self.selectedAccounts[item.id] = 0;
-                            }
-                            self.$forceUpdate();
-                        });
-                    ;
+                    self.startLoadingForOneCustomer(item.id);
                 });
+            },
+            startLoadingForOneCustomer(id) {
+                let self = this;
+                axios
+                    .get('/instagram/thread/'+id)
+                    .then(function(response) {
+                        self.allDirectMessages[id] = response.data;
+                        if (self.allDirectMessages[id].length > 0) {
+                            self.leadActiveMessages[id] = self.allDirectMessages[id][0];
+                            let AccId = self.allDirectMessages[id][0].account_id;
+                            let x = 0;
+                            self.accounts.forEach(function(acc) {
+                                if (acc.id == AccId) {
+                                    self.selectedAccounts[id] = x;
+                                    return;
+                                }
+                                x++;
+                            });
+                        } else {
+                            self.selectedAccounts[id] = 0;
+                        }
+                        self.$forceUpdate();
+                    });
+                ;
             },
             addLeadToCustomer(leadId) {
 
@@ -321,6 +357,27 @@
             },
             setCurrentLead(leadId) {
                 this.currentLeadId = leadId;
+            },
+            nextPage: function() {
+                let cp = this.paginationData.currentPage;
+                let lp = this.paginationData.lastPage;
+                if (cp < lp) {
+                    this.paginationData.currentPage = cp+1;
+                }
+                this.getColdLeads();
+            },
+            previousPage: function() {
+                let pp = 1;
+                let cp = this.paginationData.currentPage;
+                if (cp > pp) {
+                    this.paginationData.currentPage = cp-1;
+                }
+                this.getColdLeads();
+            },
+            reset: function() {
+                this.query = '';
+                this.paginationData.currentPage = 1;
+                this.getColdLeads();
             }
         }
     }
