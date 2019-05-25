@@ -305,6 +305,11 @@ class TaskModuleController extends Controller {
 	public function show($id)
 	{
 		$task = Task::find($id);
+
+		if ($task->assign_to != Auth::id() && $task->is_private == 1) {
+			return redirect()->back()->withErrors("This task is private!");
+		}
+
 		$users_array = Helpers::getUserArray(User::all());
 
 		return view('task-module.task-show', [
@@ -315,6 +320,23 @@ class TaskModuleController extends Controller {
 
 	public function update() {
 
+	}
+
+	public function makePrivate(Request $request, $id)
+	{
+		$task = Task::find($id);
+
+		if ($task->is_private == 1) {
+			$task->is_private = 0;
+		} else {
+			$task->is_private = 1;
+		}
+
+		$task->save();
+
+		return response()->json([
+			'task'	=> $task
+		]);
 	}
 
 	public function complete(Request $request, $taskid ) {

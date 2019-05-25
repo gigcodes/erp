@@ -289,6 +289,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('/task/addremark','TaskModuleController@addRemark')->name('task.addRemark');
 	Route::get('tasks/getremark','TaskModuleController@getremark')->name('task.getremark');
 	Route::get('tasks/gettaskremark','TaskModuleController@getTaskRemark')->name('task.gettaskremark');
+	Route::post('task/{id}/makePrivate','TaskModuleController@makePrivate');
 
 	Route::post('tasks/deleteTask','TaskModuleController@deleteTask');
 	Route::post('tasks/{id}/delete','TaskModuleController@archiveTask')->name('task.archive');

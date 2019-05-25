@@ -16,22 +16,9 @@
             <h2 class="page-heading">Task & Activity</h2>
         </div>
     </div>
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-         @endif
-     {{--   @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
---}}
+
+    @include('partials.flash_messages')
+
         <div class="row">
             @can('view-activity')
                 <div class="col-md-5 col-12">
@@ -326,7 +313,9 @@
                                     <td>{{$i++}}</td>
                                     <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                     <td> {{ isset( $categories[$task->category] ) ? $categories[$task->category] : '' }}</td>
-                                    <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0">{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</td>
+                                    <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0">
+                                      {{ $task->task_subject ? $task->task_subject : 'Task Details' }}
+                                    </td>
                                     <td> {{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i')  }}</td>
                                     <td>{{ $users[$task->assign_from] }}</td>
                                     @if( $task->assign_to == Auth::user()->id )
@@ -336,25 +325,23 @@
                                     @endif
 
                                     <td>
-                                      {{-- @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at) --}}
+                                      @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                         @if (isset($task->message))
                                           {{ strlen($task->message) > 100 ? substr($task->message, 0, 97) . '...' : $task->message }}
                                         @endif
-
-                                        {{-- <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $customer->id }}">Load More</button>
-
-                                        <ul class="more-communication-container">
-
-                                        </ul> --}}
-                                      {{-- @else
-                                        {{ $remark_message }}
-                                      @endif --}}
+                                      @else
+                                        Private
+                                      @endif
                                     </td>
                                     <td>
-                                      <div class="d-inline">
-                                        <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-                                        <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
-                                      </div>
+                                      @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
+                                        <div class="d-inline">
+                                          <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                          <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
+                                        </div>
+                                      @else
+                                        Private
+                                      @endif
 
                                       {{-- <p class="pb-4 mt-3" style="display: block;">
                                         <select name="quickCategory" class="form-control mb-3 quickCategory">
@@ -371,7 +358,24 @@
                                     </td>
 
                                     <td>
-                                        <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                                        @if ($task->assign_to != Auth::id())
+                                          @if ($task->is_private == 1)
+                                            <button type="button" class="btn btn-image"><img src="/images/private.png" /></button>
+                                          @else
+                                            <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                                          @endif
+                                        @endif
+
+                                        @if ($task->assign_to == Auth::id())
+                                          <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+
+                                          @if ($task->is_private == 1)
+                                            <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
+                                          @else
+                                            <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
+                                          @endif
+                                        @endif
+
                                         <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task->id}}" data-id="{{$task->id}}">Add</a>
                                         <span> | </span>
                                         <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a>
@@ -961,6 +965,34 @@
           } else {
             alert('Please enter a message first');
           }
+        });
+
+        $(document).on('click', '.make-private-task', function() {
+          var task_id = $(this).data('taskid');
+          var thiss = $(this);
+
+          $.ajax({
+            type: "POST",
+            url: "{{ url('task') }}/" + task_id + "/makePrivate",
+            data: {
+              _token: "{{ csrf_token() }}",
+            },
+            beforeSend: function() {
+              $(thiss).text('Changing...');
+            }
+          }).done(function(response) {
+            if (response.task.is_private == 1) {
+              $(thiss).html('<img src="/images/private.png" />');
+            } else {
+              $(thiss).html('<img src="/images/not-private.png" />');
+            }
+          }).fail(function(response) {
+            $(thiss).html('<img src="/images/not-private.png" />');
+
+            console.log(response);
+
+            alert('Could not make task private');
+          });
         });
 
     </script>
