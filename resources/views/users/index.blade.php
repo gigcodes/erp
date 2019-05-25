@@ -13,11 +13,7 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     <div class="table-responsive">
         <table class="table table-bordered">
@@ -41,13 +37,16 @@
                     @endif
                 </td>
                 <td>
+                  @if (Auth::id() == $user->id)
                     <a class="btn btn-image" href="{{ route('users.show',$user->id) }}"><img src="/images/view.png" /></a>
-                    {{-- <a class="btn btn-image" href="{{ route('users.edit',$user->id) }}"><img src="/images/edit.png" /></a> --}}
+                  @else
+                    <a class="btn btn-image" href="{{ route('users.edit',$user->id) }}"><img src="/images/edit.png" /></a>
+                  @endif
 
-                    {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                    {!! Form::close() !!}
-                    <a href="{{ action('UserActionsController@show', $user->id) }}">Info</a>
+                  {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
+                  <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                  {!! Form::close() !!}
+                  <a href="{{ action('UserActionsController@show', $user->id) }}">Info</a>
                 </td>
             </tr>
         @endforeach

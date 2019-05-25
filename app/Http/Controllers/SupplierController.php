@@ -191,9 +191,23 @@ class SupplierController extends Controller
         'message' => 'required'
       ]);
 
-      $suppliers = Supplier::whereIn('id', $request->suppliers)->where(function ($query) {
-        $query->whereNotNull('default_email')->orWhereNotNull('email');
-      })->get();
+      if ($request->suppliers) {
+        $suppliers = Supplier::whereIn('id', $request->suppliers)->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->get();
+      } else {
+        if ($request->not_received != 'on') {
+          return redirect()->route('supplier.index')->withErrors(['Please select either suppliers or option']);
+        }
+      }
+
+      if ($request->not_received == 'on') {
+        $suppliers = Supplier::doesnthave('emails')->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->get();
+      }
+
+      // dd($suppliers);
 
       // $first_email = '';
       // $bcc_emails = [];

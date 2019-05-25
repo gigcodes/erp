@@ -37,7 +37,7 @@ class PurchaseEmail extends Mailable
     {
       if (count($this->file_paths) > 0) {
         $email = $this->from('buying@amourint.com')
-                    ->bcc('customercare@sololuxury.co.in')
+                    // ->bcc('customercare@sololuxury.co.in')
                     ->subject($this->subject)
                     ->text('emails.customers.email_plain')->with([
                       'body_message' => $this->message
@@ -50,7 +50,7 @@ class PurchaseEmail extends Mailable
         return $email;
       } else {
         return $this->from('buying@amourint.com')
-                    ->bcc('customercare@sololuxury.co.in')
+                    // ->bcc('customercare@sololuxury.co.in')
                     ->subject($this->subject)
                     ->text('emails.customers.email_plain')->with([
                       'body_message' => $this->message

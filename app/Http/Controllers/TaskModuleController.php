@@ -15,6 +15,7 @@ use App\Setting;
 use App\Remark;
 use App\DeveloperTask;
 use App\NotificationQueue;
+use App\ChatMessage;
 
 class TaskModuleController extends Controller {
 
@@ -32,13 +33,13 @@ class TaskModuleController extends Controller {
 
 		$data['task'] = [];
 
-		$data['task']['pending']      = Task::with('remarks')->where( 'is_statutory', '=', 0 )
-		                               ->where( 'is_completed', '=', null )
-										->where( function ($query ) use ($userid) {
-											return $query->orWhere( 'assign_from', '=', $userid )
-											             ->orWhere( 'assign_to', '=', $userid );
-										})
-		                               ->get()->toArray();
+		// $data['task']['pending']      = Task::with('remarks')->where( 'is_statutory', '=', 0 )
+		//                                ->where( 'is_completed', '=', null )
+		// 								->where( function ($query ) use ($userid) {
+		// 									return $query->orWhere( 'assign_from', '=', $userid )
+		// 									             ->orWhere( 'assign_to', '=', $userid );
+		// 								})
+		//                                ->get()->toArray();
 
 	 $data['task']['pending'] = DB::select('
                SELECT *,
@@ -124,8 +125,8 @@ class TaskModuleController extends Controller {
 		$data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
 		                                   ->whereNotNull( 'is_completed'  )
 		                                   ->where( function ($query ) use ($userid) {
-			                                   return $query->orWhere( 'assign_from', '=', $userid )
-			                                                ->orWhere( 'assign_to', '=', $userid );
+			                                   return $query->orWhere('assign_from', '=', $userid)
+			                                                ->orWhere('assign_to', '=', $userid);
 		                                   })
 		                                   ->get()->toArray();
 
@@ -300,6 +301,19 @@ class TaskModuleController extends Controller {
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task created successfully.' );
+	}
+
+	public function assignMessages(Request $request)
+	{
+		$messages_ids = json_decode($request->selected_messages, true);
+
+		foreach ($messages_ids as $message_id) {
+			$message = ChatMessage::find($message_id);
+			$message->task_id = $request->task_id;
+			$message->save();
+		}
+
+		return redirect()->back()->withSuccess('You have successfully assign messages');
 	}
 
 	public function show($id)
