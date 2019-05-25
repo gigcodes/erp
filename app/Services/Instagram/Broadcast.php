@@ -31,7 +31,7 @@ class Broadcast {
     }
 
 
-    public function sendBulkMessages($leads, $message, $file = null) {
+    public function sendBulkMessages($leads, $message, $file = null, $account) {
         $receipts = [];
         foreach ($leads as $lead) {
             $receiverId = $lead->platform_id;
@@ -46,15 +46,36 @@ class Broadcast {
                 $lead->save();
 
             }
-            $receipts[] = $lead->platform_id;
+            $receipts[$lead->id] = $lead->platform_id;
         }
 
 
-        foreach ($receipts as $receipt) {
+        foreach ($receipts as $key=>$receipt) {
             $this->instagram->direct->sendText([
                 'users' => [$receipt]
             ], $message);
             sleep(1);
+
+            //Save messages locally as well...
+
+            $cl = ColdLeads::where('platform_id', $receipt)->first();
+            $ct = InstagramThread::where('cold_lead_id', $cl->id)->first();
+
+            if (!$ct) {
+                $t = new InstagramThread();
+                $t->col_lead_id = $cl->id;
+                $t->account_id = $account->id;
+                $t->save();
+            }
+
+            $m = new InstagramDirectMessages();
+            $m->instagram_thread_id = $ct->id;
+            $m->message = $message;
+            $m->sender_id = $this->instagram->account_id;
+            $m->receiver_id = $receipt;
+            $m->message_type = 1;
+            $m->save();
+
 
             if ($file !== null) {
                 $fileName = public_path().'/uploads/'.$file;
@@ -62,8 +83,20 @@ class Broadcast {
                 $this->instagram->direct->sendPhoto([
                     'users' => [$receipt]
                 ], $fileToSend->getFile());
+
+                $m = new InstagramDirectMessages();
+                $m->instagram_thread_id = $ct->id;
+                $m->message = $file;
+                $m->sender_id = $this->instagram->account_id;
+                $m->message_type = 2;
+                $m->receiver_id = $receipt;
+                $m->save();
             }
             sleep(2);
+
+            $l = ColdLeads::where('id', $key)->first();
+            ++$l->messages_sent;
+            $l->save();
         }
 
         return count($receipts);

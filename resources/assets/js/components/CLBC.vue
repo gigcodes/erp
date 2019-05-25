@@ -280,6 +280,18 @@
                 })
                 .then(function (response) {
                     if (response.data.status == 'success') {
+                        alert("Broadcast added successfully!");
+                        self.broadcast = {
+                            name: '',
+                            number_of_users: 10,
+                            frequency: 5,
+                            message: '',
+                            image: '',
+                            started_at: '',
+                            status: 1,
+                            messages_sent: 0,
+                            new:true
+                        };
                         self.getColdLeads();
                     }
                 })

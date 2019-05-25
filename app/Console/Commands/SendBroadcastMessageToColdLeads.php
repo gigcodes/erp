@@ -56,8 +56,7 @@ class SendBroadcastMessageToColdLeads extends Command
             $leads = $broadcast->lead()->get();
             $message = $broadcast->message;
             $bs->login($account);
-            $successCount = $bs->sendBulkMessages($leads, $message, $broadcast->image);
-
+            $successCount = $bs->sendBulkMessages($leads, $message, $broadcast->image, $account);
             $broadcast->status = 0;
             $broadcast->frequency_completed = 1;
             $broadcast->messages_sent = $successCount;
