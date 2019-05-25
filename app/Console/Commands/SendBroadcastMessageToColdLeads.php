@@ -40,16 +40,20 @@ class SendBroadcastMessageToColdLeads extends Command
      */
     public function handle()
     {
-//        $broadcasts = ColdLeadBroadcasts::where('started_at', 'LIKE', '%'.date('Y-m-d h-m').'%')
-//                        ->where('frequency_completed', 0)
-//                        ->get();
+//        dd(date('Y-m-d H-i'));
+//        $broadcasts = ColdLeadBroadcasts::where('started_at', 'LIKE', '"%'.date('Y-m-d H:i').'%"')
+        $broadcasts = ColdLeadBroadcasts::where('started_at', '<=', date('Y-m-d H:i:s'))
+                        ->where('frequency_completed', 0)
+                        ->where('status', 1)
+                        ->get();
 
-        $broadcasts = ColdLeadBroadcasts::where('frequency_completed', 0)
-            ->where('status', 1)
-            ->get();
+
+//        $broadcasts = ColdLeadBroadcasts::where('frequency_completed', 0)
+//            ->where('status', 1)
+//            ->get();
 
         $bs = new Broadcast();
-        $account = Account::where('last_name', 'LIKE', '%james%')->first();
+        $account = Account::where('platform', 'instagram')->where('broadcast', 1)->first();
 
 
         foreach ($broadcasts as $broadcast) {

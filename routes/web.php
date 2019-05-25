@@ -533,6 +533,7 @@ Route::prefix('sitejabber')->group(function() {
 });
 
 Route::prefix('instagram')->group(function () {
+    Route::get('flag/{id}', 'HashtagController@flagMedia');
     Route::get('thread/{id}', 'ColdLeadsController@getMessageThread');
     Route::post('thread/{id}', 'ColdLeadsController@sendMessage');
     Route::resource('brand-tagged', 'BrandTaggedPostsController');

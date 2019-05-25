@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\FlaggedInstagramPosts;
 use App\HashTag;
 use App\InstagramPosts;
 use App\Services\Instagram\Hashtags;
@@ -243,5 +244,15 @@ class HashtagController extends Controller
             'status' => 'success'
         ]);
 
+    }
+
+    public function flagMedia($id) {
+        $m = new FlaggedInstagramPosts();
+        $m->media_id = $id;
+        $m->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 }
