@@ -1046,9 +1046,6 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context)
     {
-
-
-
       $this->validate($request, [
         // 'message'         => 'nullable|required_without:image,images,screenshot_path|string',
 //        'image'           => 'nullable|required_without:message',
@@ -1089,9 +1086,9 @@ class WhatsAppController extends FindByNumberController
 
         $module_id = $request->task_id;
 
-        if ($data['erp_user'] != Auth::id()) {
-          $data['status'] = 0;
-        }
+        // if ($data['erp_user'] != Auth::id()) {
+        //   $data['status'] = 0;
+        // }
       } elseif ($context == 'user') {
         $data['erp_user'] = $request->user_id;
         $module_id = $request->user_id;
@@ -1101,19 +1098,19 @@ class WhatsAppController extends FindByNumberController
 
       $data['status'] = 1;
 
-      if ($context == 'task' && $data['erp_user'] != Auth::id()) {
-        $data['erp_user'] = Auth::id();
-
-        $another_message = ChatMessage::create($data);
-      }
+      // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
+      //   $data['erp_user'] = Auth::id();
+      //
+      //   $another_message = ChatMessage::create($data);
+      // }
 
       if ($request->hasFile('image')) {
         $media = MediaUploader::fromSource($request->file('image'))->upload();
         $chat_message->attachMedia($media,config('constants.media_tags'));
 
-        if ($context == 'task' && $data['erp_user'] != Auth::id()) {
-          $another_message->attachMedia($media,config('constants.media_tags'));
-        }
+        // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
+        //   $another_message->attachMedia($media,config('constants.media_tags'));
+        // }
       }
 
       if ($request->images) {
@@ -1121,9 +1118,9 @@ class WhatsAppController extends FindByNumberController
           $media = Media::find($image);
           $chat_message->attachMedia($media,config('constants.media_tags'));
 
-          if ($context == 'task' && $data['erp_user'] != Auth::id()) {
-            $another_message->attachMedia($media,config('constants.media_tags'));
-          }
+          // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
+          //   $another_message->attachMedia($media,config('constants.media_tags'));
+          // }
         }
       }
 
@@ -1135,9 +1132,9 @@ class WhatsAppController extends FindByNumberController
         $media = MediaUploader::fromSource($image_path)->upload();
         $chat_message->attachMedia($media,config('constants.media_tags'));
 
-        if ($context == 'task' && $data['erp_user'] != Auth::id()) {
-          $another_message->attachMedia($media,config('constants.media_tags'));
-        }
+        // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
+        //   $another_message->attachMedia($media,config('constants.media_tags'));
+        // }
 
         File::delete('uploads/temp_screenshot.png');
       }

@@ -224,18 +224,33 @@
 
     <div class="form-group">
       <strong>Assigned to:</strong>
-      @if (array_key_exists($task->assign_to, $users_array))
-        <a href="{{ route('users.show', $task->assign_to) }}">{{ $users_array[$task->assign_to] }}</a>
-      @else
-        User Does Not Exist
-      @endif
+      @foreach ($task->users as $key => $user)
+        @if ($key != 0)
+          ,
+        @endif
+
+        @if (array_key_exists($user->id, $users_array))
+          @if ($user->id == Auth::id())
+            <a href="{{ route('users.show', $user->id) }}">{{ $users_array[$user->id] }}</a>
+          @else
+            {{ $users_array[$user->id] }}
+          @endif
+        @else
+          User Does Not Exist
+        @endif
+      @endforeach
     </div>
 
     <div class="form-group">
-      @if($task->assign_to == Auth::user()->id)
-        <a href="/task/complete/{{$task->id}}">Complete</a>
+      @if ($task->users->contains(Auth::id()))
+        <a href="/task/complete/{{ $task->id }}">Complete</a>
       @else
-        Assign to {{ $task->assign_to ?? ($users_array[$task->assign_to] ? $users_array[$task->assign_to] : 'User Does Not Exist')}}
+        @foreach ($task->users as $key => $task_user)
+          @if ($key != 0)
+            ,
+          @endif
+          {{ array_key_exists($task_user->id, $users) ? $users[$task_user->id] : 'No User' }}
+        @endforeach
       @endif
     </div>
 
