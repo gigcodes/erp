@@ -14,13 +14,17 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>Suppliers</strong>
-            <select class="form-control select-multiple" name="suppliers[]" required multiple>
+            <select class="form-control select-multiple" name="suppliers[]" multiple>
               {{-- <option value="">Select Suppliers</option> --}}
 
               @foreach ($suppliers_all as $supplier)
                 <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>
               @endforeach
             </select>
+          </div>
+          <div class="form-group">
+            <input type="checkbox" name="not_received" id="notReceived">
+            <label for="notReceived">Send to all who haven't received an email</label>
           </div>
           <div class="form-group">
             <strong>Subject</strong>
