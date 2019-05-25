@@ -596,6 +596,9 @@
       $('#account_posts').val(account.posts_count);
       $('#account_dp').val(account.dp_count);
       $('#account_birthday').val(account.dob);
+      if (account.broadcast==1) {
+        $('#broadcast2').attr('checked', true);
+      }
     });
 
     $('#add-review-button').on('click', function() {

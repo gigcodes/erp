@@ -104,6 +104,10 @@
               <div class="alert alert-danger">{{$errors->first('dob')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <label for="broadcast">User for broadcast?</label>
+            <input type="checkbox" name="broadcast" id="broadcast">
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -221,6 +225,10 @@
             @if ($errors->has('dob'))
               <div class="alert alert-danger">{{$errors->first('dob')}}</div>
             @endif
+          </div>
+          <div class="form-group">
+            <label for="broadcast">User for broadcast?</label>
+            <input type="checkbox" name="broadcast" id="broadcast2" value="1" >
           </div>
         </div>
         <div class="modal-footer">

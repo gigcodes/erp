@@ -16,6 +16,7 @@ window.axios.defaults.headers.common = {
  */
 
 Vue.component('instagram-dm-component', require('./components/InstagramDMComponent.vue'));
+Vue.component('cold-lead-broadcast-component', require('./components/CLBC.vue'));
 
 const app = new Vue({
     el: '#cold_leads_vue'

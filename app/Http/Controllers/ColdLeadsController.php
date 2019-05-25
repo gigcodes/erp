@@ -132,18 +132,23 @@ class ColdLeadsController extends Controller
         ]);
 
         $lead = ColdLeads::find($leadId);
+
         $account = Account::find($request->get('account_id'));
         $senderUsername = $account->last_name;
         $receiverId = $lead->platform_id;
         $password = $account->password;
         $message = $request->get('message');
 
+        if (strlen($receiverId) < 5) {
+            $receiverId = $lead->username;
+        }
+
         $messageType = 1;
         if ($request->has('image')) {
-            $status = $this->sendFileToInstagramUser($senderUsername, $password, $receiverId, $request->file('image'));
+            $status = $this->sendFileToInstagramUser($senderUsername, $password, $receiverId, $request->file('image'), $lead);
             $messageType = 2;
         } else {
-            $status = $this->sendMessageToInstagramUser($senderUsername, $password, $receiverId, $message);
+            $status = $this->sendMessageToInstagramUser($senderUsername, $password, $receiverId, $message, $lead);
         }
 
         if ($status === false) {
@@ -179,13 +184,19 @@ class ColdLeadsController extends Controller
 
     }
 
-    private function sendFileToInstagramUser($sender, $password, $receiver, $file) {
+    private function sendFileToInstagramUser($sender, $password, $receiver, $file, $lead) {
         $i = new Instagram();
 
         try {
             $i->login($sender, $password);
         } catch (\Exception $exception) {
             return false;
+        }
+
+        if (!is_scalar($receiver)) {
+            $receiver = $i->people->getUserIdForName($receiver);
+            $lead->platform_id = $receiver;
+            $lead->save();
         }
 
 
@@ -203,13 +214,19 @@ class ColdLeadsController extends Controller
 
     }
 
-    private function sendMessageToInstagramUser($sender, $password,  $receiver, $message) {
+    private function sendMessageToInstagramUser($sender, $password,  $receiver, $message, $lead) {
         $i = new Instagram();
 
         try {
             $i->login($sender, $password);
         } catch (\Exception $exception) {
             return false;
+        }
+
+        if (!is_numeric($receiver)) {
+            $receiver = $i->people->getUserIdForName($receiver);
+            $lead->platform_id = $receiver;
+            $lead->save();
         }
 
         $i->direct->sendText([
@@ -256,6 +273,21 @@ class ColdLeadsController extends Controller
     }
 
     public function deleteColdLead($leadId) {
+        $dl = ColdLeads::findOrFail($leadId);
+        try {
+            $dl->threads->conversation()->delete();
+        } catch (\Exception $exception) {
+        }
+        try {
+            $dl->threads()->delete();
+        } catch (\Exception $exception) {
+        }
 
+        $dl->delete();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
+
 }
