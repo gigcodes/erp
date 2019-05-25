@@ -357,8 +357,6 @@ class PurchaseController extends Controller
 		    });
 	    }
 
-
-
       $new_products = [];
       $products = $products->select(['id', 'sku', 'supplier'])->get()->sortBy('supplier');
       $count = 0;
@@ -528,15 +526,25 @@ class PurchaseController extends Controller
         // 'supplier'          => 'required',
         'products'          => 'required'
       ]);
-      
+
       $purchase = new Purchase;
 
       $purchase->purchase_handler = $request->purchase_handler;
       $purchase->supplier_id = $request->supplier_id;
+      $purchase->status = 'Pending Purchase';
 
       $purchase->save();
 
       $purchase->products()->attach($request->products);
+
+      foreach ($request->products as $product_id) {
+        $product = Product::find($product_id);
+
+        foreach ($product->orderproducts as $order_product) {
+          $order_product->purchase_status = 'Pending Purchase';
+          $order_product->save();
+        }
+      }
 
       return redirect()->route('purchase.index');
     }
@@ -611,6 +619,7 @@ class PurchaseController extends Controller
         $new_order->product_price = $new_product->price_special;
         $new_order->size = $order_product->size;
         $new_order->color = $order_product->color;
+        $new_order->purchase_status = 'Pending Purchase';
         $new_order->save();
 
         $order_product->delete();
@@ -683,6 +692,7 @@ class PurchaseController extends Controller
         $new_order->product_price = $product->price_special;
         $new_order->size = $order_product->size;
         $new_order->color = $order_product->color;
+        $new_order->purchase_status = 'Pending Purchase';
         $new_order->save();
 
         $order_product->delete();
