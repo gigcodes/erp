@@ -19,6 +19,7 @@ use App\Brand;
 use App\Product;
 use App\Message;
 use App\Purchase;
+use App\Dubbizle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers;
@@ -30,6 +31,10 @@ class FindByNumberController extends Controller
 	protected function findLeadByNumber($number)
 	{
 		return Leads::where('contactno', '=', $number)->first();
+	}
+	protected function findDubbizleByNumber($number)
+	{
+		return Dubbizle::where('phone_number', $number)->first();
 	}
 	protected function findCustomerByNumber($number)
 	{

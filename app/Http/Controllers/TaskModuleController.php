@@ -65,11 +65,20 @@ class TaskModuleController extends Controller {
                  ON tasks.id = chat_messages.task_id
 
                ) AS tasks
-               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR assign_to = ' . $userid . ')
+               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . '))
                ORDER BY last_communicated_at DESC;
 						');
 
 						// dd($data['task']['pending']);
+
+						$tasks = Task::all();
+
+						// foreach($tasks as $task) {
+						// 	if ($task->assign_to != 0) {
+						// 		$user = $task->assign_to;
+						// 		$task->users()->syncWithoutDetaching($user);
+						// 	}
+						// }
 
 		$data['task']['completed']  = Task::where( 'is_statutory', '=', 0 )
 		                                    ->whereNotNull( 'is_completed'  )
@@ -122,13 +131,48 @@ class TaskModuleController extends Controller {
 												 ->orWhere( 'assign_to', '=', $userid )
 		                                         ->get()->toArray();
 
-		$data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
-		                                   ->whereNotNull( 'is_completed'  )
-		                                   ->where( function ($query ) use ($userid) {
-			                                   return $query->orWhere('assign_from', '=', $userid)
-			                                                ->orWhere('assign_to', '=', $userid);
-		                                   })
-		                                   ->get()->toArray();
+		// $data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
+		//                                    ->whereNotNull( 'is_completed'  )
+		//                                    ->where( function ($query ) use ($userid) {
+		// 	                                   return $query->orWhere('assign_from', '=', $userid)
+		// 	                                                ->orWhere('assign_to', '=', $userid);
+		//                                    })
+		//                                    ->get()->toArray();
+
+		 $data['task']['statutory_completed'] = DB::select('
+	               SELECT *,
+								 (SELECT mm5.remark FROM remarks mm5 WHERE mm5.id = remark_id) AS remark,
+								 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
+	               (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+	               (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
+	               (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
+	               (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
+
+	               FROM (
+	                 SELECT * FROM tasks
+
+	                 LEFT JOIN (
+	                   SELECT MAX(id) as remark_id, taskid
+	                   FROM remarks
+										 WHERE module_type = "task"
+	                   GROUP BY taskid
+	                 ) AS remarks
+	                 ON tasks.id = remarks.taskid
+
+	                 LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
+	                 ON tasks.id = chat_messages.task_id
+
+	               ) AS tasks
+	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . '))
+	               ORDER BY last_communicated_at DESC;
+							');
+							// dd($data['task']['statutory_completed']);
+
+							// foreach ($data['task']['statutory_completed'] as $task) {
+							// 	dump($task->id);
+							// }
+							//
+							// dd('stap');
 
 		$data['task']['statutory_today'] = Task::latest()->where( 'is_statutory', '=', 1 )
 		                                           ->where( 'is_completed', '=',  null  )
@@ -196,11 +240,15 @@ class TaskModuleController extends Controller {
 			$data['model_id'] = $request->model_id;
 		}
 
-		foreach ($request->assign_to as $assign_to) {
-			$data['assign_to'] = $assign_to;
+
+
+		// foreach ($request->assign_to as $assign_to) {
+			$data['assign_to'] = $request->assign_to[0];
 
 			if($data['is_statutory'] == 0) {
 				$task = Task::create( $data );
+
+				$task->users()->attach($request->assign_to);
 
 				// PushNotification::create( [
 				// 	'type'       => 'button',
@@ -292,7 +340,7 @@ class TaskModuleController extends Controller {
 				// 	'role'       => '',
 				// ] );
 			}
-		}
+		// }
 
 		if ($request->ajax()) {
 			return response('success');

@@ -147,7 +147,7 @@
                             </div>
                             <div class="form-group">
                                 <strong>Assigned To:</strong>
-                                <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" required>
+                                <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple required>
                                   @foreach ($data['users'] as $user)
                                     <option data-tokens="{{ $user['name'] }} {{ $user['email'] }}" value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
                                   @endforeach
@@ -241,34 +241,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <?php $i = 1 ?>
-                        @foreach(  $data['task']['statutory_today'] as $task)
-                                <tr id="task_{{ $task['id'] }}">
-                                    <td>{{$i++}}</td>
-                                    <td> {{$task['created_at']}}</td>
-                                    <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                                    <td> {{$task['task_details']}}</td>
-                                    <td>{{ $users[$task['assign_from']]}}</td>
-                                    <td>{{ $task['assign_to'] ? $users[$task['assign_to']] : ''}}</td>
-                                    <td> -->
-                                      <!-- @include('task-module.partials.remark',$task)  -->
-                                    <!-- </td>
-                                    <td>
-                                        @if( Auth::id() == $task['assign_to'] )
-                                            <a href="/task/complete/{{$task['id']}}">Complete</a>
-                                        @endif
-                                    </td>
-                                    <td>
-                                      <button id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark" data-id="{{$task['id']}}">Add Remark</button>
-                                        <button id="view-remark-list-btn" class="view-remark" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task['id']}}">View Remark</button> -->
-                                      <!--  <form method="POST" action="task/deleteStatutoryTask" enctype="multipart/form-data">
-                                            @csrf
-                                            <input hidden name="id" value="{{ $task['id'] }}">
-                                            <button type="submit" class="">Delete</button>
-                                        </form> -->
-                                    <!-- </td>
-                                </tr>
-                        @endforeach
+
                         </tbody>
                     </table>
                 </div>
@@ -299,7 +272,7 @@
                                       <th width="25%">Task Subject</th>
                                       <th width="5%">Est Completion Date</th>
                                       <th width="5%">Assigned From</th>
-                                      <th width="5%">&nbsp;</th>
+                                      <th width="5%">Assigned To</th>
                                       <th width="20%">Communication</th>
                                       <th width="10%">Send Message</th>
                                       {{-- <th>Remarks</th> --}}
@@ -318,11 +291,21 @@
                                     </td>
                                     <td> {{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i')  }}</td>
                                     <td>{{ $users[$task->assign_from] }}</td>
-                                    @if( $task->assign_to == Auth::user()->id )
-                                        <td><a href="/task/complete/{{$task->id}}">Complete</a></td>
-                                    @else
-                                        <td>Assign to  {{ $task->assign_to ?? ($users[$task->assign_to] ? $users[$task->assign_to] : 'Nil')}}</td>
-                                    @endif
+                                    <td>
+                                      @php
+                                        $special_task = \App\Task::find($task->id);
+                                      @endphp
+                                      @if ($special_task->users->contains(Auth::id()))
+                                        <a href="/task/complete/{{ $task->id }}">Complete</a>
+                                      @else
+                                        @foreach ($special_task->users as $key => $task_user)
+                                          @if ($key != 0)
+                                            ,
+                                          @endif
+                                          {{ array_key_exists($task_user->id, $users) ? $users[$task_user->id] : 'No User' }}
+                                        @endforeach
+                                      @endif
+                                    </td>
 
                                     <td>
                                       @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
@@ -342,19 +325,6 @@
                                       @else
                                         Private
                                       @endif
-
-                                      {{-- <p class="pb-4 mt-3" style="display: block;">
-                                        <select name="quickCategory" class="form-control mb-3 quickCategory">
-                                          <option value="">Select Category</option>
-                                          @foreach($reply_categories as $category)
-                                              <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                                          @endforeach
-                                        </select>
-
-                                        <select name="quickComment" class="form-control quickComment">
-                                          <option value="">Quick Reply</option>}}
-                                        </select>
-                                      </p> --}}
                                     </td>
 
                                     <td>
@@ -453,21 +423,89 @@
                                       <th>Assigned From</th>
                                       <th>Assigned To</th>
                                       <th>Remark</th>
+                                      <th>Communication</th>
+                                      <th>Send Message</th>
                                       <th>Completed at</th>
+                                      <th>Actions</th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                     <?php $i = 1 ?>
                                   @foreach(  $data['task']['statutory_completed'] as $task)
-                                <tr id="task_{{ $task['id'] }}">
+                                <tr id="task_{{ $task->id }}">
                                     <td>{{$i++}}</td>
-                                    <td> {{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
-                                    <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                                    <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
-                                    <td>{{$users[$task['assign_from']]}}</td>
-                                    <td>{{ $task['assign_to'] ?? ($users[$task['assign_to']] ? $users[$task['assign_to']] : 'Nil') }}</td>
-                                    <td> @include('task-module.partials.remark',$task) </td>
-                                    <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i') }}</td>
+                                    <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
+                                    <td>{{ isset( $categories[$task->category]) ? $categories[$task->category] : '' }}</td>
+                                    <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{ $task->task_details }}" data-switch="0">
+                                      {{ $task->task_subject ? $task->task_subject : 'Task Details' }}
+                                    </td>
+                                    <td>{{ array_key_exists($task->assign_from, $users) ? $users[$task->assign_from] : 'No User' }}</td>
+                                    <td>
+                                      @php
+                                        $special_task = \App\Task::find($task->id);
+                                      @endphp
+                                      @if ($special_task->users->contains(Auth::id()))
+                                        <a href="/task/complete/{{ $task->id }}">Complete</a>
+                                      @else
+                                        @foreach ($special_task->users as $key => $task_user)
+                                          @if ($key != 0)
+                                            ,
+                                          @endif
+                                          {{ array_key_exists($task_user->id, $users) ? $users[$task_user->id] : 'No User' }}
+                                        @endforeach
+                                      @endif
+                                    </td>
+                                    <td>
+                                      {{-- @include('task-module.partials.remark',$task) --}}
+                                      <textarea id="remark-text-{{ $task->id }}" rows="1" name="remark" class="form-control"></textarea>
+                                      <button class="mt-2 update-remark" data-id="{{$task->id}}">update</button>
+                                      <img id="remark-load-{{$task->id}}" style="display: none" src="{{ asset('images/loading.gif') }}"/>
+                                      <span id="remarks-{{$task->id}}" >
+                                        @foreach(\App\Task::getremarks($task->id) as $remark)
+                                          <p> {{$remark['remark']}} <br> <small>updated on {{ Carbon\Carbon::parse($remark['created_at'])->format('d-m H:i') }}</small></p>
+                                          <hr>
+                                        @endforeach
+                                      </span>
+                                    </td>
+                                    <td>
+                                      @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
+                                        @if (isset($task->message))
+                                          {{ strlen($task->message) > 100 ? substr($task->message, 0, 97) . '...' : $task->message }}
+                                        @endif
+                                      @else
+                                        Private
+                                      @endif
+                                    </td>
+                                    <td>
+                                      @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
+                                        <div class="d-inline">
+                                          <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                          <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
+                                        </div>
+                                      @else
+                                        Private
+                                      @endif
+                                    </td>
+                                    <td>{{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i') }}</td>
+                                    <td>
+                                      @if ($task->assign_to != Auth::id())
+                                        @if ($task->is_private == 1)
+                                          <button type="button" class="btn btn-image"><img src="/images/private.png" /></button>
+                                        @else
+                                          <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                                        @endif
+                                      @endif
+
+                                      @if ($task->assign_to == Auth::id())
+                                        <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+
+                                        @if ($task->is_private == 1)
+                                          <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
+                                        @else
+                                          <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
+                                        @endif
+                                      @endif
+                                    </td>
                                 </tr>
                                @endforeach
                                 </tbody>
