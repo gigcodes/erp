@@ -35,6 +35,16 @@
                                         'name'  => 'selected_user'
                                     ] );?>
                                 </div>
+
+                                <div class="form-group">
+                                  <strong>Select Category</strong>
+                                  <?php
+                                  $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
+
+                                  echo Form::select('category', $categories, (old('category') ? old('category') : $category), ['placeholder' => 'Select a category','class' => 'form-control']);
+  
+                                  ?>
+                                </div>
                             </div>
                             <div class="col-md-4 mt-4">
                                 <strong>&nbsp;&nbsp;</strong>

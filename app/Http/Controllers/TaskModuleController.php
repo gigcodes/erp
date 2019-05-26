@@ -31,6 +31,16 @@ class TaskModuleController extends Controller {
 			$userid = $request->input( 'selected_user' );
 		}
 
+		$categoryWhereClause = '';
+		$category = '';
+		if ($request->category != '') {
+			$categoryWhereClause = "AND category = $request->category";
+
+			$category = $request->category;
+		}
+
+		// dd($request->all());
+
 		$data['task'] = [];
 
 		// $data['task']['pending']      = Task::with('remarks')->where( 'is_statutory', '=', 0 )
@@ -65,7 +75,7 @@ class TaskModuleController extends Controller {
                  ON tasks.id = chat_messages.task_id
 
                ) AS tasks
-               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . '))
+               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . '
                ORDER BY last_communicated_at DESC;
 						');
 
@@ -85,9 +95,12 @@ class TaskModuleController extends Controller {
 											->where( function ($query ) use ($userid) {
 												return $query->orWhere( 'assign_from', '=', $userid )
 												             ->orWhere( 'assign_to', '=', $userid );
-											})
-		                                    ->get()->toArray();
+											});
+		if ($request->category != '') {
+			$data['task']['completed'] = $data['task']['completed']->where('category', $request->category);
+		}
 
+		$data['task']['completed'] = $data['task']['completed']->get()->toArray();
 
 
 		$satutory_tasks = SatutoryTask::latest()
@@ -126,10 +139,17 @@ class TaskModuleController extends Controller {
 			}
 		}
 
-		$data['task']['statutory'] = SatutoryTask::latest()
-		                                         ->orWhere( 'assign_from', '=', $userid )
-												 ->orWhere( 'assign_to', '=', $userid )
-		                                         ->get()->toArray();
+		$data['task']['statutory'] = SatutoryTask::latest()->where(function ($query) use ($userid) {
+			$query->where('assign_from', $userid)
+		 				->orWhere('assign_to', $userid);
+		});
+
+
+		if ($request->category != '') {
+			$data['task']['statutory'] = $data['task']['statutory']->where('category', $request->category);
+		}
+
+   $data['task']['statutory'] = $data['task']['statutory']->get()->toArray();
 
 		// $data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
 		//                                    ->whereNotNull( 'is_completed'  )
@@ -163,7 +183,7 @@ class TaskModuleController extends Controller {
 	                 ON tasks.id = chat_messages.task_id
 
 	               ) AS tasks
-	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . '))
+	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . '
 	               ORDER BY last_communicated_at DESC;
 							');
 							// dd($data['task']['statutory_completed']);
@@ -179,8 +199,13 @@ class TaskModuleController extends Controller {
 		                                           ->where( function ($query ) use ($userid) {
 			                                           return $query->orWhere( 'assign_from', '=', $userid )
 			                                                        ->orWhere( 'assign_to', '=', $userid );
-		                                           })
-		                                           ->get()->toArray();
+		                                           });
+
+		if ($request->category != '') {
+			$data['task']['statutory_today'] = $data['task']['statutory_today']->where('category', $request->category);
+		}
+
+     $data['task']['statutory_today'] = $data['task']['statutory_today']->get()->toArray();
 
 //		$data['task']['statutory_completed_ids'] = [];
 //		foreach ($data['task']['statutory_completed'] as $item)
@@ -192,8 +217,13 @@ class TaskModuleController extends Controller {
 										->where( function ($query ) use ($userid) {
 											return $query->orWhere( 'assign_from', '=', $userid )
 											             ->orWhere( 'assign_to', '=', $userid );
-										})
-		                               ->get()->toArray();
+										});
+
+		if ($request->category != '') {
+			$data['task']['deleted'] = $data['task']['deleted']->where('category', $request->category);
+		}
+
+   $data['task']['deleted'] = $data['task']['deleted']->get()->toArray();
 
 																	//  $tasks_query = Task::where('is_statutory', 0)
 															 		// 												->where('assign_to', Auth::id());
@@ -211,7 +241,7 @@ class TaskModuleController extends Controller {
 		$data['users']             = $users;
 		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
-		$category = '';
+		// $category = '';
 
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
