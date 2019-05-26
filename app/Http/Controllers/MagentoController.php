@@ -10,6 +10,7 @@ use App\Customer;
 use App\ChatMessage;
 use App\Order;
 use App\OrderProduct;
+use App\CommunicationHistory;
 use Carbon\Carbon;
 use Validator;
 
@@ -152,17 +153,17 @@ class MagentoController extends Controller {
 						$balance_amount -= $customer->credit;
 						$customer->credit = 0;
 					}
-
-					$customer->name = $full_name;
-					$customer->email = $results['customer_email'];
-					$customer->address = $results['billing_address']['street'];
-					$customer->city = $results['billing_address']['city'];
-					$customer->country = $results['billing_address']['country_id'];
-					$customer->pincode = $results['billing_address']['postcode'];
-					$customer->phone = $final_phone;
-
-					$customer->save();
 				}
+
+				$customer->name = $full_name;
+				$customer->email = $results['customer_email'];
+				$customer->address = $results['billing_address']['street'];
+				$customer->city = $results['billing_address']['city'];
+				$customer->country = $results['billing_address']['country_id'];
+				$customer->pincode = $results['billing_address']['postcode'];
+				$customer->phone = $final_phone;
+
+				$customer->save();
 			} else {
 				$customer = new Customer;
 				$customer->name = $full_name;
@@ -189,9 +190,22 @@ class MagentoController extends Controller {
 
 			$order_status = '';
 			$payment_method = '';
-			if ($results['payment']['method'] == 'paytm_cc'  || $results['payment']['method'] == 'zestmoney_zestpay') {
-				$order_status = 'Prepaid';
+			if ($results['payment']['method'] == 'paytm_cc') {
+				if ($results['state'] == 'processing') {
+					$order_status = 'Prepaid';
+				} else {
+					$order_status = 'Follow up for advance';
+				}
+
 				$payment_method = 'paytm';
+			} else if ($results['payment']['method'] == 'zestmoney_zestpay') {
+				if ($results['state'] == 'processing') {
+					$order_status = 'Prepaid';
+				} else {
+					$order_status = 'Follow up for advance';
+				}
+
+				$payment_method = 'zestpay';
 			} elseif ($results['payment']['method'] == 'cashondelivery') {
 				$order_status = 'Follow up for advance';
 				$payment_method = 'cash on delivery';
@@ -248,14 +262,13 @@ class MagentoController extends Controller {
 			if ($results['payment']['method'] == 'cashondelivery') {
 				$product_names = '';
 				foreach (OrderProduct::where('order_id', $id)->get() as $order_product) {
-
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
 				$params = [
 					 'number'       => NULL,
 					 'user_id'      => 6,
-					 'approved'     => 0,
+					 'approved'     => 1,
 					 'status'       => 2,
 					 'customer_id'  => $order->customer->id,
 					 'message'      => "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.'
@@ -263,30 +276,35 @@ class MagentoController extends Controller {
 
 				$chat_message = ChatMessage::create($params);
 
-				// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+				$whatsapp_number = $order->customer->whatsapp_number != '' ? $order->customer->whatsapp_number : NULL;
 
-				$this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+				if ($whatsapp_number == '919152731483') {
+					app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+				} else {
+					app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+				}
 
 				$params['message'] = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
 
 				$chat_message = ChatMessage::create($params);
 
-				// $this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+				if ($whatsapp_number == '919152731483') {
+					app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+				} else {
+					app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+				}
 
-				// $requestData = new Request();
-				// $requestData2 = new Request();
-				// $requestData->setMethod('POST');
-				// $requestData2->setMethod('POST');
-				// $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-				// $requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message]);
-
-				// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-				// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
-		} elseif ($order->order_status == 'Prepaid' && ($results['state'] == 'processing' || $results['state'] == 'pending')) {
+				CommunicationHistory::create([
+					'model_id'		=> $order->id,
+					'model_type'	=> Order::class,
+					'type'				=> 'initial-advance',
+					'method'			=> 'whatsapp'
+				]);
+		} elseif ($order->order_status == 'Prepaid' && $results['state'] == 'processing') {
 			$params = [
 				 'number'       => NULL,
 				 'user_id'      => 6,
-				 'approved'     => 0,
+				 'approved'     => 1,
 				 'status'       => 2,
 				 'customer_id'  => $order->customer->id,
 				 'message'      => "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you."
@@ -294,21 +312,27 @@ class MagentoController extends Controller {
 
 			$chat_message = ChatMessage::create($params);
 
-			// $this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			$whatsapp_number = $order->customer->whatsapp_number != '' ? $order->customer->whatsapp_number : NULL;
 
-			// $auto_message = "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you.";
-			// $requestData = new Request();
-			// $requestData->setMethod('POST');
-			// $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-			//
-			// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			if ($whatsapp_number == '919152731483') {
+				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+			} else {
+				app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			}
+
+			CommunicationHistory::create([
+				'model_id'		=> $order->id,
+				'model_type'	=> Order::class,
+				'type'				=> 'online-confirmation',
+				'method'			=> 'whatsapp'
+			]);
 		}
 
 		if ($results['state'] != 'processing' && $results['payment']['method'] != 'cashondelivery') {
 			$params = [
 				 'number'       => NULL,
 				 'user_id'      => 6,
-				 'approved'     => 0,
+				 'approved'     => 1,
 				 'status'       => 2,
 				 'customer_id'  => $order->customer->id,
 				 'message'      => "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?"
@@ -316,22 +340,21 @@ class MagentoController extends Controller {
 
 			$chat_message = ChatMessage::create($params);
 
-			// $this->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			$whatsapp_number = $order->customer->whatsapp_number != '' ? $order->customer->whatsapp_number : NULL;
 
-			// $auto_message = "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?";
-			// $requestData = new Request();
-			// $requestData->setMethod('POST');
-			// $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message]);
-			//
-			// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+			if ($whatsapp_number == '919152731483') {
+				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+			} else {
+				app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			}
 		}
 
-		if ($results['payment']['method'] == 'cashondelivery' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
-			$order->update([
-				'auto_messaged' => 1,
-				'auto_messaged_date'	=> Carbon::now()
-			]);
-		}
+		// if ($results['payment']['method'] == 'cashondelivery' || ($order->order_status == 'Prepaid' && $results['state'] == 'processing')) {
+		// 	$order->update([
+		// 		'auto_messaged' => 1,
+		// 		'auto_messaged_date'	=> Carbon::now()
+		// 	]);
+		// }
 		}
 	}
 
