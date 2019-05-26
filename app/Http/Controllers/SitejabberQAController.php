@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\ActivitiesRoutines;
 use App\BrandReviews;
+use App\NegativeReviews;
 use App\Review;
 use App\Setting;
 use App\SitejabberQA;
+use http\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
@@ -150,6 +152,7 @@ class SitejabberQAController extends Controller
     }
 
     public function accounts() {
+        $negativeReviews = NegativeReviews::all();
         $accounts = Account::where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->get();
         $brandReviews = BrandReviews::where('used', 0)->take(1500)->get();
         $accountsRemaining = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->count();
@@ -179,7 +182,7 @@ class SitejabberQAController extends Controller
             $setting3->save();
         }
 
-        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews'));
+        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews'));
     }
 
     public function reviews() {
@@ -221,5 +224,33 @@ class SitejabberQAController extends Controller
         ]);
 
         return redirect()->back();
+    }
+
+    public function sendSitejabberQAReply(Request $request) {
+        $id = $request->get('rid');
+        $negativeReview = NegativeReviews::where('id', $id)->first();
+        if (!$negativeReview) {
+            return response()->json([
+                'status' => 'success'
+            ]);
+        }
+
+        $comment = $request->get('comment');
+        $reply = $request->get('reply');
+
+        $negativeReview->reply = $reply;
+        $negativeReview->save();
+
+        $request = new \GuzzleHttp\Client();
+        $request->request('POST', 'http://165.22.99.24/postReply', [
+            'data' => [
+                'comment' => $comment,
+                'reply' => $reply
+            ]
+        ]);
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 }

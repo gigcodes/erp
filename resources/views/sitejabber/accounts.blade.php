@@ -20,6 +20,9 @@
                     <li>
                         <a href="#four" data-toggle="tab" class="btn btn-image">Review Templates</a>
                     </li>
+                    <li>
+                        <a href="#five" data-toggle="tab" class="btn btn-image">Negative Comments</a>
+                    </li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -230,15 +233,15 @@
                 <div class="tab-panel mt-3" id="four">
                     <table id="table3" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th>S.N</th>
-                            <th>Platform</th>
-                            <th>brand</th>
-                            <th>Title</th>
-                            <th>Body</th>
-                            <th>Created At</th>
-                            <th>Attach For Approval</th>
-                        </tr>
+                            <tr>
+                                <th>S.N</th>
+                                <th>Platform</th>
+                                <th>brand</th>
+                                <th>Title</th>
+                                <th>Body</th>
+                                <th>Created At</th>
+                                <th>Attach For Approval</th>
+                            </tr>
                         </thead>
                         <tbody>
                         @foreach($brandReviews as $key=>$brandReview)
@@ -260,6 +263,34 @@
                             </tr>
                         @endforeach
                         </tbody>
+                    </table>
+                </div>
+                <div class="tab-panel mt-3" id="five">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>S.N</th>
+                            <th>Username</th>
+                            <th>title</th>
+                            <th>Body</th>
+                            <th>Reply</th>
+                        </tr>
+                        @foreach($negativeReviews as $key=>$negativeReview)
+                            <tr>
+                                <td>{{ $key+1 }}</td>
+                                <td>{{ $negativeReview->username }}</td>
+                                <td>{{ $negativeReview->title }}</td>
+                                <td>{{ $negativeReview->body }}</td>
+                                <td>
+                                    @if($negativeReview->reply != '')
+                                        {{ $negativeReview->reply }}
+                                    @else
+                                        <div class="form-group">
+                                            <input data-rid="{{$negativeReview->id}}" data-title="{{$negativeReview->title}}" style="width: 300px;" type="text" class="form-control reply-review" name="reply_{{ $negativeReview->id }}">
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
                     </table>
                 </div>
             </div>
@@ -296,6 +327,28 @@
                     }
                 } );
             } );
+            $('.reply-review').keyup(function(event) {
+                let title = $(this).attr('data-title');
+                let message = $(this).val();
+                let rid = $(this).attr('data-tid');
+
+                if (event.keyCode==13) {
+                    $.ajax({
+                        url: '{{ action('SitejabberQAController@sendSitejabberQAReply') }}',
+                        type: 'post',
+                        data: {
+                            comment: title,
+                            reply: message,
+                            rid: rid,
+                            _token: "{{csrf_token()}}"
+                        },
+                        success: function(response) {
+                            alert('Posted successfully!');
+                        },
+
+                    });
+                }
+            });
             var table = $('#table').DataTable({
                 orderCellsTop: true,
                 fixedHeader: true

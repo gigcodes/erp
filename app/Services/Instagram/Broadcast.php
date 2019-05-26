@@ -59,14 +59,17 @@ class Broadcast {
             //Save messages locally as well...
 
             $cl = ColdLeads::where('platform_id', $receipt)->first();
+            $cl->account_id = $account->id;
+            $cl->save();
             $ct = InstagramThread::where('cold_lead_id', $cl->id)->first();
 
             if (!$ct) {
-                $t = new InstagramThread();
-                $t->col_lead_id = $cl->id;
-                $t->account_id = $account->id;
-                $t->save();
+                $ct = new InstagramThread();
+                $ct->cold_lead_id = $cl->id;
+                $ct->account_id = $account->id;
+                $ct->save();
             }
+
 
             $m = new InstagramDirectMessages();
             $m->instagram_thread_id = $ct->id;
