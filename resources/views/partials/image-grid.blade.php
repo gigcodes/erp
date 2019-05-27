@@ -150,7 +150,7 @@
           <input type="hidden" name="image" value="">
           <input type="hidden" name="screenshot_path" value="">
           <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : '' }}">
-          <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}">
+          <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : 'nothing') }}" value="{{ $model_id }}">
           {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
           <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
           <input type="hidden" name="status" value="{{ $status }}">
