@@ -9,7 +9,7 @@ use App\NegativeReviews;
 use App\Review;
 use App\Setting;
 use App\SitejabberQA;
-use http\Client;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
@@ -154,7 +154,7 @@ class SitejabberQAController extends Controller
     public function accounts() {
         $negativeReviews = NegativeReviews::all();
         $accounts = Account::where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->get();
-        $brandReviews = BrandReviews::where('used', 0)->take(1500)->get();
+        $brandReviews = BrandReviews::where('used', 0)->take(100)->get();
         $accountsRemaining = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->count();
         $remainingReviews = Review::whereHas('account')->whereNotIn('status', ['posted', 'posted_one'])->count();
         $totalAccounts = $accounts->count();
@@ -226,7 +226,7 @@ class SitejabberQAController extends Controller
         return redirect()->back();
     }
 
-    public function sendSitejabberQAReply(Request $request) {
+    public function sendSitejabberQAReply(Request $request, Client $client) {
         $id = $request->get('rid');
         $negativeReview = NegativeReviews::where('id', $id)->first();
         if (!$negativeReview) {
@@ -237,17 +237,20 @@ class SitejabberQAController extends Controller
 
         $comment = $request->get('comment');
         $reply = $request->get('reply');
+//        dd($comment, $reply);
+//
+//        $negativeReview->reply = $reply;
+//        $negativeReview->save();
 
-        $negativeReview->reply = $reply;
-        $negativeReview->save();
 
-        $request = new \GuzzleHttp\Client();
-        $request->request('POST', 'http://165.22.99.24/postReply', [
-            'data' => [
+        $response = $client->post('http://128.199.223.87/postReply', [
+            'form_params' => [
                 'comment' => $comment,
                 'reply' => $reply
-            ]
+            ],
         ]);
+
+        $data = $response->getBody()->getContents();
 
         return response()->json([
             'status' => 'success'

@@ -39,7 +39,7 @@ class FilterColdLeadByPostCount extends Command
      */
     public function handle()
     {
-        $coldLeads = ColdLeads::all();
+        $coldLeads = ColdLeads::orderBy('id', 'DESC')->get();
 
         $instagram = new Instagram();
         $instagram->login('sololuxury.official', 'Insta123!');
@@ -53,10 +53,13 @@ class FilterColdLeadByPostCount extends Command
                 continue;
             }
 
+            echo "$username \n";
+
             $user = $coldLeadInstagram['user'];
 
             if ($user['media_count'] < 20) {
                 try {
+                    echo "DELETE \n";
                     $coldLead->delete();
                 } catch (\Exception $exception) {
                 }

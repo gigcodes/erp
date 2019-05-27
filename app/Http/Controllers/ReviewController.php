@@ -240,7 +240,20 @@ class ReviewController extends Controller
      */
     public function update(Request $request, $id)
     {
-        dd($request->all());
+
+        $review = Review::findOrFail($id);
+
+        if (!$review) {
+            return redirect()->action('SitejabberQAController@accounts')->with('message', 'Edit failed!');
+        }
+
+        $review->review = $request->get('review');
+        $review->title = $request->get('title');
+
+        $review->save();
+
+        return redirect()->action('SitejabberQAController@accounts')->with('message', 'Edit successful!!');
+
       $this->validate($request, [
         'review'        => 'required|string',
         'posted_date'   => 'sometimes|nullable|date',

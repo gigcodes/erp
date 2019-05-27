@@ -90,7 +90,8 @@
                                                                 <input name="title" type="text" class="form-control" placeholder="Enter Title...">
                                                             </div>
                                                             <div class="form-group">
-                                                                <textarea class="form-control" name="review" id="review_{{$key+1}}" rows="3" placeholder="Enter Body..."></textarea>
+                                                                <textarea class="form-control review-editor-box" data-id="{{$key+1}}" name="review" id="review_{{$key+1}}" rows="3" placeholder="Enter Body..."></textarea>
+                                                                <span class="letter_count_review_{{$key+1}}"></span>
                                                             </div>
                                                             <div class="text-right">
                                                                 <button class="btn btn-success">Attach A Review</button>
@@ -230,6 +231,34 @@
                         </form>
                     </div>
                 </div>
+                <div class="tab-panel mt-3" id="five">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>S.N</th>
+                            <th>Username</th>
+                            <th>title</th>
+                            <th>Body</th>
+                            <th>Reply</th>
+                        </tr>
+                        @foreach($negativeReviews as $key=>$negativeReview)
+                            <tr>
+                                <td>{{ $key+1 }}</td>
+                                <td>{{ $negativeReview->username }}</td>
+                                <td>{{ $negativeReview->title }}</td>
+                                <td>{{ $negativeReview->body }}</td>
+                                <td>
+                                    @if($negativeReview->reply != '')
+                                        {{ $negativeReview->reply }}
+                                    @else
+                                        <div class="form-group">
+                                            <input data-rid="{{$negativeReview->id}}" data-title="{{$negativeReview->title}}" style="width: 300px;" type="text" class="form-control reply-review" name="reply_{{ $negativeReview->id }}">
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </div>
                 <div class="tab-panel mt-3" id="four">
                     <table id="table3" class="table table-striped">
                         <thead>
@@ -263,34 +292,6 @@
                             </tr>
                         @endforeach
                         </tbody>
-                    </table>
-                </div>
-                <div class="tab-panel mt-3" id="five">
-                    <table class="table table-striped">
-                        <tr>
-                            <th>S.N</th>
-                            <th>Username</th>
-                            <th>title</th>
-                            <th>Body</th>
-                            <th>Reply</th>
-                        </tr>
-                        @foreach($negativeReviews as $key=>$negativeReview)
-                            <tr>
-                                <td>{{ $key+1 }}</td>
-                                <td>{{ $negativeReview->username }}</td>
-                                <td>{{ $negativeReview->title }}</td>
-                                <td>{{ $negativeReview->body }}</td>
-                                <td>
-                                    @if($negativeReview->reply != '')
-                                        {{ $negativeReview->reply }}
-                                    @else
-                                        <div class="form-group">
-                                            <input data-rid="{{$negativeReview->id}}" data-title="{{$negativeReview->title}}" style="width: 300px;" type="text" class="form-control reply-review" name="reply_{{ $negativeReview->id }}">
-                                        </div>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
                     </table>
                 </div>
             </div>
@@ -327,12 +328,21 @@
                     }
                 } );
             } );
+
+            $('.review-editor-box').keyup(function() {
+                let data = $(this).val();
+                let length = data.length;
+                let id = $(this).attr('data-id');
+                $('.letter_count_review_'+id).html(length);
+            });
             $('.reply-review').keyup(function(event) {
                 let title = $(this).attr('data-title');
                 let message = $(this).val();
-                let rid = $(this).attr('data-tid');
-
+                let rid = $(this).attr('data-rid');
+                let self = this;
                 if (event.keyCode==13) {
+
+                    $(this).attr('disabled', true);
                     $.ajax({
                         url: '{{ action('SitejabberQAController@sendSitejabberQAReply') }}',
                         type: 'post',
@@ -343,6 +353,7 @@
                             _token: "{{csrf_token()}}"
                         },
                         success: function(response) {
+                            // $(self).removeAttr('disabled');
                             alert('Posted successfully!');
                         },
 
