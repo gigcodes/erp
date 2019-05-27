@@ -55,31 +55,23 @@
 
     @include('partials.flash_messages')
 
-    {!! $products->appends(Request::except('page'))->links() !!}
+    {{-- {!! $products->appends(Request::except('page'))->links() !!} --}}
 
 	<?php
 	$query = http_build_query( Request::except( 'page' ) );
 	$query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
 	?>
 
-    <div class="row">
-        <div class="col-2">
-            <div class="form-group">
-                Goto :
-                <select onchange="location.href = this.value;" class="form-control">
-                    @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
-                        <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-                    @endfor
-                </select>
-            </div>
-        </div>
+    <div class="form-group position-fixed" style="top: 50px; left: 20px;">
+      Goto :
+      <select onchange="location.href = this.value;" class="form-control" id="page-goto">
+        @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
+          <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+        @endfor
+      </select>
     </div>
 
-    <form action="{{ route('purchase.store') }}" method="POST">
-      @csrf
-      <input type="hidden" name="purchase_handler" value="{{ Auth::id() }}" />
-      <input type="hidden" name="supplier_id" value="" />
-
+    <div class="infinite-scroll">
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead>
@@ -108,19 +100,22 @@
                 </td>
                 <td>{{ $product['sku'] }}</td>
                 <td>
-                  @foreach ($product['customers'] as $customer)
-                    <a href="{{ route('customer.show', $customer->id) }}" target="_blank">{{ $customer->name }}</a>
-                  @endforeach
+                  <ul class="list-unstyled">
+                    @foreach ($product['customers'] as $customer)
+                      <li><a href="{{ route('customer.show', $customer->id) }}" target="_blank">{{ $customer->name }}</a></li>
+                    @endforeach
+                  </ul>
+
                 </td>
                 <td>
-                  <ul>
+                  <ul class="list-unstyled">
                     @foreach ($product['order_products'] as $order_product)
                       <li>{{ $order_product->product_price }}</li>
                     @endforeach
                   </ul>
                 </td>
                 <td>
-                  <ul>
+                  <ul class="list-unstyled">
                     @foreach ($product['order_products'] as $order_product)
                       @if ($order_product->order)
                         <li>{{ \Carbon\Carbon::parse($order_product->order->order_date)->format('d-m') }}</li>
@@ -131,7 +126,7 @@
                   </ul>
                 </td>
                 <td>
-                  <ul>
+                  <ul class="list-unstyled">
                     @foreach ($product['order_products'] as $order_product)
                       @if ($order_product->order)
                         <li>{{ $order_product->order->advance_detail }}</li>
@@ -149,6 +144,14 @@
           </tbody>
         </table>
       </div>
+
+      {!! $products->appends(Request::except('page'))->links() !!}
+    </div>
+
+    <form action="{{ route('purchase.store') }}" method="POST" class="position-fixed" style="bottom: 20px; left: 50%;">
+      @csrf
+      <input type="hidden" name="purchase_handler" value="{{ Auth::id() }}" />
+      <input type="hidden" name="supplier_id" value="" />
 
       <div class="row">
         <div class="col text-center">
@@ -178,9 +181,9 @@
       @endforeach --}}
     </div>
 
-    {!! $products->appends(Request::except('page'))->links() !!}
 
-    <div class="row">
+
+    {{-- <div class="row">
         <div class="col-2">
             <div class="form-group">
                 Goto :
@@ -191,11 +194,12 @@
                 </select>
             </div>
         </div>
-    </div>
+    </div> --}}
     {{-- </div> --}}
 
     {{-- {!! $leads->links() !!} --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script>
     $(document).ready(function() {
        $(".select-multiple").multiselect();
@@ -287,6 +291,30 @@
           $('input[name="supplier_id"]').val(supplier_id);
         });
 
+        $(window).scroll(function() {
+          var next_page = $('.pagination li.active + li a');
+          var page_number = next_page.attr('href').split('?page=');
+          console.log(page_number);
+          var current_page = page_number[1] - 1;
+
+          $('#page-goto option[value="' + page_number[0] + '?page=' + current_page + '"]').attr('selected', 'selected');
+        });
+
+        $(document).ready(function() {
+          $('ul.pagination').hide();
+          $(function() {
+              $('.infinite-scroll').jscroll({
+                  autoTrigger: true,
+                  loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+                  padding: 2500,
+                  nextSelector: '.pagination li.active + li a',
+                  contentSelector: 'div.infinite-scroll',
+                  callback: function() {
+                      // $('ul.pagination').remove();
+                  }
+              });
+          });
+        });
     </script>
 
 @endsection
