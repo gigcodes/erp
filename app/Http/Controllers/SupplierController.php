@@ -29,7 +29,7 @@ class SupplierController extends Controller
       $solo_numbers = (new SoloNumbers)->all();
 
       $suppliers = DB::select('
-									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst,
+									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -49,7 +49,7 @@ class SupplierController extends Controller
                   LEFT JOIN (SELECT MAX(id) as email_id, model_id as email_model_id, created_at AS email_created_at FROM emails WHERE model_type LIKE "%Supplier%" OR "%Purchase%" GROUP BY model_id ORDER BY created_at DESC) AS emails
                   ON suppliers.id = emails.email_model_id)
 
-                  AS suppliers ORDER BY message_created_at DESC, email_created_at DESC;
+                  AS suppliers ORDER BY is_flagged DESC, message_created_at DESC, email_created_at DESC;
 							');
 
       $suppliers_all = Supplier::where(function ($query) {
@@ -182,6 +182,21 @@ class SupplierController extends Controller
       return response()->json([
         'messages'  => $chat_messages
       ]);
+    }
+
+    public function flag(Request $request)
+    {
+      $supplier = Supplier::find($request->supplier_id);
+
+      if ($supplier->is_flagged == 0) {
+        $supplier->is_flagged = 1;
+      } else {
+        $supplier->is_flagged = 0;
+      }
+
+      $supplier->save();
+
+      return response()->json(['is_flagged' => $supplier->is_flagged]);
     }
 
     public function sendEmailBulk(Request $request)

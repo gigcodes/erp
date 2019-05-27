@@ -62,6 +62,12 @@
           <div class="col-xs-12">
             <div class="form-group form-inline">
               <input type="text" name="supplier" id="supplier_supplier" class="form-control input-sm" placeholder="Supplier" value="{{ $supplier->supplier }}">
+
+              @if ($supplier->is_flagged == 1)
+                <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+              @else
+                <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+              @endif
             </div>
 
             <div class="form-group form-inline">
@@ -1781,6 +1787,36 @@
           $('#email-tab #email-container').html(response.emails);
         }).fail(function(response) {
           alert('Could not load emails');
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.flag-supplier', function() {
+        var supplier_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('supplier.flag') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            supplier_id: supplier_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Flagging...');
+          }
+        }).done(function(response) {
+          if (response.is_flagged == 1) {
+            $(thiss).html('<img src="/images/flagged.png" />');
+          } else {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+          }
+
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/unflagged.png" />');
+
+          alert('Could not flag supplier!');
+
           console.log(response);
         });
       });

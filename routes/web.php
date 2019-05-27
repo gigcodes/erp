@@ -470,6 +470,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Route::put('supplier/agent/update/{id}', 'SupplierController@agentUpdate')->name('supplier.agent.update');
 	Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
 	Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
+	Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
 	Route::resource('supplier', 'SupplierController');
 
 	// Agent Routes
