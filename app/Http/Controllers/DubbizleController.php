@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Dubbizle;
 use App\Helpers;
 use App\User;
+use App\ChatMessage;
+use Auth;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -32,9 +35,16 @@ class DubbizleController extends Controller
                     ORDER BY last_communicated_at DESC;
      						');
 
+        $keywords = Dubbizle::select('keywords')->get()->groupBy('keywords');
+
+        // dd($keywords);
+
                 // dd($posts);
 
-        return view('dubbizle', compact('posts'));
+        return view('dubbizle', [
+          'posts'     => $posts,
+          'keywords'  => $keywords,
+        ]);
     }
 
     public function show($id)
@@ -46,5 +56,39 @@ class DubbizleController extends Controller
         'dubbizle'  => $dubbizle,
         'users_array'  => $users_array,
       ]);
+    }
+
+    public function bulkWhatsapp(Request $request)
+    {
+      $this->validate($request, [
+        'group'   => 'required|string',
+        'message' => 'required|string',
+      ]);
+
+      $params = [
+        'user_id'   => Auth::id(),
+        'number'    => NULL,
+        'message'   => $request->message,
+        'approved'  => 0,
+        'status'    => 1
+      ];
+
+      $dubbizles = Dubbizle::where('keywords', $request->group)->get();
+
+      foreach ($dubbizles as $dubbizle) {
+        $params['dubbizle_id'] = $dubbizle->id;
+
+        $chat_message = ChatMessage::create($params);
+
+        app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($dubbizle->phone_number, '919152731483', $params['message'], NULL, $chat_message->id);
+
+        $chat_message->update([
+          'approved'    => 1,
+          'status'      => 2,
+          'created_at'  => Carbon::now()
+        ]);
+      }
+
+      return redirect('/scrap/dubbizle')->withSuccess('You have successfully sent bulk whatsapp messages');
     }
 }
