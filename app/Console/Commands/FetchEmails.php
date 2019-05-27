@@ -62,6 +62,8 @@ class FetchEmails extends Command
       // $supplier = Supplier::find($request->supplier_id);
       $suppliers = Supplier::whereHas('Agents')->orWhereNotNull('email')->get();
 
+      dump(count($suppliers));
+
       $types = [
         'inbox' => [
           'inbox_name'  => 'INBOX',
@@ -87,6 +89,7 @@ class FetchEmails extends Command
 
       foreach ($suppliers as $supplier) {
         foreach ($types as $type) {
+          dump($type['type']);
           $inbox = $imap->getFolder($type['inbox_name']);
           $latest_email = Email::where('type', $type['type'])->where('model_id', $supplier->id)->where(function($query) {
             $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
@@ -98,8 +101,12 @@ class FetchEmails extends Command
             $latest_email_date = Carbon::parse('1990-01-01');
           }
 
-          if ($supplier->agents) {
+          dump($latest_email_date);
+
+          if ($supplier->agents()->count() > 1) {
             if ($supplier->agents()->count() > 1) {
+              dump('Multiple Agents');
+
               foreach ($supplier->agents as $key => $agent) {
                 if ($key == 0) {
                   $emails = $inbox->messages()->where($type['direction'], $agent->email)->where([
@@ -119,6 +126,16 @@ class FetchEmails extends Command
                     }
 
                     if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                      dump('NEW EMAIL');
+                      $attachments_array = [];
+                      $attachments = $email->getAttachments();
+
+                      $attachments->each(function ($attachment) use (&$attachments_array) {
+                        file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                        $path = "email-attachments/" . $attachment->name;
+                        $attachments_array[] = $path;
+                      });
+
                       $params = [
                         'model_id'        => $supplier->id,
                         'model_type'      => Supplier::class,
@@ -129,7 +146,7 @@ class FetchEmails extends Command
                         'subject'         => $email->getSubject(),
                         'message'         => $content,
                         'template'				=> 'customer-simple',
-              					'additional_data'	=> "",
+              					'additional_data'	=> json_encode(['attachment' => $attachments_array]),
                         'created_at'      => $email->getDate()
                       ];
 
@@ -152,6 +169,17 @@ class FetchEmails extends Command
                     }
 
                     if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                      dump('NEW EMAIL');
+
+                      $attachments_array = [];
+                      $attachments = $email->getAttachments();
+
+                      $attachments->each(function ($attachment) use (&$attachments_array) {
+                        file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                        $path = "email-attachments/" . $attachment->name;
+                        $attachments_array[] = $path;
+                      });
+
                       $params = [
                         'model_id'        => $supplier->id,
                         'model_type'      => Supplier::class,
@@ -162,7 +190,7 @@ class FetchEmails extends Command
                         'subject'         => $email->getSubject(),
                         'message'         => $content,
                         'template'				=> 'customer-simple',
-              					'additional_data'	=> "",
+              					'additional_data'	=> json_encode(['attachment' => $attachments_array]),
                         'created_at'      => $email->getDate()
                       ];
 
@@ -174,6 +202,8 @@ class FetchEmails extends Command
                 }
               }
             } else if ($supplier->agents()->count() == 1) {
+              dump('1 Agent');
+
               $emails = $inbox->messages()->where($type['direction'], $supplier->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
 
               $emails = $emails->leaveUnread()->get();
@@ -186,6 +216,17 @@ class FetchEmails extends Command
                 }
 
                 if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                  dump('NEW EMAIL');
+
+                  $attachments_array = [];
+                  $attachments = $email->getAttachments();
+
+                  $attachments->each(function ($attachment) use (&$attachments_array) {
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = "email-attachments/" . $attachment->name;
+                    $attachments_array[] = $path;
+                  });
+
                   $params = [
                     'model_id'        => $supplier->id,
                     'model_type'      => Supplier::class,
@@ -196,7 +237,7 @@ class FetchEmails extends Command
                     'subject'         => $email->getSubject(),
                     'message'         => $content,
                     'template'				=> 'customer-simple',
-                    'additional_data'	=> "",
+                    'additional_data'	=> json_encode(['attachment' => $attachments_array]),
                     'created_at'      => $email->getDate()
                   ];
 
@@ -204,13 +245,60 @@ class FetchEmails extends Command
                 }
               }
             } else {
+              dump('No Agents Emails');
+
               $emails = $inbox->messages()->where($type['direction'], 'nonexisting@email.com');
               $emails = $emails->setFetchFlags(false)
                               ->setFetchBody(false)
                               ->setFetchAttachment(false)->leaveUnread()->get();
             }
+          } else {
+            dump('No Agent just Supplier emails');
+
+            $emails = $inbox->messages()->where($type['direction'], $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+
+            $emails = $emails->leaveUnread()->get();
+
+            foreach ($emails as $email) {
+              if ($email->hasHTMLBody()) {
+                $content = $email->getHTMLBody();
+              } else {
+                $content = $email->getTextBody();
+              }
+
+              if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                dump('NEW EMAIL');
+
+                $attachments_array = [];
+                $attachments = $email->getAttachments();
+
+                $attachments->each(function ($attachment) use (&$attachments_array) {
+                  file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                  $path = "email-attachments/" . $attachment->name;
+                  $attachments_array[] = $path;
+                });
+
+                $params = [
+                  'model_id'        => $supplier->id,
+                  'model_type'      => Supplier::class,
+                  'type'            => $type['type'],
+                  'seen'            => $email->getFlags()['seen'],
+                  'from'            => $email->getFrom()[0]->mail,
+                  'to'              => $email->getTo()[0]->mail,
+                  'subject'         => $email->getSubject(),
+                  'message'         => $content,
+                  'template'				=> 'customer-simple',
+                  'additional_data'	=> json_encode(['attachment' => $attachments_array]),
+                  'created_at'      => $email->getDate()
+                ];
+
+                Email::create($params);
+              }
+            }
           }
         }
+
+        dump('__________');
       }
 
       $report->update(['end_time' => Carbon:: now()]);

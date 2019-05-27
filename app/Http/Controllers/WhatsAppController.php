@@ -891,13 +891,16 @@ class WhatsAppController extends FindByNumberController
   		$from = str_replace('@c.us', '', $data['messages'][0]['author']);
   		$text = $data['messages'][0]['body'];
       $supplier = $this->findSupplierByNumber($from);
+      $user = $this->findUserByNumber($from);
 
       $params = [
-        'number'  => $from,
-        'message' => ''
+        'number'    => $from,
+        'message'   => '',
+        'approved'  => $data['messages'][0]['fromMe'] ? 1 : 0,
+        'status'    => $data['messages'][0]['fromMe'] ? 2 : 0
       ];
 
-      if ($data['messages'][0]['fromMe'] == false) {
+      // if ($data['messages'][0]['fromMe'] == false) {
         // if ($data['data']['type'] == 'text') {
           $params['message'] = $text;
         // }
@@ -911,6 +914,37 @@ class WhatsAppController extends FindByNumberController
         //   File::delete('uploads/temp_image.png');
         // }
 
+        if ($user) {
+          // $instruction = Instruction::where('assigned_to', $user->id)->latest()->first();
+          // $myRequest = new Request();
+          // $myRequest->setMethod('POST');
+          // $myRequest->request->add(['remark' => $params['message'], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => "User from Whatsapp"]);
+          //
+          // app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
+          //
+          // NotificationQueueController::createNewNotification([
+          //   'message' => $params['message'],
+          //   'timestamps' => ['+0 minutes'],
+          //   'model_type' => Instruction::class,
+          //   'model_id' =>  $instruction->id,
+          //   'user_id' => '6',
+          //   'sent_to' => $instruction->assigned_from,
+          //   'role' => '',
+          // ]);
+
+          $params['erp_user'] = $user->id;
+          $params['user_id'] = $user->id;
+
+          if ($params['message'] != '' && (preg_match_all("/#([\d]+)/i", $params['message'], $match))) {
+            $params['task_id'] = $match[1][0];
+          }
+
+          // $params = $this->modifyParamsWithMessage($params, $data);
+          $message = ChatMessage::create($params);
+          // $model_type = 'user';
+          // $model_id = $user->id;
+        }
+
         if ($supplier) {
           $params['erp_user'] = NULL;
           $params['task_id'] = NULL;
@@ -920,7 +954,7 @@ class WhatsAppController extends FindByNumberController
           // $model_type = 'supplier';
           // $model_id = $supplier->id;
         }
-      }
+      // }
 
       return response('success', 200);
     }
@@ -1090,7 +1124,7 @@ class WhatsAppController extends FindByNumberController
         $data['task_id'] = $request->task_id;
         $task = Task::find($request->task_id);
 
-        $data['message'] = "TASK ID " . $data['task_id'] . ". " . $data['message'];
+        $data['message'] = "#" . $data['task_id'] . ". " . $data['message'];
 
         if ($task->assign_from == Auth::id()) {
           $data['erp_user'] = $task->assign_to;
@@ -1541,7 +1575,7 @@ class WhatsAppController extends FindByNumberController
       }
 
 
-      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->latest();
+      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->latest();
 
       if (Setting::get('show_automated_messages') == 0) {
         $messages = $messages->where('status', '!=', 9);
@@ -1579,6 +1613,7 @@ class WhatsAppController extends FindByNumberController
           'approved' => $message->approved,
           'status'  => $message->status,
           'user_id' => $message->user_id,
+          'erp_user' => $message->erp_user,
           'sent'    => $message->sent,
           'error_status'    => $message->error_status
         ];
@@ -1801,7 +1836,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-          if ($context == 'supplier') {
+          if ($context == 'supplier' || $context == 'task') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
             if ($whatsapp_number == '919152731483') {
@@ -2276,8 +2311,8 @@ class WhatsAppController extends FindByNumberController
     $encodedNumber = "+" . $number;
     $encodedText = $message;
     // $wa_token = $configs[0]['key'];
-    $instanceId = "42987";
-    $token = "l3ap13b72y8bbza6";
+    $instanceId = "43254";
+    $token = "2l4boog1xzk3tr43";
 
     // throw new \Exception("Yesah");
 

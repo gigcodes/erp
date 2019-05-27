@@ -16,6 +16,7 @@ class PaymentModes extends ReadOnlyBase {
 	protected $data = [
 		'cash on delivery' => 'cash on delivery',
 		'paytm' => 'paytm',
+		'zestpay' => 'zestpay',
 		'bank transfer' => 'bank transfer',
 	];
 }

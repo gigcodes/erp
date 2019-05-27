@@ -1230,6 +1230,7 @@ class CustomerController extends Controller
         'model_type'      => Customer::class,
         'from'            => 'customercare@sololuxury.co.in',
         'to'              => $customer->email,
+        'send'            => 1,
         'subject'         => $request->subject,
         'message'         => $request->message,
         'template'				=> 'customer-simple',

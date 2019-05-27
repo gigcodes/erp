@@ -1102,7 +1102,7 @@ class PurchaseController extends Controller
 
       // dd(Carbon::parse($latest_email_date)->format('d M y 11:i:50'));
 
-      if ($supplier->agents) {
+      if ($supplier->agents()->count() > 1) {
         if ($supplier->agents()->count() > 1) {
           foreach ($supplier->agents as $key => $agent) {
             if ($key == 0) {
@@ -1243,6 +1243,45 @@ class PurchaseController extends Controller
           $emails = $emails->setFetchFlags(false)
                           ->setFetchBody(false)
                           ->setFetchAttachment(false)->leaveUnread()->get();
+        }
+      } else {
+        $emails = $inbox->messages()->where($direction, $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+
+        $emails = $emails->leaveUnread()->get();
+
+        foreach ($emails as $email) {
+          if ($email->hasHTMLBody()) {
+            $content = $email->getHTMLBody();
+          } else {
+            $content = $email->getTextBody();
+          }
+
+          if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+            $attachments_array = [];
+            $attachments = $email->getAttachments();
+
+            $attachments->each(function ($attachment) use (&$attachments_array) {
+              file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+              $path = "email-attachments/" . $attachment->name;
+              $attachments_array[] = $path;
+            });
+
+            $params = [
+              'model_id'        => $supplier->id,
+              'model_type'      => Supplier::class,
+              'type'            => $type,
+              'seen'            => $email->getFlags()['seen'],
+              'from'            => $email->getFrom()[0]->mail,
+              'to'              => $email->getTo()[0]->mail,
+              'subject'         => $email->getSubject(),
+              'message'         => $content,
+              'template'				=> 'customer-simple',
+              'additional_data'	=> json_encode(['attachment' => $attachments_array]),
+              'created_at'      => $email->getDate()
+            ];
+
+            Email::create($params);
+          }
         }
       }
 
@@ -1481,6 +1520,7 @@ class PurchaseController extends Controller
           'model_type'      => Supplier::class,
           'from'            => 'customercare@sololuxury.co.in',
           'to'              => $supplier->default_email ?? $supplier->email,
+          'seen'            => 1,
           'subject'         => $request->subject,
           'message'         => $request->message,
           'template'				=> 'customer-simple',

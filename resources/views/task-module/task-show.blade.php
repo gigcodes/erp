@@ -862,7 +862,7 @@
 
 
                if (message.status == 0 || message.status == 5 || message.status == 6) {
-                 var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:mm') + " </em>");
+                 var meta = $("<em>" + users_array[message.erp_user] + " " + moment(message.created_at).format('DD-MM H:mm') + " </em>");
                  var mark_read = $("<a href data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' style='font-size: 9px' class='change_message_status'>Mark as Read </a><span> | </span>");
                  var mark_replied = $('<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" style="font-size: 9px" class="change_message_status">Mark as Replied </a>');
 

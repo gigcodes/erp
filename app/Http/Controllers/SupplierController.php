@@ -239,6 +239,7 @@ class SupplierController extends Controller
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
           'from'            => 'customercare@sololuxury.co.in',
+          'seen'            => 1,
           'to'              => $supplier->default_email ?? $supplier->email,
           'subject'         => $request->subject,
           'message'         => $request->message,
