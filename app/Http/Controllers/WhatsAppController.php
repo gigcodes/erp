@@ -2314,9 +2314,9 @@ class WhatsAppController extends FindByNumberController
     $encodedNumber = "+" . $number;
     $encodedText = $message;
     // $wa_token = $configs[0]['key'];
-    if ($whatsapp_number == '37067501865') {
-      $instanceId = "43274";
-      $token = "t82bakgj2gw0mtk3";
+    if ($whatsapp_number == '919004780634') {
+      $instanceId = "43281";
+      $token = "yi841xjhrwyrwrc7";
     } else {
       $instanceId = "43254";
       $token = "2l4boog1xzk3tr43";
