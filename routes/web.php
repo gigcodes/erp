@@ -139,6 +139,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::resource('refund', 'RefundController');
 
+	// Contacts
+	Route::resource('contact', 'ContactController');
+
 	Route::get('/notifications' , 'NotificaitonContoller@index')->name('notifications');
 	Route::get('/notificaitonsJson','NotificaitonContoller@json')->name('notificationJson');
 	Route::get('/salesNotificaitonsJson','NotificaitonContoller@salesJson')->name('salesNotificationJson');

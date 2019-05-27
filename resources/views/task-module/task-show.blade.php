@@ -239,10 +239,22 @@
           User Does Not Exist
         @endif
       @endforeach
+
+      <br>
+
+      @foreach ($task->contacts as $key => $contact)
+        @if ($key != 0)
+          ,
+        @endif
+
+        {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
+      @endforeach
     </div>
 
     <div class="form-group">
       @if ($task->users->contains(Auth::id()))
+        <a href="/task/complete/{{ $task->id }}">Complete</a>
+      @elseif ($task->assign_from == Auth::id())
         <a href="/task/complete/{{ $task->id }}">Complete</a>
       @else
         @foreach ($task->users as $key => $task_user)

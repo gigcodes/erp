@@ -42,7 +42,7 @@
                                   $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
 
                                   echo Form::select('category', $categories, (old('category') ? old('category') : $category), ['placeholder' => 'Select a category','class' => 'form-control']);
-  
+
                                   ?>
                                 </div>
                             </div>
@@ -92,6 +92,31 @@
                     </div>
                 </div>
             @endcan
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-sm-5">
+            <h5>Create Quick Contact</h5>
+            <form action="{{ route('contact.store') }}" method="POST">
+              @csrf
+
+              <div class="form-inline">
+                <div class="form-group flex-fill d-flex">
+                  <input type="text" name="category" class="form-control input-sm flex-fill" placeholder="Category" value="{{ old('category') }}">
+                </div>
+
+                <div class="form-group flex-fill d-flex ml-1">
+                  <input type="text" name="name" class="form-control input-sm flex-fill" placeholder="Contact Name" value="{{ old('name') }}" required>
+                </div>
+              </div>
+
+              <div class="form-group mt-1">
+                <input type="text" name="phone" class="form-control input-sm" placeholder="Contact Phone" value="{{ old('phone') }}" required>
+              </div>
+
+              <button type="submit" class="btn btn-xs btn-secondary">Create</button>
+            </form>
+          </div>
         </div>
 
 
@@ -156,8 +181,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <strong>Assigned To:</strong>
-                                <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple required>
+                                <strong>Assigned To (users):</strong>
+                                <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple>
                                   @foreach ($data['users'] as $user)
                                     <option data-tokens="{{ $user['name'] }} {{ $user['email'] }}" value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
                                   @endforeach
@@ -166,6 +191,19 @@
                                 @if ($errors->has('assign_to'))
                                   <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
                                 @endif
+                            </div>
+
+                            <div class="form-group">
+                              <strong>Assigned To (contacts):</strong>
+                              <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
+                                @foreach (Auth::user()->contacts as $contact)
+                                  <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+                                @endforeach
+                              </select>
+
+                              @if ($errors->has('assign_to_contacts'))
+                                <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
+                              @endif
                             </div>
 
                             <div id="recurring-task" style="display: none;">
@@ -273,7 +311,7 @@
                     <div class="tab-pane active" id="1">
                         <div class="row">
                            <!-- <h4>List Of Pending Tasks</h4> -->
-                            <table class="table">
+                            <table class="table table-bordered">
                                 <thead>
                                   <tr>
                                       <th width="5%">Sr No</th>
@@ -305,7 +343,12 @@
                                       @php
                                         $special_task = \App\Task::find($task->id);
                                       @endphp
+
                                       @if ($special_task->users->contains(Auth::id()))
+                                        <a href="/task/complete/{{ $task->id }}">Complete</a>
+                                      @elseif ($special_task->contacts->contains(Auth::id()))
+                                        <a href="/task/complete/{{ $task->id }}">Complete</a>
+                                      @elseif ($task->assign_from == Auth::id())
                                         <a href="/task/complete/{{ $task->id }}">Complete</a>
                                       @else
                                         @foreach ($special_task->users as $key => $task_user)
@@ -313,6 +356,13 @@
                                             ,
                                           @endif
                                           {{ array_key_exists($task_user->id, $users) ? $users[$task_user->id] : 'No User' }}
+                                        @endforeach
+
+                                        @foreach ($special_task->contacts as $key => $task_user)
+                                          @if ($key != 0)
+                                            ,
+                                          @endif
+                                          Contact
                                         @endforeach
                                       @endif
                                     </td>
@@ -423,7 +473,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <!-- <h4>Statutory Activity Completed</h4> -->
-                                <table class="table">
+                                <table class="table table-bordered">
                                 <thead>
                                   <tr>
                                       <th>Sr No</th>
@@ -525,7 +575,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <h4>All Statutory Activity List</h4>
-                                <table class="table">
+                                <table class="table table-bordered">
                                     <thead>
                                         <tr>
                                             <th>Sr No</th>
@@ -583,7 +633,7 @@
                     <div class="tab-pane" id="3">
                         <div class="row">
                            <!-- <h4>List Of Completed Tasks</h4> -->
-                            <table class="table">
+                            <table class="table table-bordered">
                                 <thead>
                                   <tr>
                                   <th>Sr No</th>
