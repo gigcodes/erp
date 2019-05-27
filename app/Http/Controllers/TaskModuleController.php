@@ -81,8 +81,8 @@ class TaskModuleController extends Controller {
 
 						// dd($data['task']['pending']);
 
-						$tasks = Task::all();
-
+						// $tasks = Task::all();
+						//
 						// foreach($tasks as $task) {
 						// 	if ($task->assign_to != 0) {
 						// 		$user = $task->assign_to;
