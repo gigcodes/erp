@@ -1580,7 +1580,7 @@ class WhatsAppController extends FindByNumberController
     {
       $params = [];
       $result = [];
-      $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
+      // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
 
       // $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
       if ($request->customerId) {
@@ -1604,7 +1604,7 @@ class WhatsAppController extends FindByNumberController
       }
 
 
-      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->latest();
+      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->where('status', '!=', 7);
 
       if (Setting::get('show_automated_messages') == 0) {
         $messages = $messages->where('status', '!=', 9);
@@ -1633,7 +1633,7 @@ class WhatsAppController extends FindByNumberController
         // $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
       }
 
-      foreach ($messages->get() as $message) {
+      foreach ($messages->latest()->get() as $message) {
         $messageParams = [
           'id' => $message->id,
           'number' => $message->number,

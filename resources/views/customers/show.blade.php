@@ -1539,8 +1539,8 @@
           <div id="message-container"></div>
         </div>
 
-        <div class="col-xs-12 text-center hidden">
-          <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
+        <div class="col-xs-12 text-center">
+          <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-xs btn-secondary">Load More</button>
         </div>
       </div>
     </div>
@@ -3097,6 +3097,7 @@
                      qs += "&elapse=3600";
                  }
                  var anyNewMessages = false;
+                 console.log("/whatsapp/pollMessagesCustomer" + qs);
 
                  return new Promise(function(resolve, reject) {
                      $.getJSON("/whatsapp/pollMessagesCustomer" + qs, function( data ) {
