@@ -150,27 +150,27 @@ class DevelopmentController extends Controller
         }
       }
 
-      if ($task->status == 'Done') {
-        NotificationQueueController::createNewNotification([
-          'message' => 'New Task to Verify',
-          'timestamps' => ['+0 minutes'],
-          'model_type' => DeveloperTask::class,
-          'model_id' =>  $task->id,
-          'user_id' => Auth::id(),
-          'sent_to' => 6,
-          'role' => '',
-        ]);
-
-        NotificationQueueController::createNewNotification([
-          'message' => 'New Task to Verify',
-          'timestamps' => ['+0 minutes'],
-          'model_type' => DeveloperTask::class,
-          'model_id' =>  $task->id,
-          'user_id' => Auth::id(),
-          'sent_to' => 56,
-          'role' => '',
-        ]);
-      }
+      // if ($task->status == 'Done') {
+      //   NotificationQueueController::createNewNotification([
+      //     'message' => 'New Task to Verify',
+      //     'timestamps' => ['+0 minutes'],
+      //     'model_type' => DeveloperTask::class,
+      //     'model_id' =>  $task->id,
+      //     'user_id' => Auth::id(),
+      //     'sent_to' => 6,
+      //     'role' => '',
+      //   ]);
+      //
+      //   NotificationQueueController::createNewNotification([
+      //     'message' => 'New Task to Verify',
+      //     'timestamps' => ['+0 minutes'],
+      //     'model_type' => DeveloperTask::class,
+      //     'model_id' =>  $task->id,
+      //     'user_id' => Auth::id(),
+      //     'sent_to' => 56,
+      //     'role' => '',
+      //   ]);
+      // }
 
       if ($request->ajax()) {
         return response()->json(['task' => $task]);
@@ -374,27 +374,27 @@ class DevelopmentController extends Controller
 
       $task->save();
 
-      if ($task->status == 'Done' && $task->completed == 0) {
-        NotificationQueueController::createNewNotification([
-          'message' => 'New Task to Verify',
-          'timestamps' => ['+0 minutes'],
-          'model_type' => DeveloperTask::class,
-          'model_id' =>  $task->id,
-          'user_id' => Auth::id(),
-          'sent_to' => 6,
-          'role' => '',
-        ]);
-
-        NotificationQueueController::createNewNotification([
-          'message' => 'New Task to Verify',
-          'timestamps' => ['+0 minutes'],
-          'model_type' => DeveloperTask::class,
-          'model_id' =>  $task->id,
-          'user_id' => Auth::id(),
-          'sent_to' => 56,
-          'role' => '',
-        ]);
-      }
+      // if ($task->status == 'Done' && $task->completed == 0) {
+      //   NotificationQueueController::createNewNotification([
+      //     'message' => 'New Task to Verify',
+      //     'timestamps' => ['+0 minutes'],
+      //     'model_type' => DeveloperTask::class,
+      //     'model_id' =>  $task->id,
+      //     'user_id' => Auth::id(),
+      //     'sent_to' => 6,
+      //     'role' => '',
+      //   ]);
+      //
+      //   NotificationQueueController::createNewNotification([
+      //     'message' => 'New Task to Verify',
+      //     'timestamps' => ['+0 minutes'],
+      //     'model_type' => DeveloperTask::class,
+      //     'model_id' =>  $task->id,
+      //     'user_id' => Auth::id(),
+      //     'sent_to' => 56,
+      //     'role' => '',
+      //   ]);
+      // }
 
       return response('success');
     }
