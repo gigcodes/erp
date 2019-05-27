@@ -110,7 +110,6 @@ class InstagramController extends Controller
     }
 
     public function showImagesToBePosted(Request $request) {
-
         $images = Image::where('status', 2);
 
         $selected_categories = 1;

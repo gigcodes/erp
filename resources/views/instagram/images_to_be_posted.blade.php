@@ -32,6 +32,11 @@
         </div>
     </div>
     <div class="row">
+        <div class="col-md-12 text-center">
+            {!! $images->links() !!}
+        </div>
+    </div>
+    <div class="row">
         @foreach($images as $key => $image)
             <div class="col-md-6">
                 <div class="card">
@@ -156,6 +161,11 @@
                 </div>
             </div>
         @endforeach
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            {!! $images->links() !!}
+        </div>
     </div>
     <br>
     <br>

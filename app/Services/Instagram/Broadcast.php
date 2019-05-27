@@ -3,6 +3,7 @@
 namespace App\Services\Instagram;
 
 
+use App\Account;
 use App\ColdLeads;
 use App\Customer;
 use App\InstagramDirectMessages;
@@ -44,6 +45,7 @@ class Broadcast {
                 }
                 $lead->platform_id = $receiverId;
                 $lead->save();
+                sleep(2);
 
             }
             $receipts[$lead->id] = $lead->platform_id;
@@ -51,22 +53,29 @@ class Broadcast {
 
 
         foreach ($receipts as $key=>$receipt) {
-            $this->instagram->direct->sendText([
-                'users' => [$receipt]
-            ], $message);
-            sleep(1);
-
-            //Save messages locally as well...
-
             $cl = ColdLeads::where('platform_id', $receipt)->first();
-            $ct = InstagramThread::where('cold_lead_id', $cl->id)->first();
-
-            if (!$ct) {
-                $t = new InstagramThread();
-                $t->col_lead_id = $cl->id;
-                $t->account_id = $account->id;
-                $t->save();
+            $account_id = $cl->account_id;
+            if ($account_id > 0) {
+                $accountToSend = Account::find($account_id);
+            } else {
+                $accountToSend = Account::where('platform', 'sitejabber')->where('broadcast', 1)->orderBy('broadcasted_messages', 'ASC')->first();
             }
+
+            $cl->account_id = $accountToSend->id;
+            $cl->save();
+
+            $this->sendText($message, $receipt, $accountToSend, $account);
+
+            sleep(4);
+
+            $ct = InstagramThread::where('cold_lead_id', $cl->id)->first();
+            if (!$ct) {
+                $ct = new InstagramThread();
+                $ct->cold_lead_id = $cl->id;
+                $ct->account_id = $account->id;
+                $ct->save();
+            }
+
 
             $m = new InstagramDirectMessages();
             $m->instagram_thread_id = $ct->id;
@@ -78,11 +87,7 @@ class Broadcast {
 
 
             if ($file !== null) {
-                $fileName = public_path().'/uploads/'.$file;
-                $fileToSend = new InstagramPhoto($fileName);
-                $this->instagram->direct->sendPhoto([
-                    'users' => [$receipt]
-                ], $fileToSend->getFile());
+                $this->sendImage($file, $receipt, $accountToSend, $account);
 
                 $m = new InstagramDirectMessages();
                 $m->instagram_thread_id = $ct->id;
@@ -92,11 +97,13 @@ class Broadcast {
                 $m->receiver_id = $receipt;
                 $m->save();
             }
-            sleep(2);
+            sleep(5);
 
             $l = ColdLeads::where('id', $key)->first();
             ++$l->messages_sent;
             $l->save();
+
+            unset($receipts[$key]);
         }
 
         return count($receipts);
@@ -159,5 +166,41 @@ class Broadcast {
         $customer->name = $lead->name;
         $customer->save();
 
+    }
+
+
+    public function sendText($message, $receipt, $accountToSend, $account) {
+        if ($account->id === $accountToSend->id) {
+            $this->instagram->direct->sendText([
+                'users' => [$receipt]
+            ], $message);
+
+            return;
+        }
+
+        $instagram = new Instagram();
+        $instagram->login($accountToSend->last_name, $accountToSend->password);
+        $instagram->direct->sendText([
+            'users' => [$receipt]
+        ], $message);
+
+    }
+
+    public function sendImage($file, $receipt, $accountToSend, $account) {
+        $fileName = public_path().'/uploads/'.$file;
+        $fileToSend = new InstagramPhoto($fileName);
+        if ($account->id === $accountToSend->id) {
+            $this->instagram->direct->sendPhoto([
+                'users' => [$receipt]
+            ], $fileToSend->getFile());
+
+            return;
+        }
+
+        $instagram = new Instagram();
+        $instagram->login($accountToSend->last_name, $accountToSend->password);
+        $this->instagram->direct->sendPhoto([
+            'users' => [$receipt]
+        ], $fileToSend->getFile());
     }
 }

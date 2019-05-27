@@ -526,6 +526,7 @@ Route::resource('cold-leads-broadcasts', 'ColdLeadBroadcastsController');
 Route::resource('cold-leads', 'ColdLeadsController');
 
 Route::prefix('sitejabber')->group(function() {
+    Route::post('review/reply', 'SitejabberQAController@sendSitejabberQAReply');
     Route::get('review/{id}/confirm', 'SitejabberQAController@confirmReviewAsPosted');
     Route::get('review/{id}/delete', 'SitejabberQAController@detachBrandReviews');
     Route::get('review/{id}', 'SitejabberQAController@attachBrandReviews');

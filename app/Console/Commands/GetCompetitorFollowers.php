@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\ColdLeads;
 use App\CompetitorFollowers;
 use App\CompetitorPage;
 use Illuminate\Console\Command;
@@ -41,14 +42,14 @@ class GetCompetitorFollowers extends Command
      */
     public function handle()
     {
-        $comps = CompetitorPage::all();
+        $comp = CompetitorPage::whereRaw('`competitor_pages`.`is_processed` = 0')->first();
         $instagram = new Instagram();
-        $instagram->login('rishabh_aryal', 'R1shabh@123');
+        $instagram->login('sololuxury.official', 'Insta123!');
 
-        foreach ($comps as $comp) {
             try {
                 $profileData = $instagram->people->getInfoByName($comp->username)->asArray();
             } catch (\Exception $exception) {
+                dd($exception);
                 $profileData = [];
             }
 
@@ -62,9 +63,19 @@ class GetCompetitorFollowers extends Command
             $lastId = $comp->cursor ?? '';
 
             do {
-                $followersAll = $instagram->people->getFollowers($profileData['pk'], $rank, '', $lastId)->asArray();
+                try {
+                    $followersAll = $instagram->people->getFollowers($profileData['pk'], $rank, '', $lastId)->asArray();
+                } catch (\Exception $exception) {
+                    sleep(120);
+                }
                 $followers = $followersAll['users'];
                 $lastId = $followersAll['next_max_id'];
+
+                sleep(5);
+
+                if (strlen($lastId) < 5) {
+                    $lastId = 'END';
+                }
 
 
                 foreach ($followers as $follower)
@@ -76,18 +87,43 @@ class GetCompetitorFollowers extends Command
                         continue;
                     }
 
-                    $u = new CompetitorFollowers();
-                    $u->competitor_id = $comp->id;
-                    $u->username = $follower['username'];
+                    try {
+                        $accountInfo = $instagram->people->getInfoByName($follower['username']);
+                    } catch (\Exception $exception) {
+                        continue;
+                    }
+
+                    $accountInfo = $accountInfo->asArray();
+                    $accountInfo = $accountInfo['user'];
+
+                    if ($accountInfo['media_count'] < 20) {
+                        continue;
+                    }
+
+                    $u = new ColdLeads();
+                    $u->name = $accountInfo['full_name'];
+                    $u->username = $accountInfo['username'];
+                    $u->platform = 'instagram';
+                    $u->platform_id = $accountInfo['pk'];
+                    $u->because_of = 'via '.$comp->username;
+                    $u->rating = 7;
+                    $u->bio = $accountInfo['biography'];
                     $u->status = 1;
                     $u->save();
+
+                    echo "CREATED \n";
+                    sleep(5);
                 }
 
                 $comp->cursor = $lastId;
                 $comp->save();
 
-            } while($lastId != 'END');
-        }
+                sleep(5);
 
+            } while($lastId != 'END');
+
+            $comp->cursor = 'END';
+            $comp->is_processed = 1;
+            $comp->save();
     }
 }
