@@ -1190,7 +1190,7 @@ class WhatsAppController extends FindByNumberController
         File::delete('uploads/temp_screenshot.png');
       }
 
-      if (Auth::id() == 6) {
+      if (Auth::id() == 6 || $context == 'task') {
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
@@ -1820,13 +1820,16 @@ class WhatsAppController extends FindByNumberController
           $phone = $supplier->default_phone;
           $whatsapp_number = $supplier->whatsapp_number;
         } else if ($context == 'task') {
-          $user = User::find($message->user_id);
-          $phone = $user->phone;
-          $whatsapp_number = $user->whatsapp_number;
+          $receiver = User::find($message->erp_user);
+          $sender = User::find($message->user_id);
+
+          $phone = $receiver->phone;
+          $whatsapp_number = $sender->whatsapp_number;
         } else if ($context == 'user') {
-          $user = User::find($message->erp_user);
-          $phone = $user->phone;
-          $whatsapp_number = $user->whatsapp_number;
+          $receiver = User::find($message->erp_user);
+          $sender = User::find($message->user_id);
+          $phone = $receiver->phone;
+          $whatsapp_number = $sender->whatsapp_number;
         } else if ($context == 'dubbizle') {
           $dubbizle = Dubbizle::find($message->dubbizle_id);
           $phone = $dubbizle->phone_number;
@@ -2311,8 +2314,13 @@ class WhatsAppController extends FindByNumberController
     $encodedNumber = "+" . $number;
     $encodedText = $message;
     // $wa_token = $configs[0]['key'];
-    $instanceId = "43254";
-    $token = "2l4boog1xzk3tr43";
+    if ($whatsapp_number == '37067501865') {
+      $instanceId = "43274";
+      $token = "t82bakgj2gw0mtk3";
+    } else {
+      $instanceId = "43254";
+      $token = "2l4boog1xzk3tr43";
+    }
 
     // throw new \Exception("Yesah");
 

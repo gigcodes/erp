@@ -249,7 +249,7 @@
           @if ($key != 0)
             ,
           @endif
-          {{ array_key_exists($task_user->id, $users) ? $users[$task_user->id] : 'No User' }}
+          {{ array_key_exists($task_user->id, $users_array) ? $users_array[$task_user->id] : 'No User' }}
         @endforeach
       @endif
     </div>
