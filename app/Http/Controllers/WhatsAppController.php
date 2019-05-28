@@ -1847,7 +1847,7 @@ class WhatsAppController extends FindByNumberController
         } else if ($context == 'supplier') {
           $supplier = Supplier::find($message->supplier_id);
           $phone = $supplier->default_phone;
-          $whatsapp_number = $supplier->whatsapp_number;
+          $whatsapp_number = '971545889192';
         } else if ($context == 'task') {
           $sender = User::find($message->user_id);
 
@@ -2357,6 +2357,9 @@ class WhatsAppController extends FindByNumberController
     if ($whatsapp_number == '919004780634') {
       $instanceId = "43281";
       $token = "yi841xjhrwyrwrc7";
+    } else if ($whatsapp_number == '971545889192') {
+      $instanceId = "43112";
+      $token = "vbi9bpkoejv2lvc4";
     } else {
       $instanceId = "43254";
       $token = "2l4boog1xzk3tr43";
