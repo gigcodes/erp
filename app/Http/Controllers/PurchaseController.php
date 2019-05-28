@@ -1512,7 +1512,7 @@ class PurchaseController extends Controller
         }
 
         // Restore your original mailer
-        Mail::to($supplier->default_email ?? $supplier->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        Mail::to($request->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
         // Mail::setSwiftMailer($backup);
 
