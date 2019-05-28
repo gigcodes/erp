@@ -1113,6 +1113,8 @@
                                                   </ul>
                                                 </div>
                                               @endif
+                                            @elseif ($order_product->purchase_status != '')
+                                              {{ $order_product->purchase_status }}
                                             @else
                                               No Purchase
                                             @endif

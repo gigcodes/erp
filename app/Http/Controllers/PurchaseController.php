@@ -623,7 +623,9 @@ class PurchaseController extends Controller
         $new_order->purchase_status = 'Pending Purchase';
         $new_order->save();
 
-        $order_product->delete();
+        // $order_product->delete();
+        $order_product->purchase_status = 'Replaced';
+        $order_product->save();
       }
 
       PurchaseDiscount::where('product_id', $old_product->id)->delete();
@@ -696,7 +698,9 @@ class PurchaseController extends Controller
         $new_order->purchase_status = 'Pending Purchase';
         $new_order->save();
 
-        $order_product->delete();
+        // $order_product->delete();
+        $order_product->purchase_status = 'Replaced';
+        $order_product->save();
       }
 
       PurchaseDiscount::where('product_id', $old_product->id)->delete();

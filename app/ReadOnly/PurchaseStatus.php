@@ -14,6 +14,7 @@ use App\ReadOnlyBase;
 class PurchaseStatus extends ReadOnlyBase {
 
 	protected $data = [
+		'Replaced'	=> 'Replaced',
 		'Pending Purchase'	=> 'Pending Purchase',
 		'Request Sent to Supplier'	=> 'Request Sent to Supplier',
 		'Price under Negotiation'	=> 'Price under Negotiation',
