@@ -127,6 +127,10 @@
 
                         <button type="submit" class="btn-link">{{ $customer->name }}</button>
                       </form>
+
+                      <br>
+
+                      {{ $customer->phone }}
                       {{-- <a href="{{ route('customer.show', $customer->id) }}?customer_ids={{ $customer_ids_list }}">{{ $customer->name }}</a> --}}
 
                       <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
