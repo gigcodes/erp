@@ -135,7 +135,7 @@
 
          $(this).prop('checked', true);
          $('input[name="image_id"]').val($(this).val());
-         jQuery.noConflict();
+         // jQuery.noConflict();
          $('#imageModal').modal('toggle')
        });
     });
