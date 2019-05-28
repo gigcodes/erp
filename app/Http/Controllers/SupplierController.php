@@ -23,10 +23,11 @@ class SupplierController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
       // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
       $solo_numbers = (new SoloNumbers)->all();
+      $term = $request->term ?? '';
 
       $suppliers = DB::select('
 									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged,
@@ -49,7 +50,10 @@ class SupplierController extends Controller
                   LEFT JOIN (SELECT MAX(id) as email_id, model_id as email_model_id, created_at AS email_created_at FROM emails WHERE model_type LIKE "%Supplier%" OR "%Purchase%" GROUP BY model_id ORDER BY created_at DESC) AS emails
                   ON suppliers.id = emails.email_model_id)
 
-                  AS suppliers ORDER BY is_flagged DESC, message_created_at DESC, email_created_at DESC;
+                  AS suppliers
+
+                  WHERE (supplier LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%" OR address LIKE "%' . $term . '%" OR social_handle LIKE "%' . $term . '%")
+                  ORDER BY is_flagged DESC, message_created_at DESC, email_created_at DESC;
 							');
 
       $suppliers_all = Supplier::where(function ($query) {
@@ -69,7 +73,8 @@ class SupplierController extends Controller
       return view('suppliers.index', [
         'suppliers'     => $suppliers,
         'suppliers_all' => $suppliers_all,
-        'solo_numbers'  => $solo_numbers
+        'solo_numbers'  => $solo_numbers,
+        'term'          => $term,
       ]);
     }
 

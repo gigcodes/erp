@@ -11,18 +11,15 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List</h2>
             <div class="pull-left">
-              {{-- <form class="form-inline" action="/order/" method="GET">
+              <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
                 <div class="form-group">
                   <input name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
                 </div>
 
-                <div class="form-group">
-
-                </div>
-                <button hidden type="submit" class="btn btn-primary">Submit</button>
-              </form> --}}
+                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+              </form>
             </div>
 
             <div class="pull-right">
