@@ -34,7 +34,7 @@ class ColdLeadBroadcastsController extends Controller
             $leads = new ColdLeadBroadcasts;
         }
 
-        $leads = $leads->paginate($request->get('pagination'));
+        $leads = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
 
 
         return response()->json([
@@ -87,7 +87,7 @@ class ColdLeadBroadcastsController extends Controller
             $broadcast->save();
         }
 
-        $coldleads = ColdLeads::whereNotIn('status', [0])->where('messages_sent', '<', 5)->take($request->get('number_of_users'))->get();
+        $coldleads = ColdLeads::whereNotIn('status', [0])->where('messages_sent', '<', 5)->take($request->get('number_of_users'))->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
 
         foreach ($coldleads as $coldlead) {
 

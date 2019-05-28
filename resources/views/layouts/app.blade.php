@@ -1277,6 +1277,9 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
+                                    <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sales Item</a>
+                                    <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
+                                    <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Posts</a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups </a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brands Fan </a>

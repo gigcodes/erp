@@ -43,7 +43,7 @@ class ColdLeadsController extends Controller
             $leads = ColdLeads::where('status', '>', 0);
         }
 
-        $leads = $leads->paginate($request->get('pagination'));
+        $leads = $leads->orderBy('created_at', 'ASC')->paginate($request->get('pagination'));
 
         $accounts = Account::where('platform', 'instagram')->get();
 

@@ -58,12 +58,14 @@ class Broadcast {
             if ($account_id > 0) {
                 $accountToSend = Account::find($account_id);
             } else {
-                $accountToSend = Account::where('platform', 'sitejabber')->where('broadcast', 1)->orderBy('broadcasted_messages', 'ASC')->first();
+                $accountToSend = Account::where('platform', 'instagram')->where('broadcast', 1)->orderBy('broadcasted_messages', 'ASC')->first();
             }
 
             $cl->account_id = $accountToSend->id;
             $cl->save();
 
+            echo "SENDING TO $receipt \n";
+            echo "TEXT \n";
             $this->sendText($message, $receipt, $accountToSend, $account);
 
             sleep(4);
@@ -85,8 +87,12 @@ class Broadcast {
             $m->message_type = 1;
             $m->save();
 
+            ++$accountToSend->broadcasted_messages;
+            $accountToSend->save();
+
 
             if ($file !== null) {
+                echo "IMAGE \n";
                 $this->sendImage($file, $receipt, $accountToSend, $account);
 
                 $m = new InstagramDirectMessages();
@@ -96,7 +102,12 @@ class Broadcast {
                 $m->message_type = 2;
                 $m->receiver_id = $receipt;
                 $m->save();
+
+                ++$accountToSend->broadcasted_messages;
+                $accountToSend->save();
+
             }
+            echo "=========================\n";
             sleep(5);
 
             $l = ColdLeads::where('id', $key)->first();

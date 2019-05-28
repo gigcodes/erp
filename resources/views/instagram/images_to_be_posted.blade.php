@@ -41,7 +41,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-image">
-                        <img alt="Instagram Image" style="width: 100%;" src="{!! $image->filename ? asset('uploads/social-media') . '/' . $image->filename : 'http://lorempixel.com/555/300/black' !!}">
+                        <img alt="Instagram Image" style="width: 100%;" src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}">
                     </div><!-- card image -->
 
                     <div class="card-content">

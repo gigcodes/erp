@@ -15,6 +15,7 @@
                         <th>Name</th>
                         <th>Username</th>
                         <th>Password</th>
+                        <th>Email/Phone</th>
                         <th>Created At</th>
                         <th>Action</th>
                     </tr>
@@ -26,6 +27,7 @@
                             <td>{{ $account->first_name }}</td>
                             <td>{{ $account->last_name }}</td>
                             <td>{{ $account->password }}</td>
+                            <td>{{ $account->email }}</td>
                             <td>{{ $account->created_at }}</td>
                             <td>
 {{--                                <button class="btn btn-danger btn-sm">--}}

@@ -587,7 +587,10 @@ Route::prefix('comments')->group(function () {
 
 Route::prefix('scrap')->group(function () {
     Route::resource('facebook', 'FacebookController');
-		Route::get('/dubbizle', 'DubbizleController@index');
+    Route::resource('gmail', 'GmailDataController');
+    Route::resource('designer', 'DesignerController');
+    Route::resource('sales', 'SalesItemController');
+	Route::get('/dubbizle', 'DubbizleController@index');
     Route::get('/dubbizle/{id}', 'DubbizleController@show')->name('dubbizle.show');
     Route::get('/products', 'ScrapController@showProductStat');
     Route::get('/activity', 'ScrapController@activity')->name('scrap.activity');

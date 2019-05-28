@@ -15,7 +15,8 @@
                 </div>
                 <div class="form-group">
                     <label for="review">About this review..</label>
-                    <textarea class="form-control" name="review" id="review" rows="3" placeholder="Enter Body...">{{ $review->review }}</textarea>
+                    <textarea class="form-control review-editor-box" data-id="{{$review->id}}" name="review" id="review" rows="3" placeholder="Enter Body...">{{ $review->review }}</textarea>
+                    <span class="letter_count_review_{{$review->id}}">{{strlen($review->review)}}</span>
                 </div>
                 <div class="text-right">
                     <button class="btn btn-success">Attach A Review</button>
@@ -40,42 +41,11 @@
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#table thead tr').clone(true).appendTo( '#table thead' );
-            $('#table thead tr:eq(1) th').each( function (i) {
-                var title = $(this).text();
-                $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
-
-                $( 'input', this ).on( 'keyup change', function () {
-                    if ( table.column(i).search() !== this.value ) {
-                        table
-                            .column(i)
-                            .search( this.value )
-                            .draw();
-                    }
-                } );
-            } );
-            var table = $('#table').dataTable({
-                orderCellsTop: true,
-                fixedHeader: true
-            });
-
-            $('#table2 thead tr').clone(true).appendTo( '#table2 thead' );
-            $('#table2 thead tr:eq(1) th').each( function (i) {
-                var title = $(this).text();
-                $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
-
-                $( 'input', this ).on( 'keyup change', function () {
-                    if ( table2.column(i).search() !== this.value ) {
-                        table2
-                            .column(i)
-                            .search( this.value )
-                            .draw();
-                    }
-                } );
-            } );
-            var table2 = $('#table2').dataTable({
-                orderCellsTop: true,
-                fixedHeader: true
+            $('.review-editor-box').keyup(function() {
+                let data = $(this).val();
+                let length = data.length;
+                let id = $(this).attr('data-id');
+                $('.letter_count_review_'+id).html(length);
             });
         });
     </script>
