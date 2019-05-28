@@ -1519,7 +1519,7 @@ class PurchaseController extends Controller
         $params = [
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
-          'from'            => 'customercare@sololuxury.co.in',
+          'from'            => 'buying@amourint.com',
           'to'              => $supplier->default_email ?? $supplier->email,
           'seen'            => 1,
           'subject'         => $request->subject,
