@@ -1439,7 +1439,7 @@ class WhatsAppController extends FindByNumberController
             $column_value = $request->customerId;
   		}
 
-      $messages = ChatMessage::select(['id', "$column", 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where($column, $column_value)->latest();
+      $messages = ChatMessage::select(['id', "$column", 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'resent', 'created_at', 'media_url', 'message'])->where($column, $column_value)->latest();
       // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
       // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
 
@@ -1469,7 +1469,8 @@ class WhatsAppController extends FindByNumberController
           'approved' => $message->approved,
           'status'  => $message->status,
           'user_id' => $message->user_id,
-          'sent'    => $message->sent
+          'sent'    => $message->sent,
+          'resent'    => $message->resent,
         ];
 
         if ($message->media_url) {
@@ -1608,7 +1609,7 @@ class WhatsAppController extends FindByNumberController
       }
 
 
-      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->where('status', '!=', 7);
+      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'resent', 'created_at', 'media_url', 'message'])->where($column, $value)->where('status', '!=', 7);
 
       if (Setting::get('show_automated_messages') == 0) {
         $messages = $messages->where('status', '!=', 9);
@@ -1648,6 +1649,7 @@ class WhatsAppController extends FindByNumberController
           'user_id' => $message->user_id,
           'erp_user' => $message->erp_user,
           'sent'    => $message->sent,
+          'resent'    => $message->resent,
           'error_status'    => $message->error_status
         ];
 
@@ -2557,30 +2559,69 @@ class WhatsAppController extends FindByNumberController
       $chat_message = ChatMessage::find($id);
 
       if ($customer = Customer::find($chat_message->customer_id)) {
-        $params = [
-           'number'       => NULL,
-           'user_id'      => Auth::id(),
-           'approved'     => 1,
-           'status'       => 2,
-           'customer_id'  => $customer->id,
-           'message'      => $chat_message->message
-         ];
+        // $params = [
+        //    'number'       => NULL,
+        //    'user_id'      => Auth::id(),
+        //    'approved'     => 1,
+        //    'status'       => 2,
+        //    'customer_id'  => $customer->id,
+        //    'message'      => $chat_message->message
+        //  ];
+        //
+        // $additional_message = ChatMessage::create($params);
 
-        $additional_message = ChatMessage::create($params);
-
-        if ($additional_message->message != '') {
-          $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
+        if ($chat_message->message != '') {
+          if ($customer->whatsapp_number == '919152731483') {
+            $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $chat_message->message, NULL, $chat_message->id);
+          } else {
+            $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $chat_message->message, TRUE, $chat_message->id);
+          }
         }
 
         if ($chat_message->hasMedia(config('constants.media_tags'))) {
           foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-            $additional_message->attachMedia($image, config('constants.media_tags'));
-
-            $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), TRUE, $additional_message->id);
+            if ($customer->whatsapp_number == '919152731483') {
+              $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, NULL, $image->getUrl(), $chat_message->id);
+            } else {
+              $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), TRUE, $chat_message->id);
+            }
           }
         }
+
+        $chat_message->update([
+          'resent'  => $chat_message->resent++
+        ]);
       }
 
-      return response('success');
+      if ($chat_message->erp_user != '' || $chat_message->contact_id != '') {
+        $sender = User::find($chat_message->user_id);
+
+        if ($chat_message->erp_user != '') {
+          $receiver = User::find($chat_message->erp_user);
+        } else {
+          $receiver = Contact::find($chat_message->contact_id);
+        }
+
+        $phone = $receiver->phone;
+        $whatsapp_number = $sender->whatsapp_number;
+
+        if ($chat_message->message != '') {
+          $this->sendWithThirdApi($phone, $whatsapp_number, $chat_message->message, NULL, $chat_message->id);
+        }
+
+        if ($chat_message->hasMedia(config('constants.media_tags'))) {
+          foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+            $this->sendWithThirdApi($phone, $whatsapp_number, $image->getUrl(), NULL, $chat_message->id);
+          }
+        }
+
+        $chat_message->update([
+          'resent'  => $chat_message->resent + 1
+        ]);
+      }
+
+      return response()->json([
+        'resent'  => $chat_message->resent
+      ]);
     }
 }

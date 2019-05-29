@@ -959,12 +959,16 @@
                    var meta_content = "<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:mm') + " <img id='status_img_" + message.id + "' src='/images/1.png' /></em>";
                  }
 
-                 var error_flag = '';
-                 if (message.error_status == 1) {
-                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
-                 } else if (message.error_status == 2) {
-                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
-                 }
+                 var resend_button = '';
+                 resend_button = "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+
+                 // var error_flag = '';
+                 // if (message.error_status == 1) {
+                 //   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                 // } else if (message.error_status == 2) {
+                 //   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                 // }
+
 
 
 
@@ -986,7 +990,8 @@
 
                  forward.appendTo(meta);
 
-                 $(error_flag).appendTo(meta);
+                 // $(error_flag).appendTo(meta);
+                 $(resend_button).appendTo(meta);
                }
 
 
@@ -1828,8 +1833,8 @@
           beforeSend: function() {
             $(thiss).text('Sending...');
           }
-        }).done(function() {
-          $(thiss).remove();
+        }).done(function(response) {
+          $(thiss).text('Resend (' + response.resent + ")");
         }).fail(function(response) {
           $(thiss).text('Resend');
 
