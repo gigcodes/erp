@@ -251,6 +251,39 @@
       @endforeach
     </div>
 
+    <form action="{{ route('task.update', $task->id) }}" method="POST">
+      @csrf
+      @method('PUT')
+
+      <div class="form-group">
+        <strong>Assigned To (users):</strong>
+        <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple>
+          @foreach ($users as $user)
+            <option data-tokens="{{ $user->id }} {{ $user->name }}" value="{{ $user->id }}" {{ $task->users->contains($user) ? 'selected' : '' }}>{{ $user->name }}</option>
+          @endforeach
+        </select>
+
+        @if ($errors->has('assign_to'))
+          <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+        @endif
+      </div>
+
+      <div class="form-group">
+        <strong>Assigned To (contacts):</strong>
+        <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
+          @foreach (Auth::user()->contacts as $contact)
+            <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}" {{ $task->contacts->contains($contact) ? "selected" : '' }}>{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+          @endforeach
+        </select>
+
+        @if ($errors->has('assign_to_contacts'))
+          <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
+        @endif
+      </div>
+
+      <button type="submit" class="btn btn-xs btn-secondary">Update</button>
+    </form>
+
     <div class="form-group">
       @if ($task->users->contains(Auth::id()))
         <a href="/task/complete/{{ $task->id }}">Complete</a>

@@ -117,6 +117,19 @@
               <button type="submit" class="btn btn-xs btn-secondary">Create</button>
             </form>
           </div>
+
+          <div class="col-md-7">
+            <h5>Create Task Category</h5>
+            <form class="form-inline" action="{{ route('task_category.store') }}" method="POST">
+              @csrf
+
+              <div class="form-group">
+                <input type="text" name="name" value="{{ old('name') }}" class="form-control input-sm" placeholder="Category Name">
+              </div>
+
+              <button type="submit" class="btn btn-xs btn-secondary ml-1">Create</button>
+            </form>
+          </div>
         </div>
 
 
@@ -406,9 +419,9 @@
                                           @endif
                                         @endif
 
-                                        <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task->id}}" data-id="{{$task->id}}">Add</a>
+                                        {{-- <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task->id}}" data-id="{{$task->id}}">Add</a>
                                         <span> | </span>
-                                        <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a>
+                                        <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a> --}}
                                     </td>
                                 </tr>
 

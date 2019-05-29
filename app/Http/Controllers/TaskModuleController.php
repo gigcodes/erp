@@ -76,7 +76,7 @@ class TaskModuleController extends Controller {
                  ON tasks.id = chat_messages.task_id
 
                ) AS tasks
-               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . '
+               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . '
                ORDER BY last_communicated_at DESC;
 						');
 
@@ -414,20 +414,42 @@ class TaskModuleController extends Controller {
 	{
 		$task = Task::find($id);
 
-		if ($task->assign_to != Auth::id() && $task->is_private == 1) {
+		if (!$task->users->contains(Auth::id()) || $task->is_private == 1) {
 			return redirect()->back()->withErrors("This task is private!");
 		}
 
+		$users = User::all();
 		$users_array = Helpers::getUserArray(User::all());
 
 		return view('task-module.task-show', [
 			'task'	=> $task,
+			'users'	=> $users,
 			'users_array'	=> $users_array,
 		]);
 	}
 
-	public function update() {
+	public function update(Request $request, $id) {
+		$this->validate($request, [
+			'assign_to.*'	=> 'required_without:assign_to_contacts'
+		]);
 
+		$task = Task::find($id);
+		$task->users()->detach();
+		$task->contacts()->detach();
+
+		if ($request->assign_to) {
+			foreach ($request->assign_to as $user_id) {
+				$task->users()->attach([$user_id => ['type' => User::class]]);
+			}
+		}
+
+		if ($request->assign_to_contacts) {
+			foreach ($request->assign_to_contacts as $contact_id) {
+				$task->users()->attach([$contact_id => ['type' => Contact::class]]);
+			}
+		}
+
+		return redirect()->route('task.show', $id)->withSuccess('You have successfully reassigned users!');
 	}
 
 	public function makePrivate(Request $request, $id)
