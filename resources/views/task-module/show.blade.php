@@ -432,16 +432,20 @@
                                     </td>
 
                                     <td>
-                                        @if ($task->assign_to != Auth::id())
+                                        @if ((!$special_task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && $special_task->contacts()->count() == 0))
                                           @if ($task->is_private == 1)
                                             <button type="button" class="btn btn-image"><img src="/images/private.png" /></button>
                                           @else
-                                            <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                                            {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a> --}}
                                           @endif
                                         @endif
 
-                                        @if ($task->assign_to == Auth::id())
+                                        @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
                                           <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                                        @endif
+
+                                        @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
+
 
                                           @if ($task->is_private == 1)
                                             <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
@@ -626,7 +630,7 @@
                                     </td>
                                     <td>{{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i') }}</td>
                                     <td>
-                                      @if ($task->assign_to != Auth::id())
+                                      {{-- @if ($task->assign_to != Auth::id())
                                         @if ($task->is_private == 1)
                                           <button type="button" class="btn btn-image"><img src="/images/private.png" /></button>
                                         @else
@@ -636,6 +640,28 @@
 
                                       @if ($task->assign_to == Auth::id())
                                         <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+
+                                        @if ($task->is_private == 1)
+                                          <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
+                                        @else
+                                          <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
+                                        @endif
+                                      @endif --}}
+
+                                      @if ((!$special_task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && $special_task->contacts()->count() == 0))
+                                        @if ($task->is_private == 1)
+                                          <button type="button" class="btn btn-image"><img src="/images/private.png" /></button>
+                                        @else
+                                          {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a> --}}
+                                        @endif
+                                      @endif
+
+                                      @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                                        <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                                      @endif
+
+                                      @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
+
 
                                         @if ($task->is_private == 1)
                                           <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
