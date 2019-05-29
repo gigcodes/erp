@@ -1157,6 +1157,8 @@ class WhatsAppController extends FindByNumberController
           }
         }
 
+        $params['approved'] = 1;
+        $params['status'] = 2;
         $chat_message = ChatMessage::create($data);
 
         $module_id = $request->task_id;
@@ -1173,6 +1175,8 @@ class WhatsAppController extends FindByNumberController
       }
 
       if ($context != 'task') {
+        $params['approved'] = 0;
+        $params['status'] = 1;
         $chat_message = ChatMessage::create($data);
       }
 
