@@ -41,6 +41,12 @@ class TaskModuleController extends Controller {
 		}
 
 		// dd($request->all());
+		$term = $request->term ?? "";
+		$searchWhereClause = '';
+
+		if ($request->term != '') {
+			$searchWhereClause = ' AND id LIKE "%' . $term . '%"';
+		}
 
 		$data['task'] = [];
 
@@ -76,7 +82,7 @@ class TaskModuleController extends Controller {
                  ON tasks.id = chat_messages.task_id
 
                ) AS tasks
-               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . '
+               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
                ORDER BY last_communicated_at DESC;
 						');
 
@@ -99,6 +105,10 @@ class TaskModuleController extends Controller {
 											});
 		if ($request->category != '') {
 			$data['task']['completed'] = $data['task']['completed']->where('category', $request->category);
+		}
+
+		if ($request->term != '') {
+			$data['task']['completed'] = $data['task']['completed']->where('id', 'LIKE', "%$request->term%");
 		}
 
 		$data['task']['completed'] = $data['task']['completed']->get()->toArray();
@@ -150,6 +160,10 @@ class TaskModuleController extends Controller {
 			$data['task']['statutory'] = $data['task']['statutory']->where('category', $request->category);
 		}
 
+		if ($request->term != '') {
+			$data['task']['statutory'] = $data['task']['statutory']->where('id', 'LIKE', "%$request->term%");
+		}
+
    $data['task']['statutory'] = $data['task']['statutory']->get()->toArray();
 
 		// $data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
@@ -184,7 +198,7 @@ class TaskModuleController extends Controller {
 	                 ON tasks.id = chat_messages.task_id
 
 	               ) AS tasks
-	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . '
+	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . '
 	               ORDER BY last_communicated_at DESC;
 							');
 							// dd($data['task']['statutory_completed']);
@@ -206,6 +220,10 @@ class TaskModuleController extends Controller {
 			$data['task']['statutory_today'] = $data['task']['statutory_today']->where('category', $request->category);
 		}
 
+		if ($request->term != '') {
+			$data['task']['statutory_today'] = $data['task']['statutory_today']->where('id', 'LIKE', "%$request->term%");
+		}
+
      $data['task']['statutory_today'] = $data['task']['statutory_today']->get()->toArray();
 
 //		$data['task']['statutory_completed_ids'] = [];
@@ -222,6 +240,10 @@ class TaskModuleController extends Controller {
 
 		if ($request->category != '') {
 			$data['task']['deleted'] = $data['task']['deleted']->where('category', $request->category);
+		}
+
+		if ($request->term != '') {
+			$data['task']['deleted'] = $data['task']['deleted']->where('id', 'LIKE', "%$request->term%");
 		}
 
    $data['task']['deleted'] = $data['task']['deleted']->get()->toArray();
@@ -252,7 +274,7 @@ class TaskModuleController extends Controller {
 		}
 		//My code end
 
-		return view( 'task-module.show', compact( 'data', 'users', 'selected_user','category' ) );
+		return view( 'task-module.show', compact( 'data', 'users', 'selected_user','category', 'term' ) );
 	}
 
 	public function store( Request $request ) {

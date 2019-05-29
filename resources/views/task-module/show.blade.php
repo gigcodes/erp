@@ -308,6 +308,14 @@
                 </div>
             </div> -->
 
+            <form class="form-inline" action="{{ route('task.index') }}" method="GET" enctype="multipart/form-data">
+              <div class="form-group">
+                <input type="text" name="term" placeholder="Task ID" class="form-control" value="{{ isset($term) ? $term : "" }}">
+              </div>
+
+              <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+            </form>
+
             <br/><br/>
             <div id="exTab2" class="container" style="overflow: auto">
                <ul class="nav nav-tabs">
@@ -328,7 +336,7 @@
                             <table class="table table-bordered">
                                 <thead>
                                   <tr>
-                                      <th width="5%">Sr No</th>
+                                      <th width="5%">ID</th>
                                       <th width="5%">Date</th>
                                       <th width="10%" class="category">Category</th>
                                       <th width="25%">Task Subject</th>
@@ -345,7 +353,7 @@
                                     <?php $i = 1 ?>
                                   @foreach($data['task']['pending'] as $task)
                                 <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task->id }}">
-                                    <td>{{$i++}}</td>
+                                    <td>{{ $task->id }}</td>
                                     <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                     <td> {{ isset( $categories[$task->category] ) ? $categories[$task->category] : '' }}</td>
                                     <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0">
@@ -512,7 +520,7 @@
                                 <table class="table table-bordered">
                                 <thead>
                                   <tr>
-                                      <th>Sr No</th>
+                                      <th>ID</th>
                                       <th>Date</th>
                                       <th class="category">Category</th>
                                       <th>Task Details</th>
@@ -529,7 +537,7 @@
                                     <?php $i = 1 ?>
                                   @foreach(  $data['task']['statutory_completed'] as $task)
                                 <tr id="task_{{ $task->id }}">
-                                    <td>{{$i++}}</td>
+                                    <td>{{ $task->id }}</td>
                                     <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                     <td>{{ isset( $categories[$task->category]) ? $categories[$task->category] : '' }}</td>
                                     <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{ $task->task_details }}" data-switch="0">
@@ -648,7 +656,7 @@
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>Sr No</th>
+                                            <th>ID</th>
                                             <th>Date</th>
                                             <th class="category">Category</th>
                                             <th>Task Details</th>
@@ -666,7 +674,7 @@
                                     <?php $i = 1 ?>
                                     @foreach(  $data['task']['statutory'] as $task)
                                             <tr>
-                                                <td>{{$i++}}</td>
+                                                <td>{{ $task['id'] }}</td>
                                                 <td> {{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
                                                 <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                                 <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
@@ -708,7 +716,7 @@
                             <table class="table table-bordered">
                                 <thead>
                                   <tr>
-                                  <th>Sr No</th>
+                                  <th>ID</th>
                                   <th>Date</th>
                                   <th class="category">Category</th>
                                   <th>Task Details</th>
@@ -724,7 +732,7 @@
                                     <?php $i = 1 ?>
                                   @foreach( $data['task']['completed'] as $task)
                                 <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed" id="task_{{ $task['id'] }}">
-                                    <td>{{$i++}}</td>
+                                    <td>{{ $task['id'] }}</td>
                                     <td>{{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
                                     <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                     <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
