@@ -45,8 +45,8 @@
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
             <th width="10%">Order</th>
-            <th width="20%">Emails</th>
-            <th width="15%">Communication</th>
+            {{-- <th width="20%">Emails</th> --}}
+            <th width="35%">Communication</th>
             <th width="10%">Action</th>
           </tr>
         </thead>
@@ -96,19 +96,23 @@
                   {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
                 @endif
               </td>
-              <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
-                {{ strlen(strip_tags($supplier->email_message)) > 200 ? substr(strip_tags($supplier->email_message), 0, 200) . '...' : strip_tags($supplier->email_message) }}
-              </td>
-              <td  style="word-break: break-all;">
-                {{ $supplier->message }}
+              {{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
+                {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
+              </td> --}}
+              <td class="{{ $supplier->last_type == "email" && $supplier->email_seen == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
+                @if ($supplier->last_type == "email")
+                  Email
+                @elseif ($supplier->last_type == "message")
+                  {{ $supplier->message }}
 
-                @if ($supplier->message != '')
-                  <br>
-                  <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
+                  @if ($supplier->message != '')
+                    <br>
+                    <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
 
-                  <ul class="more-communication-container">
+                    <ul class="more-communication-container">
 
-                  </ul>
+                    </ul>
+                  @endif
                 @endif
               </td>
               <td>
