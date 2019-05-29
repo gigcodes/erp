@@ -296,6 +296,39 @@ class TaskModuleController extends Controller {
 					}
 				}
 
+				$params = [
+					 'number'       => NULL,
+					 'user_id'      => Auth::id(),
+					 'approved'     => 1,
+					 'status'       => 2,
+					 'task_id'			=> $task->id,
+					 'message'      => "#" . $task->id . ". " . $task->task_details
+				 ];
+
+         if (count($task->users) > 0) {
+           if ($task->assign_from == Auth::id()) {
+             $params['erp_user'] = $task->assign_to;
+           } else {
+             $params['erp_user'] = $task->assign_from;
+           }
+         }
+
+         if (count($task->contacts) > 0) {
+           if ($task->assign_from == Auth::id()) {
+             $params['contact_id'] = $task->assign_to;
+           } else {
+             $params['contact_id'] = $task->assign_from;
+           }
+         }
+
+				$chat_message = ChatMessage::create($params);
+
+				$myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+
 				// PushNotification::create( [
 				// 	'type'       => 'button',
 				// 	'message'    => 'Task Details: ' . $data['task_details'],
