@@ -615,15 +615,15 @@ class TaskModuleController extends Controller {
 		]);
 
 		if ($request->module_type == 'task-discussion') {
-			NotificationQueueController::createNewNotification([
-				'message' => 'Remark for Developer Task',
-				'timestamps' => ['+0 minutes'],
-				'model_type' => DeveloperTask::class,
-				'model_id' =>  $id,
-				'user_id' => Auth::id(),
-				'sent_to' => $request->user == Auth::id() ? 6 : $request->user,
-				'role' => '',
-			]);
+			// NotificationQueueController::createNewNotification([
+			// 	'message' => 'Remark for Developer Task',
+			// 	'timestamps' => ['+0 minutes'],
+			// 	'model_type' => DeveloperTask::class,
+			// 	'model_id' =>  $id,
+			// 	'user_id' => Auth::id(),
+			// 	'sent_to' => $request->user == Auth::id() ? 6 : $request->user,
+			// 	'role' => '',
+			// ]);
 
 			// NotificationQueueController::createNewNotification([
 			// 	'message' => 'Remark for Developer Task',
