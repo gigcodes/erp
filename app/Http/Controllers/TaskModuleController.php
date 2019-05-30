@@ -469,7 +469,7 @@ class TaskModuleController extends Controller {
 	{
 		$task = Task::find($id);
 
-		if (!$task->users->contains(Auth::id()) || $task->is_private == 1) {
+		if ((!$task->users->contains(Auth::id()) && $task->is_private == 1) && ($task->assign_from != Auth::id() && $task->contacts()->count() > 0)) {
 			return redirect()->back()->withErrors("This task is private!");
 		}
 
