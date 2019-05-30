@@ -18,10 +18,10 @@
                         <a href="#three" data-toggle="tab" class="btn btn-image">Settings</a>
                     </li>
                     <li>
-                        <a href="#four" data-toggle="tab" class="btn btn-image">Review Templates</a>
+                        <a href="#fourxxx" data-toggle="tab" class="btn btn-image">Review Templates</a>
                     </li>
                     <li>
-                        <a href="#five" data-toggle="tab" class="btn btn-image">Negative Comments</a>
+                        <a href="#fivexxx" data-toggle="tab" class="btn btn-image">Negative Comments</a>
                     </li>
                 </ul>
             </div>
@@ -145,13 +145,13 @@
                     <br>
                     <table id="table2" class="table table-striped">
                         <thead>
-                            <tr>
-                                <th>I.D</th>
-                                <th>Question</th>
-                                <th>Answers</th>
-                                <th>Status</th>
-                                <th>Reply</th>
-                            </tr>
+                        <tr>
+                            <th>I.D</th>
+                            <th>Question</th>
+                            <th>Answers</th>
+                            <th>Status</th>
+                            <th>Reply</th>
+                        </tr>
                         </thead>
                         <tbody>
                         @foreach($sjs as $kkk=>$sj)
@@ -200,13 +200,12 @@
                     </table>
                 </div>
                 <div class="tab-pane mt-3" id="three">
-                    <div class="row">
-                        <div class="col-md-12" style="font-size: 22px;">
-                            1. Accounts Remaining: {{ $accountsRemaining }}<br>
-                            2. Total Accounts: {{ $totalAccounts }}<br>
-                            3. Reviews Remaining: {{ $remainingReviews }}<br><br>
-                        </div>
-                        <form method="get" action="{{action('SitejabberQAController@edit', 'routines')}}">
+                    <div style="font-size: 22px;">
+                        1. Accounts Remaining: {{ $accountsRemaining }}<br>
+                        2. Total Accounts: {{ $totalAccounts }}<br>
+                        3. Reviews Remaining: {{ $remainingReviews }}<br><br>
+                    </div>
+                    <form method="get" action="{{action('SitejabberQAController@edit', 'routines')}}">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="range">Post this number of reviews in a day</label>
@@ -229,9 +228,43 @@
                                 <button class="mt-4 btn btn-primary">Ok</button>
                             </div>
                         </form>
-                    </div>
                 </div>
-                <div class="tab-panel mt-3" id="five">
+                <div class="tab-panel mt-3" id="fourxxx">
+                    <table id="table3" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>S.N</th>
+                            <th>Platform</th>
+                            <th>brand</th>
+                            <th>Title</th>
+                            <th>Body</th>
+                            <th>Created At</th>
+                            <th>Attach For Approval</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($brandReviews as $key=>$brandReview)
+                            <tr>
+                                <th>{{ $key+1 }}</th>
+                                <td>{{ $brandReview->website }}</td>
+                                <td>{{ $brandReview->brand }}</td>
+                                <td>{{ $brandReview->title }}</td>
+                                <td>{{ $brandReview->body }}</td>
+                                <td>{{ $brandReview->created_at->format('Y-m-d') }}</td>
+                                <td width="100px;">
+                                    <a class="btn btn-info btn-sm" href="{{ action('SitejabberQAController@attachBrandReviews', $brandReview->id) }}">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                    <a class="btn btn-danger btn-sm" href="{{ action('SitejabberQAController@detachBrandReviews', $brandReview->id) }}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-panel mt-3" id="fivexxx">
                     <table class="table table-striped">
                         <tr>
                             <th>S.N</th>
@@ -257,41 +290,6 @@
                                 </td>
                             </tr>
                         @endforeach
-                    </table>
-                </div>
-                <div class="tab-panel mt-3" id="four">
-                    <table id="table3" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>S.N</th>
-                                <th>Platform</th>
-                                <th>brand</th>
-                                <th>Title</th>
-                                <th>Body</th>
-                                <th>Created At</th>
-                                <th>Attach For Approval</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($brandReviews as $key=>$brandReview)
-                            <tr>
-                                <th>{{ $key+1 }}</th>
-                                <td>{{ $brandReview->website }}</td>
-                                <td>{{ $brandReview->brand }}</td>
-                                <td>{{ $brandReview->title }}</td>
-                                <td>{{ $brandReview->body }}</td>
-                                <td>{{ $brandReview->created_at->format('Y-m-d') }}</td>
-                                <td width="100px;">
-                                    <a class="btn btn-info btn-sm" href="{{ action('SitejabberQAController@attachBrandReviews', $brandReview->id) }}">
-                                        <i class="fa fa-plus"></i>
-                                    </a>
-                                    <a class="btn btn-danger btn-sm" href="{{ action('SitejabberQAController@detachBrandReviews', $brandReview->id) }}">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
                     </table>
                 </div>
             </div>

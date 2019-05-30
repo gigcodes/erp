@@ -40,17 +40,11 @@ class SendBroadcastMessageToColdLeads extends Command
      */
     public function handle()
     {
-//        dd(date('Y-m-d H-i'));
-//        $broadcasts = ColdLeadBroadcasts::where('started_at', 'LIKE', '"%'.date('Y-m-d H:i').'%"')
         $broadcasts = ColdLeadBroadcasts::where('started_at', '<=', date('Y-m-d H:i:s'))
                         ->where('frequency_completed', 0)
                         ->where('status', 1)
                         ->get();
 
-
-//        $broadcasts = ColdLeadBroadcasts::where('frequency_completed', 0)
-//            ->where('status', 1)
-//            ->get();
 
         $bs = new Broadcast();
         $account = Account::where('platform', 'instagram')->where('broadcast', 1)->first();
@@ -60,10 +54,9 @@ class SendBroadcastMessageToColdLeads extends Command
             $leads = $broadcast->lead()->get();
             $message = $broadcast->message;
             $bs->login($account);
-            $successCount = $bs->sendBulkMessages($leads, $message, $broadcast->image, $account);
+            $bs->sendBulkMessages($leads, $message, $broadcast->image, $account, $broadcast);
             $broadcast->status = 0;
             $broadcast->frequency_completed = 1;
-            $broadcast->messages_sent = $broadcast->number_of_users;
             $broadcast->save();
         }
 

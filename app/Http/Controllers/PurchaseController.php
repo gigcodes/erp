@@ -182,6 +182,7 @@ class PurchaseController extends Controller
 
   			$orders = OrderProduct::select('sku')->with('Order')
         ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
+        ->where('qty', '>=', 1)
         ->get();
   		}
 
@@ -199,7 +200,7 @@ class PurchaseController extends Controller
           // ->whereRaw("order_products.sku IN (SELECT products.sku FROM (SELECT products.id FROM products WHERE IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))) WHERE products.sku = order_products.sku)")
           ->whereHas('Product', function ($qs) use ($supplier_list) {
             $qs->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
-          })->get();
+          })->where('qty', '>=', 1)->get();
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
@@ -231,7 +232,7 @@ class PurchaseController extends Controller
           // ->whereHas('Product', function($q) use ($supplier_list) {
           //   $q->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
           // })
-          ->get();
+          ->where('qty', '>=', 1)->get();
           // dd($orders);
         }
       }
@@ -249,7 +250,7 @@ class PurchaseController extends Controller
           // })
           ->whereHas('Product', function($q) use ($brand) {
             $q->where('brand', $brand);
-          })->get();
+          })->where('qty', '>=', 1)->get();
         } else {
           $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
@@ -277,7 +278,7 @@ class PurchaseController extends Controller
 
           $orders = $orders->whereHas('Product', function($q) use ($brand) {
             $q->where('brand', $brand);
-          })->get();
+          })->where('qty', '>=', 1)->get();
         }
       }
 
@@ -306,7 +307,7 @@ class PurchaseController extends Controller
           // });
         }
 
-        $orders = $orders->select('sku')->get()->toArray();
+        $orders = $orders->select(['qty', 'sku'])->where('qty', '>=', 1)->get()->toArray();
       }
 
 
@@ -358,7 +359,7 @@ class PurchaseController extends Controller
 	    }
 
       $new_products = [];
-      $products = $products->select(['id', 'sku', 'supplier'])->get()->sortBy('supplier');
+      $products = $products->select(['id', 'sku', 'supplier', 'brand'])->get()->sortBy('supplier');
       $count = 0;
 
       foreach($products as $key => $product) {

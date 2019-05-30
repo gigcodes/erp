@@ -50,6 +50,11 @@ class Task extends Model {
 
 	public function users()
 	{
-		return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id');
+		return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');
+	}
+
+	public function contacts()
+	{
+		return $this->belongsToMany('App\Contact', 'task_users', 'task_id', 'user_id')->where('type', 'App\Contact');
 	}
 }

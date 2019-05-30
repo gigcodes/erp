@@ -22,6 +22,7 @@ use App\Dubbizle;
 use App\User;
 use App\Brand;
 use App\Product;
+use App\Contact;
 use App\CommunicationHistory;
 use App\ApiKey;
 use App\Message;
@@ -943,11 +944,25 @@ class WhatsAppController extends FindByNumberController
           $message = ChatMessage::create($params);
           // $model_type = 'user';
           // $model_id = $user->id;
+        } else if (!$supplier) {
+          $contact = Contact::where('phone', $from)->first();
+
+          if ($contact) {
+            $params['contact_id'] = $contact->id;
+            $params['user_id'] = $contact->id;
+
+            if ($params['message'] != '' && (preg_match_all("/#([\d]+)/i", $params['message'], $match))) {
+              $params['task_id'] = $match[1][0];
+            }
+
+            $message = ChatMessage::create($params);
+          }
         }
 
         if ($supplier) {
           $params['erp_user'] = NULL;
           $params['task_id'] = NULL;
+          $params['contact_id'] = NULL;
           $params['supplier_id'] = $supplier->id;
 
           $message = ChatMessage::create($params);
@@ -1126,11 +1141,23 @@ class WhatsAppController extends FindByNumberController
 
         $data['message'] = "#" . $data['task_id'] . ". " . $data['message'];
 
-        if ($task->assign_from == Auth::id()) {
-          $data['erp_user'] = $task->assign_to;
-        } else {
-          $data['erp_user'] = $task->assign_from;
+        if (count($task->users) > 0) {
+          if ($task->assign_from == Auth::id()) {
+            $data['erp_user'] = $task->assign_to;
+          } else {
+            $data['erp_user'] = $task->assign_from;
+          }
         }
+
+        if (count($task->contacts) > 0) {
+          if ($task->assign_from == Auth::id()) {
+            $data['contact_id'] = $task->assign_to;
+          } else {
+            $data['contact_id'] = $task->assign_from;
+          }
+        }
+
+        $chat_message = ChatMessage::create($data);
 
         $module_id = $request->task_id;
 
@@ -1145,9 +1172,11 @@ class WhatsAppController extends FindByNumberController
         $module_id = $request->dubbizle_id;
       }
 
-      $chat_message = ChatMessage::create($data);
+      if ($context != 'task') {
+        $chat_message = ChatMessage::create($data);
+      }
 
-      $data['status'] = 1;
+      // $data['status'] = 1;
 
       // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
       //   $data['erp_user'] = Auth::id();
@@ -1190,7 +1219,7 @@ class WhatsAppController extends FindByNumberController
         File::delete('uploads/temp_screenshot.png');
       }
 
-      if (Auth::id() == 6) {
+      if (Auth::id() == 6 || $context == 'task') {
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
@@ -1551,7 +1580,7 @@ class WhatsAppController extends FindByNumberController
     {
       $params = [];
       $result = [];
-      $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
+      // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
 
       // $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
       if ($request->customerId) {
@@ -1575,7 +1604,7 @@ class WhatsAppController extends FindByNumberController
       }
 
 
-      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->latest();
+      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'created_at', 'media_url', 'message'])->where($column, $value)->where('status', '!=', 7);
 
       if (Setting::get('show_automated_messages') == 0) {
         $messages = $messages->where('status', '!=', 9);
@@ -1604,7 +1633,7 @@ class WhatsAppController extends FindByNumberController
         // $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
       }
 
-      foreach ($messages->get() as $message) {
+      foreach ($messages->latest()->get() as $message) {
         $messageParams = [
           'id' => $message->id,
           'number' => $message->number,
@@ -1820,13 +1849,27 @@ class WhatsAppController extends FindByNumberController
           $phone = $supplier->default_phone;
           $whatsapp_number = $supplier->whatsapp_number;
         } else if ($context == 'task') {
-          $user = User::find($message->user_id);
-          $phone = $user->phone;
-          $whatsapp_number = $user->whatsapp_number;
+          $sender = User::find($message->user_id);
+
+          if ($message->erp_user != '') {
+            $receiver = User::find($message->erp_user);
+          } else {
+            $receiver = Contact::find($message->contact_id);
+          }
+
+          $phone = $receiver->phone;
+          $whatsapp_number = $sender->whatsapp_number;
         } else if ($context == 'user') {
-          $user = User::find($message->erp_user);
-          $phone = $user->phone;
-          $whatsapp_number = $user->whatsapp_number;
+          $sender = User::find($message->user_id);
+
+          if ($message->erp_user != '') {
+            $receiver = User::find($message->erp_user);
+          } else {
+            $receiver = Contact::find($message->contact_id);
+          }
+
+          $phone = $receiver->phone;
+          $whatsapp_number = $sender->whatsapp_number;
         } else if ($context == 'dubbizle') {
           $dubbizle = Dubbizle::find($message->dubbizle_id);
           $phone = $dubbizle->phone_number;
@@ -2222,7 +2265,7 @@ class WhatsAppController extends FindByNumberController
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 120,
+        CURLOPT_TIMEOUT => 180,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => json_encode($array),
@@ -2276,7 +2319,7 @@ class WhatsAppController extends FindByNumberController
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => "",
       CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 120,
+      CURLOPT_TIMEOUT => 180,
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => "POST",
       CURLOPT_POSTFIELDS => json_encode($array),
@@ -2311,8 +2354,13 @@ class WhatsAppController extends FindByNumberController
     $encodedNumber = "+" . $number;
     $encodedText = $message;
     // $wa_token = $configs[0]['key'];
-    $instanceId = "43254";
-    $token = "2l4boog1xzk3tr43";
+    if ($whatsapp_number == '919004780634') {
+      $instanceId = "43281";
+      $token = "yi841xjhrwyrwrc7";
+    } else {
+      $instanceId = "43254";
+      $token = "2l4boog1xzk3tr43";
+    }
 
     // throw new \Exception("Yesah");
 

@@ -209,7 +209,7 @@ class InstagramController extends Controller
         $schedule->save();
 
         if ($request->get('facebook') === 'on') {
-            $this->facebook->postMedia($image);
+            $this->facebook->postMedia($image, $request->get('description'));
             ImageSchedule::whereIn('image_id', $this->facebook->getImageIds())->update([
                 'status' => 1
             ]);

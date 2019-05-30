@@ -24,7 +24,7 @@ class Facebook {
     {
         $this->facebook = $facebook;
         $this->user_access_token=env('USER_ACCESS_TOKEN', 'EAAD7Te0j0B8BAJKziYXYZCNZB0i6B9JMBvYULH5kIeH5qm6N9E3DZBoQyZCZC0bxZB4c4Rl5gifAqVa788DRaCWXQ2fNPtKFVnEoKvb5Nm1ufMG5cZCTTzKZAM8qUyaDtT0mmyC0zjhv5S9IJt70tQBpDMRHk9XNYoPTtmBedrvevtPIRPEUKns8feYJMkqHS6EZD');
-        $this->page_access_token=env('PAGE_ACCESS_TOKEN', 'EAAD7Te0j0B8BAO2yF97qtbFJq2pPzKZBOocsJVU3MZA95wKZBd0VkQtiUAP534GYkXaLXI0xJRNjP3Jrv43GTY84cVofQCqipkEEUNnVrU2ZBuzmR6AdkNcngPF318iIR123ZBw2XT2sWZBgCXrFolAokqFZBcL9eQZBsVs3aZBpyOf8FMuJs4FvLG8J9HJNZBJ9IZD');
+        $this->page_access_token=env('PAGE_ACCESS_TOKEN', 'EAAD7Te0j0B8BAJEsGt7dCQKFpOB4zJD3DADEU2yQZBZC57YqwT50WEjPFZChaymZAhNHPbzLROHAuBUTsVGMihPJdlPkvtoYFzMpwd5ZCNcAY8uaBZCqZAZAS9rvWeA9BaNsdYrOej0xT2FxoUWYlcJx6GuTLst7OkjNsZBJfApeluTDYSD01cFsCD5mM2u17hqkPAJZB0ZA2gO1QZDZD');
         $this->page_id= '507935072915757';
         $this->ad_acc_id= 'act_128125721296439';
         $this->instagram_id = '17841406743743390';
@@ -73,6 +73,7 @@ class Facebook {
 
         }
         catch (\Exception $exception) {
+            dd($exception);
             $data = false;
         }
 

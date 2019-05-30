@@ -139,6 +139,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::resource('refund', 'RefundController');
 
+	// Contacts
+	Route::resource('contact', 'ContactController');
+
 	Route::get('/notifications' , 'NotificaitonContoller@index')->name('notifications');
 	Route::get('/notificaitonsJson','NotificaitonContoller@json')->name('notificationJson');
 	Route::get('/salesNotificaitonsJson','NotificaitonContoller@salesJson')->name('salesNotificationJson');
@@ -467,6 +470,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Route::put('supplier/agent/update/{id}', 'SupplierController@agentUpdate')->name('supplier.agent.update');
 	Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
 	Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
+	Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
 	Route::resource('supplier', 'SupplierController');
 
 	// Agent Routes
@@ -591,6 +595,7 @@ Route::prefix('scrap')->group(function () {
     Route::resource('designer', 'DesignerController');
     Route::resource('sales', 'SalesItemController');
 	Route::get('/dubbizle', 'DubbizleController@index');
+	Route::post('/dubbizle/bulkWhatsapp', 'DubbizleController@bulkWhatsapp')->name('dubbizle.bulk.whatsapp');
     Route::get('/dubbizle/{id}', 'DubbizleController@show')->name('dubbizle.show');
     Route::get('/products', 'ScrapController@showProductStat');
     Route::get('/activity', 'ScrapController@activity')->name('scrap.activity');

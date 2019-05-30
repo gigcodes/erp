@@ -11,21 +11,20 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List</h2>
             <div class="pull-left">
-              {{-- <form action="/order/" method="GET">
-                  <div class="form-group">
-                      <div class="row">
-                          <div class="col-md-12">
-                              <input name="term" type="text" class="form-control"
-                                     value="{{ isset($term) ? $term : '' }}"
-                                     placeholder="Search">
-                          </div>
-                          <div class="col-md-4">
-                              <button hidden type="submit" class="btn btn-primary">Submit</button>
-                          </div>
-                      </div>
-                  </div>
+              {{-- <form class="form-inline" action="/order/" method="GET">
+                <div class="form-group">
+                  <input name="term" type="text" class="form-control"
+                         value="{{ isset($term) ? $term : '' }}"
+                         placeholder="Search">
+                </div>
+
+                <div class="form-group">
+
+                </div>
+                <button hidden type="submit" class="btn btn-primary">Submit</button>
               </form> --}}
             </div>
+
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Emai</a>
               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</a>
@@ -47,9 +46,9 @@
             <th width="15%">Address</th>
             <th width="10%">Social handle</th>
             {{-- <th>Agents</th> --}}
-            <th width="5%">GST</th>
+            {{-- <th width="5%">GST</th> --}}
             <th width="10%">Order</th>
-            <th width="15%">Emails</th>
+            <th width="20%">Emails</th>
             <th width="15%">Communication</th>
             <th width="10%">Action</th>
           </tr>
@@ -61,6 +60,13 @@
               <td>{{ $supplier->id }}</td>
               <td>
                 {{ $supplier->supplier }}
+
+                @if ($supplier->is_flagged == 1)
+                  <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+                @else
+                  <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+                @endif
+
                 <br>
                 <span class="text-muted">
                   {{ $supplier->phone }}
@@ -69,7 +75,7 @@
                 </span>
               </td>
               <td>{{ $supplier->address }}</td>
-              <td>{{ $supplier->social_handle }}</td>
+              <td style="word-break: break-all;">{{ $supplier->social_handle }}</td>
               {{-- <td>
                 @if ($supplier->agents)
                   <ul>
@@ -85,7 +91,7 @@
                 @endif
               </td> --}}
 
-              <td>{{ $supplier->gst }}</td>
+              {{-- <td>{{ $supplier->gst }}</td> --}}
               <td>
                 @if ($supplier->purchase_id != '')
                   <a href="{{ route('purchase.show', $supplier->purchase_id) }}" target="_blank">Purchase ID {{ $supplier->purchase_id }}</a>
@@ -93,10 +99,10 @@
                   {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
                 @endif
               </td>
-              <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}">
+              <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
                 {{ strlen(strip_tags($supplier->email_message)) > 200 ? substr(strip_tags($supplier->email_message), 0, 200) . '...' : strip_tags($supplier->email_message) }}
               </td>
-              <td>
+              <td  style="word-break: break-all;">
                 {{ $supplier->message }}
 
                 @if ($supplier->message != '')
@@ -209,5 +215,35 @@
     //   $('#agent_whatsapp_number option[value="' + agent.whatsapp_number + '"]').prop('selected', 'selected');
     //   $('#agent_email').val(agent.email);
     // });
+
+    $(document).on('click', '.flag-supplier', function() {
+      var supplier_id = $(this).data('id');
+      var thiss = $(this);
+
+      $.ajax({
+        type: "POST",
+        url: "{{ route('supplier.flag') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          supplier_id: supplier_id
+        },
+        beforeSend: function() {
+          $(thiss).text('Flagging...');
+        }
+      }).done(function(response) {
+        if (response.is_flagged == 1) {
+          $(thiss).html('<img src="/images/flagged.png" />');
+        } else {
+          $(thiss).html('<img src="/images/unflagged.png" />');
+        }
+
+      }).fail(function(response) {
+        $(thiss).html('<img src="/images/unflagged.png" />');
+
+        alert('Could not flag supplier!');
+
+        console.log(response);
+      });
+    });
   </script>
 @endsection

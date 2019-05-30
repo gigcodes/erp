@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Helpers;
 use App\User;
 use App\Task;
+use App\Contact;
 use App\Setting;
 use App\Remark;
 use App\DeveloperTask;
@@ -257,7 +258,8 @@ class TaskModuleController extends Controller {
 	public function store( Request $request ) {
 		$this->validate($request, [
 			'task_subject'	=> 'required',
-			'task_details'	=> 'required'
+			'task_details'	=> 'required',
+			'assign_to'		=> 'required_without:assign_to_contacts'
 		]);
 
 		$data                = $request->except( '_token' );
@@ -270,15 +272,29 @@ class TaskModuleController extends Controller {
 			$data['model_id'] = $request->model_id;
 		}
 
-
+		// dd($request->all());
 
 		// foreach ($request->assign_to as $assign_to) {
-			$data['assign_to'] = $request->assign_to[0];
+			if ($request->assign_to) {
+				$data['assign_to'] = $request->assign_to[0];
+			} else {
+				$data['assign_to'] = $request->assign_to_contacts[0];
+			}
 
 			if($data['is_statutory'] == 0) {
-				$task = Task::create( $data );
+				$task = Task::create($data);
 
-				$task->users()->attach($request->assign_to);
+				if ($request->assign_to) {
+					foreach ($request->assign_to as $user_id) {
+						$task->users()->attach([$user_id => ['type' => User::class]]);
+					}
+				}
+
+				if ($request->assign_to_contacts) {
+					foreach ($request->assign_to_contacts as $contact_id) {
+						$task->users()->attach([$contact_id => ['type' => Contact::class]]);
+					}
+				}
 
 				// PushNotification::create( [
 				// 	'type'       => 'button',

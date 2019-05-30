@@ -210,8 +210,20 @@ class ScrapController extends Controller
     }
 
 
-    public function showProducts($name) {
-        $products = ScrapedProducts::where('website', $name)->latest()->paginate(20);
+    public function showProducts($name, Request $request) {
+
+
+        $products = ScrapedProducts::where('website', $name);
+        if ($request->get('sku') !== '') {
+            $sku = $request->get('sku');
+            $products = $products->where(function($query) use ($sku) {
+                $query->where('sku', 'LIKE', "%$sku%")
+                    ->orWhere('title', 'LIKE', "%$sku%");
+            });
+        }
+
+        $products = $products->latest()->paginate(20);
+
         $title = $name;
         return view('scrap.scraped_images', compact('products', 'title'));
     }

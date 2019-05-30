@@ -153,7 +153,7 @@ class SitejabberQAController extends Controller
 
     public function accounts() {
         $negativeReviews = NegativeReviews::all();
-        $accounts = Account::where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->get();
+        $accounts = Account::where('platform', 'sitejabber')->orderBy('updated_at', 'DESC')->get();
         $brandReviews = BrandReviews::where('used', 0)->take(100)->get();
         $accountsRemaining = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->count();
         $remainingReviews = Review::whereHas('account')->whereNotIn('status', ['posted', 'posted_one'])->count();
@@ -204,6 +204,7 @@ class SitejabberQAController extends Controller
 
         $reviewx->used = 1;
         $reviewx->save();
+        $account->touch();
 
         return redirect()->back()->with('message', 'Attached to a customer!');
 
@@ -238,17 +239,18 @@ class SitejabberQAController extends Controller
         $comment = $request->get('comment');
         $reply = $request->get('reply');
 //        dd($comment, $reply);
-//
-//        $negativeReview->reply = $reply;
-//        $negativeReview->save();
 
 
-        $response = $client->post('http://128.199.223.87/postReply', [
+        $response = $client->post('http://144.202.53.198/postReply', [
             'form_params' => [
                 'comment' => $comment,
                 'reply' => $reply
             ],
         ]);
+
+
+        $negativeReview->reply = $reply;
+        $negativeReview->save();
 
         $data = $response->getBody()->getContents();
 

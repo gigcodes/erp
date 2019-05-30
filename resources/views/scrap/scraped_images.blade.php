@@ -6,6 +6,13 @@
             <h2>{{ $title }}</h2>
         </div>
         <div class="col-md-12">
+            <div class="text-center" style="width: 400px; margin: 0 auto">
+                <form action="#">
+                    <input type="text" class="form-control" name="sku" id="sku" placeholder="Enter SKU, name">
+                </form>
+            </div>
+        </div>
+        <div class="col-md-12">
             <div class="text-center">
                 <div class="text-center">
                     {!! $products->links() !!}

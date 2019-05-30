@@ -23,6 +23,8 @@ class Broadcast {
      */
     public $instagram;
     private $token;
+    private $loggedInAccounts = [];
+    private $broadcast;
 
     public function login($account) {
         $instagram = new Instagram();
@@ -32,7 +34,8 @@ class Broadcast {
     }
 
 
-    public function sendBulkMessages($leads, $message, $file = null, $account) {
+    public function sendBulkMessages($leads, $message, $file = null, $account, $b) {
+        $this->broadcast = $b;
         $receipts = [];
         foreach ($leads as $lead) {
             $receiverId = $lead->platform_id;
@@ -51,6 +54,9 @@ class Broadcast {
             $receipts[$lead->id] = $lead->platform_id;
         }
 
+        $this->broadcast->status = 0;
+        $this->broadcast->save();
+
 
         foreach ($receipts as $key=>$receipt) {
             $cl = ColdLeads::where('platform_id', $receipt)->first();
@@ -65,10 +71,8 @@ class Broadcast {
             $cl->save();
 
             echo "SENDING TO $receipt \n";
-            echo "TEXT \n";
+            echo "TEXT by $accountToSend->id \n";
             $this->sendText($message, $receipt, $accountToSend, $account);
-
-            sleep(4);
 
             $ct = InstagramThread::where('cold_lead_id', $cl->id)->first();
             if (!$ct) {
@@ -87,12 +91,17 @@ class Broadcast {
             $m->message_type = 1;
             $m->save();
 
+            sleep(4);
+
+            ++$this->broadcast->messages_sent;
+            $this->broadcast->save();
+
             ++$accountToSend->broadcasted_messages;
             $accountToSend->save();
 
 
             if ($file !== null) {
-                echo "IMAGE \n";
+                echo "IMAGE by $accountToSend->id \n";
                 $this->sendImage($file, $receipt, $accountToSend, $account);
 
                 $m = new InstagramDirectMessages();
@@ -102,6 +111,9 @@ class Broadcast {
                 $m->message_type = 2;
                 $m->receiver_id = $receipt;
                 $m->save();
+
+                ++$this->broadcast->messages_sent;
+                $this->broadcast->save();
 
                 ++$accountToSend->broadcasted_messages;
                 $accountToSend->save();
@@ -189,9 +201,16 @@ class Broadcast {
             return;
         }
 
-        $instagram = new Instagram();
-        $instagram->login($accountToSend->last_name, $accountToSend->password);
-        $instagram->direct->sendText([
+        if (!isset($this->loggedInAccounts[$accountToSend->id]))
+        {
+            $instagram = new Instagram();
+            $instagram->login($accountToSend->last_name, $accountToSend->password);
+
+            $this->loggedInAccounts[$accountToSend->id] = $instagram;
+
+        }
+
+        $this->loggedInAccounts[$accountToSend->id]->direct->sendText([
             'users' => [$receipt]
         ], $message);
 
@@ -208,9 +227,16 @@ class Broadcast {
             return;
         }
 
-        $instagram = new Instagram();
-        $instagram->login($accountToSend->last_name, $accountToSend->password);
-        $this->instagram->direct->sendPhoto([
+        if (!isset($this->loggedInAccounts[$accountToSend->id]))
+        {
+            $instagram = new Instagram();
+            $instagram->login($accountToSend->last_name, $accountToSend->password);
+
+            $this->loggedInAccounts[$accountToSend->id] = $instagram;
+
+        }
+
+        $this->loggedInAccounts[$accountToSend->id]->direct->sendPhoto([
             'users' => [$receipt]
         ], $fileToSend->getFile());
     }

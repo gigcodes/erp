@@ -5,7 +5,20 @@
         <div class="col-md-12">
             <h2 class="page-heading">Dubbizle Posts</h2>
         </div>
+
+        <div class="col-12">
+          <div class="pull-left"></div>
+
+          <div class="pull-right">
+            <div class="form-group">
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#bulkWhatsappModal">Bulk Whatsapp</button>
+            </div>
+          </div>
+        </div>
     </div>
+
+    @include('partials.modals.bulk-whatsapp')
+
     <div class="row">
         <div class="col-md-12">
             <table id="table" class="table table-striped">
