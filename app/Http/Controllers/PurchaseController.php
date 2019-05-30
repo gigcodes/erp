@@ -623,7 +623,9 @@ class PurchaseController extends Controller
         $new_order->purchase_status = 'Pending Purchase';
         $new_order->save();
 
-        $order_product->delete();
+        // $order_product->delete();
+        $order_product->purchase_status = 'Replaced';
+        $order_product->save();
       }
 
       PurchaseDiscount::where('product_id', $old_product->id)->delete();
@@ -696,7 +698,9 @@ class PurchaseController extends Controller
         $new_order->purchase_status = 'Pending Purchase';
         $new_order->save();
 
-        $order_product->delete();
+        // $order_product->delete();
+        $order_product->purchase_status = 'Replaced';
+        $order_product->save();
       }
 
       PurchaseDiscount::where('product_id', $old_product->id)->delete();
@@ -1140,7 +1144,7 @@ class PurchaseController extends Controller
                     'type'            => $type,
                     'seen'            => $email->getFlags()['seen'],
                     'from'            => $email->getFrom()[0]->mail,
-                    'to'              => $email->getTo()[0]->mail,
+                    'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
                     'subject'         => $email->getSubject(),
                     'message'         => $content,
                     'template'				=> 'customer-simple',
@@ -1182,7 +1186,7 @@ class PurchaseController extends Controller
                     'type'            => $type,
                     'seen'            => $email->getFlags()['seen'],
                     'from'            => $email->getFrom()[0]->mail,
-                    'to'              => $email->getTo()[0]->mail,
+                    'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
                     'subject'         => $email->getSubject(),
                     'message'         => $content,
                     'template'				=> 'customer-simple',
@@ -1228,7 +1232,7 @@ class PurchaseController extends Controller
                 'type'            => $type,
                 'seen'            => $email->getFlags()['seen'],
                 'from'            => $email->getFrom()[0]->mail,
-                'to'              => $email->getTo()[0]->mail,
+                'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
                 'subject'         => $email->getSubject(),
                 'message'         => $content,
                 'template'				=> 'customer-simple',
@@ -1273,7 +1277,7 @@ class PurchaseController extends Controller
               'type'            => $type,
               'seen'            => $email->getFlags()['seen'],
               'from'            => $email->getFrom()[0]->mail,
-              'to'              => $email->getTo()[0]->mail,
+              'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
               'subject'         => $email->getSubject(),
               'message'         => $content,
               'template'				=> 'customer-simple',
@@ -1512,14 +1516,14 @@ class PurchaseController extends Controller
         }
 
         // Restore your original mailer
-        Mail::to($supplier->default_email ?? $supplier->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        Mail::to($request->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
         // Mail::setSwiftMailer($backup);
 
         $params = [
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
-          'from'            => 'customercare@sololuxury.co.in',
+          'from'            => 'buying@amourint.com',
           'to'              => $supplier->default_email ?? $supplier->email,
           'seen'            => 1,
           'subject'         => $request->subject,

@@ -743,7 +743,7 @@ class ProductController extends Controller {
 
 		$product->name = $request->name;
 		$product->sku = $request->sku;
-		$product->size = $request->size ? implode(',', $request->size) : $request->other_size;
+		$product->size = is_array($request->size) ? implode(',', $request->size) : ($request->size ?? $request->other_size);
 		$product->brand = $request->brand;
 		$product->color = $request->color;
 		$product->supplier = $request->supplier;

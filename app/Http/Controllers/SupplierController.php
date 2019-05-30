@@ -23,10 +23,11 @@ class SupplierController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
       // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
       $solo_numbers = (new SoloNumbers)->all();
+      $term = $request->term ?? '';
 
       $suppliers = DB::select('
 									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged,
@@ -36,20 +37,25 @@ class SupplierController extends Controller
                   (SELECT mm4.created_at FROM purchases mm4 WHERE mm4.id = purchase_id) as purchase_created_at,
                   (SELECT mm5.message FROM emails mm5 WHERE mm5.id = email_id) as email_message,
                   (SELECT mm6.seen FROM emails mm6 WHERE mm6.id = email_id) as email_seen,
-                  (SELECT mm7.created_at FROM emails mm7 WHERE mm7.id = email_id) as email_created_at
+                  (SELECT mm7.created_at FROM emails mm7 WHERE mm7.id = email_id) as email_created_at,
+                  CASE WHEN IFNULL(message_created_at, "1990-01-01 00:00") > IFNULL(email_created_at, "1990-01-01 00:00") THEN "message" WHEN IFNULL(message_created_at, "1990-01-01 00:00") < IFNULL(email_created_at, "1990-01-01 00:00") THEN "email" ELSE "none" END as last_type,
+                  CASE WHEN IFNULL(message_created_at, "1990-01-01 00:00") > IFNULL(email_created_at, "1990-01-01 00:00") THEN message_created_at WHEN IFNULL(message_created_at, "1990-01-01 00:00") < IFNULL(email_created_at, "1990-01-01 00:00") THEN email_created_at ELSE "1990-01-01 00:00" END as last_communicated_at
 
                   FROM (SELECT * FROM suppliers
 
-                  LEFT JOIN (SELECT MAX(id) as message_id, supplier_id, message, MAX(created_at) as message_created_At FROM chat_messages GROUP BY supplier_id ORDER BY created_at DESC) AS chat_messages
+                  LEFT JOIN (SELECT MAX(id) as message_id, supplier_id, message, MAX(created_at) as message_created_at FROM chat_messages GROUP BY supplier_id ORDER BY created_at DESC) AS chat_messages
                   ON suppliers.id = chat_messages.supplier_id
 
                   LEFT JOIN (SELECT MAX(id) as purchase_id, supplier_id as purchase_supplier_id, created_at AS purchase_created_at FROM purchases GROUP BY purchase_supplier_id ORDER BY created_at DESC) AS purchases
                   ON suppliers.id = purchases.purchase_supplier_id
 
-                  LEFT JOIN (SELECT MAX(id) as email_id, model_id as email_model_id, created_at AS email_created_at FROM emails WHERE model_type LIKE "%Supplier%" OR "%Purchase%" GROUP BY model_id ORDER BY created_at DESC) AS emails
+                  LEFT JOIN (SELECT MAX(id) as email_id, model_id as email_model_id, MAX(created_at) AS email_created_at FROM emails WHERE model_type LIKE "%Supplier%" OR "%Purchase%" GROUP BY model_id ORDER BY created_at DESC) AS emails
                   ON suppliers.id = emails.email_model_id)
 
-                  AS suppliers ORDER BY is_flagged DESC, message_created_at DESC, email_created_at DESC;
+                  AS suppliers
+
+                  WHERE (supplier LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%" OR address LIKE "%' . $term . '%" OR social_handle LIKE "%' . $term . '%" OR id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))
+                  ORDER BY is_flagged DESC, last_communicated_at DESC;
 							');
 
       $suppliers_all = Supplier::where(function ($query) {
@@ -69,7 +75,8 @@ class SupplierController extends Controller
       return view('suppliers.index', [
         'suppliers'     => $suppliers,
         'suppliers_all' => $suppliers_all,
-        'solo_numbers'  => $solo_numbers
+        'solo_numbers'  => $solo_numbers,
+        'term'          => $term,
       ]);
     }
 

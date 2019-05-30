@@ -38,7 +38,7 @@ class ContactController extends Controller
     {
       $this->validate($request, [
         'name'      => 'required|min:1|string',
-        'phone'     => 'required|numeric|unique:contacts',
+        'phone'     => 'required|numeric',
         'category'  => 'sometimes|nullable|string'
       ]);
 

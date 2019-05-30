@@ -41,6 +41,12 @@ class TaskModuleController extends Controller {
 		}
 
 		// dd($request->all());
+		$term = $request->term ?? "";
+		$searchWhereClause = '';
+
+		if ($request->term != '') {
+			$searchWhereClause = ' AND id LIKE "%' . $term . '%"';
+		}
 
 		$data['task'] = [];
 
@@ -76,7 +82,7 @@ class TaskModuleController extends Controller {
                  ON tasks.id = chat_messages.task_id
 
                ) AS tasks
-               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . '
+               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
                ORDER BY last_communicated_at DESC;
 						');
 
@@ -99,6 +105,10 @@ class TaskModuleController extends Controller {
 											});
 		if ($request->category != '') {
 			$data['task']['completed'] = $data['task']['completed']->where('category', $request->category);
+		}
+
+		if ($request->term != '') {
+			$data['task']['completed'] = $data['task']['completed']->where('id', 'LIKE', "%$request->term%");
 		}
 
 		$data['task']['completed'] = $data['task']['completed']->get()->toArray();
@@ -150,6 +160,10 @@ class TaskModuleController extends Controller {
 			$data['task']['statutory'] = $data['task']['statutory']->where('category', $request->category);
 		}
 
+		if ($request->term != '') {
+			$data['task']['statutory'] = $data['task']['statutory']->where('id', 'LIKE', "%$request->term%");
+		}
+
    $data['task']['statutory'] = $data['task']['statutory']->get()->toArray();
 
 		// $data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
@@ -184,7 +198,7 @@ class TaskModuleController extends Controller {
 	                 ON tasks.id = chat_messages.task_id
 
 	               ) AS tasks
-	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . '
+	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . '
 	               ORDER BY last_communicated_at DESC;
 							');
 							// dd($data['task']['statutory_completed']);
@@ -206,6 +220,10 @@ class TaskModuleController extends Controller {
 			$data['task']['statutory_today'] = $data['task']['statutory_today']->where('category', $request->category);
 		}
 
+		if ($request->term != '') {
+			$data['task']['statutory_today'] = $data['task']['statutory_today']->where('id', 'LIKE', "%$request->term%");
+		}
+
      $data['task']['statutory_today'] = $data['task']['statutory_today']->get()->toArray();
 
 //		$data['task']['statutory_completed_ids'] = [];
@@ -222,6 +240,10 @@ class TaskModuleController extends Controller {
 
 		if ($request->category != '') {
 			$data['task']['deleted'] = $data['task']['deleted']->where('category', $request->category);
+		}
+
+		if ($request->term != '') {
+			$data['task']['deleted'] = $data['task']['deleted']->where('id', 'LIKE', "%$request->term%");
 		}
 
    $data['task']['deleted'] = $data['task']['deleted']->get()->toArray();
@@ -252,7 +274,7 @@ class TaskModuleController extends Controller {
 		}
 		//My code end
 
-		return view( 'task-module.show', compact( 'data', 'users', 'selected_user','category' ) );
+		return view( 'task-module.show', compact( 'data', 'users', 'selected_user','category', 'term' ) );
 	}
 
 	public function store( Request $request ) {
@@ -295,6 +317,39 @@ class TaskModuleController extends Controller {
 						$task->users()->attach([$contact_id => ['type' => Contact::class]]);
 					}
 				}
+
+				$params = [
+					 'number'       => NULL,
+					 'user_id'      => Auth::id(),
+					 'approved'     => 1,
+					 'status'       => 2,
+					 'task_id'			=> $task->id,
+					 'message'      => "#" . $task->id . ". " . $task->task_details
+				 ];
+
+         if (count($task->users) > 0) {
+           if ($task->assign_from == Auth::id()) {
+             $params['erp_user'] = $task->assign_to;
+           } else {
+             $params['erp_user'] = $task->assign_from;
+           }
+         }
+
+         if (count($task->contacts) > 0) {
+           if ($task->assign_from == Auth::id()) {
+             $params['contact_id'] = $task->assign_to;
+           } else {
+             $params['contact_id'] = $task->assign_from;
+           }
+         }
+
+				$chat_message = ChatMessage::create($params);
+
+				$myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 
 				// PushNotification::create( [
 				// 	'type'       => 'button',
@@ -414,20 +469,42 @@ class TaskModuleController extends Controller {
 	{
 		$task = Task::find($id);
 
-		if ($task->assign_to != Auth::id() && $task->is_private == 1) {
+		if (!$task->users->contains(Auth::id()) || $task->is_private == 1) {
 			return redirect()->back()->withErrors("This task is private!");
 		}
 
+		$users = User::all();
 		$users_array = Helpers::getUserArray(User::all());
 
 		return view('task-module.task-show', [
 			'task'	=> $task,
+			'users'	=> $users,
 			'users_array'	=> $users_array,
 		]);
 	}
 
-	public function update() {
+	public function update(Request $request, $id) {
+		$this->validate($request, [
+			'assign_to.*'	=> 'required_without:assign_to_contacts'
+		]);
 
+		$task = Task::find($id);
+		$task->users()->detach();
+		$task->contacts()->detach();
+
+		if ($request->assign_to) {
+			foreach ($request->assign_to as $user_id) {
+				$task->users()->attach([$user_id => ['type' => User::class]]);
+			}
+		}
+
+		if ($request->assign_to_contacts) {
+			foreach ($request->assign_to_contacts as $contact_id) {
+				$task->users()->attach([$contact_id => ['type' => Contact::class]]);
+			}
+		}
+
+		return redirect()->route('task.show', $id)->withSuccess('You have successfully reassigned users!');
 	}
 
 	public function makePrivate(Request $request, $id)
@@ -538,15 +615,15 @@ class TaskModuleController extends Controller {
 		]);
 
 		if ($request->module_type == 'task-discussion') {
-			NotificationQueueController::createNewNotification([
-				'message' => 'Remark for Developer Task',
-				'timestamps' => ['+0 minutes'],
-				'model_type' => DeveloperTask::class,
-				'model_id' =>  $id,
-				'user_id' => Auth::id(),
-				'sent_to' => $request->user == Auth::id() ? 6 : $request->user,
-				'role' => '',
-			]);
+			// NotificationQueueController::createNewNotification([
+			// 	'message' => 'Remark for Developer Task',
+			// 	'timestamps' => ['+0 minutes'],
+			// 	'model_type' => DeveloperTask::class,
+			// 	'model_id' =>  $id,
+			// 	'user_id' => Auth::id(),
+			// 	'sent_to' => $request->user == Auth::id() ? 6 : $request->user,
+			// 	'role' => '',
+			// ]);
 
 			// NotificationQueueController::createNewNotification([
 			// 	'message' => 'Remark for Developer Task',

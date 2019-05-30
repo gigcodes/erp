@@ -42,7 +42,7 @@ class TaskCategoryController extends Controller
 
 		TaskCategory::create($request->all());
 
-		return redirect()->route('task_category.index')->with('success','Category created successfully');
+		return redirect()->back()->with('success','Category created successfully');
 	}
 
 	public function update(Request $request,TaskCategory $task_category){

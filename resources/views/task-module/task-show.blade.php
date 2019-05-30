@@ -251,6 +251,39 @@
       @endforeach
     </div>
 
+    <form action="{{ route('task.update', $task->id) }}" method="POST">
+      @csrf
+      @method('PUT')
+
+      <div class="form-group">
+        <strong>Assigned To (users):</strong>
+        <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple>
+          @foreach ($users as $user)
+            <option data-tokens="{{ $user->id }} {{ $user->name }}" value="{{ $user->id }}" {{ $task->users->contains($user) ? 'selected' : '' }}>{{ $user->name }}</option>
+          @endforeach
+        </select>
+
+        @if ($errors->has('assign_to'))
+          <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+        @endif
+      </div>
+
+      <div class="form-group">
+        <strong>Assigned To (contacts):</strong>
+        <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
+          @foreach (Auth::user()->contacts as $contact)
+            <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}" {{ $task->contacts->contains($contact) ? "selected" : '' }}>{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+          @endforeach
+        </select>
+
+        @if ($errors->has('assign_to_contacts'))
+          <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
+        @endif
+      </div>
+
+      <button type="submit" class="btn btn-xs btn-secondary">Update</button>
+    </form>
+
     <div class="form-group">
       @if ($task->users->contains(Auth::id()))
         <a href="/task/complete/{{ $task->id }}">Complete</a>
@@ -926,12 +959,16 @@
                    var meta_content = "<em>" + (parseInt(message.user_id) !== 0 ? users_array[message.user_id] : "Unknown") + " " + moment(message.created_at).format('DD-MM H:mm') + " <img id='status_img_" + message.id + "' src='/images/1.png' /></em>";
                  }
 
-                 var error_flag = '';
-                 if (message.error_status == 1) {
-                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
-                 } else if (message.error_status == 2) {
-                   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
-                 }
+                 var resend_button = '';
+                 resend_button = "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+
+                 // var error_flag = '';
+                 // if (message.error_status == 1) {
+                 //   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                 // } else if (message.error_status == 2) {
+                 //   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                 // }
+
 
 
 
@@ -953,7 +990,8 @@
 
                  forward.appendTo(meta);
 
-                 $(error_flag).appendTo(meta);
+                 // $(error_flag).appendTo(meta);
+                 $(resend_button).appendTo(meta);
                }
 
 
@@ -1795,8 +1833,8 @@
           beforeSend: function() {
             $(thiss).text('Sending...');
           }
-        }).done(function() {
-          $(thiss).remove();
+        }).done(function(response) {
+          $(thiss).text('Resend (' + response.resent + ")");
         }).fail(function(response) {
           $(thiss).text('Resend');
 

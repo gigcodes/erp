@@ -89,9 +89,9 @@
               </select>
             </div>
 
-            <div class="form-group">
+            {{-- <div class="form-group">
               <input type="number" id="supplier_whatsapp_number" name="whatsapp_number" class="form-control input-sm" placeholder="Whatsapp Number" value="{{ $supplier->whatsapp_number }}">
-            </div>
+            </div> --}}
 
             <div class="form-group">
               <textarea name="address" id="supplier_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address">{{ $supplier->address }}</textarea>
@@ -102,7 +102,7 @@
                 <input type="email" name="email" id="supplier_email" class="form-control input-sm" placeholder="Email" value="{{ $supplier->email }}">
               </div>
 
-              <div class="form-group">
+              {{-- <div class="form-group">
                 <select class="form-control input-sm" name="default_email" id="supplier_default_email">
                   <option value="">Select Default Email</option>
                   @if ($supplier->email != '')
@@ -115,7 +115,7 @@
                     @endforeach
                   @endif
                 </select>
-              </div>
+              </div> --}}
 
               <div class="form-group">
                 <input type="text" name="instagram_handle" id="supplier_instagram_handle" class="form-control input-sm" placeholder="Instagram Handle" value="{{ $supplier->instagram_handle }}">
@@ -344,7 +344,7 @@
   </div>
 </div>
 
-@include('purchase.partials.modal-email')
+@include('suppliers.partials.modal-email')
 
 @include('customers.partials.modal-reply')
 
@@ -1604,7 +1604,7 @@
         var whatsapp_number = $('#supplier_whatsapp_number').val();
         var address = $('#supplier_address').val();
         var email = $('#supplier_email').val();
-        var default_email = $('#supplier_default_email').val();
+        // var default_email = $('#supplier_default_email').val();
         var instagram_handle = $('#supplier_instagram_handle').val();
         var social_handle = $('#supplier_social_handle').val();
         var website = $('#supplier_website').val();
@@ -1619,10 +1619,10 @@
             supplier: supplier,
             phone: phone,
             default_phone: default_phone,
-            whatsapp_number: whatsapp_number,
+            // whatsapp_number: whatsapp_number,
             address: address,
             email: email,
-            default_email: default_email,
+            // default_email: default_email,
             instagram_handle: instagram_handle,
             social_handle: social_handle,
             website: website,

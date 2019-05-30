@@ -11,18 +11,15 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List</h2>
             <div class="pull-left">
-              {{-- <form class="form-inline" action="/order/" method="GET">
+              <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
                 <div class="form-group">
                   <input name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
                 </div>
 
-                <div class="form-group">
-
-                </div>
-                <button hidden type="submit" class="btn btn-primary">Submit</button>
-              </form> --}}
+                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+              </form>
             </div>
 
             <div class="pull-right">
@@ -48,8 +45,8 @@
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
             <th width="10%">Order</th>
-            <th width="20%">Emails</th>
-            <th width="15%">Communication</th>
+            {{-- <th width="20%">Emails</th> --}}
+            <th width="35%">Communication</th>
             <th width="10%">Action</th>
           </tr>
         </thead>
@@ -99,19 +96,23 @@
                   {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
                 @endif
               </td>
-              <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
-                {{ strlen(strip_tags($supplier->email_message)) > 200 ? substr(strip_tags($supplier->email_message), 0, 200) . '...' : strip_tags($supplier->email_message) }}
-              </td>
-              <td  style="word-break: break-all;">
-                {{ $supplier->message }}
+              {{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
+                {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
+              </td> --}}
+              <td class="{{ $supplier->last_type == "email" && $supplier->email_seen == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
+                @if ($supplier->last_type == "email")
+                  Email
+                @elseif ($supplier->last_type == "message")
+                  {{ $supplier->message }}
 
-                @if ($supplier->message != '')
-                  <br>
-                  <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
+                  @if ($supplier->message != '')
+                    <br>
+                    <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
 
-                  <ul class="more-communication-container">
+                    <ul class="more-communication-container">
 
-                  </ul>
+                    </ul>
+                  @endif
                 @endif
               </td>
               <td>
@@ -120,6 +121,7 @@
                 {{-- <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
 
                 <button type="button" class="btn btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
+                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></a>
 
                 {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -132,6 +134,8 @@
     </div>
 
     {!! $suppliers->appends(Request::except('page'))->links() !!}
+
+    @include('partials.modals.remarks')
 
     @include('suppliers.partials.supplier-modals')
     {{-- @include('suppliers.partials.agent-modals') --}}
@@ -243,6 +247,61 @@
         alert('Could not flag supplier!');
 
         console.log(response);
+      });
+    });
+
+    $(document).on('click', '.make-remark', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
+
+      $.ajax({
+          type: 'GET',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.gettaskremark') }}',
+          data: {
+            id:id,
+            module_type: "supplier"
+          },
+      }).done(response => {
+          var html='';
+
+          $.each(response, function( index, value ) {
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
+          });
+          $("#makeRemarkModal").find('#remark-list').html(html);
+      });
+    });
+
+    $('#addRemarkButton').on('click', function() {
+      var id = $('#add-remark input[name="id"]').val();
+      var remark = $('#add-remark').find('textarea[name="remark"]').val();
+
+      $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.addRemark') }}',
+          data: {
+            id:id,
+            remark:remark,
+            module_type: 'supplier'
+          },
+      }).done(response => {
+          $('#add-remark').find('textarea[name="remark"]').val('');
+
+          var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
+
+          $("#makeRemarkModal").find('#remark-list').append(html);
+      }).fail(function(response) {
+        console.log(response);
+
+        alert('Could not fetch remarks');
       });
     });
   </script>
