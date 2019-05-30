@@ -23,11 +23,18 @@
                 </form>
             </div>
             <div class="pull-right form-inline">
+              <form action="{{ route('purchase.merge') }}" id="purchaseMergeForm" method="POST">
+                @csrf
+
+                <input type="hidden" name="selected_purchases" id="selected_merged_purchases" value="">
+                <button type="submit" class="btn btn-secondary" id="purchaseMergeButton">Merge</button>
+              </form>
+
               <form action="{{ route('purchase.export') }}" id="purchaseExportForm" method="POST">
                 @csrf
 
                 <input type="hidden" name="selected_purchases" id="selected_purchases" value="">
-                <button type="submit" class="btn btn-secondary" id="purchaseExportButton">Export</button>
+                <button type="submit" class="btn btn-secondary ml-1" id="purchaseExportButton">Export</button>
               </form>
 
               <button type="button" class="btn btn-secondary ml-1" data-toggle="modal" data-target="#sendExportModal">Email</button>
@@ -89,6 +96,24 @@
       }).fail(function() {
         alert('Error searching for purchases');
       });
+    });
+
+    $('#purchaseMergeButton').on('click', function(e) {
+      e.preventDefault();
+
+      if (purchases_array.length == 2) {
+        $('#selected_merged_purchases').val(JSON.stringify(purchases_array));
+
+        if ($('#purchaseMergeForm')[0].checkValidity()) {
+          $('#purchaseMergeForm').submit();
+          // $('#sendExportModal').find('.close').click();
+        } else {
+          $('#purchaseMergeForm')[0].reportValidity();
+        }
+
+      } else {
+        alert('Please select exactly 2 purchases');
+      }
     });
 
     $('#purchaseExportButton').on('click', function(e) {

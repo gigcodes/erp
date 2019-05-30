@@ -235,6 +235,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
 	Route::post('purchase/export', 'PurchaseController@export')->name('purchase.export');
+	Route::post('purchase/merge', 'PurchaseController@merge')->name('purchase.merge');
 	Route::post('purchase/sendExport', 'PurchaseController@sendExport')->name('purchase.send.export');
 	Route::get('purchase/{id}', 'PurchaseController@show')->name('purchase.show');
 	Route::get('purchase/{id}/edit', 'PurchaseController@edit')->name('purchase.edit');
