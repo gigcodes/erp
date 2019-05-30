@@ -69,6 +69,9 @@
                   {{ $supplier->phone }}
                   <br>
                   <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
+                  @if ($supplier->has_error == 1)
+                    <span class="text-danger">!!!</span>
+                  @endif
                 </span>
               </td>
               <td>{{ $supplier->address }}</td>
