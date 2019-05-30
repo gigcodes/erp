@@ -30,7 +30,7 @@ class SupplierController extends Controller
       $term = $request->term ?? '';
 
       $suppliers = DB::select('
-									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged,
+									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -218,13 +218,19 @@ class SupplierController extends Controller
           $query->whereNotNull('default_email')->orWhereNotNull('email');
         })->get();
       } else {
-        if ($request->not_received != 'on') {
+        if ($request->not_received != 'on' && $request->received != 'on') {
           return redirect()->route('supplier.index')->withErrors(['Please select either suppliers or option']);
         }
       }
 
       if ($request->not_received == 'on') {
         $suppliers = Supplier::doesnthave('emails')->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->get();
+      }
+
+      if ($request->received == 'on') {
+        $suppliers = Supplier::whereHas('emails')->where(function ($query) {
           $query->whereNotNull('default_email')->orWhereNotNull('email');
         })->get();
       }
@@ -286,6 +292,7 @@ class SupplierController extends Controller
       $supplier = Supplier::find($id);
 
       $supplier->agents()->delete();
+      $supplier->whatsapps()->delete();
 
       $supplier->delete();
 

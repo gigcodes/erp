@@ -426,7 +426,7 @@
                if (!$(element).attr('disabled')) {
                  $.ajax({
                    type: "POST",
-                   url: "/whatsapp/approve/task",
+                   url: "/whatsapp/approve/dubbizle",
                    data: {
                      _token: "{{ csrf_token() }}",
                      messageId: message.id

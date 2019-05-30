@@ -22,10 +22,17 @@
               @endforeach
             </select>
           </div>
+
           <div class="form-group">
             <input type="checkbox" name="not_received" id="notReceived">
             <label for="notReceived">Send to all who haven't received an email</label>
           </div>
+
+          <div class="form-group">
+            <input type="checkbox" name="received" id="received">
+            <label for="received">Send to all who have received an email</label>
+          </div>
+
           <div class="form-group">
             <strong>Subject</strong>
             <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" required>

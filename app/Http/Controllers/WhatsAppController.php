@@ -893,6 +893,7 @@ class WhatsAppController extends FindByNumberController
   		$text = $data['messages'][0]['body'];
       $supplier = $this->findSupplierByNumber($from);
       $user = $this->findUserByNumber($from);
+      $dubbizle = $this->findDubbizleByNumber($from);
 
       $params = [
         'number'    => $from,
@@ -968,6 +969,18 @@ class WhatsAppController extends FindByNumberController
           $message = ChatMessage::create($params);
           // $model_type = 'supplier';
           // $model_id = $supplier->id;
+        }
+
+        if ($dubbizle) {
+          $params['erp_user'] = NULL;
+          $params['task_id'] = NULL;
+          $params['supplier_id'] = NULL;
+          $params['contact_id'] = NULL;
+          $params['dubbizle_id'] = $dubbizle->id;
+
+          $message = ChatMessage::create($params);
+          $model_type = 'dubbizle';
+          $model_id = $dubbizle->id;
         }
       // }
 
@@ -1879,13 +1892,13 @@ class WhatsAppController extends FindByNumberController
         } else if ($context == 'dubbizle') {
           $dubbizle = Dubbizle::find($message->dubbizle_id);
           $phone = $dubbizle->phone_number;
-          $whatsapp_number = '919152731483';
+          $whatsapp_number = '971545889192';
         }
 
         $data = '';
         if ($message->message != '') {
 
-          if ($context == 'supplier' || $context == 'task') {
+          if ($context == 'supplier' || $context == 'task' || $context == 'dubbizle') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
             if ($whatsapp_number == '919152731483') {
@@ -2360,13 +2373,13 @@ class WhatsAppController extends FindByNumberController
     $encodedNumber = "+" . $number;
     $encodedText = $message;
     // $wa_token = $configs[0]['key'];
-    if ($whatsapp_number == '919004780634') {
+    if ($whatsapp_number == '919004780634') { // Indian
       $instanceId = "43281";
       $token = "yi841xjhrwyrwrc7";
-    } else if ($whatsapp_number == '971545889192') {
+    } else if ($whatsapp_number == '971545889192') { // Dubai
       $instanceId = "43112";
       $token = "vbi9bpkoejv2lvc4";
-    } else {
+    } else { // Andys Phone
       $instanceId = "43254";
       $token = "2l4boog1xzk3tr43";
     }
