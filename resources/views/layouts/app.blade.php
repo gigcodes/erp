@@ -1259,9 +1259,10 @@
                             <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">INSTAGRAM | Target Locations</a>
                             <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">INSTAGRAM | Keywords for Comments</a>
                             <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">INSTAGRAM | Processed Comments</a>
-                            <a class="dropdown-item" href="{{ action('SitejabberQAController@index') }}">SITEJABBER | Q&A</a>
+{{--                            <a class="dropdown-item" href="{{ action('SitejabberQAController@index') }}">SITEJABBER | Q&A</a>--}}
                             <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
-                            <a class="dropdown-item" href="{{ action('SitejabberQAController@reviews') }}">SITEJABBER | Reviews</a>
+                            <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">Quick Reply</a>
+{{--                            <a class="dropdown-item" href="{{ action('SitejabberQAController@reviews') }}">SITEJABBER | Reviews</a>--}}
                           </ul>
                         </li>
                       @endcan

@@ -607,6 +607,7 @@ Route::prefix('scrap')->group(function () {
     Route::get('/{name}', 'ScrapController@showProducts');
 });
 
+Route::resource('quick-reply', 'QuickReplyController');
 Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
 
 Route::get('test', 'WhatsAppController@getAllMessages');

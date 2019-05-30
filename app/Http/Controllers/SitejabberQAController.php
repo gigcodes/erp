@@ -6,6 +6,7 @@ use App\Account;
 use App\ActivitiesRoutines;
 use App\BrandReviews;
 use App\NegativeReviews;
+use App\QuickReply;
 use App\Review;
 use App\Setting;
 use App\SitejabberQA;
@@ -160,6 +161,7 @@ class SitejabberQAController extends Controller
         $totalAccounts = $accounts->count();
         $sjs = SitejabberQA::where('type', 'question')->get();
         $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
+        $quickReplies = QuickReply::all();
         if (!$setting) {
             $setting = new ActivitiesRoutines();
             $setting->action = 'sitejabber_review';
@@ -182,7 +184,7 @@ class SitejabberQAController extends Controller
             $setting3->save();
         }
 
-        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews'));
+        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies'));
     }
 
     public function reviews() {
@@ -193,7 +195,7 @@ class SitejabberQAController extends Controller
 
     public function attachBrandReviews($id) {
         $reviewx = BrandReviews::findOrFail($id);
-        $account = Account::whereDoesntHave('reviews')->orderBy('created_at', 'DESC')->first();
+        $account = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->first();
 
         $review = new Review();
         $review->account_id = $account->id;
@@ -240,6 +242,9 @@ class SitejabberQAController extends Controller
         $reply = $request->get('reply');
 //        dd($comment, $reply);
 
+        $negativeReview->reply = $reply;
+        $negativeReview->save();
+
 
         $response = $client->post('http://144.202.53.198/postReply', [
             'form_params' => [
@@ -247,10 +252,6 @@ class SitejabberQAController extends Controller
                 'reply' => $reply
             ],
         ]);
-
-
-        $negativeReview->reply = $reply;
-        $negativeReview->save();
 
         $data = $response->getBody()->getContents();
 

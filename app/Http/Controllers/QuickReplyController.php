@@ -14,7 +14,9 @@ class QuickReplyController extends Controller
      */
     public function index()
     {
-        //
+        $replies = QuickReply::all();
+
+        return view('quick_reply.index', compact('replies'));
     }
 
     /**
@@ -35,7 +37,15 @@ class QuickReplyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'text' => 'required'
+        ]);
+
+        $r = new QuickReply();
+        $r->text = $request->get('text');
+        $r->save();
+
+        return redirect()->back()->with('message', 'Quick reply added successfully!');
     }
 
     /**
@@ -44,9 +54,13 @@ class QuickReplyController extends Controller
      * @param  \App\QuickReply  $quickReply
      * @return \Illuminate\Http\Response
      */
-    public function show(QuickReply $quickReply)
+    public function show($id)
     {
-        //
+        $reply = QuickReply::findOrFail($id);
+
+        $reply->delete();
+
+        return redirect()->back()->with('message', 'Deleted successfully!');
     }
 
     /**

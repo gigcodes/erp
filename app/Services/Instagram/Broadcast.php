@@ -135,40 +135,53 @@ class Broadcast {
     public function addColdLeadsToCustomersIfMessagIsReplied() {
 
         $currentInstagramAccountId = $this->instagram->account_id;
+        $cursorId = '';
+
+        do {
+
+            $inbox = $this->instagram->direct->getInbox($cursorId)->asArray();
 
 
-        $inbox = $this->instagram->direct->getInbox()->asArray();
-
-        if (!isset($inbox['inbox']['threads'])) {
-            return;
-        }
-
-        $messages = $inbox['inbox']['threads'];
-
-        foreach ($messages as $message) {
-            $currentUserAccountId = $message['items'][0]['user_id'] ?? null;
-
-            if ($currentInstagramAccountId !== $currentUserAccountId) {
-                $this->createCustomer($currentUserAccountId);
-                continue;
+            if (!isset($inbox['inbox']['threads'])) {
+                return;
             }
 
-            $thread = $this->instagram->direct->getThread($message['thread_id'])->asArray();
-            $chats = $thread['thread']['items'];
-            foreach ($chats as $chat) {
-                if ($chat['user_id'] !== $currentInstagramAccountId) {
-                    $this->createCustomer($chat['user_id']);
+            $cursorId = 'END';
+            $hasOlder = $inbox['inbox']['has_older'];
+
+            if ($hasOlder) {
+                $cursorId =
+            }
+
+            $messages = $inbox['inbox']['threads'];
+
+            foreach ($messages as $message) {
+                $currentUserAccountId = $message['items'][0]['user_id'] ?? null;
+
+                if ($currentInstagramAccountId !== $currentUserAccountId) {
+                    $this->createCustomer($currentUserAccountId);
                     continue;
                 }
+
+                $thread = $this->instagram->direct->getThread($message['thread_id'])->asArray();
+                $chats = $thread['thread']['items'];
+                foreach ($chats as $chat) {
+                    if ($chat['user_id'] !== $currentInstagramAccountId) {
+                        $this->createCustomer($chat['user_id']);
+                        continue;
+                    }
+                }
+
             }
 
-        }
+        } while($cursorId!='END');
     }
 
     private function createCustomer($instagramId) {
         $thread = InstagramDirectMessages::where('sender_id', $instagramId)->orWhere('receiver_id', $instagramId)->first();
 
         if (!$thread) {
+            //There was no previous message, so create one now..
             return;
         }
 

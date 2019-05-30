@@ -89,11 +89,14 @@ class ColdLeadBroadcastsController extends Controller
 
         $limit = $request->get('number_of_users');
 
-        $coldleads = ColdLeads::whereNotIn('status', [0, 2])->where('messages_sent', '<', 5)->take($request->get('number_of_users'))->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
+        $coldleads = ColdLeads::whereNotIn('status', 1)->where('messages_sent', '<', 5)->take($request->get('number_of_users'))->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
 
         $count = 0;
+        $leads = [];
         foreach ($coldleads as $coldlead) {
             $count++;
+
+            $leads[] = $coldlead->id;
 
             $broadcast->lead()->attach($coldlead->id, [
                 'status' => 0
@@ -109,7 +112,7 @@ class ColdLeadBroadcastsController extends Controller
             ]);
         }
 
-        $coldleads = ColdLeads::whereNotIn('status', 2)->where('messages_sent', '<', 5)->take($limit-$count)->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
+        $coldleads = ColdLeads::whereNotIn('status', [0])->whereNotIn('id', $leads)->where('messages_sent', '<', 5)->take($limit-$count)->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
 
         $count = 0;
         foreach ($coldleads as $coldlead) {
@@ -122,6 +125,10 @@ class ColdLeadBroadcastsController extends Controller
             $coldlead->status = 2;
             $coldlead->save();
         }
+
+        return response()->json([
+            'status' => 'success'
+        ]);
 
 
 

@@ -284,7 +284,13 @@
                                         {{ $negativeReview->reply }}
                                     @else
                                         <div class="form-group">
-                                            <input data-rid="{{$negativeReview->id}}" data-title="{{$negativeReview->title}}" style="width: 300px;" type="text" class="form-control reply-review" name="reply_{{ $negativeReview->id }}">
+                                            <input data-rid="{{$negativeReview->id}}" data-title="{{$negativeReview->title}}" style="width: 300px;" type="text" class="form-control reply-review" id="reply_{{$negativeReview->id}}" name="reply_{{ $negativeReview->id }}">
+                                            <select class="form-control quick-reply" data-id="{{$negativeReview->id}}" name="quick-reply-{{$negativeReview->id}}" id="quick-reply-{{$negativeReview->id}}">
+                                                <option value="">None</option>
+                                                @foreach($quickReplies as $rep)
+                                                    <option value="{{$rep->text}}">{{$rep->text}}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     @endif
                                 </td>
@@ -312,6 +318,13 @@
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
+
+            $(document).on('change', '.quick-reply', function(event) {
+                let id = $(this).attr('data-id');
+                let r = $(this).val();
+                $("#reply_"+id).val(r);
+            });
+
             $('#table thead tr').clone(true).appendTo( '#table thead' );
             $('#table thead tr:eq(1) th').each( function (i) {
                 var title = $(this).text();
@@ -353,7 +366,13 @@
                         success: function(response) {
                             // $(self).removeAttr('disabled');
                             alert('Posted successfully!');
+                            location.reload();
                         },
+                        error: function() {
+                            $(this).removeAttr('disabled');
+                            location.reload();
+                            alert('Couldnt post the reply!');
+                        }
 
                     });
                 }
