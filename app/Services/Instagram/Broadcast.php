@@ -147,10 +147,9 @@ class Broadcast {
             }
 
             $cursorId = 'END';
-            $hasOlder = $inbox['inbox']['has_older'];
 
-            if ($hasOlder) {
-                $cursorId =
+            if (isset($inbox['inbox']['oldest_cursor']) && $inbox['inbox']['oldest_cursor']) {
+                $cursorId = $inbox['inbox']['oldest_cursor'];
             }
 
             $messages = $inbox['inbox']['threads'];
