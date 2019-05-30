@@ -2482,7 +2482,7 @@ class WhatsAppController extends FindByNumberController
     } else {
       $result = json_decode($response, true);
       // throw new \Exception("Something was wrong with message: " . $response);
-      if (!$result['sent']) {
+      if (array_key_exists('sent', $result) && !$result['sent']) {
         throw new \Exception("Something was wrong with message: " . $response);
       }
     }
