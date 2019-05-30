@@ -218,13 +218,19 @@ class SupplierController extends Controller
           $query->whereNotNull('default_email')->orWhereNotNull('email');
         })->get();
       } else {
-        if ($request->not_received != 'on') {
+        if ($request->not_received != 'on' && $request->received != 'on') {
           return redirect()->route('supplier.index')->withErrors(['Please select either suppliers or option']);
         }
       }
 
       if ($request->not_received == 'on') {
         $suppliers = Supplier::doesnthave('emails')->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->get();
+      }
+
+      if ($request->received == 'on') {
+        $suppliers = Supplier::whereHas('emails')->where(function ($query) {
           $query->whereNotNull('default_email')->orWhereNotNull('email');
         })->get();
       }
@@ -286,6 +292,7 @@ class SupplierController extends Controller
       $supplier = Supplier::find($id);
 
       $supplier->agents()->delete();
+      $supplier->whatsapps()->delete();
 
       $supplier->delete();
 
