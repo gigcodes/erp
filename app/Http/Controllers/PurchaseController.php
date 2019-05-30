@@ -18,6 +18,7 @@ use App\Message;
 use App\ReplyCategory;
 use App\CommunicationHistory;
 use App\Task;
+use App\Remark;
 use App\Brand;
 use App\Email;
 use App\PurchaseDiscount;
@@ -512,6 +513,54 @@ class PurchaseController extends Controller
     public function downloadAttachments(Request $request)
     {
       return Storage::disk('files')->download($request->path);
+    }
+
+    public function merge(Request $request)
+    {
+      $selected_purchases = json_decode($request->selected_purchases);
+
+      foreach ($selected_purchases as $key => $purchase_id) {
+        if ($key == 0) {
+          $main_purchase = Purchase::find($purchase_id);
+        } else {
+          $merging_purchase = Purchase::find($purchase_id);
+
+          if ($main_purchase->transaction_amount == '' || $main_purchase->shipment_cost == '') {
+            $main_purchase->transaction_id = $merging_purchase->transaction_id;
+            $main_purchase->transaction_date = $merging_purchase->transaction_date;
+            $main_purchase->transaction_amount = $merging_purchase->transaction_amount;
+            $main_purchase->bill_number = $merging_purchase->bill_number;
+            $main_purchase->shipper = $merging_purchase->shipper;
+            $main_purchase->shipment_status = $merging_purchase->shipment_status;
+            $main_purchase->shipment_cost = $merging_purchase->shipment_cost;
+            $main_purchase->save();
+          }
+
+          foreach ($merging_purchase->products as $product) {
+            $main_purchase->products()->syncWithoutDetaching($product);
+          }
+
+          $merging_purchase->products()->detach();
+
+          $remarks = Remark::where('taskid', $merging_purchase->id)->where('module_type', 'purchase-product-remark')->get();
+
+          foreach ($remarks as $remark) {
+            $remark->taskid = $main_purchase->id;
+            $remark->save();
+          }
+
+          $purchase_discounts = PurchaseDiscount::where('purchase_id', $merging_purchase->id)->get();
+
+          foreach ($purchase_discounts as $discount) {
+            $discount->purchase_id = $main_purchase->id;
+            $discount->save();
+          }
+
+          $merging_purchase->delete();
+        }
+      }
+
+      return redirect()->route('purchase.index')->with('success', 'You have successfully merged purchases');
     }
 
     /**
@@ -1482,7 +1531,8 @@ class PurchaseController extends Controller
     {
       $this->validate($request, [
         'subject' => 'required|min:3|max:255',
-        'message' => 'required'
+        'message' => 'required',
+        'email.*' => 'required|email'
       ]);
 
       $supplier = Supplier::find($request->supplier_id);
@@ -1515,8 +1565,27 @@ class PurchaseController extends Controller
           }
         }
 
+        if (count($request->email) == 1) {
+          Mail::to($request->email[0])->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        } else if (count($request->email) > 1) {
+          $to_email = '';
+          $cc_emails = [];
+
+          foreach ($request->email as $key => $email) {
+            if ($key == 0) {
+              $to_email = $email;
+            } else {
+              $cc_emails[] = $email;
+            }
+          }
+
+          Mail::to($to_email)->cc($cc_emails)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        } else {
+          return redirect()->back()->withErrors('Please select an email');
+        }
+
         // Restore your original mailer
-        Mail::to($request->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
 
         // Mail::setSwiftMailer($backup);
 

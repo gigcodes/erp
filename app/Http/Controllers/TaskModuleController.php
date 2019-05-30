@@ -469,7 +469,7 @@ class TaskModuleController extends Controller {
 	{
 		$task = Task::find($id);
 
-		if (!$task->users->contains(Auth::id()) || $task->is_private == 1) {
+		if ((!$task->users->contains(Auth::id()) && $task->is_private == 1) && ($task->assign_from != Auth::id() && $task->contacts()->count() > 0)) {
 			return redirect()->back()->withErrors("This task is private!");
 		}
 
@@ -496,12 +496,18 @@ class TaskModuleController extends Controller {
 			foreach ($request->assign_to as $user_id) {
 				$task->users()->attach([$user_id => ['type' => User::class]]);
 			}
+
+			$task->assign_to = $request->assign_to[0];
+			$task->save();
 		}
 
 		if ($request->assign_to_contacts) {
 			foreach ($request->assign_to_contacts as $contact_id) {
 				$task->users()->attach([$contact_id => ['type' => Contact::class]]);
 			}
+
+			$task->assign_to = $request->assign_to_contacts[0];
+			$task->save();
 		}
 
 		return redirect()->route('task.show', $id)->withSuccess('You have successfully reassigned users!');

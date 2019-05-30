@@ -432,15 +432,15 @@
                                     </td>
 
                                     <td>
-                                        @if ((!$special_task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && $special_task->contacts()->count() == 0))
+                                        @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
                                           @if ($task->is_private == 1)
-                                            <button type="button" class="btn btn-image"><img src="/images/private.png" /></button>
+                                            <button disabled type="button" class="btn btn-image"><img src="/images/private.png" /></button>
                                           @else
                                             {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a> --}}
                                           @endif
                                         @endif
 
-                                        @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                                        @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
                                           <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
                                         @endif
 
