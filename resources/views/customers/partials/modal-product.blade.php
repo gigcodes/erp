@@ -76,7 +76,7 @@
 
         <div class="form-group">
             <strong>Size:</strong>
-            <input type="text" class="form-control" name="size" placeholder="Size"
+            <input type="text" class="form-control" name="size[]" placeholder="Size"
                    value="{{ old('size') }}"  id="product-size"/>
             @if ($errors->has('size'))
                 <div class="alert alert-danger">{{$errors->first('size')}}</div>
