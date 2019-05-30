@@ -1482,7 +1482,8 @@ class PurchaseController extends Controller
     {
       $this->validate($request, [
         'subject' => 'required|min:3|max:255',
-        'message' => 'required'
+        'message' => 'required',
+        'email.*' => 'required|email'
       ]);
 
       $supplier = Supplier::find($request->supplier_id);
@@ -1515,8 +1516,27 @@ class PurchaseController extends Controller
           }
         }
 
+        if (count($request->email) == 1) {
+          Mail::to($request->email[0])->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        } else if (count($request->email) > 1) {
+          $to_email = '';
+          $cc_emails = [];
+
+          foreach ($request->email as $key => $email) {
+            if ($key == 0) {
+              $to_email = $email;
+            } else {
+              $cc_emails[] = $email;
+            }
+          }
+
+          Mail::to($to_email)->cc($cc_emails)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        } else {
+          return redirect()->back()->withErrors('Please select an email');
+        }
+
         // Restore your original mailer
-        Mail::to($request->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
 
         // Mail::setSwiftMailer($backup);
 
