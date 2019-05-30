@@ -121,6 +121,7 @@
                 {{-- <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
 
                 <button type="button" class="btn btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
+                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></a>
 
                 {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -133,6 +134,8 @@
     </div>
 
     {!! $suppliers->appends(Request::except('page'))->links() !!}
+
+    @include('partials.modals.remarks')
 
     @include('suppliers.partials.supplier-modals')
     {{-- @include('suppliers.partials.agent-modals') --}}
@@ -244,6 +247,61 @@
         alert('Could not flag supplier!');
 
         console.log(response);
+      });
+    });
+
+    $(document).on('click', '.make-remark', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
+
+      $.ajax({
+          type: 'GET',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.gettaskremark') }}',
+          data: {
+            id:id,
+            module_type: "supplier"
+          },
+      }).done(response => {
+          var html='';
+
+          $.each(response, function( index, value ) {
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
+          });
+          $("#makeRemarkModal").find('#remark-list').html(html);
+      });
+    });
+
+    $('#addRemarkButton').on('click', function() {
+      var id = $('#add-remark input[name="id"]').val();
+      var remark = $('#add-remark').find('textarea[name="remark"]').val();
+
+      $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.addRemark') }}',
+          data: {
+            id:id,
+            remark:remark,
+            module_type: 'supplier'
+          },
+      }).done(response => {
+          $('#add-remark').find('textarea[name="remark"]').val('');
+
+          var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
+
+          $("#makeRemarkModal").find('#remark-list').append(html);
+      }).fail(function(response) {
+        console.log(response);
+
+        alert('Could not fetch remarks');
       });
     });
   </script>
