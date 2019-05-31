@@ -304,10 +304,10 @@
                                         {{-- <th width="5%">Est Completion Date</th> --}}
                                         <th width="5%" colspan="2">Assigned From / To</th>
                                         {{-- <th width="5%">Assigned To</th> --}}
-                                        <th width="35%">Communication</th>
+                                        <th width="30%">Communication</th>
                                         <th width="20%">Send Message</th>
                                         {{-- <th>Remarks</th> --}}
-                                        <th width="5%">Action</th>
+                                        <th width="10%">Action</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -318,64 +318,77 @@
                                       <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                       <td> {{ isset( $categories[$task->category] ) ? $categories[$task->category] : '' }}</td>
                                       <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
-                                        {{ $task->task_subject ? $task->task_subject : 'Task Details' }}
+
+                                        <span class="task-subject-container">
+                                          {{ $task->task_subject ? substr($task->task_subject, 0, 20) . (strlen($task->task_subject) > 20 ? '...' : '') : 'Task Details' }}
+                                        </span>
+
+                                        <span class="task-details-container hidden">
+                                          <strong>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</strong>
+
+                                          {{ $task->task_details }}
+                                        </span>
                                       </td>
                                       {{-- <td> {{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i')  }}</td> --}}
-                                      <td>{{ $users[$task->assign_from] }}</td>
-                                      <td style="word-break: break-all;">
-                                        @php
-                                          $special_task = \App\Task::find($task->id);
-                                        @endphp
-
-                                        @foreach ($special_task->users as $key => $user)
-                                          @if ($key != 0)
-                                            ,
-                                          @endif
-
-                                          @if (array_key_exists($user->id, $users))
-                                            @if ($user->id == Auth::id())
-                                              <a href="{{ route('users.show', $user->id) }}">{{ $users[$user->id] }}</a>
-                                            @else
-                                              {{ $users[$user->id] }}
-                                            @endif
+                                      <td>
+                                        @if (array_key_exists($task->assign_from, $users))
+                                          @if ($task->assign_from == Auth::id())
+                                            <a href="{{ route('users.show', $task->assign_from) }}">{{ $users[$task->assign_from] }}</a>
                                           @else
-                                            User Does Not Exist
+                                            {{ $users[$task->assign_from] }}
                                           @endif
-                                        @endforeach
-
-                                        <br>
-
-                                        @foreach ($special_task->contacts as $key => $contact)
-                                          @if ($key != 0)
-                                            ,
-                                          @endif
-
-                                          {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
-                                        @endforeach
-
-                                        @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                                          <a href="/task/complete/{{ $task->id }}" class="btn btn-xs btn-secondary">Complete</a>
                                         @else
-                                          {{-- @foreach ($special_task->users as $key => $task_user)
-                                            @if ($key != 0)
-                                              ,
-                                            @endif
-                                            {{ array_key_exists($task_user->id, $users) ? $users[$task_user->id] : 'No User' }}
-                                          @endforeach
-
-                                          @foreach ($special_task->contacts as $key => $task_user)
-                                            @if ($key != 0)
-                                              ,
-                                            @endif
-                                            Contact
-                                          @endforeach --}}
+                                          User Does Not Exist
                                         @endif
                                       </td>
+                                      <td class="task-subject">
+                                        <span class="task-subject-container">
+                                          Expand
+                                        </span>
 
-                                      <td>
+                                        <span class="task-details-container hidden">
+                                          @php
+                                            $special_task = \App\Task::find($task->id);
+                                          @endphp
+
+                                          @foreach ($special_task->users as $key => $user)
+                                            @if ($key != 0)
+                                              ,
+                                            @endif
+
+                                            @if (array_key_exists($user->id, $users))
+                                              {{ $users[$user->id] }}
+                                            @else
+                                              User Does Not Exist
+                                            @endif
+                                          @endforeach
+
+                                          <br>
+
+                                          @foreach ($special_task->contacts as $key => $contact)
+                                            @if ($key != 0)
+                                              ,
+                                            @endif
+
+                                            {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
+                                          @endforeach
+
+                                          @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                                            <a href="/task/complete/{{ $task->id }}" class="btn btn-linky">Complete</a>
+                                          @endif
+                                        </span>
+                                      </td>
+
+                                      <td class="task-subject">
                                         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                           @if (isset($task->message))
-                                            {{ strlen($task->message) > 100 ? substr($task->message, 0, 97) . '...' : $task->message }}
+                                            <span class="task-subject-container">
+                                              {{ strlen($task->message) > 40 ? substr($task->message, 0, 37) . '...' : $task->message }}
+                                            </span>
+
+                                            <span class="task-details-container hidden">
+                                              {{ $task->message }}
+                                            </span>
                                           @endif
                                         @else
                                           Private
@@ -495,10 +508,10 @@
                                       <th width="5%" colspan="2">Assigned From / To</th>
                                       {{-- <th width="5%">Assigned To</th> --}}
                                       {{-- <th width="5%">Remark</th> --}}
-                                      <th width="35%">Communication</th>
+                                      <th width="30%">Communication</th>
                                       <th width="20%">Send Message</th>
                                       {{-- <th width="5%">Completed at</th> --}}
-                                      <th width="5%">Actions</th>
+                                      <th width="10%">Actions</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -508,58 +521,59 @@
                                     <td>{{ $task->id }}</td>
                                     <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                     <td>{{ isset( $categories[$task->category]) ? $categories[$task->category] : '' }}</td>
-                                    <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{ $task->task_details }}" data-switch="0" style="word-break: break-all;">
-                                      {{ $task->task_subject ? $task->task_subject : 'Task Details' }}
+                                    <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
+
+                                      <span class="task-subject-container">
+                                        {{ $task->task_subject ? substr($task->task_subject, 0, 20) . (strlen($task->task_subject) > 20 ? '...' : '') : 'Task Details' }}
+                                      </span>
+
+                                      <span class="task-details-container hidden">
+                                        <strong>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</strong>
+
+                                        {{ $task->task_details }}
+                                      </span>
                                     </td>
                                     <td>{{ array_key_exists($task->assign_from, $users) ? $users[$task->assign_from] : 'No User' }}</td>
-                                    <td>
-                                      @php
-                                        $special_task = \App\Task::find($task->id);
-                                      @endphp
+                                    <td class="task-subject">
+                                      <span class="task-subject-container">
+                                        Expand
+                                      </span>
 
-                                      @foreach ($special_task->users as $key => $user)
-                                        {{-- @if ($key != 0)
-                                          ,
-                                        @endif --}}
+                                      <span class="task-details-container hidden">
+                                        @php
+                                          $special_task = \App\Task::find($task->id);
+                                        @endphp
 
-                                        @if (array_key_exists($user->id, $users))
-                                          @if ($user->id == Auth::id())
-                                            <a href="{{ route('users.show', $user->id) }}">{{ $users[$user->id] }}</a>
-                                          @else
-                                            {{ $users[$user->id] }}
-                                          @endif
-                                        @else
-                                          User Does Not Exist
-                                        @endif
-                                      @endforeach
-
-                                      <br>
-
-                                      @foreach ($special_task->contacts as $key => $contact)
-                                        {{-- @if ($key != 0)
-                                          ,
-                                        @endif --}}
-
-                                        {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
-                                      @endforeach
-
-                                      @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                                        <a href="/task/complete/{{ $task->id }}" class="btn btn-xs btn-secondary">Stop</a>
-                                      @else
-                                        {{-- @foreach ($special_task->users as $key => $task_user)
-                                          @if ($key != 0)
+                                        @foreach ($special_task->users as $key => $user)
+                                          {{-- @if ($key != 0)
                                             ,
+                                          @endif --}}
+
+                                          @if (array_key_exists($user->id, $users))
+                                            @if ($user->id == Auth::id())
+                                              <a href="{{ route('users.show', $user->id) }}">{{ $users[$user->id] }}</a>
+                                            @else
+                                              {{ $users[$user->id] }}
+                                            @endif
+                                          @else
+                                            User Does Not Exist
                                           @endif
-                                          {{ array_key_exists($task_user->id, $users) ? $users[$task_user->id] : 'No User' }}
                                         @endforeach
 
-                                        @foreach ($special_task->contacts as $key => $task_user)
-                                          @if ($key != 0)
+                                        <br>
+
+                                        @foreach ($special_task->contacts as $key => $contact)
+                                          {{-- @if ($key != 0)
                                             ,
-                                          @endif
-                                          Contact
-                                        @endforeach --}}
-                                      @endif
+                                          @endif --}}
+
+                                          {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
+                                        @endforeach
+
+                                        @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                                          <a href="/task/complete/{{ $task->id }}" class="btn btn-xs btn-secondary">Stop</a>
+                                        @endif
+                                      </span>
                                     </td>
                                     {{-- <td>
                                       <textarea id="remark-text-{{ $task->id }}" rows="1" name="remark" class="form-control"></textarea>
@@ -572,10 +586,16 @@
                                         @endforeach
                                       </span>
                                     </td> --}}
-                                    <td>
+                                    <td class="task-subject">
                                       @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                         @if (isset($task->message))
-                                          {{ strlen($task->message) > 100 ? substr($task->message, 0, 97) . '...' : $task->message }}
+                                          <span class="task-subject-container">
+                                            {{ strlen($task->message) > 40 ? substr($task->message, 0, 37) . '...' : $task->message }}
+                                          </span>
+
+                                          <span class="task-details-container hidden">
+                                            {{ $task->message }}
+                                          </span>
                                         @endif
                                       @else
                                         Private
@@ -713,48 +733,72 @@
                                     <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                     <td> {{ isset( $categories[$task->category] ) ? $categories[$task->category] : '' }}</td>
                                     <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
-                                      {{ $task->task_subject ? $task->task_subject : 'Task Details' }}
+
+                                      <span class="task-subject-container">
+                                        {{ $task->task_subject ? substr($task->task_subject, 0, 20) . (strlen($task->task_subject) > 20 ? '...' : '') : 'Task Details' }}
+                                      </span>
+
+                                      <span class="task-details-container hidden">
+                                        <strong>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</strong>
+
+                                        {{ $task->task_details }}
+                                      </span>
                                     </td>
                                     {{-- <td> {{ Carbon\Carbon::parse($task['completion_date'])->format('d-m H:i') }}</td> --}}
                                     <td>{{$users[$task->assign_from]}}</td>
-                                    <td>
+                                    <td class="task-subject">
                                       {{-- {{ $task['assign_to'] ?? ($users[$task['assign_to']] ? $users[$task['assign_to']] : 'Nil') }} --}}
-                                      @php
-                                        $special_task = \App\Task::find($task->id);
-                                      @endphp
 
-                                      @foreach ($special_task->users as $key => $user)
-                                        @if ($key != 0)
-                                          ,
-                                        @endif
+                                      <span class="task-subject-container">
+                                        Expand
+                                      </span>
 
-                                        @if (array_key_exists($user->id, $users))
-                                          @if ($user->id == Auth::id())
-                                            <a href="{{ route('users.show', $user->id) }}">{{ $users[$user->id] }}</a>
-                                          @else
-                                            {{ $users[$user->id] }}
+                                      <span class="task-details-container hidden">
+                                        @php
+                                          $special_task = \App\Task::find($task->id);
+                                        @endphp
+
+                                        @foreach ($special_task->users as $key => $user)
+                                          @if ($key != 0)
+                                            ,
                                           @endif
-                                        @else
-                                          User Does Not Exist
-                                        @endif
-                                      @endforeach
 
-                                      <br>
+                                          @if (array_key_exists($user->id, $users))
+                                            @if ($user->id == Auth::id())
+                                              <a href="{{ route('users.show', $user->id) }}">{{ $users[$user->id] }}</a>
+                                            @else
+                                              {{ $users[$user->id] }}
+                                            @endif
+                                          @else
+                                            User Does Not Exist
+                                          @endif
+                                        @endforeach
 
-                                      @foreach ($special_task->contacts as $key => $contact)
-                                        @if ($key != 0)
-                                          ,
-                                        @endif
+                                        <br>
 
-                                        {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
-                                      @endforeach
+                                        @foreach ($special_task->contacts as $key => $contact)
+                                          @if ($key != 0)
+                                            ,
+                                          @endif
+
+                                          {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
+                                        @endforeach
+                                      </span>
                                     </td>
                                     <td>{{ Carbon\Carbon::parse($task->is_completed)->format('d-m H:i') }}</td>
-                                    <td>
+                                    <td class="task-subject">
+
+
                                       {{-- @include('task-module.partials.remark',$task) --}}
                                       @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                         @if (isset($task->message))
-                                          {{ strlen($task->message) > 100 ? substr($task->message, 0, 97) . '...' : $task->message }}
+                                          <span class="task-subject-container">
+                                            {{ strlen($task->message) > 40 ? substr($task->message, 0, 37) . '...' : $task->message }}
+                                          </span>
+
+                                          <span class="task-details-container hidden">
+                                            {{ $task->message }}
+                                          </span>
                                         @endif
                                       @else
                                         Private
@@ -904,13 +948,15 @@
     });
 
       $(document).on('click', '.task-subject', function() {
-        if ($(this).data('switch') == 0) {
-          $(this).text($(this).data('details'));
-          $(this).data('switch', 1);
-        } else {
-          $(this).text($(this).data('subject'));
-          $(this).data('switch', 0);
-        }
+        // if ($(this).data('switch') == 0) {
+        //   $(this).text($(this).data('details'));
+        //   $(this).data('switch', 1);
+        // } else {
+        //   $(this).text($(this).data('subject'));
+        //   $(this).data('switch', 0);
+        // }
+        $(this).find('.task-subject-container').toggleClass('hidden');
+        $(this).find('.task-details-container').toggleClass('hidden');
       });
 
         function addNewRemark(id){
