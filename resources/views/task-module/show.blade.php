@@ -374,7 +374,7 @@
                                           @endforeach
 
                                           @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                                            <a href="/task/complete/{{ $task->id }}" class="btn btn-linky">Complete</a>
+                                            <a href="/task/complete/{{ $task->id }}" class="btn btn-link task-complete">Complete</a>
                                           @endif
                                         </span>
                                       </td>
@@ -571,7 +571,7 @@
                                         @endforeach
 
                                         @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                                          <a href="/task/complete/{{ $task->id }}" class="btn btn-xs btn-secondary">Stop</a>
+                                          <a href="/task/complete/{{ $task->id }}" class="btn btn-link task-complete">Stop</a>
                                         @endif
                                       </span>
                                     </td>
@@ -804,7 +804,7 @@
                                         Private
                                       @endif
                                     </td>
-                                    <td>
+                                    <td class="d-flex">
                                       @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
                                         @if ($task->is_private == 1)
                                           <button disabled type="button" class="btn btn-image"><img src="/images/private.png" /></button>
@@ -1688,6 +1688,34 @@
             } else {
               alert('Please select atleast 1 message');
             }
+          });
+
+          $(document).on('click', '.task-complete', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var thiss = $(this);
+            var url = $(this).attr('href');
+
+            $.ajax({
+              type: "GET",
+              url: url,
+              data: {
+
+              },
+              beforeSend: function () {
+                $(thiss).text('Completing...');
+              }
+            }).done(function() {
+              $(thiss).closest('span').append('Completed!');
+              $(thiss).remove();
+            }).fail(function(response) {
+              $(thiss).text('Complete');
+
+              alert('Could not mark as completed!');
+
+              console.log(response);
+            })
           });
 
     </script>
