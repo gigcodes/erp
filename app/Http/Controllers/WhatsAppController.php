@@ -938,7 +938,9 @@ class WhatsAppController extends FindByNumberController
           $params['user_id'] = $user->id;
 
           if ($params['message'] != '' && (preg_match_all("/#([\d]+)/i", $params['message'], $match))) {
-            $params['task_id'] = $match[1][0];
+            if (Task::find($match[1][0])) {
+              $params['task_id'] = $match[1][0];
+            }
           }
 
           // $params = $this->modifyParamsWithMessage($params, $data);
