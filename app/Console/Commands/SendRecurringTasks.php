@@ -89,7 +89,7 @@ class SendRecurringTasks extends Command
               $myRequest->setMethod('POST');
               $myRequest->request->add(['messageId' => $chat_message->id]);
 
-              $this->approveMessage('task', $myRequest);
+              app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
             }
 
             break;
@@ -102,7 +102,7 @@ class SendRecurringTasks extends Command
               $myRequest->setMethod('POST');
               $myRequest->request->add(['messageId' => $chat_message->id]);
 
-              $this->approveMessage('task', $myRequest);
+              app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
             }
 
             break;
@@ -115,7 +115,7 @@ class SendRecurringTasks extends Command
               $myRequest->setMethod('POST');
               $myRequest->request->add(['messageId' => $chat_message->id]);
 
-              $this->approveMessage('task', $myRequest);
+              app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
             }
 
             break;
@@ -128,7 +128,7 @@ class SendRecurringTasks extends Command
               $myRequest->setMethod('POST');
               $myRequest->request->add(['messageId' => $chat_message->id]);
 
-              $this->approveMessage('task', $myRequest);
+              app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
             }
 
             break;
