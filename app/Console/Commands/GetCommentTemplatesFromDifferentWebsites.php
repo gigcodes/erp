@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\InstagramAutoComments;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
 
@@ -39,15 +40,38 @@ class GetCommentTemplatesFromDifferentWebsites extends Command
     public function handle()
     {
         $accounts = [
-            'darveys'
+            'darveys', 'farfetch'
         ];
 
-        $instagram = new Instagram();
-        $instagram->login('sololuxury.official', 'Insta123!');
-        $response = $instagram->request('https://www.instagram.com/darveys/?__a=1')->getDecodedResponse();
+        foreach ($accounts as $account) {
+            echo "====================== $account ==================";
+            $instagram = new Instagram();
+            $instagram->login('sololuxury.official', 'Insta123!');
+            $response = $instagram->request('https://www.instagram.com/'.$account.'/?__a=1')->getDecodedResponse();
 
-        $medias = $response['graphql']['user']['edge_owner_to_timeline_media'];
+            $medias = $response['graphql']['user']['edge_owner_to_timeline_media']['edges'];
 
-        dd($medias);
+            foreach ($medias as $media) {
+                $mediaId = $media['node']['id'];
+                $comments = $instagram->media->getComments($mediaId)->asArray();
+
+
+                if ($comments['comment_count'] === 0) {
+                    continue;
+                }
+
+                foreach ($comments['comments'] as $comment) {
+                    $text = strtolower($comment['text']);
+                    $text = str_replace('farfetch', 'Sololuxury', $text);
+                    $text = str_replace('darveys', 'Sololuxury', $text);
+                    $text = str_replace('farfect', 'Sololuxury', $text);
+                    $c = new InstagramAutoComments();
+                    $c->source = $account;
+                    $c->comment = $text;
+                    $c->use_count = 0;
+                    $c->save();
+                }
+            }
+        }
     }
 }
