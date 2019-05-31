@@ -17,6 +17,8 @@ use App\Remark;
 use App\DeveloperTask;
 use App\NotificationQueue;
 use App\ChatMessage;
+use App\ScheduledMessage;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskModuleController extends Controller {
 
@@ -45,7 +47,7 @@ class TaskModuleController extends Controller {
 		$searchWhereClause = '';
 
 		if ($request->term != '') {
-			$searchWhereClause = ' AND id LIKE "%' . $term . '%"';
+			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%"))';
 		}
 
 		$data['task'] = [];
@@ -86,6 +88,14 @@ class TaskModuleController extends Controller {
                ORDER BY last_communicated_at DESC;
 						');
 
+		// $currentPage = LengthAwarePaginator::resolveCurrentPage();
+		// $perPage = Setting::get('pagination');
+		// $currentItems = array_slice($data['task']['pending'], $perPage * ($currentPage - 1), $perPage);
+		//
+		// $data['task']['pending'] = new LengthAwarePaginator($currentItems, count($data['task']['pending']), $perPage, $currentPage, [
+		// 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
+		// ]);
+
 						// dd($data['task']['pending']);
 
 						// $tasks = Task::all();
@@ -97,74 +107,110 @@ class TaskModuleController extends Controller {
 						// 	}
 						// }
 
-		$data['task']['completed']  = Task::where( 'is_statutory', '=', 0 )
-		                                    ->whereNotNull( 'is_completed'  )
-											->where( function ($query ) use ($userid) {
-												return $query->orWhere( 'assign_from', '=', $userid )
-												             ->orWhere( 'assign_to', '=', $userid );
-											});
-		if ($request->category != '') {
-			$data['task']['completed'] = $data['task']['completed']->where('category', $request->category);
-		}
+		// $data['task']['completed']  = Task::where( 'is_statutory', '=', 0 )
+		//                                     ->whereNotNull( 'is_completed'  )
+		// 									->where( function ($query ) use ($userid) {
+		// 										return $query->orWhere( 'assign_from', '=', $userid )
+		// 										             ->orWhere( 'assign_to', '=', $userid );
+		// 									});
+		// if ($request->category != '') {
+		// 	$data['task']['completed'] = $data['task']['completed']->where('category', $request->category);
+		// }
+		//
+		// if ($request->term != '') {
+		// 	$data['task']['completed'] = $data['task']['completed']->where(function ($query) use ($term) {
+		// 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
+		// 					->orWhere('id', 'LIKE', "%$term%")
+		// 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
+		// 	});
+		// }
+		//
+		// $data['task']['completed'] = $data['task']['completed']->get()->toArray();
 
-		if ($request->term != '') {
-			$data['task']['completed'] = $data['task']['completed']->where('id', 'LIKE', "%$request->term%");
-		}
+		$data['task']['completed'] = DB::select('
+                SELECT *,
+ 							 (SELECT mm5.remark FROM remarks mm5 WHERE mm5.id = remark_id) AS remark,
+ 							 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
+                (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+                (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
+                (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
+                (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
 
-		$data['task']['completed'] = $data['task']['completed']->get()->toArray();
+                FROM (
+                  SELECT * FROM tasks
 
+                  LEFT JOIN (
+                    SELECT MAX(id) as remark_id, taskid
+                    FROM remarks
+ 									 WHERE module_type = "task"
+                    GROUP BY taskid
+                  ) AS remarks
+                  ON tasks.id = remarks.taskid
 
-		$satutory_tasks = SatutoryTask::latest()
-		                                         ->orWhere( 'assign_from', '=', $userid )
-												 ->orWhere( 'assign_to', '=', $userid )->whereNotNull('completion_date')
-		                                         ->get();
+                  LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
+                  ON tasks.id = chat_messages.task_id
 
-		foreach ($satutory_tasks as $task) {
-			switch ($task->recurring_type) {
-				case 'EveryDay':
-					if (Carbon::parse($task->completion_date)->format('Y-m-d') < date('Y-m-d')) {
-						$task->completion_date = null;
-						$task->save();
-					}
-					break;
-				case 'EveryWeek':
-					if (Carbon::parse($task->completion_date)->addWeek()->format('Y-m-d') < date('Y-m-d')) {
-						$task->completion_date = null;
-						$task->save();
-					}
-					break;
-				case 'EveryMonth':
-					if (Carbon::parse($task->completion_date)->addMonth()->format('Y-m-d') < date('Y-m-d')) {
-						$task->completion_date = null;
-						$task->save();
-					}
-					break;
-				case 'EveryYear':
-					if (Carbon::parse($task->completion_date)->addYear()->format('Y-m-d') < date('Y-m-d')) {
-						$task->completion_date = null;
-						$task->save();
-					}
-					break;
-				default:
-
-			}
-		}
-
-		$data['task']['statutory'] = SatutoryTask::latest()->where(function ($query) use ($userid) {
-			$query->where('assign_from', $userid)
-		 				->orWhere('assign_to', $userid);
-		});
+                ) AS tasks
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
+                ORDER BY last_communicated_at DESC;
+ 						');
 
 
-		if ($request->category != '') {
-			$data['task']['statutory'] = $data['task']['statutory']->where('category', $request->category);
-		}
+		// $satutory_tasks = SatutoryTask::latest()
+		//                                          ->orWhere( 'assign_from', '=', $userid )
+		// 										 ->orWhere( 'assign_to', '=', $userid )->whereNotNull('completion_date')
+		//                                          ->get();
+		//
+		// foreach ($satutory_tasks as $task) {
+		// 	switch ($task->recurring_type) {
+		// 		case 'EveryDay':
+		// 			if (Carbon::parse($task->completion_date)->format('Y-m-d') < date('Y-m-d')) {
+		// 				$task->completion_date = null;
+		// 				$task->save();
+		// 			}
+		// 			break;
+		// 		case 'EveryWeek':
+		// 			if (Carbon::parse($task->completion_date)->addWeek()->format('Y-m-d') < date('Y-m-d')) {
+		// 				$task->completion_date = null;
+		// 				$task->save();
+		// 			}
+		// 			break;
+		// 		case 'EveryMonth':
+		// 			if (Carbon::parse($task->completion_date)->addMonth()->format('Y-m-d') < date('Y-m-d')) {
+		// 				$task->completion_date = null;
+		// 				$task->save();
+		// 			}
+		// 			break;
+		// 		case 'EveryYear':
+		// 			if (Carbon::parse($task->completion_date)->addYear()->format('Y-m-d') < date('Y-m-d')) {
+		// 				$task->completion_date = null;
+		// 				$task->save();
+		// 			}
+		// 			break;
+		// 		default:
+		//
+		// 	}
+		// }
 
-		if ($request->term != '') {
-			$data['task']['statutory'] = $data['task']['statutory']->where('id', 'LIKE', "%$request->term%");
-		}
-
-   $data['task']['statutory'] = $data['task']['statutory']->get()->toArray();
+		// $data['task']['statutory'] = SatutoryTask::latest()->where(function ($query) use ($userid) {
+		// 	$query->where('assign_from', $userid)
+		//  				->orWhere('assign_to', $userid);
+		// });
+	 //
+	 //
+		// if ($request->category != '') {
+		// 	$data['task']['statutory'] = $data['task']['statutory']->where('category', $request->category);
+		// }
+	 //
+		// if ($request->term != '') {
+		// 	$data['task']['statutory'] = $data['task']['statutory']->where(function ($query) use ($term) {
+		// 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
+		// 					->orWhere('id', 'LIKE', "%$term%")
+		// 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
+		// 	});
+		// }
+	 //
+   // $data['task']['statutory'] = $data['task']['statutory']->get()->toArray();
 
 		// $data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
 		//                                    ->whereNotNull( 'is_completed'  )
@@ -174,7 +220,7 @@ class TaskModuleController extends Controller {
 		//                                    })
 		//                                    ->get()->toArray();
 
-		 $data['task']['statutory_completed'] = DB::select('
+		 $data['task']['statutory_not_completed'] = DB::select('
 	               SELECT *,
 								 (SELECT mm5.remark FROM remarks mm5 WHERE mm5.id = remark_id) AS remark,
 								 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
@@ -198,7 +244,7 @@ class TaskModuleController extends Controller {
 	                 ON tasks.id = chat_messages.task_id
 
 	               ) AS tasks
-	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . '
+	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . '
 	               ORDER BY last_communicated_at DESC;
 							');
 							// dd($data['task']['statutory_completed']);
@@ -209,22 +255,26 @@ class TaskModuleController extends Controller {
 							//
 							// dd('stap');
 
-		$data['task']['statutory_today'] = Task::latest()->where( 'is_statutory', '=', 1 )
-		                                           ->where( 'is_completed', '=',  null  )
-		                                           ->where( function ($query ) use ($userid) {
-			                                           return $query->orWhere( 'assign_from', '=', $userid )
-			                                                        ->orWhere( 'assign_to', '=', $userid );
-		                                           });
-
-		if ($request->category != '') {
-			$data['task']['statutory_today'] = $data['task']['statutory_today']->where('category', $request->category);
-		}
-
-		if ($request->term != '') {
-			$data['task']['statutory_today'] = $data['task']['statutory_today']->where('id', 'LIKE', "%$request->term%");
-		}
-
-     $data['task']['statutory_today'] = $data['task']['statutory_today']->get()->toArray();
+		// $data['task']['statutory_today'] = Task::latest()->where( 'is_statutory', '=', 1 )
+		//                                            ->where( 'is_completed', '=',  null  )
+		//                                            ->where( function ($query ) use ($userid) {
+		// 	                                           return $query->orWhere( 'assign_from', '=', $userid )
+		// 	                                                        ->orWhere( 'assign_to', '=', $userid );
+		//                                            });
+		//
+		// if ($request->category != '') {
+		// 	$data['task']['statutory_today'] = $data['task']['statutory_today']->where('category', $request->category);
+		// }
+		//
+		// if ($request->term != '') {
+		// 	$data['task']['statutory_today'] = $data['task']['statutory_today']->where(function ($query) use ($term) {
+		// 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
+		// 					->orWhere('id', 'LIKE', "%$term%")
+		// 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
+		// 	});
+		// }
+		//
+    //  $data['task']['statutory_today'] = $data['task']['statutory_today']->get()->toArray();
 
 //		$data['task']['statutory_completed_ids'] = [];
 //		foreach ($data['task']['statutory_completed'] as $item)
@@ -243,7 +293,11 @@ class TaskModuleController extends Controller {
 		}
 
 		if ($request->term != '') {
-			$data['task']['deleted'] = $data['task']['deleted']->where('id', 'LIKE', "%$request->term%");
+			$data['task']['deleted'] = $data['task']['deleted']->where(function ($query) use ($term) {
+				$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
+							->orWhere('id', 'LIKE', "%$term%")
+							->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
+			});
 		}
 
    $data['task']['deleted'] = $data['task']['deleted']->get()->toArray();
@@ -396,7 +450,54 @@ class TaskModuleController extends Controller {
 				// ] );
 			}
 			else {
-				$task = SatutoryTask::create($data);
+				// $task = SatutoryTask::create($data);
+
+				$task = Task::create($data);
+
+				if ($request->assign_to) {
+					foreach ($request->assign_to as $user_id) {
+						$task->users()->attach([$user_id => ['type' => User::class]]);
+					}
+				}
+
+				if ($request->assign_to_contacts) {
+					foreach ($request->assign_to_contacts as $contact_id) {
+						$task->users()->attach([$contact_id => ['type' => Contact::class]]);
+					}
+				}
+
+				$params = [
+					 'number'       => NULL,
+					 'user_id'      => Auth::id(),
+					 'approved'     => 1,
+					 'status'       => 2,
+					 'task_id'			=> $task->id,
+					 'message'      => "#" . $task->id . ". " . $task->task_details
+				 ];
+
+         if (count($task->users) > 0) {
+           if ($task->assign_from == Auth::id()) {
+             $params['erp_user'] = $task->assign_to;
+           } else {
+             $params['erp_user'] = $task->assign_from;
+           }
+         }
+
+         if (count($task->contacts) > 0) {
+           if ($task->assign_from == Auth::id()) {
+             $params['contact_id'] = $task->assign_to;
+           } else {
+             $params['contact_id'] = $task->assign_from;
+           }
+         }
+
+				$chat_message = ChatMessage::create($params);
+
+				$myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 
 				// PushNotification::create( [
 				// 	'message'    => 'Recurring Task Assigned: ' . $data['task_details'],
@@ -463,6 +564,35 @@ class TaskModuleController extends Controller {
 		}
 
 		return redirect()->back()->withSuccess('You have successfully assign messages');
+	}
+
+	public function messageReminder(Request $request)
+	{
+		$this->validate($request, [
+			'message_id'		=> 'required|numeric',
+			'reminder_date'	=> 'required'
+		]);
+
+		$message = ChatMessage::find($request->message_id);
+
+		$additional_params = [
+			'user_id'	=> $message->user_id,
+			'task_id'	=> $message->task_id,
+			'erp_user'	=> $message->erp_user,
+			'contact_id'	=> $message->contact_id,
+		];
+
+		$params = [
+			'user_id'       => Auth::id(),
+			'message'       => "Reminder - " . $message->message,
+			'type'					=> 'task',
+			'data'					=> json_encode($additional_params),
+			'sending_time'  => $request->reminder_date
+		];
+
+		ScheduledMessage::create($params);
+
+		return redirect()->back()->withSuccess('You have successfully set a reminder!');
 	}
 
 	public function show($id)

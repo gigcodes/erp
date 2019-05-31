@@ -202,6 +202,13 @@
       {{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
     </div>
 
+    @if ($task->is_statutory == 1)
+      <div class="form-group">
+        <strong>Recurring:</strong>
+        {{ $task->recurring_type }}
+      </div>
+    @endif
+
     <div class="form-group">
       {{ isset($categories[$task->category]) ? $categories[$task->category] : 'No Category' }}
     </div>
@@ -622,6 +629,8 @@
   </div>
 </div>
 
+@include('task-module.partials.modal-reminder')
+
 {{-- @include('customers.partials.modal-reply') --}}
 
 {{-- @include('customers.partials.modal-forward') --}}
@@ -664,7 +673,7 @@
     console.log(selected_product_images);
   });
 
-    $('#date, #report-completion-datetime').datetimepicker({
+    $('#date, #report-completion-datetime, #reminder-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
 
@@ -962,6 +971,9 @@
                  var resend_button = '';
                  resend_button = "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
 
+                 var reminder_button = '';
+                 reminder_button = "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+
                  // var error_flag = '';
                  // if (message.error_status == 1) {
                  //   error_flag = "<a href='#' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
@@ -992,6 +1004,7 @@
 
                  // $(error_flag).appendTo(meta);
                  $(resend_button).appendTo(meta);
+                 $(reminder_button).appendTo(meta);
                }
 
 
@@ -1842,6 +1855,12 @@
 
           alert('Could not resend message');
         });
+      });
+
+      $(document).on('click', '.reminder-message', function() {
+        var id = $(this).data('id');
+
+        $('#reminderMessageModal').find('input[name="message_id"]').val(id);
       });
 
       $(document).on('click', '.make-private-task', function() {

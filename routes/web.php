@@ -133,6 +133,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::get('task/list', 'TaskModuleController@list')->name('task.list');
 	Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
+	Route::post('task/message/reminder', 'TaskModuleController@messageReminder')->name('task.message.reminder');
 	Route::resource('task','TaskModuleController');
 	Route::resource('task_category','TaskCategoryController');
 	Route::get('/', 'TaskModuleController@index')->name('home');

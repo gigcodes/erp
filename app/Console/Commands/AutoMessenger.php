@@ -261,19 +261,43 @@ class AutoMessenger extends Command
       $scheduled_messages = ScheduledMessage::where('sent', 0)->where('sending_time', '<', $now)->get();
 
       foreach ($scheduled_messages as $message) {
-        $params = [
-          'number'      => NULL,
-          'user_id'     => $message->user_id,
-          'customer_id' => $message->customer_id,
-          'approved'    => 0,
-          'status'      => 1,
-          'message'     => $message->message
-        ];
+        if ($message->type == 'customer') {
+          dump('Scheduled Message for Customers');
 
-        ChatMessage::create($params);
+          $params = [
+            'number'      => NULL,
+            'user_id'     => $message->user_id,
+            'customer_id' => $message->customer_id,
+            'approved'    => 0,
+            'status'      => 1,
+            'message'     => $message->message
+          ];
 
-        $message->sent = 1;
-        $message->save();
+          ChatMessage::create($params);
+
+          $message->sent = 1;
+          $message->save();
+        } else if ($message->type == 'task') {
+          dump('Scheduled Reminder Message for Tasks');
+          
+          $additional_params = json_decode($message->data, true);
+
+          $params = [
+            'number'      => NULL,
+            'user_id'     => $additional_params['user_id'],
+            'erp_user'    => $additional_params['erp_user'],
+            'task_id'     => $additional_params['task_id'],
+            'contact_id'  => $additional_params['contact_id'],
+            'approved'    => 0,
+            'status'      => 1,
+            'message'     => $message->message
+          ];
+
+          ChatMessage::create($params);
+
+          $message->sent = 1;
+          $message->save();
+        }
       }
 
       $report->update(['end_time' => Carbon:: now()]);

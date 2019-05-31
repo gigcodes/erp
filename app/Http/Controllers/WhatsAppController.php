@@ -938,7 +938,9 @@ class WhatsAppController extends FindByNumberController
           $params['user_id'] = $user->id;
 
           if ($params['message'] != '' && (preg_match_all("/#([\d]+)/i", $params['message'], $match))) {
-            $params['task_id'] = $match[1][0];
+            if (Task::find($match[1][0])) {
+              $params['task_id'] = $match[1][0];
+            }
           }
 
           // $params = $this->modifyParamsWithMessage($params, $data);
@@ -2602,7 +2604,7 @@ class WhatsAppController extends FindByNumberController
         }
 
         $chat_message->update([
-          'resent'  => $chat_message->resent++
+          'resent'  => $chat_message->resent + 1
         ]);
       }
 
@@ -2617,14 +2619,39 @@ class WhatsAppController extends FindByNumberController
 
         $phone = $receiver->phone;
         $whatsapp_number = $sender->whatsapp_number;
+        $sending_message = $chat_message->message;
 
-        if ($chat_message->message != '') {
-          $this->sendWithThirdApi($phone, $whatsapp_number, $chat_message->message, NULL, $chat_message->id);
+        if (preg_match_all("/Resent ([\d]+) times/i", $sending_message, $match)) {
+          $sending_message = preg_replace("/Resent ([\d]+) times/i", "Resent " . ($chat_message->resent + 1) . " times", $sending_message);
+        } else {
+          $sending_message = 'Resent ' . ($chat_message->resent + 1) . " times. " . $sending_message;
         }
+
+        $params = [
+          'user_id'     => $chat_message->user_id,
+          'number'      => NULL,
+          'task_id'     => $chat_message->task_id,
+          'erp_user'    => $chat_message->erp_user,
+          'contact_id'  => $chat_message->contact_id,
+          'message'     => $sending_message,
+          'resent'      => $chat_message->resent + 1,
+          'approved'    => 1,
+          'status'      => 2
+        ];
+
+        $new_message = ChatMessage::create($params);
 
         if ($chat_message->hasMedia(config('constants.media_tags'))) {
           foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-            $this->sendWithThirdApi($phone, $whatsapp_number, $image->getUrl(), NULL, $chat_message->id);
+            $new_message->attachMedia($image, config('constants.media_tags'));
+          }
+        }
+
+        $this->sendWithThirdApi($phone, $whatsapp_number, $new_message->message, NULL, $new_message->id);
+
+        if ($new_message->hasMedia(config('constants.media_tags'))) {
+          foreach ($new_message->getMedia(config('constants.media_tags')) as $image) {
+            $this->sendWithThirdApi($phone, $whatsapp_number, $image->getUrl(), NULL, $new_message->id);
           }
         }
 
