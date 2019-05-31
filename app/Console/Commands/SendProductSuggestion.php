@@ -52,95 +52,101 @@ class SendProductSuggestion extends Command
 
       foreach ($suggestions as $suggestion) {
         $customer = Customer::find($suggestion->customer_id);
-        $brands = json_decode($suggestion->brand);
-        $categories = json_decode($suggestion->category);
-        $sizes = json_decode($suggestion->size);
-        $suppliers = json_decode($suggestion->supplier);
 
-        if ($brands[0] != null) {
-          $products = Product::whereIn('brand', $brands);
-        }
+        if ($customer) {
+          $brands = json_decode($suggestion->brand);
+          $categories = json_decode($suggestion->category);
+          $sizes = json_decode($suggestion->size);
+          $suppliers = json_decode($suggestion->supplier);
 
-        if ($categories[0] != null && $categories[0] != 1) {
           if ($brands[0] != null) {
-            $products = $products->whereIn('category', $categories);
-          } else {
-            $products = Product::whereIn('category', $categories);
+            $products = Product::whereIn('brand', $brands);
           }
-        }
 
-        if ($sizes[0] != null) {
-          if ($brands[0] != null || ($categories[0] != 1 && $categories[0] != null)) {
-            $products = $products->where(function ($query) use ($sizes) {
-              foreach ($sizes as $size) {
-                $query->orWhere('size', 'LIKE', "%$size%");
-              }
-
-              return $query;
-            });
-          } else {
-            $products = Product::where(function ($query) use ($sizes) {
-              foreach ($sizes as $size) {
-                $query->orWhere('size', 'LIKE', "%$size%");
-              }
-
-              return $query;
-            });
-          }
-        }
-
-        if ($suppliers[0] != null) {
-          if ($brands[0] != null || ($categories[0] != 1 && $categories[0] != null) || $sizes[0] != null) {
-            $products = $products->whereHas('suppliers', function ($query) use ($suppliers) {
-              return $query->where(function ($q) use ($suppliers) {
-                foreach ($suppliers as $supplier) {
-                  $q->orWhere('suppliers.id', $supplier);
-                }
-              });
-            });
-          } else {
-            $products = Product::whereHas('suppliers', function ($query) use ($suppliers) {
-              return $query->where(function ($q) use ($suppliers) {
-                foreach ($suppliers as $supplier) {
-                  $q->orWhere('suppliers.id', $supplier);
-                }
-              });
-            });
-          }
-        }
-
-        if ($brands[0] == null && ($categories[0] == 1 || $categories[0] == null) && $sizes[0] == null && $suppliers[0] == null) {
-          $products = (new Product)->newQuery();
-        }
-
-        $products = $products->whereHas('scraped_products')->where('category', '!=', 1)->latest()->take($suggestion->number)->get();
-
-        if (count($products) > 0) {
-          $params = [
-            'number'      => NULL,
-            'user_id'     => 6,
-            'approved'    => 0,
-            'status'      => 1,
-            'message'     => 'Suggested images',
-            'customer_id' => $customer->id
-          ];
-
-          $count = 0;
-
-          foreach ($products as $product) {
-            if (!$product->suggestions->contains($suggestion->id)) {
-              if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
-                if ($count == 0) {
-                  $chat_message = ChatMessage::create($params);
-                }
-
-                $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
-                $count++;
-              }
-
-              $product->suggestions()->attach($suggestion->id);
+          if ($categories[0] != null && $categories[0] != 1) {
+            if ($brands[0] != null) {
+              $products = $products->whereIn('category', $categories);
+            } else {
+              $products = Product::whereIn('category', $categories);
             }
           }
+
+          if ($sizes[0] != null) {
+            if ($brands[0] != null || ($categories[0] != 1 && $categories[0] != null)) {
+              $products = $products->where(function ($query) use ($sizes) {
+                foreach ($sizes as $size) {
+                  $query->orWhere('size', 'LIKE', "%$size%");
+                }
+
+                return $query;
+              });
+            } else {
+              $products = Product::where(function ($query) use ($sizes) {
+                foreach ($sizes as $size) {
+                  $query->orWhere('size', 'LIKE', "%$size%");
+                }
+
+                return $query;
+              });
+            }
+          }
+
+          if ($suppliers[0] != null) {
+            if ($brands[0] != null || ($categories[0] != 1 && $categories[0] != null) || $sizes[0] != null) {
+              $products = $products->whereHas('suppliers', function ($query) use ($suppliers) {
+                return $query->where(function ($q) use ($suppliers) {
+                  foreach ($suppliers as $supplier) {
+                    $q->orWhere('suppliers.id', $supplier);
+                  }
+                });
+              });
+            } else {
+              $products = Product::whereHas('suppliers', function ($query) use ($suppliers) {
+                return $query->where(function ($q) use ($suppliers) {
+                  foreach ($suppliers as $supplier) {
+                    $q->orWhere('suppliers.id', $supplier);
+                  }
+                });
+              });
+            }
+          }
+
+          if ($brands[0] == null && ($categories[0] == 1 || $categories[0] == null) && $sizes[0] == null && $suppliers[0] == null) {
+            $products = (new Product)->newQuery();
+          }
+
+          $products = $products->whereHas('scraped_products')->where('category', '!=', 1)->latest()->take($suggestion->number)->get();
+
+          if (count($products) > 0) {
+            $params = [
+              'number'      => NULL,
+              'user_id'     => 6,
+              'approved'    => 0,
+              'status'      => 1,
+              'message'     => 'Suggested images',
+              'customer_id' => $customer->id
+            ];
+
+            $count = 0;
+
+            foreach ($products as $product) {
+              if (!$product->suggestions->contains($suggestion->id)) {
+                if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
+                  if ($count == 0) {
+                    $chat_message = ChatMessage::create($params);
+                  }
+
+                  $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
+                  $count++;
+                }
+
+                $product->suggestions()->attach($suggestion->id);
+              }
+            }
+          }
+        } else {
+          $suggestion->products()->detach();
+          $suggestion->delete();
         }
       }
 
