@@ -17,6 +17,7 @@ use App\Remark;
 use App\DeveloperTask;
 use App\NotificationQueue;
 use App\ChatMessage;
+use App\ScheduledMessage;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskModuleController extends Controller {
@@ -563,6 +564,35 @@ class TaskModuleController extends Controller {
 		}
 
 		return redirect()->back()->withSuccess('You have successfully assign messages');
+	}
+
+	public function messageReminder(Request $request)
+	{
+		$this->validate($request, [
+			'message_id'		=> 'required|numeric',
+			'reminder_date'	=> 'required'
+		]);
+
+		$message = ChatMessage::find($request->message_id);
+
+		$additional_params = [
+			'user_id'	=> $message->user_id,
+			'task_id'	=> $message->task_id,
+			'erp_user'	=> $message->erp_user,
+			'contact_id'	=> $message->contact_id,
+		];
+
+		$params = [
+			'user_id'       => Auth::id(),
+			'message'       => "Reminder - " . $message->message,
+			'type'					=> 'task',
+			'data'					=> json_encode($additional_params),
+			'sending_time'  => $request->reminder_date
+		];
+
+		ScheduledMessage::create($params);
+
+		return redirect()->back()->withSuccess('You have successfully set a reminder!');
 	}
 
 	public function show($id)

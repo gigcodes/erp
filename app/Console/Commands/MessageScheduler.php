@@ -57,7 +57,8 @@ class MessageScheduler extends Command
         $params = [
           'user_id'       => 6,
           'message'       => $auto_reply->reply,
-          'sending_time'  => "$today_date " . Carbon::parse($auto_reply->sending_time)->format('H:m')
+          'sending_time'  => "$today_date " . Carbon::parse($auto_reply->sending_time)->format('H:m'),
+          'type'          => 'customer'
         ];
 
         switch ($auto_reply->repeat) {
