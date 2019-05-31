@@ -4,23 +4,43 @@ jQuery(document).ready(function () {
   $('#quickTaskSubmit').on('click', function(e) {
     e.preventDefault();
 
+    var thiss = $(this);
     var form = $('#quickTaskForm');
     var data = form.serialize();
 
-    $.ajax({
-      type: "POST",
-      url: "/task",
-      data: data
-    }).done(function() {
-      $('#quick_task_subject').val('');
-      $('#quick_task_details').val('');
-      $('#quick_task_assign_to').val('');
+    if ($(form)[0].checkValidity()) {
+      if (!$(thiss).attr('disabled')) {
+        $.ajax({
+          type: "POST",
+          url: "/task",
+          data: data,
+          beforeSend: function () {
+            $(thiss).attr('disabled', true);
+            $(thiss).text('Adding...');
+          }
+        }).done(function() {
+          $('#quick_task_subject').val('');
+          $('#quick_task_details').val('');
 
-      form.find('.close').click();
-    }).fail(function(response) {
-      alert('Could not create quick task!');
-      console.log(response);
-    });
+          $(thiss).attr('disabled', false);
+          $(thiss).text('Add');
+          // $('#quick_task_assign_to').val('');
+          // $('#quick_task_assign_to_contacts').val('');
+
+          form.find('.close').click();
+        }).fail(function(response) {
+          $(thiss).attr('disabled', false);
+          $(thiss).text('Add');
+
+          alert('Could not create quick task!');
+          console.log(response);
+        });
+      }
+    } else {
+      $('#quickTaskForm')[0].reportValidity()
+    }
+
+
   });
 
   $('#quickInstructionSubmit').on('click', function(e) {

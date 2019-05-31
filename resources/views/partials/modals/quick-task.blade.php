@@ -34,7 +34,7 @@
                 $quick_task_users = \App\User::all();
               @endphp
 
-              <select class="selectpicker form-control" data-live-search="true" data-size="15" id="quick_task_assign_to" name="assign_to[]" title="Choose a User" required>
+              <select class="selectpicker form-control" data-live-search="true" data-size="15" id="quick_task_assign_to" name="assign_to[]" title="Choose a User" multiple>
                 @foreach ($quick_task_users as $user)
                   <option data-tokens="{{ $user['name'] }} {{ $user['email'] }}" value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
                 @endforeach
@@ -43,6 +43,18 @@
               @if ($errors->has('assign_to'))
                 <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
               @endif
+          </div>
+
+          <div class="form-group">
+            <select class="selectpicker form-control" data-live-search="true" data-size="15" id="quick_task_assign_to_contacts" name="assign_to_contacts[]" title="Choose a Contact" multiple>
+              @foreach (Auth::user()->contacts as $contact)
+                <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+              @endforeach
+            </select>
+
+            @if ($errors->has('assign_to_contacts'))
+              <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
+            @endif
           </div>
         </div>
         <div class="modal-footer">
