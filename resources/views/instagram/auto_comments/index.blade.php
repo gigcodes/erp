@@ -41,17 +41,19 @@
                         <th>S.N</th>
                         <th>Text</th>
                         <th>Source</th>
+                        <th>Use Count</th>
                         <th>Created At</th>
                         <th>Action</th>
                     </tr>
-                    @foreach($comments as $key=>$comment)
+                    @foreach($comments as $key=>$reply)
                         <tr>
                             <td>{{ $key+1 }}</td>
                             <td>{{ $reply->comment }}</td>
                             <td>{{ $reply->source ?? 'N/A' }}</td>
+                            <td>{{ $reply->use_count ?? 0 }}</td>
                             <td>{{ $reply->created_at->format('Y-m-d') }}</td>
                             <td>
-                                <input type="checkbox" name="comments[]" id="comments">
+                                <input value="{{$reply->id}}" type="checkbox" name="comments[]" id="comments">
                             </td>
                         </tr>
                     @endforeach

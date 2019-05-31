@@ -22,6 +22,12 @@
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
+                <label for="phone_number">Phone number</label>
+                <input type="text" class="form-control" name="phone_number" id="phone_number" placeholder="phone_number" value="{{$d->phone_number}}">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
                 <label for="url">url</label>
                 <input type="text" class="form-control" name="url" id="url" placeholder="Url" value="{{$d->url}}">
             </div>

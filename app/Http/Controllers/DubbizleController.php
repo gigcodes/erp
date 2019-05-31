@@ -102,6 +102,7 @@ class DubbizleController extends Controller
         $d = Dubbizle::findOrFail($id);
 
         $d->url = $request->get('url');
+        $d->phone_number = $request->get('phone_number');
         $d->keywords = $request->get('keywords');
         $d->post_date = $request->get('post_date');
         $d->requirements = $request->get('requirements');

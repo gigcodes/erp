@@ -17,6 +17,7 @@ class CreateInstagramAutoCommentsTable extends Migration
             $table->increments('id');
             $table->text('comment');
             $table->string('source')->nullable();
+            $table->integer('use_count');
             $table->timestamps();
         });
     }
