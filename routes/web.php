@@ -546,6 +546,7 @@ Route::prefix('instagram')->group(function () {
     Route::get('thread/{id}', 'ColdLeadsController@getMessageThread');
     Route::post('thread/{id}', 'ColdLeadsController@sendMessage');
     Route::resource('brand-tagged', 'BrandTaggedPostsController');
+    Route::resource('auto-comments', 'InstagramAutoCommentsController');
     Route::post('media/comment', 'HashtagController@commentOnHashtag');
     Route::get('test/{id}', 'AccountController@test');
     Route::get('accounts', 'InstagramController@accounts');
@@ -592,12 +593,15 @@ Route::prefix('comments')->group(function () {
 });
 
 Route::prefix('scrap')->group(function () {
+    Route::get('facebook/inbox', 'FacebookController@getInbox');
     Route::resource('facebook', 'FacebookController');
     Route::resource('gmail', 'GmailDataController');
     Route::resource('designer', 'DesignerController');
     Route::resource('sales', 'SalesItemController');
 	Route::get('/dubbizle', 'DubbizleController@index');
 	Route::post('/dubbizle/bulkWhatsapp', 'DubbizleController@bulkWhatsapp')->name('dubbizle.bulk.whatsapp');
+    Route::get('/dubbizle/{id}/edit', 'DubbizleController@edit');
+    Route::put('/dubbizle/{id}', 'DubbizleController@update');
     Route::get('/dubbizle/{id}', 'DubbizleController@show')->name('dubbizle.show');
     Route::get('/products', 'ScrapController@showProductStat');
     Route::get('/activity', 'ScrapController@activity')->name('scrap.activity');

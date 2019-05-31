@@ -91,4 +91,24 @@ class DubbizleController extends Controller
 
       return redirect('/scrap/dubbizle')->withSuccess('You have successfully sent bulk whatsapp messages');
     }
+
+    public function edit($id) {
+        $d = Dubbizle::findOrFail($id);
+
+        return view('dubbizle-edit', compact('d'));
+    }
+
+    public function update($id, Request $request) {
+        $d = Dubbizle::findOrFail($id);
+
+        $d->url = $request->get('url');
+        $d->keywords = $request->get('keywords');
+        $d->post_date = $request->get('post_date');
+        $d->requirements = $request->get('requirements');
+        $d->body = $request->get('body');
+        $d->phone_number = $request->get('phone_number');
+        $d->save();
+
+        return redirect()->back()->with('success', 'Record updated successfully!');
+    }
 }

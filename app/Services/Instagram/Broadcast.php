@@ -35,6 +35,7 @@ class Broadcast {
 
 
     public function sendBulkMessages($leads, $message, $file = null, $account, $b) {
+        dd('here');
         $this->broadcast = $b;
         $receipts = [];
         foreach ($leads as $lead) {
@@ -120,11 +121,11 @@ class Broadcast {
 
             }
             echo "=========================\n";
-            sleep(5);
 
             $l = ColdLeads::where('id', $key)->first();
             ++$l->messages_sent;
             $l->save();
+            sleep(5);
 
             unset($receipts[$key]);
         }

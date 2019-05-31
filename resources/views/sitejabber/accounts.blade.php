@@ -231,13 +231,15 @@
                 </div>
                 <div class="tab-panel mt-3" id="fourxxx">
                     <form method="post" action="{{ action('SitejabberQAController@attachOrDetachReviews') }}">
-                        <div class="form-group">
-                            <select name="action" id="action">
+                        <span class="form-group" style="display:inline-block;width: 85% !important;;">
+                            <select class="form-control" name="action" id="action">
                                 <option value="attach">Attach</option>
                                 <option value="delete">Delete</option>
                             </select>
-                            <button class="btn btn-sm btn-info">Go</button>
-                        </div>
+                        </span>
+                        <span style="display:inline-block; width: 12% !important;" class="form-group">
+                            <button class="btn btn-sm btn-info form-control">Go</button>
+                        </span>
                         @csrf
                         <table id="table3" class="table table-striped">
                             <thead>

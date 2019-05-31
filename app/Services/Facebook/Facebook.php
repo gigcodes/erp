@@ -124,4 +124,11 @@ class Facebook {
     {
         return $this->feedId;
     }
+
+    public function getConversations() {
+        $conversation = $this->facebook->get($this->page_id . '/conversations?fields=name,participants,messages.limit(100){message,from,id,sticker}&limit=10000', 'EAAD7Te0j0B8BADVZAh6edO7xVgki33dZAfVeBPKUsZB8glALHAZAWpx2OZB5zF6ZCZAkWuzZC155PkSvFbZA2PrfsnZBoXDVDFYAhCk1QHTBrlhZCtuCMEE4q9HwpB0E9idDNefQ8IbnTNY8IMnMze0X9iKW8eGwQOpUFWNFDcdq9jbUvIZA7yJxwTTVyTdz51UU2mKUfq3ZC8D2ZA4QZDZD');
+
+        return $conversation->getDecodedBody();
+
+    }
 }

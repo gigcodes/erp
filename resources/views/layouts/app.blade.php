@@ -1663,7 +1663,7 @@
           }
       });
   </script>
-  <script src="{{ asset('js/tracker.js') }}"></script>
+{{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
 </body>
 
 </html>
