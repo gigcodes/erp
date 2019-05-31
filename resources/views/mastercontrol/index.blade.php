@@ -47,6 +47,9 @@
           <a href="#tasks-tab" data-toggle="tab" class="btn btn-image">Tasks</a>
         </li>
         <li>
+          <a href="#statutory-tab" data-toggle="tab" class="btn btn-image">Statutory Tasks</a>
+        </li>
+        <li>
           <a href="#orders-tab" data-toggle="tab" class="btn btn-image">Orders</a>
         </li>
         <li>
@@ -344,6 +347,132 @@
               </div>
             </div>
 
+          </div>
+
+          <div class="tab-pane mt-3" id="statutory-tab">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="5%">ID</th>
+                        <th width="5%">Date</th>
+                        <th width="10%" class="category">Category</th>
+                        <th width="15%">Task Details</th>
+                        <th width="5%" colspan="2">Assigned From / To</th>
+                        <th width="5%">Recurring</th>
+                        <th width="25%">Communication</th>
+                        <th width="20%">Send Message</th>
+                        <th width="10%">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach(  $tasks['statutory'] as $task)
+                        <tr id="task_{{ $task->id }}">
+                          <td>{{ $task->id }}</td>
+                          <td>{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
+                          <td>{{ isset( $categories[$task->category]) ? $categories[$task->category] : '' }}</td>
+                          <td class="task-subject" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
+                            <span class="task-subject-container">
+                              {{ $task->task_subject ? substr($task->task_subject, 0, 20) . (strlen($task->task_subject) > 20 ? '...' : '') : 'Task Details' }}
+                            </span>
+
+                            <span class="task-details-container hidden">
+                              <strong>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</strong>
+
+                              {{ $task->task_details }}
+                            </span>
+                          </td>
+                          <td>{{ array_key_exists($task->assign_from, $users_array) ? $users_array[$task->assign_from] : 'No User' }}</td>
+                          <td class="task-subject">
+                            <span class="task-subject-container">
+                              Expand
+                            </span>
+
+                            <span class="task-details-container hidden">
+                              @php
+                                $special_task = \App\Task::find($task->id);
+                              @endphp
+
+                              @foreach ($special_task->users as $key => $user)
+                                @if (array_key_exists($user->id, $users_array))
+                                  @if ($user->id == Auth::id())
+                                    <a href="{{ route('users.show', $user->id) }}">{{ $users_array[$user->id] }}</a>
+                                  @else
+                                    {{ $users_array[$user->id] }}
+                                  @endif
+                                @else
+                                  User Does Not Exist
+                                @endif
+                              @endforeach
+
+                              <br>
+
+                              @foreach ($special_task->contacts as $key => $contact)
+                                {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
+                              @endforeach
+
+                              @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                                <a href="/task/complete/{{ $task->id }}" class="btn btn-link task-complete">Stop</a>
+                              @endif
+                            </span>
+                          </td>
+                          <td>{{ $task->recurring_type }}</td>
+
+                          <td class="task-subject">
+                            @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
+                              @if (isset($task->message))
+                                <span class="task-subject-container">
+                                  {{ strlen($task->message) > 40 ? substr($task->message, 0, 37) . '...' : $task->message }}
+                                </span>
+
+                                <span class="task-details-container hidden">
+                                  {{ $task->message }}
+                                </span>
+                              @endif
+                            @else
+                              Private
+                            @endif
+                          </td>
+                          <td>
+                            @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
+                              <div class="d-flex">
+                                <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
+                              </div>
+                            @else
+                              Private
+                            @endif
+                          </td>
+                          <td>
+                            @if ((!$special_task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && $special_task->contacts()->count() == 0))
+                              @if ($task->is_private == 1)
+                                <button type="button" class="btn btn-image"><img src="/images/private.png" /></button>
+                              @endif
+                            @endif
+
+                            @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                              <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                            @endif
+
+                            @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
+
+
+                              @if ($task->is_private == 1)
+                                <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
+                              @else
+                                <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
+                              @endif
+                            @endif
+                          </td>
+                        </tr>
+                       @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="tab-pane mt-3" id="orders-tab">

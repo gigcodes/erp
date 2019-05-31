@@ -129,6 +129,34 @@ class MasterControlController extends Controller
                                          return 0;
                                        }
                                      }])->toArray();
+
+       $tasks['statutory'] = DB::select('
+                   SELECT *,
+    							 (SELECT mm5.remark FROM remarks mm5 WHERE mm5.id = remark_id) AS remark,
+    							 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
+                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+                   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
+                   (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
+                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
+
+                   FROM (
+                     SELECT * FROM tasks
+
+                     LEFT JOIN (
+                       SELECT MAX(id) as remark_id, taskid
+                       FROM remarks
+    									 WHERE module_type = "task"
+                       GROUP BY taskid
+                     ) AS remarks
+                     ON tasks.id = remarks.taskid
+
+                     LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
+                     ON tasks.id = chat_messages.task_id
+
+                   ) AS tasks
+                   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_watched = 1 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . '))
+                   ORDER BY last_communicated_at DESC;
+    						');
                                      // dd($tasks['tasks']);
 
   		// $tasks['completed']  = Task::where( 'is_statutory', '=', 0 )

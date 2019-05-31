@@ -660,6 +660,23 @@ class TaskModuleController extends Controller {
 		]);
 	}
 
+	public function isWatched(Request $request, $id)
+	{
+		$task = Task::find($id);
+
+		if ($task->is_watched == 1) {
+			$task->is_watched = 0;
+		} else {
+			$task->is_watched = 1;
+		}
+
+		$task->save();
+
+		return response()->json([
+			'task'	=> $task
+		]);
+	}
+
 	public function complete(Request $request, $taskid ) {
 
 		$task               = Task::find( $taskid );

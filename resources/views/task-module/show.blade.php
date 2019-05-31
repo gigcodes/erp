@@ -506,9 +506,10 @@
                                       <th width="10%" class="category">Category</th>
                                       <th width="15%">Task Details</th>
                                       <th width="5%" colspan="2">Assigned From / To</th>
+                                      <th width="5%">Reccuring</th>
                                       {{-- <th width="5%">Assigned To</th> --}}
                                       {{-- <th width="5%">Remark</th> --}}
-                                      <th width="30%">Communication</th>
+                                      <th width="25%">Communication</th>
                                       <th width="20%">Send Message</th>
                                       {{-- <th width="5%">Completed at</th> --}}
                                       <th width="10%">Actions</th>
@@ -575,6 +576,7 @@
                                         @endif
                                       </span>
                                     </td>
+                                    <td>{{ $task->recurring_type }}</td>
                                     {{-- <td>
                                       <textarea id="remark-text-{{ $task->id }}" rows="1" name="remark" class="form-control"></textarea>
                                       <button class="mt-2 update-remark" data-id="{{$task->id}}">update</button>
