@@ -202,6 +202,13 @@
       {{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
     </div>
 
+    @if ($task->is_statutory == 1)
+      <div class="form-group">
+        <strong>Recurring:</strong>
+        {{ $task->recurring_type }}
+      </div>
+    @endif
+
     <div class="form-group">
       {{ isset($categories[$task->category]) ? $categories[$task->category] : 'No Category' }}
     </div>

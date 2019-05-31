@@ -17,6 +17,7 @@ use App\Console\Commands\AutoMessenger;
 use App\Console\Commands\FetchEmails;
 use App\Console\Commands\CheckEmailsErrors;
 use App\Console\Commands\MessageScheduler;
+use App\Console\Commands\SendRecurringTasks;
 use App\Console\Commands\CheckMessagesErrors;
 use App\Console\Commands\SendBroadcastMessageToColdLeads;
 use App\Console\Commands\SendProductSuggestion;
@@ -71,6 +72,7 @@ class Kernel extends ConsoleKernel
         FetchEmails::class,
         CheckEmailsErrors::class,
         MessageScheduler::class,
+        SendRecurringTasks::class,
         CheckMessagesErrors::class,
         SendProductSuggestion::class,
         SendActivitiesListing::class,
@@ -174,10 +176,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
         $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
         $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:recurring-tasks')->dailyAt('07:00')->timezone('Asia/Kolkata');
 
         // Fetches Emails
         $schedule->command('fetch:emails')->everyFifteenMinutes();
-        $schedule->command('check:emails-errors')->daily();
+        $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
 
 //        $schedule->command('gebnegozionline:get-products-list')
 //            ->hourly()
