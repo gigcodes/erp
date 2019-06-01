@@ -1150,7 +1150,7 @@
 
                     <h4 class="text-center">Delivery Approval</h4>
 
-                    <form class="form-inline my-3" action="{{ route('order.upload.approval', $order->id) }}" method="POST" enctype="multipart/form-data">
+                    {{-- <form class="form-inline my-3" action="{{ route('order.upload.approval', $order->id) }}" method="POST" enctype="multipart/form-data">
                       @csrf
 
                       <div class="form-group">
@@ -1158,7 +1158,7 @@
                       </div>
 
                       <button type="submit" class="btn btn-xs btn-secondary ml-3">Upload for Approval</button>
-                    </form>
+                    </form> --}}
 
                     @if (isset($order->delivery_approval))
                       <div class="table-responsive">
@@ -1167,7 +1167,7 @@
                             <tr>
                               <th>Uploaded Photos</th>
                               <th>Approved</th>
-                              <th>Voucher</th>
+                              {{-- <th>Voucher</th> --}}
                             </tr>
                           </thead>
                           <tbody>
@@ -1201,7 +1201,7 @@
                                   </form>
                                 @endif
                               </td> --}}
-                              <td>
+                              {{-- <td>
                                 @can('voucher')
                                   @if ($order->delivery_approval->voucher)
                                     <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
@@ -1209,11 +1209,13 @@
                                     <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
                                   @endif
                                 @endcan
-                              </td>
+                              </td> --}}
                             </tr>
                           </tbody>
                         </table>
                       </div>
+                    @else
+                      No Delivery Approvals
                     @endif
 
                     @include('customers.partials.modal-awb')
@@ -1234,12 +1236,14 @@
 
       @if (count($customer->private_views) > 0)
         <div class="tab-pane mt-3" id="private_view_tab">
-          <div class="row">
+          <div class="table-responsive">
             <table class="table table-bordered">
               <tr>
                 <th>Products</th>
                 <th>Date</th>
                 <th>Delivery Images</th>
+                <th>Status</th>
+                <th>Office Boy</th>
               </tr>
               @foreach ($customer->private_views as $view)
                 <tr class="{{ \Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d') ? 'row-highlight' : '' }}">
@@ -1258,7 +1262,8 @@
                           <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
                         </a>
                       @endforeach
-                    @elseif (\Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d'))
+                    @endif
+                    {{-- @elseif (\Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d')) --}}
                       <form action="{{ route('stock.private.viewing.upload') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
@@ -1268,6 +1273,14 @@
 
                         <button type="submit" class="btn btn-xs btn-secondary">Upload</button>
                       </form>
+                    {{-- @endif --}}
+                  </td>
+                  <td>{{ ucwords($view->status) }}</td>
+                  <td>
+                    @if (array_key_exists($view->assigned_user_id, $users_array))
+                      {{ $users_array[$view->assigned_user_id] }}
+                    @else
+                      No Assigned User
                     @endif
                   </td>
                 </tr>

@@ -943,7 +943,14 @@
                                       <a class="dropdown-item" href="{{ route('order.calls-history') }}">Calls History</a>
 
                                       <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
-                                      <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
+
+                                      @can ('private-viewing')
+                                        <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
+                                      @endcan
+
+                                      @can ('delivery-approval')
+                                        <a class="dropdown-item" href="{{ route('deliveryapproval.index') }}">Delivery Approvals</a>
+                                      @endcan
 
 
 
