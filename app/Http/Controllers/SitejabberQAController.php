@@ -221,6 +221,41 @@ class SitejabberQAController extends Controller
 
     }
 
+    public function attachOrDetachReviews(Request $request) {
+        $this->validate($request, [
+            'action' => 'required',
+            'reviewTemplate' => 'required|array'
+        ]);
+
+        $templates = $request->get('reviewTemplate');
+        $action = $request->get('action');
+
+        foreach ($templates as $id) {
+            if ($action == 'attach') {
+                $reviewx = BrandReviews::findOrFail($id);
+                $account = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->first();
+
+                $review = new Review();
+                $review->account_id = $account->id;
+                $review->review = $reviewx->body;
+                $review->platform = 'sitejabber';
+                $review->title = $reviewx->title;
+                $review->save();
+
+                $reviewx->used = 1;
+                $reviewx->save();
+                $account->touch();
+
+                continue;
+            }
+
+            $reviewx = BrandReviews::findOrFail($id);
+            $reviewx->delete();
+        }
+
+        return redirect()->back()->with('messages', 'Action completed successfully!');
+    }
+
     public function confirmReviewAsPosted($id) {
         Review::where('id', $id)->update([
             'status' => 'posted'

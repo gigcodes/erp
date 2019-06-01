@@ -89,7 +89,7 @@ class ColdLeadBroadcastsController extends Controller
 
         $limit = $request->get('number_of_users');
 
-        $coldleads = ColdLeads::whereNotIn('status', 1)->where('messages_sent', '<', 5)->take($request->get('number_of_users'))->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
+        $coldleads = ColdLeads::where('status', 1)->where('messages_sent', '<', 5)->take($limit)->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
 
         $count = 0;
         $leads = [];

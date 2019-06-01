@@ -67,6 +67,9 @@
                             </td>
                             <td>
                               <a href="{{ route('dubbizle.show', $post->id) }}" class="btn btn-image"><img src="/images/view.png" /></a>
+                                <a class="btn btn-sm btn-info" href="{{ action('DubbizleController@edit', $post->id) }}">
+                                    <i class="fa fa-edit"></i>
+                                </a>
                             </td>
                         </tr>
                     @endforeach

@@ -113,7 +113,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-9">
-                                            <input type="text" class="comment-it form-control" data-mediaId="{{$post['media_id']}}" placeholder="Type comment...">
+                                            <textarea type="text" rows="4" class="comment-it form-control" data-mediaId="{{$post['media_id']}}" placeholder="Type comment..."></textarea>
                                         </div>
                                     </div>
                                 </td>

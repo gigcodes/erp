@@ -230,39 +230,46 @@
                         </form>
                 </div>
                 <div class="tab-panel mt-3" id="fourxxx">
-                    <table id="table3" class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>S.N</th>
-                            <th>Platform</th>
-                            <th>brand</th>
-                            <th>Title</th>
-                            <th>Body</th>
-                            <th>Created At</th>
-                            <th>Attach For Approval</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($brandReviews as $key=>$brandReview)
+                    <form method="post" action="{{ action('SitejabberQAController@attachOrDetachReviews') }}">
+                        <span class="form-group" style="display:inline-block;width: 85% !important;;">
+                            <select class="form-control" name="action" id="action">
+                                <option value="attach">Attach</option>
+                                <option value="delete">Delete</option>
+                            </select>
+                        </span>
+                        <span style="display:inline-block; width: 12% !important;" class="form-group">
+                            <button class="btn btn-sm btn-info form-control">Go</button>
+                        </span>
+                        @csrf
+                        <table id="table3" class="table table-striped">
+                            <thead>
                             <tr>
-                                <th>{{ $key+1 }}</th>
-                                <td>{{ $brandReview->website }}</td>
-                                <td>{{ $brandReview->brand }}</td>
-                                <td>{{ $brandReview->title }}</td>
-                                <td>{{ $brandReview->body }}</td>
-                                <td>{{ $brandReview->created_at->format('Y-m-d') }}</td>
-                                <td width="100px;">
-                                    <a class="btn btn-info btn-sm" href="{{ action('SitejabberQAController@attachBrandReviews', $brandReview->id) }}">
-                                        <i class="fa fa-plus"></i>
-                                    </a>
-                                    <a class="btn btn-danger btn-sm" href="{{ action('SitejabberQAController@detachBrandReviews', $brandReview->id) }}">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                </td>
+                                <th>S.N</th>
+                                <th>Platform</th>
+                                <th>brand</th>
+                                <th>Title</th>
+                                <th>Body</th>
+                                <th>Created At</th>
+                                <th>Attach For Approval</th>
                             </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            @foreach($brandReviews as $key=>$brandReview)
+                                <tr>
+                                    <th>{{ $key+1 }}</th>
+                                    <td>{{ $brandReview->website }}</td>
+                                    <td>{{ $brandReview->brand }}</td>
+                                    <td>{{ $brandReview->title }}</td>
+                                    <td>{{ $brandReview->body }}</td>
+                                    <td>{{ $brandReview->created_at->format('Y-m-d') }}</td>
+                                    <td width="100px;">
+                                        <input type="checkbox" name="reviewTemplate[]" id="reviewTemplate" value="{{$brandReview->id}}">
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </form>
                 </div>
                 <div class="tab-panel mt-3" id="fivexxx">
                     <table class="table table-striped">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BrandFans;
 use App\GroupMembers;
 use App\HashtagPosts;
+use App\Services\Facebook\Facebook;
 use Illuminate\Http\Request;
 
 class FacebookController extends Controller
@@ -26,5 +27,12 @@ class FacebookController extends Controller
 
             return view('scrap.facebook_brand_fans', compact('brands'));
         }
+    }
+
+    public function getInbox() {
+        $facebook = new Facebook(new \Facebook\Facebook());
+
+        return $facebook->getConversations();
+
     }
 }

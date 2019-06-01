@@ -68,6 +68,7 @@ class AccountController extends Controller
         try {
             $this->ig->login($account->last_name, $account->password);
         } catch (\Exception $exception) {
+            dd($exception);
             $account->forceDelete();
         }
 
