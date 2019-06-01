@@ -28,6 +28,12 @@ class SupplierController extends Controller
       // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
       $solo_numbers = (new SoloNumbers)->all();
       $term = $request->term ?? '';
+      $type = $request->type ?? '';
+      $typeWhereClause = '';
+
+      if ($type != '') {
+        $typeWhereClause = ' AND has_error = 1';
+      }
 
       $suppliers = DB::select('
 									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error,
@@ -54,7 +60,7 @@ class SupplierController extends Controller
 
                   AS suppliers
 
-                  WHERE (supplier LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%" OR address LIKE "%' . $term . '%" OR social_handle LIKE "%' . $term . '%" OR id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))
+                  WHERE (supplier LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%" OR address LIKE "%' . $term . '%" OR social_handle LIKE "%' . $term . '%" OR id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))' . $typeWhereClause . '
                   ORDER BY is_flagged DESC, last_communicated_at DESC;
 							');
 
@@ -77,6 +83,7 @@ class SupplierController extends Controller
         'suppliers_all' => $suppliers_all,
         'solo_numbers'  => $solo_numbers,
         'term'          => $term,
+        'type'          => $type,
       ]);
     }
 
@@ -230,9 +237,11 @@ class SupplierController extends Controller
       }
 
       if ($request->received == 'on') {
-        $suppliers = Supplier::whereHas('emails')->where(function ($query) {
+        $suppliers = Supplier::whereDoesntHave('emails', function ($query) {
+          $query->where('type', 'incoming');
+        })->where(function ($query) {
           $query->whereNotNull('default_email')->orWhereNotNull('email');
-        })->get();
+        })->where('has_error', 0)->get();
       }
 
       // dd($suppliers);

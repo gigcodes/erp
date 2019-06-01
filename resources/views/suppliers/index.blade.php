@@ -18,6 +18,13 @@
                          placeholder="Search">
                 </div>
 
+                <div class="form-group ml-3">
+                  <select class="form-control" name="type">
+                    <option value="">Select Type</option>
+                    <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
+                  </select>
+                </div>
+
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
             </div>
