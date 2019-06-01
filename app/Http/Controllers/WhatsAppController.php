@@ -934,12 +934,28 @@ class WhatsAppController extends FindByNumberController
           //   'role' => '',
           // ]);
 
-          $params['erp_user'] = $user->id;
+          // $params['erp_user'] = $user->id;
           $params['user_id'] = $user->id;
 
           if ($params['message'] != '' && (preg_match_all("/#([\d]+)/i", $params['message'], $match))) {
-            if (Task::find($match[1][0])) {
+            if ($task = Task::find($match[1][0])) {
               $params['task_id'] = $match[1][0];
+
+              if (count($task->users) > 0) {
+                if ($task->assign_from == $user->id) {
+                  $params['erp_user'] = $task->assign_to;
+                } else {
+                  $params['erp_user'] = $task->assign_from;
+                }
+              }
+
+              if (count($task->contacts) > 0) {
+                if ($task->assign_from == $user->id) {
+                  $params['contact_id'] = $task->assign_to;
+                } else {
+                  $params['contact_id'] = $task->assign_from;
+                }
+              }
             }
           }
 
