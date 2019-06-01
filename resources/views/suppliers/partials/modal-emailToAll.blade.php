@@ -30,7 +30,7 @@
 
           <div class="form-group">
             <input type="checkbox" name="received" id="received">
-            <label for="received">Send to all who have received an email</label>
+            <label for="received">Send to all who haven't replied to an email</label>
           </div>
 
           <div class="form-group">
