@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\AutoCommentHistory;
+use App\AutoReplyHashtags;
 use Illuminate\Http\Request;
 
 class AutoCommentHistoryController extends Controller
@@ -14,7 +15,11 @@ class AutoCommentHistoryController extends Controller
      */
     public function index()
     {
-        //
+        $comments = AutoCommentHistory::orderBy('created_at', 'DESC')->paginate(50);
+        $hashtags = AutoReplyHashtags::all();
+
+
+        return view('instagram.auto_comments.report', compact('comments', 'hashtags'));
     }
 
     /**

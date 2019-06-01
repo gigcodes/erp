@@ -43,7 +43,11 @@ class ColdLeadsController extends Controller
             $leads = ColdLeads::where('status', '>', 0);
         }
 
-        $leads = $leads->orderBy('created_at', 'ASC')->paginate($request->get('pagination'));
+        if ($request->get('gender') == 'm' || $request->get('gender') == 'f' || $request->get('gender') == 'o') {
+            $leads = $leads->where('gender', $request->get('gender'));
+        }
+
+        $leads = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
 
         $accounts = Account::where('platform', 'instagram')->get();
 

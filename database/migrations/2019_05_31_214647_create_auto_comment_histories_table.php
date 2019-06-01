@@ -19,6 +19,7 @@ class CreateAutoCommentHistoriesTable extends Migration
             $table->string('post_code');
             $table->string('post_id');
             $table->integer('account_id');
+            $table->integer('auto_reply_hashtag_id');
             $table->text('comment');
             $table->timestamps();
         });

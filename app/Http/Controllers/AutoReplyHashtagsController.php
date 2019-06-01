@@ -35,7 +35,13 @@ class AutoReplyHashtagsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $h = new AutoReplyHashtags();
+        $h->text = $request->get('hashtag');
+        $h->type = 'hashtag';
+        $h->status = 1;
+        $h->save();
+
+        return redirect()->back()->with('action', 'Comment Target hashtag added successfully!');
     }
 
     /**

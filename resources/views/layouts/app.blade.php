@@ -1263,6 +1263,7 @@
                             <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
                             <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">SITEJABBER | Quick Reply</a>
                             <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">INSTAGRAM | Quick Reply</a>
+                            <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">INSTAGRAM | Auto Comment Statustics</a>
 {{--                            <a class="dropdown-item" href="{{ action('SitejabberQAController@reviews') }}">SITEJABBER | Reviews</a>--}}
                           </ul>
                         </li>

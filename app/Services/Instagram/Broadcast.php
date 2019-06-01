@@ -35,7 +35,6 @@ class Broadcast {
 
 
     public function sendBulkMessages($leads, $message, $file = null, $account, $b) {
-        dd('here');
         $this->broadcast = $b;
         $receipts = [];
         foreach ($leads as $lead) {
@@ -60,6 +59,7 @@ class Broadcast {
 
 
         foreach ($receipts as $key=>$receipt) {
+            echo "Looping... \n";
             $cl = ColdLeads::where('platform_id', $receipt)->first();
             $account_id = $cl->account_id;
             if ($account_id > 0) {
@@ -69,11 +69,16 @@ class Broadcast {
             }
 
             $cl->account_id = $accountToSend->id;
+            echo "Attached account... \n";
+
             $cl->save();
 
             echo "SENDING TO $receipt \n";
             echo "TEXT by $accountToSend->id \n";
             $this->sendText($message, $receipt, $accountToSend, $account);
+
+            echo "text sent... \n";
+
 
             $ct = InstagramThread::where('cold_lead_id', $cl->id)->first();
             if (!$ct) {
