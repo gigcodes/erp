@@ -69,8 +69,7 @@ class AutoCommentBot extends Command
             foreach ($posts as $post) {
 
                 $comment = InstagramAutoComments::inRandomOrder()->first();
-                $account = Account::where('platform', 'instagram')->where('broadcast', 0)->inRandomOrder()->first();
-
+                $account = Account::where('platform', 'instagram')->whereIn('id', [23,31,50,51,731])->where('broadcast', 0)->inRandomOrder()->first();
                 if (!isset($this->accounts[$account->id])) {
                     $ig = new Instagram();
                     $ig->login($account->last_name, $account->password);
