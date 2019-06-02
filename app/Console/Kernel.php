@@ -154,7 +154,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
         $schedule->command('run:message-queues')->everyFiveMinutes()->between('9:00', '18:00')->withoutOverlapping(10);
         $schedule->command('monitor:cron-jobs')->everyMinute();
-        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
+//        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
         // $schedule->exec('/usr/local/php72/bin/php-cli artisan queue:work --once --timeout=120')->everyMinute()->withoutOverlapping(3);
 
         // Voucher Reminders
