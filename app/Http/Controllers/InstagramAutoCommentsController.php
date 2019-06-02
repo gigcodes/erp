@@ -14,7 +14,7 @@ class InstagramAutoCommentsController extends Controller
      */
     public function index()
     {
-        $comments = InstagramAutoComments::all();
+        $comments = InstagramAutoComments::orderBy('updated_at', 'DESC')->get();
 
 
         return view('instagram.auto_comments.index', compact('comments'));
@@ -73,9 +73,11 @@ class InstagramAutoCommentsController extends Controller
      * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
      */
-    public function edit(InstagramAutoComments $instagramAutoComments)
+    public function edit($id)
     {
-        //
+        $comment = InstagramAutoComments::findOrFail($id);
+
+        return view('instagram.auto_comments.edit', compact('comment'));
     }
 
     /**
@@ -85,9 +87,15 @@ class InstagramAutoCommentsController extends Controller
      * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, InstagramAutoComments $instagramAutoComments)
+    public function update(Request $request, $id)
     {
-        //
+
+        $comment = InstagramAutoComments::findOrFail($id);
+        $comment->comment = $request->get('text');
+        $comment->source = $request->get('source');
+        $comment->save();
+
+        return redirect()->action('InstagramAutoCommentsController@index')->with('message', 'Updated successfully!');
     }
 
     /**

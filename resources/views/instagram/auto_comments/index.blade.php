@@ -54,6 +54,9 @@
                             <td>{{ $reply->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <input value="{{$reply->id}}" type="checkbox" name="comments[]" id="comments">
+                                <a href="{{ action('InstagramAutoCommentsController@edit', $reply->id) }}" class="btn btn-info">
+                                    <i class="fa fa-edit"></i>
+                                </a>
                             </td>
                         </tr>
                     @endforeach

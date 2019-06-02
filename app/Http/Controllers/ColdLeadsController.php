@@ -43,9 +43,17 @@ class ColdLeadsController extends Controller
             $leads = ColdLeads::where('status', '>', 0);
         }
 
-        $leads = $leads->orderBy('created_at', 'ASC')->paginate($request->get('pagination'));
+        if ($request->get('gender') == 'm' || $request->get('gender') == 'f' || $request->get('gender') == 'o') {
+            $leads = $leads->where('gender', $request->get('gender'));
+        }
 
-        $accounts = Account::where('platform', 'instagram')->get();
+        if ($request->get('acc') > 0) {
+            $leads = $leads->where('account_id', $request->get('acc'));
+        }
+
+        $leads = $leads->orderBy('updated_at', 'DESC')->with('account')->paginate($request->get('pagination'));
+
+        $accounts = Account::where('platform', 'instagram')->where('broadcast', 1)->get();
 
         return response()->json([
             'leads' => $leads,
@@ -229,12 +237,15 @@ class ColdLeadsController extends Controller
             $lead->save();
         }
 
-        $i->direct->sendText([
-            'users' => [
-                $receiver
-            ]
-        ], $message);
-
+        try {
+            $i->direct->sendText([
+                'users' => [
+                    $receiver
+                ]
+            ], $message);
+        } catch (\Exception $exception) {
+            dd($exception);
+        }
         return [true, $i->account_id, $message];
 
     }
