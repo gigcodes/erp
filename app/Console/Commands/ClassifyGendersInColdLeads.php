@@ -39,17 +39,21 @@ class ClassifyGendersInColdLeads extends Command
      */
     public function handle()
     {
-        $coldLeads = ColdLeads::where('is_gender_processed', 0)->take(5000)->get();
+        $coldLeads = ColdLeads::where('is_gender_processed', 0)->take(10000)->get();
 
         foreach ($coldLeads as $key=>$coldLead) {
             echo "$key \n";
             $coldLead->gender = 'm';
 
-            $gender = PeopleNames::whereRaw("INSTR('$coldLead->username', `name`) > 0")->orWhereRaw("INSTR('$coldLead->name', `name`) > 0")->where('name', '!=', '')->first();
-            if ($gender) {
-                $gender = $gender->gender;
-                $coldLead->gender = $gender;
+            try {
+                $gender = PeopleNames::whereRaw("INSTR('$coldLead->username', `name`) > 0")->orWhereRaw("INSTR('$coldLead->name', `name`) > 0")->where('name', '!=', '')->first();
+                if ($gender) {
+                    $gender = $gender->gender;
+                    $coldLead->gender = $gender;
+                }
+            } catch (\Exception $exception) {
             }
+
 
             $coldLead->is_gender_processed = 1;
             $coldLead->save();

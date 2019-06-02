@@ -33,6 +33,7 @@
                         <th>#Tag</th>
                         <th>Status</th>
                         <th>Comments Processed</th>
+                        <th>Action</th>
                     </tr>
                     @foreach($hashtags as $key=>$hashtag)
                         <tr>
@@ -40,6 +41,7 @@
                             <td>{{ $hashtag->text }}</td>
                             <td>{{ $hashtag->status ? 'On Progress' : 'Completed' }}</td>
                             <td>{{ $hashtag->comments()->count() ?? 0 }}</td>
+                            <th><a class="btn  btn-info btn-sm" href="{{action('AutoReplyHashtagsController@show', $hashtag->id)}}">Add Posts</a></th>
                         </tr>
                     @endforeach
                 </table>
@@ -69,10 +71,12 @@
                         <th>{{$key}}</th>
                         <th>#{{ $comment->hashtag->text }}</th>
                         <th>
+                            {{ $comment->caption }}
+                            <br>
                             <a href="https://instagram.com/p/{{$comment->post_code}}">Visit post</a>
                         </th>
-                        <th>{{$comment->account->last_name}}</th>
-                        <th>{{$comment->comment}}</th>
+                        <th>{{$comment->account->last_name ?? 'N/A'}}</th>
+                        <th>{{$comment->comment ?? 'N/A'}}</th>
                         <th>{{$comment->created_at->format('Y-m-d')}}</th>
                     </tr>
                 @endforeach

@@ -18,6 +18,20 @@
                         <div class="col-md-2">
                             <input v-on:keyup.13="search" v-model="query" type="text" name="query" class="form-control form-control-sm" placeholder="Search Query...">
                         </div>
+                        <div class="col-md-2">
+                            <select v-on:change="search" name="gender" id="gender" v-model="gender" class="form-control">
+                                <option value="All">All</option>
+                                <option value="m">m</option>
+                                <option value="f">f</option>
+                                <option value="o">o</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select v-on:change="search" class="form-control form-control-sm" name="acc" id="acc" v-model="acc">
+                                <option value="">All</option>
+                                <option v-for="(account, key) in accounts" :value="account.id" :key="key" v-text="account.last_name"></option>
+                            </select>
+                        </div>
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-right pb-2 mb-3 float-right">
                             <div v-if="paginationData.show" class="input-group mr-2 pull-right">
                                 <input v-on:keyup.13="getColdLeads()" v-model="paginationData.currentPage" type="text" value="" name="page_id" id="page_id" class="form-control form-control-sm" placeholder="Page #" style="width:50px !important;">
@@ -53,7 +67,7 @@
                     <th>S.N</th>
                     <th>Name</th>
                     <th>Basic Info</th>
-                    <th>Last Message</th>
+                    <th>Gender</th>
                     <th>Direct Messaging</th>
                     <th>Actions</th>
                 </tr>
@@ -75,17 +89,15 @@
                         <strong>Bio:</strong> {{ lead.bio}}
                     </td>
                     <td>
-                        N/A
+                        {{ lead.gender }}
                     </td>
                     <td>
-                        <div class="card" style="min-width: 600px; width: 100%;">
+                        <div :key="'chat_'+lead.id+'_'+Math.floor((Math.random() * 100))" class="card" style="min-width: 600px; width: 100%;">
                             <div class="card-header">
                                 <strong class="pull-left">Chat</strong>
                                 <div class="pull-right">
                                     <div class="form-group form-group-sm">
-                                        <select class="form-control form-control-sm" name="account_id" id="account_id" v-model="selectedAccounts[lead.id]">
-                                            <option v-for="(account, key) in accounts" :value="key" :key="key" v-text="account.last_name"></option>
-                                        </select>
+                                        <strong>{{ lead.account_id ? lead.account.last_name : 'N/A'}}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -163,6 +175,7 @@
         data: function() {
             return {
                 query: '',
+                gender: 'All',
                 pagination: 2,
                 leads: [],
                 accounts: [],
@@ -184,7 +197,8 @@
                 currentUploadingFileLead: null,
                 currentLeadId: null,
                 sender: null,
-                receivers: []
+                receivers: [],
+                acc: ''
             }
         },
         methods: {
@@ -199,7 +213,9 @@
                     params: {
                         query: this.query.length >= 4 ? this.query : '',
                         pagination: this.pagination,
-                        page: this.paginationData.currentPage
+                        page: this.paginationData.currentPage,
+                        gender: this.gender,
+                        acc: this.acc
                     }
                 }).then(function(response) {
                     self.accounts = response.data.accounts;
@@ -282,6 +298,7 @@
             },
             startLoadingDirectMessages() {
                 let self = this;
+                self.selectedAccounts = [];
                 self.leads.forEach(function(item) {
                     self.startLoadingForOneCustomer(item.id);
                 });
@@ -297,8 +314,10 @@
                             let AccId = self.allDirectMessages[id][0].account_id;
                             let x = 0;
                             self.accounts.forEach(function(acc) {
+                                console.log(id + ' => ' + AccId + ' VS ' + acc.id);
                                 if (acc.id == AccId) {
                                     self.selectedAccounts[id] = x;
+                                    self.$forceUpdate();
                                     return;
                                 }
                                 x++;

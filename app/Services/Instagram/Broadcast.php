@@ -97,7 +97,7 @@ class Broadcast {
             $m->message_type = 1;
             $m->save();
 
-            sleep(4);
+            sleep(5);
 
             ++$this->broadcast->messages_sent;
             $this->broadcast->save();
@@ -130,7 +130,7 @@ class Broadcast {
             $l = ColdLeads::where('id', $key)->first();
             ++$l->messages_sent;
             $l->save();
-            sleep(5);
+            sleep(10);
 
             unset($receipts[$key]);
         }

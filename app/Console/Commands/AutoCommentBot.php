@@ -59,9 +59,11 @@ class AutoCommentBot extends Command
 
         $commentCount = 0;
 
-        do {
+//        do {
 
-            [$posts, $cursor] = $hashtags->getFeed($hashtag->text, $cursor);
+//            [$posts, $cursor] = $hashtags->getFeed($hashtag->text, $cursor);
+
+        $posts = AutoCommentHistory::where('status', 1)->take(50)->first();
 
 
             foreach ($posts as $post) {
@@ -75,31 +77,24 @@ class AutoCommentBot extends Command
                     $this->accounts[$account->id] = $ig;
                 }
 
-                $this->accounts[$account->id]->media->comment($post['media_id'], $comment->comment);
+                $this->accounts[$account->id]->media->comment($post->post_id, $comment->comment);
 
-
-                $history = new AutoCommentHistory();
-                $history->account_id = $account->id;
-                $history->comment = $comment->comment;
-                $history->target = $hashtag->text;
-                $history->post_code = $post['code'];
-                $history->post_id = $post['media_id'];
-                $history->auto_reply_hashtag_id = $hashtag->id;
-                $history->save();
+                $post->status = 0;
+                $post->save();
 
 
                 sleep(5);
             }
 
-            $counter++;
+//            $counter++;
 
 
 
 
-        } while($cursor != 'END' && $counter <=50);
+//        } while($cursor != 'END' && $counter <=50);
 
-        $hashtag->status = 0;
-        $hashtag->save();
+//        $hashtag->status = 0;
+//        $hashtag->save();
 
     }
 }
