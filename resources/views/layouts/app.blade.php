@@ -10,7 +10,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-
+    <title>@yield ('title', 'ERP Sololuxury')</title>
 
     <!-- CSRF Token -->
 
