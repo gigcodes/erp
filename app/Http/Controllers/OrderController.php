@@ -652,6 +652,8 @@ class OrderController extends Controller {
 			return response()->json(['order' => $order]);
 		}
 
+		return $order;
+
 		return redirect()->route( 'order.index' )
 		                 ->with( 'message', 'Order created successfully' );
 	}
@@ -1065,13 +1067,14 @@ class OrderController extends Controller {
 			'images'	=> 'required'
 		]);
 
-		if ($delivery_approval = Order::find($id)->delivery_approval) {
-
-		} else {
-			$delivery_approval = new DeliveryApproval;
-			$delivery_approval->order_id = $id;
-			$delivery_approval->save();
-		}
+		$delivery_approval = Order::find($id)->delivery_approval;
+		// if () {
+		//
+		// } else {
+		// 	$delivery_approval = new DeliveryApproval;
+		// 	$delivery_approval->order_id = $id;
+		// 	$delivery_approval->save();
+		// }
 
 		if ($request->hasfile('images')) {
 			foreach ($request->file('images') as $image) {

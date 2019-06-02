@@ -9,13 +9,21 @@ use App\Product;
 use App\PrivateView;
 use App\StatusChange;
 use App\Helpers;
+use App\Customer;
 use App\User;
+use App\ChatMessage;
+use App\DeliveryApproval;
 use Auth;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class StockController extends Controller
 {
+
+    public function __construct() {
+      $this->middleware('permission:private-viewing', ['only' => ['privateViewing', 'privateViewingStore', 'privateViewingUpload', 'privateViewingUpdateStatus', 'updateOfficeBoy', 'privateViewingDestroy']]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -162,22 +170,57 @@ class StockController extends Controller
       return redirect()->route('stock.show', $id)->with('success', 'You have successfully updated stock!');
     }
 
-    public function privateViewing()
+    public function privateViewing(Request $request)
     {
-      $private_views = PrivateView::paginate(Setting::get('pagination'));
+      $selected_customer = $request->customer_id ?? '';
+      $type = $request->type ?? '';
+
+      if ($selected_customer != '') {
+        $private_views = PrivateView::where('customer_id', $selected_customer);
+      }
+
+      if ($type != '') {
+        if ($selected_customer != '') {
+          if ($type != 'no_boy') {
+            $private_views = $private_views->where('status', $type);
+          } else {
+            $private_views = $private_views->whereNull('assigned_user_id');
+          }
+        } else {
+          if ($type != 'no_boy') {
+            $private_views = PrivateView::where('status', $type);
+          } else {
+            $private_views = PrivateView::whereNull('assigned_user_id');
+          }
+        }
+      }
+
+      if ($selected_customer == '' && $type == '') {
+        $private_views = (new PrivateView)->newQuery();
+      }
+
+      $private_views = $private_views->paginate(Setting::get('pagination'));
+
       $users_array = Helpers::getUserArray(User::all());
+      $customers_all = Customer::all();
+      $office_boys = User::role('Office Boy')->get();
 
       return view('instock.private-viewing', [
         'private_views' => $private_views,
-        'users_array'   => $users_array
+        'users_array'   => $users_array,
+        'customers_all' => $customers_all,
+        'selected_customer'      => $selected_customer,
+        'office_boys'   => $office_boys,
+        'type'   => $type,
       ]);
     }
 
     public function privateViewingStore(Request $request)
     {
       $products = json_decode($request->products);
+      $product_information = '';
 
-      foreach ($products as $product_id) {
+      foreach ($products as $key => $product_id) {
         $private_view = new PrivateView;
         $private_view->customer_id = $request->customer_id;
         $private_view->date = $request->date;
@@ -186,9 +229,57 @@ class StockController extends Controller
         $private_view->products()->attach($product_id);
 
         $product = Product::find($product_id);
-        $product->supplier = '';
-        $product->save();
+        // $product->supplier = '';
+        // $product->save();
+        if ($key == 0) {
+          $product_information .= "$product->name - Size $product->size - $product->color";
+        } else {
+          $product_information .= ", $product->name - Size $product->size - $product->color";
+        }
       }
+
+      $params = [
+        'number'    => NULL,
+        'user_id'   => Auth::id(),
+        'message'   => "New Request for Private Viewing: $product_information",
+        'approved'  => 0,
+        'status'    => 1
+      ];
+
+      $coordinators = User::role('Delivery Coordinator')->get();
+
+      foreach ($coordinators as $coordinator) {
+        $params['erp_user'] = $coordinator->id;
+        $chat_message = ChatMessage::create($params);
+
+        $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+  			if ($whatsapp_number == '919152731483') {
+  				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+  			} else {
+  				app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($coordinator->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+  			}
+
+        $chat_message->update([
+          'approved' => 1,
+          'status'   => 2
+        ]);
+      }
+
+      $chat_message = ChatMessage::create($params);
+
+      $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
+
+			if ($whatsapp_number == '919152731483') {
+				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
+			} else {
+				app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp('37067501865', $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			}
+
+      $chat_message->update([
+        'approved' => 1,
+        'status'   => 2
+      ]);
 
       return redirect()->route('customer.show', $request->customer_id)->with('success', 'You have successfully added products for private viewing!');
     }
@@ -214,6 +305,8 @@ class StockController extends Controller
     public function privateViewingUpdateStatus(Request $request, $id)
     {
       $private_view = PrivateView::find($id);
+      $private_view->status = $request->status;
+      $private_view->save();
 
       StatusChange::create([
         'model_id'    => $private_view->id,
@@ -223,15 +316,61 @@ class StockController extends Controller
         'to_status'   => $request->status
       ]);
 
-      $private_view->status = $request->status;
-      $private_view->save();
+      if ($private_view->delivery_approval) {
+        $private_view->delivery_approval->status = $request->status;
+        $private_view->delivery_approval->save();
+
+        StatusChange::create([
+          'model_id'    => $private_view->delivery_approval->id,
+          'model_type'  => DeliveryApproval::class,
+          'user_id'     => Auth::id(),
+          'from_status' => $private_view->delivery_approval->status,
+          'to_status'   => $request->status
+        ]);
+      }
 
       if ($request->status == 'delivered') {
         $private_view->products[0]->supplier = '';
         $private_view->products[0]->save();
       } elseif ($request->status == 'returned') {
-        // $private_view->products[0]->supplier = '';
+        $private_view->products[0]->supplier = 'In-stock';
+        $private_view->products[0]->save();
       }
+
+      return response('success');
+    }
+
+    public function updateOfficeBoy(Request $request, $id)
+    {
+      $private_view = PrivateView::find($id);
+      $private_view->assigned_user_id = $request->assigned_user_id;
+      $private_view->save();
+
+      $product_ids = [];
+
+      foreach ($private_view->products as $product) {
+        $product_ids[] = $product->id;
+      }
+
+      $requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add([
+        'customer_id'       => $private_view->customer_id,
+        'order_type'        => "offline",
+        'convert_order'     => 'convert_order',
+        'selected_product'  => $product_ids,
+        'order_status'      => "Follow up for advance"
+      ]);
+
+			$order = app('App\Http\Controllers\OrderController')->store($requestData);
+
+      $delivery_approval = new DeliveryApproval;
+      $delivery_approval->order_id = $order->id;
+      $delivery_approval->private_view_id = $private_view->id;
+      $delivery_approval->assigned_user_id = $request->assigned_user_id;
+      $delivery_approval->status = $private_view->status;
+      $delivery_approval->date = $private_view->date;
+      $delivery_approval->save();
 
       return response('success');
     }

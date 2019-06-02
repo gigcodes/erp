@@ -362,7 +362,7 @@ class CustomerController extends Controller
         }
 
         $start_time = $request->range_start ?  "$request->range_start 00:00" : '';
-    		$end_time = $request->end_time ?  "$request->end_time 23:59" : '';
+    		$end_time = $request->range_end ?  "$request->range_end 23:59" : '';
 
         if ($start_time != '' && $end_time != '') {
           $filterWhereClause = " WHERE last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
@@ -377,7 +377,7 @@ class CustomerController extends Controller
           // $messageWhereClause = " WHERE chat_messages.status = $type";
 
           if ($start_time != '' && $end_time != '') {
-            $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = CASE WHEN";
+            $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
           }
         } else if ($sortby === 'communication') {
           $join = "LEFT";

@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\CronJobReport;
+use App\PrivateView;
+use App\ChatMessage;
+use App\User;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+
+class SendDeliveryDetails extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'send:delivery-details';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
+      $params = [
+        'number'    => NULL,
+        'user_id'   => 6,
+        'approved'  => 0,
+        'status'    => 1
+      ];
+
+      $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
+      $private_views = PrivateView::where('date', 'LIKE', "%$tomorrow%")->get();
+      $coordinators = User::role('Delivery Coordinator')->get();
+
+      foreach ($private_views as $private_view) {
+        dump('Private Viewing');
+
+        $product_information = '';
+
+        foreach ($private_view->products as $key => $product) {
+          if ($key == 0) {
+            $product_information .= "$product->name - Size $product->size - $product->color";
+          } else {
+            $product_information .= ", $product->name - Size $product->size - $product->color";
+          }
+        }
+
+        $address = $private_view->customer->address . ", " . $private_view->customer->pincode . ", " . $private_view->customer->city;
+        $params['message'] = "Details for Private Viewing: Customer - " . $private_view->customer->name . ", Phone: " . $private_view->customer->phone . ", Address: $address" . "; Products $product_information";
+
+        foreach ($coordinators as $coordinator) {
+          dump('Sending Message to Coordinator ' . $coordinator->name);
+          $params['erp_user'] = $coordinator->id;
+          $chat_message = ChatMessage::create($params);
+
+          $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+         if ($whatsapp_number == '919152731483') {
+           app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+         } else {
+           app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($coordinator->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+         }
+
+          $chat_message->update([
+            'approved' => 1,
+            'status'   => 2
+          ]);
+        }
+      }
+
+      $report->update(['end_time' => Carbon:: now()]);
+    }
+}

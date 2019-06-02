@@ -158,10 +158,6 @@
                   @php
                     $count++;
                   @endphp
-                @else
-                  <div class="col-md-4">
-                    <h4>Updated as of - Yesterday</h4>
-                  </div>
                 @endif
               @endforeach
 
