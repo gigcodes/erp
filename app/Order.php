@@ -41,7 +41,7 @@ class Order extends Model {
 		'is_priority'
 	];
 
-	protected $appends = ['communication', 'action'];
+	protected $appends = ['action'];
 	// protected $communication = '';
 	// protected $action = '';
 
@@ -132,25 +132,25 @@ class Order extends Model {
 		return $count > 0 ? TRUE : FALSE;
 	}
 
-	public function getCommunicationAttribute()
-	{
-		$message = $this->messages();
-		$whatsapp = $this->whatsapps();
-
-		if ($message && $whatsapp) {
-			if ($message->created_at > $whatsapp->created_at) {
-				return $message;
-			}
-
-			return $whatsapp;
-		}
-
-		if ($message) {
-			return $message;
-		}
-
-		return $whatsapp;
-	}
+	// public function getCommunicationAttribute()
+	// {
+	// 	$message = $this->messages();
+	// 	$whatsapp = $this->whatsapps();
+	//
+	// 	if ($message && $whatsapp) {
+	// 		if ($message->created_at > $whatsapp->created_at) {
+	// 			return $message;
+	// 		}
+	//
+	// 		return $whatsapp;
+	// 	}
+	//
+	// 	if ($message) {
+	// 		return $message;
+	// 	}
+	//
+	// 	return $whatsapp;
+	// }
 
 	public function getActionAttribute()
 	{

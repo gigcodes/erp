@@ -69,11 +69,15 @@ class OrderController extends Controller {
 	public function index(Request $request) {
 
 		$term = $request->input('term');
+		$order_status = $request->status ?? '';
+		$date = $request->date ?? '';
 
 		if($request->input('orderby') == '')
-				$orderby = 'asc';
+				$orderby = 'DESC';
 		else
-				$orderby = 'desc';
+				$orderby = 'ASC';
+
+				// dd($orderby);
 
 		switch ($request->input('sortby')) {
 			case 'type':
@@ -91,6 +95,12 @@ class OrderController extends Controller {
 			case 'status':
 					 $sortby = 'order_status';
 					break;
+			case 'advance':
+					 $sortby = 'advance_detail';
+					break;
+			case 'balance':
+					 $sortby = 'balance_amount';
+					break;
 			case 'action':
 					 $sortby = 'action';
 					break;
@@ -101,14 +111,12 @@ class OrderController extends Controller {
 					 $sortby = 'communication';
 					break;
 			default :
-					 $sortby = 'communication';
+					 $sortby = 'order_date';
 		}
 
 		$orders = (new Order())->newQuery()->with('customer');
 
-		if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
-			$orders = $orders->orderBy( $sortby, $orderby );
-		}
+
 
 		if(empty($term))
 			$orders = $orders;
@@ -126,63 +134,78 @@ class OrderController extends Controller {
 			               ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
 
+		if ($order_status != '') {
+			$orders = $orders->where('order_status', $order_status);
+		}
+
+		if ($date != '') {
+			$orders = $orders->where('order_date', $date);
+		}
+
 
 
 		$users  = Helpers::getUserArray( User::all() );
+		$order_status_list = (new OrderStatus)->all();
 
-		$orders_array = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
-
-		if ($sortby == 'communication') {
-			if ($orderby == 'asc') {
-				$orders_array = array_values(array_sort($orders_array, function ($value) {
-						return $value['communication']['created_at'];
-				}));
-
-				$orders_array = array_reverse($orders_array);
-			} else {
-				$orders_array = array_values(array_sort($orders_array, function ($value) {
-						return $value['communication']['created_at'];
-				}));
-			}
+		if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
+			$orders = $orders->orderBy('is_priority', 'DESC')->orderBy($sortby, $orderby);
+		} else {
+			$orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
 		}
 
-		if ($sortby == 'action') {
-			if ($orderby == 'asc') {
-				$orders_array = array_values(array_sort($orders_array, function ($value) {
-						return $value['action']['status'];
-				}));
+		$orders_array = $orders->paginate(Setting::get('pagination'));
 
-				$orders_array = array_reverse($orders_array);
-			} else {
-				$orders_array = array_values(array_sort($orders_array, function ($value) {
-						return $value['action']['status'];
-				}));
-			}
-		}
+		// if ($sortby == 'communication') {
+		// 	if ($orderby == 'asc') {
+		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
+		// 				return $value['communication']['created_at'];
+		// 		}));
+		//
+		// 		$orders_array = array_reverse($orders_array);
+		// 	} else {
+		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
+		// 				return $value['communication']['created_at'];
+		// 		}));
+		// 	}
+		// }
 
-		if ($sortby == 'due') {
-			if ($orderby == 'asc') {
-				$orders_array = array_values(array_sort($orders_array, function ($value) {
-						return $value['action']['completion_date'];
-				}));
+		// if ($sortby == 'action') {
+		// 	if ($orderby == 'asc') {
+		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
+		// 				return $value['action']['status'];
+		// 		}));
+		//
+		// 		$orders_array = array_reverse($orders_array);
+		// 	} else {
+		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
+		// 				return $value['action']['status'];
+		// 		}));
+		// 	}
+		// }
+		//
+		// if ($sortby == 'due') {
+		// 	if ($orderby == 'asc') {
+		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
+		// 				return $value['action']['completion_date'];
+		// 		}));
+		//
+		// 		$orders_array = array_reverse($orders_array);
+		// 	} else {
+		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
+		// 				return $value['action']['completion_date'];
+		// 		}));
+		// 	}
+		// }
 
-				$orders_array = array_reverse($orders_array);
-			} else {
-				$orders_array = array_values(array_sort($orders_array, function ($value) {
-						return $value['action']['completion_date'];
-				}));
-			}
-		}
+		// $currentPage = LengthAwarePaginator::resolveCurrentPage();
+		// $perPage = 10;
+		// $currentItems = array_slice($orders_array, $perPage * ($currentPage - 1), $perPage);
+		//
+		// $orders_array = new LengthAwarePaginator($currentItems, count($orders_array), $perPage, $currentPage, [
+		// 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
+		// ]);
 
-		$currentPage = LengthAwarePaginator::resolveCurrentPage();
-		$perPage = 10;
-		$currentItems = array_slice($orders_array, $perPage * ($currentPage - 1), $perPage);
-
-		$orders_array = new LengthAwarePaginator($currentItems, count($orders_array), $perPage, $currentPage, [
-			'path'	=> LengthAwarePaginator::resolveCurrentPath()
-		]);
-
-		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby' ) );
+		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date' ) );
 	}
 
 	public function products(Request $request)
