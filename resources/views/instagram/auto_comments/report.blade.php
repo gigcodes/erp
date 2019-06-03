@@ -73,7 +73,7 @@
                         <th>
                             {{ $comment->caption }}
                             <br>
-                            <a href="https://instagram.com/p/{{$comment->post_code}}">Visit post</a>
+                            <a target="_new" href="https://instagram.com/p/{{$comment->post_code}}">Visit post</a>
                         </th>
                         <th>{{$comment->account->last_name ?? 'N/A'}}</th>
                         <th>{{$comment->comment ?? 'N/A'}}</th>
