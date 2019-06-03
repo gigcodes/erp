@@ -63,7 +63,7 @@ class AutoCommentBot extends Command
 
 //            [$posts, $cursor] = $hashtags->getFeed($hashtag->text, $cursor);
 
-        $posts = AutoCommentHistory::where('status', 1)->take(50)->first();
+        $posts = AutoCommentHistory::where('status', 1)->take(50)->get();
 
 
             foreach ($posts as $post) {
@@ -79,6 +79,8 @@ class AutoCommentBot extends Command
                 $this->accounts[$account->id]->media->comment($post->post_id, $comment->comment);
 
                 $post->status = 0;
+                $post->account_id = $account->id;
+                $post->comment = $comment->comment;
                 $post->save();
 
 

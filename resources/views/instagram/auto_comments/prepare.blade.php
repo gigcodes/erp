@@ -82,11 +82,11 @@
                     @endforeach
                 </table>
             </div>
-        </form>
 
-        <div class="col-md-12">
-            <button class="btn btn-info">Attach Posts To Auto-Comment</button>
-        </div>
+            <div class="col-md-12">
+                <button class="btn btn-info">Attach Posts To Auto-Comment</button>
+            </div>
+        </form>
 
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')
