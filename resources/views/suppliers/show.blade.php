@@ -52,12 +52,32 @@
     <li>
       <a href="#email-tab" data-toggle="tab" data-supplierid="{{ $supplier->id }}" data-type="inbox">Emails</a>
     </li>
+    <li>
+      <a href="#brands-tab" data-toggle="tab" data-supplierid="{{ $supplier->id }}" data-type="inbox">Brands</a>
+    </li>
   </ul>
 </div>
 
 <div class="row">
   <div class="col-xs-12 col-md-4 border">
     <div class="tab-content">
+      <div class="tab-pane mt-3" id="brands-tab">
+        <h2 class="page-heading">Brands</h2>
+        @if(strlen($supplier->brands) > 4)
+          @php
+            $dns = $supplier->brands;
+            $dns = str_replace('"[', '', $dns);
+            $dns = str_replace(']"', '', $dns);
+            $dns = explode(',', $dns);
+          @endphp
+
+          @foreach($dns as $dn)
+            <li>{{ $dn }}</li>
+          @endforeach
+        @else
+          N/A
+        @endif
+      </div>
       <div class="tab-pane active mt-3" id="info-tab">
         <div class="row">
           <div class="col-xs-12">

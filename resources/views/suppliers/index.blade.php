@@ -50,6 +50,8 @@
             <th width="5%">ID</th>
             <th width="15%">Name</th>
             <th width="15%">Address</th>
+              <th>Source</th>
+              <th>Designers</th>
             <th width="10%">Social handle</th>
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
@@ -84,6 +86,23 @@
                 </span>
               </td>
               <td>{{ $supplier->address }}</td>
+                <td>{{ $supplier->source }}</td>
+                <td>
+                    @if(strlen($supplier->brands) > 4)
+                        @php
+                            $dns = $supplier->brands;
+                            $dns = str_replace('"[', '', $dns);
+                            $dns = str_replace(']"', '', $dns);
+                            $dns = explode(',', $dns);
+                        @endphp
+
+                        @foreach($dns as $dn)
+                            <li>{{ $dn }}</li>
+                        @endforeach
+                    @else
+                        N/A
+                    @endif
+                </td>
               <td style="word-break: break-all;">{{ $supplier->social_handle }}</td>
               {{-- <td>
                 @if ($supplier->agents)
