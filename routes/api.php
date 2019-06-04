@@ -27,3 +27,4 @@ Route::post('save-product-images', 'ScrapController@saveImagesToProducts');
 Route::post('save-supplier', 'ScrapController@saveSupplier');
 Route::get('hashtags', 'HashtagController@sendHashtagsApi');
 Route::get('crop', 'ProductController@giveImage');
+Route::post('link/image-crop', 'ProductController@saveImage');

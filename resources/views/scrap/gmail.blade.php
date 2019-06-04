@@ -10,6 +10,9 @@
                 <tr>
                     <th>SN</th>
                     <th>Page Url</th>
+                    <th>Sender</th>
+                    <th>Date Sent</th>
+                    <th>Date Sent</th>
                     <th>Images</th>
                     <th>tags</th>
                 </tr>

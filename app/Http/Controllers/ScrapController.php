@@ -204,6 +204,17 @@ class ScrapController extends Controller
             }
         }
 
+//        foreach ($suppliers as $supplier) {
+//            $products = DB::table('scraped_products')
+//                ->groupBy(['website', 'brand_id'])
+//                ->selectRaw('COUNT(*), brand_id, website')
+////                ->where('website', $supplier)
+//                ->get()
+//            ;
+////        }
+
+//        dd($products);
+
         return view('scrap.scraped_product_data', compact('products', 'request'));
 
 

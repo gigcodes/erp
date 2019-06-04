@@ -819,4 +819,21 @@ class ProductController extends Controller {
         ]);
 
     }
+
+    public function saveImage(Request $request) {
+        $product = Product::findOrFail($request->get('product_id'));
+
+
+        $image = $request->file('file');
+
+        $media = MediaUploader::fromSource($image)->upload();
+        $product->attachMedia($media, config('constants.media_tags'));
+        $product->is_image_processed = 1;
+        $product->save();
+
+
+	    return response()->json([
+	        'status' => 'success'
+        ]);
+    }
 }
