@@ -1195,3 +1195,34 @@ form.display-inline{
   border: 2px solid green;
   transition: 1s ease-in-out;
 }
+
+.remove-screenshot {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.floating-arrows {
+  position: fixed;
+  z-index: 9;
+  top: 50%;
+}
+
+.floating-arrows.left {
+  left: 20px;
+}
+
+.floating-arrows.right {
+  right: 20px;
+}
+
+#message-wrapper {
+  height: 450px;
+  overflow-y: scroll;
+}
+
+.show-images-wrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}

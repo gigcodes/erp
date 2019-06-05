@@ -49,6 +49,11 @@ class Task extends Model {
 		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
 	}
 
+	public function notes()
+	{
+		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note')->latest();
+	}
+
 	public function users()
 	{
 		return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');

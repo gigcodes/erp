@@ -84,7 +84,7 @@ class TaskModuleController extends Controller {
                  ON tasks.id = chat_messages.task_id
 
                ) AS tasks
-               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
+               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
                ORDER BY last_communicated_at DESC;
 						');
 
@@ -151,7 +151,7 @@ class TaskModuleController extends Controller {
                   ON tasks.id = chat_messages.task_id
 
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 0 AND is_completed IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
                 ORDER BY last_communicated_at DESC;
  						');
 
@@ -281,26 +281,26 @@ class TaskModuleController extends Controller {
 //			$data['task']['statutory_completed_ids'][] =  $item['statutory_id'];
 
 
-		$data['task']['deleted']   = Task::onlyTrashed()
-		                                ->where( 'is_statutory', '=', 0 )
-										->where( function ($query ) use ($userid) {
-											return $query->orWhere( 'assign_from', '=', $userid )
-											             ->orWhere( 'assign_to', '=', $userid );
-										});
-
-		if ($request->category != '') {
-			$data['task']['deleted'] = $data['task']['deleted']->where('category', $request->category);
-		}
-
-		if ($request->term != '') {
-			$data['task']['deleted'] = $data['task']['deleted']->where(function ($query) use ($term) {
-				$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-							->orWhere('id', 'LIKE', "%$term%")
-							->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-			});
-		}
-
-   $data['task']['deleted'] = $data['task']['deleted']->get()->toArray();
+		// $data['task']['deleted']   = Task::onlyTrashed()
+		//                                 ->where( 'is_statutory', '=', 0 )
+		// 								->where( function ($query ) use ($userid) {
+		// 									return $query->orWhere( 'assign_from', '=', $userid )
+		// 									             ->orWhere( 'assign_to', '=', $userid );
+		// 								});
+	 //
+		// if ($request->category != '') {
+		// 	$data['task']['deleted'] = $data['task']['deleted']->where('category', $request->category);
+		// }
+	 //
+		// if ($request->term != '') {
+		// 	$data['task']['deleted'] = $data['task']['deleted']->where(function ($query) use ($term) {
+		// 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
+		// 					->orWhere('id', 'LIKE', "%$term%")
+		// 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
+		// 	});
+		// }
+	 //
+   // $data['task']['deleted'] = $data['task']['deleted']->get()->toArray();
 
 																	//  $tasks_query = Task::where('is_statutory', 0)
 															 		// 												->where('assign_to', Auth::id());
@@ -335,7 +335,7 @@ class TaskModuleController extends Controller {
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_details'	=> 'required',
-			'assign_to'		=> 'required_without:assign_to_contacts'
+			'assign_to'			=> 'required_without:assign_to_contacts'
 		]);
 
 		$data                = $request->except( '_token' );
@@ -348,18 +348,33 @@ class TaskModuleController extends Controller {
 			$data['model_id'] = $request->model_id;
 		}
 
-		// dd($request->all());
+		if ($request->task_type == 'note-task') {
+			$main_task = Task::find($request->task_id);
 
-		// foreach ($request->assign_to as $assign_to) {
+
+		} else {
 			if ($request->assign_to) {
 				$data['assign_to'] = $request->assign_to[0];
 			} else {
 				$data['assign_to'] = $request->assign_to_contacts[0];
 			}
+		}
 
-			if($data['is_statutory'] == 0) {
-				$task = Task::create($data);
+			$task = Task::create($data);
+			// dd($request->all());
+			if ($request->is_statutory == 3) {
+				foreach ($request->note as $note) {
+					if ($note != null) {
+						Remark::create([
+							'taskid'	=> $task->id,
+							'remark'	=> $note,
+							'module_type'	=> 'task-note'
+						]);
+					}
+				}
+			}
 
+			if ($request->task_type != 'note-task') {
 				if ($request->assign_to) {
 					foreach ($request->assign_to as $user_id) {
 						$task->users()->attach([$user_id => ['type' => User::class]]);
@@ -371,178 +386,42 @@ class TaskModuleController extends Controller {
 						$task->users()->attach([$contact_id => ['type' => Contact::class]]);
 					}
 				}
-
-				$params = [
-					 'number'       => NULL,
-					 'user_id'      => Auth::id(),
-					 'approved'     => 1,
-					 'status'       => 2,
-					 'task_id'			=> $task->id,
-					 'message'      => "#" . $task->id . ". " . $task->task_details
-				 ];
-
-         if (count($task->users) > 0) {
-           if ($task->assign_from == Auth::id()) {
-             $params['erp_user'] = $task->assign_to;
-           } else {
-             $params['erp_user'] = $task->assign_from;
-           }
-         }
-
-         if (count($task->contacts) > 0) {
-           if ($task->assign_from == Auth::id()) {
-             $params['contact_id'] = $task->assign_to;
-           } else {
-             $params['contact_id'] = $task->assign_from;
-           }
-         }
-
-				$chat_message = ChatMessage::create($params);
-
-				$myRequest = new Request();
-        $myRequest->setMethod('POST');
-        $myRequest->request->add(['messageId' => $chat_message->id]);
-
-        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
-
-				// PushNotification::create( [
-				// 	'type'       => 'button',
-				// 	'message'    => 'Task Details: ' . $data['task_details'],
-				// 	'model_type' => Task::class,
-				// 	'model_id'   => $task->id,
-				// 	'user_id'    => Auth::id(),
-				// 	'sent_to'    => $assign_to,
-				// 	'role'       => '',
-				// ] );
-				//
-				// PushNotification::create( [
-				// 	'message'    => 'Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($assign_to),
-				// 	'model_type' => Task::class,
-				// 	'model_id'   => $task->id,
-				// 	'user_id'    => Auth::id(),
-				// 	'sent_to'    => '',
-				// 	'role'       => 'Admin',
-				// ] );
-
-				// NotificationQueueController::createNewNotification( [
-				// 	'message'    => 'Reminder for Task : ' . $data['task_details'],
-				// 	'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-				// 	'reminder'	 => 1,
-				// 	'model_type' => Task::class,
-				// 	'model_id'   => $task->id,
-				// 	'user_id'    => \Auth::id(),
-				// 	'sent_to'    => $request->input( 'assign_to' ),
-				// 	'role'       => '',
-				// ] );
-
-				// $diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
-
-				// NotificationQueueController::createNewNotification( [
-				// 	'message'    => 'Reminder for Task : ' . $data['task_details'],
-				// 	// 'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
-				// 	// 'reminder'	 => 1,
-				// 	'timestamps' => ['+0 minutes'],
-				// 	'model_type' => Task::class,
-				// 	'model_id'   => $task->id,
-				// 	'user_id'    => \Auth::id(),
-				// 	'sent_to'    => $assign_to,
-				// 	'role'       => '',
-				// ] );
 			}
-			else {
-				// $task = SatutoryTask::create($data);
 
-				$task = Task::create($data);
 
-				if ($request->assign_to) {
-					foreach ($request->assign_to as $user_id) {
-						$task->users()->attach([$user_id => ['type' => User::class]]);
-					}
-				}
+			$params = [
+			 'number'       => NULL,
+			 'user_id'      => Auth::id(),
+			 'approved'     => 1,
+			 'status'       => 2,
+			 'task_id'			=> $task->id,
+			 'message'      => "#" . $task->id . ". " . $task->task_details
+		 ];
 
-				if ($request->assign_to_contacts) {
-					foreach ($request->assign_to_contacts as $contact_id) {
-						$task->users()->attach([$contact_id => ['type' => Contact::class]]);
-					}
-				}
+	   if (count($task->users) > 0) {
+	     if ($task->assign_from == Auth::id()) {
+	       $params['erp_user'] = $task->assign_to;
+	     } else {
+	       $params['erp_user'] = $task->assign_from;
+	     }
+	   }
 
-				$params = [
-					 'number'       => NULL,
-					 'user_id'      => Auth::id(),
-					 'approved'     => 1,
-					 'status'       => 2,
-					 'task_id'			=> $task->id,
-					 'message'      => "#" . $task->id . ". " . $task->task_details
-				 ];
+	   if (count($task->contacts) > 0) {
+	     if ($task->assign_from == Auth::id()) {
+	       $params['contact_id'] = $task->assign_to;
+	     } else {
+	       $params['contact_id'] = $task->assign_from;
+	     }
+	   }
 
-         if (count($task->users) > 0) {
-           if ($task->assign_from == Auth::id()) {
-             $params['erp_user'] = $task->assign_to;
-           } else {
-             $params['erp_user'] = $task->assign_from;
-           }
-         }
+			$chat_message = ChatMessage::create($params);
 
-         if (count($task->contacts) > 0) {
-           if ($task->assign_from == Auth::id()) {
-             $params['contact_id'] = $task->assign_to;
-           } else {
-             $params['contact_id'] = $task->assign_from;
-           }
-         }
+			$myRequest = new Request();
+      $myRequest->setMethod('POST');
+      $myRequest->request->add(['messageId' => $chat_message->id]);
 
-				$chat_message = ChatMessage::create($params);
+      // app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 
-				$myRequest = new Request();
-        $myRequest->setMethod('POST');
-        $myRequest->request->add(['messageId' => $chat_message->id]);
-
-        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
-
-				// PushNotification::create( [
-				// 	'message'    => 'Recurring Task Assigned: ' . $data['task_details'],
-				// 	'model_type' => Task::class,
-				// 	'model_id'   => $task->id,
-				// 	'user_id'    => Auth::id(),
-				// 	'sent_to'    => $assign_to,
-				// 	'role'       => '',
-				// ] );
-				//
-				// PushNotification::create( [
-				// 	'message'    => 'Recurring Task Created: ' . $data['task_details'] . ' for ' . Helpers::getUserNameById($assign_to),
-				// 	'model_type' => Task::class,
-				// 	'model_id'   => $task->id,
-				// 	'user_id'    => Auth::id(),
-				// 	'sent_to'    => '',
-				// 	'role'       => 'Admin',
-				// ] );
-
-				// NotificationQueueController::createNewNotification( [
-				// 	'message'    => 'Reminder for Recurring Task : ' . $data['task_details'],
-				// 	'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-				// 	'reminder'	 => 1,
-				// 	'model_type' => Task::class,
-				// 	'model_id'   => $task->id,
-				// 	'user_id'    => \Auth::id(),
-				// 	'sent_to'    => $request->input( 'assign_to' ),
-				// 	'role'       => '',
-				// ] );
-
-				// $diff = Carbon::parse($request->completion_date)->diffInMinutes(Carbon::now());
-
-				// NotificationQueueController::createNewNotification( [
-				// 	'message'    => 'Reminder for Task : ' . $data['task_details'],
-				// 	// 'timestamps' => ['+'.$diff.'minutes', '+'. $diff + 60 .'minutes', '+'. $diff + 120 .'minutes', '+'.$diff + 180 .'minutes', '+'.$diff + 240 .'minutes', ],
-				// 	// 'reminder'	 => 1,
-				// 	'timestamps' => ['+0 minutes'],
-				// 	'model_type' => Task::class,
-				// 	'model_id'   => $task->id,
-				// 	'user_id'    => \Auth::id(),
-				// 	'sent_to'    => $assign_to,
-				// 	'role'       => '',
-				// ] );
-			}
-		// }
 
 		if ($request->ajax()) {
 			return response('success');
@@ -690,14 +569,37 @@ class TaskModuleController extends Controller {
 		$tasks = Task::where('category', $task->category)->where('assign_from', $task->assign_from)->where('is_statutory', $task->is_statutory)->where('task_details', $task->task_details)->where('task_subject', $task->task_subject)->get();
 
 		foreach ($tasks as $item) {
-			$item->is_completed = date( 'Y-m-d H:i:s' );
+			if ($request->type == 'complete') {
+				if ($item->is_completed == '') {
+					$item->is_completed = date( 'Y-m-d H:i:s' );
+				} else if ($item->is_verified == '') {
+					$item->is_verified = date( 'Y-m-d H:i:s' );
+				}
+			} else if ($request->type == 'clear') {
+				$item->is_completed = NULL;
+				$item->is_verified = NULL;
+			}
+
 			$item->save();
 		}
 
-		if($task->is_statutory == 0)
-			$message = 'Task Completed: ' . $task->task_details;
-		else
-			$message = 'Recurring Task Completed: ' . $task->task_details;
+		if ($request->type == 'complete') {
+			if ($task->is_completed == '') {
+				$task->is_completed = date( 'Y-m-d H:i:s' );
+			} else if ($task->is_verified == '') {
+				$task->is_verified = date( 'Y-m-d H:i:s' );
+			}
+		} else if ($request->type == 'clear') {
+			$item->is_completed = NULL;
+			$item->is_verified = NULL;
+		}
+
+		$task->save();
+
+		// if($task->is_statutory == 0)
+		// 	$message = 'Task Completed: ' . $task->task_details;
+		// else
+		// 	$message = 'Recurring Task Completed: ' . $task->task_details;
 
 		// PushNotification::create( [
 		// 	'message'    => $message,
@@ -720,7 +622,9 @@ class TaskModuleController extends Controller {
 		// $notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\Task')->delete();
 
 		if ($request->ajax()) {
-			return response('success');
+			return response()->json([
+				'task'	=> $task
+			]);
 		}
 
 		return redirect()->back()

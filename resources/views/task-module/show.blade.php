@@ -136,6 +136,7 @@
                           <option value="0">Other Task</option>
                           <option value="1">Statutory Task</option>
                           <option value="2">Calendar Task</option>
+                          <option value="3">Appointment Task</option>
                         </select>
                       </div>
 
@@ -212,6 +213,18 @@
 
                         <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="/images/add.png" /></button>
                       </div>
+                    </div>
+
+                    <div class="col-xs-4" style="display: none;" id="appointment-container">
+                      <div class="form-group">
+                        <input type="text" class="form-control input-sm" name="note[]" placeholder="Note" value="">
+                      </div>
+
+                      <div id="note-container">
+
+                      </div>
+
+                      <button type="button" class="btn btn-xs btn-secondary" id="addNoteButton">Add Note</button>
                     </div>
 
                     <div class="col-xs-12 text-center">
@@ -308,22 +321,22 @@
                               <table class="table table-sm table-bordered">
                                   <thead>
                                     <tr>
-                                        <th width="5%">ID</th>
-                                        <th width="10%">Date</th>
-                                        <th width="10%" class="category">Category</th>
-                                        <th width="15%">Task Subject</th>
-                                        {{-- <th width="5%">Est Completion Date</th> --}}
-                                        <th width="5%" colspan="2">From / To</th>
-                                        {{-- <th width="5%">Assigned To</th> --}}
-                                        <th width="25%">Communication</th>
-                                        <th width="20%">Send Message</th>
-                                        {{-- <th>Remarks</th> --}}
-                                        <th width="10%">Action</th>
+                                      <th width="5%">ID</th>
+                                      <th width="10%">Date</th>
+                                      <th width="10%" class="category">Category</th>
+                                      <th width="15%">Task Subject</th>
+                                      {{-- <th width="5%">Est Completion Date</th> --}}
+                                      <th width="5%" colspan="2">From / To</th>
+                                      {{-- <th width="5%">Assigned To</th> --}}
+                                      <th width="25%">Communication</th>
+                                      <th width="20%">Send Message</th>
+                                      {{-- <th>Remarks</th> --}}
+                                      <th width="10%">Action</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     @foreach($data['task']['pending'] as $task)
-                                  <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }}" id="task_{{ $task->id }}">
+                                  <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
                                       <td class="p-2">{{ $task->id }}</td>
                                       <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                       <td class="expand-row table-hover-cell p-2">
@@ -340,7 +353,7 @@
                                       <td class="expand-row table-hover-cell p-2" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
 
                                         <span class="td-mini-container">
-                                          {{ $task->task_subject ? substr($task->task_subject, 0, 10) . (strlen($task->task_subject) > 7 ? '...' : '') : 'Task Details' }}
+                                          {{ $task->task_subject ? substr($task->task_subject, 0, 18) . (strlen($task->task_subject) > 15 ? '...' : '') : 'Task Details' }}
                                         </span>
 
                                         <span class="td-full-container hidden">
@@ -415,7 +428,7 @@
                                           @if (isset($task->message))
                                             <div class="d-flex justify-content-between">
                                               <span class="td-mini-container">
-                                                {{ strlen($task->message) > 20 ? substr($task->message, 0, 17) . '...' : $task->message }}
+                                                {{ strlen($task->message) > 32 ? substr($task->message, 0, 29) . '...' : $task->message }}
                                               </span>
 
                                               <span class="td-full-container hidden">
@@ -445,7 +458,15 @@
                                       <td class="p-2">
                                         <div class="d-flex">
                                           @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                                            <a href="/task/complete/{{ $task->id }}" class="btn btn-image task-complete"><img src="/images/incomplete.png" /></a>
+                                            @if ($task->is_completed == '')
+                                              <button type="button" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button>
+                                            @else
+                                              @if ($task->assign_from == Auth::id())
+                                                <button type="button" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/completed-green.png" /></button>
+                                              @else
+                                                <button type="button" class="btn btn-image"><img src="/images/completed-green.png" /></button>
+                                              @endif
+                                            @endif
                                           @endif
 
                                           @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
@@ -527,7 +548,7 @@
                                     </td>
                                     <td class="expand-row table-hover-cell p-2" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
                                       <span class="td-mini-container">
-                                        {{ $task->task_subject ? substr($task->task_subject, 0, 10) . (strlen($task->task_subject) > 7 ? '...' : '') : 'Task Details' }}
+                                        {{ $task->task_subject ? substr($task->task_subject, 0, 18) . (strlen($task->task_subject) > 15 ? '...' : '') : 'Task Details' }}
                                       </span>
 
                                       <span class="td-full-container hidden">
@@ -604,7 +625,7 @@
                                         @if (isset($task->message))
                                           <div class="d-flex justify-content-between">
                                             <span class="td-mini-container">
-                                              {{ strlen($task->message) > 20 ? substr($task->message, 0, 17) . '...' : $task->message }}
+                                              {{ strlen($task->message) > 32 ? substr($task->message, 0, 29) . '...' : $task->message }}
                                             </span>
 
                                             <span class="td-full-container hidden">
@@ -634,7 +655,7 @@
                                     <td class="p-2">
                                       <div class="d-flex">
                                         @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                                          <a href="/task/complete/{{ $task->id }}" class="btn btn-image task-complete"><img src="/images/incomplete.png" /></a>
+                                          <a href="/task/complete/{{ $task->id }}" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></a>
                                         @endif
 
                                         @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
@@ -750,7 +771,7 @@
                                     </td>
                                     <td class="expand-row table-hover-cell p-2" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
                                       <span class="td-mini-container">
-                                        {{ $task->task_subject ? substr($task->task_subject, 0, 10) . (strlen($task->task_subject) > 7 ? '...' : '') : 'Task Details' }}
+                                        {{ $task->task_subject ? substr($task->task_subject, 0, 18) . (strlen($task->task_subject) > 15 ? '...' : '') : 'Task Details' }}
                                       </span>
 
                                       <span class="td-full-container hidden">
@@ -827,7 +848,7 @@
                                         @if (isset($task->message))
                                           <div class="d-flex justify-content-between">
                                             <span class="td-mini-container">
-                                              {{ strlen($task->message) > 20 ? substr($task->message, 0, 17) . '...' : $task->message }}
+                                              {{ strlen($task->message) > 32 ? substr($task->message, 0, 29) . '...' : $task->message }}
                                             </span>
 
                                             <span class="td-full-container hidden">
@@ -925,37 +946,6 @@
                     <!-- Completed task div end -->
                 </div>
             </div>
-
-           <!-- <div class="row">
-                <h4>List Of Deleted Tasks</h4>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Sr No</th>
-                        <th>Date</th>
-                        <th class="category">Category</th>
-                        <th>Task Details</th>
-                        <th>Comment</th>
-                        {{--<th>Est Completion Date</th>--}}
-                        <th>Deleted On</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-			        <?php $i = 1 ?>
-                    @foreach( $data['task']['deleted'] as $task)
-                        <tr>
-                            <td>{{$i++}}</td>
-                            <td>{{$task['created_at']}}</td>
-                            <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
-                            <td> {{$task['task_details']}}</td>
-                            <td> {{$task['remark']}}</td>
-                            {{--<td> {{$task['completion_date']  }}</td>--}}
-                            <td> {{$task['deleted_at']}}</td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div> -->
         </div>
 
 
@@ -1030,15 +1020,18 @@
   });
 
     $(document).on('click', '.expand-row', function() {
-      // if ($(this).data('switch') == 0) {
-      //   $(this).text($(this).data('details'));
-      //   $(this).data('switch', 1);
-      // } else {
-      //   $(this).text($(this).data('subject'));
-      //   $(this).data('switch', 0);
-      // }
-      $(this).find('.td-mini-container').toggleClass('hidden');
-      $(this).find('.td-full-container').toggleClass('hidden');
+      var selection = window.getSelection();
+      if (selection.toString().length === 0) {
+        // if ($(this).data('switch') == 0) {
+        //   $(this).text($(this).data('details'));
+        //   $(this).data('switch', 1);
+        // } else {
+        //   $(this).text($(this).data('subject'));
+        //   $(this).data('switch', 0);
+        // }
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+      }
     });
 
       function addNewRemark(id){
@@ -1230,6 +1223,7 @@
                   // $('input[name="completion_date"]').val("1976-01-01");
                   // $("#completion-datetime").hide();
                   $("#calendar-task").hide();
+                  $('#appointment-container').hide();
 
                   if (!isAdmin)
                       $('select[name="assign_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
@@ -1238,10 +1232,16 @@
               } else if ($(".is_statutory").val() == 2) {
                 $("#calendar-task").show();
                 $('#recurring-task').hide();
+                $('#appointment-container').hide();
+              } else if ($(".is_statutory").val() == 3) {
+                $("#calendar-task").hide();
+                $('#recurring-task').hide();
+                $('#appointment-container').show();
               } else {
 
                 // $("#completion-datetime").show();
                   $("#calendar-task").hide();
+                  $('#appointment-container').hide();
 
                   let select_html = '';
                   for (user of users)
@@ -1776,31 +1776,94 @@
           }
         });
 
+        var timer = 0;
+        var delay = 200;
+        var prevent = false;
+
         $(document).on('click', '.task-complete', function(e) {
           e.preventDefault();
           e.stopPropagation();
+          var thiss = $(this);
+
+          timer = setTimeout(function () {
+            if (!prevent) {
+              var task_id = $(thiss).data('id');
+              var image = $(thiss).html();
+              var url = "/task/complete/" + task_id;
+              var current_user = {{ Auth::id() }};
+
+              if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                  type: "GET",
+                  url: url,
+                  data: {
+                    type: 'complete'
+                  },
+                  beforeSend: function () {
+                    $(thiss).text('Completing...');
+                  }
+                }).done(function(response) {
+                  if (response.task.is_verified != null) {
+                    $(thiss).html('<img src="/images/completed.png" />');
+                  } else if (response.task.is_completed != null) {
+                    $(thiss).html('<img src="/images/completed-green.png" />');
+                  } else {
+                    $(thiss).html('<img src="/images/incomplete.png" />');
+                  }
+
+                  if (response.task.assign_from != current_user) {
+                    $(thiss).attr('disabled', true);
+                  }
+                }).fail(function(response) {
+                  $(thiss).html(image);
+
+                  alert('Could not mark as completed!');
+
+                  console.log(response);
+                });
+              }
+            }
+
+            prevent = false;
+          }, delay);
+        });
+
+        $(document).on('dblclick', '.task-complete', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          clearTimeout(timer);
+          prevent = true;
 
           var thiss = $(this);
-          var url = $(this).attr('href');
+          var task_id = $(this).data('id');
+          var image = $(this).html();
+          var url = "/task/complete/" + task_id;
 
           $.ajax({
             type: "GET",
             url: url,
             data: {
-
+              type: 'clear'
             },
             beforeSend: function () {
-              $(thiss).text('Completing...');
+              $(thiss).text('Clearing...');
             }
-          }).done(function() {
-            $(thiss).html('<img src="/images/completed.png" />');
+          }).done(function(response) {
+            if (response.task.is_verified != null) {
+              $(thiss).html('<img src="/images/completed.png" />');
+            } else if (response.task.is_completed != null) {
+              $(thiss).html('<img src="/images/completed-green.png" />');
+            } else {
+              $(thiss).html('<img src="/images/incomplete.png" />');
+            }
           }).fail(function(response) {
-            $(thiss).html('<img src="/images/incomplete.png" />');
+            $(thiss).html(image);
 
-            alert('Could not mark as completed!');
+            alert('Could not clear the task!');
 
             console.log(response);
-          })
+          });
         });
 
         $(document).on('click', '.resend-message', function() {
@@ -1827,5 +1890,17 @@
           });
         });
 
+        $(document).on('click', '#addNoteButton', function () {
+          var note_html = `<div class="form-group d-flex">
+            <input type="text" class="form-control input-sm" name="note[]" placeholder="Note" value="">
+            <button type="button" class="btn btn-image remove-note">x</button>
+          </div>`;
+
+          $('#note-container').append(note_html);
+        });
+
+        $(document).on('click', '.remove-note', function () {
+          $(this).closest('.form-group').remove();
+        });
   </script>
 @endsection
