@@ -6,186 +6,42 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
-
-  <style>
-      .inbox_people {
-          background: #f8f8f8 none repeat scroll 0 0;
-          float: left;
-          overflow: hidden;
-          width: 40%; border-right:1px solid #c4c4c4;
-      }
-      .inbox_msg {
-          border: 1px solid #c4c4c4;
-          clear: both;
-          overflow: hidden;
-      }
-      .top_spac{ margin: 20px 0 0;}
-
-
-      .recent_heading {float: left; width:40%;}
-      .srch_bar {
-          display: inline-block;
-          text-align: right;
-          width: 60%; padding:
-      }
-      .headind_srch{ padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
-
-      .recent_heading h4 {
-          color: #3595d7;
-          font-size: 21px;
-          margin: auto;
-      }
-      .srch_bar input{ border:1px solid #cdcdcd; border-width:0 0 1px 0; width:80%; padding:2px 0 4px 6px; background:none;}
-      .srch_bar .input-group-addon button {
-          background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-          border: medium none;
-          padding: 0;
-          color: #707070;
-          font-size: 18px;
-      }
-      .srch_bar .input-group-addon { margin: 0 0 0 -27px;}
-
-      .chat_ib h5{ font-size:15px; color:#464646; margin:0 0 8px 0;}
-      .chat_ib h5 span{ font-size:13px; float:right;}
-      .chat_ib p{ font-size:14px; color:#989898; margin:auto}
-      .chat_img {
-          float: left;
-          width: 11%;
-      }
-      .chat_ib {
-          float: left;
-          padding: 0 0 0 15px;
-          width: 88%;
-      }
-
-      .chat_people{ overflow:hidden; clear:both;}
-      .chat_list {
-          border-bottom: 1px solid #c4c4c4;
-          margin: 0;
-          padding: 18px 16px 10px;
-      }
-      .inbox_chat { height: 550px; overflow-y: scroll;}
-
-      .active_chat{ background:#ebebeb;}
-
-      .incoming_msg_img {
-          display: inline-block;
-          width: 6%;
-      }
-      .received_msg {
-          display: inline-block;
-          padding: 0 0 0 10px;
-          vertical-align: top;
-          width: 92%;
-      }
-      .received_withd_msg p {
-          background: #ebebeb none repeat scroll 0 0;
-          border-radius: 3px;
-          color: #646464;
-          font-size: 14px;
-          margin: 0;
-          padding: 5px 10px 5px 12px;
-          width: 100%;
-      }
-      .time_date {
-          color: #747474;
-          display: block;
-          font-size: 12px;
-          margin: 8px 0 0;
-      }
-      .received_withd_msg { width: 57%;}
-      .mesgs {
-          padding: 30px 15px 10px 25px;
-          width: 100%;
-          background: #F9F9F9;
-          margin-bottom: 50px;
-      }
-
-      .sent_msg p {
-          background: #3595d7 none repeat scroll 0 0;
-          border-radius: 3px;
-          font-size: 14px;
-          margin: 0; color:#fff;
-          padding: 5px 10px 5px 12px;
-          width:100%;
-      }
-      .outgoing_msg{ overflow:hidden; margin:26px 0 26px;}
-      .sent_msg {
-          float: right;
-          width: 46%;
-      }
-      .input_msg_write input {
-          background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-          border: medium none;
-          color: #4c4c4c;
-          padding: 15px 2px;
-          font-size: 15px;
-          min-height: 48px;
-          outline: none !important;
-          width: 100%;
-      }
-
-      .type_msg {border-top: 1px solid #c4c4c4;position: relative;}
-      .msg_send_btn {
-          background: #3595d7 none repeat scroll 0 0;
-          border: medium none;
-          border-radius: 50%;
-          color: #fff;
-          cursor: pointer;
-          font-size: 17px;
-          height: 33px;
-          position: absolute;
-          right: 0;
-          top: 11px;
-          width: 33px;
-      }
-      .messaging { padding: 0 0 50px 0;}
-      .msg_history {
-          height: 516px;
-          overflow-y: auto;
-          padding-bottom: 15px;
-      }
-
-      .remove-screenshot {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-      }
-
-      .floating-arrows {
-        position: fixed;
-        z-index: 9;
-        top: 50%;
-      }
-
-      .floating-arrows.left {
-        left: 20px;
-      }
-
-      .floating-arrows.right {
-        right: 20px;
-      }
-
-      #message-wrapper {
-        height: 450px;
-        overflow-y: scroll;
-      }
-
-      .show-images-wrapper {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-  </style>
 @endsection
 
 @section('content')
 
+@section('title', 'Task Page - ERP Sololuxury')
 
 <div class="row">
   <div class="col-lg-12 margin-tb">
-    <div class="pull-left">
-      <h3>Task Page</h3>
+    <div class="pull-left d-flex">
+      <h3>{{ $task->is_statutory == 3 ? 'Appointment' : ($task->is_statutory == 1 ? 'Statutory' : '') }} Task Page</h3>
+
+      @if ($task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+        @if ($task->is_completed == '')
+          <button type="button" class="btn btn-image task-complete mt-3" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button>
+        @else
+          @if ($task->assign_from == Auth::id())
+            <button type="button" class="btn btn-image task-complete mt-3" data-id="{{ $task->id }}"><img src="/images/completed-green.png" /></button>
+          @else
+            <button type="button" class="btn btn-image mt-3"><img src="/images/completed-green.png" /></button>
+          @endif
+        @endif
+      @endif
+
+      @if ($task->assign_to == Auth::id())
+        @if ($task->is_private == 1)
+          <button type="button" class="btn btn-image make-private-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
+        @else
+          <button type="button" class="btn btn-image make-private-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
+        @endif
+      @endif
+
+      @if ($task->is_watched == 1)
+        <button type="button" class="btn btn-image make-watched-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/starred.png" /></button>
+      @else
+        <button type="button" class="btn btn-image make-watched-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/unstarred.png" /></button>
+      @endif
     </div>
     <div class="pull-right mt-4">
       {{-- <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
@@ -199,9 +55,19 @@
 @include('partials.flash_messages')
 
 <div class="row">
-  <div class="col-xs-12 col-md-4 border">
-    <div class="form-group">
-      {{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
+  <div class="col-xs-12 col-md-4 py-3 border">
+    <div class="row text-muted">
+      <div class="col-6">
+        <div class="form-group">
+          {{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-group">
+          {{ isset($categories[$task->category]) ? $categories[$task->category] : 'No Category' }}
+        </div>
+      </div>
     </div>
 
     @if ($task->is_statutory == 1)
@@ -212,23 +78,37 @@
     @endif
 
     <div class="form-group">
-      {{ isset($categories[$task->category]) ? $categories[$task->category] : 'No Category' }}
-    </div>
-
-    <div class="form-group">
       @if ($task->task_subject)
         <strong>{{ $task->task_subject }}</strong>
       @endif
+    </div>
 
+    <div class="form-group">
       {{ $task->task_details }}
     </div>
 
-    <div class="form-group">
+    @if ($task->notes()->count())
+      <div class="form-group">
+        <ul class="list-group">
+          @foreach ($task->notes as $note)
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ $note->remark }}
+
+              <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}"><img src="/images/add.png" /></button>
+            </li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
+
+
+    {{-- <div class="form-group">
       {{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i') }}
-    </div>
+    </div> --}}
 
     <div class="form-group">
-      {{ array_key_exists($task->assign_from, $users_array) ? $users_array[$task->assign_from] : 'User Does Not Exist' }}
+      <strong>Assigned from:</strong> {{ array_key_exists($task->assign_from, $users_array) ? $users_array[$task->assign_from] : 'User Does Not Exist' }}
     </div>
 
     <div class="form-group">
@@ -293,46 +173,17 @@
       <button type="submit" class="btn btn-xs btn-secondary">Update</button>
     </form>
 
-    <div class="form-group">
-      @if ($task->users->contains(Auth::id()))
-        <a href="/task/complete/{{ $task->id }}">Complete</a>
-      @elseif ($task->assign_from == Auth::id())
-        <a href="/task/complete/{{ $task->id }}">Complete</a>
-      @else
-        @foreach ($task->users as $key => $task_user)
-          @if ($key != 0)
-            ,
-          @endif
-          {{ array_key_exists($task_user->id, $users_array) ? $users_array[$task_user->id] : 'No User' }}
-        @endforeach
-      @endif
-    </div>
 
-    <div class="form-group">
+
+
+
+    {{-- <div class="form-group">
         <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task->id}}" data-id="{{$task->id}}">Add</a>
         <span> | </span>
         <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a>
-    </div>
+    </div> --}}
 
-    <div class="form-inline">
-      @if ($task->assign_to == Auth::id())
-        <div class="form-group">
-          @if ($task->is_private == 1)
-            <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
-          @else
-            <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
-          @endif
-        </div>
-      @endif
 
-      <div class="form-group">
-        @if ($task->is_watched == 1)
-          <button type="button" class="btn btn-image make-watched-task" data-taskid="{{ $task->id }}"><img src="/images/starred.png" /></button>
-        @else
-          <button type="button" class="btn btn-image make-watched-task" data-taskid="{{ $task->id }}"><img src="/images/unstarred.png" /></button>
-        @endif
-      </div>
-    </div>
     {{-- <div class="d-flex">
       @if ($customer->is_priority == 1)
         <div class="form-group">
@@ -1929,6 +1780,141 @@
 
           alert('Could not make task watched');
         });
+      });
+
+      var timer = 0;
+      var delay = 200;
+      var prevent = false;
+
+      $(document).on('click', '.task-complete', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var thiss = $(this);
+
+        timer = setTimeout(function () {
+          if (!prevent) {
+            var task_id = $(thiss).data('id');
+            var image = $(thiss).html();
+            var url = "/task/complete/" + task_id;
+            var current_user = {{ Auth::id() }};
+
+            if (!$(thiss).is(':disabled')) {
+              $.ajax({
+                type: "GET",
+                url: url,
+                data: {
+                  type: 'complete'
+                },
+                beforeSend: function () {
+                  $(thiss).text('Completing...');
+                }
+              }).done(function(response) {
+                if (response.task.is_verified != null) {
+                  $(thiss).html('<img src="/images/completed.png" />');
+                } else if (response.task.is_completed != null) {
+                  $(thiss).html('<img src="/images/completed-green.png" />');
+                } else {
+                  $(thiss).html('<img src="/images/incomplete.png" />');
+                }
+
+                if (response.task.assign_from != current_user) {
+                  $(thiss).attr('disabled', true);
+                }
+              }).fail(function(response) {
+                $(thiss).html(image);
+
+                alert('Could not mark as completed!');
+
+                console.log(response);
+              });
+            }
+          }
+
+          prevent = false;
+        }, delay);
+      });
+
+      $(document).on('dblclick', '.task-complete', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        clearTimeout(timer);
+        prevent = true;
+
+        var thiss = $(this);
+        var task_id = $(this).data('id');
+        var image = $(this).html();
+        var url = "/task/complete/" + task_id;
+
+        $.ajax({
+          type: "GET",
+          url: url,
+          data: {
+            type: 'clear'
+          },
+          beforeSend: function () {
+            $(thiss).text('Clearing...');
+          }
+        }).done(function(response) {
+          if (response.task.is_verified != null) {
+            $(thiss).html('<img src="/images/completed.png" />');
+          } else if (response.task.is_completed != null) {
+            $(thiss).html('<img src="/images/completed-green.png" />');
+          } else {
+            $(thiss).html('<img src="/images/incomplete.png" />');
+          }
+        }).fail(function(response) {
+          $(thiss).html(image);
+
+          alert('Could not clear the task!');
+
+          console.log(response);
+        });
+      });
+
+      $(document).on('click', '.create-quick-task-button', function() {
+        var thiss = $(this);
+        var remark = $(this).data('remark');
+        var assign_to = [
+          @foreach ($task->users as $key => $user)
+          {{ $user->id }},
+          @endforeach
+        ];
+
+        var assign_to_contacts = [
+          @foreach ($task->contacts as $key => $contact)
+          {{ $contact->id }},
+          @endforeach
+        ];
+
+        console.log(assign_to);
+
+        if (!$(this).is(':disabled')) {
+          $.ajax({
+            type: "POST",
+            url: "{{ route('task.store') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              task_subject: 'Appointment Task',
+              task_details: remark,
+              assign_to: assign_to,
+        			assign_to_contacts: assign_to_contacts
+            },
+            beforeSend: function () {
+              $(thiss).text('Creating...');
+              $(thiss).attr('disabled', true);
+            }
+          }).done(function() {
+            $(thiss).html('<img src="/images/add.png" />');
+          }).fail(function(response) {
+            $(thiss).html('<img src="/images/add.png" />');
+            $(thiss).attr('disabled', false);
+
+            console.log(response);
+
+            alert('Could not create task!');
+          });
+        }
       });
   </script>
 @endsection
