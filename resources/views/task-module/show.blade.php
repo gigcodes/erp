@@ -169,26 +169,38 @@
                       </div>
 
                       <div class="form-group">
-                          <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple>
-                            @foreach ($data['users'] as $user)
-                              <option data-tokens="{{ $user['name'] }} {{ $user['email'] }}" value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
-                            @endforeach
-                          </select>
+                        <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
+                          @foreach ($data['users'] as $user)
+                            <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
+                          @endforeach
+                        </select>
 
-                          @if ($errors->has('assign_to'))
-                            <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
-                          @endif
+                        {{-- <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple>
+                          @foreach ($data['users'] as $user)
+                            <option data-tokens="{{ $user['name'] }} {{ $user['email'] }}" value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
+                          @endforeach
+                        </select> --}}
+
+                        @if ($errors->has('assign_to'))
+                          <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                        @endif
                       </div>
                     </div>
 
                     <div class="col-xs-12 col-md-4">
                       <div class="form-inline mb-3">
                         <div class="form-group flex-fill">
-                          <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
+                          <select id="multi_contacts" class="form-control input-sm" name="assign_to_contacts[]" multiple>
+                            @foreach (Auth::user()->contacts as $contact)
+                              <option value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+                            @endforeach
+                          </select>
+
+                          {{-- <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
                             @foreach (Auth::user()->contacts as $contact)
                               <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
                             @endforeach
-                          </select>
+                          </select> --}}
 
                           @if ($errors->has('assign_to_contacts'))
                             <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
@@ -972,6 +984,14 @@
 
     $('.selectpicker').selectpicker({
       selectOnTab: true
+    });
+
+    $('#multi_users').select2({
+      placeholder: 'Select a User',
+    });
+
+    $('#multi_contacts').select2({
+      placeholder: 'Select a Contact',
     });
 
     // $('ul.pagination').hide();

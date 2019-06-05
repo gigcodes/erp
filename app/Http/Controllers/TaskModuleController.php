@@ -395,7 +395,7 @@ class TaskModuleController extends Controller {
 			 'approved'     => 1,
 			 'status'       => 2,
 			 'task_id'			=> $task->id,
-			 'message'      => "#" . $task->id . ". " . $task->task_details
+			 'message'      => "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details
 		 ];
 
 	   if (count($task->users) > 0) {
