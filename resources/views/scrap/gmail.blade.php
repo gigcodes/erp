@@ -12,18 +12,19 @@
                     <th>Page Url</th>
                     <th>Sender</th>
                     <th>Date Sent</th>
-                    <th>Date Sent</th>
                     <th>Images</th>
                     <th>tags</th>
                 </tr>
                 @foreach($data as $key=>$datum)
                     <tr>
                         <td>{{ $key+1 }}</td>
-                        <td>{{ $datum->post_url }}</td>
+                        <td><a href="{{ $datum->page_url }}">Visit</a></td>
+                        <td>{{ $datum->sender }}</td>
+                        <td>{{ $datum->received_at }}</td>
                         <td>
                             @foreach($datum->images as $image)
                                 <a href="{{ $image }}">
-                                    <img src="{{ $image }}" alt="" style="width: 150px;">
+                                    <img src="{{ $image }}" alt="" style="width: 150px;height: 150px;">
                                 </a>
                             @endforeach
                         </td>

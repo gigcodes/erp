@@ -225,7 +225,13 @@ class ProductController extends Controller {
 			}
 		}
 
+
 		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1)->orderBy('is_approved', 'ASC')->orderBy('last_imagecropper', 'ASC');
+
+        if ($request->get('cropped') == 'on') {
+            $products = $products->where('is_image_processed', 1);
+        }
+
 		$products_count = $products->count();
 		$products = $products->paginate(Setting::get('pagination'));
 
@@ -809,9 +815,12 @@ class ProductController extends Controller {
             ->where('lmeasurement', '>', 0)
             ->first();
 
+
+	    $imgs = $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
+
 	    return response()->json([
 	        'product_id' => $product->id,
-            'image_urls' => $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']),
+            'image_urls' => $imgs,
             'l_measurement' => $product->lmeasurement,
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,
@@ -825,12 +834,11 @@ class ProductController extends Controller {
 
 
         $image = $request->file('file');
-
-        $media = MediaUploader::fromSource($image)->upload();
-        $product->attachMedia($media, config('constants.media_tags'));
         $product->is_image_processed = 1;
         $product->save();
 
+        $media = MediaUploader::fromSource($image)->upload();
+        $product->attachMedia($media, config('constants.media_tags'));
 
 	    return response()->json([
 	        'status' => 'success'
