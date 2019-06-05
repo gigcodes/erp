@@ -813,6 +813,7 @@ class ProductController extends Controller {
 	public function giveImage() {
 	    $product = Product::where('is_image_processed', 0)
             ->where('lmeasurement', '>', 0)
+            ->where('is_scraped', 1)
             ->first();
 
 
