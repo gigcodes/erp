@@ -122,17 +122,26 @@ class ScrapController extends Controller
 								   	GROUP BY created_at, website;
 							', [$date]);
 
+              // dd($scraped_count);
+
       $products_count = DB::select( '
 									SELECT website, created_at, COUNT(*) as total FROM
 								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
 								  		 FROM scraped_products
+
+                       RIGHT JOIN (
+                         SELECT products.sku FROM products
+                       ) AS products
+                       ON scraped_products.sku = products.sku
+
 								  		 WHERE scraped_products.created_at > ?
-                       AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku)
                        )
 
 								    AS SUBQUERY
 								   	GROUP BY created_at, website;
 							', [$date]);
+
+              // dd($products_count);
 
       $activity_data = DB::select( '
 									SELECT website, status, created_at, COUNT(*) as total FROM
@@ -145,8 +154,9 @@ class ScrapController extends Controller
 
       $data = [];
 
-      $link_entries = ScrapCounts::where('created_at', '>', $date)->orderBy('created_at', 'DESC')->get();
+      // dd('stap');
 
+      $link_entries = ScrapCounts::where('created_at', '>', $date)->orderBy('created_at', 'DESC')->get();
 
       foreach ($links_count as $item) {
         if ($item->site_name == 'GNB') {
@@ -169,7 +179,7 @@ class ScrapController extends Controller
       }
 
       ksort($data);
-
+      // dd($data);
       $data = array_reverse($data);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
