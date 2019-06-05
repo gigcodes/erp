@@ -23,7 +23,7 @@ class User extends Authenticatable
 	 * @var array
 	 */
 	protected $fillable = [
-		'name', 'email', 'phone', 'password', 'responsible_user', 'agent_role', 'whatsapp_number'
+		'name', 'email', 'phone', 'password', 'responsible_user', 'agent_role', 'whatsapp_number', 'amount_assigned'
 	];
 
     public function getIsAdminAttribute()
@@ -59,5 +59,10 @@ class User extends Authenticatable
 	public function contacts()
 	{
 		return $this->hasMany('App\Contact');
+	}
+
+	public function products()
+	{
+		return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id');
 	}
 }

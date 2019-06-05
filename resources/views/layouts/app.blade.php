@@ -513,7 +513,9 @@
 
                                     </li>
 
-                                    <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
+                                    @can ('product-lister')
+                                      <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
+                                    @endcan
 
 
 
@@ -609,11 +611,11 @@
 
                                 </div>
 
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-
+                                @can ('product-lister')
+                                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
-
-                                </div>
+                                  </div>
+                                @endcan
 
                             </li>
 
