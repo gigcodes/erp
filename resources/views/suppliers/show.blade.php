@@ -507,6 +507,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
 
   <script type="text/javascript">
 
@@ -875,6 +876,14 @@
 
                      return true;
         }
+
+        const socket = io("https://sololuxury.co/?realtime_id=supplier_{{ $supplier->id }}");
+
+        socket.on("new-message", function (message) {
+          console.log(message);
+          renderMessage(message, null);
+        });
+
         function pollMessages(page = null, tobottom = null, addElapse = null) {
                  var qs = "";
                  qs += "?supplierId=" + supplierId;
@@ -920,13 +929,14 @@
                  // var el = $(".chat-frame");
                  // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
              }
-        function startPolling() {
-          setTimeout( function() {
-                     pollMessages(null, null, addElapse).then(function() {
-                         startPolling();
-                     }, errorHandler);
-                 }, 1000);
-        }
+             pollMessages(null, null, addElapse);
+        // function startPolling() {
+        //   setTimeout( function() {
+        //              pollMessages(null, null, addElapse).then(function() {
+        //                  startPolling();
+        //              }, errorHandler);
+        //          }, 1000);
+        // }
         // function sendWAMessage() {
         //   var data = createMessageArgs();
         //          //var data = new FormData();
@@ -953,7 +963,7 @@
         // sendBtn.click(function() {
         //   sendWAMessage();
         // } );
-        startPolling();
+        // startPolling();
 
          $(document).on('click', '.send-communication', function(e) {
            e.preventDefault();
