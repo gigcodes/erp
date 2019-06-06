@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\CategoryMap;
+use App\ScrapedProducts;
 use Illuminate\Http\Request;
 
 class CategoryMapController extends Controller
@@ -14,7 +16,28 @@ class CategoryMapController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::all();
+        $scrapProductsCategory = ScrapedProducts::all();
+        $filteredCategories = [];
+
+        foreach ($scrapProductsCategory as $spc) {
+            $category = $spc->properties['category'] ?? [];
+            if ($category === []) {
+                continue;
+            }
+
+            if (!is_array($category)) {
+                $filteredCategories[$category] = $category;
+                continue;
+            }
+
+            foreach ($category as $item) {
+                $filteredCategories[$item] = $item;
+            }
+
+        }
+
+        dd($filteredCategories);
     }
 
     /**
