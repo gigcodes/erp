@@ -116,14 +116,14 @@
                   <div class="row">
                     <div class="col-xs-12 col-md-4">
                       <div class="form-group">
-                        <input type="text" class="form-control input-sm" name="task_subject" placeholder="Task Subject" value="{{ old('task_subject') }}" required />
+                        <input type="text" class="form-control input-sm" name="task_subject" placeholder="Task Subject" id="task_subject" value="{{ old('task_subject') }}" required />
                         @if ($errors->has('task_subject'))
                           <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
                         @endif
                       </div>
 
                       <div class="form-group">
-                        <textarea rows="1" class="form-control input-sm" name="task_details" placeholder="Task Details" required>{{ old('task_details') }}</textarea>
+                        <textarea rows="1" class="form-control input-sm" name="task_details" placeholder="Task Details" id="task_details" required>{{ old('task_details') }}</textarea>
                         @if ($errors->has('task_details'))
                           <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
                         @endif
@@ -969,13 +969,21 @@
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script> --}}
   <script>
-
+  var taskSuggestions = {!! json_encode($search_suggestions, true) !!};
   var cached_suggestions = localStorage['message_suggestions'];
   var suggestions = [];
 
   $(document).ready(function() {
+    $('#task_subject, #task_details').autocomplete({
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(taskSuggestions, request.term);
+
+        response(results.slice(0, 10));
+      }
+    });
     var hash = window.location.hash.substr(1);
 
     if (hash == '3') {

@@ -318,6 +318,11 @@ class TaskModuleController extends Controller {
 		$data['users']             = $users;
 		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
+		$search_suggestions = [];
+		foreach ($data['task']['pending'] as $task) {
+			$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
+		}
+
 		// $category = '';
 
 		//My code start
@@ -328,7 +333,7 @@ class TaskModuleController extends Controller {
 		}
 		//My code end
 
-		return view( 'task-module.show', compact( 'data', 'users', 'selected_user','category', 'term' ) );
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions'));
 	}
 
 	public function store( Request $request ) {
