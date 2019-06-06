@@ -1231,53 +1231,57 @@
                           </a>
 
                           <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
-                            <a class="dropdown-item" href="{{ action('InstagramController@index') }}">INSTAGRAM | DASHBOARD</a>
-                            <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">INSTAGRAM | Recent Comments (Notifications)</a>
-                            <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">INSTAGRAM | All Posts</a>
-                            <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">INSTAGRAM | Create A Post</a>
-                            <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">INSTAGRAM | Scheduled Posts</a>
-                              <li class="nav-item dropdown dropdown-submenu">
+                            @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com	')
+                                  <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">FACEBOOK | Create A Post</a>
+                              @else
+                                  <a class="dropdown-item" href="{{ action('InstagramController@index') }}">INSTAGRAM | DASHBOARD</a>
+                                  <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">INSTAGRAM | Recent Comments (Notifications)</a>
+                                  <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">INSTAGRAM | All Posts</a>
+                                  <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Facebook | Create A Post</a>
+                                  <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">INSTAGRAM | Scheduled Posts</a>
+                                  <li class="nav-item dropdown dropdown-submenu">
 
-                                  <a id="hahstagsMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+                                      <a id="hahstagsMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
 
-                                      INSTAGRAM | Hashtags<span class="caret"></span>
+                                          INSTAGRAM | Hashtags<span class="caret"></span>
 
-                                  </a>
+                                      </a>
 
-                                  <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="hahstagsMenu">
-                                      <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>
-                                      <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Sololuxury Hashtags</a>
-                                  </ul>
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="hahstagsMenu">
+                                          <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>
+                                          <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Sololuxury Hashtags</a>
+                                      </ul>
 
-                              </li>
-                            <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">INSTAGRAM | Customer's Followers</a>
-                            <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">INSTAGRAM | #tags used by top customers</a>
-                              <li class="nav-item dropdown dropdown-submenu">
+                                  </li>
+                                  <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">INSTAGRAM | Customer's Followers</a>
+                                  <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">INSTAGRAM | #tags used by top customers</a>
+                                  <li class="nav-item dropdown dropdown-submenu">
 
-                                  <a id="compAnaMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+                                      <a id="compAnaMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
 
-                                      INSTAGRAM | Competitor Analysis<span class="caret"></span>
+                                          INSTAGRAM | Competitor Analysis<span class="caret"></span>
 
-                                  </a>
+                                      </a>
 
 
 
-                                  <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="compAnaMenu">
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="compAnaMenu">
 
-                                      <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">Competitors On Instaram</a>
+                                          <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">Competitors On Instaram</a>
 
-                                  </ul>
+                                      </ul>
 
-                              </li>
-                            <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">INSTAGRAM | Target Locations</a>
-                            <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">INSTAGRAM | Keywords for Comments</a>
-                            <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">INSTAGRAM | Processed Comments</a>
-{{--                            <a class="dropdown-item" href="{{ action('SitejabberQAController@index') }}">SITEJABBER | Q&A</a>--}}
-                            <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
-                            <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">SITEJABBER | Quick Reply</a>
-                            <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">INSTAGRAM | Quick Reply</a>
-                            <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">INSTAGRAM | Auto Comment Statustics</a>
-{{--                            <a class="dropdown-item" href="{{ action('SitejabberQAController@reviews') }}">SITEJABBER | Reviews</a>--}}
+                                  </li>
+                                  <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">INSTAGRAM | Target Locations</a>
+                                  <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">INSTAGRAM | Keywords for Comments</a>
+                                  <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">INSTAGRAM | Processed Comments</a>
+                                  {{--                            <a class="dropdown-item" href="{{ action('SitejabberQAController@index') }}">SITEJABBER | Q&A</a>--}}
+                                  <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
+                                  <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">SITEJABBER | Quick Reply</a>
+                                  <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">INSTAGRAM | Quick Reply</a>
+                                  <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">INSTAGRAM | Auto Comment Statustics</a>
+                                  {{--                            <a class="dropdown-item" href="{{ action('SitejabberQAController@reviews') }}">SITEJABBER | Reviews</a>--}}
+                              @endif
                           </ul>
                         </li>
                       @endcan
