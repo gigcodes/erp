@@ -1390,7 +1390,7 @@ class WhatsAppController extends FindByNumberController
         $data['task_id'] = $request->task_id;
         $task = Task::find($request->task_id);
 
-        $data['message'] = "#" . $data['task_id'] . ". " . $data['message'];
+        $data['message'] = "#" . $data['task_id'] . ". " . $task->task_subject . ". " . $data['message'];
 
         if (count($task->users) > 0) {
           if ($task->assign_from == Auth::id()) {
