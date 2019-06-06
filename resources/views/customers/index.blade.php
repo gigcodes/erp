@@ -276,14 +276,26 @@
                     </td>
                     <td>
                       {{-- @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at) --}}
-                        @if (isset($customer->message))
-                            @if (strpos($customer->message, '<br>') !== false)
-                                {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
-                            @else
-                                {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
-                            @endif
-                        @else
+                        @if ($customer->message != '')
+                          @if (strpos($customer->message, '<br>') !== false)
+                            {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
+                          @else
                             {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
+                          @endif
+                        @else
+                          @php $image_message = \App\ChatMessage::find($customer->message_id); @endphp
+
+                          @if ($image_message->hasMedia(config('constants.media_tags')))
+                            <div class="image-container hidden">
+                              @foreach ($image_message->getMedia(config('constants.media_tags')) as $image)
+                                <div class="d-inline-block">
+                                  <img src="{{ $image->getUrl() }}" class="img-responsive thumbnail-200" alt="">
+                                </div>
+                              @endforeach
+                            </div>
+
+                            <button type="button" class="btn btn-xs btn-secondary show-images-button">Show Images</button>
+                          @endif
                         @endif
 
                         @if ($customer->is_error_flagged == 1)
@@ -1086,6 +1098,10 @@
 
           console.log(response);
         });
+      });
+
+      $(document).on('click', '.show-images-button', function() {
+        $(this).siblings('.image-container').toggleClass('hidden');
       });
   </script>
 @endsection

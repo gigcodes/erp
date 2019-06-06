@@ -27,6 +27,7 @@ use App\Helpers;
 use Validator;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use GuzzleHttp\Client as GuzzleClient;
 
 use App\CallBusyMessage;
 
@@ -534,7 +535,7 @@ class LeadsController extends Controller
         return redirect()->back()->with('success','Lead has been updated');
     }
 
-    public function sendPrices(Request $request)
+    public function sendPrices(Request $request, GuzzleClient $client)
     {
       $params = [
         'number'      => NULL,
@@ -559,6 +560,8 @@ class LeadsController extends Controller
       $params['message'] = $message;
 
       $chat_message = ChatMessage::create($params);
+
+      app('App\Http\Controllers\WhatsAppController')->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
 
       // try {
       // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $message, false, $chat_message->id);
