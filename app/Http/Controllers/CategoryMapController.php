@@ -13,10 +13,11 @@ class CategoryMapController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::where('id', '>', '3')->distinct()->get(['title']);
         $scrapProductsCategory = ScrapedProducts::all();
         $filteredCategories = [];
 
@@ -37,7 +38,10 @@ class CategoryMapController extends Controller
 
         }
 
-        dd($filteredCategories);
+        $items = collect($filteredCategories)->chunk(10);
+
+        return view('category.map', compact('items', 'categories'));
+
     }
 
     /**
@@ -69,7 +73,7 @@ class CategoryMapController extends Controller
      */
     public function show(CategoryMap $categoryMap)
     {
-        //
+
     }
 
     /**
