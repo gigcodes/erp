@@ -420,7 +420,7 @@ class TaskModuleController extends Controller {
       $myRequest->setMethod('POST');
       $myRequest->request->add(['messageId' => $chat_message->id]);
 
-      // app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+      app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 
 
 		if ($request->ajax()) {
