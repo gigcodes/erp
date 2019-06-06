@@ -16,8 +16,7 @@ class ProductsCreator
 {
     public function createProduct($image)
     {
-      $data['sku'] = str_replace(' ', '', $image->sku);
-
+      $data['sku'] = (string) str_replace(' ', '', $image->sku);
       $validator = Validator::make($data, [
         'sku' => 'unique:products,sku'
       ]);
@@ -27,6 +26,12 @@ class ProductsCreator
       } else {
         $product = new Product;
       }
+
+      if ($product === null) {
+          echo "SKIPPED ============================================== \n";
+          return;
+      }
+
 
       $properties_array = $image->properties;
 
@@ -71,9 +76,122 @@ class ProductsCreator
           $formatted_details = $this->getSpinnakerDetails($properties_array);
 
           break;
-        default:
-          $supplier = '';
+        case 'alducadaosta':
+          $supplier = "Al Duca d'Aosta";
+          $formatted_details = $this->getGeneralDetails($properties_array);
 
+          break;
+        case 'biffi':
+          $supplier = "Biffi Boutique (S.P.A.)";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'brunarosso':
+          $supplier = "BRUNA ROSSO";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'carofigliojunior':
+          $supplier = "Carofiglio Junior";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'italiani':
+          $supplier = "Italiani";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'coltorti':
+          $supplier = "Coltorti";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'griffo210':
+          $supplier = "Grifo210";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'linoricci':
+          $supplier = "Lino Ricci Lei";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'conceptstore':
+          $supplier = "Women Concept Store Cagliari";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'deliberti':
+          $supplier = "Deliberti";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'giglio':
+          $supplier = "Giglio Lamezia Terme";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'laferramenta':
+          $supplier = "La Ferramenta";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'les-market':
+          $supplier = "Les Market";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'leam':
+          $supplier = "Leam";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'mimmaninnishop':
+          $supplier = "Mimma Ninni Boutique";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'montiboutique':
+          $supplier = "Monti";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'nugnes1920':
+          $supplier = "Nugnes 1920";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'railso':
+          $supplier = "Rail";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'savannahs':
+          $supplier = "Savannah's";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+        case 'tessabit':
+          $supplier = "Tessabit";
+          $formatted_details = $this->getGeneralDetails($properties_array);
+
+          break;
+          case 'stilmoda':
+            $supplier = "Stilmoda";
+            $formatted_details = $this->getGeneralDetails($properties_array);
+
+            break;
+          case 'tizianafausti':
+            $supplier = "Tiziana Fausti";
+            $formatted_details = $this->getGeneralDetails($properties_array);
+
+            break;
+          case 'vinicio':
+            $supplier = "Vinicio";
+            $formatted_details = $this->getGeneralDetails($properties_array);
+
+            break;
+        default:
           return;
       }
 
@@ -85,13 +203,16 @@ class ProductsCreator
        $product->supplier_link = $image->url;
        $product->stage = 3;
        $product->is_scraped = 1;
+       $product->stock = 1;
+       $product->is_without_image = 1;
+       $product->is_on_sale = $image->is_sale;
 
        $product->composition = $formatted_details['composition'];
        $product->color = $formatted_details['color'];
        $product->size = $formatted_details['size'];
-       $product->lmeasurement = $formatted_details['lmeasurement'];
-       $product->hmeasurement = $formatted_details['hmeasurement'];
-       $product->dmeasurement = $formatted_details['dmeasurement'];
+       $product->lmeasurement = (int) $formatted_details['lmeasurement'];
+       $product->hmeasurement = (int) $formatted_details['hmeasurement'];
+       $product->dmeasurement = (int) $formatted_details['dmeasurement'];
        $product->measurement_size_type = $formatted_details['measurement_size_type'];
        $product->made_in = $formatted_details['made_in'];
        $product->category = $formatted_details['category'];
@@ -131,17 +252,17 @@ class ProductsCreator
          $product->suppliers()->syncWithoutDetaching($db_supplier->id);
        }
 
-       $images = $image->images;
-
-       $product->detachMediaTags(config('constants.media_tags'));
-
-       foreach ($images as $image_name) {
-         // Storage::disk('uploads')->delete('/social-media/' . $image_name);
-
-         $path = public_path('uploads') . '/social-media/' . $image_name;
-         $media = MediaUploader::fromSource($path)->upload();
-         $product->attachMedia($media,config('constants.media_tags'));
-       }
+       // $images = $image->images;
+       //
+       // $product->detachMediaTags(config('constants.media_tags'));
+       //
+       // foreach ($images as $image_name) {
+       //   // Storage::disk('uploads')->delete('/social-media/' . $image_name);
+       //
+       //   $path = public_path('uploads') . '/social-media/' . $image_name;
+       //   $media = MediaUploader::fromSource($path)->upload();
+       //   $product->attachMedia($media,config('constants.media_tags'));
+       // }
 
     }
 
@@ -163,16 +284,37 @@ class ProductsCreator
         $categories = Category::all();
         $category_id = 1;
 
-        foreach ($properties_array['category'] as $cat) {
-          if ($cat == 'WOMAN') {
-            $cat = 'WOMEN';
+        foreach ($properties_array['category'] as $key => $cat) {
+          $up_cat = strtoupper($cat);
+
+          if ($up_cat == 'WOMAN') {
+            $up_cat = 'WOMEN';
           }
 
-          foreach ($categories as $category) {
-            if (strtoupper($category->title) == $cat) {
-              $category_id = $category->id;
+          if ($key == 0 && $up_cat == 'WOMEN') {
+            $women_children = Category::where('title', 'WOMEN')->first()->childs;
+          }
+
+          if (isset($women_children)) {
+            foreach ($women_children as $children) {
+              if (strtoupper($children->title) == $up_cat) {
+                $category_id = $children->id;
+              }
+
+              foreach ($children->childs as $child) {
+                if (strtoupper($child->title) == $up_cat) {
+                  $category_id = $child->id;
+                }
+              }
+            }
+          } else {
+            foreach ($categories as $category) {
+              if (strtoupper($category->title) == $up_cat) {
+                $category_id = $category->id;
+              }
             }
           }
+
         }
 
         $category = $category_id;
@@ -278,6 +420,10 @@ class ProductsCreator
         $color = $properties_array['Color Code'];
       }
 
+      if (array_key_exists('sizes', $properties_array)) {
+        $size = implode(',', $properties_array['sizes']);
+      }
+
       if (array_key_exists('Size & Fit', $properties_array)) {
         $sizes = $properties_array['Size & Fit'];
         if (strpos($sizes, 'Width:') !== false) {
@@ -288,22 +434,22 @@ class ProductsCreator
         }
 
         if (strpos($sizes, 'Height:') !== false) {
-          preg_match_all('/Height: ([\d]+)/', $sizes, $match);
-
-          $hmeasurement = (int) $match[1][0];
+          if (preg_match_all('/Height: ([\d]+)/', $sizes, $match)) {
+              $hmeasurement = (int) $match[1][0];
+          }
         }
 
         if (strpos($sizes, 'Depth:') !== false) {
-          preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
-
-          $dmeasurement = (int) $match[1][0];
+          if (preg_match_all('/Depth: ([\d]+)/', $sizes, $match)) {
+              $dmeasurement = (int) $match[1][0];
+          }
         }
       }
 
       return [
         'composition' => isset($composition) ? $composition : '',
         'color' => isset($color) ? $color : '',
-        'size' => '',
+        'size' => isset($size) ? $size : '',
         'lmeasurement' => isset($lmeasurement) ? $lmeasurement : '',
         'hmeasurement' => isset($hmeasurement) ? $hmeasurement : '',
         'dmeasurement' => isset($dmeasurement) ? $dmeasurement : '',
@@ -354,6 +500,10 @@ class ProductsCreator
         $color = $properties_array['Colors'];
       }
 
+      if (array_key_exists('sizes', $properties_array)) {
+        $size = implode(',', $properties_array['sizes']);
+      }
+
       foreach ($properties_array as $property) {
         if (!is_array($property)) {
           if (strpos($property, 'Width:') !== false) {
@@ -381,16 +531,37 @@ class ProductsCreator
         $categories = Category::all();
         $category_id = 1;
 
-        foreach ($properties_array['category'] as $cat) {
-          if ($cat == 'WOMAN') {
-            $cat = 'WOMEN';
+        foreach ($properties_array['category'] as $key => $cat) {
+          $up_cat = strtoupper($cat);
+
+          if ($up_cat == 'WOMAN') {
+            $up_cat = 'WOMEN';
           }
 
-          foreach ($categories as $category) {
-            if (strtoupper($category->title) == $cat) {
-              $category_id = $category->id;
+          if ($key == 0 && $up_cat == 'WOMEN') {
+            $women_children = Category::where('title', 'WOMEN')->first()->childs;
+          }
+
+          if (isset($women_children)) {
+            foreach ($women_children as $children) {
+              if (strtoupper($children->title) == $up_cat) {
+                $category_id = $children->id;
+              }
+
+              foreach ($children->childs as $child) {
+                if (strtoupper($child->title) == $up_cat) {
+                  $category_id = $child->id;
+                }
+              }
+            }
+          } else {
+            foreach ($categories as $category) {
+              if (strtoupper($category->title) == $up_cat) {
+                $category_id = $category->id;
+              }
             }
           }
+
         }
 
         $category = $category_id;
@@ -399,7 +570,7 @@ class ProductsCreator
       return [
         'composition' => isset($composition) ? $composition : '',
         'color' => isset($color) ? $color : '',
-        'size' => '',
+        'size' => isset($size) ? $size : '',
         'lmeasurement' => isset($lmeasurement) ? $lmeasurement : '',
         'hmeasurement' => isset($hmeasurement) ? $hmeasurement : '',
         'dmeasurement' => isset($dmeasurement) ? $dmeasurement : '',
@@ -445,18 +616,39 @@ class ProductsCreator
       if (array_key_exists('category', $properties_array)) {
         $categories = Category::all();
         $category_id = 1;
-        $cat = strtoupper($properties_array['category']);
-        // foreach ($properties_array['category'] as $cat) {
-          if ($cat == 'WOMAN') {
-            $cat = 'WOMEN';
+
+        foreach ($properties_array['category'] as $key => $cat) {
+          $up_cat = strtoupper($cat);
+
+          if ($up_cat == 'WOMAN') {
+            $up_cat = 'WOMEN';
           }
 
-          foreach ($categories as $category) {
-            if (strtoupper($category->title) == $cat) {
-              $category_id = $category->id;
+          if ($key == 0 && $up_cat == 'WOMEN') {
+            $women_children = Category::where('title', 'WOMEN')->first()->childs;
+          }
+
+          if (isset($women_children)) {
+            foreach ($women_children as $children) {
+              if (strtoupper($children->title) == $up_cat) {
+                $category_id = $children->id;
+              }
+
+              foreach ($children->childs as $child) {
+                if (strtoupper($child->title) == $up_cat) {
+                  $category_id = $child->id;
+                }
+              }
+            }
+          } else {
+            foreach ($categories as $category) {
+              if (strtoupper($category->title) == $up_cat) {
+                $category_id = $category->id;
+              }
             }
           }
-        // }
+
+        }
 
         $category = $category_id;
       }
@@ -555,6 +747,102 @@ class ProductsCreator
         'hmeasurement' => '',
         'dmeasurement' => '',
         'measurement_size_type' => '',
+        'made_in' => isset($made_in) ? $made_in : '',
+        'category' => isset($category) ? $category : 1,
+      ];
+    }
+
+    public function getGeneralDetails($properties_array)
+    {
+      if (array_key_exists('material_used', $properties_array)) {
+        $composition = (string) $properties_array['material_used'];
+      }
+
+      if (array_key_exists('color', $properties_array)) {
+        $color = $properties_array['color'];
+      }
+
+      if (array_key_exists('sizes', $properties_array)) {
+        $sizes = $properties_array['sizes'];
+        $size = implode(',', $sizes);
+      }
+
+      if (array_key_exists('dimension', $properties_array)) {
+        if (!is_array($properties_array['dimension'])) {
+          if (strpos($properties_array['dimension'], 'Width:') !== false) {
+            if (preg_match_all('/Width: ([\d]+)/', $properties_array['dimension'], $match)) {
+              $lmeasurement = (int) $match[1][0];
+              $measurement_size_type = 'measurement';
+            }
+
+          }
+
+          if (strpos($properties_array['dimension'], 'Height:') !== false) {
+            if (preg_match_all('/Height: ([\d]+)/', $properties_array['dimension'], $match)) {
+              $hmeasurement = (int) $match[1][0];
+            }
+          }
+
+          if (strpos($properties_array['dimension'], 'Depth:') !== false) {
+            if (preg_match_all('/Depth: ([\d]+)/', $properties_array['dimension'], $match)) {
+              $dmeasurement = (int) $match[1][0];
+            }
+          }
+        }
+      }
+
+      if (array_key_exists('category', $properties_array)) {
+        $categories = Category::all();
+        $category_id = 1;
+
+        foreach ($properties_array['category'] as $key => $cat) {
+          $up_cat = strtoupper($cat);
+
+          if ($up_cat == 'WOMAN') {
+            $up_cat = 'WOMEN';
+          }
+
+          if ($key == 0 && $up_cat == 'WOMEN') {
+            $women_children = Category::where('title', 'WOMEN')->first()->childs;
+          }
+
+          if (isset($women_children)) {
+            foreach ($women_children as $children) {
+              if (strtoupper($children->title) == $up_cat) {
+                $category_id = $children->id;
+              }
+
+              foreach ($children->childs as $child) {
+                if (strtoupper($child->title) == $up_cat) {
+                  $category_id = $child->id;
+                }
+              }
+            }
+          } else {
+            foreach ($categories as $category) {
+              if (strtoupper($category->title) == $up_cat) {
+                $category_id = $category->id;
+              }
+            }
+          }
+
+        }
+
+        $category = $category_id;
+      }
+
+      if (array_key_exists('country', $properties_array)) {
+        $made_in = $properties_array['country'];
+      }
+
+      return [
+        'composition' => isset($composition) ? $composition : '',
+        'color' => isset($color) ? $color : '',
+        'size' => isset($size) ? $size : '',
+        'lmeasurement' => isset($lmeasurement) ? $lmeasurement : '',
+        'hmeasurement' => isset($hmeasurement) ? $hmeasurement : '',
+        'dmeasurement' => isset($dmeasurement) ? $dmeasurement : '',
+        'measurement_size_type' => isset($measurement_size_type) ? $measurement_size_type : '',
         'made_in' => isset($made_in) ? $made_in : '',
         'category' => isset($category) ? $category : 1,
       ];
