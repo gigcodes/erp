@@ -2698,15 +2698,17 @@ class WhatsAppController extends FindByNumberController
     if ($whatsapp_number == '919004780634') { // Indian
       $instanceId = "43281";
       $token = "yi841xjhrwyrwrc7";
-    } else if ($whatsapp_number == '971545889192') { // Dubai
-      $instanceId = "43112";
-      $token = "vbi9bpkoejv2lvc4";
-    } else { // Andys Phone
-      // $instanceId = "43254";
-      // $token = "2l4boog1xzk3tr43";
+    } else { // Dubai
       $instanceId = "43112";
       $token = "vbi9bpkoejv2lvc4";
     }
+    // ($whatsapp_number == '971545889192')
+    // else { // Andys Phone
+    //   // $instanceId = "43254";
+    //   // $token = "2l4boog1xzk3tr43";
+    //   $instanceId = "43112";
+    //   $token = "vbi9bpkoejv2lvc4";
+    // }
 
     // throw new \Exception("Yesah");
 
