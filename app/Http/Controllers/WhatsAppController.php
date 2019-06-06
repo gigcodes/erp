@@ -914,6 +914,10 @@ class WhatsAppController extends FindByNumberController
       file_put_contents(__DIR__."/webhook.txt", json_encode($data));
 
       // $to = str_replace('+', '', $data['data']['toNumber']);
+      if (!array_key_exists('messages', $data)) {
+        return response('ACK', 200);
+      }
+      
   		$from = str_replace('@c.us', '', $data['messages'][0]['author']);
   		$text = $data['messages'][0]['body'];
       $supplier = $this->findSupplierByNumber($from);
