@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\CategoryMap;
+use App\ScrapedProducts;
 use Illuminate\Http\Request;
 
 class CategoryMapController extends Controller
@@ -11,10 +13,35 @@ class CategoryMapController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function index()
     {
-        //
+        $categories = Category::where('id', '>', '3')->distinct()->get(['title']);
+        $scrapProductsCategory = ScrapedProducts::all();
+        $filteredCategories = [];
+
+        foreach ($scrapProductsCategory as $spc) {
+            $category = $spc->properties['category'] ?? [];
+            if ($category === []) {
+                continue;
+            }
+
+            if (!is_array($category)) {
+                $filteredCategories[$category] = $category;
+                continue;
+            }
+
+            foreach ($category as $item) {
+                $filteredCategories[$item] = $item;
+            }
+
+        }
+
+        $items = collect($filteredCategories)->chunk(10);
+
+        return view('category.map', compact('items', 'categories'));
+
     }
 
     /**
@@ -46,7 +73,7 @@ class CategoryMapController extends Controller
      */
     public function show(CategoryMap $categoryMap)
     {
-        //
+
     }
 
     /**
