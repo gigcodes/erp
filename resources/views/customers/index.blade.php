@@ -276,14 +276,24 @@
                     </td>
                     <td>
                       {{-- @if ($remark_message == '' || $remark_last_time < $customer->last_communicated_at) --}}
-                        @if (isset($customer->message))
-                            @if (strpos($customer->message, '<br>') !== false)
-                                {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
-                            @else
-                                {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
-                            @endif
-                        @else
+                        @if ($customer->message != '')
+                          @if (strpos($customer->message, '<br>') !== false)
+                            {{ substr($customer->message, 0, strpos($customer->message, '<br>')) }}
+                          @else
                             {{ strlen($customer->message) > 100 ? substr($customer->message, 0, 97) . '...' : $customer->message }}
+                          @endif
+                        @else
+                          @php $image_message = \App\ChatMessage::find($customer->message_id); @endphp
+
+                          @if ($image_message->hasMedia(config('constants.media_tags')))
+                            <div class="d-flex">
+                              @foreach ($image_message->getMedia(config('constants.media_tags')) as $image)
+                                <div class="">
+                                  <img src="{{ $image->getUrl() }}" class="img-responsive thumbnail-200" alt="">
+                                </div>
+                              @endforeach
+                            </div>
+                          @endif
                         @endif
 
                         @if ($customer->is_error_flagged == 1)
