@@ -29,6 +29,7 @@ class SupplierController extends Controller
       $solo_numbers = (new SoloNumbers)->all();
       $term = $request->term ?? '';
       $type = $request->type ?? '';
+      $source = $request->get('source') ?? '';
       $typeWhereClause = '';
 
       if ($type != '') {
@@ -60,8 +61,13 @@ class SupplierController extends Controller
 
                   AS suppliers
 
-                  WHERE (supplier LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%" OR address LIKE "%' . $term . '%" OR social_handle LIKE "%' . $term . '%" OR id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))' . $typeWhereClause . '
-                  ORDER BY is_flagged DESC, last_communicated_at DESC;
+                  WHERE (source LIKE "%'.$source.'%" AND (supplier LIKE "%' . $term . '%" OR 
+                  phone LIKE "%' . $term . '%" OR 
+                  email LIKE "%' . $term . '%" OR 
+                  address LIKE "%' . $term . '%" OR 
+                  social_handle LIKE "%' . $term . '%" OR
+                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))' . $typeWhereClause . '
+                  ORDER BY is_flagged DESC, last_communicated_at DESC;)
 							');
 
       $suppliers_all = Supplier::where(function ($query) {
@@ -78,12 +84,15 @@ class SupplierController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+
+
       return view('suppliers.index', [
         'suppliers'     => $suppliers,
         'suppliers_all' => $suppliers_all,
         'solo_numbers'  => $solo_numbers,
         'term'          => $term,
         'type'          => $type,
+          'source' => $source
       ]);
     }
 
