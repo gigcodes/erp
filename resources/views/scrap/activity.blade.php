@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Scrap Activity - ERP Sololuxury')
+
 @section('content')
 
     <div class="row">
@@ -27,11 +29,7 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
     <div class="table-responsive">
       <table class="table table-bordered table-hover">
@@ -64,8 +62,15 @@
             <th colspan="5" class="text-center">Monti Boutique</th>
             <th colspan="5" class="text-center">Nugnes 1920</th>
             <th colspan="5" class="text-center">Railso</th>
+            <th colspan="5" class="text-center">Coltorti</th>
           </tr>
           <tr>
+            <th>Links</th>
+            <th>Scraped</th>
+            <th>New</th>
+            <th>Inventory</th>
+            <th>Removed</th>
+
             <th>Links</th>
             <th>Scraped</th>
             <th>New</th>
@@ -384,6 +389,12 @@
               <td>{{ $item['railso']['created'] ?? 0 }}</td>
               <td>{{ $item['railso'][1] ?? 0 }}</td>
               <td>{{ $item['railso'][0] ?? 0 }}</td>
+
+              <td>{{ $item['coltorti']['links'] ?? 0 }}</td>
+              <td>{{ $item['coltorti']['scraped'] ?? 0 }}</td>
+              <td>{{ $item['coltorti']['created'] ?? 0 }}</td>
+              <td>{{ $item['coltorti'][1] ?? 0 }}</td>
+              <td>{{ $item['coltorti'][0] ?? 0 }}</td>
             </tr>
           @endforeach
         </tbody>
