@@ -286,13 +286,15 @@
                           @php $image_message = \App\ChatMessage::find($customer->message_id); @endphp
 
                           @if ($image_message->hasMedia(config('constants.media_tags')))
-                            <div class="d-flex">
+                            <div class="image-container hidden">
                               @foreach ($image_message->getMedia(config('constants.media_tags')) as $image)
-                                <div class="">
+                                <div class="d-inline-block">
                                   <img src="{{ $image->getUrl() }}" class="img-responsive thumbnail-200" alt="">
                                 </div>
                               @endforeach
                             </div>
+
+                            <button type="button" class="btn btn-xs btn-secondary show-images-button">Show Images</button>
                           @endif
                         @endif
 
@@ -1096,6 +1098,10 @@
 
           console.log(response);
         });
+      });
+
+      $(document).on('click', '.show-images-button', function() {
+        $(this).siblings('.image-container').toggleClass('hidden');
       });
   </script>
 @endsection
