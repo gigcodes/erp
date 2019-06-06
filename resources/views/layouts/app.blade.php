@@ -1231,7 +1231,7 @@
                           </a>
 
                           <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
-                            @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com	')
+                            @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com')
                                   <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">FACEBOOK | Create A Post</a>
                               @else
                                   <a class="dropdown-item" href="{{ action('InstagramController@index') }}">INSTAGRAM | DASHBOARD</a>
