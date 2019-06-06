@@ -917,7 +917,7 @@ class WhatsAppController extends FindByNumberController
       if (!array_key_exists('messages', $data)) {
         return response('ACK', 200);
       }
-      
+
   		$from = str_replace('@c.us', '', $data['messages'][0]['author']);
   		$text = $data['messages'][0]['body'];
       $supplier = $this->findSupplierByNumber($from);
@@ -2112,10 +2112,10 @@ class WhatsAppController extends FindByNumberController
         } else if ($context == 'task') {
           $sender = User::find($message->user_id);
 
-          if ($message->erp_user != '') {
-            $receiver = User::find($message->erp_user);
-          } else {
+          if ($message->erp_user == '') {
             $receiver = Contact::find($message->contact_id);
+          } else {
+            $receiver = User::find($message->erp_user);
           }
 
           $phone = $receiver->phone;
