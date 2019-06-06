@@ -311,7 +311,7 @@
                 </div>
             </div> -->
 
-
+            @include('task-module.partials.modal-reminder')
 
             <div id="exTab2" class="container" style="overflow: auto">
                <ul class="nav nav-tabs">
@@ -479,6 +479,8 @@
                                                 <button type="button" class="btn btn-image"><img src="/images/completed-green.png" /></button>
                                               @endif
                                             @endif
+
+                                            <button type="button" class='btn btn-image ml-1 reminder-message' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
                                           @endif
 
                                           @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
@@ -494,8 +496,6 @@
                                           @endif
 
                                           @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-
-
                                             @if ($task->is_private == 1)
                                               <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
                                             @else
@@ -1074,7 +1074,7 @@
         });
       }
 
-      $('#completion-datetime').datetimepicker({
+      $('#completion-datetime, #reminder-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
       });
 
@@ -1921,6 +1921,11 @@
 
         $(document).on('click', '.remove-note', function () {
           $(this).closest('.form-group').remove();
+        });
+        $(document).on('click', '.reminder-message', function() {
+          var id = $(this).data('id');
+
+          $('#reminderMessageModal').find('input[name="message_id"]').val(id);
         });
   </script>
 @endsection
