@@ -435,7 +435,7 @@
                                         </span>
                                       </td>
 
-                                      <td class="expand-row table-hover-cell p-2 {{ $task->message && $task->message_status == 0 ? 'text-danger' : '' }}">
+                                      <td class="expand-row table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 ? 'text-danger' : '' }}">
                                         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                           @if (isset($task->message))
                                             <div class="d-flex justify-content-between">
