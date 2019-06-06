@@ -24,7 +24,7 @@ class Facebook {
     {
         $this->facebook = $facebook;
         $this->user_access_token=env('USER_ACCESS_TOKEN', 'EAAD7Te0j0B8BAJKziYXYZCNZB0i6B9JMBvYULH5kIeH5qm6N9E3DZBoQyZCZC0bxZB4c4Rl5gifAqVa788DRaCWXQ2fNPtKFVnEoKvb5Nm1ufMG5cZCTTzKZAM8qUyaDtT0mmyC0zjhv5S9IJt70tQBpDMRHk9XNYoPTtmBedrvevtPIRPEUKns8feYJMkqHS6EZD');
-        $this->page_access_token=env('PAGE_ACCESS_TOKEN', 'EAAD7Te0j0B8BAMvUQ1MsqP6vfD74Dn9EpZCqHN6MBRRiUortnqBHncYXtOBI0GQ1B9ZBXXiJBwSLSDwRH0ZAMTn0NyIiJhSIeV6ZAhevGHYZAAqCoV90bgor0ZBgiNZAMKesg0J6rvvQnSZByMGDWPwSboe6BZC3sJ2pC1BZCA4f3P8vhXfPVgZB84KtY6KbPOuxGqxZALYZCV08VsgZDZD');
+        $this->page_access_token=env('PAGE_ACCESS_TOKEN', 'EAAD7Te0j0B8BALpu9yCul1yz2L6WPZAQtydzn4VPrihHcpGsgBZC9EvnrZCx0IhDEZCmeOZCxZAvJF48ZAxygl9ujSx1bdFMtSLoyucYDBz6yspCbRiNELnRlPMJEZBwgCKwSriEgQY6IQC9FNDBk790OOZCjbca9DLWXHjolkCHrFZAnhSNX5yNeqTR3ZCU49hl2vKJYaz26oaGgZDZD');
         $this->page_id= '507935072915757';
         $this->ad_acc_id= 'act_128125721296439';
         $this->instagram_id = '17841406743743390';
