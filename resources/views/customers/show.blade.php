@@ -2100,8 +2100,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
 
   <script type="text/javascript">
+
+
   jQuery(document).ready(function( $ ) {
     $('audio').on("play", function (me) {
       $('audio').each(function (i,e) {
@@ -3104,6 +3107,16 @@
 
                      return true;
         }
+
+        const socket = io("https://sololuxury.co/?realtime_id=customer_{{ $customer->id }}", {
+          'secure': false
+        });
+
+        socket.on("new-message", function (message) {
+          console.log(message);
+          renderMessage(message, null);
+        });
+
         function pollMessages(page = null, tobottom = null, addElapse = null) {
                  var qs = "";
                  qs += "?customerId=" + customerId;
@@ -3150,13 +3163,15 @@
                  // var el = $(".chat-frame");
                  // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
              }
-        function startPolling() {
-          setTimeout( function() {
-                     pollMessages(null, null, addElapse).then(function() {
-                         startPolling();
-                     }, errorHandler);
-                 }, 1000);
-        }
+
+             pollMessages(null, null, addElapse);
+        // function startPolling() {
+        //   setTimeout( function() {
+        //              pollMessages(null, null, addElapse).then(function() {
+        //                  startPolling();
+        //              }, errorHandler);
+        //          }, 1000);
+        // }
         // function sendWAMessage() {
         //   var data = createMessageArgs();
         //          //var data = new FormData();
@@ -3183,7 +3198,7 @@
         // sendBtn.click(function() {
         //   sendWAMessage();
         // } );
-        startPolling();
+        // startPolling();
 
          $(document).on('click', '.send-communication', function(e) {
            e.preventDefault();
