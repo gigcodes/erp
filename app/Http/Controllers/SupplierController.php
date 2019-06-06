@@ -253,7 +253,12 @@ class SupplierController extends Controller
         })->where('has_error', 0)->get();
       }
 
-      // dd($suppliers);
+      // foreach ($suppliers as $supplier) {
+      //   if ($supplier->email == '' && $supplier->default_email == '') {
+      //     dump($supplier->id);
+      //   }
+      // }
+      // dd('stop');
 
       // $first_email = '';
       // $bcc_emails = [];
@@ -284,7 +289,7 @@ class SupplierController extends Controller
         $params = [
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
-          'from'            => 'customercare@sololuxury.co.in',
+          'from'            => 'buying@amourint.com',
           'seen'            => 1,
           'to'              => $supplier->default_email ?? $supplier->email,
           'subject'         => $request->subject,

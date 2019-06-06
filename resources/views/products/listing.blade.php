@@ -15,7 +15,7 @@
 @section('content')
   <div class="row">
     <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Product Listing ({{ $products_count }})</h2>
+      <h2 class="page-heading">Product Listing ({{ count($products_count) }})</h2>
 
       <div class="pull-left">
         <form class="form-inline" action="{{ route('products.listing') }}" method="GET">
@@ -104,45 +104,45 @@
         </tr>
 
         @foreach ($products as $key => $product)
-          <tr id="product_{{ $product->id }}">
+          <tr id="product_{{ $product['id'] }}">
             @if (!Auth::user()->hasRole('ImageCropers'))
               <td>
-                @if ($product->is_approved == 1)
+                @if ($product['is_approved'] == 1)
                   <img src="/images/1.png" alt="">
                 @endif
 
-                @if ($product->hasMedia(config('constants.media_tags')))
-                  <a href="{{ route('products.show', $product->id) }}" target="_blank">
-                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                @if ($product['imageurl'] != '')
+                  <a href="{{ route('products.show', $product['id']) }}" target="_blank">
+                    <img src="{{ $product['imageurl'] }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product['id'] }}">
                   </a>
                 @else
                   <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
                 @endif
 
-                {{ (new \App\Stage)->getNameById($product->stage) }}
+                {{ (new \App\Stage)->getNameById($product['stage']) }}
               </td>
-              <td class="table-hover-cell quick-edit-name" data-id="{{ $product->id }}">
-                <span class="quick-name">{{ $product->name }}</span>
-                <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
+              <td class="table-hover-cell quick-edit-name" data-id="{{ $product['id'] }}">
+                <span class="quick-name">{{ $product['name'] }}</span>
+                <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product['name'] }}">
               </td>
 
               <td class="read-more-button table-hover-cell">
-                <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                <span class="short-description-container">{{ substr($product['short_description'], 0, 100) . (strlen($product['short_description']) > 100 ? '...' : '') }}</span>
 
                 <span class="long-description-container hidden">
-                  <span class="description-container">{{ $product->short_description }}</span>
+                  <span class="description-container">{{ $product['short_description'] }}</span>
 
-                  <textarea name="description" class="form-control quick-description-edit-textarea hidden" rows="8" cols="80">{{ $product->short_description }}</textarea>
+                  <textarea name="description" class="form-control quick-description-edit-textarea hidden" rows="8" cols="80">{{ $product['short_description'] }}</textarea>
                 </span>
 
-                <button type="button" class="btn-link quick-edit-description" data-id="{{ $product->id }}">Edit</button>
+                <button type="button" class="btn-link quick-edit-description" data-id="{{ $product['id'] }}">Edit</button>
               </td>
 
               <td class="table-hover-cell">
                 {!! $category_selection !!}
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                <input type="hidden" name="category_id" value="{{ $product->category }}">
-                <input type="hidden" name="sizes" value='{{ $product->size }}'>
+                <input type="hidden" name="product_id" value="{{ $product['id'] }}">
+                <input type="hidden" name="category_id" value="{{ $product['category'] }}">
+                <input type="hidden" name="sizes" value='{{ $product['size'] }}'>
               </td>
 
               <td class="table-hover-cell">
@@ -153,71 +153,71 @@
                 {{-- <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}"> --}}
                 <span class="lmeasurement-container">
                   <strong>L:</strong>
-                  <input type="number" name="lmeasurement" class="form-control mt-1" placeholder="12" min="0" max="999" value="{{ $product->lmeasurement }}">
+                  <input type="number" name="lmeasurement" class="form-control mt-1" placeholder="12" min="0" max="999" value="{{ $product['lmeasurement'] }}">
                 </span>
 
                 <span class="hmeasurement-container">
                   <strong>H:</strong>
-                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="14" min="0" max="999" value="{{ $product->hmeasurement }}">
+                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="14" min="0" max="999" value="{{ $product['hmeasurement'] }}">
                 </span>
 
                 <span class="dmeasurement-container">
                   <strong>D:</strong>
-                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="16" min="0" max="999" value="{{ $product->dmeasurement }}">
+                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="16" min="0" max="999" value="{{ $product['dmeasurement'] }}">
                 </span>
 
-                <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product->id }}">Save</button>
+                <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product['id'] }}">Save</button>
               </td>
-              <td class="table-hover-cell quick-edit-composition" data-id="{{ $product->id }}">
-                <span class="quick-composition">{{ $product->composition }}</span>
-                <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}">
+              <td class="table-hover-cell quick-edit-composition" data-id="{{ $product['id'] }}">
+                <span class="quick-composition">{{ $product['composition'] }}</span>
+                <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product['composition'] }}">
               </td>
 
               <td class="table-hover-cell">
-                <select class="form-control quick-edit-color" name="color" data-id="{{ $product->id }}">
+                <select class="form-control quick-edit-color" name="color" data-id="{{ $product['id'] }}">
                   <option value="">Select a Color</option>
 
                   @foreach ($colors as $color)
-                    <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
+                    <option value="{{ $color }}" {{ $product['color'] == $color ? 'selected' : '' }}>{{ $color }}</option>
                   @endforeach
                 </select>
               </td>
 
-              <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
-                <span class="quick-price">{{ $product->price }}</span>
-                <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
+              <td class="table-hover-cell quick-edit-price" data-id="{{ $product['id'] }}">
+                <span class="quick-price">{{ $product['price'] }}</span>
+                <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product['price'] }}">
 
-                <span class="quick-price-inr">{{ $product->price_inr }}</span>
-                <span class="quick-price-special">{{ $product->price_special }}</span>
+                <span class="quick-price-inr">{{ $product['price_inr'] }}</span>
+                <span class="quick-price-special">{{ $product['price_special'] }}</span>
               </td>
 
               <td>
-                @if ($product->hasMedia(config('constants.media_tags')))
-                  <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
+                @if ($product['imageurl'] != '')
+                  <a href="{{ route('products.quick.download', $product['id']) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
                 @endif
 
                 <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
 
                 <div class="form-inline">
-                  <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
+                  <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product['id'] }}">Upload</button>
 
-                  @if ($product->last_imagecropper != '')
+                  @if ($product['last_imagecropper'] != '')
                     <img src="/images/1.png" class="ml-1" alt="">
                   @endif
                 </div>
               </td>
 
               <td>
-                {{ $product->isUploaded }} {{ $product->isFinal }}
+                {{ $product['isUploaded'] }} {{ $product['isFinal'] }}
 
-                @if ($product->is_approved == 0)
-                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                @if ($product['is_approved'] == 0)
+                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product['id'] }}" data-type="approve">Approve</button>
+                @elseif ($product['is_approved'] == 1 && $product['isUploaded'] == 0)
+                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product['id'] }}" data-type="list">List</button>
+                @elseif ($product['is_approved'] == 1 && $product['isUploaded'] == 1 && $product['isFinal'] == 0)
+                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product['id'] }}" data-type="enable">Enable</button>
                 @else
-                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product['id'] }}" data-type="update">Update</button>
                 @endif
 
                 {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
@@ -226,80 +226,80 @@
               </td>
             @else
               <td>
-                @if ($product->is_approved == 1)
+                @if ($product['is_approved'] == 1)
                   <img src="/images/1.png" alt="">
                 @endif
 
-                @if ($product->hasMedia(config('constants.media_tags')))
-                  <a href="{{ route('products.show', $product->id) }}" target="_blank">
-                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                @if ($product['imageurl'] != '')
+                  <a href="{{ route('products.show', $product['id']) }}" target="_blank">
+                    <img src="{{ $product['imageurl'] }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product['id'] }}">
                   </a>
                 @else
                   <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
                 @endif
 
-                {{ (new \App\Stage)->getNameById($product->stage) }}
+                {{ (new \App\Stage)->getNameById($product['stage']) }}
               </td>
               <td>
-                <span>{{ $product->name }}</span>
+                <span>{{ $product['name'] }}</span>
               </td>
 
               <td class="read-more-button">
-                <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                <span class="short-description-container">{{ substr($product['short_description'], 0, 100) . (strlen($product['short_description']) > 100 ? '...' : '') }}</span>
 
                 <span class="long-description-container hidden">
-                  <span class="description-container">{{ $product->short_description }}</span>
+                  <span class="description-container">{{ $product['short_description'] }}</span>
                 </span>
               </td>
 
               <td>
-                {{ $product->product_category->title }}
+                {{-- {{ $product->product_category->title }} --}}
               </td>
 
               <td>
-                @if ($product->price != '')
-                  {{ $product->size }}
+                @if ($product['price'] != '')
+                  {{ $product['size'] }}
                 @else
-                  L-{{ $product->lmeasurement }}, H-{{ $product->hmeasurement }}, D-{{ $product->dmeasurement }}
+                  L-{{ $product['lmeasurement'] }}, H-{{ $product['hmeasurement'] }}, D-{{ $product['dmeasurement'] }}
                 @endif
               </td>
 
               <td>
-                <span class="quick-composition">{{ $product->composition }}</span>
+                <span class="quick-composition">{{ $product['composition'] }}</span>
               </td>
 
               <td>
-                {{ $product->color }}
+                {{ $product['color'] }}
               </td>
 
               <td>
-                <span>{{ $product->price }}</span>
+                <span>{{ $product['price'] }}</span>
 
-                <span>{{ $product->price_inr }}</span>
-                <span>{{ $product->price_special }}</span>
+                <span>{{ $product['price_inr'] }}</span>
+                <span>{{ $product['price_special'] }}</span>
               </td>
 
               <td>
-                @if ($product->hasMedia(config('constants.media_tags')))
-                  <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
+                @if ($product['imageurl'] != '')
+                  <a href="{{ route('products.quick.download', $product['id']) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
                 @endif
 
                 <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
 
-                <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
+                <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product['id'] }}">Upload</button>
               </td>
 
               <td>
-                {{ $product->isUploaded }} {{ $product->isFinal }}
+                {{ $product['isUploaded'] }} {{ $product['isFinal'] }}
 
-                @if ($product->is_approved == 0)
-                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                @if ($product['is_approved'] == 0)
+                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product['id'] }}" data-type="approve">Approve</button>
+                @elseif ($product['is_approved'] == 1 && $product['isUploaded'] == 0)
+                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product['id'] }}" data-type="list">List</button>
+                @elseif ($product['is_approved'] == 1 && $product['isUploaded'] == 1 && $product['isFinal'] == 0)
+                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product['id'] }}" data-type="enable">Enable</button>
                 @else
-                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product['id'] }}" data-type="update">Update</button>
                 @endif
               </td>
             @endif

@@ -162,6 +162,19 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-3 col-6">
+                            <div class="wrapper count-title d-flex">
+                                <div class="icon"><i class="icon-list-1"></i></div>
+                                <div class="name"><strong class="text-uppercase">Product Listings</strong>
+                                  <div class="count-number">{{ $total_data['productlister'] }}</div>
+                                  {{-- <span>Out of {{ $benchmark['lister'] }}</span>
+
+                                  @if( $benchmark['lister'] - $total_data['lister'] > 0 )
+                                    <span>Pending : {{ $benchmark['lister'] - $total_data['lister'] }}</span>
+                                  @endif --}}
+                                </div>
+                            </div>
+                        </div>
                         <!-- Count item widget-->
                         <div class="col-md-3 col-6">
                             <div class="wrapper count-title d-flex">

@@ -25,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller {
 	/**
@@ -34,6 +35,7 @@ class ProductController extends Controller {
 	 */
 	function __construct() {
 		$this->middleware( 'permission:product-list', [ 'only' => [ 'show' ] ] );
+		$this->middleware('permission:product-lister', ['only' => ['listing']]);
 //		$this->middleware('permission:product-create', ['only' => ['create','store']]);
 //		$this->middleware('permission:product-edit', ['only' => ['edit','update']]);
 
@@ -102,8 +104,14 @@ class ProductController extends Controller {
 		$supplier = [];
 		$type = '';
 
+		if (Auth::user()->hasRole('Products Lister')) {
+			$products = Auth::user()->products();
+		} else {
+			$products = (new Product)->newQuery();
+		}
+
 		if ($request->brand[0] != null) {
-			$productQuery = ( new Product() )->newQuery()
+			$productQuery = $products
 			->whereIn('brand', $request->brand);
 
 			$brand = $request->brand[0];
@@ -113,7 +121,7 @@ class ProductController extends Controller {
 			if ($request->brand[0] != null) {
 				$productQuery = $productQuery->whereIn('color', $request->color);
 			} else {
-				$productQuery = ( new Product() )->newQuery()
+				$productQuery = $products
 				->whereIn('color', $request->color);
 			}
 
@@ -150,7 +158,7 @@ class ProductController extends Controller {
 			if ($request->brand[0] != null || $request->color[0] != null) {
 				$productQuery = $productQuery->whereIn('category', $category_children);
 			} else {
-				$productQuery = ( new Product() )->newQuery()
+				$productQuery = $products
 				->whereIn('category', $category_children);
 			}
 
@@ -163,7 +171,7 @@ class ProductController extends Controller {
 			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
 				$productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
 			} else {
-				$productQuery = ( new Product() )->newQuery()->with('Suppliers')
+				$productQuery = $products->with('Suppliers')
 				->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
 			}
 
@@ -183,13 +191,13 @@ class ProductController extends Controller {
 				}
 			} else {
 				if ($request->type == 'Not Listed') {
-					$productQuery = ( new Product() )->newQuery()->where('isFinal', 0)->where('isUploaded', 0);
+					$productQuery = $products->newQuery()->where('isFinal', 0)->where('isUploaded', 0);
 				} else if ($request->type == 'Listed') {
-					$productQuery = ( new Product() )->newQuery()->where('isUploaded', 1);
+					$productQuery = $products->where('isUploaded', 1);
 				} else if ($request->type == 'Approved') {
-					$productQuery = (new Product())->newQuery()->where('is_approved', 1)->whereNull('last_imagecropper');
+					$productQuery = $products->where('is_approved', 1)->whereNull('last_imagecropper');
 				} else if ($request->type == 'Image Cropped') {
-					$productQuery = (new Product())->newQuery()->where('is_approved', 1)->whereNotNull('last_imagecropper');
+					$productQuery = $products->where('is_approved', 1)->whereNotNull('last_imagecropper');
 				}
 			}
 
@@ -197,7 +205,7 @@ class ProductController extends Controller {
 		}
 
 		if (trim($term) != '') {
-			$productQuery = ( new Product() )->newQuery()
+			$productQuery = $products
 			->orWhere( 'sku', 'LIKE', "%$term%" )
 			->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
 			;
@@ -221,7 +229,7 @@ class ProductController extends Controller {
 			}
 		} else {
 			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
-				$productQuery = ( new Product() )->newQuery();
+				$productQuery = $products;
 			}
 		}
 
@@ -232,8 +240,32 @@ class ProductController extends Controller {
             $products = $products->where('is_image_processed', 1);
         }
 
-		$products_count = $products->count();
-		$products = $products->paginate(Setting::get('pagination'));
+		// if (Auth::user()->hasRole('Products Lister')) {
+		// 	// dd('as');
+		// 	$products_count = Auth::user()->products;
+		// 	$products = Auth::user()->products()->get()->toArray();
+
+			// $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      // $perPage = Setting::get('pagination');
+      // $currentItems = array_slice($products, $perPage * ($currentPage - 1), $perPage);
+			//
+      // $products = new LengthAwarePaginator($currentItems, count($products), $perPage, $currentPage, [
+      //   'path'  => LengthAwarePaginator::resolveCurrentPath()
+      // ]);
+
+			// dd($products);
+		// } else {
+			$products_count = $products->get();
+			$products = $products->get()->toArray();
+
+			$currentPage = LengthAwarePaginator::resolveCurrentPage();
+      $perPage = Setting::get('pagination');
+      $currentItems = array_slice($products, $perPage * ($currentPage - 1), $perPage);
+
+      $products = new LengthAwarePaginator($currentItems, count($products), $perPage, $currentPage, [
+        'path'  => LengthAwarePaginator::resolveCurrentPath()
+      ]);
+		// }
 
 		$selected_categories = $request->category ? $request->category : 1;
 		$category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
@@ -484,6 +516,7 @@ class ProductController extends Controller {
 	public function listMagento(Request $request, $id)
 	{
 		$product = Product::find($id);
+		ActivityConroller::create($product->id,'productlister','create');
 
 		$result = app('App\Http\Controllers\ProductListerController')->magentoSoapApiUpload($product, 1);
 

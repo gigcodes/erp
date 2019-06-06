@@ -114,11 +114,27 @@
                 </select>
             </div>
         </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+          <div class="form-group">
+            <strong>Amount of Assigned Products:</strong>
+            <input type="number" name="amount_assigned" class="form-control" value="{{ $user->amount_assigned }}">
+          </div>
+        </div>
+
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <button type="submit" class="btn btn-secondary">+</button>
         </div>
     </div>
     {!! Form::close() !!}
+
+    <div class="form-group">
+      <form action="{{ route('user.assign.products', $user->id) }}" method="POST">
+        @csrf
+
+        <button type="submit" class="btn btn-secondary">Assign Products</button>
+      </form>
+    </div>
 
 
 @endsection

@@ -513,7 +513,9 @@
 
                                     </li>
 
-                                    <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
+                                    @can ('product-lister')
+                                      <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
+                                    @endcan
 
 
 
@@ -609,11 +611,11 @@
 
                                 </div>
 
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-
+                                @can ('product-lister')
+                                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
-
-                                </div>
+                                  </div>
+                                @endcan
 
                             </li>
 
@@ -995,42 +997,46 @@
 
                         @endcan
 
-                        <li class="nav-item dropdown">
+                        @can ('crm')
+                          <li class="nav-item dropdown">
 
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                              <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
 
-                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 
-                                Vendor<span class="caret"></span>
+                                  Vendor<span class="caret"></span>
 
-                            </a>
-
-
-
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
-                                <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
-                            </div>
-
-                        </li>
-
-                        <li class="nav-item dropdown">
-
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-
-                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-
-                                Supplier<span class="caret"></span>
-
-                            </a>
+                              </a>
 
 
 
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
-                            </div>
+                              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                  <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
+                                  <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
+                              </div>
 
-                        </li>
+                          </li>
+                        @endcan
+
+                        @can ('crm')
+                          <li class="nav-item dropdown">
+
+                              <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                  Supplier<span class="caret"></span>
+
+                              </a>
+
+
+
+                              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                  <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
+                              </div>
+
+                          </li>
+                        @endcan
 
 
 
@@ -1275,7 +1281,7 @@
                           </ul>
                         </li>
                       @endcan
-
+                      @can ('crm')
                             <li class="nav-item dropdown">
 
                                 <a id="scrapMenu" class="nav-link dropdown-toggle" href="#" role="button"
@@ -1310,6 +1316,7 @@
 
 
                             </li>
+                          @endcan
 
 
                         @can('social-view')
@@ -1459,7 +1466,9 @@
 
                                 @endcan
 
-                                <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Replies</a>
+                                @can ('crm')
+                                  <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Replies</a>
+                                @endcan
 
                                 <a class="dropdown-item" href="{{ route('logout') }}"
 

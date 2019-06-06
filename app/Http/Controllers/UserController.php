@@ -13,6 +13,8 @@ use App\NotificationQueue;
 use App\PushNotification;
 use App\ApiKey;
 use App\Task;
+use App\Product;
+use App\UserProduct;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -238,6 +240,38 @@ class UserController extends Controller
 
 		return redirect()->route('users.index')
 		                 ->with('success','User deleted successfully');
+	}
+
+	public function assignProducts(Request $request, $id)
+	{
+		$user = User::find($id);
+
+		if ($user->amount_assigned != '') {
+			$products = Product::where('is_scraped', 1)->where('stock', '>=', 1);
+			$user_products = UserProduct::all();
+
+			$product_ids = [];
+			foreach ($user_products as $product) {
+				$product_ids[] = $product->product_id;
+			}
+
+			if ($user->products()->count()) {
+				// $product_ids = [];
+				// foreach ($user->products as $product) {
+				// 	$product_ids[] = $product->id;
+				// }
+
+				$products = $products->whereNotIn('id', $product_ids)->take($user->amount_assigned)->get();
+				$user->products()->attach($products);
+			} else {
+				$products = $products->whereNotIn('id', $product_ids)->take($user->amount_assigned)->get();
+				$user->products()->attach($products);
+			}
+		} else {
+			return redirect()->back()->withErrors('Please select amount assigned first!');
+		}
+
+		return redirect()->back()->withSuccess('You have successfully assigned products to user');
 	}
 
 	public function login(Request $request)

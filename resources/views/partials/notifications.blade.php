@@ -1,3 +1,4 @@
+@can ('crm')
 <li class="nav-item dropdown notification-dropdown">
     <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" aria-haspopup="true"
        aria-expanded="false" v-pre>
@@ -35,6 +36,7 @@
         </div>
     </ul>
 </li>
+@endcan
 
 
 
