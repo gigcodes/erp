@@ -66,8 +66,8 @@ class SupplierController extends Controller
                   email LIKE "%' . $term . '%" OR 
                   address LIKE "%' . $term . '%" OR 
                   social_handle LIKE "%' . $term . '%" OR
-                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))' . $typeWhereClause . '
-                  ORDER BY is_flagged DESC, last_communicated_at DESC;)
+                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
+                  ORDER BY is_flagged DESC, last_communicated_at DESC;
 							');
 
       $suppliers_all = Supplier::where(function ($query) {
