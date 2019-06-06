@@ -97,6 +97,7 @@ class ActivityConroller extends Controller {
 			'approver'     => 'Approver',
 			'inventory'    => 'Inventory',
 			'sales'        => 'Sales',
+			'productlister'	=> 'Products Lister',
 		];
 
 		$data['range_start'] = $request->input( 'range_start' );
@@ -229,6 +230,7 @@ class ActivityConroller extends Controller {
 		$total_data['approver']     = 0;
 		$total_data['inventory']    = 0;
 		$total_data['sales']        = 0;
+		$total_data['productlister']        = 0;
 
 		foreach ( $results2 as $result ) {
 			$total_data[ $result->subject_type ] += $result->total;

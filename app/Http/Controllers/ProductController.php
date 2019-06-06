@@ -516,6 +516,7 @@ class ProductController extends Controller {
 	public function listMagento(Request $request, $id)
 	{
 		$product = Product::find($id);
+		ActivityConroller::create($product->id,'productlister','create');
 
 		$result = app('App\Http\Controllers\ProductListerController')->magentoSoapApiUpload($product, 1);
 
