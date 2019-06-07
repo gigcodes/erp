@@ -255,8 +255,8 @@ class ProductController extends Controller {
 
 			// dd($products);
 		// } else {
-			$products_count = $products->get();
-			$products = $products->get()->toArray();
+			$products_count = $products->take(10000)->get();
+			$products = $products->take(10000)->get()->toArray();
 
 			$currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination');
