@@ -38,10 +38,12 @@ class RecreateProducts extends Command
      */
     public function handle()
     {
-      $products = ScrapedProducts::where('website', 'stilmoda')->get();
+      $products = ScrapedProducts::where('website', 'angelominetti')->get();
       // dd(count($products));
-      foreach ($products as $product) {
+      foreach ($products as $key => $product) {
         app('App\Services\Products\ProductsCreator')->createProduct($product);
+
+        dump("$key - created product");
       }
     }
 }
