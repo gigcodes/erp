@@ -19,6 +19,7 @@ use App\Brand;
 use App\Product;
 use App\Message;
 use App\Purchase;
+use App\Contact;
 use App\Dubbizle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,8 +53,8 @@ class FindByNumberController extends Controller
 				return $agent->purchase->purchase_supplier;
 			}
 
-			if ($agent->supplier) {
-				return $agent->supplier;
+			if (preg_match("/supplier/i", $agent->model_type)) {
+				return Supplier::find($agent->model_id);
 			}
 		}
 
@@ -63,6 +64,11 @@ class FindByNumberController extends Controller
 	protected function findUserByNumber($number)
 	{
 		return User::where('phone', '=', $number)->first();
+	}
+
+	protected function findContactByNumber($number)
+	{
+		return Contact::where('phone', '=', $number)->first();
 	}
 
   protected function findLeadOrOrderByNumber($number)
