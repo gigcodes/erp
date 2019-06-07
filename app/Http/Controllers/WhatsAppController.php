@@ -2706,7 +2706,7 @@ class WhatsAppController extends FindByNumberController
       $instanceId = "43112";
       $token = "vbi9bpkoejv2lvc4";
     }
-    // ($whatsapp_number == '971545889192')
+    // ($whatsapp_number == '971545889192') // Dubai?
     // else { // Andys Phone
     //   // $instanceId = "43254";
     //   // $token = "2l4boog1xzk3tr43";

@@ -14,4 +14,9 @@ class Agent extends Model
   {
     return $this->hasOne('App\Purchase');
   }
+
+  public function supplier()
+  {
+    return $this->hasOne('App\Supplier', 'model_id')->where('model_type', 'App\Supplier');
+  }
 }
