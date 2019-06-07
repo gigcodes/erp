@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\File;
 use App\HashtagPostComment;
 use App\Product;
+use App\TargetLocation;
 use Illuminate\Http\Request;
 use App\Account;
 use App\Setting;
@@ -97,6 +98,8 @@ class ReviewController extends Controller
 
         $instagram_dm_reviews = Review::where('platform', 'instagram_dm')->get();
 
+        $countries = TargetLocation::all();
+
       return view('reviews.index', [
         'accounts'            => $accounts,
         'customers'           => $customers,
@@ -107,7 +110,8 @@ class ReviewController extends Controller
         'filter_posted_date'  => $filter_posted_date,
         'users_array'  => $users_array,
         'accounts_array'  => $accounts_array,
-          'instagram_dm_reviews' => $instagram_dm_reviews
+          'instagram_dm_reviews' => $instagram_dm_reviews,
+          'countries' => $countries
       ]);
     }
 
@@ -159,6 +163,8 @@ class ReviewController extends Controller
       ]);
 
       $data = $request->except('_token');
+
+      $data['broadcast'] = ($request->get('broadcast') == 'on') ? 1 : 0;
 
       Account::create($data);
 
@@ -321,7 +327,7 @@ class ReviewController extends Controller
       $data = $request->except(['_token', '_method']);
         $data['broadcast'] = 0;
 
-      if ($request->get('broadcast') == 'on') {
+      if ($request->get('broadcast') == 1) {
           $data['broadcast'] = 1;
       }
 

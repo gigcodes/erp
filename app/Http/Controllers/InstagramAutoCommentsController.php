@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\InstagramAutoComments;
+use App\TargetLocation;
 use Illuminate\Http\Request;
 
 class InstagramAutoCommentsController extends Controller
@@ -15,9 +16,10 @@ class InstagramAutoCommentsController extends Controller
     public function index()
     {
         $comments = InstagramAutoComments::orderBy('updated_at', 'DESC')->get();
+        $countries = TargetLocation::all();
 
 
-        return view('instagram.auto_comments.index', compact('comments'));
+        return view('instagram.auto_comments.index', compact('comments', 'countries'));
     }
 
     /**
@@ -45,6 +47,7 @@ class InstagramAutoCommentsController extends Controller
         $comment = new InstagramAutoComments();
         $comment->comment = $request->get('text');
         $comment->source = $request->get('comment');
+        $comment->country = $request->get('country');
         $comment->save();
 
         return redirect()->back()->with('message', 'Comment added successfully!');

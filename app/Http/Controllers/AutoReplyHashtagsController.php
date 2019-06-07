@@ -64,17 +64,20 @@ class AutoReplyHashtagsController extends Controller
             $maxId = $request->get('maxId');
         }
 
+        $country = $request->get('country');
 
         $hashtags = new Hashtags();
         $hashtags->login();
 
-        [$medias, $maxId] = $hashtags->getFeed($hashtag->text, $maxId);
+        [$medias, $maxId] = $hashtags->getFeed($hashtag->text, $maxId, $country);
         $media_count = $hashtags->getMediaCount($hashtag->text);
         $hid = $hashtag->id;
         $hashtag = $hashtag->text;
 
+        $countryText = $request->get('country');
 
-        return view('instagram.auto_comments.prepare', compact('medias', 'media_count', 'maxId', 'hashtag', 'hid'));
+
+        return view('instagram.auto_comments.prepare', compact('medias', 'media_count', 'maxId', 'hashtag', 'hid', 'countryText'));
 
     }
 
@@ -112,6 +115,7 @@ class AutoReplyHashtagsController extends Controller
             $h->post_id = $media;
             $h->caption = $request->get('caption_'.$media);
             $h->auto_reply_hashtag_id = $hashtag->id;
+            $h->country = $request->get('country');
             $h->status = 1;
             $h->save();
         }

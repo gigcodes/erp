@@ -15,12 +15,13 @@
 
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-info mb-4" href="{{ action('HashtagController@edit', $hashtag) }}">FIRST PAGE</a>
-                <a class="btn btn-info mb-4" href="{{ action('HashtagController@edit', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
+                <a class="btn btn-info mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?country={{$countryText ?? ''}}">FIRST PAGE</a>
+                <a class="btn btn-info mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}&country={{$countryText ?? ''}}">NEXT</a>
             @endif
         </div>
 
         <form method="post" action="{{ action('AutoReplyHashtagsController@update', $hid) }}">
+            <input type="hidden" name="country" id="country" value="{{$countryText ?? ''}}">
             @csrf
             @method('PUT')
             <div class="col-md-12">
@@ -90,8 +91,8 @@
 
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-info mb-4" href="{{ action('HashtagController@edit', $hashtag) }}">FIRST PAGE</a>
-                <a class="btn btn-info mb-4" href="{{ action('HashtagController@edit', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
+                <a class="btn btn-info mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?country={{$countryText ?? ''}}">FIRST PAGE</a>
+                <a class="btn btn-info mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}&country={{$countryText ?? ''}}">NEXT</a>
             @endif
         </div>
     </div>

@@ -15,7 +15,7 @@
         <div class="col-md-12">
             <button class="btn btn-success btn-block" data-toggle="collapse" data-target="#demo">Show Target hashtags</button>
 
-            <div id="demo" class="collapse" style="background: #dddddd; padding: 15px;">
+            <div id="demo" class="collapse" style="background: #cccccc; padding: 15px;">
                 <form method="post" action="{{action('AutoReplyHashtagsController@store')}}">
                     @csrf
                     <div class="form-group">
@@ -27,7 +27,7 @@
                     </div>
                 </form>
 
-                <table class="table table-dark">
+                <table class="table table-bordered">
                     <tr>
                         <th>SN</th>
                         <th>#Tag</th>
@@ -41,7 +41,17 @@
                             <td>{{ $hashtag->text }}</td>
                             <td>{{ $hashtag->status ? 'On Progress' : 'Completed' }}</td>
                             <td>{{ $hashtag->comments()->count() ?? 0 }}</td>
-                            <th><a class="btn  btn-info btn-sm" href="{{action('AutoReplyHashtagsController@show', $hashtag->id)}}">Add Posts</a></th>
+                            <th style="width: 200px;">
+                                <form action="{{action('AutoReplyHashtagsController@show', $hashtag->id)}}" method="get">
+                                    <select class="form-control" name="country" id="country_{{$hashtag->id}}">
+                                        <option value="0">Country/Region</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{$country->region}}">{{$country->region}}</option>
+                                        @endforeach
+                                    </select>
+                                    <button class="btn btn-block mt-1 btn-info btn-sm">Add Posts</button>
+                                </form>
+                            </th>
                         </tr>
                     @endforeach
                 </table>
@@ -61,6 +71,7 @@
                 <tr>
                     <th>SN</th>
                     <th>#tag</th>
+                    <th>Country</th>
                     <th>Post</th>
                     <th>Commenter</th>
                     <th>Comment</th>
@@ -70,6 +81,7 @@
                     <tr>
                         <th>{{$key}}</th>
                         <th>#{{ $comment->hashtag->text }}</th>
+                        <th>{{$comment->country ?? 'N/A'}}</th>
                         <th>
                             {{ $comment->caption }}
                             <br>

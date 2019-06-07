@@ -845,8 +845,8 @@ class ProductController extends Controller {
 
 	public function giveImage() {
 	    $product = Product::where('is_image_processed', 0)
-            ->where('lmeasurement', '>', 0)
-            ->where('is_scraped', 1)
+            ->where('is_scrapeAd', 1)
+            ->where('is_without_image', 0)
             ->first();
 
 

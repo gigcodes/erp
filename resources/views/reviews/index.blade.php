@@ -33,7 +33,7 @@
                     </div>
                   </div>
 
-                  <div class="col">
+                  <div class="col">submit
                     <div class="form-group ml-3">
                       <div class='input-group date' id='filter_posted_date'>
                         <input type='text' class="form-control" name="posted_date" value="{{ $filter_posted_date }}" />
@@ -88,6 +88,7 @@
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Country</th>
                 <th>Email</th>
                 <th>Password</th>
                 <th>DOB</th>
@@ -103,6 +104,7 @@
               @foreach ($accounts as $account)
                 <tr class="{{ $account->has_posted_reviews() ? 'text-danger' : '' }}">
                   <td>{{ $account->first_name }} {{ $account->last_name }}</td>
+                  <td>{{ $account->country ?? 'All' }}</td>
                   <td>{{ $account->email }}</td>
                   <td>{{ $account->password }}</td>
                   <td>{{ $account->dob }}</td>
@@ -596,6 +598,7 @@
       $('#account_posts').val(account.posts_count);
       $('#account_dp').val(account.dp_count);
       $('#account_birthday').val(account.dob);
+      $('#country_edit').val(account.country);
       if (account.broadcast==1) {
         $('#broadcast2').attr('checked', true);
       }

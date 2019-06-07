@@ -39,6 +39,16 @@
           </div>
 
           <div class="form-group">
+            <strong>Country</strong>
+            <select name="country" class="form-control" id="country_acc_create">
+              <option value="">Any</option>
+              @foreach($countries as $country)
+                <option value="{{$country->region}}">{{$country->region}}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="form-group">
             <strong>Password:</strong>
             <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
@@ -183,6 +193,15 @@
             @if ($errors->has('platform'))
               <div class="alert alert-danger">{{$errors->first('platform')}}</div>
             @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Country</strong>
+            <select class="form-control" name="country" id="country_edit">
+              @foreach($countries as $country)
+                <option value="{{$country->region}}">{{$country->region}}</option>
+              @endforeach
+            </select>
           </div>
 
           <div class="form-group">

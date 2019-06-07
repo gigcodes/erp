@@ -29,7 +29,7 @@ class Hashtags {
         return $this->instagram->hashtag->getInfo($hashtag)->asArray()['media_count'];
     }
 
-    public function getFeed($hashtag, $maxId = '')
+    public function getFeed($hashtag, $maxId = '', $country = null)
     {
         $media = $this->instagram->hashtag->getFeed($hashtag, $this->token, $maxId);
         $medias = $media->asArray();
@@ -76,24 +76,9 @@ class Hashtags {
             $y = $item['location']['lng'] ?? 0;
 
             $point = new Location();
-            $location = $point->pointInPolygon($x, $y);
-//            if ($location[0]) {
 
-                $l = InstagramUsersList::where('user_id', $item['user']['pk'])->first();
-
-                if (!$l) {
-                    $l = new InstagramUsersList();
-                }
-
-                $l->username = $item['user']['username'];
-                $l->user_id = $item['user']['pk'];
-                $l->image_url = $item['user']['profile_pic_url'];
-                $l->bio = $item['user']['biography'] ?? 'N/A';
-                $l->rating = 0;
-                $l->location_id = $location[1]->id ?? 1;
-                $l->because_of = "Hashtags: $hashtag";
-                $l->save();
-
+            $target = TargetLocation::where('region', $country)->first();
+            if (!$target) {
                 $filteredMedia[] = [
                     'username' => $item['user']['username'],
                     'user_id' => $item['user']['pk'],
@@ -109,8 +94,42 @@ class Hashtags {
                     'created_at' => Carbon::createFromTimestamp($item['taken_at'])->diffForHumans(),
                     'posted_at' => Carbon::createFromTimestamp($item['taken_at'])->toDateTimeString(),
                 ];
+            } else {
+                $location = $point->pointInParticularLocation($x, $y, $target);
+                if ($location[0]) {
 
-//            }
+                    $l = InstagramUsersList::where('user_id', $item['user']['pk'])->first();
+
+                    if (!$l) {
+                        $l = new InstagramUsersList();
+                    }
+
+                    $l->username = $item['user']['username'];
+                    $l->user_id = $item['user']['pk'];
+                    $l->image_url = $item['user']['profile_pic_url'];
+                    $l->bio = $item['user']['biography'] ?? 'N/A';
+                    $l->rating = 0;
+                    $l->location_id = $location[1]->id ?? 1;
+                    $l->because_of = "Hashtags: $hashtag";
+                    $l->save();
+
+                    $filteredMedia[] = [
+                        'username' => $item['user']['username'],
+                        'user_id' => $item['user']['pk'],
+                        'media_id' => $item['id'],
+                        'code' => $item['code'],
+                        'caption' => $item['caption']['text'],
+                        'like_count' => $item['like_count'],
+                        'comment_count' => $item['comment_count'] ?? '0',
+                        'media_type' => $item['media_type'],
+                        'media' => $media,
+                        'comments' => $comments,
+                        'location' => $item['location'] ?? '',
+                        'created_at' => Carbon::createFromTimestamp($item['taken_at'])->diffForHumans(),
+                        'posted_at' => Carbon::createFromTimestamp($item['taken_at'])->toDateTimeString(),
+                    ];
+                }
+            }
         }
 
         return [$filteredMedia, $maxId];

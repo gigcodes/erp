@@ -47,7 +47,7 @@
     @include('purchase.partials.modal-email')
     @include('suppliers.partials.modal-emailToAll')
 
-    <div class="table-responsive mt-3">
+    <div class="mt-3 col-md-12">
       <table class="table table-bordered">
         <thead>
           <tr>
