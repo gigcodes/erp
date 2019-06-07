@@ -960,11 +960,11 @@
 
                               @if (isset($order))
                                 <div class="col-6">
-                                  @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
+                                  @if ($order->order_status == 'Advance received' && !$order->is_sent_advance_receipt())
                                     <div class="form-group">
                                       <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
                                     </div>
-                                  @elseif ($order->is_sent_initial_advance())
+                                  @elseif ($order->is_sent_advance_receipt())
                                     <div class="form-group">
                                       Advance Receipt was emailed
                                     </div>

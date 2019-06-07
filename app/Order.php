@@ -104,6 +104,13 @@ class Order extends Model {
 		return $count > 0 ? TRUE : FALSE;
 	}
 
+	public function is_sent_advance_receipt()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'advance-receipt')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
 	public function is_sent_online_confirmation()
 	{
 		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'online-confirmation')->count();
