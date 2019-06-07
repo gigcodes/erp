@@ -923,6 +923,7 @@ class WhatsAppController extends FindByNumberController
       $supplier = $this->findSupplierByNumber($from);
       $user = $this->findUserByNumber($from);
       $dubbizle = $this->findDubbizleByNumber($from);
+      $contact = $this->findContactByNumber($from);
 
       $params = [
         'number'    => $from,
@@ -999,23 +1000,25 @@ class WhatsAppController extends FindByNumberController
           // $model_type = 'user';
           // $model_id = $user->id;
         } else if (!$supplier) {
-          $contact = Contact::where('phone', $from)->first();
 
-          if ($contact) {
-            $params['contact_id'] = $contact->id;
-            $params['user_id'] = $contact->id;
+        }
 
-            if ($params['message'] != '' && (preg_match_all("/#([\d]+)/i", $params['message'], $match))) {
-              $params['task_id'] = $match[1][0];
-            }
+        $contact = Contact::where('phone', $from)->first();
 
-            $message = ChatMessage::create($params);
+        if ($contact) {
+          $params['contact_id'] = $contact->id;
+          $params['user_id'] = $contact->id;
 
-            if (array_key_exists('task_id', $params)) {
-              $this->sendRealTime($message, 'task_' . $match[1][0], $client);
-            } else {
-              $this->sendRealTime($message, 'user_' . $contact->id, $client);
-            }
+          if ($params['message'] != '' && (preg_match_all("/#([\d]+)/i", $params['message'], $match))) {
+            $params['task_id'] = $match[1][0];
+          }
+
+          $message = ChatMessage::create($params);
+
+          if (array_key_exists('task_id', $params)) {
+            $this->sendRealTime($message, 'task_' . $match[1][0], $client);
+          } else {
+            $this->sendRealTime($message, 'user_' . $contact->id, $client);
           }
         }
 
@@ -1023,6 +1026,7 @@ class WhatsAppController extends FindByNumberController
           $params['erp_user'] = NULL;
           $params['task_id'] = NULL;
           $params['contact_id'] = NULL;
+          $params['user_id'] = NULL;
           $params['supplier_id'] = $supplier->id;
 
           $message = ChatMessage::create($params);
@@ -1037,6 +1041,7 @@ class WhatsAppController extends FindByNumberController
           $params['task_id'] = NULL;
           $params['supplier_id'] = NULL;
           $params['contact_id'] = NULL;
+          $params['user_id'] = NULL;
           $params['dubbizle_id'] = $dubbizle->id;
 
           $message = ChatMessage::create($params);
