@@ -51,6 +51,10 @@ class FindByNumberController extends Controller
 			if ($agent->purchase && $agent->purchase->purchase_supplier) {
 				return $agent->purchase->purchase_supplier;
 			}
+
+			if ($agent->supplier) {
+				return $agent->supplier;
+			}
 		}
 
 		return Supplier::where('phone', $number)->first();

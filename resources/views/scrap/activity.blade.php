@@ -64,8 +64,15 @@
             <th colspan="5" class="text-center">Railso</th>
             <th colspan="5" class="text-center">Coltorti</th>
             <th colspan="5" class="text-center">Stilmoda</th>
+            <th colspan="5" class="text-center">Maria Store</th>
           </tr>
           <tr>
+            <th>Links</th>
+            <th>Scraped</th>
+            <th>New</th>
+            <th>Inventory</th>
+            <th>Removed</th>
+
             <th>Links</th>
             <th>Scraped</th>
             <th>New</th>
@@ -408,6 +415,12 @@
               <td>{{ $item['stilmoda']['created'] ?? 0 }}</td>
               <td>{{ $item['stilmoda'][1] ?? 0 }}</td>
               <td>{{ $item['stilmoda'][0] ?? 0 }}</td>
+
+              <td>{{ $item['mariastore']['links'] ?? 0 }}</td>
+              <td>{{ $item['mariastore']['scraped'] ?? 0 }}</td>
+              <td>{{ $item['mariastore']['created'] ?? 0 }}</td>
+              <td>{{ $item['mariastore'][1] ?? 0 }}</td>
+              <td>{{ $item['mariastore'][0] ?? 0 }}</td>
             </tr>
           @endforeach
         </tbody>

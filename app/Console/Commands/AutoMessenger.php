@@ -279,7 +279,7 @@ class AutoMessenger extends Command
           $message->save();
         } else if ($message->type == 'task') {
           dump('Scheduled Reminder Message for Tasks');
-          
+
           $additional_params = json_decode($message->data, true);
 
           $params = [
@@ -290,7 +290,8 @@ class AutoMessenger extends Command
             'contact_id'  => $additional_params['contact_id'],
             'approved'    => 0,
             'status'      => 1,
-            'message'     => $message->message
+            'message'     => $message->message,
+            'is_reminder' => 1
           ];
 
           ChatMessage::create($params);

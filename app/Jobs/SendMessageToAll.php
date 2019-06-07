@@ -105,6 +105,7 @@ class SendMessageToAll implements ShouldQueue
               dump('sending message with NEW API');
               app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, $message, NULL, $chat_message->id);
             } else {
+              dump('sending message with 06');
               app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
             }
           } catch (\Exception $e) {
@@ -124,6 +125,7 @@ class SendMessageToAll implements ShouldQueue
                   dump('sending linked images with NEW API');
                   app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
                 } else {
+                  dump('sending linked images with 06');
                   app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
                 }
               } catch (\Exception $e) {
@@ -141,6 +143,7 @@ class SendMessageToAll implements ShouldQueue
                       dump('sending images with NEW API');
                       app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $brod_image->getUrl()), $chat_message->id);
                     } else {
+                      dump('sending images with 06');
                       app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
                     }
                   } catch (\Exception $e) {
@@ -164,8 +167,10 @@ class SendMessageToAll implements ShouldQueue
 
             try {
               if ($send_number == '919152731483') {
+                dump('sending simple images with NEW API');
                 app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
               } else {
+                dump('sending simple images with 06');
                 app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
               }
             } catch (\Exception $e) {

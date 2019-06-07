@@ -67,6 +67,8 @@ class TaskModuleController extends Controller {
                (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
                (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
+							 (SELECT mm6.is_reminder FROM chat_messages mm6 WHERE mm6.id = message_id) as message_is_reminder,
+							 (SELECT mm7.user_id FROM chat_messages mm7 WHERE mm7.id = message_id) as message_user_id,
                (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
 
                FROM (
@@ -318,6 +320,11 @@ class TaskModuleController extends Controller {
 		$data['users']             = $users;
 		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
+		$search_suggestions = [];
+		foreach ($data['task']['pending'] as $task) {
+			$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
+		}
+
 		// $category = '';
 
 		//My code start
@@ -328,7 +335,7 @@ class TaskModuleController extends Controller {
 		}
 		//My code end
 
-		return view( 'task-module.show', compact( 'data', 'users', 'selected_user','category', 'term' ) );
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions'));
 	}
 
 	public function store( Request $request ) {
