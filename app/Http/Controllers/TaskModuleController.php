@@ -68,6 +68,7 @@ class TaskModuleController extends Controller {
                (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
                (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
 							 (SELECT mm6.is_reminder FROM chat_messages mm6 WHERE mm6.id = message_id) as message_is_reminder,
+							 (SELECT mm7.user_id FROM chat_messages mm7 WHERE mm7.id = message_id) as message_user_id,
                (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
 
                FROM (
