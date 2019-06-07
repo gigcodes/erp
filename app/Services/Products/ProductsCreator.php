@@ -191,6 +191,16 @@ class ProductsCreator
             $formatted_details = $this->getGeneralDetails($properties_array);
 
             break;
+          case 'mariastore':
+            $supplier = "MARIA STORE";
+            $formatted_details = $this->getGeneralDetails($properties_array);
+
+            break;
+          case 'angelominetti':
+            $supplier = "MINETTI";
+            $formatted_details = $this->getGeneralDetails($properties_array);
+
+            break;
         default:
           return;
       }
@@ -205,7 +215,7 @@ class ProductsCreator
        $product->is_scraped = 1;
        $product->stock = 1;
        $product->is_without_image = 1;
-       $product->is_on_sale = $image->is_sale;
+       $product->is_on_sale = $image->is_sale ? 1 : 0;
 
        $product->composition = $formatted_details['composition'];
        $product->color = $formatted_details['color'];
