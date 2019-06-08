@@ -1410,11 +1410,11 @@ class WhatsAppController extends FindByNumberController
         }
 
         if (count($task->contacts) > 0) {
-          if ($task->assign_from == Auth::id()) {
+          // if ($task->assign_from == Auth::id()) {
             $data['contact_id'] = $task->assign_to;
-          } else {
-            $data['contact_id'] = $task->assign_from;
-          }
+          // } else {
+            // $data['contact_id'] = $task->assign_from;
+          // }
         }
 
         $params['approved'] = 1;
