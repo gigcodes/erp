@@ -516,7 +516,7 @@ class ProductController extends Controller {
 	public function listMagento(Request $request, $id)
 	{
 		$product = Product::find($id);
-		ActivityConroller::create($product->id,'productlister','create');
+		// ActivityConroller::create($product->id,'productlister','create');
 
 		$result = app('App\Http\Controllers\ProductListerController')->magentoSoapApiUpload($product, 1);
 
@@ -557,7 +557,7 @@ class ProductController extends Controller {
 		$product->is_approved = 1;
 		$product->save();
 
-		ActivityConroller::create($product->id, 'productlister', 'approve');
+		ActivityConroller::create($product->id, 'productlister', 'create');
 
 		if (Auth::user()->hasRole('Products Lister')) {
 			$products_count = Auth::user()->products()->count();
