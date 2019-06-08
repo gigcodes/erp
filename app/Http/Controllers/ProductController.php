@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller {
 	/**
@@ -81,18 +82,18 @@ class ProductController extends Controller {
 		$brands = Brand::getAll();
 		$suppliers = Supplier::whereHas('products')->get();
 
-		foreach (Category::all() as $category) {
-			if ($category->parent_id != 0) {
-				$parent = $category->parent;
-				if ($parent->parent_id != 0) {
-					$category_tree[$parent->parent_id][$parent->id][$category->id];
-				} else {
-					$category_tree[$parent->id][$category->id] = $category->id;
-				}
-			}
-
-			$categories_array[$category->id] = $category->parent_id;
-		}
+		// foreach (Category::all() as $category) {
+		// 	if ($category->parent_id != 0) {
+		// 		$parent = $category->parent;
+		// 		if ($parent->parent_id != 0) {
+		// 			$category_tree[$parent->parent_id][$parent->id][$category->id];
+		// 		} else {
+		// 			$category_tree[$parent->id][$category->id] = $category->id;
+		// 		}
+		// 	}
+		//
+		// 	$categories_array[$category->id] = $category->parent_id;
+		// }
 
 		$category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
 																					 ->renderAsDropdown();
@@ -104,30 +105,37 @@ class ProductController extends Controller {
 		$supplier = [];
 		$type = '';
 
-		if (Auth::user()->hasRole('Products Lister')) {
-			$products = Auth::user()->products();
-		} else {
-			$products = (new Product)->newQuery();
-		}
+		$brandWhereClause = '';
+		$colorWhereClause = '';
+		$categoryWhereClause = '';
+		$supplierWhereClause = '';
+		$typeWhereClause = '';
+		$termWhereClause = '';
+
+		// if (Auth::user()->hasRole('Products Lister')) {
+		// 	$products = Auth::user()->products();
+		// } else {
+		// 	$products = (new Product)->newQuery();
+		// }
+
+
 
 		if ($request->brand[0] != null) {
-			$productQuery = $products
-			->whereIn('brand', $request->brand);
+			// $products = $products->whereIn('brand', $request->brand);
+			$brands_list = implode(',', $request->brand);
 
 			$brand = $request->brand[0];
+			$brandWhereClause = " AND brand IN ($brands_list)";
 		}
 
 		if ($request->color[0] != null) {
-			if ($request->brand[0] != null) {
-				$productQuery = $productQuery->whereIn('color', $request->color);
-			} else {
-				$productQuery = $products
-				->whereIn('color', $request->color);
-			}
+			// $products = $products->whereIn('color', $request->color);
+			$colors_list = implode(',', $request->color);
 
 			$color = $request->color[0];
+			$colorWhereClause = " AND color IN ($colors_list)";
 		}
-
+		//
 		if ($request->category[0] != null && $request->category[0] != 1) {
 			$category_children = [];
 
@@ -155,90 +163,81 @@ class ProductController extends Controller {
 				}
 			}
 
-			if ($request->brand[0] != null || $request->color[0] != null) {
-				$productQuery = $productQuery->whereIn('category', $category_children);
-			} else {
-				$productQuery = $products
-				->whereIn('category', $category_children);
-			}
+			// $products = $products->whereIn('category', $category_children);
+			$category_list = implode(',', $category_children);
 
 			$category = $request->category[0];
+			$categoryWhereClause = " AND category IN ($category_list)";
 		}
-
+		//
 		if ($request->supplier[0] != null) {
 			$suppliers_list = implode(',', $request->supplier);
 
-			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
-				$productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
-			} else {
-				$productQuery = $products->with('Suppliers')
-				->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
-			}
+			// $products = $products->with('Suppliers')
+			// ->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
 
 			$supplier = $request->supplier;
+			$supplierWhereClause = " AND products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))";
 		}
-
+		//
 		if ($request->type != '') {
-			if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->supplier[0] != null) {
-				if ($request->type == 'Not Listed') {
-					$productQuery = $productQuery->where('isFinal', 0)->where('isUploaded', 0);
-				} else if ($request->type == 'Listed') {
-					$productQuery = $productQuery->where('isUploaded', 1);
-				} else if ($request->type == 'Approved') {
-					$productQuery = $productQuery->where('is_approved', 1)->whereNull('last_imagecropper');
-				} else if ($request->type == 'Image Cropped') {
-					$productQuery = $productQuery->where('is_approved', 1)->whereNotNull('last_imagecropper');
-				}
-			} else {
-				if ($request->type == 'Not Listed') {
-					$productQuery = $products->newQuery()->where('isFinal', 0)->where('isUploaded', 0);
-				} else if ($request->type == 'Listed') {
-					$productQuery = $products->where('isUploaded', 1);
-				} else if ($request->type == 'Approved') {
-					$productQuery = $products->where('is_approved', 1)->whereNull('last_imagecropper');
-				} else if ($request->type == 'Image Cropped') {
-					$productQuery = $products->where('is_approved', 1)->whereNotNull('last_imagecropper');
-				}
+			if ($request->type == 'Not Listed') {
+				// $products = $products->newQuery()->where('isFinal', 0)->where('isUploaded', 0);
+				$typeWhereClause = ' AND isFinal = 0 AND isUploaded = 0';
+			} else if ($request->type == 'Listed') {
+				// $products = $products->where('isUploaded', 1);
+				$typeWhereClause = ' AND isUploaded = 1';
+			} else if ($request->type == 'Approved') {
+				// $products = $products->where('is_approved', 1)->whereNull('last_imagecropper');
+				$typeWhereClause = ' AND is_approved = 1 AND last_imagecropper IS NULL';
+			} else if ($request->type == 'Image Cropped') {
+				// $products = $products->where('is_approved', 1)->whereNotNull('last_imagecropper');
+				$typeWhereClause = ' AND is_approved = 1 AND last_imagecropper IS NOT NULL';
 			}
 
 			$type = $request->type;
 		}
-
+		//
 		if (trim($term) != '') {
-			$productQuery = $products
-			->orWhere( 'sku', 'LIKE', "%$term%" )
-			->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
-			;
+			// $products = $products
+			// ->orWhere( 'sku', 'LIKE', "%$term%" )
+			// ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+			// ;
 
-			if ( $term == - 1 ) {
-				$productQuery = $productQuery->orWhere( 'isApproved', - 1 );
-			}
+			$termWhereClause = ' OR sku LIKE "%' . $term . '%" OR id LIKE "%' . $term . '%"';
 
-			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
-				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
-				$productQuery = $productQuery->orWhere( 'brand', 'LIKE', "%$brand_id%" );
-			}
+			// if ($term == - 1) {
+			// 	$products = $products->orWhere( 'isApproved', - 1 );
+			// }
 
-			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
-				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
-				$productQuery = $productQuery->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
-			}
-
-			if (!empty( $stage->getIDCaseInsensitive( $term ) ) ) {
-				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
-			}
-		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
-				$productQuery = $products;
-			}
+			// if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+			// 	$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+			// 	$products = $products->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+			// }
+			//
+			// if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+			// 	$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+			// 	$products = $products->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
+			// }
+			//
+			// if (!empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+			// 	$products = $products->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+			// }
 		}
+		//  else {
+		// 	if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
+		// 		$products = $products;
+		// 	}
+		// }
 
 
-		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1);
 
-        if ($request->get('cropped') == 'on') {
-            $products = $products->where('is_image_processed', 1);
-        }
+		// $products = $products->where('is_scraped', 1)->where('stock', '>=', 1);
+		$croppedWhereClause = '';
+    if ($request->get('cropped') == 'on') {
+      // $products = $products->where('is_image_processed', 1);
+			$croppedWhereClause = ' AND is_image_processed = 1';
+    }
 
 		// if (Auth::user()->hasRole('Products Lister')) {
 		// 	// dd('as');
@@ -255,17 +254,29 @@ class ProductController extends Controller {
 
 			// dd($products);
 		// } else {
-			$products_count = $products->take(5000)->get();
-			$products = $products->take(5000)->orderBy('is_image_processed', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
+			// $products_count = $products->take(5000)->get();
+			// $products = $products->take(5000)->orderBy('is_image_processed', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
 
+
+			$new_products = DB::select('
+										SELECT * FROM products
+
+										WHERE is_scraped = 1 AND stock >= 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . '
+										ORDER BY is_image_processed DESC, created_at DESC
+			');
+
+			// dd($new_products);
+			$products_count = count($new_products);
+			//
 			$currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination');
-      $currentItems = array_slice($products, $perPage * ($currentPage - 1), $perPage);
+      $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
 
-      $products = new LengthAwarePaginator($currentItems, count($products), $perPage, $currentPage, [
+      $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
         'path'  => LengthAwarePaginator::resolveCurrentPath()
       ]);
 		// }
+		// dd($products);
 
 		$selected_categories = $request->category ? $request->category : 1;
 		$category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
@@ -273,7 +284,7 @@ class ProductController extends Controller {
 		                                        ->renderAsDropdown();
 
 		return view('products.listing', [
-			'products'					=> $products,
+			'products'					=> $new_products,
 			'products_count'		=> $products_count,
 			'colors'						=> $colors,
 			'brands'						=> $brands,

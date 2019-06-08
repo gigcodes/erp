@@ -23,7 +23,7 @@ class Product extends Model
 		'sku'
 	];
 	protected $dates = ['deleted_at'];
-	protected $appends = ['communication', 'imageurl'];
+	protected $appends = [];
 	protected $communication = '';
 	protected $image_url = '';
 
