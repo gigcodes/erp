@@ -22,6 +22,7 @@
 
         <form method="post" action="{{ action('AutoReplyHashtagsController@update', $hid) }}">
             <input type="hidden" name="country" id="country" value="{{$countryText ?? ''}}">
+            <input type="hidden" name="hashtag" id="hashtag" value="{{$hashtag}}">
             @csrf
             @method('PUT')
             <div class="col-md-12">
@@ -53,7 +54,14 @@
                                     <input type="hidden" name="code_{{$post['media_id']}}" value="{{$post['code']}}">
                                 @endif
                             </td>
-                            <td><a href="https://instagram.com/{{$post['username']}}">{{$post['username']}}</a></td>
+                            <td>
+                                <a href="https://instagram.com/{{$post['username']}}">{{$post['username']}}</a>
+                                <select name="gender_{{$post['media_id']}}" id="gender_{{$post['media_id']}}">
+                                    <option value="all">All</option>
+                                    <option value="female">Female</option>
+                                    <option value="male">Male</option>
+                                </select>
+                            </td>
                             <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
                             <td>
                                 @if ($post['media_type'] === 1)

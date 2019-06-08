@@ -59,9 +59,28 @@
         </div>
 
         <div class="col-md-12">
-            <br>
-            <canvas id="pie" width="750" height="250"></canvas>
-            <br>
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-bordered">
+                        @foreach($statsByCountry as $item)
+                            <tr>
+                                <th>{{$item->country ?? 'N/A'}}</th>
+                                <th>{{$item->total}}</th>
+                            </tr>
+                        @endforeach
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-bordered">
+                        @foreach($statsByHashtag as $item)
+                            <tr>
+                                <th>{{$item->target ?? 'N/A'}}</th>
+                                <th>{{$item->total}}</th>
+                            </tr>
+                        @endforeach
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-12">
@@ -71,6 +90,7 @@
                 <tr>
                     <th>SN</th>
                     <th>#tag</th>
+                    <th>Gender</th>
                     <th>Country</th>
                     <th>Post</th>
                     <th>Commenter</th>
@@ -80,16 +100,17 @@
                 @foreach($comments as $key=>$comment)
                     <tr>
                         <th>{{$key}}</th>
-                        <th>#{{ $comment->hashtag->text }}</th>
-                        <th>{{$comment->country ?? 'N/A'}}</th>
-                        <th>
+                        <td>#{{ $comment->hashtag->text }}</td>
+                        <td>{{$comment->gender}}</td>
+                        <td>{{$comment->country ?? 'N/A'}}</td>
+                        <td>
                             {{ $comment->caption }}
                             <br>
                             <a target="_new" href="https://instagram.com/p/{{$comment->post_code}}">Visit post</a>
-                        </th>
-                        <th>{{$comment->account->last_name ?? 'N/A'}}</th>
-                        <th>{{$comment->comment ?? 'N/A'}}</th>
-                        <th>{{$comment->created_at->format('Y-m-d')}}</th>
+                        </td>
+                        <td>{{$comment->account->last_name ?? 'N/A'}}</td>
+                        <td>{{$comment->comment ?? 'N/A'}}</td>
+                        <td>{{$comment->created_at->format('Y-m-d')}}</td>
                     </tr>
                 @endforeach
             </table>

@@ -69,13 +69,26 @@ class AutoCommentBot extends Command
             foreach ($posts as $post) {
 
                 $country = $post->country;
-                $comment = InstagramAutoComments::inRandomOrder()->first();
-                $account = Account::where('platform', 'instagram')->whereIn('id', [23,31,50,51,731])->where('broadcast', 0)->inRandomOrder()->first();
+                $gender = $post->gender;
+
+                $comment = new InstagramAutoComments();
+                $account = new Account();
+
+
+
+                if ($gender != 'all') {
+                    $comment = $comment->where('gender', $gender);
+                }
+
+                $account = $account->where('platform', 'instagram')->whereIn('id', [23,31,50,51,731])->where('broadcast', 0);
 
                 if (strlen($country) >= 4) {
-                    $comment = InstagramAutoComments::inRandomOrder()->where('country', $country)->first();
-                    $account = Account::where('platform', 'instagram')->where('country', $country)->whereIn('id', [23,31,50,51,731])->where('broadcast', 0)->inRandomOrder()->first();
+                    $comment = $comment->where('country', $country);
+                    $account = $account->where('country', $country);
                 }
+
+                $account = $account->inRandomOrder()->first();
+                $comment = $comment->inRandomOrder()->first();
 
 
                 if (!isset($this->accounts[$account->id])) {

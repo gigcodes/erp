@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\CommentsStats;
 use App\FlaggedInstagramPosts;
 use App\HashTag;
 use App\InstagramPosts;
 use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
+use Plank\Mediable\Media;
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -152,7 +155,10 @@ class HashtagController extends Controller
 
         [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
         $media_count = $hashtags->getMediaCount($hashtag);
-        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId'));
+
+        $stats = CommentsStats::selectRaw('COUNT(*) as total, YEAR(created_at) as year, MONTH(created_at) as month')->where('target', $hashtag)->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))->get();
+
+        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats'));
     }
 
     public function loadComments($mediaId) {
@@ -231,7 +237,10 @@ class HashtagController extends Controller
         $this->validate($request, [
             'message' => 'required',
             'post_id' => 'required',
-            'account_id' => 'required'
+            'account_id' => 'required',
+            'code' => 'required',
+            'author' => 'required',
+            'hashtag' => 'required'
         ]);
 
         $acc = Account::findOrFail($request->get('account_id'));
@@ -239,6 +248,14 @@ class HashtagController extends Controller
         $instagram = new Instagram();
         $instagram->login($acc->last_name, $acc->password);
         $instagram->media->comment($request->get('post_id'), $request->get('message'));
+
+        $stat = new CommentsStats();
+        $stat->target = $request->get('hashtag');
+        $stat->sender = $acc->last_name;
+        $stat->comment = $request->get('message');
+        $stat->post_author = $request->get('author');
+        $stat->code = $request->get('code');
+        $stat->save();
 
         return response()->json([
             'status' => 'success'

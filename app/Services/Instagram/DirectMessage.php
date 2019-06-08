@@ -21,7 +21,7 @@ class DirectMessage {
         $verification_method = 0;
         $this->currentId = env('IG_CURRENT_USER_ID');
 
-        $this->instagram->login($username, $password);
+//        $this->instagram->login($username, $password);
 
         // try {
         // 	$loginResponse = $this->instagram->login($username, $password);

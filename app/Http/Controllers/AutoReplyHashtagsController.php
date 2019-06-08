@@ -102,22 +102,25 @@ class AutoReplyHashtagsController extends Controller
     public function update(Request $request, $id)
     {
         $hashtag = AutoReplyHashtags::findOrFail($id);
-
         $this->validate($request, [
-           'posts' => 'required|array'
+           'posts' => 'required|array',
         ]);
+
 
         $medias = $request->get('posts');
 
         foreach ($medias as $media) {
             $h = new AutoCommentHistory();
+            $h->target = $request->get('hashtag');
             $h->post_code = $request->get('code_'.$media);
             $h->post_id = $media;
             $h->caption = $request->get('caption_'.$media);
+            $h->gender = $request->get('gender_'.$media);
             $h->auto_reply_hashtag_id = $hashtag->id;
-            $h->country = $request->get('country');
+            $h->country = strlen($request->get('country')) > 4 ? $request->get('country') : '';
             $h->status = 1;
             $h->save();
+
         }
 
         return redirect()->back()->with('message', 'Attached successfully!');
