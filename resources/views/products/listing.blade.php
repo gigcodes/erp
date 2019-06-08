@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Product Listing - ERP Sololuxury')
+
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -120,6 +122,8 @@
                 @endif
 
                 {{ (new \App\Stage)->getNameById($product['stage']) }}
+                <br>
+                SKU: {{ $product['sku'] }}
               </td>
               <td class="table-hover-cell quick-edit-name" data-id="{{ $product['id'] }}">
                 <span class="quick-name">{{ $product['name'] }}</span>
@@ -239,6 +243,8 @@
                 @endif
 
                 {{ (new \App\Stage)->getNameById($product['stage']) }}
+                <br>
+                SKU: {{ $product['sku'] }}
               </td>
               <td>
                 <span>{{ $product['name'] }}</span>
