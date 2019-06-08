@@ -36,12 +36,9 @@ class UserController extends Controller
 	 */
 	function __construct()
 	{
-
 		$this->middleware('permission:user-list');
 		$this->middleware('permission:user-create', ['only' => ['create','store']]);
 		$this->middleware('permission:user-edit', ['only' => ['edit','update']]);
-
-
 		$this->middleware('permission:user-delete', ['only' => ['destroy']]);
 	}
 
@@ -213,10 +210,19 @@ class UserController extends Controller
 
 		$user = User::find($id);
 		$user->update($input);
+
+		if (!$user->hasRole('Products Lister') && in_array('Products Lister', $request->roles)) {
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add(['amount_assigned' => 100]);
+
+			$this->assignProducts($requestData, Auth::id());
+		}
+		
 		DB::table('model_has_roles')->where('model_id',$id)->delete();
 
-
 		$user->assignRole($request->input('roles'));
+
 
 
 		return redirect()->route('users.show', $id)
@@ -246,7 +252,9 @@ class UserController extends Controller
 	{
 		$user = User::find($id);
 
-		if ($user->amount_assigned != '') {
+		$amount_assigned = $request->amount_assigned ?? $user->amount_assigned;
+
+		if ($amount_assigned != '') {
 			$products = Product::where('is_scraped', 1)->where('stock', '>=', 1)->where('is_image_processed', 1)->where('isUploaded', 0)->where('is_approved', 0)->where('isFinal', 0);
 			$user_products = UserProduct::all();
 
@@ -255,18 +263,18 @@ class UserController extends Controller
 				$product_ids[] = $product->product_id;
 			}
 
-			if ($user->products()->count()) {
+			// if ($user->products()->count()) {
 				// $product_ids = [];
 				// foreach ($user->products as $product) {
 				// 	$product_ids[] = $product->id;
 				// }
 
-				$products = $products->whereNotIn('id', $product_ids)->take($user->amount_assigned)->get();
+				$products = $products->whereNotIn('id', $product_ids)->latest()->take($amount_assigned)->get();
 				$user->products()->attach($products);
-			} else {
-				$products = $products->whereNotIn('id', $product_ids)->take($user->amount_assigned)->get();
-				$user->products()->attach($products);
-			}
+			// } else {
+			// 	$products = $products->whereNotIn('id', $product_ids)->take($user->amount_assigned)->get();
+			// 	$user->products()->attach($products);
+			// }
 		} else {
 			return redirect()->back()->withErrors('Please select amount assigned first!');
 		}

@@ -234,7 +234,7 @@ class ProductController extends Controller {
 		}
 
 
-		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1)->orderBy('is_approved', 'ASC')->orderBy('last_imagecropper', 'ASC');
+		$products = $productQuery->where('is_scraped', 1)->where('stock', '>=', 1);
 
         if ($request->get('cropped') == 'on') {
             $products = $products->where('is_image_processed', 1);
@@ -256,7 +256,7 @@ class ProductController extends Controller {
 			// dd($products);
 		// } else {
 			$products_count = $products->take(5000)->get();
-			$products = $products->take(5000)->get()->toArray();
+			$products = $products->take(5000)->orderBy('is_image_processed', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
 
 			$currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination');
@@ -556,6 +556,20 @@ class ProductController extends Controller {
 
 		$product->is_approved = 1;
 		$product->save();
+
+		ActivityConroller::create($product->id, 'productlister', 'approve');
+
+		if (Auth::user()->hasRole('Products Lister')) {
+			$products_count = Auth::user()->products()->count();
+			$approved_products_count = Auth::user()->approved_products()->count();
+			if (($products_count - $approved_products_count) < 100) {
+				$requestData = new Request();
+				$requestData->setMethod('POST');
+				$requestData->request->add(['amount_assigned' => 100]);
+
+				app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
+			}
+		}
 
 		return response()->json([
 			'result'	=> true,
