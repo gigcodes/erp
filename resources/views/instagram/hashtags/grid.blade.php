@@ -7,10 +7,39 @@
             <form action="{{ action('HashtagController@showGrid', 'x') }}">
                 <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" name="name" id="name" class="form-control">
+                    <input value="{{$hashtag}}" type="text" name="name" id="name" class="form-control">
                 </div>
             </form>
         </div>
+
+        <div class="col-md-12">
+            <div class="accordion" id="accordionExample">
+                <div class="card mt-0" style="width:100%;">
+                    <div class="card-header">
+                        <div style="cursor: pointer;font-size: 20px;font-weight: bolder;" data-toggle="collapse" data-target="#form_am" aria-expanded="true" aria-controls="form_am">
+                          Stats
+                        </div>
+                    </div>
+                    <div id="form_am" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Count</th>
+                                </tr>
+                                @foreach($stats as $stat)
+                                    <tr>
+                                        <th>{{ $stat->year }} - {{ $stat->month }}</th>
+                                        <th>{{ $stat->total }}</th>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')
                 <a class="btn btn-info mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}">FIRST PAGE</a>
@@ -113,7 +142,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-9">
-                                            <textarea type="text" rows="4" class="comment-it form-control" data-mediaId="{{$post['media_id']}}" placeholder="Type comment..."></textarea>
+                                            <textarea type="text" rows="4" class="comment-it form-control" data-author="{{$post['username']}}" data-code="{{$post['code']}}" data-mediaId="{{$post['media_id']}}" placeholder="Type comment..."></textarea>
                                         </div>
                                     </div>
                                 </td>
@@ -184,6 +213,8 @@
             if (event.keyCode == 13) {
                 let message = $(this).val();
                 let mediaId = $(this).attr('data-mediaId');
+                let author = $(this).attr('data-author');
+                let code = $(this).attr('data-code');
                 let accountId = $('#account_id_'+mediaId).val();
                 let self = this;
 
@@ -196,6 +227,9 @@
                         message: message,
                         post_id: mediaId,
                         account_id: accountId,
+                        code: code,
+                        author: author,
+                        hashtag: "{{$hashtag}}",
                         _token: '{{ csrf_token() }}'
                     },
                     success: function() {

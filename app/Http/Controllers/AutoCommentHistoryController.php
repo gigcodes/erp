@@ -6,6 +6,7 @@ use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
 use App\TargetLocation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AutoCommentHistoryController extends Controller
 {
@@ -20,8 +21,11 @@ class AutoCommentHistoryController extends Controller
         $hashtags = AutoReplyHashtags::all();
         $countries = TargetLocation::all();
 
+        $statsByCountry = DB::table('auto_comment_histories')->selectRaw('country, COUNT("*") AS total')->groupBy(['country'])->get();
+        $statsByHashtag = DB::table('auto_comment_histories')->selectRaw('target, COUNT("*") AS total')->groupBy(['target'])->get();
 
-        return view('instagram.auto_comments.report', compact('comments', 'hashtags', 'countries'));
+
+        return view('instagram.auto_comments.report', compact('comments', 'hashtags', 'countries', 'statsByCountry', 'statsByHashtag'));
     }
 
     /**

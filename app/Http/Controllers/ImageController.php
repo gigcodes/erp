@@ -553,13 +553,13 @@ class ImageController extends Controller
      */
     public function destroy($id)
     {
-      $image = Images::find($id);
+      $image = Images::withTrashed()->find($id);
 
       Storage::disk('uploads')->delete("social-media/$image->filename");
 
       $image->tags()->detach();
       $image->detachMedia(config('constants.media_tags'));
-      $image->delete();
+      $image->forceDelete();
 
       return redirect()->back()->with('success', 'The image was successfully deleted');
     }

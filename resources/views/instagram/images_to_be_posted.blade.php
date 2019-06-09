@@ -155,6 +155,9 @@
                                         </button>
                                     </div>
                                 </form>
+                                {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
+                                <button type="submit" class="btn btn-image btn-danger btn-block"><img src="/images/delete.png" /></button>
+                                {!! Form::close() !!}
                             @endif
                         </div>
                     </div><!-- card reveal -->

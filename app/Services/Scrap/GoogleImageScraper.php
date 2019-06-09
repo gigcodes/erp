@@ -7,7 +7,7 @@ use Wa72\HtmlPageDom\HtmlPageCrawler;
 class GoogleImageScraper extends Scraper
 {
     private const GOOGLE_IMAGE_SEARCH_URL = [
-        'https://www.google.com/search?tbm=isch&source=lnms&q={query_string}&&chips=q:{query_string},g_1:{chip_value}'
+        'https://www.google.com/search?tbs=isz:l&tbm=isch&source=lnms&q={query_string}&&chips=q:{query_string},g_1:{chip_value}'
     ];
 
 

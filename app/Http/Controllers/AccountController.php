@@ -108,4 +108,18 @@ class AccountController extends Controller
             ->addPost('_uuid', $this->ig->uuid)
             ->getResponse(new GenericResponse());
     }
+
+    public function createAccount(Request $request) {
+        $account = new Account();
+        $account->first_name = $request->get('name');
+        $account->last_name = $request->get('username');
+        $account->password = $request->get('password');
+        $account->country = $request->get('country');
+        $account->gender = $request->get('gender');
+        $account->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
 }
