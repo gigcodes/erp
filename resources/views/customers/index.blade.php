@@ -230,7 +230,7 @@
                     </td>
                   @endif
                     <td>
-                      @if (!empty($customer->message))
+                      {{-- @if (!empty($customer->message)) --}}
                           @if ($customer->message_status == 5)
                               Read
                           @elseif ($customer->message_status == 6)
@@ -243,7 +243,7 @@
                           @elseif ($customer->message_status == 0)
                               Unread
                           @endif
-                      @endif
+                      {{-- @endif --}}
                     </td>
                     <td>
                       @if (array_key_exists($customer->id, $orders))
