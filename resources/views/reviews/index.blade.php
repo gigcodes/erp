@@ -88,6 +88,7 @@
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Gender</th>
                 <th>Country</th>
                 <th>Email</th>
                 <th>Password</th>
@@ -104,6 +105,7 @@
               @foreach ($accounts as $account)
                 <tr class="{{ $account->has_posted_reviews() ? 'text-danger' : '' }}">
                   <td>{{ $account->first_name }} {{ $account->last_name }}</td>
+                  <td>{{ $account->gender }}</td>
                   <td>{{ $account->country ?? 'All' }}</td>
                   <td>{{ $account->email }}</td>
                   <td>{{ $account->password }}</td>
@@ -599,6 +601,7 @@
       $('#account_dp').val(account.dp_count);
       $('#account_birthday').val(account.dob);
       $('#country_edit').val(account.country);
+      $('#gender_edit').val(account.gender);
       if (account.broadcast==1) {
         $('#broadcast2').attr('checked', true);
       }
