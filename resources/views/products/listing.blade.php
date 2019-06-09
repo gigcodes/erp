@@ -24,6 +24,7 @@
           <div class="form-group mr-3 mb-3">
             <input type="checkbox" name="cropped" id="cropped"> <label for="cropped"><strong>Cropped</strong></label>
           </div>
+
           <div class="form-group mr-3 mb-3">
             <input name="term" type="text" class="form-control"
             value="{{ isset($term) ? $term : '' }}"
@@ -73,6 +74,12 @@
               <option value="Image Cropped" {{ isset($type) && $type == "Image Cropped" ? 'selected' : ''  }}>Image Cropped</option>
             </select>
           </div>
+
+          @if (Auth::user()->hasRole('Admin'))
+            <div class="form-group mr-3">
+              <input type="checkbox" name="users" id="users" {{ $assigned_to_users == 'on' ? 'checked' : '' }}> <label for="users"><strong>Assigned To Users</strong></label>
+            </div>
+          @endif
 
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
         </form>
@@ -225,6 +232,10 @@
                   <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
                 @endif
 
+                @if ($product->product_user_id != null)
+                  {{ \App\User::find($product->product_user_id)->name }}
+                @endif
+
                 {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
 
                 {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
@@ -308,6 +319,10 @@
                   <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
                 @else
                   <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                @endif
+
+                @if ($product->product_user_id != null)
+                  {{ \App\User::find($product->product_user_id)->name }}
                 @endif
               </td>
             @endif

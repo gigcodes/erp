@@ -42,6 +42,12 @@
       @else
         <button type="button" class="btn btn-image make-watched-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/unstarred.png" /></button>
       @endif
+
+      @if ($task->is_flagged == 1)
+        <button type="button" class="btn btn-image flag-task mt-3" data-id="{{ $task->id }}"><img src="/images/flagged.png" /></button>
+      @else
+        <button type="button" class="btn btn-image flag-task mt-3" data-id="{{ $task->id }}"><img src="/images/unflagged.png" /></button>
+      @endif
     </div>
     <div class="pull-right mt-4">
       {{-- <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
@@ -65,7 +71,15 @@
 
       <div class="col-6">
         <div class="form-group">
-          {{ isset($categories[$task->category]) ? $categories[$task->category] : 'No Category' }}
+          <select class="form-control input-sm" id="task_category" name="category">
+            <option value="">Select a Category</option>
+
+            @foreach ($categories as $id => $category)
+              <option value="{{ $id }}" {{ $id == $task->category ? 'selected' : '' }}>{{ $category }}</option>
+            @endforeach
+          </select>
+
+          <span class="text-success change_status_message" style="display: none;">Successfully changed category</span>
         </div>
       </div>
     </div>
@@ -79,24 +93,48 @@
 
     <div class="form-group">
       @if ($task->task_subject)
-        <strong>{{ $task->task_subject }}</strong>
+        <strong class="task-subject">{{ $task->task_subject }}</strong>
       @endif
+
+      <input type="text" name="subject" id="task_subject_field" class="form-control input-sm hidden" value="{{ $task->task_subject }}">
+
+      <a href="#" id="edit_subject_button" class="btn-link">Edit</a>
     </div>
 
     <div class="form-group">
       {{ $task->task_details }}
     </div>
 
-    @if ($task->notes()->count())
+    @if ($task->is_statutory == 3)
       <div class="form-group">
         <ul class="list-group">
-          @foreach ($task->notes as $note)
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              {{ $note->remark }}
+          <div id="note-list-container">
+            @foreach ($task->notes as $note)
+              <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="">
+                  {{ $note->remark }}
 
-              <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}"><img src="/images/add.png" /></button>
-            </li>
-          @endforeach
+                  <ul>
+                    @foreach ($note->subnotes as $subnote)
+                      <li class="d-flex justify-content-between align-items-center">
+                        {{ $subnote->remark }}
+
+                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $subnote->remark }}"><img src="/images/add.png" /></button>
+                      </li>
+                    @endforeach
+                  </ul>
+
+                  <input type="text" class="form-control input-sm create-subnote" data-id="{{ $note->id }}" name="note" placeholder="Note" value="">
+                </div>
+
+                <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}"><img src="/images/add.png" /></button>
+              </li>
+            @endforeach
+          </div>
+
+          <li class="list-group-item">
+            <input type="text" id="create-note-field" class="form-control input-sm" name="note" placeholder="Note" value="">
+          </li>
         </ul>
       </div>
     @endif
@@ -1915,6 +1953,173 @@
             alert('Could not create task!');
           });
         }
+      });
+
+      $('#create-note-field').keypress(function(e) {
+        var key = e.which;
+        var thiss = $(this);
+
+        if (key == 13) {
+          e.preventDefault();
+          var note = $(thiss).val();
+          var id = "{{ $task->id }}";
+
+          if (note != '') {
+            $.ajax({
+              type: 'POST',
+              url: "{{ url('task') }}/" + id + '/addNote',
+              data: {
+                _token: "{{ csrf_token() }}",
+                note: note,
+              }
+            }).done(function() {
+              $(thiss).val('');
+              var note_html = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                                ` + note + `
+                                <button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button>
+                              </li>`;
+
+              $('#note-list-container').append(note_html);
+            }).fail(function(response) {
+              console.log(response);
+
+              alert('Could not add note');
+            });
+          } else {
+            alert('Please enter note first!')
+          }
+        }
+      });
+
+      $(document).on('keypress', '.create-subnote', function(e) {
+        var key = e.which;
+        var thiss = $(this);
+        var id = $(this).data('id');
+
+        if (key == 13) {
+          e.preventDefault();
+          var note = $(thiss).val();
+
+          if (note != '') {
+            $.ajax({
+              type: 'POST',
+              url: "{{ url('task') }}/" + id + '/addSubnote',
+              data: {
+                _token: "{{ csrf_token() }}",
+                note: note,
+              }
+            }).done(function() {
+              $(thiss).val('');
+              var note_html = `<li class="d-flex justify-content-between align-items-center">` + note + `<button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button></li>`;
+
+              $(thiss).siblings('ul').append(note_html);
+            }).fail(function(response) {
+              console.log(response);
+
+              alert('Could not add note');
+            });
+          } else {
+            alert('Please enter note first!')
+          }
+        }
+      });
+
+      $('#task_category').on('change', function() {
+        var category = $(this).val();
+        var id = "{{ $task->id }}";
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('task') }}/" + id + '/updateCategory',
+          data: {
+            _token: "{{ csrf_token() }}",
+            category: category
+          }
+        }).done(function() {
+          $(thiss).siblings('.change_status_message').fadeIn(400);
+
+          setTimeout(function () {
+            $(thiss).siblings('.change_status_message').fadeOut(400);
+          }, 2000);
+        }).fail(function(response) {
+          alert('Could not change the category');
+          console.log(response);
+        });
+      });
+
+      $('#edit_subject_button').on('click', function(e) {
+        e.preventDefault();
+
+        $(this).siblings('input').removeClass('hidden');
+        $(this).siblings('.task-subject').addClass('hidden');
+      });
+
+      $(document).on('keypress', '#task_subject_field', function(e) {
+        var key = e.which;
+        var thiss = $(this);
+        var id = "{{ $task->id }}";
+
+        if (key == 13) {
+          e.preventDefault();
+          var subject = $(thiss).val();
+
+          if (subject != '') {
+            $.ajax({
+              type: 'POST',
+              url: "{{ url('task') }}/" + id + '/updateSubject',
+              data: {
+                _token: "{{ csrf_token() }}",
+                subject: subject,
+              }
+            }).done(function() {
+              $(thiss).addClass('hidden');
+              $(thiss).siblings('.task-subject').text(subject);
+              $(thiss).siblings('.task-subject').removeClass('hidden');
+            }).fail(function(response) {
+              console.log(response);
+
+              alert('Could not change the subject');
+            });
+          } else {
+            alert('Please enter subject first!')
+          }
+        }
+      });
+
+      $(document).on('click', '.flag-task', function() {
+        var task_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('task.flag') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            task_id: task_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Flagging...');
+          }
+        }).done(function(response) {
+          if (response.is_flagged == 1) {
+            // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+            //
+            // $(thiss).parent().append(badge);
+            $(thiss).html('<img src="/images/flagged.png" />');
+          } else {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+            // $(thiss).parent().find('.badge').remove();
+          }
+
+          // $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/unflagged.png" />');
+
+          alert('Could not flag task!');
+
+          console.log(response);
+        });
       });
   </script>
 @endsection

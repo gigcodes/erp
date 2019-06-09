@@ -12,4 +12,9 @@ class Remark extends Model
 	    'module_type',
       'user_name'
     ];
+
+    public function subnotes()
+  	{
+  		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note-subnote')->latest();
+  	}
 }

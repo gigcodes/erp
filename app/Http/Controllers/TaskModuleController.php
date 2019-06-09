@@ -87,7 +87,7 @@ class TaskModuleController extends Controller {
 
                ) AS tasks
                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-               ORDER BY last_communicated_at DESC;
+               ORDER BY is_flagged DESC, last_communicated_at DESC;
 						');
 
 		// $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -405,21 +405,37 @@ class TaskModuleController extends Controller {
 			 'message'      => "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details
 		 ];
 
-	   if (count($task->users) > 0) {
-	     if ($task->assign_from == Auth::id()) {
-	       $params['erp_user'] = $task->assign_to;
-	     } else {
-	       $params['erp_user'] = $task->assign_from;
-	     }
-	   }
+		 if (count($task->users) > 0) {
+			 if ($task->assign_from == Auth::id()) {
+				 foreach ($task->users as $key => $user) {
+					 if ($key == 0) {
+						 $params['erp_user'] = $user->id;
+					 } else {
+						 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+					 }
+				 }
+			 } else {
+				 foreach ($task->users as $key => $user) {
+					 if ($key == 0) {
+						 $params['erp_user'] = $task->assign_from;
+					 } else {
+						 if ($user->id != Auth::id()) {
+							 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+						 }
+					 }
+				 }
+			 }
+		 }
 
-	   if (count($task->contacts) > 0) {
-	     if ($task->assign_from == Auth::id()) {
-	       $params['contact_id'] = $task->assign_to;
-	     } else {
-	       $params['contact_id'] = $task->assign_from;
-	     }
-	   }
+		 if (count($task->contacts) > 0) {
+			 foreach ($task->contacts as $key => $contact) {
+				 if ($key == 0) {
+					 $params['contact_id'] = $task->assign_to;
+				 } else {
+					 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, NULL, $params['message']);
+				 }
+			 }
+		 }
 
 			$chat_message = ChatMessage::create($params);
 
@@ -437,6 +453,21 @@ class TaskModuleController extends Controller {
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task created successfully.' );
+	}
+
+	public function flag(Request $request)
+	{
+		$task = Task::find($request->task_id);
+
+		if ($task->is_flagged == 0) {
+			$task->is_flagged = 1;
+		} else {
+			$task->is_flagged = 0;
+		}
+
+		$task->save();
+
+		return response()->json(['is_flagged' => $task->is_flagged]);
 	}
 
 	public function assignMessages(Request $request)
@@ -481,6 +512,56 @@ class TaskModuleController extends Controller {
 		return redirect()->back()->withSuccess('You have successfully set a reminder!');
 	}
 
+	public function convertTask(Request $request, $id)
+	{
+		$task = Task::find($id);
+
+		$task->is_statutory = 3;
+		$task->save();
+
+		return response('success', 200);
+	}
+
+	public function updateSubject(Request $request, $id)
+	{
+		$task = Task::find($id);
+		$task->task_subject = $request->subject;
+		$task->save();
+
+		return response('success', 200);
+	}
+
+	public function addNote(Request $request, $id)
+	{
+		Remark::create([
+			'taskid'	=> $id,
+			'remark'	=> $request->note,
+			'module_type'	=> 'task-note'
+		]);
+
+		return response('success', 200);
+	}
+
+	public function addSubnote(Request $request, $id)
+	{
+		Remark::create([
+			'taskid'	=> $id,
+			'remark'	=> $request->note,
+			'module_type'	=> 'task-note-subnote'
+		]);
+
+		return response('success', 200);
+	}
+
+	public function updateCategory(Request $request, $id)
+	{
+		$task = Task::find($id);
+		$task->category = $request->category;
+		$task->save();
+
+		return response('success', 200);
+	}
+
 	public function show($id)
 	{
 		$task = Task::find($id);
@@ -491,11 +572,13 @@ class TaskModuleController extends Controller {
 
 		$users = User::all();
 		$users_array = Helpers::getUserArray(User::all());
+		$categories = TaskCategoryController::getAllTaskCategory();
 
 		return view('task-module.task-show', [
 			'task'	=> $task,
 			'users'	=> $users,
 			'users_array'	=> $users_array,
+			'categories'	=> $categories,
 		]);
 	}
 

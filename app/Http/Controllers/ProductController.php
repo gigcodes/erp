@@ -14,6 +14,7 @@ use App\Setting;
 use App\Sizes;
 use App\Stage;
 use App\Brand;
+use App\User;
 use App\Supplier;
 use App\Stock;
 use App\Colors;
@@ -82,18 +83,18 @@ class ProductController extends Controller {
 		$brands = Brand::getAll();
 		$suppliers = Supplier::whereHas('products')->get();
 
-		// foreach (Category::all() as $category) {
-		// 	if ($category->parent_id != 0) {
-		// 		$parent = $category->parent;
-		// 		if ($parent->parent_id != 0) {
-		// 			$category_tree[$parent->parent_id][$parent->id][$category->id];
-		// 		} else {
-		// 			$category_tree[$parent->id][$category->id] = $category->id;
-		// 		}
-		// 	}
-		//
-		// 	$categories_array[$category->id] = $category->parent_id;
-		// }
+		foreach (Category::all() as $category) {
+			if ($category->parent_id != 0) {
+				$parent = $category->parent;
+				if ($parent->parent_id != 0) {
+					$category_tree[$parent->parent_id][$parent->id][$category->id];
+				} else {
+					$category_tree[$parent->id][$category->id] = $category->id;
+				}
+			}
+
+			$categories_array[$category->id] = $category->parent_id;
+		}
 
 		$category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
 																					 ->renderAsDropdown();
@@ -104,6 +105,7 @@ class ProductController extends Controller {
 		$color = '';
 		$supplier = [];
 		$type = '';
+		$assigned_to_users = '';
 
 		$brandWhereClause = '';
 		$colorWhereClause = '';
@@ -111,6 +113,10 @@ class ProductController extends Controller {
 		$supplierWhereClause = '';
 		$typeWhereClause = '';
 		$termWhereClause = '';
+		$croppedWhereClause = '';
+		$stockWhereClause = ' AND stock >= 1';
+
+		$userWhereClause = '';
 
 		// if (Auth::user()->hasRole('Products Lister')) {
 		// 	$products = Auth::user()->products();
@@ -233,11 +239,25 @@ class ProductController extends Controller {
 
 
 		// $products = $products->where('is_scraped', 1)->where('stock', '>=', 1);
-		$croppedWhereClause = '';
+
     if ($request->get('cropped') == 'on') {
       // $products = $products->where('is_image_processed', 1);
 			$croppedWhereClause = ' AND is_image_processed = 1';
     }
+
+		if ($request->users == 'on') {
+			$users_products = User::role('Products Lister')->pluck('id');
+			// dd($users_products);
+			$users = [];
+			foreach ($users_products as $user) {
+				$users[] = $user;
+			}
+			$users_list = implode(',', $users);
+
+			$userWhereClause = " AND products.id IN (SELECT product_id FROM user_products WHERE user_id IN ($users_list))";
+			$stockWhereClause = '';
+			$assigned_to_users = 'on';
+		}
 
 		// if (Auth::user()->hasRole('Products Lister')) {
 		// 	// dd('as');
@@ -258,12 +278,30 @@ class ProductController extends Controller {
 			// $products = $products->take(5000)->orderBy('is_image_processed', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
 
 
-			$new_products = DB::select('
-										SELECT * FROM products
+			if (Auth::user()->hasRole('Products Lister')) {
 
-										WHERE is_scraped = 1 AND stock >= 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . '
-										ORDER BY is_image_processed DESC, created_at DESC
-			');
+
+				$new_products = DB::select('
+											SELECT * FROM products
+
+
+
+											WHERE is_scraped = 1 AND stock >= 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+											ORDER BY is_image_processed DESC, created_at DESC
+				');
+			} else {
+				$new_products = DB::select('
+											SELECT *, user_products.user_id as product_user_id FROM products
+
+											LEFT JOIN (
+												SELECT user_id, product_id FROM user_products
+												) as user_products
+											ON products.id = user_products.product_id
+
+											WHERE is_scraped = 1 ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
+											ORDER BY is_image_processed DESC, created_at DESC
+				');
+			}
 
 			// dd($new_products);
 			$products_count = count($new_products);
@@ -300,6 +338,7 @@ class ProductController extends Controller {
 			'color'	=> $color,
 			'supplier'	=> $supplier,
 			'type'	=> $type,
+			'assigned_to_users'	=> $assigned_to_users,
 		]);
 	}
 
