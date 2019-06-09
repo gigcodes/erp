@@ -114,7 +114,7 @@
                 <div class="">
                   {{ $note->remark }}
 
-                  <ul>
+                  <ul class="pl-2">
                     @foreach ($note->subnotes as $subnote)
                       <li class="d-flex justify-content-between align-items-center">
                         {{ $subnote->remark }}
