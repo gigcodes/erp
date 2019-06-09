@@ -491,6 +491,15 @@ class TaskModuleController extends Controller {
 		return response('success', 200);
 	}
 
+	public function updateSubject(Request $request, $id)
+	{
+		$task = Task::find($id);
+		$task->task_subject = $request->subject;
+		$task->save();
+
+		return response('success', 200);
+	}
+
 	public function addNote(Request $request, $id)
 	{
 		Remark::create([
@@ -532,11 +541,13 @@ class TaskModuleController extends Controller {
 
 		$users = User::all();
 		$users_array = Helpers::getUserArray(User::all());
+		$categories = TaskCategoryController::getAllTaskCategory();
 
 		return view('task-module.task-show', [
 			'task'	=> $task,
 			'users'	=> $users,
 			'users_array'	=> $users_array,
+			'categories'	=> $categories,
 		]);
 	}
 

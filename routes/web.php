@@ -143,6 +143,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
 	Route::post('task/message/reminder', 'TaskModuleController@messageReminder')->name('task.message.reminder');
 	Route::post('task/{id}/convertTask', 'TaskModuleController@convertTask')->name('task.convert.appointment');
+	Route::post('task/{id}/updateSubject', 'TaskModuleController@updateSubject')->name('task.update.subject');
 	Route::post('task/{id}/addNote', 'TaskModuleController@addNote')->name('task.add.note');
 	Route::post('task/{id}/addSubnote', 'TaskModuleController@addSubnote')->name('task.add.subnote');
 	Route::post('task/{id}/updateCategory', 'TaskModuleController@updateCategory')->name('task.update.category');
@@ -521,6 +522,8 @@ Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
 Route::post('whatsapp/outgoingProcessed', 'WhatsAppController@outgoingProcessed');
 Route::post('whatsapp/webhook', 'WhatsAppController@webhook');
+
+Route::get('whatsapp/pullApiwha', 'WhatsAppController@pullApiwha');
 
 Route::post('whatsapp/sendMessage/{context}', 'WhatsAppController@sendMessage')->name('whatsapp.send');
 Route::post('whatsapp/sendMultipleMessages', 'WhatsAppController@sendMultipleMessages');
