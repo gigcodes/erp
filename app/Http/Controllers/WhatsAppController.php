@@ -1403,15 +1403,35 @@ class WhatsAppController extends FindByNumberController
 
         if (count($task->users) > 0) {
           if ($task->assign_from == Auth::id()) {
-            $data['erp_user'] = $task->assign_to;
+            foreach ($task->users as $key => $user) {
+              if ($key == 0) {
+                $data['erp_user'] = $user->id;
+              } else {
+                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+              }
+            }
           } else {
-            $data['erp_user'] = $task->assign_from;
+            foreach ($task->users as $key => $user) {
+              if ($key == 0) {
+                $data['erp_user'] = $task->assign_from;
+              } else {
+                if ($user->id != Auth::id()) {
+                  $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                }
+              }
+            }
           }
         }
 
         if (count($task->contacts) > 0) {
           // if ($task->assign_from == Auth::id()) {
-            $data['contact_id'] = $task->assign_to;
+            foreach ($task->contacts as $key => $contact) {
+              if ($key == 0) {
+                $data['contact_id'] = $task->assign_to;
+              } else {
+                $this->sendWithThirdApi($contact->phone, NULL, $data['message']);
+              }
+            }
           // } else {
             // $data['contact_id'] = $task->assign_from;
           // }
@@ -2981,6 +3001,34 @@ class WhatsAppController extends FindByNumberController
         }
 
         $this->sendWithThirdApi($phone, $whatsapp_number, $new_message->message, NULL, $new_message->id);
+
+        if ($task = Task::find($chat_message->task_id)) {
+          if (count($task->users) > 0) {
+            if ($task->assign_from == Auth::id()) {
+              foreach ($task->users as $key => $user) {
+                if ($key != 0) {
+                  $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                }
+              }
+            } else {
+              foreach ($task->users as $key => $user) {
+                if ($key != 0) {
+                  if ($user->id != Auth::id()) {
+                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                  }
+                }
+              }
+            }
+          }
+
+          if (count($task->contacts) > 0) {
+            foreach ($task->contacts as $key => $contact) {
+              if ($key != 0) {
+                $this->sendWithThirdApi($contact->phone, NULL, $params['message']);
+              }
+            }
+          }
+        }
 
         if ($new_message->hasMedia(config('constants.media_tags'))) {
           foreach ($new_message->getMedia(config('constants.media_tags')) as $image) {

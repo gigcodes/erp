@@ -405,21 +405,37 @@ class TaskModuleController extends Controller {
 			 'message'      => "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details
 		 ];
 
-	   if (count($task->users) > 0) {
-	     if ($task->assign_from == Auth::id()) {
-	       $params['erp_user'] = $task->assign_to;
-	     } else {
-	       $params['erp_user'] = $task->assign_from;
-	     }
-	   }
+		 if (count($task->users) > 0) {
+			 if ($task->assign_from == Auth::id()) {
+				 foreach ($task->users as $key => $user) {
+					 if ($key == 0) {
+						 $params['erp_user'] = $user->id;
+					 } else {
+						 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+					 }
+				 }
+			 } else {
+				 foreach ($task->users as $key => $user) {
+					 if ($key == 0) {
+						 $params['erp_user'] = $task->assign_from;
+					 } else {
+						 if ($user->id != Auth::id()) {
+							 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+						 }
+					 }
+				 }
+			 }
+		 }
 
-	   if (count($task->contacts) > 0) {
-	     if ($task->assign_from == Auth::id()) {
-	       $params['contact_id'] = $task->assign_to;
-	     } else {
-	       $params['contact_id'] = $task->assign_from;
-	     }
-	   }
+		 if (count($task->contacts) > 0) {
+			 foreach ($task->contacts as $key => $contact) {
+				 if ($key == 0) {
+					 $params['contact_id'] = $task->assign_to;
+				 } else {
+					 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, NULL, $params['message']);
+				 }
+			 }
+		 }
 
 			$chat_message = ChatMessage::create($params);
 
