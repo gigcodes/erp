@@ -100,4 +100,9 @@ class Product extends Model
 	{
 		return $this->hasOne('App\ScrapedProducts', 'sku', 'sku');
 	}
+
+	public function user()
+	{
+		return $this->hasOne('App\Product', 'user_products', 'product_id', 'user_id');
+	}
 }
