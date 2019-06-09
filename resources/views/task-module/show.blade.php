@@ -481,6 +481,10 @@
                                             @endif
 
                                             <button type="button" class='btn btn-image ml-1 reminder-message' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
+
+                                            @if ($task->is_statutory != 3)
+                                              <button type="button" class='btn btn-image ml-1 convert-task-appointment' data-id="{{ $task->id }}"><img src='/images/details.png' /></button>
+                                            @endif
                                           @endif
 
                                           @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
@@ -1934,6 +1938,31 @@
           var id = $(this).data('id');
 
           $('#reminderMessageModal').find('input[name="message_id"]').val(id);
+        });
+
+        $(document).on('click', '.convert-task-appointment', function() {
+          var thiss = $(this);
+          var id = $(this).data('id');
+
+          $.ajax({
+            type: "POST",
+            url: "{{ url('task') }}/" + id + "/convertTask",
+            data: {
+              _token: "{{ csrf_token() }}",
+            },
+            beforeSend: function() {
+              $(thiss).text('Converting...');
+            }
+          }).done(function(response) {
+            $(thiss).closest('tr').addClass('row-highlight');
+            $(thiss).remove();
+          }).fail(function(response) {
+            $(thiss).html('<img src="/images/details.png" />');
+
+            console.log(response);
+
+            alert('Could not convert a task');
+          });
         });
   </script>
 @endsection

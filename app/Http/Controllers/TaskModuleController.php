@@ -481,6 +481,47 @@ class TaskModuleController extends Controller {
 		return redirect()->back()->withSuccess('You have successfully set a reminder!');
 	}
 
+	public function convertTask(Request $request, $id)
+	{
+		$task = Task::find($id);
+
+		$task->is_statutory = 3;
+		$task->save();
+
+		return response('success', 200);
+	}
+
+	public function addNote(Request $request, $id)
+	{
+		Remark::create([
+			'taskid'	=> $id,
+			'remark'	=> $request->note,
+			'module_type'	=> 'task-note'
+		]);
+
+		return response('success', 200);
+	}
+
+	public function addSubnote(Request $request, $id)
+	{
+		Remark::create([
+			'taskid'	=> $id,
+			'remark'	=> $request->note,
+			'module_type'	=> 'task-note-subnote'
+		]);
+
+		return response('success', 200);
+	}
+
+	public function updateCategory(Request $request, $id)
+	{
+		$task = Task::find($id);
+		$task->category = $request->category;
+		$task->save();
+
+		return response('success', 200);
+	}
+
 	public function show($id)
 	{
 		$task = Task::find($id);
