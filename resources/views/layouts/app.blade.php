@@ -897,7 +897,7 @@
                                     </li>
 
 
-                                    <a class="dropdown-item" href="{{ route('customer.index') }}">Customers</a>
+                                    <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
                                     <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
                                     <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}">Cold Leads</a>
                                     <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
