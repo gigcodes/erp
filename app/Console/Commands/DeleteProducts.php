@@ -39,9 +39,9 @@ class DeleteProducts extends Command
      */
     public function handle()
     {
-      $products = Product::withTrashed()->where('supplier', 'Carofiglio Junior')->get();
+      $products = Product::withTrashed()->where('supplier', 'MARIA STORE')->get();
       // $product = Product::find(127805);
-      dd(count($products));
+      // dd(count($products));
       foreach ($products as $key => $product) {
         dump("$key - Product");
 
@@ -64,6 +64,14 @@ class DeleteProducts extends Command
           dump("$key - NO IMAGES");
         }
 
+        $product->suppliers()->detach();
+
+        if ($product->user) {
+          $product->user->delete();
+        }
+
+        $product->references()->delete();
+        $product->suggestions()->detach();
         $product->forceDelete();
       }
     }
