@@ -150,7 +150,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('task/{id}/updateCategory', 'TaskModuleController@updateCategory')->name('task.update.category');
 	Route::resource('task','TaskModuleController');
 	Route::resource('task_category','TaskCategoryController');
-	Route::get('/', 'TaskModuleController@index')->name('home');
+
+	// Route::get('/', 'TaskModuleController@index')->name('home');
+	Route::get('/', 'MasterControlController@index')->name('home');
 
 	Route::resource('refund', 'RefundController');
 
