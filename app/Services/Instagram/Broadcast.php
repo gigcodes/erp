@@ -34,6 +34,8 @@ class Broadcast {
     }
 
 
+
+
     public function sendBulkMessages($leads, $message, $file = null, $account, $b) {
         $this->broadcast = $b;
         $receipts = [];

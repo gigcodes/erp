@@ -49,6 +49,15 @@
           </div>
 
           <div class="form-group">
+            <strong>Gender</strong>
+            <select class="form-control" name="gender" id="gender">
+              <option value="all">Any</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <strong>Password:</strong>
             <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
@@ -201,6 +210,15 @@
               @foreach($countries as $country)
                 <option value="{{$country->region}}">{{$country->region}}</option>
               @endforeach
+            </select>
+          </div>
+
+          <div class="form-group">
+            <strong>Gender</strong>
+            <select class="form-control" name="gender" id="gender_edit">
+              <option value="all">All</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
             </select>
           </div>
 

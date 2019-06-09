@@ -115,7 +115,7 @@
                         </td>
                         <td>{{ $post['like_count'] }}</td>
                         <td>{{ $post['comment_count'] }}</td>
-                        <td>{!! $post['location']['name'] . '<br>' . $post['location']['city']  !!}</td>
+                        <td>{!! ($post['location']['name'] ?? '') . '<br>' . ($post['location']['city'] ?? '')  !!}</td>
                         <td>{{ $post['created_at'] }}</td>
                         <td>
                             <button title="Reply via Instagram" type="button" class="btn btn-primary" data-toggle="modal" data-target="#instagram-{{$key}}">
