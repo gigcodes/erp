@@ -65,4 +65,9 @@ class User extends Authenticatable
 	{
 		return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id');
 	}
+
+	public function approved_products()
+	{
+		return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id')->where('is_approved', 1);
+	}
 }
