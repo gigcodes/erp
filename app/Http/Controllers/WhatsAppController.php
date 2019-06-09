@@ -1007,7 +1007,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($contact) {
           $params['contact_id'] = $contact->id;
-          $params['user_id'] = $contact->id;
+          $params['user_id'] = NULL;
 
           if ($params['message'] != '' && (preg_match_all("/#([\d]+)/i", $params['message'], $match))) {
             $params['task_id'] = $match[1][0];

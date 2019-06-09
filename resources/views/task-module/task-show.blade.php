@@ -42,6 +42,12 @@
       @else
         <button type="button" class="btn btn-image make-watched-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/unstarred.png" /></button>
       @endif
+
+      @if ($task->is_flagged == 1)
+        <button type="button" class="btn btn-image flag-task mt-3" data-id="{{ $task->id }}"><img src="/images/flagged.png" /></button>
+      @else
+        <button type="button" class="btn btn-image flag-task mt-3" data-id="{{ $task->id }}"><img src="/images/unflagged.png" /></button>
+      @endif
     </div>
     <div class="pull-right mt-4">
       {{-- <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
@@ -2079,6 +2085,41 @@
             alert('Please enter subject first!')
           }
         }
+      });
+
+      $(document).on('click', '.flag-task', function() {
+        var task_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ route('task.flag') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            task_id: task_id
+          },
+          beforeSend: function() {
+            $(thiss).text('Flagging...');
+          }
+        }).done(function(response) {
+          if (response.is_flagged == 1) {
+            // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+            //
+            // $(thiss).parent().append(badge);
+            $(thiss).html('<img src="/images/flagged.png" />');
+          } else {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+            // $(thiss).parent().find('.badge').remove();
+          }
+
+          // $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).html('<img src="/images/unflagged.png" />');
+
+          alert('Could not flag task!');
+
+          console.log(response);
+        });
       });
   </script>
 @endsection

@@ -435,7 +435,8 @@
                                         </span>
                                       </td>
 
-                                      <td class="expand-row table-hover-cell p-2 {{ ($task->message && $task->message_status == 0 && $task->message_user_id != Auth::id()) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->message_user_id != Auth::id()) ? 'text-danger' : '' }}">
+                                      <td class="expand-row table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
+                                        {{-- ($task->message && $task->message_status == 0 && $task->message_user_id != Auth::id()) --}}
                                         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                           @if (isset($task->message))
                                             <div class="d-flex justify-content-between">
@@ -505,6 +506,12 @@
                                             @else
                                               <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
                                             @endif
+                                          @endif
+
+                                          @if ($task->is_flagged == 1)
+                                            <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}"><img src="/images/flagged.png" /></button>
+                                          @else
+                                            <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}"><img src="/images/unflagged.png" /></button>
                                           @endif
                                         </div>
 
@@ -1962,6 +1969,41 @@
             console.log(response);
 
             alert('Could not convert a task');
+          });
+        });
+
+        $(document).on('click', '.flag-task', function() {
+          var task_id = $(this).data('id');
+          var thiss = $(this);
+
+          $.ajax({
+            type: "POST",
+            url: "{{ route('task.flag') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              task_id: task_id
+            },
+            beforeSend: function() {
+              $(thiss).text('Flagging...');
+            }
+          }).done(function(response) {
+            if (response.is_flagged == 1) {
+              // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+              //
+              // $(thiss).parent().append(badge);
+              $(thiss).html('<img src="/images/flagged.png" />');
+            } else {
+              $(thiss).html('<img src="/images/unflagged.png" />');
+              // $(thiss).parent().find('.badge').remove();
+            }
+
+            // $(thiss).remove();
+          }).fail(function(response) {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+
+            alert('Could not flag task!');
+
+            console.log(response);
           });
         });
   </script>

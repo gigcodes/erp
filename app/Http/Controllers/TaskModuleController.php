@@ -87,7 +87,7 @@ class TaskModuleController extends Controller {
 
                ) AS tasks
                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-               ORDER BY last_communicated_at DESC;
+               ORDER BY is_flagged DESC, last_communicated_at DESC;
 						');
 
 		// $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -437,6 +437,21 @@ class TaskModuleController extends Controller {
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task created successfully.' );
+	}
+
+	public function flag(Request $request)
+	{
+		$task = Task::find($request->task_id);
+
+		if ($task->is_flagged == 0) {
+			$task->is_flagged = 1;
+		} else {
+			$task->is_flagged = 0;
+		}
+
+		$task->save();
+
+		return response()->json(['is_flagged' => $task->is_flagged]);
 	}
 
 	public function assignMessages(Request $request)
