@@ -564,6 +564,10 @@ Route::prefix('sitejabber')->group(function() {
 });
 
 Route::prefix('instagram')->group(function () {
+    Route::post('store', 'InstagramController@store');
+    Route::get('{id}/edit', 'InstagramController@edit');
+    Route::put('update/{id}', 'InstagramController@update');
+    Route::get('delete/{id}', 'InstagramController@deleteAccount');
     Route::resource('auto-comment-report', 'AutoCommentHistoryController');
     Route::resource('auto-comment-hashtags', 'AutoReplyHashtagsController');
     Route::get('flag/{id}', 'HashtagController@flagMedia');
@@ -644,5 +648,6 @@ Route::get('test', 'WhatsAppController@getAllMessages');
 
 Route::resource('track', 'UserActionsController');
 Route::get('competitor-page/hide/{id}', 'CompetitorPageController@hideLead');
+Route::get('competitor-page/approve/{id}', 'CompetitorPageController@approveLead');
 Route::resource('competitor-page', 'CompetitorPageController');
 Route::resource('target-location', 'TargetLocationController');

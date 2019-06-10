@@ -83,6 +83,9 @@ class HashtagController extends Controller
      */
     public function edit($hashtag, Request $request)
     {
+
+        $h = HashTag::where('hashtag', $hashtag)->first();
+
         $maxId = '';
         if ($request->has('maxId')) {
             $maxId = $request->get('maxId');
@@ -93,6 +96,10 @@ class HashtagController extends Controller
 
         [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
         $media_count = $hashtags->getMediaCount($hashtag);
+        if ($h) {
+            $h->post_count = $media_count;
+            $h->save();
+        }
         $relatedHashtags = $hashtags->getRelatedHashtags($hashtag);
 
         $accounts = Account::all();
@@ -142,8 +149,10 @@ class HashtagController extends Controller
         }
 
         $txt = $id;
+        $ht = null;
         if (is_numeric($id)) {
             $hashtag = HashTag::findOrFail($id);
+            $ht = $hashtag;
             $txt = $hashtag->hashtag;
         } else if ($txt == 'x') {
             $txt = $request->get('name');
@@ -155,6 +164,11 @@ class HashtagController extends Controller
 
         [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
         $media_count = $hashtags->getMediaCount($hashtag);
+
+        if ($ht) {
+            $ht->post_count = $media_count;
+            $ht->save();
+        }
 
         $stats = CommentsStats::selectRaw('COUNT(*) as total, YEAR(created_at) as year, MONTH(created_at) as month')->where('target', $hashtag)->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))->get();
 

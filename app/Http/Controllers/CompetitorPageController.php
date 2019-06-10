@@ -130,7 +130,7 @@ class CompetitorPageController extends Controller
      */
     public function edit($id)
     {
-        $followers = CompetitorFollowers::where('competitor_id', $id)->paginate(1);
+        $followers = CompetitorFollowers::where('competitor_id', $id)->paginate(10);
 
         $processedFollowers = [];
 

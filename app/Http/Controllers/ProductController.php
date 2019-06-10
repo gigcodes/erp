@@ -920,13 +920,31 @@ class ProductController extends Controller {
 
 	    $imgs = $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
 
-	    return response()->json([
+	    $category = $product->product_category;
+
+	    $cat = $category->title;
+	    $parent = '';
+	    $child = '';
+
+	    if ($cat != 'Select Category') {
+            if ($category->isParent($category->id)) {
+                $parent = $cat;
+                $child = $cat;
+            } else {
+                $parent = $category->parent()->first()->title;
+                $child = $cat;
+            }
+        }
+
+
+        return response()->json([
 	        'product_id' => $product->id,
             'image_urls' => $imgs,
             'l_measurement' => $product->lmeasurement,
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,
-            'category' => $product->product_category->title
+            'category' => "$parent $child",
+            '' => ''
         ]);
 
     }

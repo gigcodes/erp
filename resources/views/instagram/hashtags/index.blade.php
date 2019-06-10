@@ -30,10 +30,11 @@
             </form>
         </div>
         <div class="col-md-12">
-            <table class="table-striped table table-sm">
+            <table class="table-striped table-bordered table table-sm">
                 <tr>
                     <th>S.N</th>
                     <th>Tag Name</th>
+                    <th>Count</th>
                     <th>Rating</th>
                     <th>Actions</th>
                 </tr>
@@ -45,18 +46,19 @@
                                 {{ $hashtag->hashtag }}
                             </a>
                         </td>
+                        <td>{{$hashtag->post_count}}</td>
                         <td>{{ $hashtag->rating }}</td>
                         <td>
                             <form method="post" action="{{ action('HashtagController@destroy', $hashtag->id) }}">
-                                <a class="btn btn-info" href="{{ action('HashtagController@showGrid', $hashtag->id) }}">
-                                    <i class="fa fa-eye"></i>
+                                <a class="btn btn-default btn-image" href="{{ action('HashtagController@showGrid', $hashtag->id) }}">
+                                    <img src="{{ asset('images/view.png') }}" alt="">
                                 </a>
-                                <a class="btn btn-info" href="{{ action('HashtagController@edit', $hashtag->hashtag) }}">
-                                    <i class="fa fa-info"></i>
+                                <a class="btn btn-default btn-image" href="{{ action('HashtagController@edit', $hashtag->hashtag) }}">
+                                    <i class="fa fa-info"></i> Relavent Hashtags
                                 </a>
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-danger btn-sm">
+                                <button class="btn btn-default btn-image btn-sm">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </form>

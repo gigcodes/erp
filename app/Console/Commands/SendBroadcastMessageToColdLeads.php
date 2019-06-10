@@ -40,25 +40,25 @@ class SendBroadcastMessageToColdLeads extends Command
      */
     public function handle()
     {
-        $broadcasts = ColdLeadBroadcasts::where('started_at', '<=', date('Y-m-d H:i:s'))
-                        ->where('frequency_completed', 0)
-                        ->where('status', 1)
-                        ->get();
+        $broadcast = ColdLeadBroadcasts::where('started_at', '<=', date('Y-m-d H:i:s'))
+            ->whereRaw('`messages_sent` != `number_of_users`')
+            ->first();
 
 
         $bs = new Broadcast();
         $account = Account::where('platform', 'instagram')->where('broadcast', 1)->first();
 
+        $bs->followUser($broadcast);
 
-        foreach ($broadcasts as $broadcast) {
-            $leads = $broadcast->lead()->get();
-            $message = $broadcast->message;
-            $bs->login($account);
-            $bs->sendBulkMessages($leads, $message, $broadcast->image, $account, $broadcast);
-            $broadcast->status = 0;
-            $broadcast->frequency_completed = 1;
-            $broadcast->save();
-        }
+        //After users are followed, start DMing 10 people...
+        sleep(10);
+
+        $leads = $broadcast->lead()->where('followed_by', '>', 0)->take(10)->get();
+        $message = $broadcast->message;
+        $bs->login($account);
+        $bs->sendBulkMessages($leads, $message, $broadcast->image, $account, $broadcast);
+        $broadcast->save();
+
 
     }
 }

@@ -12,7 +12,7 @@
             </form>
         </div>
 
-        <div class="col-md-12">
+        <div class="col-md-12 mt-2 mb-3">
             <div class="accordion" id="accordionExample">
                 <div class="card mt-0" style="width:100%;">
                     <div class="card-header">
@@ -54,21 +54,22 @@
             @endif
         </div>
         <div class="col-md-12">
-            <table class="table-striped table">
-                <tr>
-                    <th>SN</th>
-                    <th>User</th>
-                    <th>Post URL</th>
-                    <th>Image</th>
-                    <th style="width: 400px;">Caption</th>
-                    <th style="width:20px;">Number of Likes</th>
-                    <th style="width:20px;">Number Of Comments</th>
-                    <th>Location</th>
-                    <th>Created At</th>
-                    <th>Comments</th>
-                </tr>
-                @foreach($medias as $key=>$post)
-                    @if (\App\FlaggedInstagramPosts::where('media_id', $post['media_id'])->first())
+            <div class="table-responsive">
+                <table class="table-striped table">
+                    <tr>
+                        <th>SN</th>
+                        <th style="width:50px">User</th>
+                        <th>Post URL</th>
+                        <th style="width: 50px;">Image</th>
+                        <th style="width: 350px;">Caption</th>
+{{--                        <th style="width:20px;">Likes</th>--}}
+                        <th style="width:20px;"># Comments</th>
+                        <th>Location</th>
+                        <th>Created At</th>
+                        <th>Comments</th>
+                    </tr>
+                    @foreach($medias as $key=>$post)
+                        @if (\App\FlaggedInstagramPosts::where('media_id', $post['media_id'])->first())
                         @else
                             <tr id="media_{{$post['media_id']}}">
                                 <td>
@@ -80,31 +81,31 @@
                                 <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
                                 <td>
                                     @if ($post['media_type'] === 1)
-                                        <a href="{{$post['media']}}"><img src="{{ $post['media'] }}" style="width: 200px;"></a>
+                                        <a href="{{$post['media']}}"><img src="{{ $post['media'] }}" style="width: 100px;"></a>
                                     @elseif ($post['media_type'] === 2)
-                                        <video controls src="{{ $post['media'] }}" style="width: 200px"></video>
+                                        <video controls src="{{ $post['media'] }}" style="width: 100px"></video>
                                     @elseif ($post['media_type'] === 8)
                                         @foreach($post['media'] as $m)
                                             @if ($m['media_type'] === 1)
                                                 <a href="{{$m['url']}}"><img src="{{ $m['url'] }}" style="width: 100px;"></a>
                                             @elseif($m['media_type'] === 2)
-                                                <video controls src="{{ $m['url'] }}" style="width: 200px"></video>
+                                                <video controls src="{{ $m['url'] }}" style="width: 100px"></video>
                                             @endif
                                         @endforeach
                                     @endif
                                 </td>
-                                <td style="word-wrap: break-word">
-                                    <div style="width:390px;">
+                                <td style="word-wrap: break-word;text-align: justify;">
+                                    <div style="width:350px;text-align: justify">
                                         {{ $post['caption'] }}
                                     </div>
                                 </td>
-                                <td>{{ $post['like_count'] }}</td>
+{{--                                <td>{{ $post['like_count'] }}</td>--}}
                                 <td>{{ $post['comment_count'] }}</td>
                                 <td>{!! ($post['location']['name'] ?? 'N/A') . '<br>' . ($post['location']['city'] ?? 'N/A')  !!}</td>
                                 <td>{{ $post['created_at'] }}</td>
                                 <td style="width: 600px;">
                                     @if ($post['comments'])
-                                        <table class="table">
+                                        <table class="table table-striped table-bordered">
                                             <tr>
                                                 <th>Username</th>
                                                 <th style="width: 350px">Comment</th>
@@ -148,8 +149,9 @@
                                 </td>
                             </tr>
                         @endif
-                @endforeach
-            </table>
+                    @endforeach
+                </table>
+            </div>
         </div>
 
         <div class="col-md-12 text-center">

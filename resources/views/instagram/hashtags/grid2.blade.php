@@ -75,110 +75,112 @@
         </div>
 
         <div class="col-md-12">
-            <table class="table-striped table">
-                <tr>
-                    <th>S.N</th>
-                    <th>User</th>
-                    <th>Post URL</th>
-                    <th>Image</th>
-                    <th style="width: 400px;">Caption</th>
-                    <th>Number of Likes</th>
-                    <th>Number Of Comments</th>
-                    <th>Location</th>
-                    <th>Created At</th>
-                    <th>Actions</th>
-                </tr>
-                @foreach($medias as $key=>$post)
+            <div class="table-responsive">
+                <table class="table-striped table">
                     <tr>
-                        <td>{{ $key+1 }}</td>
-                        <td><a href="https://instagram.com/{{$post['username']}}">{{$post['username']}}</a></td>
-                        <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
-                        <td>
-                            @if ($post['media_type'] === 1)
-                                <a href="{{$post['media']}}"><img src="{{ $post['media'] }}" style="width: 200px;"></a>
-                            @elseif ($post['media_type'] === 2)
-                                <video controls src="{{ $post['media'] }}" style="width: 200px"></video>
-                            @elseif ($post['media_type'] === 8)
-                                @foreach($post['media'] as $m)
-                                    @if ($m['media_type'] === 1)
-                                        <a href="{{$m['url']}}"><img src="{{ $m['url'] }}" style="width: 100px;"></a>
-                                    @elseif($m['media_type'] === 2)
-                                        <video controls src="{{ $m['url'] }}" style="width: 200px"></video>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </td>
-                        <td style="word-wrap: break-word">
-                            <div style="width:390px;">
-                                {{ $post['caption'] }}
-                            </div>
-                        </td>
-                        <td>{{ $post['like_count'] }}</td>
-                        <td>{{ $post['comment_count'] }}</td>
-                        <td>{!! ($post['location']['name'] ?? '') . '<br>' . ($post['location']['city'] ?? '')  !!}</td>
-                        <td>{{ $post['created_at'] }}</td>
-                        <td>
-                            <button title="Reply via Instagram" type="button" class="btn btn-primary" data-toggle="modal" data-target="#instagram-{{$key}}">
-                                <i class="fa fa-reply"></i>
-                            </button>
+                        <th>S.N</th>
+                        <th>User</th>
+                        <th>Post URL</th>
+                        <th>Image</th>
+                        <th style="width: 400px;">Caption</th>
+                        <th>Number of Likes</th>
+                        <th>Number Of Comments</th>
+                        <th>Location</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                    @foreach($medias as $key=>$post)
+                        <tr>
+                            <td>{{ $key+1 }}</td>
+                            <td><a href="https://instagram.com/{{$post['username']}}">{{$post['username']}}</a></td>
+                            <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
+                            <td>
+                                @if ($post['media_type'] === 1)
+                                    <a href="{{$post['media']}}"><img src="{{ $post['media'] }}" style="width: 200px;"></a>
+                                @elseif ($post['media_type'] === 2)
+                                    <video controls src="{{ $post['media'] }}" style="width: 200px"></video>
+                                @elseif ($post['media_type'] === 8)
+                                    @foreach($post['media'] as $m)
+                                        @if ($m['media_type'] === 1)
+                                            <a href="{{$m['url']}}"><img src="{{ $m['url'] }}" style="width: 100px;"></a>
+                                        @elseif($m['media_type'] === 2)
+                                            <video controls src="{{ $m['url'] }}" style="width: 200px"></video>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </td>
+                            <td style="word-wrap: break-word">
+                                <div style="width:390px;">
+                                    {{ $post['caption'] }}
+                                </div>
+                            </td>
+                            <td>{{ $post['like_count'] }}</td>
+                            <td>{{ $post['comment_count'] }}</td>
+                            <td>{!! ($post['location']['name'] ?? '') . '<br>' . ($post['location']['city'] ?? '')  !!}</td>
+                            <td>{{ $post['created_at'] }}</td>
+                            <td>
+                                <button title="Reply via Instagram" type="button" class="btn btn-primary" data-toggle="modal" data-target="#instagram-{{$key}}">
+                                    <i class="fa fa-reply"></i>
+                                </button>
 
-{{--                            <form action="{{ action('CustomerController@store') }}" method="post">--}}
-{{--                                <button title="Add To Customers" class="btn btn-success">--}}
-{{--                                    <i class="fa fa-plus"></i>--}}
-{{--                                </button>--}}
-{{--                            </form>--}}
+                            {{--                            <form action="{{ action('CustomerController@store') }}" method="post">--}}
+                            {{--                                <button title="Add To Customers" class="btn btn-success">--}}
+                            {{--                                    <i class="fa fa-plus"></i>--}}
+                            {{--                                </button>--}}
+                            {{--                            </form>--}}
 
                             <!-- The Modal -->
-                            <div class="modal" id="instagram-{{$key}}">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
+                                <div class="modal" id="instagram-{{$key}}">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
 
-                                        <!-- Modal Header -->
-                                        <div class="modal-header">
-                                            <h4 class="modal-title">Reply To Comment On Post</h4>
-                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <!-- Modal Header -->
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Reply To Comment On Post</h4>
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+
+                                            <!-- Modal body -->
+                                            <div class="modal-body">
+                                                <form action="{{ action('ReviewController@replyToPost') }}">
+                                                    <input type="hidden" name="media_id" value="{{$post['media_id']}}">
+                                                    <input type="hidden" name="username" value="{{$post['username']}}">
+                                                    <div class="form-group">
+                                                        <label for="id">Username</label>
+                                                        <select name="id" id="id" class="form-control">
+                                                            <option value="0">Select Username</option>
+                                                            @foreach($accounts as $account)
+                                                                @if ($account->platform == 'instagram')
+                                                                    <option value="{{$account->id}}">{{ $account->last_name }}</option>
+                                                                @endif
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="message">Message</label>
+                                                        <input type="text" name="message" id="message" placeholder="Type message..." class="form-control">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <button class="btn btn-success">
+                                                            <i class="da fa-reply"></i> Reply
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- Modal footer -->
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                            </div>
+
                                         </div>
-
-                                        <!-- Modal body -->
-                                        <div class="modal-body">
-                                            <form action="{{ action('ReviewController@replyToPost') }}">
-                                                <input type="hidden" name="media_id" value="{{$post['media_id']}}">
-                                                <input type="hidden" name="username" value="{{$post['username']}}">
-                                                <div class="form-group">
-                                                    <label for="id">Username</label>
-                                                    <select name="id" id="id" class="form-control">
-                                                        <option value="0">Select Username</option>
-                                                        @foreach($accounts as $account)
-                                                            @if ($account->platform == 'instagram')
-                                                                <option value="{{$account->id}}">{{ $account->last_name }}</option>
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="message">Message</label>
-                                                    <input type="text" name="message" id="message" placeholder="Type message..." class="form-control">
-                                                </div>
-                                                <div class="form-group">
-                                                    <button class="btn btn-success">
-                                                        <i class="da fa-reply"></i> Reply
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-
-                                        <!-- Modal footer -->
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                        </div>
-
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </table>
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
         </div>
 
         <div class="col-md-12 text-center">

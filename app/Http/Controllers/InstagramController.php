@@ -18,6 +18,7 @@ use App\Product;
 use App\ScheduleGroup;
 use App\Services\Instagram\DirectMessage;
 use App\Services\Instagram\Instagram;
+use App\TargetLocation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\Facebook\Facebook;
@@ -76,11 +77,69 @@ class InstagramController extends Controller
      * @param Request $request
      * This method will store photo to
      * Instagram Business account
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request) {
         $this->validate($request, [
-            'image' => 'required|image'
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'password' => 'required',
         ]);
+
+        $account = new Account();
+        $account->first_name = $request->get('first_name');
+        $account->last_name = $request->get('last_name');
+        $account->password = $request->get('password');
+        $account->email = $request->get('email');
+        $account->broadcast = $request->get('broadcast') == 'on' ? 1 : 0;
+        $account->manual_comment = $request->get('manual_comments') == 'on' ? 1 : 0;
+        $account->bulk_comment = $request->get('bulk_comments') == 'on' ? 1 : 0;
+        $account->dob = '1996-02-02';
+        $account->platform = 'instagram';
+        $account->country = $request->get('country');
+        $account->save();
+
+        return redirect()->back()->with('message', 'Account added successfully!');
+
+    }
+
+    public function edit($id) {
+        $account = Account::findOrFail($id);
+        $countries = TargetLocation::all();
+
+        return view('instagram.am.edit-account', compact('account', 'countries'));
+    }
+
+    public function deleteAccount($id) {
+        $account = Account::findOrFail($id);
+
+        if ($account){
+            $account->delete();
+        }
+
+        return redirect()->back()->with('success', 'Account deleted successfully!');
+
+    }
+
+    public function update($id, Request $request) {
+        $this->validate($request, [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'password' => 'required',
+        ]);
+
+        $account = Account::findOrFail($id);
+        $account->first_name = $request->get('first_name');
+        $account->last_name = $request->get('last_name');
+        $account->password = $request->get('password');
+        $account->email = $request->get('email');
+        $account->broadcast = $request->get('broadcast') == 'on' ? 1 : 0;
+        $account->manual_comment = $request->get('manual_comments') == 'on' ? 1 : 0;
+        $account->bulk_comment = $request->get('bulk_comments') == 'on' ? 1 : 0;
+        $account->country = $request->get('country');
+        $account->save();
+
+        return redirect()->back()->with('message', 'Account added successfully!');
     }
 
     public function getComments(Request $request) {
@@ -216,7 +275,7 @@ class InstagramController extends Controller
         }
 
         if ($request->get('instagram') === 'on') {
-            $this->instagram->postMedia($image);
+            $this->instagram->postMedia($image, $request->get('description'));
             ImageSchedule::whereIn('image_id', $this->instagram->getImageIds())->update([
                 'status' => 1
             ]);
@@ -546,7 +605,8 @@ class InstagramController extends Controller
     }
 
     public function accounts() {
-        $accounts = Account::where('platform', 'instagram')->get();
-        return view('instagram.am.accounts', compact('accounts'));
+        $accounts = Account::where('platform', 'instagram')->orderBy('created_at', 'DESC')->get();
+        $countries = TargetLocation::all();
+        return view('instagram.am.accounts', compact('accounts', 'countries'));
     }
 }
