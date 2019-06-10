@@ -10,7 +10,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Attach Images to Message</h2>
+                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>)</h2>
 
                 <!--pending products count-->
                 @can('admin')
@@ -272,6 +272,7 @@
           data: formData
         }).done(function(data) {
           $('#productGrid').html(data.html);
+          $('#products_count').text(data.products_count);
           $('.lazy').Lazy({
             effect: 'fadeIn'
           });

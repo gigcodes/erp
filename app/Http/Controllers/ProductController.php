@@ -692,6 +692,7 @@ class ProductController extends Controller {
 		$products = Product::where(function($query) {
 			$query->where('stock', '>=', 1)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
 		});
+
 		$filtered_category = '';
 		$brand = '';
 		$message_body = $request->message ? $request->message : '';
@@ -771,7 +772,10 @@ class ProductController extends Controller {
 			}
 		}
 
-		$products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status'])->paginate(Setting::get('pagination'));
+		$products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status']);
+		$products_count = $products->count();
+
+		$products = $products->paginate(Setting::get('pagination'));
 
 		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
 		                                        ->selected($filtered_category)
@@ -786,7 +790,7 @@ class ProductController extends Controller {
 			return response()->json(['html' => $html]);
 		}
 
-		return view( 'partials.image-grid', compact( 'products', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers') );
+		return view( 'partials.image-grid', compact( 'products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers') );
 	}
 
 
