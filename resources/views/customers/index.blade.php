@@ -242,6 +242,8 @@
                               Approved
                           @elseif ($customer->message_status == 0)
                               Unread
+
+                              <a href data-url="/whatsapp/updatestatus?status=5&id={{ $customer->message_id }}" class='change_message_status'>Mark as Read</a>
                           @endif
                       {{-- @endif --}}
                     </td>
@@ -1102,6 +1104,27 @@
 
       $(document).on('click', '.show-images-button', function() {
         $(this).siblings('.image-container').toggleClass('hidden');
+      });
+
+      $(document).on('click', '.change_message_status', function(e) {
+        e.preventDefault();
+        var url = $(this).data('url');
+        var thiss = $(this);
+
+        $.ajax({
+          url: url,
+          type: 'GET',
+          beforeSend: function () {
+            $(thiss).text('Marking...');
+          }
+        }).done( function(response) {
+          $(thiss).closest('tr').removeClass('text-danger');
+          $(thiss).remove();
+        }).fail(function(errObj) {
+          $(thiss).text('Mark as Read');
+          alert("Could not change status");
+          console.log(errObj);
+        });
       });
   </script>
 @endsection
