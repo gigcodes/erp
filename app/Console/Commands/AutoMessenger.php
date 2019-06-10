@@ -6,6 +6,7 @@ use App\Order;
 use App\Customer;
 use App\ChatMessage;
 use App\PrivateView;
+use App\AutoReply;
 use App\CommunicationHistory;
 use App\CronJobReport;
 use App\ScheduledMessage;
@@ -68,7 +69,7 @@ class AutoMessenger extends Command
         // if ($time_diff == 10) {
           $order = Order::find($history->model_id);
           $params['customer_id'] = $order->customer_id;
-          $params['message'] = 'This is Alternative';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-alternative')->first()->reply;
 
           $chat_message = ChatMessage::create($params);
 
@@ -98,7 +99,7 @@ class AutoMessenger extends Command
         // if ($time_diff == 10) {
           $customer = Customer::find($follow_up->model_id);
           $params['customer_id'] = $customer->id;
-          $params['message'] = 'This is follow up after 24 hours';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-24')->first()->reply;
 
           $chat_message = ChatMessage::create($params);
 
@@ -117,7 +118,7 @@ class AutoMessenger extends Command
         // if ($time_diff == 20) {
           $customer = Customer::find($follow_up->model_id);
           $params['customer_id'] = $customer->id;
-          $params['message'] = 'This is follow up after 48 hours';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-48')->first()->reply;
 
           $chat_message = ChatMessage::create($params);
 
@@ -136,7 +137,7 @@ class AutoMessenger extends Command
         // if ($time_diff == 30) {
           $customer = Customer::find($follow_up->model_id);
           $params['customer_id'] = $customer->id;
-          $params['message'] = 'This is follow up after 72 hours';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-72')->first()->reply;
 
           $chat_message = ChatMessage::create($params);
 
@@ -168,7 +169,7 @@ class AutoMessenger extends Command
         if ($time_diff == 48) {
         // if ($time_diff == 10) {
           $params['customer_id'] = $order->customer_id;
-          $params['message'] = 'After 48 hours - Refund is in process';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'refund-in-process')->first()->reply;
 
           $chat_message = ChatMessage::create($params);
 
@@ -193,7 +194,7 @@ class AutoMessenger extends Command
         if ($time_diff == 72) {
         // if ($time_diff == 20) {
           $params['customer_id'] = $order->customer_id;
-          $params['message'] = 'After 72 hours - Some Products';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-alternative-72')->first()->reply;
 
           $chat_message = ChatMessage::create($params);
 
@@ -216,7 +217,7 @@ class AutoMessenger extends Command
 
           sleep(5);
 
-          $params['message'] = 'This is transfer enter amount [AMOUNT], now ok, [ADDRESS]. Finish!';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'refund-transfer-details')->first()->reply;
           $chat_message = ChatMessage::create($params);
         }
       }
@@ -233,7 +234,7 @@ class AutoMessenger extends Command
         if ($time_diff == 24) {
         // if ($time_diff == 10) {
           $params['customer_id'] = $private_view->customer_id;
-          $params['message'] = 'After 24 hours - Alert about private viewing';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-reminder')->first()->reply;
 
           $chat_message = ChatMessage::create($params);
 

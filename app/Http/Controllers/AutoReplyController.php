@@ -19,20 +19,22 @@ class AutoReplyController extends Controller
      */
     public function index()
     {
-      $auto_replies = AutoReply::where('type', 'simple')->latest()->get()->groupBy('reply')->toArray();
+      $simple_auto_replies = AutoReply::where('type', 'simple')->latest()->get()->groupBy('reply')->toArray();
       $priority_customers_replies = AutoReply::where('type', 'priority-customer')->latest()->paginate(Setting::get('pagination'), ['*'], 'priority-page');
+      $auto_replies = AutoReply::where('type', 'auto-reply')->latest()->paginate(Setting::get('pagination'), ['*'], 'autoreply-page');
       $show_automated_messages = Setting::get('show_automated_messages');
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = Setting::get('pagination');
-  		$currentItems = array_slice($auto_replies, $perPage * ($currentPage - 1), $perPage);
+  		$currentItems = array_slice($simple_auto_replies, $perPage * ($currentPage - 1), $perPage);
 
-  		$auto_replies = new LengthAwarePaginator($currentItems, count($auto_replies), $perPage, $currentPage, [
+  		$simple_auto_replies = new LengthAwarePaginator($currentItems, count($simple_auto_replies), $perPage, $currentPage, [
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
       return view('autoreplies.index', [
         'auto_replies'  => $auto_replies,
+        'simple_auto_replies'  => $simple_auto_replies,
         'priority_customers_replies'  => $priority_customers_replies,
         'show_automated_messages'  => $show_automated_messages
       ]);
@@ -142,6 +144,15 @@ class AutoReplyController extends Controller
       $auto_reply->save();
 
       return redirect()->route('autoreply.index')->withSuccess('You have successfully updated auto reply!');
+    }
+
+    public function updateReply(Request $request, $id)
+    {
+      $auto_reply = AutoReply::find($id);
+      $auto_reply->reply = $request->reply;
+      $auto_reply->save();
+
+      return response('success', 200);
     }
 
     /**

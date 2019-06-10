@@ -201,7 +201,7 @@ class WhatsAppController extends FindByNumberController
                'approved'     => 1,
                'status'       => 9,
                'customer_id'  => $customer->id,
-               'message'      => 'Greetings from Sololuxury.co.in, based on your request we have now placed you on DND. You will no longer receive updates from us. We apologize for the inconvenience caused.'
+               'message'      => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-dnd')->first()->reply
              ];
 
             $auto_dnd_message = ChatMessage::create($dnd_params);
@@ -383,7 +383,7 @@ class WhatsAppController extends FindByNumberController
          ];
 
         if ($time->between($morning, $evening, true)) {
-          $params['message'] = 'Hello we have received your message - and the concerned asscociate will revert asap - since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate and response us time is 60 minutes  .Pls. note that we do not answer calls on this number as its linked to our servers.';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'work-hours-greeting')->first()->reply;
 
           sleep(1);
           $additional_message = ChatMessage::create($params);
@@ -397,7 +397,7 @@ class WhatsAppController extends FindByNumberController
            'approved'     => 1,
            'status'       => 9,
            'customer_id'  => $params['customer_id'],
-           'message'      => 'Our office is currently closed - we work between 10 - 5.30 - Monday - Friday -  - if an associate is available - your messaged will be responded within 60 minutes or on the next working day -since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate shall respond accordingly.'
+           'message'      => AutoReply::where('type', 'auto-reply')->where('keyword', 'office-closed-message')->first()->reply
          ];
 
          sleep(1);
@@ -683,7 +683,7 @@ class WhatsAppController extends FindByNumberController
                'approved'     => 1,
                'status'       => 9,
                'customer_id'  => $customer->id,
-               'message'      => 'Greetings from Sololuxury.co.in, based on your request we have now placed you on DND. You will no longer receive updates from us. We apologize for the inconvenience caused.'
+               'message'      => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-dnd')->first()->reply
              ];
 
             $auto_dnd_message = ChatMessage::create($dnd_params);
@@ -866,7 +866,7 @@ class WhatsAppController extends FindByNumberController
          ];
 
         if ($time->between($morning, $evening, true)) {
-          $params['message'] = 'Hello we have received your message - and the concerned asscociate will revert asap - since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate and response us time is 60 minutes  .Pls. note that we do not answer calls on this number as its linked to our servers.';
+          $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'work-hours-greeting')->first()->reply;
 
           sleep(1);
           $additional_message = ChatMessage::create($params);
@@ -881,7 +881,7 @@ class WhatsAppController extends FindByNumberController
            'approved'     => 1,
            'status'       => 9,
            'customer_id'  => $params['customer_id'],
-           'message'      => 'Our office is currently closed - we work between 10 - 5.30 - Monday - Friday -  - if an associate is available - your messaged will be responded within 60 minutes or on the next working day -since the phone is connected to a server it shows online - messages read  24 / 7 - but the message is directed to the concerned associate shall respond accordingly.'
+           'message'      => AutoReply::where('type', 'auto-reply')->where('keyword', 'office-closed-message')->first()->reply
          ];
 
          sleep(1);
@@ -1503,7 +1503,7 @@ class WhatsAppController extends FindByNumberController
         File::delete('uploads/temp_screenshot.png');
       }
 
-      if (Auth::id() == 6 || $context == 'task') {
+      if (Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || $context == 'task') {
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
@@ -2075,7 +2075,7 @@ class WhatsAppController extends FindByNumberController
                'approved'     => 1,
                'status'       => 9,
                'customer_id'  => $message->customer_id,
-               'message'      => 'This Number is just for whats app messages and NOT CALLS , for calls pls. use our toll free number 0008000401700 - ( care to be taken not to dial with 91 or  + 91 ). Pls. leave a message if you cannot connect to our toll free number and we will call you back at the earliest.'
+               'message'      => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-info-message')->first()->reply
              ];
 
             $additional_message = ChatMessage::create($params);

@@ -12,6 +12,7 @@ use App\Helpers;
 use App\Customer;
 use App\User;
 use App\ChatMessage;
+use App\AutoReply;
 use App\DeliveryApproval;
 use Auth;
 use Plank\Mediable\Media;
@@ -238,10 +239,14 @@ class StockController extends Controller
         }
       }
 
+      $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-message')->first();
+
+			$auto_message = preg_replace("/{product_information}/i", $product_information, $auto_reply->reply);
+
       $params = [
         'number'    => NULL,
         'user_id'   => Auth::id(),
-        'message'   => "New Request for Private Viewing: $product_information",
+        'message'   => $auto_message,
         'approved'  => 0,
         'status'    => 1
       ];

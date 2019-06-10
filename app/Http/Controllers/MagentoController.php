@@ -11,6 +11,7 @@ use App\ChatMessage;
 use App\Order;
 use App\OrderProduct;
 use App\CommunicationHistory;
+use App\AutoReply;
 use Carbon\Carbon;
 use Validator;
 
@@ -265,13 +266,20 @@ class MagentoController extends Controller {
 					$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
 				}
 
+				$delivery_time = $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F');
+
+				$auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-confirmation')->first();
+
+				$auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
+				$auto_message = preg_replace("/{delivery_time}/i", $delivery_time, $auto_message);
+
 				$params = [
 					 'number'       => NULL,
 					 'user_id'      => 6,
 					 'approved'     => 1,
 					 'status'       => 2,
 					 'customer_id'  => $order->customer->id,
-					 'message'      => "We have received your COD order for $product_names and we will deliver the same by " . ($order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::now()->addDays(15)->format('d \of\ F')) . '.'
+					 'message'      => $auto_message
 				 ];
 
 				$chat_message = ChatMessage::create($params);
@@ -284,7 +292,7 @@ class MagentoController extends Controller {
 					app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
 				}
 
-				$params['message'] = "Ma'am please also note that since your order was placed on c o d - an initial advance needs to be paid to process the order - pls let us know how you would like to make this payment.";
+				$params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-followup')->first()->reply;
 
 				$chat_message = ChatMessage::create($params);
 
@@ -307,7 +315,7 @@ class MagentoController extends Controller {
 				 'approved'     => 1,
 				 'status'       => 2,
 				 'customer_id'  => $order->customer->id,
-				 'message'      => "Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you."
+				 'message'      => AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply
 			 ];
 
 			$chat_message = ChatMessage::create($params);
@@ -335,7 +343,7 @@ class MagentoController extends Controller {
 				 'approved'     => 1,
 				 'status'       => 2,
 				 'customer_id'  => $order->customer->id,
-				 'message'      => "Greetings from Solo Luxury, we noticed that you are attempting to place an order but it wasn't completed would you like for us to pick up a cash advance or would you like a payment link to place the order online?"
+				 'message'			=> AutoReply::where('type', 'auto-reply')->where('keyword', 'order-payment-not-processed')->first()->reply
 			 ];
 
 			$chat_message = ChatMessage::create($params);
