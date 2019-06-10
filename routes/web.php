@@ -643,5 +643,6 @@ Route::get('test', 'WhatsAppController@getAllMessages');
 
 Route::resource('track', 'UserActionsController');
 Route::get('competitor-page/hide/{id}', 'CompetitorPageController@hideLead');
+Route::get('competitor-page/approve/{id}', 'CompetitorPageController@approveLead');
 Route::resource('competitor-page', 'CompetitorPageController');
 Route::resource('target-location', 'TargetLocationController');

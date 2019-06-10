@@ -26,11 +26,17 @@ class Broadcast {
     private $loggedInAccounts = [];
     private $broadcast;
 
-    public function login($account) {
+    public function login($account)
+    {
         $instagram = new Instagram();
         $instagram->login($account->last_name, $account->password);
         $this->token = Signatures::generateUUID();
         $this->instagram = $instagram;
+    }
+
+
+    public function followUser() {
+        $accountToSend = Account::where('platform', 'instagram')->where('broadcast', 1)->orderBy('broadcasted_messages', 'ASC')->first();
     }
 
 
@@ -39,7 +45,8 @@ class Broadcast {
     public function sendBulkMessages($leads, $message, $file = null, $account, $b) {
         $this->broadcast = $b;
         $receipts = [];
-        foreach ($leads as $lead) {
+        foreach ($leads as $lead)
+        {
             $receiverId = $lead->platform_id;
             if (strlen($receiverId) < 5) {
                 try {
@@ -56,6 +63,8 @@ class Broadcast {
             $receipts[$lead->id] = $lead->platform_id;
         }
 
+        //Send message now...
+
         $this->broadcast->status = 0;
         $this->broadcast->save();
 
@@ -64,20 +73,22 @@ class Broadcast {
             echo "Looping... \n";
             $cl = ColdLeads::where('platform_id', $receipt)->first();
             $account_id = $cl->account_id;
-            if ($account_id > 0) {
-                $accountToSend = Account::find($account_id);
-            } else {
-                $accountToSend = Account::where('platform', 'instagram')->where('broadcast', 1)->orderBy('broadcasted_messages', 'ASC')->first();
-            }
+            $accountToSend = Account::find($account_id);
+//            if ($account_id > 0) {
+//                $accountToSend = Account::find($account_id);
+//            } else {
+//                $accountToSend = Account::where('platform', 'instagram')->where('broadcast', 1)->orderBy('broadcasted_messages', 'ASC')->first();
+//            }
 
-            $cl->account_id = $accountToSend->id;
             echo "Attached account... \n";
-
-            $cl->save();
 
             echo "SENDING TO $receipt \n";
             echo "TEXT by $accountToSend->id \n";
-            $this->sendText($message, $receipt, $accountToSend, $account);
+
+            try {
+                $this->sendText($message, $receipt, $accountToSend, $account);
+            } catch (\Exception $exception) {
+            }
 
             echo "text sent... \n";
 
@@ -101,16 +112,15 @@ class Broadcast {
 
             sleep(5);
 
-            ++$this->broadcast->messages_sent;
-            $this->broadcast->save();
-
-            ++$accountToSend->broadcasted_messages;
-            $accountToSend->save();
-
 
             if ($file !== null) {
                 echo "IMAGE by $accountToSend->id \n";
-                $this->sendImage($file, $receipt, $accountToSend, $account);
+
+                try {
+                    $this->sendImage($file, $receipt, $accountToSend, $account);
+                } catch (\Exception  $exception) {
+
+                }
 
                 $m = new InstagramDirectMessages();
                 $m->instagram_thread_id = $ct->id;
@@ -120,14 +130,14 @@ class Broadcast {
                 $m->receiver_id = $receipt;
                 $m->save();
 
-                ++$this->broadcast->messages_sent;
-                $this->broadcast->save();
-
-                ++$accountToSend->broadcasted_messages;
-                $accountToSend->save();
-
             }
             echo "=========================\n";
+
+            ++$this->broadcast->messages_sent;
+            $this->broadcast->save();
+
+            ++$accountToSend->broadcasted_messages;
+            $accountToSend->save();
 
             $l = ColdLeads::where('id', $key)->first();
             ++$l->messages_sent;

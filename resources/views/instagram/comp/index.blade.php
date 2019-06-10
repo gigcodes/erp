@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h1>Competitor Pages</h1>
+            <h2 class="page-heading">Competitor Pages</h2>
         </div>
         <div class="col-md-12">
             @if(Session::has('message'))
@@ -50,7 +50,7 @@
             </form>
         </div>
         <div class="col-md-12">
-            <table class="table-striped table table-sm">
+            <table class="table-striped table-bordered table table-sm">
                 <tr>
                     <th>S.N</th>
                     <th>Platform</th>

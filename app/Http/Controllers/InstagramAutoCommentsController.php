@@ -48,6 +48,7 @@ class InstagramAutoCommentsController extends Controller
         $comment->comment = $request->get('text');
         $comment->source = $request->get('comment');
         $comment->country = $request->get('country');
+        $comment->gender = $request->get('gender');
         $comment->save();
 
         return redirect()->back()->with('message', 'Comment added successfully!');
