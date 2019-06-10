@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Auto Replies - ERP Sololuxury')
+
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
@@ -10,6 +12,12 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Auto Replies</h2>
             <div class="pull-left">
+              <div class="form-inline">
+                <input type="checkbox" id="turn_off_automated" name="show_automated_messages" value="" {{ $show_automated_messages == 1 ? 'checked' : '' }}>
+                <label for="#turn_off_automated">Show Automated Messages</label>
+
+                <span class="text-success change_status_message" style="display: none;">Successfully saved</span>
+              </div>
               {{-- <form action="{{ route('review.index') }}" method="GET">
                 <div class="row">
                   <div class="col">
@@ -44,13 +52,6 @@
             </div>
             <div class="pull-right">
               <div class="form-inline">
-                <div class="form-inline">
-                  <input type="checkbox" id="turn_off_automated" name="show_automated_messages" value="" {{ $show_automated_messages == 1 ? 'checked' : '' }}>
-                  <label for="#turn_off_automated">Show Automated Messages</label>
-
-                    <span class="text-success change_status_message" style="display: none;">Successfully saved</span>
-                </div>
-
                 <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#autoReplyCreateModal">Create</a>
               </div>
             </div>
@@ -66,6 +67,9 @@
         </li>
         <li>
           <a href="#priority-customers" data-toggle="tab">Priority Customers</a>
+        </li>
+        <li>
+          <a href="#auto-replies" data-toggle="tab">Auto Replies</a>
         </li>
       </ul>
     </div>
@@ -87,7 +91,7 @@
               @php
                 $count = 0;
               @endphp
-              @foreach ($auto_replies as $reply => $data)
+              @foreach ($simple_auto_replies as $reply => $data)
                 <tr>
                   <td>{{ $count + 1 }}</td>
                   <td>{{ $reply }}</td>
@@ -116,7 +120,7 @@
           </table>
         </div>
 
-        {!! $auto_replies->appends(Request::except('page'))->links() !!}
+        {!! $simple_auto_replies->appends(Request::except('page'))->links() !!}
       </div>
 
       <div class="tab-pane mt-3" id="priority-customers">
@@ -153,6 +157,57 @@
         </div>
 
         {!! $priority_customers_replies->appends(Request::except('priority-page'))->links() !!}
+      </div>
+
+      <div class="tab-pane mt-3" id="auto-replies">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th width="5%">#</th>
+                <th width="25%">Used For</th>
+                <th width="60%">Reply</th>
+                <th width="10%">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @foreach ($auto_replies as $key => $reply)
+                <tr>
+                  <td>{{ $key + 1 }}</td>
+                  <td>{{ $reply->keyword }}</td>
+                  <td>
+                    <span class="auto-reply-reply">
+                      @php
+                        preg_match_all('/({\w*})/', $reply->reply, $match);
+
+                        $new_reply = $reply->reply;
+                        foreach ($match[0] as $variable) {
+                          $exploded_reply = explode($variable, $new_reply);
+                          $new_variable = '<strong>' . $variable . '</strong>';
+                          $new_reply = implode($new_variable, $exploded_reply);
+                        }
+
+                        // $new_reply = preg_replace('/\[/', '<strong>[</strong>', $new_reply);
+                        // $new_reply = preg_replace('/\//', '<strong>/</strong>', $new_reply);
+                        // $new_reply = preg_replace('/\]/', '<strong>]</strong>', $new_reply);
+                      @endphp
+
+                      {!! $new_reply !!}
+                    </span>
+
+                    <textarea name="reply" class="form-control auto-reply-textarea hidden" rows="4" cols="80" data-id="{{ $reply->id }}">{{ strip_tags($reply->reply) }}</textarea>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-image edit-auto-reply-button"><img src="/images/edit.png" /></button>
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+
+        {!! $auto_replies->appends(Request::except('autoreply-page'))->links() !!}
       </div>
     </div>
 
@@ -201,6 +256,39 @@
 
         alert('Could not saved the changes');
       })
+    });
+
+    $('.edit-auto-reply-button').on('click', function () {
+      $(this).closest('tr').find('textarea[name="reply"]').toggleClass('hidden');
+      $(this).closest('tr').find('textarea[name="reply"]').siblings('.auto-reply-reply').toggleClass('hidden');
+    });
+
+    $('.auto-reply-textarea').keypress(function(e) {
+      var key = e.which;
+      var thiss = $(this);
+      var id = $(this).data('id');
+
+      if (key == 13) {
+        e.preventDefault();
+        var reply = $(thiss).val();
+
+        $.ajax({
+          type: 'POST',
+          url: "{{ url('autoreply') }}/" + id + '/updateReply',
+          data: {
+            _token: "{{ csrf_token() }}",
+            reply: reply,
+          }
+        }).done(function() {
+          $(thiss).addClass('hidden');
+          $(thiss).siblings('.auto-reply-reply').text(reply);
+          $(thiss).siblings('.auto-reply-reply').removeClass('hidden');
+        }).fail(function(response) {
+          console.log(response);
+
+          alert('Could not update reply');
+        });
+      }
     });
   </script>
 @endsection

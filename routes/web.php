@@ -88,6 +88,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
 	// Auto Replies
+	Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
 	Route::resource('autoreply', 'AutoReplyController');
 
 	Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');

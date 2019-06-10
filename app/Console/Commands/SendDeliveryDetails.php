@@ -6,6 +6,7 @@ use App\CronJobReport;
 use App\PrivateView;
 use App\ChatMessage;
 use App\User;
+use App\AutoReply;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -72,7 +73,16 @@ class SendDeliveryDetails extends Command
         }
 
         $address = $private_view->customer->address . ", " . $private_view->customer->pincode . ", " . $private_view->customer->city;
-        $params['message'] = "Details for Private Viewing: Customer - " . $private_view->customer->name . ", Phone: " . $private_view->customer->phone . ", Address: $address" . "; Products $product_information";
+
+        $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-details')->first();
+
+  			$auto_message = preg_replace("/{customer_name}/i", $private_view->customer->name, $auto_reply->reply);
+        $auto_message = preg_replace("/{customer_phone}/i", $private_view->customer->phone, $auto_message);
+        $auto_message = preg_replace("/{customer_address}/i", $address, $auto_message);
+  			$auto_message = preg_replace("/{product_information}/i", $product_information, $auto_message);
+
+        // $params['message'] = "Details for Private Viewing: Customer - " . $private_view->customer->name . ", Phone: " . $private_view->customer->phone . ", Address: $address" . "; Products $product_information";
+        $params['message'] = $auto_message;
 
         foreach ($coordinators as $coordinator) {
           dump('Sending Message to Coordinator ' . $coordinator->name);

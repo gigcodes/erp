@@ -14,6 +14,7 @@ use App\Message;
 use App\ChatMessage;
 use App\Task;
 use App\Image;
+use App\AutoReply;
 use App\Reply;
 use App\Customer;
 use App\StatusChange;
@@ -546,18 +547,22 @@ class LeadsController extends Controller
 
       $customer = Customer::find($request->customer_id);
       $lead = Customer::find($request->lead_id);
-      $message = 'This is prices for selected products: ';
+      $product_names = '';
 
       foreach ($request->selected_product as $product_id) {
         $product = Product::find($product_id);
         $brand_name = $product->brands->name ?? '';
         $special_price = $product->price_special_offer ?? $product->price_special;
 
-        $message .= "$brand_name $product->name" . ' - ' . "$special_price; ";
+        $product_names = "$brand_name $product->name" . ' - ' . "$special_price; ";
       }
 
+      $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
+
+			$auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
+
       $params['customer_id'] = $customer->id;
-      $params['message'] = $message;
+      $params['message'] = $auto_message;
 
       $chat_message = ChatMessage::create($params);
 
