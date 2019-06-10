@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use File;
 use Illuminate\Console\Command;
 
 class RestoreCroppedImages extends Command
@@ -41,7 +42,33 @@ class RestoreCroppedImages extends Command
         $products = Product::where('is_image_processed', 1)->get();
 
         foreach ($products as $product) {
-            dd($product->media()->get());
+            if ($product->hasMedia(config('constants.media_tags'))) {
+                $this->info($product->id);
+                $tc = count($product->getMedia(config('constants.media_tags')));
+                echo "$tc \n";
+                if ($tc < 8) {
+                    $product->is_image_processed = 0;
+                    $product->save();
+                    continue;
+                }
+                foreach ($product->getMedia(config('constants.media_tags')) as $key=>$image) {
+                    if ($key+1 > $tc/2) {
+                        $image_path = $image->getAbsolutePath();
+
+                        echo "DELETED $key \n";
+
+                        if (File::exists($image_path)) {
+                            File::delete($image_path);
+                        }
+
+                        $image->delete();
+                    }
+                }
+
+                $product->is_image_processed = 0;
+                $product->save();
+
+            }
         }
     }
 }
