@@ -335,7 +335,9 @@ class TaskModuleController extends Controller {
 		}
 		//My code end
 
-		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions'));
+		$tasks_view = [];
+
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'tasks_view'));
 	}
 
 	public function store( Request $request ) {
@@ -468,6 +470,20 @@ class TaskModuleController extends Controller {
 		$task->save();
 
 		return response()->json(['is_flagged' => $task->is_flagged]);
+	}
+
+	public function loadView(Request $request)
+	{
+		$tasks = Task::whereIn('id', $request->selected_tasks)->get();
+		$users = Helpers::getUserArray(User::all());
+		$view = view('task-module.partials.task-view', [
+			'tasks_view' => $tasks,
+			'users'			=> $users
+			])->render();
+
+		return response()->json([
+			'view'	=> $view
+		]);
 	}
 
 	public function assignMessages(Request $request)

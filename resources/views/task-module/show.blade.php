@@ -27,6 +27,7 @@
 
     @include('task-module.partials.modal-contact')
     @include('task-module.partials.modal-task-category')
+    @include('task-module.partials.modal-task-view')
 
     @include('partials.flash_messages')
 
@@ -323,6 +324,7 @@
                   <li><a href="#3" data-toggle="tab">Completed Task</a>
                   </li>
                   <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
+                  <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>
                </ul>
                <div class="tab-content ">
                     <!-- Pending task div start -->
@@ -349,7 +351,11 @@
                                   <tbody>
                                     @foreach($data['task']['pending'] as $task)
                                   <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
-                                      <td class="p-2">{{ $task->id }}</td>
+                                      <td class="p-2">
+                                        {{ $task->id }}
+
+                                        <input type="checkbox" class="select_task_checkbox" name="task" data-id="{{ $task->id }}" value="">
+                                      </td>
                                       <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                       <td class="expand-row table-hover-cell p-2">
                                         @if (isset($categories[$task->category]))
@@ -2005,6 +2011,62 @@
 
             console.log(response);
           });
+        });
+
+        var selected_tasks = [];
+
+        $(document).on('click', '.select_task_checkbox', function() {
+          var checked = $(this).prop('checked');
+          var id = $(this).data('id');
+
+          if (checked) {
+            selected_tasks.push(id);
+          } else {
+            var index = selected_tasks.indexOf(id);
+
+            selected_tasks.splice(index, 1);
+          }
+
+          console.log(selected_tasks);
+        });
+
+        $('#view_tasks_button').on('click', function() {
+          var selected = $(this).data('selected');
+
+          // if (selected == 0) {
+          //   $(this).text('View');
+          //
+          //   $('.select_task_checkbox').removeClass('hidden');
+          //
+          //   $(this).data('selected', 1);
+          // } else if (selected == 1) {
+            // $(this).text('Select for Viewing');
+
+            // $('.select_task_checkbox').removeClass('hidden');
+
+            $(this).data('selected', 0);
+            console.log(JSON.stringify(selected_tasks));
+            if (selected_tasks.length > 0) {
+              $.ajax({
+                type: "POST",
+                url: "{{ url('task/loadView') }}",
+                data: {
+                  _token: "{{ csrf_token() }}",
+                  selected_tasks: selected_tasks
+                }
+              }).done(function(response) {
+                $('#task_view_body').html(response.view);
+
+                $('#taskViewModal').modal();
+              }).fail(function(response) {
+                console.log(response);
+
+                alert('Could not load tasks view');
+              });
+            } else {
+              alert('Please select atleast 1 task!');
+            }
+          // }
         });
   </script>
 @endsection

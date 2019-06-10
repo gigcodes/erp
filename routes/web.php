@@ -142,6 +142,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('task/list', 'TaskModuleController@list')->name('task.list');
 	Route::post('task/flag', 'TaskModuleController@flag')->name('task.flag');
 	Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
+	Route::post('task/loadView', 'TaskModuleController@loadView')->name('task.load.view');
 	Route::post('task/message/reminder', 'TaskModuleController@messageReminder')->name('task.message.reminder');
 	Route::post('task/{id}/convertTask', 'TaskModuleController@convertTask')->name('task.convert.appointment');
 	Route::post('task/{id}/updateSubject', 'TaskModuleController@updateSubject')->name('task.update.subject');
@@ -150,7 +151,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('task/{id}/updateCategory', 'TaskModuleController@updateCategory')->name('task.update.category');
 	Route::resource('task','TaskModuleController');
 	Route::resource('task_category','TaskCategoryController');
-	Route::get('/', 'TaskModuleController@index')->name('home');
+
+	// Route::get('/', 'TaskModuleController@index')->name('home');
+	Route::get('/', 'MasterControlController@index')->name('home');
 
 	Route::resource('refund', 'RefundController');
 

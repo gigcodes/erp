@@ -18,7 +18,7 @@
 
 
 
-    <title>{{ config('app.name', 'ERP for Sololuxury') }}</title>
+    {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 
 
 
@@ -257,7 +257,7 @@
 
         <div class="container-fluid">
 
-            <a class="navbar-brand" href="{{ url('/') }}">
+            <a class="navbar-brand" href="{{ url('/task') }}">
 
                 {{ config('app.name', 'Laravel') }}
 

@@ -31,6 +31,10 @@ class MasterControlController extends Controller
      */
     public function index(Request $request)
     {
+      if (!Auth::user()->hasRole('Admin')) {
+        return redirect()->route('task.index');
+      }
+
       $today = Carbon::now()->format('Y-m-d');
       $yesterday = Carbon::now()->subDay()->format('Y-m-d');
       $two_days_ago = Carbon::now()->subDays(2)->format('Y-m-d');
