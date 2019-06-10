@@ -35,8 +35,17 @@ class Broadcast {
     }
 
 
-    public function followUser() {
-        $accountToSend = Account::where('platform', 'instagram')->where('broadcast', 1)->orderBy('broadcasted_messages', 'ASC')->first();
+    public function followUser($broadcast) {
+        $broadcast->lead()->where('followed_by', null)->chunk(4, function($leads) {
+            $accountToSend = Account::where('platform', 'instagram')->where('broadcast', 1)->inRandomOrder()->first();
+            $acc = new Instagram();
+            $acc->login($accountToSend->last_name, $accountToSend->password);
+            foreach ($leads as $lead) {
+                $acc->people->follow($lead->platform_id);
+                $lead->followed_by = $accountToSend->id;
+                $lead->save();
+            }
+        });
     }
 
 

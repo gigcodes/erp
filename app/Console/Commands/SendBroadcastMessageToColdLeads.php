@@ -48,8 +48,7 @@ class SendBroadcastMessageToColdLeads extends Command
         $bs = new Broadcast();
         $account = Account::where('platform', 'instagram')->where('broadcast', 1)->first();
 
-        $broadcastsUnfollowedLeads = $broadcast->lead()->where('followed_by', null)->get();
-        $bs->followUser($broadcastsUnfollowedLeads);
+        $bs->followUser($broadcast);
 
         //After users are followed, start DMing 10 people...
         sleep(10);

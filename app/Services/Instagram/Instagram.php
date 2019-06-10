@@ -140,34 +140,30 @@ class Instagram {
         return $comment;
     }
 
-    public function postMedia($images) {
+    public function postMedia($images, $message) {
         if (!is_array($images)) {
             $images = [$images];
         }
 
         $return = [];
+        $files = [];
 
         foreach ($images as $image) {
-            $containerId = $this->postMediaObject($image);
-            if ($containerId !== false)
-            {
-                $data = [
-                    'creation_id' => $containerId,
-                    'access_token' => $this->user_access_token
-                ];
-
-                try {
-                    $response = $this->facebook->post($this->instagram_id.'/media_publish', $data)->getDecodedBody();
-                    $return[] = [
-                        'image_id' => $image->id,
-                        'post_id' => $response['id']
-                    ];
-                } catch (\Exception $exception) {
-                    continue;
-                }
+            $file = public_path().'/uploads/social-media/'.$image->filename;
+            if (!file_exists($file)) {
+                $file = public_path().'/uploads/'.$image->filename;
             }
+
+            $files[] = $file;
         }
 
+        $instagram = new \InstagramAPI\Instagram();
+        $instagram->login('sololuxury.official', 'Insta123!');
+        if (count($images) > 1) {
+            $instagram->timeline->uploadAlbum($files, ['caption' => $message]);
+        } else {
+            $instagram->timeline->uploadPhoto($files[0], ['caption' => $message]);
+        }
         $this->imageIds = $return;
 
     }

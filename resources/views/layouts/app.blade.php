@@ -1245,6 +1245,7 @@
                                       <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="instagramMenu">
                                           <li class="nav-item dropdown dropdown-submenu">
                                               <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
+                                              <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                               <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>
                                               <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Sololuxury Hashtags</a>
                                               <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>

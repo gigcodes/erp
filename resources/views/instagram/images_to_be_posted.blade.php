@@ -128,8 +128,8 @@
                                         <input type="checkbox" name="facebook" id="facebook_{{$key}}">
                                         <label for="facebook_{{$key}}">Facebook</label>
                                         &nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="checkbox" name="instagram" id="instagram_{{$key}}" disabled>
-                                        <label class="text-muted" for="instagram_{{$key}}">Instagram</label>
+                                        <input type="checkbox" name="instagram" id="instagram_{{$key}}">
+                                        <label for="instagram_{{$key}}">Instagram</label>
                                     </div>
                                     <div class="form-group">
                                         <input class="schedule-handle" data-pid="{{$key}}" type="checkbox" name="is_scheduled" id="is_scheduled_{{$key}}">

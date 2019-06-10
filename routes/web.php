@@ -563,6 +563,10 @@ Route::prefix('sitejabber')->group(function() {
 });
 
 Route::prefix('instagram')->group(function () {
+    Route::post('store', 'InstagramController@store');
+    Route::get('{id}/edit', 'InstagramController@edit');
+    Route::put('update/{id}', 'InstagramController@update');
+    Route::get('delete/{id}', 'InstagramController@deleteAccount');
     Route::resource('auto-comment-report', 'AutoCommentHistoryController');
     Route::resource('auto-comment-hashtags', 'AutoReplyHashtagsController');
     Route::get('flag/{id}', 'HashtagController@flagMedia');
