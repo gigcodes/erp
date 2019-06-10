@@ -303,7 +303,9 @@ class SearchController extends Controller {
 		                                        ->selected($selected_categories)
 		                                        ->renderAsDropdown();
 
-		$data['products'] = $productQuery->where('stock', '>=', 1)->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->paginate( Setting::get( 'pagination' ) );
+		$products = $productQuery->where('stock', '>=', 1)->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+		$products_count = $products->count();
+		$data['products'] = $products->paginate( Setting::get( 'pagination' ) );
 
 		if ($request->model_type == 'broadcast-images') {
 			$data['attachImages'] = true;
@@ -313,7 +315,7 @@ class SearchController extends Controller {
 		if ($request->ajax()) {
 			$html = view('partials.image-load', ['products' => $data['products'], 'data'	=> $data, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
 
-			return response()->json(['html' => $html]);
+			return response()->json(['html' => $html, 'products_count' => $products_count]);
 		}
 
 		return view( 'partials.grid', $data );
