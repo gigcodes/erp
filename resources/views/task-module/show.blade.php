@@ -111,7 +111,7 @@
         ?>
             <div class="row mb-4">
               <div class="col-xs-12">
-                <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data" id="taskCreateForm">
                   @csrf
 
                   <div class="row">
@@ -241,7 +241,7 @@
                     </div>
 
                     <div class="col-xs-12 text-center">
-                      <button type="submit" class="btn btn-xs btn-secondary">Create</button>
+                      <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
                     </div>
                   </div>
 
@@ -2067,6 +2067,19 @@
               alert('Please select atleast 1 task!');
             }
           // }
+        });
+
+        $('#taskCreateButton').on('click', function() {
+          var users = $('#multi_users').val();
+          var contacts = $('#multi_contacts').val();
+
+          console.log(users, contacts);
+
+          if (users == '' && contacts == '') {
+            alert('Please select atleast one user or contact');
+          } else {
+            $('#taskCreateForm').submit();
+          }
         });
   </script>
 @endsection
