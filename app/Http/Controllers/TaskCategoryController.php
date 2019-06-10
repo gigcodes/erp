@@ -20,7 +20,7 @@ class TaskCategoryController extends Controller
 	public function create(){
 
 		$data = [];
-		$data['name'] = '';
+		$data['title'] = '';
 		$data['modify'] = 0;
 
 		return view('task-module.category.form',$data);
@@ -37,10 +37,17 @@ class TaskCategoryController extends Controller
 	public function store(Request $request){
 
 		$this->validate($request,[
-			'name' => 'required'
+			'title' => 'required_without:subcategory'
 		]);
 
-		TaskCategory::create($request->all());
+		if ($request->name != '') {
+			TaskCategory::create(['title' => $request->title]);
+		}
+
+		if ($request->parent_id != '' && $request->subcategory != '') {
+			TaskCategory::create(['title' => $request->subcategory, 'parent_id' => $request->parent_id]);
+		}
+
 
 		return redirect()->back()->with('success','Category created successfully');
 	}
@@ -48,7 +55,7 @@ class TaskCategoryController extends Controller
 	public function update(Request $request,TaskCategory $task_category){
 
 		$this->validate($request,[
-			'name' => 'required'
+			'title' => 'required'
 		]);
 
 		$task_category->update($request->all());
@@ -69,7 +76,7 @@ class TaskCategoryController extends Controller
 		$task_category_new = [];
 
 		foreach($task_category as $item)
-			$task_category_new[$item['id']] = $item['name'];
+			$task_category_new[$item['id']] = $item['title'];
 
 		return $task_category_new;
 	}

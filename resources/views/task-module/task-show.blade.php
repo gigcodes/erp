@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tasks Show - ERP Sololuxury')
+@section('title', 'Tasks Show')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -71,13 +71,14 @@
 
       <div class="col-6">
         <div class="form-group">
-          <select class="form-control input-sm" id="task_category" name="category">
+          {{-- <select class="form-control input-sm" id="task_category" name="category">
             <option value="">Select a Category</option>
 
             @foreach ($categories as $id => $category)
               <option value="{{ $id }}" {{ $id == $task->category ? 'selected' : '' }}>{{ $category }}</option>
             @endforeach
-          </select>
+          </select> --}}
+          {!! $categories !!}
 
           <span class="text-success change_status_message" style="display: none;">Successfully changed category</span>
         </div>

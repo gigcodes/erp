@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tasks - ERP Sololuxury')
+@section('title', 'Tasks')
 
 @section('styles')
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -41,12 +41,7 @@
           </div>
 
           <div class="form-group ml-3">
-            <?php
-            $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
-
-            echo Form::select('category', $categories, (old('category') ? old('category') : $category), ['placeholder' => 'Select a Category','class' => 'form-control input-sm']);
-
-            ?>
+            {!! $task_categories_dropdown !!}
           </div>
 
           @can('view-activity')
@@ -216,12 +211,7 @@
                       <div class="form-inline mb-3">
                         <div class="form-group flex-fill">
                             {{-- <strong>Category:</strong> --}}
-                            <?php
-                            $categories = \App\Http\Controllers\TaskCategoryController::getAllTaskCategory();
-
-                            echo Form::select('category',$categories, ( old('category') ? old('category') : $category ), ['placeholder' => 'Select a Category','class' => 'form-control input-sm']);
-
-                            ?>
+                            {!! $task_categories_dropdown !!}
                         </div>
 
                         <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="/images/add.png" /></button>
