@@ -616,7 +616,10 @@
                                 foreach ($selected_products_array  as $product_id) {
                                   $product = \App\Product::find($product_id);
 
-                                  $products_array[$product_id] = $product->name ? $product->name : $product->sku;
+                                  if ($product) {
+                                    $products_array[$product_id] = $product->name ? $product->name : $product->sku;
+                                  }
+
                                 }
                               }
                             @endphp
