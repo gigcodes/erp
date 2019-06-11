@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Instructions List')
+
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -19,26 +21,41 @@
         </div>
     </div>
 
-    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
       <div class="row mb-3">
         <div class="col-md-10 col-sm-12">
           <form action="{{ route('instruction.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
             <div class="row full-width" style="width: 100%;">
+              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                <div class="col-md-4 col-sm-12">
+                  <div class="form-group mr-3">
+                    <select class="form-control select-multiple" name="user[]" multiple>
+                      @foreach ($users_array as $index => $name)
+                        <option value="{{ $index }}" {{ isset($user) && in_array($index, $user) ? 'selected' : '' }}>{{ $name }}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+              @endif
+
               <div class="col-md-4 col-sm-12">
                 <div class="form-group mr-3">
-                  <select class="form-control select-multiple" name="user[]" multiple>
-                    @foreach ($users_array as $index => $name)
-                      <option value="{{ $index }}" {{ isset($user) && in_array($index, $user) ? 'selected' : '' }}>{{ $name }}</option>
+                  <select class="form-control" name="category">
+                    <option value="">Select a Category</option>
+
+                    @foreach ($categories_array as $id => $category)
+                      <option value="{{ $id }}" {{ isset($selected_category) && $selected_category == $id ? 'selected' : '' }}>{{ $category['name'] }}</option>
                     @endforeach
                   </select>
                 </div>
               </div>
+
               <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
+
+
             </div>
           </form>
         </div>
       </div>
-    @endif
 
     @include('partials.flash_messages')
 
@@ -59,330 +76,9 @@
 
     <div class="tab-content ">
       <div class="tab-pane active mt-3" id="4">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-            <tr>
-              <th rowspan="2">Client Name</th>
-              <th rowspan="2">Number</th>
-              <th rowspan="2">Assigned to</th>
-              <th rowspan="2">Category</th>
-              <th rowspan="2">Instructions</th>
-              <th rowspan="2" colspan="3" class="text-center">Action</th>
-              <th colspan="3" class="text-center">Timing</th>
-              <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
-              <th rowspan="2">Remark</th>
-            </tr>
-
-            <tr>
-              <th>Start</th>
-              <th>End</th>
-              <th>Action</th>
-            </tr>
-            @foreach ($instructions as $category_id => $data)
-              <tr>
-                <th colspan="11" id="instructions_{{ $category_id }}">
-                  @if (array_key_exists($category_id, $categories_array))
-                    {{ $categories_array[$category_id]['name'] }}
-
-                    <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$category_id]['icon'] }}" alt=""></button>
-                  @else
-                    No Category
-                  @endif
-                </th>
-              </tr>
-              @foreach ($data as $instruction)
-                <tr id="instruction_{{ $instruction['id'] }}">
-                  <td>
-                    {{-- <a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a> --}}
-                    <form class="d-inline" action="{{ route('customer.post.show', $instruction['customer_id']) }}" method="POST">
-                      @csrf
-                      <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
-
-                      <button type="submit" class="btn-link">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</button>
-                    </form>
-                  </td>
-                  <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
-                  </td>
-                  <td>{{ $users_array[$instruction['assigned_to']] ?? '' }}</td>
-                  <td>{{ $instruction['category']['name'] }}</td>
-                  <td>
-                    <div class="form-inline">
-                      @if ($instruction['is_priority'] == 1)
-                        <strong class="text-danger mr-1">!</strong>
-                      @endif
-
-                      {{ $instruction['instruction'] }}
-                    </div>
-
-                  </td>
-                  <td>
-                    @if ($instruction['completed_at'])
-                      {{ Carbon\Carbon::parse($instruction['completed_at'])->format('d-m H:i') }}
-                    @else
-                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction['id'] }}">Complete</a>
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['completed_at'])
-                      Completed
-                    @else
-                      @if ($instruction['pending'] == 0)
-                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction['id'] }}">Mark as Pending</a>
-                      @else
-                        Pending
-                      @endif
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['verified'] == 1)
-                      <span class="badge">Verified</span>
-                    @elseif ($instruction['assigned_from'] == Auth::id() && $instruction['verified'] == 0)
-                      <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction['id'] }}">Verify</a>
-                    @else
-                      <span class="badge">Not Verified</span>
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['start_time'])
-                      {{ \Carbon\Carbon::parse($instruction['start_time'])->format('H:i d-m') }}
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['end_time'])
-                      {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
-                    @endif
-                  </td>
-                  <td>
-                    <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
-                  </td>
-                  <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
-                  <td>
-                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction['id'] }}">Add</a>
-                    <span> | </span>
-                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
-                  </td>
-                </tr>
-              @endforeach
-            @endforeach
-          </table>
-        </div>
-        {{-- {!! $instructions->appends(Request::except('page'))->links() !!} --}}
-      </div>
-
-      <div class="tab-pane mt-3" id="pending-instructions">
-        <div class="table-responsive">
-            <table class="table table-bordered">
-            <tr>
-              <th rowspan="2">Client Name</th>
-              <th rowspan="2">Number</th>
-              <th rowspan="2">Assigned to</th>
-              <th rowspan="2">Category</th>
-              <th rowspan="2">Instructions</th>
-              <th rowspan="2" colspan="3" class="text-center">Action</th>
-              <th colspan="3" class="text-center">Timing</th>
-              <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
-              <th rowspan="2">Remark</th>
-            </tr>
-
-            <tr>
-              <th>Start</th>
-              <th>End</th>
-              <th>Action</th>
-            </tr>
-            @foreach ($pending_instructions as $category_id => $data)
-              <tr>
-                <th colspan="11" id="pending_instructions_{{ $category_id }}">
-                  @if (array_key_exists($category_id, $categories_array))
-                    {{ $categories_array[$category_id]['name'] }}
-
-                    <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$category_id]['icon'] }}" alt=""></button>
-                  @else
-                    No Category
-                  @endif
-                </th>
-              </tr>
-              @foreach ($data as $instruction)
-                <tr>
-                  <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
-                  <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
-                  </td>
-                  <td>{{ $users_array[$instruction['assigned_to']] ?? '' }}</td>
-                  <td>{{ $instruction['category']['name'] }}</td>
-                  <td>{{ $instruction['instruction'] }}</td>
-                  <td>
-                    @if ($instruction['completed_at'])
-                      {{ Carbon\Carbon::parse($instruction['completed_at'])->format('d-m H:i') }}
-                    @else
-                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction['id'] }}">Complete</a>
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['completed_at'])
-                      Completed
-                    @else
-                      @if ($instruction['pending'] == 0)
-                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction['id'] }}">Mark as Pending</a>
-                      @else
-                        Pending
-                      @endif
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['verified'] == 1)
-                      <span class="badge">Verified</span>
-                    @elseif ($instruction['assigned_from'] == Auth::id() && $instruction['verified'] == 0)
-                      <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction['id'] }}">Verify</a>
-                    @else
-                      <span class="badge">Not Verified</span>
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['start_time'])
-                      {{ \Carbon\Carbon::parse($instruction['start_time'])->format('H:i d-m') }}
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['end_time'])
-                      {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
-                    @endif
-                  </td>
-                  <td>
-                    <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
-                  </td>
-                  <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
-                  <td>
-                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction['id'] }}">Add</a>
-                    <span> | </span>
-                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
-                  </td>
-                </tr>
-              @endforeach
-            @endforeach
-          </table>
-        </div>
-        {{-- {!! $pending_instructions->appends(Request::except('pending_page'))->links() !!} --}}
-      </div>
-
-      <div class="tab-pane mt-3" id="verify-instructions">
-        <div class="form-group ml-3 mb-3 d-inline">
-          <input type="checkbox" name="" value="" id="select-all-instructions">
-          <label for="select-all-instructions">Select All</label>
-        </div>
-
-        <div class="form-group ml-3 mb-3s d-inline">
-          <form class="form-inline d-inline" action="{{ route('instruction.verify.selected') }}" method="POST" id="verifySelectedForm">
-            @csrf
-            <input type="hidden" name="selected_instructions" id="selected_instructions" value="">
-
-            <button type="submit" class="btn btn-xs btn-secondary" id="verifySelectedButton">Verify</button>
-          </form>
-        </div>
-
-        <div class="table-responsive mt-3">
-            <table class="table table-bordered">
-            <tr>
-              <th rowspan="2">#</th>
-              <th rowspan="2">Client Name</th>
-              <th rowspan="2">Number</th>
-              <th rowspan="2">Assigned to</th>
-              <th rowspan="2">Category</th>
-              <th rowspan="2">Instructions</th>
-              <th rowspan="2" colspan="3" class="text-center">Action</th>
-              <th colspan="3" class="text-center">Timing</th>
-              <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
-              <th rowspan="2">Remark</th>
-            </tr>
-
-            <tr>
-              <th>Start</th>
-              <th>End</th>
-              <th>Action</th>
-            </tr>
-            @foreach ($verify_instructions as $category_id => $data)
-              <tr>
-                <th colspan="11" id="verify_instructions_{{ $category_id }}">
-                  @if (array_key_exists($category_id, $categories_array))
-                    {{ $categories_array[$category_id]['name'] }}
-
-                    <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$category_id]['icon'] }}" alt=""></button>
-                  @else
-                    No Category
-                  @endif
-                </th>
-              </tr>
-              @foreach ($data as $instruction)
-
-                <tr>
-                  <td>
-                    <input type="checkbox" name="selected_instructions[]" class="select-instruction" data-id="{{ $instruction['id'] }}">
-                  </td>
-                  <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
-                  <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
-                  </td>
-                  <td>{{ $users_array[$instruction['assigned_to']] ?? '' }}</td>
-                  <td>{{ $instruction['category']['name'] }}</td>
-                  <td>{{ $instruction['instruction'] }}</td>
-                  <td>
-                    @if ($instruction['completed_at'])
-                      {{ Carbon\Carbon::parse($instruction['completed_at'])->format('d-m H:i') }}
-                    @else
-                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction['id'] }}">Complete</a>
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['completed_at'])
-                      Completed
-                    @else
-                      @if ($instruction['pending'] == 0)
-                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction['id'] }}">Mark as Pending</a>
-                      @else
-                        Pending
-                      @endif
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['verified'] == 1)
-                      <span class="badge">Verified</span>
-                    @elseif ($instruction['assigned_from'] == Auth::id() && $instruction['verified'] == 0)
-                      <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction['id'] }}">Verify</a>
-                    @else
-                      <span class="badge">Not Verified</span>
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['start_time'])
-                      {{ \Carbon\Carbon::parse($instruction['start_time'])->format('H:i d-m') }}
-                    @endif
-                  </td>
-                  <td>
-                    @if ($instruction['end_time'])
-                      {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
-                    @endif
-                  </td>
-                  <td>
-                    <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
-                  </td>
-                  <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
-                  <td>
-                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction['id'] }}">Add</a>
-                    <span> | </span>
-                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
-                  </td>
-                </tr>
-              @endforeach
-            @endforeach
-          </table>
-        </div>
-        {{-- {!! $verify_instructions->appends(Request::except('verify_page'))->links() !!} --}}
-      </div>
-
-        <div class="tab-pane mt-3" id="5">
-
+        <div class="infinite-scroll-instructions">
           <div class="table-responsive">
-              <table class="table table-bordered">
+              <table class="table table-bordered table-hover">
               <tr>
                 <th rowspan="2">Client Name</th>
                 <th rowspan="2">Number</th>
@@ -390,8 +86,8 @@
                 <th rowspan="2">Category</th>
                 <th rowspan="2">Instructions</th>
                 <th rowspan="2" colspan="3" class="text-center">Action</th>
-                <th colspan="3">Timing</th>
-                <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
+                <th colspan="3" class="text-center">Timing</th>
+                <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Created at</a></th>
                 <th rowspan="2">Remark</th>
               </tr>
 
@@ -400,50 +96,79 @@
                 <th>End</th>
                 <th>Action</th>
               </tr>
-              @foreach ($completed_instructions as $category_id => $data)
-                <tr>
-                  <th colspan="11" id="completed_instructions{{ $category_id }}">
-                    @if (array_key_exists($category_id, $categories_array))
-                      {{ $categories_array[$category_id]['name'] }}
+              @foreach ($instructions as $instruction)
+                {{-- <tr>
+                  <th colspan="11" id="instructions_{{ $instruction['category_id'] }}">
+                    @if (array_key_exists($instruction['category_id'], $categories_array))
+                      {{ $categories_array[$instruction['category_id']]['name'] }}
 
-                      <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$category_id]['icon'] }}" alt=""></button>
+                      <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button>
                     @else
                       No Category
                     @endif
                   </th>
-                </tr>
-                @foreach ($data as $instruction)
-                  <tr>
-                    <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ isset($instruction->customer) ? $instruction->customer->name : '' }}</a></td>
+                </tr> --}}
+                {{-- @foreach ($data as $instruction) --}}
+                  <tr id="instruction_{{ $instruction['id'] }}">
                     <td>
-                      <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer_id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
+                      {{-- <a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a> --}}
+                      <form class="d-inline" action="{{ route('customer.post.show', $instruction['customer_id']) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
+
+                        <button type="submit" class="btn-link">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</button>
+                      </form>
                     </td>
-                    <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
-                    <td>{{ $instruction->category ? $instruction->category->name : 'No Category' }}</td>
-                    <td>{{ $instruction->instruction }}</td>
                     <td>
-                      @if ($instruction->completed_at)
-                        {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                      <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
+                    </td>
+                    <td>{{ $users_array[$instruction['assigned_to']] ?? '' }}</td>
+                    <td>
+                      {{-- {{ $instruction['category']['name'] }} --}}
+
+                      {{-- <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button> --}}
+
+                      @if (array_key_exists($instruction['category_id'], $categories_array))
+                        {{ $categories_array[$instruction['category_id']]['name'] }}
+
+                        <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button>
                       @else
-                        <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}">Complete</a>
+                        No Category
                       @endif
                     </td>
                     <td>
-                      @if ($instruction->completed_at)
+                      <div class="form-inline">
+                        @if ($instruction['is_priority'] == 1)
+                          <strong class="text-danger mr-1">!</strong>
+                        @endif
+
+                        {{ $instruction['instruction'] }}
+                      </div>
+
+                    </td>
+                    <td>
+                      @if ($instruction['completed_at'])
+                        {{ Carbon\Carbon::parse($instruction['completed_at'])->format('d-m H:i') }}
+                      @else
+                        <a href="#" class="btn-link complete-call" data-id="{{ $instruction['id'] }}">Complete</a>
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['completed_at'])
                         Completed
                       @else
-                        @if ($instruction->pending == 0)
-                          <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                        @if ($instruction['pending'] == 0)
+                          <a href="#" class="btn-link pending-call" data-id="{{ $instruction['id'] }}">Mark as Pending</a>
                         @else
                           Pending
                         @endif
                       @endif
                     </td>
                     <td>
-                      @if ($instruction->verified == 1)
+                      @if ($instruction['verified'] == 1)
                         <span class="badge">Verified</span>
-                      @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
-                        <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                      @elseif ($instruction['assigned_from'] == Auth::id() && $instruction['verified'] == 0)
+                        <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction['id'] }}">Verify</a>
                       @else
                         <span class="badge">Not Verified</span>
                       @endif
@@ -461,18 +186,354 @@
                     <td>
                       <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
                     </td>
-                    <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                    <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
                     <td>
-                      <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                      <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction['id'] }}">Add</a>
                       <span> | </span>
-                      <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                      <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
                     </td>
                   </tr>
-                @endforeach
+                {{-- @endforeach --}}
               @endforeach
-          </table>
+            </table>
           </div>
-          {{-- {!! $completed_instructions->appends(Request::except('completed_page'))->links() !!} --}}
+          {!! $instructions->appends(Request::except('page'))->links() !!}
+        </div>
+      </div>
+
+      <div class="tab-pane mt-3" id="pending-instructions">
+        <div class="infinite-scroll-pending">
+          <div class="table-responsive">
+              <table class="table table-bordered">
+              <tr>
+                <th rowspan="2">Client Name</th>
+                <th rowspan="2">Number</th>
+                <th rowspan="2">Assigned to</th>
+                <th rowspan="2">Category</th>
+                <th rowspan="2">Instructions</th>
+                <th rowspan="2" colspan="3" class="text-center">Action</th>
+                <th colspan="3" class="text-center">Timing</th>
+                <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Created at</a></th>
+                <th rowspan="2">Remark</th>
+              </tr>
+
+              <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Action</th>
+              </tr>
+              @foreach ($pending_instructions as $instruction)
+                {{-- <tr>
+                  <th colspan="11" id="pending_instructions_{{ $instruction['category_id'] }}">
+                    @if (array_key_exists($instruction['category_id'], $categories_array))
+                      {{ $categories_array[$instruction['category_id']]['name'] }}
+
+                      <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button>
+                    @else
+                      No Category
+                    @endif
+                  </th>
+                </tr> --}}
+                {{-- @foreach ($data as $instruction) --}}
+                  <tr>
+                    <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
+                    <td>
+                      <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
+                    </td>
+                    <td>{{ $users_array[$instruction['assigned_to']] ?? '' }}</td>
+                    <td>
+                      @if (array_key_exists($instruction['category_id'], $categories_array))
+                        {{ $categories_array[$instruction['category_id']]['name'] }}
+
+                        <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button>
+                      @else
+                        No Category
+                      @endif
+                    </td>
+                    <td>{{ $instruction['instruction'] }}</td>
+                    <td>
+                      @if ($instruction['completed_at'])
+                        {{ Carbon\Carbon::parse($instruction['completed_at'])->format('d-m H:i') }}
+                      @else
+                        <a href="#" class="btn-link complete-call" data-id="{{ $instruction['id'] }}">Complete</a>
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['completed_at'])
+                        Completed
+                      @else
+                        @if ($instruction['pending'] == 0)
+                          <a href="#" class="btn-link pending-call" data-id="{{ $instruction['id'] }}">Mark as Pending</a>
+                        @else
+                          Pending
+                        @endif
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['verified'] == 1)
+                        <span class="badge">Verified</span>
+                      @elseif ($instruction['assigned_from'] == Auth::id() && $instruction['verified'] == 0)
+                        <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction['id'] }}">Verify</a>
+                      @else
+                        <span class="badge">Not Verified</span>
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['start_time'])
+                        {{ \Carbon\Carbon::parse($instruction['start_time'])->format('H:i d-m') }}
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['end_time'])
+                        {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
+                      @endif
+                    </td>
+                    <td>
+                      <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
+                    <td>
+                      <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction['id'] }}">Add</a>
+                      <span> | </span>
+                      <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
+                    </td>
+                  </tr>
+                {{-- @endforeach --}}
+              @endforeach
+            </table>
+          </div>
+          {!! $pending_instructions->appends(Request::except('pending_page'))->links() !!}
+        </div>
+      </div>
+
+      <div class="tab-pane mt-3" id="verify-instructions">
+        <div class="form-group ml-3 mb-3 d-inline">
+          <input type="checkbox" name="" value="" id="select-all-instructions">
+          <label for="select-all-instructions">Select All</label>
+        </div>
+
+        <div class="form-group ml-3 mb-3s d-inline">
+          <form class="form-inline d-inline" action="{{ route('instruction.verify.selected') }}" method="POST" id="verifySelectedForm">
+            @csrf
+            <input type="hidden" name="selected_instructions" id="selected_instructions" value="">
+
+            <button type="submit" class="btn btn-xs btn-secondary" id="verifySelectedButton">Verify</button>
+          </form>
+        </div>
+
+        <div class="infinite-scroll-verified">
+          <div class="table-responsive mt-3">
+              <table class="table table-bordered">
+              <tr>
+                <th rowspan="2">#</th>
+                <th rowspan="2">Client Name</th>
+                <th rowspan="2">Number</th>
+                <th rowspan="2">Assigned to</th>
+                <th rowspan="2">Category</th>
+                <th rowspan="2">Instructions</th>
+                <th rowspan="2" colspan="3" class="text-center"><a href="/instruction?sortby=created_at{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Action</a></th>
+                <th colspan="3" class="text-center">Timing</th>
+                <th rowspan="2">Created at</th>
+                <th rowspan="2">Remark</th>
+              </tr>
+
+              <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Action</th>
+              </tr>
+              @foreach ($verify_instructions as $instruction)
+                {{-- <tr>
+                  <th colspan="11" id="verify_instructions_{{ $instruction['category_id'] }}">
+                    @if (array_key_exists($instruction['category_id'], $categories_array))
+                      {{ $categories_array[$instruction['category_id']]['name'] }}
+
+                      <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button>
+                    @else
+                      No Category
+                    @endif
+                  </th>
+                </tr> --}}
+                {{-- @foreach ($data as $instruction) --}}
+
+                  <tr>
+                    <td>
+                      <input type="checkbox" name="selected_instructions[]" class="select-instruction" data-id="{{ $instruction['id'] }}">
+                    </td>
+                    <td><a href="{{ route('customer.show', $instruction['customer_id']) }}">{{ isset($instruction['customer']) ? $instruction['customer']['name'] : '' }}</a></td>
+                    <td>
+                      <span data-twilio-call data-context="customers" data-id="{{ $instruction['customer_id'] }}">{{ isset($instruction['customer']) ? $instruction['customer']['phone'] : '' }}</span>
+                    </td>
+                    <td>{{ $users_array[$instruction['assigned_to']] ?? '' }}</td>
+                    <td>
+                      @if (array_key_exists($instruction['category_id'], $categories_array))
+                        {{ $categories_array[$instruction['category_id']]['name'] }}
+
+                        <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button>
+                      @else
+                        No Category
+                      @endif
+                    </td>
+                    <td>{{ $instruction['instruction'] }}</td>
+                    <td>
+                      @if ($instruction['completed_at'])
+                        {{ Carbon\Carbon::parse($instruction['completed_at'])->format('d-m H:i') }}
+                      @else
+                        <a href="#" class="btn-link complete-call" data-id="{{ $instruction['id'] }}">Complete</a>
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['completed_at'])
+                        Completed
+                      @else
+                        @if ($instruction['pending'] == 0)
+                          <a href="#" class="btn-link pending-call" data-id="{{ $instruction['id'] }}">Mark as Pending</a>
+                        @else
+                          Pending
+                        @endif
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['verified'] == 1)
+                        <span class="badge">Verified</span>
+                      @elseif ($instruction['assigned_from'] == Auth::id() && $instruction['verified'] == 0)
+                        <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction['id'] }}">Verify</a>
+                      @else
+                        <span class="badge">Not Verified</span>
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['start_time'])
+                        {{ \Carbon\Carbon::parse($instruction['start_time'])->format('H:i d-m') }}
+                      @endif
+                    </td>
+                    <td>
+                      @if ($instruction['end_time'])
+                        {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
+                      @endif
+                    </td>
+                    <td>
+                      <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($instruction['created_at'])->diffForHumans() }}</td>
+                    <td>
+                      <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction['id'] }}">Add</a>
+                      <span> | </span>
+                      <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction['id'] }}">View</a>
+                    </td>
+                  </tr>
+                {{-- @endforeach --}}
+              @endforeach
+            </table>
+          </div>
+          {!! $verify_instructions->appends(Request::except('verify_page'))->links() !!}
+        </div>
+      </div>
+
+        <div class="tab-pane mt-3" id="5">
+
+          <div class="infinite-scroll-completed">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                <tr>
+                  <th rowspan="2">Client Name</th>
+                  <th rowspan="2">Number</th>
+                  <th rowspan="2">Assigned to</th>
+                  <th rowspan="2">Category</th>
+                  <th rowspan="2">Instructions</th>
+                  <th rowspan="2" colspan="3" class="text-center"><a href="/instruction?sortby=created_at{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Action</a></th>
+                  <th colspan="3">Timing</th>
+                  <th rowspan="2">Created at</th>
+                  <th rowspan="2">Remark</th>
+                </tr>
+
+                <tr>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Action</th>
+                </tr>
+                @foreach ($completed_instructions as $instruction)
+                  {{-- <tr>
+                    <th colspan="11" id="completed_instructions{{ $instruction['category_id'] }}">
+                      @if (array_key_exists($instruction['category_id'], $categories_array))
+                        {{ $categories_array[$instruction['category_id']]['name'] }}
+
+                        <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button>
+                      @else
+                        No Category
+                      @endif
+                    </th>
+                  </tr> --}}
+                  {{-- @foreach ($data as $instruction) --}}
+                    <tr>
+                      <td><a href="{{ route('customer.show', $instruction->customer_id) }}">{{ isset($instruction->customer) ? $instruction->customer->name : '' }}</a></td>
+                      <td>
+                        <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer_id }}">{{ isset($instruction->customer) ? $instruction->customer->phone : '' }}</span>
+                      </td>
+                      <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
+                      <td>
+                        @if (array_key_exists($instruction['category_id'], $categories_array))
+                          {{ $categories_array[$instruction['category_id']]['name'] }}
+
+                          <button type="button" class="btn btn-image"><img src="/images/{{ $categories_array[$instruction['category_id']]['icon'] }}" alt=""></button>
+                        @else
+                          No Category
+                        @endif
+                      </td>
+                      <td>{{ $instruction->instruction }}</td>
+                      <td>
+                        @if ($instruction->completed_at)
+                          {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                        @else
+                          <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}">Complete</a>
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction->completed_at)
+                          Completed
+                        @else
+                          @if ($instruction->pending == 0)
+                            <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                          @else
+                            Pending
+                          @endif
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction->verified == 1)
+                          <span class="badge">Verified</span>
+                        @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                          <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                        @else
+                          <span class="badge">Not Verified</span>
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction['start_time'])
+                          {{ \Carbon\Carbon::parse($instruction['start_time'])->format('H:i d-m') }}
+                        @endif
+                      </td>
+                      <td>
+                        @if ($instruction['end_time'])
+                          {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
+                        @endif
+                      </td>
+                      <td>
+                        <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
+                      </td>
+                      <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                      <td>
+                        <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                        <span> | </span>
+                        <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                      </td>
+                    </tr>
+                  {{-- @endforeach --}}
+                @endforeach
+            </table>
+            </div>
+            {!! $completed_instructions->appends(Request::except('completed_page'))->links() !!}
+          </div>
       </div>
 
 
@@ -588,11 +649,59 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
        $(".select-multiple").multiselect();
        $('.instruction-start-time').datetimepicker({
          format: 'YYYY-MM-DD HH:mm'
+       });
+
+       // $('ul.pagination').hide();
+       $(function() {
+         // $('.infinite-scroll-instructions').jscroll({
+         //     autoTrigger: true,
+         //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+         //     padding: 2500,
+         //     nextSelector: '.pagination li.active + li a',
+         //     contentSelector: 'div.infinite-scroll-instructions',
+         //     callback: function() {
+         //         // $('ul.pagination').remove();
+         //     }
+         // });
+         //
+         // $('.infinite-scroll-pending').jscroll({
+         //     autoTrigger: true,
+         //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+         //     padding: 2500,
+         //     nextSelector: '.pagination li.active + li a',
+         //     contentSelector: 'div.infinite-scroll-pending',
+         //     callback: function() {
+         //         // $('ul.pagination').remove();
+         //     }
+         // });
+
+         $('.infinite-scroll-verified').jscroll({
+             autoTrigger: true,
+             loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+             padding: 2500,
+             nextSelector: '.pagination li.active + li a',
+             contentSelector: 'div.infinite-scroll-verified',
+             callback: function() {
+                 // $('ul.pagination').remove();
+             }
+         });
+
+         // $('.infinite-scroll-completed').jscroll({
+         //     autoTrigger: true,
+         //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+         //     padding: 2500,
+         //     nextSelector: '.pagination li.active + li a',
+         //     contentSelector: 'div.infinite-scroll-completed',
+         //     callback: function() {
+         //         // $('ul.pagination').remove();
+         //     }
+         // });
        });
     });
 
