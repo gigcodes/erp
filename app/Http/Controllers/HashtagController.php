@@ -102,7 +102,7 @@ class HashtagController extends Controller
         }
         $relatedHashtags = $hashtags->getRelatedHashtags($hashtag);
 
-        $accounts = Account::all();
+        $accounts = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
 
         return view('instagram.hashtags.grid2', compact('medias', 'media_count', 'relatedHashtags', 'hashtag', 'accounts', 'maxId'));
 
@@ -170,9 +170,11 @@ class HashtagController extends Controller
             $ht->save();
         }
 
+        $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
+
         $stats = CommentsStats::selectRaw('COUNT(*) as total, YEAR(created_at) as year, MONTH(created_at) as month')->where('target', $hashtag)->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))->get();
 
-        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats'));
+        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs'));
     }
 
     public function loadComments($mediaId) {

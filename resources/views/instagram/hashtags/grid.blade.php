@@ -55,7 +55,7 @@
         </div>
         <div class="col-md-12">
             <div class="table-responsive">
-                <table class="table-striped table">
+                <table class="table-striped table table-bordered">
                     <tr>
                         <th>SN</th>
                         <th style="width:50px">User</th>
@@ -75,7 +75,9 @@
                                 <td>
                                     {{ $key+1 }}
                                     <br>
-                                    S.N (<a class="btn btn-sm btn-danger hide-media" data-id="{{$post['media_id']}}"><i class="fa fa-trash"></i></a>)
+                                    <a class="btn btn-sm btn-image" data-id="{{$post['media_id']}}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
                                 </td>
                                 <td><a href="https://instagram.com/{{$post['username']}}">{{$post['username']}}</a></td>
                                 <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
@@ -119,7 +121,7 @@
                                                     <td style="word-wrap: break-word;word-break: break-all">{{$comment['text']}}</td>
                                                     <td>{{\Carbon\Carbon::createFromTimestamp($comment['created_at'])->diffForHumans()}}</td>
                                                     <td>
-                                                        <form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="code" value="{{$post['code']}}"> <input type="hidden" name="date" value="{{ \Carbon\Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString() }}"> <input type="hidden" name="post" value="{{ $post['caption'] }}"><input type="hidden" name="comment" value="{{ $comment['text'] }}"><input type="hidden" name="poster" value="{{ $post['username'] }}"><input type="hidden" name="commenter" value="{{ $comment['user']['username'] }}"><input type="hidden" name="media_id" value="{{ $post['media_id'] }}"><button class="btn btn-sm btn-success"><i class="fa fa-check"></i></button></form>
+                                                        <form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="code" value="{{$post['code']}}"> <input type="hidden" name="date" value="{{ \Carbon\Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString() }}"> <input type="hidden" name="post" value="{{ $post['caption'] }}"><input type="hidden" name="comment" value="{{ $comment['text'] }}"><input type="hidden" name="poster" value="{{ $post['username'] }}"><input type="hidden" name="commenter" value="{{ $comment['user']['username'] }}"><input type="hidden" name="media_id" value="{{ $post['media_id'] }}"><button class="btn btn-sm btn-image"><i class="fa fa-check"></i></button></form>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -136,7 +138,6 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <select class="form-control" name="account_id" id="account_id_{{$post['media_id']}}">
-                                                <?php $accs = \App\Account::where('platform', 'instagram')->get(); ?>
                                                 @foreach($accs as $cc)
                                                     <option value="{{ $cc->id }}">{{ $cc->last_name }}</option>
                                                 @endforeach

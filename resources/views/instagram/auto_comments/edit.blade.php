@@ -26,6 +26,16 @@
                             <input value="{{$comment->source}}" type="text" name="source" id="source" placeholder="Source.." class="form-control">
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <select name="options[]" multiple id="options" style="height: 200px;">
+                            <option {{ in_array('BAGS', is_array($comment->options) ? $comment->options : []) ? 'selected' : '' }} value="BAGS">BAGS</option>
+                            <option {{ in_array('SHOES', is_array($comment->options) ? $comment->options : []) ? 'selected' : '' }} value="SHOES">SHOES</option>
+                            <option {{ in_array('COMMON', is_array($comment->options) ? $comment->options : []) ? 'selected' : '' }} value="COMMOM">COMMON</option>
+                            @foreach(\App\Brand::all() as $brand)
+                                <option {{ in_array(strtoupper($brand->name), is_array($comment->options) ? $comment->options : []) ? 'selected' : '' }} value="{{ strtoupper($brand->name) }}">{{ strtoupper($brand->name) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-md-2">
                         <div class="form-group">
                             <button class="btn btn-info">Update It!</button>
