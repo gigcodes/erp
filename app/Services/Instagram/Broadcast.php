@@ -35,13 +35,22 @@ class Broadcast {
     }
 
 
-    public function followUser($broadcast) {
-        $broadcast->lead()->where('followed_by', null)->chunk(4, function($leads) {
+    public function followUser($broadcast)
+    {
+        $self = $this;
+        $broadcast->lead()->where('followed_by', null)->chunk(4, function($leads) use ($self) {
             $accountToSend = Account::where('platform', 'instagram')->where('broadcast', 1)->inRandomOrder()->first();
-            $acc = new Instagram();
-            $acc->login($accountToSend->last_name, $accountToSend->password);
+
+            if (!isset($self->loggedInAccounts[$accountToSend->id])) {
+                $acc = new Instagram();
+                $acc->login($accountToSend->last_name, $accountToSend->password);
+                $self->loggedInAccounts[$accountToSend->id] = $acc;
+            }
+
+
             foreach ($leads as $lead) {
-                $acc->people->follow($lead->platform_id);
+                echo "FOLLOWING $lead->platform_id \n";
+                $self->loggedInAccounts[$accountToSend->id]->people->follow($lead->platform_id);
                 $lead->followed_by = $accountToSend->id;
                 $lead->save();
             }
@@ -78,10 +87,14 @@ class Broadcast {
         $this->broadcast->save();
 
 
+
+
         foreach ($receipts as $key=>$receipt) {
             echo "Looping... \n";
             $cl = ColdLeads::where('platform_id', $receipt)->first();
-            $account_id = $cl->account_id;
+            $account_id = $cl->followed_by;
+            $cl->account_id = $account_id;
+            $cl->save();
             $accountToSend = Account::find($account_id);
 //            if ($account_id > 0) {
 //                $accountToSend = Account::find($account_id);
@@ -106,7 +119,7 @@ class Broadcast {
             if (!$ct) {
                 $ct = new InstagramThread();
                 $ct->cold_lead_id = $cl->id;
-                $ct->account_id = $account->id;
+                $ct->account_id = $accountToSend->id;
                 $ct->save();
             }
 
@@ -114,7 +127,7 @@ class Broadcast {
             $m = new InstagramDirectMessages();
             $m->instagram_thread_id = $ct->id;
             $m->message = $message;
-            $m->sender_id = $this->instagram->account_id;
+            $m->sender_id = $this->loggedInAccounts[$accountToSend->id]->account_id ?? $this->instagram->account_id;
             $m->receiver_id = $receipt;
             $m->message_type = 1;
             $m->save();
@@ -134,7 +147,7 @@ class Broadcast {
                 $m = new InstagramDirectMessages();
                 $m->instagram_thread_id = $ct->id;
                 $m->message = $file;
-                $m->sender_id = $this->instagram->account_id;
+                $m->sender_id = $this->loggedInAccounts[$accountToSend->id]->account_id ?? $this->instagram->account_id;
                 $m->message_type = 2;
                 $m->receiver_id = $receipt;
                 $m->save();

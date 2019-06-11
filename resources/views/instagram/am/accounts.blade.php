@@ -60,6 +60,14 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-md-4">
+                        <label for="gender">Gender</label>
+                        <select name="gender" id="gender" class="form-control">
+                            <option value="all">Any</option>
+                            <option value="female">Female</option>
+                            <option value="male">Male</option>
+                        </select>
+                    </div>
                     <div class="col-md-12 text-right">
                         <button class="btn btn-primary">Add Account</button>
                     </div>
