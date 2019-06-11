@@ -554,7 +554,7 @@ class LeadsController extends Controller
         $brand_name = $product->brands->name ?? '';
         $special_price = $product->price_special_offer ?? $product->price_special;
 
-        $product_names = "$brand_name $product->name" . ' - ' . "$special_price; ";
+        $product_names .= "$brand_name $product->name" . ' - ' . "$special_price; ";
       }
 
       $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
