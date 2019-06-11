@@ -67,74 +67,86 @@ class SendRecurringTasks extends Command
         $sending_day = Carbon::parse($task->created_at)->format('d');
         $sending_month = Carbon::parse($task->created_at)->format('m');
 
-        $params['message'] = "#" . $task->id . ". Recurring Task - " . $task->task_details;
+        $params['message'] = $task->task_subject . ". " . $task->task_details;
         $params['task_id'] = $task->id;
         $params['user_id'] = $task->assign_from;
 
-        if (count($task->users) > 0) {
-          $params['erp_user'] = $task->assign_to;
-        }
+        // if (count($task->users) > 0) {
+        //   $params['erp_user'] = $task->assign_to;
+        // }
+        //
+        // if (count($task->contacts) > 0) {
+        //   $params['contact_id'] = $task->assign_to;
+        // }
 
-        if (count($task->contacts) > 0) {
-          $params['contact_id'] = $task->assign_to;
-        }
+        $can_send_message = false;
 
         switch ($task->recurring_type) {
           case "EveryDay":
             if ($today_date >= $sending_date) {
               dump('Send Recurring Task Daily');
-              $chat_message = ChatMessage::create($params);
 
-              $myRequest = new Request();
-              $myRequest->setMethod('POST');
-              $myRequest->request->add(['messageId' => $chat_message->id]);
-
-              app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+              $can_send_message = true;
             }
 
             break;
           case "EveryWeek":
             if ($today_date >= $sending_date && $today_weekday == $sending_weekday) {
               dump('Send Recurring Task Weekly');
-              $chat_message = ChatMessage::create($params);
 
-              $myRequest = new Request();
-              $myRequest->setMethod('POST');
-              $myRequest->request->add(['messageId' => $chat_message->id]);
-
-              app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+              $can_send_message = true;
             }
 
             break;
           case "EveryMonth":
             if ($today_day == $sending_day) {
               dump('Send Recurring Task Monthly');
-              $chat_message = ChatMessage::create($params);
 
-              $myRequest = new Request();
-              $myRequest->setMethod('POST');
-              $myRequest->request->add(['messageId' => $chat_message->id]);
-
-              app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+              $can_send_message = true;
             }
 
             break;
           case "EveryYear":
             if ($today_day == $sending_day && $today_month == $sending_month) {
               dump('Send Recurring Task Yearly');
-              $chat_message = ChatMessage::create($params);
 
-              $myRequest = new Request();
-              $myRequest->setMethod('POST');
-              $myRequest->request->add(['messageId' => $chat_message->id]);
-
-              app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+              $can_send_message = true;
             }
 
             break;
           default:
 
             break;
+        }
+
+        if ($can_send_message) {
+          if (count($task->users) > 0) {
+   				 foreach ($task->users as $key => $user) {
+   					 if ($key == 0) {
+   						 $params['erp_user'] = $user->id;
+   					 } else {
+   						 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+   					 }
+   				 }
+     		 }
+
+     		 if (count($task->contacts) > 0) {
+     			 foreach ($task->contacts as $key => $contact) {
+     				 if ($key == 0) {
+     					 $params['contact_id'] = $task->assign_to;
+     				 } else {
+     					 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, NULL, $params['message']);
+     				 }
+     			 }
+     		 }
+
+         $chat_message = ChatMessage::create($params);
+
+         $myRequest = new Request();
+         $myRequest->setMethod('POST');
+         $myRequest->request->add(['messageId' => $chat_message->id]);
+
+         app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
         }
       }
 

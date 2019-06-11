@@ -37,7 +37,7 @@ class TaskModuleController extends Controller {
 
 		$categoryWhereClause = '';
 		$category = '';
-		if ($request->category != '') {
+		if ($request->category != '' && $request->category != 1) {
 			$categoryWhereClause = "AND category = $request->category";
 
 			$category = $request->category;
@@ -48,7 +48,7 @@ class TaskModuleController extends Controller {
 		$searchWhereClause = '';
 
 		if ($request->term != '') {
-			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%"))';
+			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%"))';
 		}
 
 		$data['task'] = [];
@@ -407,6 +407,11 @@ class TaskModuleController extends Controller {
 				}
 			}
 
+			if ($task->is_statutory != 1) {
+				$message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+			} else {
+				$message = $task->task_subject . ". " . $task->task_details;
+			}
 
 			$params = [
 			 'number'       => NULL,
@@ -414,7 +419,7 @@ class TaskModuleController extends Controller {
 			 'approved'     => 1,
 			 'status'       => 2,
 			 'task_id'			=> $task->id,
-			 'message'      => "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details
+			 'message'      => $message
 		 ];
 
 		 if (count($task->users) > 0) {
