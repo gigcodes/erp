@@ -73,14 +73,15 @@ class AutoCommentBot extends Command
 
                 $comment = new InstagramAutoComments();
                 $account = new Account();
-                $account = $account->where('platform', 'instagram')->whereIn('id', [23,31,50,51,731])->where('broadcast', 0);
+                $account = $account->where('platform', 'instagram')->whereIn('bulk_comments', 1);
+//                $account = $account->where('platform', 'instagram')->whereIn('id', [23,31,50,51,731])->where('broadcast', 0);
 
 
 
-                if ($gender != 'all') {
-                    $comment = $comment->where('gender', $gender);
-                    $account = $account->where('gender', $gender);
-                }
+//                if ($gender != 'all') {
+//                    $comment = $comment->where('gender', $gender);
+//                    $account = $account->where('gender', $gender);
+//                }
 
 
                 if (strlen($country) >= 4) {
