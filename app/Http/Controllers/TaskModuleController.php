@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Helpers;
 use App\User;
 use App\Task;
+use App\TaskCategory;
 use App\Contact;
 use App\Setting;
 use App\Remark;
@@ -330,6 +331,15 @@ class TaskModuleController extends Controller {
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
 		$users         = Helpers::getUserArray( User::all() );
+		$task_categories = TaskCategory::where('parent_id', 0)->get();
+		$task_categories_dropdown = TaskCategory::attr(['name' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category'])
+		                                        ->renderAsDropdown();
+
+		$categories = [];
+		foreach (TaskCategory::all() as $category) {
+			$categories[$category->id] = $category->title;
+		}
+
 		if ( ! empty( $selected_user ) && ! Helpers::getadminorsupervisor() ) {
 			return response()->json( [ 'user not allowed' ], 405 );
 		}
@@ -337,7 +347,7 @@ class TaskModuleController extends Controller {
 
 		$tasks_view = [];
 
-		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'tasks_view'));
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown'));
 	}
 
 	public function store( Request $request ) {
@@ -588,7 +598,9 @@ class TaskModuleController extends Controller {
 
 		$users = User::all();
 		$users_array = Helpers::getUserArray(User::all());
-		$categories = TaskCategoryController::getAllTaskCategory();
+		$categories = TaskCategory::attr(['title' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
+																						->selected($task->category)
+		                                        ->renderAsDropdown();
 
 		return view('task-module.task-show', [
 			'task'	=> $task,

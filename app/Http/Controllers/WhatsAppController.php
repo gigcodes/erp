@@ -349,9 +349,13 @@ class WhatsAppController extends FindByNumberController
       // Auto Respond
       $today_date = Carbon::now()->format('Y-m-d');
       $time = Carbon::now();
-      $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
+      $start_time = Setting::get('start_time');
+      $start_time_exploded = explode(':', $start_time);
+      $end_time = Setting::get('end_time');
+      $end_time_exploded = explode(':', $end_time);
+      $morning = Carbon::create($time->year, $time->month, $time->day, $start_time_exploded[0], $start_time_exploded[1], 0);
       $not_morning = Carbon::create($time->year, $time->month, $time->day, 0, 0, 0);
-      $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
+      $evening = Carbon::create($time->year, $time->month, $time->day, $end_time_exploded[0], $end_time_exploded[1], 0);
       $not_evening = Carbon::create($time->year, $time->month, $time->day, 23, 59, 0);
       $saturday = Carbon::now()->endOfWeek()->subDay()->format('Y-m-d');
       $sunday = Carbon::now()->endOfWeek()->format('Y-m-d');
@@ -391,13 +395,19 @@ class WhatsAppController extends FindByNumberController
         }
       } else if (($chat_messages_evening_count == 1 && (isset($chat_messages_evening_query_first) && $chat_messages_evening_query_first->id == $message->id)) || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
         $customer = Customer::find($params['customer_id']);
+
+        $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'office-closed-message')->first();
+
+        $auto_message = preg_replace("/{start_time}/i", $start_time, $auto_reply->reply);
+        $auto_message = preg_replace("/{end_time}/i", $end_time, $auto_message);
+
         $params = [
            'number'       => NULL,
            'user_id'      => 6,
            'approved'     => 1,
            'status'       => 9,
            'customer_id'  => $params['customer_id'],
-           'message'      => AutoReply::where('type', 'auto-reply')->where('keyword', 'office-closed-message')->first()->reply
+           'message'      => $auto_message
          ];
 
          sleep(1);
@@ -832,9 +842,13 @@ class WhatsAppController extends FindByNumberController
       // Auto Respond
       $today_date = Carbon::now()->format('Y-m-d');
       $time = Carbon::now();
-      $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
+      $start_time = Setting::get('start_time');
+      $start_time_exploded = explode(':', $start_time);
+      $end_time = Setting::get('end_time');
+      $end_time_exploded = explode(':', $end_time);
+      $morning = Carbon::create($time->year, $time->month, $time->day, $start_time_exploded[0], $start_time_exploded[1], 0);
       $not_morning = Carbon::create($time->year, $time->month, $time->day, 0, 0, 0);
-      $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
+      $evening = Carbon::create($time->year, $time->month, $time->day, $end_time_exploded[0], $end_time_exploded[1], 0);
       $not_evening = Carbon::create($time->year, $time->month, $time->day, 23, 59, 0);
       $saturday = Carbon::now()->endOfWeek()->subDay()->format('Y-m-d');
       $sunday = Carbon::now()->endOfWeek()->format('Y-m-d');
@@ -875,13 +889,19 @@ class WhatsAppController extends FindByNumberController
         }
       } else if (($chat_messages_evening_count == 1 && (isset($chat_messages_evening_query_first) && $chat_messages_evening_query_first->id == $message->id)) || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
         $customer = Customer::find($params['customer_id']);
+
+        $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'office-closed-message')->first();
+
+        $auto_message = preg_replace("/{start_time}/i", $start_time, $auto_reply->reply);
+        $auto_message = preg_replace("/{end_time}/i", $end_time, $auto_message);
+
         $params = [
            'number'       => NULL,
            'user_id'      => 6,
            'approved'     => 1,
            'status'       => 9,
            'customer_id'  => $params['customer_id'],
-           'message'      => AutoReply::where('type', 'auto-reply')->where('keyword', 'office-closed-message')->first()->reply
+           'message'      => $auto_message
          ];
 
          sleep(1);

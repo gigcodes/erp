@@ -10,7 +10,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>@yield ('title', 'ERP Sololuxury')</title>
+    <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
     <!-- CSRF Token -->
 

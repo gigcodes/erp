@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Settings')
+
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -9,17 +11,16 @@
 @section('content')
 
     <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h2>Settings</h2>
-            </div>
-        </div>
+      <div class="col-12">
+        <h2 class="page-heading">Settings</h2>
+      </div>
     </div>
+
+    @include('partials.flash_messages')
 
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
 
-            @include('partials.flash_messages')
 
             <form method="post" action="{{ route('settings.store') }}" class="form-horizontal" role="form">
                 {!! csrf_field() !!}
@@ -54,7 +55,39 @@
                             </div>
                         </div>--}}
                         <div class="row">
-                            <div class="col-md-7 col-md-offset-2">
+                            <div class="col-md-10 col-md-offset-1">
+                              <div class="d-flex justify-content-between">
+                                <div class="form-group">
+                                  <strong>Start Time</strong>
+                                  <div class='input-group date' id='start-time'>
+                                    <input type='text' class="form-control input-sm" name="start_time" value="{{ $start_time }}" required />
+
+                                    <span class="input-group-addon">
+                                      <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                  </div>
+
+                                  @if ($errors->has('start_time'))
+                                    <div class="alert alert-danger">{{$errors->first('start_time')}}</div>
+                                  @endif
+                                </div>
+
+                                <div class="form-group ml-3">
+                                  <strong>End Time</strong>
+                                  <div class='input-group date' id='end-time'>
+                                    <input type='text' class="form-control input-sm" name="end_time" value="{{ $end_time }}" required />
+
+                                    <span class="input-group-addon">
+                                      <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                  </div>
+
+                                  @if ($errors->has('end_time'))
+                                    <div class="alert alert-danger">{{$errors->first('end_time')}}</div>
+                                  @endif
+                                </div>
+                              </div>
+
                                 <div class="form-group">
                                     <strong> Pagination:</strong>
                                     <input type="number" class="form-control" name="pagination" placeholder="Number of products per pages" value="{{ old('pagination') ? old('pagination') : $pagination }}"/>
@@ -361,6 +394,10 @@
 
        $('#forward-start-date, #forward-end-date').datetimepicker({
          format: 'YYYY-MM-DD HH:mm'
+       });
+
+       $('#start-time, #end-time').datetimepicker({
+         format: 'HH:mm'
        });
     });
   </script>
