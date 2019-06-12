@@ -76,7 +76,7 @@
 
         <div class="col-md-12">
             <div class="table-responsive">
-                <table class="table-striped table">
+                <table class="table-striped table-bordered table">
                     <tr>
                         <th>S.N</th>
                         <th>User</th>
@@ -119,7 +119,7 @@
                             <td>{!! ($post['location']['name'] ?? '') . '<br>' . ($post['location']['city'] ?? '')  !!}</td>
                             <td>{{ $post['created_at'] }}</td>
                             <td>
-                                <button title="Reply via Instagram" type="button" class="btn btn-primary" data-toggle="modal" data-target="#instagram-{{$key}}">
+                                <button title="Reply via Instagram" type="button" class="btn btn-default btn-image" data-toggle="modal" data-target="#instagram-{{$key}}">
                                     <i class="fa fa-reply"></i>
                                 </button>
 
@@ -150,9 +150,7 @@
                                                         <select name="id" id="id" class="form-control">
                                                             <option value="0">Select Username</option>
                                                             @foreach($accounts as $account)
-                                                                @if ($account->platform == 'instagram')
-                                                                    <option value="{{$account->id}}">{{ $account->last_name }}</option>
-                                                                @endif
+                                                                <option value="{{$account->id}}">{{ $account->last_name }}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -161,7 +159,7 @@
                                                         <input type="text" name="message" id="message" placeholder="Type message..." class="form-control">
                                                     </div>
                                                     <div class="form-group">
-                                                        <button class="btn btn-success">
+                                                        <button class="btn btn-image">
                                                             <i class="da fa-reply"></i> Reply
                                                         </button>
                                                     </div>

@@ -11,30 +11,18 @@
             <h2 class="page-heading">Quick Reply Comments</h2>
         </div>
 
-        <div class="col-md-12">
+        <div class="p-5 col-md-12" style="background: #dddddd">
             <form action="{{ action('InstagramAutoCommentsController@store') }}" method="post">
+                <input type="hidden" name="gender" value="all">
+                <input type="hidden" name="source" value="default">
                 @csrf
                 <divr class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <input type="text" name="text" id="text" placeholder="Quick reply.." class="form-control" >
                         </div>
                     </div>
-                    <div class="col-md-1">
-                        <div class="form-group">
-                            <input type="text" name="source" id="source" placeholder="Source.." class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <select name="gender" id="gender">
-                                <option value="all">All Gender</option>
-                                <option value="female">Female</option>
-                                <option value="male">Male</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <select name="country" id="country" class="form-control">
                                 <option value="">All</option>
@@ -44,10 +32,20 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <button class="btn btn-info">Save It!</button>
                         </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="options[]" multiple id="options" style="height: 200px;">
+                            <option value="BAGS">BAGS</option>
+                            <option value="SHOES">SHOES</option>
+                            <option value="COMMOM">COMMON</option>
+                            @foreach(\App\Brand::all() as $brand)
+                                <option value="{{ strtoupper($brand->name) }}">{{ strtoupper($brand->name) }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </divr>
             </form>
@@ -58,10 +56,9 @@
                 <table class="table table-striped">
                     <tr>
                         <th>S.N</th>
-                        <th>Text</th>
-                        <th>Gender</th>
+                        <th style="width: 500px;">Text</th>
                         <th>Country</th>
-                        <th>Source</th>
+                        <th>Options</th>
                         <th>Use Count</th>
                         <th>Created At</th>
                         <th>Action</th>
@@ -70,9 +67,16 @@
                         <tr>
                             <td>{{ $key+1 }}</td>
                             <td>{{ $reply->comment }}</td>
-                            <td>{{ $reply->gender }}</td>
                             <td>{{ $reply->country ?? 'All' }}</td>
-                            <td>{{ $reply->source ?? 'N/A' }}</td>
+                            <td>
+                                @if (is_array($reply->options))
+                                    @foreach($reply->options as $opt)
+                                        <li>{{$opt}}</li>
+                                    @endforeach
+                                @else
+                                    N/A
+                                @endif
+                            </td>
                             <td>{{ $reply->use_count ?? 0 }}</td>
                             <td>{{ $reply->created_at->format('Y-m-d') }}</td>
                             <td>

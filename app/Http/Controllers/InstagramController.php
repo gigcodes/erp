@@ -96,6 +96,7 @@ class InstagramController extends Controller
         $account->bulk_comment = $request->get('bulk_comments') == 'on' ? 1 : 0;
         $account->dob = '1996-02-02';
         $account->platform = 'instagram';
+        $account->gender = $request->get('gender');
         $account->country = $request->get('country');
         $account->save();
 

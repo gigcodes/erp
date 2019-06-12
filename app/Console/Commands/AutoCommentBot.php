@@ -6,6 +6,7 @@ use App\Account;
 use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
 use App\Brand;
+use App\Comment;
 use App\HashTag;
 use App\HashtagPostHistory;
 use App\InstagramAutoComments;
@@ -69,31 +70,48 @@ class AutoCommentBot extends Command
             foreach ($posts as $post) {
 
                 $country = $post->country;
-                $gender = $post->gender;
 
                 $comment = new InstagramAutoComments();
-                $account = new Account();
-                $account = $account->where('platform', 'instagram')->whereIn('id', [23,31,50,51,731])->where('broadcast', 0);
-
-
-
-                if ($gender != 'all') {
-                    $comment = $comment->where('gender', $gender);
-                    $account = $account->where('gender', $gender);
-                }
-
+                $account = Account::where('platform', 'instagram')->where('bulk_comment', 1);
 
                 if (strlen($country) >= 4) {
-                    $comment = $comment->where('country', $country);
-                    $account = $account->where('country', $country);
+                    $comment = $comment->where(function($query) use ($country) {
+                        $query->where('country', $country)->orWhereNull('country');
+                    });
+                    $account = $account->where(function($q) use ($country) {
+                        $q->where('country', $country)->orWhereNull('country');
+                    });
                 }
+
+                $caption = $post->caption;
+                $caption = str_replace(['#', '@', '!', '-'. '/'],  ' ', $caption);
+                $caption = explode(' ', $caption);
+
+                $comment = $comment->where(function($query) use($caption) {
+                    foreach ($caption as $i => $cap) {
+                        if (strlen($cap) > 3) {
+                            $cap = trim($cap);
+                            if ($i===0) {
+                                $query = $query->where('options', 'LIKE', "%$cap%");
+                                continue;
+                            }
+                            $query = $query->orWhere('options', 'LIKE', "%$cap%");
+                        }
+                    }
+                });
+
 
                 $account = $account->inRandomOrder()->first();
                 $comment = $comment->inRandomOrder()->first();
 
+                if (!$comment) {
+                    $comment = InstagramAutoComments::where('options', null)->orWhere('options', '[]')->inRandomOrder()->first();
+                }
+
 
                 if (!isset($this->accounts[$account->id])) {
                     $ig = new Instagram();
+                    echo $account->last_name . "\n";
                     $ig->login($account->last_name, $account->password);
                     $this->accounts[$account->id] = $ig;
                 }
@@ -108,16 +126,6 @@ class AutoCommentBot extends Command
 
                 sleep(5);
             }
-
-//            $counter++;
-
-
-
-
-//        } while($cursor != 'END' && $counter <=50);
-
-//        $hashtag->status = 0;
-//        $hashtag->save();
 
     }
 }

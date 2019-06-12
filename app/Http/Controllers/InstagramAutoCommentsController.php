@@ -49,6 +49,7 @@ class InstagramAutoCommentsController extends Controller
         $comment->source = $request->get('comment');
         $comment->country = $request->get('country');
         $comment->gender = $request->get('gender');
+        $comment->options = $request->get('options') ?? [];
         $comment->save();
 
         return redirect()->back()->with('message', 'Comment added successfully!');
@@ -97,6 +98,7 @@ class InstagramAutoCommentsController extends Controller
         $comment = InstagramAutoComments::findOrFail($id);
         $comment->comment = $request->get('text');
         $comment->source = $request->get('source');
+        $comment->options = $request->get('options') ?? [];
         $comment->save();
 
         return redirect()->action('InstagramAutoCommentsController@index')->with('message', 'Updated successfully!');
