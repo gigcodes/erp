@@ -12,9 +12,23 @@ class ScrapStatisticsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $statistics = new ScrapStatistics();
+
+        if ($request->get('type') != '') {
+            $statistics = $statistics->where('type', $request->get('type'));
+        }
+        if ($request->get('supplier') != '') {
+            $statistics = $statistics->where('supplier', $request->get('supplier'));
+        }
+
+        $suppliers = ScrapStatistics::distinct()->get(['supplier']);
+        $type = ScrapStatistics::distinct()->get(['type']);
+
+        $statistics = $statistics->get();
+
+        return view('scrap.stats', compact('statistics', 'suppliers', 'type', 'request'));
     }
 
     /**

@@ -3,7 +3,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-md-12">
-            <h1 class="text-center"><a href="{{ action('AutoCommentHistoryController@index') }}">Go BACK</a> | Auto comment posts For: #{{ $hashtag }} ({{ $media_count }} Posts)</h1>
+            <h2 class="page-heading"><a href="{{ action('AutoCommentHistoryController@index') }}"><</a> | Auto comment posts For: {{ $hashtag }}</h2>
         </div>
         <div class="col-md-12">
             @if(Session::has('message'))
@@ -15,22 +15,22 @@
 
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-info mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?country={{$countryText ?? ''}}">FIRST PAGE</a>
-                <a class="btn btn-info mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}&country={{$countryText ?? ''}}">NEXT</a>
+                <a class="btn btn-default mb-4" href="{{ action('AutoReplyHashtagsController@show', 'all') }}?country={{$countryText ?? ''}}">FIRST PAGE</a>
+{{--                <a class="btn btn-default mb-4" href="{{ action('AutoReplyHashtagsController@show', 'all') }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}&country={{$countryText ?? ''}}">NEXT</a>--}}
             @endif
         </div>
 
-        <form method="post" action="{{ action('AutoReplyHashtagsController@update', $hid) }}">
+        <form method="post" action="{{ action('AutoReplyHashtagsController@update', 'all') }}">
             <input type="hidden" name="country" id="country" value="{{$countryText ?? ''}}">
             <input type="hidden" name="hashtag" id="hashtag" value="{{$hashtag}}">
             @csrf
             @method('PUT')
             <div class="col-md-12">
-                <button class="btn btn-info">Attach Posts To Auto-Comment</button>
+                <button class="btn btn-default">Attach Posts To Auto-Comment</button>
             </div>
 
             <div class="col-md-12">
-                <table class="table-striped table">
+                <table class="table-striped table table-bordered">
                     <tr>
                         <th>S.N</th>
                         <th>User</th>
@@ -52,6 +52,7 @@
                                     <input type="checkbox" name="posts[]" value="{{$post['media_id']}}">
                                     <input type="hidden" name="caption_{{$post['media_id']}}" value="{{$post['caption']}}">
                                     <input type="hidden" name="code_{{$post['media_id']}}" value="{{$post['code']}}">
+                                    <input type="hidden" name="hashtag_{{$post['media_id']}}" value="{{$post['hashtag']}}">
                                 @endif
                             </td>
                             <td>
@@ -93,14 +94,14 @@
             </div>
 
             <div class="col-md-12">
-                <button class="btn btn-info">Attach Posts To Auto-Comment</button>
+                <button class="btn btn-default">Attach Posts To Auto-Comment</button>
             </div>
         </form>
 
         <div class="col-md-12 text-center">
             @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-info mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?country={{$countryText ?? ''}}">FIRST PAGE</a>
-                <a class="btn btn-info mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}&country={{$countryText ?? ''}}">NEXT</a>
+                <a class="btn btn-default mb-4" href="{{ action('AutoReplyHashtagsController@show', 'all') }}?country={{$countryText ?? ''}}">FIRST PAGE</a>
+{{--                <a class="btn btn-default mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}&country={{$countryText ?? ''}}">NEXT</a>--}}
             @endif
         </div>
     </div>

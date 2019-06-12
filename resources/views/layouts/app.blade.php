@@ -349,10 +349,12 @@
                         @can('admin')
 
                             <li class="nav-item dropdown">
+                                @if(Auth::user()->email != 'facebooktest@test.com')
 
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
 
                                    aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
+                                @endif
 
                                 <ul class="dropdown-menu multi-level">
 
@@ -597,13 +599,17 @@
 
                             <li class="nav-item dropdown">
 
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                @if(Auth::user()->email != 'facebooktest@test.com')
 
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
 
-                                    Product<span class="caret"></span>
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 
-                                </a>
+                                        Product<span class="caret"></span>
+
+                                    </a>
+
+                                @endif
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
@@ -1232,7 +1238,7 @@
 
                           <ul style="width: 200px; height: 500px !important;"  class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
                             @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com')
-                                  <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">FACEBOOK | Create A Post</a>
+                                  <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                               @else
                                   <li class="nav-item dropdown dropdown-submenu">
 
@@ -1246,9 +1252,9 @@
                                           <li class="nav-item dropdown dropdown-submenu">
                                               <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
                                               <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                              <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>
-                                              <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Sololuxury Hashtags</a>
-                                              <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>
+{{--                                              <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>--}}
+                                              <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag Monitoring &<br> Manual Commenting</a>
+                                              <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments <br>(Notifications)</a>
                                               <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
                                               <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Locations</a>
                                               <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords for Comments</a>
@@ -1311,6 +1317,7 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
+                                    <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
                                     <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sales Item</a>
                                     <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
                                     <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
@@ -1397,20 +1404,24 @@
                           @endif
                         @endcan
 
-                        <li class="nav-item dropdown">
-                          <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                              Development<span class="caret"></span>
-                          </a>
+                            @if(Auth::user()->email != 'facebooktest@test.com')
+                                <li class="nav-item dropdown">
 
-                          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            @can('developer-tasks')
-                              <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
-                              <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
-                            @endcan
-                            <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                          </div>
+                              <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                  Development<span class="caret"></span>
+                              </a>
+
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    @can('developer-tasks')
+                                        <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                        <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
+                                    @endcan
+                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                </div>
                         </li>
+                            @endif
 
                         @can('admin')
                           <li class="nav-item dropdown">

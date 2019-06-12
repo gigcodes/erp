@@ -13,48 +13,40 @@
 
 
         <div class="col-md-12">
-            <button class="btn btn-success btn-block" data-toggle="collapse" data-target="#demo">Show Target hashtags</button>
+            <button class="btn btn-default" data-toggle="collapse" data-target="#demo">Show Target hashtags</button>
 
-            <div id="demo" class="collapse" style="background: #cccccc; padding: 15px;">
-                <form method="post" action="{{action('AutoReplyHashtagsController@store')}}">
-                    @csrf
-                    <div class="form-group">
-                        <label for="name">Name of hashtag (without #)</label>
-                        <input required class="form-control" type="text" id="hashtag" name="hashtag" placeholder="Hashtag... ">
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-info">Save</button>
-                    </div>
-                </form>
-
-                <table class="table table-bordered">
-                    <tr>
-                        <th>SN</th>
-                        <th>#Tag</th>
-                        <th>Status</th>
-                        <th>Comments Processed</th>
-                        <th>Action</th>
-                    </tr>
-                    @foreach($hashtags as $key=>$hashtag)
-                        <tr>
-                            <td>{{ $key+1 }}</td>
-                            <td>{{ $hashtag->text }}</td>
-                            <td>{{ $hashtag->status ? 'On Progress' : 'Completed' }}</td>
-                            <td>{{ $hashtag->comments()->count() ?? 0 }}</td>
-                            <th style="width: 200px;">
-                                <form action="{{action('AutoReplyHashtagsController@show', $hashtag->id)}}" method="get">
-                                    <select class="form-control" name="country" id="country_{{$hashtag->id}}">
-                                        <option value="0">Country/Region</option>
-                                        @foreach($countries as $country)
-                                            <option value="{{$country->region}}">{{$country->region}}</option>
-                                        @endforeach
-                                    </select>
-                                    <button class="btn btn-block mt-1 btn-info btn-sm">Add Posts</button>
-                                </form>
-                            </th>
-                        </tr>
-                    @endforeach
-                </table>
+            <div id="demo" class="collapse" style="padding: 15px;">
+                <form action="{{action('AutoReplyHashtagsController@show', 'all')}}" method="get">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <select style="width: 100%" class="form-control" name="country" id="country">
+                                    <option value="0">Country/Region</option>
+                                    @foreach($countries as $country)
+                                        <option value="{{$country->region}}">{{$country->region}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <select style="width: 100%" name="hashtags[]" id="hashtags" multiple>
+                                    @foreach($hashtags as $hashtag)
+                                        <option value="{{$hashtag->text}}">{{$hashtag->text}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <select style="width: 100%" name="keywords[]" id="keywords" multiple></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button>Add Post</button>
+                        </div>
+                    </form>
             </div>
         </div>
 
@@ -86,7 +78,7 @@
         <div class="col-md-12">
             <br>
             <br>
-            <table class="table-striped table">
+            <table id="table" class="table-striped table table-bordered">
                 <tr>
                     <th>SN</th>
                     <th>#tag</th>
@@ -124,7 +116,11 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+{{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>--}}
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+
     <script>
         var labels = [];
         var data = [];
@@ -137,22 +133,51 @@
         @endforeach
     </script>
     <script>
-        new Chart(document.getElementById("pie"), {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Number Of Comments By #Tags",
-                    backgroundColor: backgroundColor,
-                    data: data
-                }]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: 'Comments Statistics'
-                }
-            }
+        // new Chart(document.getElementById("pie"), {
+        //     type: 'pie',
+        //     data: {
+        //         labels: labels,
+        //         datasets: [{
+        //             label: "Number Of Comments By #Tags",
+        //             backgroundColor: backgroundColor,
+        //             data: data
+        //         }]
+        //     },
+        //     options: {
+        //         title: {
+        //             display: true,
+        //             text: 'Comments Statistics'
+        //         }
+        //     }
+        // });
+
+        $(document).ready(function () {
+            // $('#table2 thead tr').clone(true).appendTo( '#table2 thead' );
+            // $('#table2 thead tr:eq(1) th').each( function (i) {
+            //     var title = $(this).text();
+            //     $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+            //
+            //     $( 'input', this ).on( 'keyup change', function () {
+            //         if ( table2.column(i).search() !== this.value ) {
+            //             table2
+            //                 .column(i)
+            //                 .search( this.value )
+            //                 .draw();
+            //         }
+            //     } );
+            // } );
+            var table2 = $('#table2').DataTable({
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+
+    <script>
+        $("#hashtags, #keywords").select2({
+            tags: true
         });
     </script>
 @endsection

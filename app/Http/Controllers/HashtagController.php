@@ -148,6 +148,8 @@ class HashtagController extends Controller
             $maxId = $request->get('maxId');
         }
 
+        $hashtagList = HashTag::all();
+
         $txt = $id;
         $ht = null;
         if (is_numeric($id)) {
@@ -170,11 +172,14 @@ class HashtagController extends Controller
             $ht->save();
         }
 
+        krsort($medias);
+
         $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
 
-        $stats = CommentsStats::selectRaw('COUNT(*) as total, YEAR(created_at) as year, MONTH(created_at) as month')->where('target', $hashtag)->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))->get();
+        $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag)->groupBy(['narrative'])->get();
+//        $stats = CommentsStats::selectRaw('COUNT(*) as total, YEAR(created_at) as year, MONTH(created_at) as month')->where('target', $hashtag)->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))->get();
 
-        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs'));
+        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
     }
 
     public function loadComments($mediaId) {
@@ -256,7 +261,8 @@ class HashtagController extends Controller
             'account_id' => 'required',
             'code' => 'required',
             'author' => 'required',
-            'hashtag' => 'required'
+            'hashtag' => 'required',
+            'narrative' => 'required'
         ]);
 
         $acc = Account::findOrFail($request->get('account_id'));
@@ -271,6 +277,7 @@ class HashtagController extends Controller
         $stat->comment = $request->get('message');
         $stat->post_author = $request->get('author');
         $stat->code = $request->get('code');
+        $stat->narrative = $request->get('narrative');
         $stat->save();
 
         return response()->json([

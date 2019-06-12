@@ -57,27 +57,47 @@ class AutoReplyHashtagsController extends Controller
      */
     public function show($hashtag, Request $request)
     {
-        $hashtag = AutoReplyHashtags::findOrFail($hashtag);
 
-        $maxId = '';
+        $maxId = [];
         if ($request->has('maxId')) {
             $maxId = $request->get('maxId');
         }
 
         $country = $request->get('country');
-
         $hashtags = new Hashtags();
         $hashtags->login();
 
-        [$medias, $maxId] = $hashtags->getFeed($hashtag->text, $maxId, $country);
-        $media_count = $hashtags->getMediaCount($hashtag->text);
-        $hid = $hashtag->id;
-        $hashtag = $hashtag->text;
+        $keywords = $request->get('keywords');
+
+        $alltags = $request->get('hashtags');
+        $allMedias = [];
+        $allCounts = [];
+
+        foreach ($alltags as $tag) {
+
+            $arh = AutoReplyHashtags::where('text', $tag)->first();
+
+            if (!$arh) {
+                $arh = new AutoReplyHashtags();
+                $arh->text = $tag;
+                $arh->type = 'hashtag';
+                $arh->save();
+            }
+
+            [$medias, $maxId] = $hashtags->getFeed($tag, $maxId[$tag] ?? '', $country, $keywords);
+            $media_count = $hashtags->getMediaCount($tag);
+            $allCounts[$tag] = $media_count;
+            $maxIds[$tag] = $maxId;
+            $allMedias = array_merge($allMedias, $medias);
+        }
 
         $countryText = $request->get('country');
 
+        $medias = $allMedias;
 
-        return view('instagram.auto_comments.prepare', compact('medias', 'media_count', 'maxId', 'hashtag', 'hid', 'countryText'));
+        $hashtag = implode(',', $alltags);
+
+        return view('instagram.auto_comments.prepare', compact('medias', 'media_count', 'maxId', 'hashtag', 'countryText'));
 
     }
 
@@ -101,22 +121,20 @@ class AutoReplyHashtagsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $hashtag = AutoReplyHashtags::findOrFail($id);
         $this->validate($request, [
            'posts' => 'required|array',
         ]);
-
 
         $medias = $request->get('posts');
 
         foreach ($medias as $media) {
             $h = new AutoCommentHistory();
-            $h->target = $request->get('hashtag');
+            $h->target = $request->get('hashtag_'.$media);
             $h->post_code = $request->get('code_'.$media);
             $h->post_id = $media;
             $h->caption = $request->get('caption_'.$media);
             $h->gender = $request->get('gender_'.$media);
-            $h->auto_reply_hashtag_id = $hashtag->id;
+            $h->auto_reply_hashtag_id = 1;
             $h->country = strlen($request->get('country')) > 4 ? $request->get('country') : '';
             $h->status = 1;
             $h->save();

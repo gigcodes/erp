@@ -124,7 +124,6 @@ class InstagramController extends Controller
 
     public function update($id, Request $request) {
         $this->validate($request, [
-            'first_name' => 'required',
             'last_name' => 'required',
             'password' => 'required',
         ]);
@@ -137,6 +136,7 @@ class InstagramController extends Controller
         $account->broadcast = $request->get('broadcast') == 'on' ? 1 : 0;
         $account->manual_comment = $request->get('manual_comments') == 'on' ? 1 : 0;
         $account->bulk_comment = $request->get('bulk_comments') == 'on' ? 1 : 0;
+        $account->blocked = $request->get('blocked') == 'on' ? 1 : 0;
         $account->country = $request->get('country');
         $account->save();
 
@@ -605,9 +605,36 @@ class InstagramController extends Controller
 
     }
 
-    public function accounts() {
-        $accounts = Account::where('platform', 'instagram')->orderBy('created_at', 'DESC')->get();
+    public function accounts(Request $request) {
+        $accounts = Account::where('platform', 'instagram');
+
+        if ($request->get('query') != '') {
+            $accounts->where(function($query) use ($request) {
+                $q = $request->get('query');
+                $query->where('first_name','LIKE', "%$q%")->orWhere('last_name', 'LIKE', "%$q%");
+            });
+        }
+
+        if ($request->get('filter') == 'broadcast') {
+            $accounts = $accounts->where('broadcast', 1);
+        }
+
+        if ($request->get('filter') == 'manual_comment') {
+            $accounts = $accounts->where('manual_comment', 1);
+        }
+
+        if ($request->get('filter') == 'bulk_comment') {
+            $accounts = $accounts->where('bulk_comment', 1);
+        }
+
+        if ($request->get('blocked') == 'on') {
+            $accounts = $accounts->where('blocked', 1);
+        }
+
+        $accounts = $accounts->orderBy('id', 'DESC')->get();
+        $total = $accounts->count();
+
         $countries = TargetLocation::all();
-        return view('instagram.am.accounts', compact('accounts', 'countries'));
+        return view('instagram.am.accounts', compact('accounts', 'countries', 'request', 'total'));
     }
 }

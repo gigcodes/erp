@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h1>Instagram HashTags</h1>
+            <h2 class="page-heading">Instagram HashTags</h2>
         </div>
         <div class="col-md-12">
             @if(Session::has('message'))
@@ -23,7 +23,7 @@
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Add?</label>
-                            <button class="btn-block btn btn-success">Add Hashtag</button>
+                            <button class="btn-block btn btn-default">Add Hashtag</button>
                         </div>
                     </div>
                 </div>

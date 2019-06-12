@@ -53,7 +53,7 @@
 
         <div class="col-md-12">
             <form action="{{ action('InstagramAutoCommentsController@show', 'delete') }}">
-                <table class="table table-striped">
+                <table class="table table-striped table-bordered">
                     <tr>
                         <th>S.N</th>
                         <th style="width: 500px;">Text</th>

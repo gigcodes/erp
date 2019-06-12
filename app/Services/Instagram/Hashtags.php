@@ -3,6 +3,7 @@
 namespace App\Services\Instagram;
 
 
+use App\HashTag;
 use App\InstagramUsersList;
 use App\TargetLocation;
 use Carbon\Carbon;
@@ -29,7 +30,7 @@ class Hashtags {
         return $this->instagram->hashtag->getInfo($hashtag)->asArray()['media_count'];
     }
 
-    public function getFeed($hashtag, $maxId = '', $country = null)
+    public function getFeed($hashtag, $maxId = '', $country = null, $keywords = null)
     {
         $media = $this->instagram->hashtag->getFeed($hashtag, $this->token, $maxId);
         $medias = $media->asArray();
@@ -43,6 +44,39 @@ class Hashtags {
         $filteredMedia = [];
 
         foreach ($medias as $item) {
+
+            $cap = $item['caption']['text'];
+            $show = true;
+            if ($keywords) {
+                $show = false;
+                foreach ($keywords as $keyword) {
+                    if (stripos(strtoupper($cap), strtoupper($keyword)) !== false) {
+                        $show = true;
+                        continue;
+                    }
+                }
+            }
+
+            if (!$show) {
+                continue;
+            }
+
+            preg_match_all("/(#\w+)/", $cap, $matches);
+
+            $matches = $matches[0];
+            foreach ($matches as $match) {
+                $match = str_replace('#', '', $match);
+                $ht = HashTag::where('hashtag', $match)->first();
+
+                if (!$ht) {
+                    $ht = new HashTag();
+                    $ht->hashtag = $match;
+                    $ht->rating = 5;
+                    $ht->save();
+                }
+            }
+
+
             if ($item['media_type'] === 1) {
                 $media = $item['image_versions2']['candidates'][1]['url'];
             } else if ($item['media_type'] === 2) {
@@ -79,7 +113,8 @@ class Hashtags {
 
             $target = TargetLocation::where('region', $country)->first();
             if (!$target) {
-                $filteredMedia[] = [
+                $filteredMedia[$item['taken_at']] = [
+                    'hashtag' => $hashtag,
                     'username' => $item['user']['username'],
                     'user_id' => $item['user']['pk'],
                     'media_id' => $item['id'],
@@ -91,6 +126,7 @@ class Hashtags {
                     'media' => $media,
                     'comments' => $comments,
                     'location' => $item['location'] ?? '',
+                    'ts' => $item['taken_at'] ?? 0,
                     'created_at' => Carbon::createFromTimestamp($item['taken_at'])->diffForHumans(),
                     'posted_at' => Carbon::createFromTimestamp($item['taken_at'])->toDateTimeString(),
                 ];
@@ -113,7 +149,8 @@ class Hashtags {
                     $l->because_of = "Hashtags: $hashtag";
                     $l->save();
 
-                    $filteredMedia[] = [
+                    $filteredMedia[$item['taken_at']] = [
+                        'hashtag' => $hashtag,
                         'username' => $item['user']['username'],
                         'user_id' => $item['user']['pk'],
                         'media_id' => $item['id'],
@@ -125,6 +162,7 @@ class Hashtags {
                         'media' => $media,
                         'comments' => $comments,
                         'location' => $item['location'] ?? '',
+                        'ts' => $item['taken_at'] ?? 0,
                         'created_at' => Carbon::createFromTimestamp($item['taken_at'])->diffForHumans(),
                         'posted_at' => Carbon::createFromTimestamp($item['taken_at'])->toDateTimeString(),
                     ];

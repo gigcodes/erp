@@ -49,6 +49,12 @@
                         </div>
                     </div>
                     <div class="col-md-4">
+                        <div class="form-group">
+                            <input {{ $account->blocked ? 'checked' : '' }} type="checkbox" id="blocked" name="blocked">
+                            <label for="blocked">Blocked?</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
                         <label for="email">Phone/Email</label>
                         <input value="{{$account->email}}" class="form-control" type="text" name="email" id="email" placeholder="Email/phone">
                     </div>
@@ -62,7 +68,9 @@
                         </select>
                     </div>
                     <div class="col-md-12 text-right">
-                        <button class="btn btn-primary">Update Account</button>
+                        <div class="form-group">
+                            <button class="btn btn-primary">Update Account</button>
+                        </div>
                     </div>
                 </div>
             </form>

@@ -621,6 +621,7 @@ Route::prefix('comments')->group(function () {
 });
 
 Route::prefix('scrap')->group(function () {
+    Route::resource('statistics', 'ScrapStatisticsController');
     Route::get('facebook/inbox', 'FacebookController@getInbox');
     Route::resource('facebook', 'FacebookController');
     Route::resource('gmail', 'GmailDataController');
