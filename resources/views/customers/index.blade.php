@@ -142,6 +142,26 @@
                         <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
                       @endif
 
+                      @php
+                        if ($customer->lead_status == 1) {
+                          $customer_color = 'rgba(163,103,126,1)';
+                        } else if ($customer->lead_status == 2) {
+                          $customer_color = 'rgba(63,203,226,1)';
+                        } else if ($customer->lead_status == 3) {
+                          $customer_color = 'rgba(63,103,126,1)';
+                        } else if ($customer->lead_status == 4) {
+                          $customer_color = 'rgba(94, 80, 226, 1)';
+                        } else if ($customer->lead_status == 5) {
+                          $customer_color = 'rgba(58, 223, 140, 1)';
+                        } else if ($customer->lead_status == 6) {
+                          $customer_color = 'rgba(187, 221, 49, 1)';
+                        } else {
+                          $customer_color = 'rgba(207, 207, 211, 1)';
+                        }
+                      @endphp
+
+                      <span class="user-status" style="background-color: {{ $customer_color }};"></span>
+
                       <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
