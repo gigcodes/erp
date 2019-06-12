@@ -377,7 +377,7 @@
                 notificationQueue.notificationCount();
             },
             complete: function complete(data) {
-                return setTimeout(getNotificaitons, interval);
+                // return setTimeout(getNotificaitons, interval);
             } // Schedule the next
         });
     }
