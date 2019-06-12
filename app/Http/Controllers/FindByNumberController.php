@@ -13,6 +13,7 @@ use App\Order;
 use App\Status;
 use App\Agent;
 use App\Supplier;
+use App\Vendor;
 use App\Setting;
 use App\User;
 use App\Brand;
@@ -59,6 +60,17 @@ class FindByNumberController extends Controller
 		}
 
 		return Supplier::where('phone', $number)->first();
+	}
+
+	protected function findVendorByNumber($number)
+	{
+		if ($agent = Agent::where('phone', $number)->where('model_type', 'LIKE', "%Vendor%")->first()) {
+			if (preg_match("/vendor/i", $agent->model_type)) {
+				return Vendor::find($agent->model_id);
+			}
+		}
+
+		return Vendor::where('phone', $number)->first();
 	}
 
 	protected function findUserByNumber($number)

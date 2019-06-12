@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Vendor;
 use App\VendorProduct;
 use App\Setting;
+use App\ReplyCategory;
+use App\Helpers;
+use App\User;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
+use Illuminate\Support\Facades\DB;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class VendorController extends Controller
 {
@@ -16,12 +21,55 @@ class VendorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-      $vendors = Vendor::with('agents')->latest()->paginate(Setting::get('pagination'));
+      // $vendors = Vendor::with('agents')->latest()->paginate(Setting::get('pagination'));
+
+      $term = $request->term ?? '';
+      // $type = $request->type ?? '';
+      // $typeWhereClause = '';
+      //
+      // if ($type != '') {
+      //   $typeWhereClause = ' AND has_error = 1';
+      // }
+
+      $vendors = DB::select('
+									SELECT *,
+                  (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+                  (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
+                  (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
+
+                  FROM (SELECT vendors.id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.gst,
+                  chat_messages.message_id FROM vendors
+
+                  LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
+                  ON vendors.id = chat_messages.vendor_id
+                  )
+
+                  AS vendors
+
+                  WHERE (name LIKE "%' . $term . '%" OR
+                  phone LIKE "%' . $term . '%" OR
+                  email LIKE "%' . $term . '%" OR
+                  address LIKE "%' . $term . '%" OR
+                  social_handle LIKE "%' . $term . '%" OR
+                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))
+                  ORDER BY message_created_at DESC;
+							');
+
+              // dd($vendors);
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+  		$perPage = Setting::get('pagination');
+  		$currentItems = array_slice($vendors, $perPage * ($currentPage - 1), $perPage);
+
+  		$vendors = new LengthAwarePaginator($currentItems, count($vendors), $perPage, $currentPage, [
+  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
+  		]);
 
       return view('vendors.index', [
-        'vendors' => $vendors
+        'vendors' => $vendors,
+        'term'    => $term,
       ]);
     }
 
@@ -108,7 +156,15 @@ class VendorController extends Controller
      */
     public function show($id)
     {
-        //
+      $vendor = Vendor::find($id);
+      $reply_categories = ReplyCategory::all();
+      $users_array = Helpers::getUserArray(User::all());
+
+      return view('vendors.show', [
+        'vendor'  => $vendor,
+        'reply_categories'  => $reply_categories,
+        'users_array'  => $users_array
+      ]);
     }
 
     /**
@@ -132,12 +188,14 @@ class VendorController extends Controller
     public function update(Request $request, $id)
     {
       $this->validate($request, [
-        'name'          => 'required|string|max:255',
-        'address'       => 'sometimes|nullable|string',
-        'phone'         => 'sometimes|nullable|numeric',
-        'email'         => 'sometimes|nullable|email',
-        'social_handle' => 'sometimes|nullable',
-        'gst'           => 'sometimes|nullable|max:255'
+        'name'            => 'required|string|max:255',
+        'address'         => 'sometimes|nullable|string',
+        'phone'           => 'sometimes|nullable|numeric',
+        'default_phone'   => 'sometimes|nullable|numeric',
+        'whatsapp_number' => 'sometimes|nullable|numeric',
+        'email'           => 'sometimes|nullable|email',
+        'social_handle'   => 'sometimes|nullable',
+        'gst'             => 'sometimes|nullable|max:255'
       ]);
 
       $data = $request->except('_token');

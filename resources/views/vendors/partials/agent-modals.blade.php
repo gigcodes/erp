@@ -5,11 +5,11 @@
     <div class="modal-content">
       <form action="{{ route('agent.store') }}" method="POST">
         @csrf
-        <input type="hidden" name="model_id" id="agent_vendor_id" value="">
+        <input type="hidden" name="model_id" id="agent_vendor_id" value="{{ $vendor->id }}">
         <input type="hidden" name="model_type" value="App\Vendor">
 
         <div class="modal-header">
-          <h4 class="modal-title">Create Supplier Agent</h4>
+          <h4 class="modal-title">Create Vendor Agent</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">

@@ -17,6 +17,7 @@ use App\Order;
 use App\Task;
 use App\Status;
 use App\Supplier;
+use App\Vendor;
 use App\Setting;
 use App\Dubbizle;
 use App\User;
@@ -943,15 +944,10 @@ class WhatsAppController extends FindByNumberController
   		$from = str_replace('@c.us', '', $data['messages'][0]['author']);
   		$text = $data['messages'][0]['body'];
       $supplier = $this->findSupplierByNumber($from);
+      $vendor = $this->findVendorByNumber($from);
       $user = $this->findUserByNumber($from);
       $dubbizle = $this->findDubbizleByNumber($from);
       $contact = $this->findContactByNumber($from);
-
-      if (filter_var($text, FILTER_VALIDATE_URL)) {
-        $media = MediaUploader::fromSource($text)->upload();
-      } else {
-        $params['message'] = $text;
-      }
 
       $params = [
         'number'    => $from,
@@ -959,6 +955,12 @@ class WhatsAppController extends FindByNumberController
         'approved'  => $data['messages'][0]['fromMe'] ? 1 : 0,
         'status'    => $data['messages'][0]['fromMe'] ? 2 : 0
       ];
+
+      if (filter_var($text, FILTER_VALIDATE_URL)) {
+        $media = MediaUploader::fromSource($text)->upload();
+      } else {
+        $params['message'] = $text;
+      }
 
       // if ($data['messages'][0]['fromMe'] == false) {
         // if ($data['data']['type'] == 'text') {
@@ -1072,10 +1074,26 @@ class WhatsAppController extends FindByNumberController
           $this->sendRealTime($message, 'supplier_' . $supplier->id, $client);
         }
 
+        if ($vendor) {
+          $params['erp_user'] = NULL;
+          $params['task_id'] = NULL;
+          $params['contact_id'] = NULL;
+          $params['user_id'] = NULL;
+          $params['supplier_id'] = NULL;
+          $params['vendor_id'] = $vendor->id;
+
+          $message = ChatMessage::create($params);
+          // $model_type = 'supplier';
+          // $model_id = $supplier->id;
+
+          $this->sendRealTime($message, 'vendor_' . $vendor->id, $client);
+        }
+
         if ($dubbizle) {
           $params['erp_user'] = NULL;
           $params['task_id'] = NULL;
           $params['supplier_id'] = NULL;
+          $params['vendor'] = NULL;
           $params['contact_id'] = NULL;
           $params['user_id'] = NULL;
           $params['dubbizle_id'] = $dubbizle->id;
@@ -1431,6 +1449,9 @@ class WhatsAppController extends FindByNumberController
       } elseif ($context == 'supplier') {
         $data['supplier_id'] = $request->supplier_id;
         $module_id = $request->supplier_id;
+      } else if ($context == 'vendor') {
+        $data['vendor_id'] = $request->vendor_id;
+        $module_id = $request->vendor_id;
       } elseif ($context == 'task') {
         $data['task_id'] = $request->task_id;
         $task = Task::find($request->task_id);
@@ -1577,7 +1598,7 @@ class WhatsAppController extends FindByNumberController
         File::delete('uploads/temp_screenshot.png');
       }
 
-      if (Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || $context == 'task') {
+      if ((Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || $context == 'task') && $chat_message->status != 0) {
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
@@ -1948,6 +1969,9 @@ class WhatsAppController extends FindByNumberController
       } else if ($request->supplierId) {
         $column = 'supplier_id';
         $value = $request->supplierId;
+      } else if ($request->vendorId) {
+        $column = 'vendor_id';
+        $value = $request->vendorId;
       } else if ($request->taskId) {
         $column = 'task_id';
         $value = $request->taskId;
@@ -2208,6 +2232,10 @@ class WhatsAppController extends FindByNumberController
           $supplier = Supplier::find($message->supplier_id);
           $phone = $supplier->default_phone;
           $whatsapp_number = '971545889192';
+        } else if ($context == 'vendor') {
+          $vendor = Vendor::find($message->vendor_id);
+          $phone = $vendor->default_phone;
+          $whatsapp_number = $vendor->whatsapp_number;
         } else if ($context == 'task') {
           $sender = User::find($message->user_id);
 
@@ -2239,7 +2267,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-          if ($context == 'supplier' || $context == 'task' || $context == 'dubbizle') {
+          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
             if ($whatsapp_number == '919152731483') {
@@ -2263,7 +2291,7 @@ class WhatsAppController extends FindByNumberController
           foreach ($images as $image) {
             $send = str_replace(' ', '%20', $image->getUrl());
 
-            if ($context == 'task') {
+            if ($context == 'task' || $context == 'vendor') {
               $this->sendWithThirdApi($phone, $whatsapp_number, NULL, $send);
             } else if ($whatsapp_number == '919152731483') {
               $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
@@ -2803,7 +2831,7 @@ class WhatsAppController extends FindByNumberController
     if ($whatsapp_number == '919004780634') { // Indian
       $instanceId = "43281";
       $token = "yi841xjhrwyrwrc7";
-    } else { // Dubai
+    } else { // Dubai James
       $instanceId = "43112";
       $token = "vbi9bpkoejv2lvc4";
     }
@@ -2898,6 +2926,8 @@ class WhatsAppController extends FindByNumberController
       $link = 'sendFile';
     }
 
+    // throw new \Exception("Something was wrong with message: " . json_encode($array));
+
 
 
     // if (isset($image_id)) {
@@ -2934,7 +2964,7 @@ class WhatsAppController extends FindByNumberController
     } else {
       $result = json_decode($response, true);
       // throw new \Exception("Something was wrong with message: " . $response);
-      if (array_key_exists('sent', $result) && !$result['sent']) {
+      if (!is_array($result) || array_key_exists('sent', $result) && !$result['sent']) {
         throw new \Exception("Something was wrong with message: " . $response);
       }
     }
