@@ -116,6 +116,7 @@ class CustomerController extends Controller
         'brands' => $brands,
         'start_time' => $start_time,
         'end_time' => $end_time,
+        'leads_data' => $results[2],
       ]);
     }
 
@@ -338,6 +339,7 @@ class CustomerController extends Controller
           // } else {
         }
 
+        $leadsWhereClause = '';
         $orderby = 'DESC';
 
         if($request->input('orderby')) {
@@ -379,6 +381,16 @@ class CustomerController extends Controller
           if ($start_time != '' && $end_time != '') {
             $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
           }
+        } else if ($request->type != 'new' && $request->type != 'delivery' && $request->type != 'Refund to be processed' && $request->type != '') {
+          $join = "LEFT";
+          $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
+          $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
+
+          if ($request->type == '0') {
+            $leadsWhereClause = ' WHERE lead_status IS NULL';
+          } else {
+            $leadsWhereClause = " WHERE lead_status = $request->type";
+          }
         } else if ($sortby === 'communication') {
           $join = "LEFT";
           $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
@@ -388,8 +400,8 @@ class CustomerController extends Controller
         $customers = DB::select('
   									SELECT * FROM
                     (SELECT customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, customers.deleted_at,
-                    lead_id, lead_status, lead_created, lead_rating,
                     order_id, order_status, order_created, purchase_status,
+                    (SELECT mm5.status FROM leads mm5 WHERE mm5.id = lead_id) AS lead_status,
                     (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
                     (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                     (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
@@ -421,19 +433,77 @@ class CustomerController extends Controller
                     ' . $searchWhereClause . '
                     ' . $orderByClause . '
                   ) AS customers
-                  ' . $filterWhereClause . ';
+                  ' . $filterWhereClause . $leadsWhereClause . ';
+  							');
+
+        // $customers = DB::select('
+  			// 						SELECT * FROM
+        //             (SELECT *
+        //
+        //             FROM (
+        //               SELECT * FROM customers
+        //
+        //               LEFT JOIN (
+        //                 SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as lead_rating, MAX(leads.created_at) as lead_created, leads.status as lead_status
+        //                 FROM leads
+        //                 GROUP BY customer_id
+        //               ) AS leads
+        //               ON customers.id = leads.lcid
+        //
+        //               LEFT JOIN
+        //                 (SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM orders '. $orderWhereClause .' GROUP BY customer_id) as orders
+        //                   LEFT JOIN (SELECT order_products.order_id as purchase_order_id, order_products.purchase_status FROM order_products GROUP BY purchase_order_id) as order_products
+        //                   ON orders.order_id = order_products.purchase_order_id
+        //               ON customers.id = orders.ocid
+        //
+        //               ' . $join . ' JOIN (SELECT MAX(id) as message_id, customer_id, message, MAX(created_at) as message_created_At FROM chat_messages ' . $messageWhereClause . ' ORDER BY chat_messages.created_at ' . $orderby . ') AS chat_messages
+        //               ON customers.id = chat_messages.customer_id
+        //
+        //
+        //             ) AS customers
+        //             WHERE (deleted_at IS NULL) AND (id IS NOT NULL)
+        //
+        //             ' . $searchWhereClause . '
+        //           ) AS customers
+        //           ' . $filterWhereClause . $leadsWhereClause . ';
+  			// 				');
+
+
+
+        // dd($customers);
+
+        $leads_data = DB::select('
+                      SELECT COUNT(*) AS total,
+                      (SELECT mm1.status FROM leads mm1 WHERE mm1.id = lead_id) as lead_final_status
+                       FROM customers
+
+                      LEFT JOIN (
+                        SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as lead_rating, MAX(leads.created_at) as lead_created, leads.status as lead_status
+                        FROM leads
+                        GROUP BY customer_id
+                      ) AS leads
+                      ON customers.id = leads.lcid
+
+                      WHERE (deleted_at IS NULL) AND (id IS NOT NULL)
+                      GROUP BY lead_final_status;
   							');
 
 
-
-        // dd($new_customers);
-
+                // dd($customers_leads);
         $ids_list = [];
+        // $leads_data = [0, 0, 0, 0, 0, 0, 0];
         foreach ($customers as $customer) {
           if ($customer->id != null) {
             $ids_list[] = $customer->id;
+
+            // $lead_status = $customer->lead_status == null ? '0' : $customer->lead_status;
+            //
+            // $leads_data[$lead_status] += 1;
           }
         }
+
+
+        // dd($leads_data);
 
         // if ($start_time != '' && $end_time != '') {
         //   $customers = $customers->whereBetween('chat_message_created_at', [$start_time, $end_time])->paginate(Setting::get('pagination'));
@@ -453,7 +523,7 @@ class CustomerController extends Controller
     		]);
 
 
-        return [$customers, $ids_list];
+        return [$customers, $ids_list, $leads_data];
     }
 
     public function customerstest(Request $request) {
@@ -627,6 +697,7 @@ class CustomerController extends Controller
         foreach ($new_customers as $customer) {
           $ids_list[] = $customer->id;
         }
+
 
         // if ($start_time != '' && $end_time != '') {
         //   $customers = $customers->whereBetween('chat_message_created_at', [$start_time, $end_time])->paginate(Setting::get('pagination'));

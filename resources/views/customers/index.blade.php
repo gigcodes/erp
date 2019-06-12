@@ -25,11 +25,26 @@
                   <select class="form-control" name="type">
                     <optgroup label="Type">
                       <option value="">Select</option>
-                      <option value="new" {{ isset($type) && $type == 'new' ? 'selected' : '' }}>New</option>
-                      <option value="delivery" {{ isset($type) && $type == 'delivery' ? 'selected' : '' }}>Delivery</option>
-                      <option value="Refund to be processed" {{ isset($type) && $type == 'Refund to be processed' ? 'selected' : '' }}>Refund</option>
-                      <option value="unread" {{ isset($type) && $type == 'unread' ? 'selected' : '' }}>Unread</option>
-                      <option value="unapproved" {{ isset($type) && $type == 'unapproved' ? 'selected' : '' }}>Unapproved</option>
+                      <optgroup label="Messages">
+                        <option value="unread" {{ isset($type) && $type == 'unread' ? 'selected' : '' }}>Unread</option>
+                        <option value="unapproved" {{ isset($type) && $type == 'unapproved' ? 'selected' : '' }}>Unapproved</option>
+                      </optgroup>
+
+                      <optgroup label="Leads">
+                        <option value="0" {{ isset($type) && $type == '0' ? 'selected' : '' }}>No lead</option>
+                        <option value="1" {{ isset($type) && $type == '1' ? 'selected' : '' }}>Cold</option>
+                        <option value="2" {{ isset($type) && $type == '2' ? 'selected' : '' }}>Cold / Important</option>
+                        <option value="3" {{ isset($type) && $type == '3' ? 'selected' : '' }}>Hot</option>
+                        <option value="4" {{ isset($type) && $type == '4' ? 'selected' : '' }}>Very Hot</option>
+                        <option value="5" {{ isset($type) && $type == '5' ? 'selected' : '' }}>Advance Follow Up</option>
+                        <option value="6" {{ isset($type) && $type == '6' ? 'selected' : '' }}>High Priority</option>
+                      </optgroup>
+
+                      <optgroup label="Old">
+                        <option value="new" {{ isset($type) && $type == 'new' ? 'selected' : '' }}>New</option>
+                        <option value="delivery" {{ isset($type) && $type == 'delivery' ? 'selected' : '' }}>Delivery</option>
+                        <option value="Refund to be processed" {{ isset($type) && $type == 'Refund to be processed' ? 'selected' : '' }}>Refund</option>
+                      </optgroup>
                     </optgroup>
                   </select>
                 </div>
@@ -83,6 +98,10 @@
           <option value="{{ $query.$i }}" {{ ($i == $customers->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
         @endfor
       </select>
+    </div>
+
+    <div class="card activity-chart my-3">
+      <canvas id="leadsChart" style="height: 100px;"></canvas>
     </div>
 
     <div class="infinite-scroll">
@@ -460,6 +479,7 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
   <script type="text/javascript">
     var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
@@ -1125,6 +1145,115 @@
           alert("Could not change status");
           console.log(errObj);
         });
+      });
+
+
+      let leadsChart = $('#leadsChart');
+
+      var leadsChartExample = new Chart(leadsChart, {
+          type: 'horizontalBar',
+          data: {
+              labels: [
+                'Status'
+              ],
+              datasets: [{
+                  label: "No Lead ({{ $leads_data[0]->total }})",
+                  data: [{{ $leads_data[0]->total }}],
+                  backgroundColor: "rgba(207, 207, 211, 1)",
+                  hoverBackgroundColor: "rgba(189, 188, 194, 1)"
+              },{
+                  label: "Cold Lead ({{ $leads_data[1]->total }})",
+                  data: [{{ $leads_data[1]->total }}],
+                  backgroundColor: "rgba(163,103,126,1)",
+                  hoverBackgroundColor: "rgba(140,85,100,1)"
+              },{
+                  label: 'Cold / Important Lead ({{ $leads_data[2]->total }})',
+                  data: [{{ $leads_data[2]->total }}],
+                  backgroundColor: "rgba(63,203,226,1)",
+                  hoverBackgroundColor: "rgba(46,185,235,1)"
+              },{
+                  label: 'Hot Lead ({{ $leads_data[3]->total }})',
+                  data: [{{ $leads_data[3]->total }}],
+                  backgroundColor: "rgba(63,103,126,1)",
+                  hoverBackgroundColor: "rgba(50,90,100,1)"
+              },{
+                  label: 'Very Hot Lead ({{ $leads_data[4]->total }})',
+                  data: [{{ $leads_data[4]->total }}],
+                  backgroundColor: "rgba(94, 80, 226, 1)",
+                  hoverBackgroundColor: "rgba(74, 58, 223, 1)"
+              },{
+                  label: 'Advance Follow Up ({{ $leads_data[5]->total }})',
+                  data: [{{ $leads_data[5]->total }}],
+                  backgroundColor: "rgba(58, 223, 140, 1)",
+                  hoverBackgroundColor: "rgba(34, 211, 122, 1)"
+              },{
+                  label: 'HIGH PRIORITY ({{ $leads_data[6]->total }})',
+                  data: [{{ $leads_data[6]->total }}],
+                  backgroundColor: "rgba(187, 221, 49, 1)",
+                  hoverBackgroundColor: "rgba(175, 211, 34, 1)"
+              }]
+          },
+          options: {
+              scaleShowValues: true,
+              responsive: true,
+              scales: {
+                xAxes: [{
+                  ticks: {
+                      beginAtZero:true,
+                      fontFamily: "'Open Sans Bold', sans-serif",
+                      fontSize:11
+                  },
+                  // display: true,
+                  // scaleLabel: {
+                  //   display: true,
+                  //   labelString: 'Sets'
+                  // }
+                  stacked: true
+                }],
+                yAxes: [{
+                  ticks: {
+                      fontFamily: "'Open Sans Bold', sans-serif",
+                      fontSize:11
+                  },
+                  // display: true,
+                  // scaleLabel: {
+                  //   display: true,
+                  //   labelString: 'Count'
+                  // }
+                  stacked: true
+                }]
+              },
+              tooltips: {
+                enabled: false
+              },
+              animation: {
+                onComplete: function () {
+                  var chartInstance = this.chart;
+                  var ctx = chartInstance.ctx;
+                  ctx.textAlign = "left";
+                  // ctx.font = this.scale.font;
+                  ctx.fillStyle = "#fff";
+
+                  // this.datasets.forEach(function (dataset) {
+                  //   dataset.points.forEach(function (points) {
+                  //     ctx.fillText(points.value, points.x, points.y - 10);
+                  //   });
+                  // })
+
+                  Chart.helpers.each(this.data.datasets.forEach(function (dataset, i) {
+                      var meta = chartInstance.controller.getDatasetMeta(i);
+                      Chart.helpers.each(meta.data.forEach(function (bar, index) {
+                          data = dataset.data[index];
+                          if(i==0){
+                              ctx.fillText(data, 50, bar._model.y+4);
+                          } else {
+                              ctx.fillText(data, bar._model.x-25, bar._model.y+4);
+                          }
+                      }),this)
+                  }),this);
+                }
+            },
+          }
       });
   </script>
 @endsection
