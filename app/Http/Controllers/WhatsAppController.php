@@ -957,7 +957,30 @@ class WhatsAppController extends FindByNumberController
       ];
 
       if (filter_var($text, FILTER_VALIDATE_URL)) {
-        $media = MediaUploader::fromSource($text)->upload();
+        $exploded = explode('//', $text);
+        $http = array_shift($exploded);
+
+        $formatted_url = $http . "//" . implode('/', $exploded);
+
+
+        // $paths = explode("/", $text);
+        // $file = $paths[count($paths) - 1];
+        // $extension = explode(".", $file)[1];
+        // $fileName = uniqid(TRUE).".".$extension;
+        // $contents = file_get_contents($text);
+        // if (file_put_contents(implode(DIRECTORY_SEPARATOR, array(\Config::get("apiwha.media_path"), $fileName)), $contents ) ==  FALSE) {
+        //     return FALSE;
+        // }
+        // $url = implode("/", array( \Config::get("app.url"), "uploads", $fileName));
+        $file_path = public_path() . '/uploads/' . '/one.jpg';
+
+        file_put_contents($file_path, file_get_contents($formatted_url));
+
+        $media = MediaUploader::fromSource($file_path)->useFilename(uniqid(TRUE))->upload();
+
+        unlink($file_path);
+
+        $params['media_url'] = $media->getUrl();
       } else {
         $params['message'] = $text;
       }
