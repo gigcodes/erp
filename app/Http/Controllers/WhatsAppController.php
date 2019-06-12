@@ -517,7 +517,9 @@ class WhatsAppController extends FindByNumberController
           $params['task_id'] = $match[1][0];
         }
 
-        // $params = $this->modifyParamsWithMessage($params, $data);
+
+
+        $params = $this->modifyParamsWithMessage($params, $data);
         $message = ChatMessage::create($params);
         $model_type = 'user';
         $model_id = $user->id;
@@ -945,6 +947,12 @@ class WhatsAppController extends FindByNumberController
       $dubbizle = $this->findDubbizleByNumber($from);
       $contact = $this->findContactByNumber($from);
 
+      if (filter_var($text, FILTER_VALIDATE_URL)) {
+        $media = MediaUploader::fromSource($text)->upload();
+      } else {
+        $params['message'] = $text;
+      }
+
       $params = [
         'number'    => $from,
         'message'   => '',
@@ -954,7 +962,7 @@ class WhatsAppController extends FindByNumberController
 
       // if ($data['messages'][0]['fromMe'] == false) {
         // if ($data['data']['type'] == 'text') {
-          $params['message'] = $text;
+
         // }
         // else if ($data['data']['type'] == 'image') {
         //   $image_data = $data['data']['media']['preview']['image'];
@@ -1010,7 +1018,15 @@ class WhatsAppController extends FindByNumberController
           }
 
           // $params = $this->modifyParamsWithMessage($params, $data);
+          if (isset($media)) {
+            $params['media_url'] = $media->getUrl();
+          }
+
           $message = ChatMessage::create($params);
+
+          if (isset($media)) {
+            $message->attachMedia($media, config('constants.media_tags'));
+          }
 
           if (array_key_exists('task_id', $params)) {
             $this->sendRealTime($message, 'task_' . $task->id, $client);
@@ -1499,6 +1515,40 @@ class WhatsAppController extends FindByNumberController
         // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
         //   $another_message->attachMedia($media,config('constants.media_tags'));
         // }
+
+        if ($context == 'task') {
+          if (count($task->users) > 0) {
+            if ($task->assign_from == Auth::id()) {
+              foreach ($task->users as $key => $user) {
+                if ($key == 0) {
+                  $data['erp_user'] = $user->id;
+                } else {
+                  $this->sendWithThirdApi($user->phone, $user->whatsapp_number, NULL, $media->getUrl());
+                }
+              }
+            } else {
+              foreach ($task->users as $key => $user) {
+                if ($key == 0) {
+                  $data['erp_user'] = $task->assign_from;
+                } else {
+                  if ($user->id != Auth::id()) {
+                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, NULL, $media->getUrl());
+                  }
+                }
+              }
+            }
+          }
+
+          if (count($task->contacts) > 0) {
+            foreach ($task->contacts as $key => $contact) {
+              if ($key == 0) {
+                $data['contact_id'] = $task->assign_to;
+              } else {
+                $this->sendWithThirdApi($contact->phone, NULL, NULL, $media->getUrl());
+              }
+            }
+          }
+        }
       }
 
       if ($request->images) {
@@ -2213,7 +2263,9 @@ class WhatsAppController extends FindByNumberController
           foreach ($images as $image) {
             $send = str_replace(' ', '%20', $image->getUrl());
 
-            if ($whatsapp_number == '919152731483') {
+            if ($context == 'task') {
+              $this->sendWithThirdApi($phone, $whatsapp_number, NULL, $send);
+            } else if ($whatsapp_number == '919152731483') {
               $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
             } else {
               $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
@@ -2831,14 +2883,22 @@ class WhatsAppController extends FindByNumberController
     //   }
     // }
 
-
     $array = [
-      'phone' => $encodedNumber,
-      'body' => (string) $encodedText,
-      // 'reference' => (string) $chat_message_id,
-      // 'device'  => "$wa_device",
-      // 'enqueue' => "$enqueue",
+      'phone' => $encodedNumber
     ];
+
+    if ($encodedText != null) {
+      $array['body'] = $encodedText;
+      $link = 'sendMessage';
+    } else {
+      $exploded = explode('/', $file);
+      $filename = end($exploded);
+      $array['body'] = $file;
+      $array['filename'] = $filename;
+      $link = 'sendFile';
+    }
+
+
 
     // if (isset($image_id)) {
     //   $array['media'] = [
@@ -2849,7 +2909,7 @@ class WhatsAppController extends FindByNumberController
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
-      CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/sendMessage?token=$token",
+      CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=$token",
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => "",
       CURLOPT_MAXREDIRS => 10,
@@ -3056,7 +3116,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($new_message->hasMedia(config('constants.media_tags'))) {
           foreach ($new_message->getMedia(config('constants.media_tags')) as $image) {
-            $this->sendWithThirdApi($phone, $whatsapp_number, $image->getUrl(), NULL, $new_message->id);
+            $this->sendWithThirdApi($phone, $whatsapp_number, NULL, $image->getUrl(), $new_message->id);
           }
         }
 
