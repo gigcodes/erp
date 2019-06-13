@@ -62,34 +62,34 @@ class TaskModuleController extends Controller {
 		//                                ->get()->toArray();
 
 	 $data['task']['pending'] = DB::select('
-               SELECT *,
-							 (SELECT mm5.remark FROM remarks mm5 WHERE mm5.id = remark_id) AS remark,
-							 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
-               (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
-               (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
-               (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
-							 (SELECT mm6.is_reminder FROM chat_messages mm6 WHERE mm6.id = message_id) as message_is_reminder,
-							 (SELECT mm7.user_id FROM chat_messages mm7 WHERE mm7.id = message_id) as message_user_id,
-               (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
+               SELECT tasks.*
 
                FROM (
                  SELECT * FROM tasks
 
                  LEFT JOIN (
-                   SELECT MAX(id) as remark_id, taskid
+                   SELECT id as remark_id, taskid, remark as remark2
                    FROM remarks
 									 WHERE module_type = "task"
-                   GROUP BY taskid
                  ) AS remarks
                  ON tasks.id = remarks.taskid
 
-                 LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
+                 LEFT JOIN (SELECT id as message_id, task_id, message, status AS message_status, is_reminder AS message_is_reminder, user_id AS message_user_id, created_at as message_created_at FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 ORDER BY chat_messages.created_at DESC) AS chat_messages
                  ON tasks.id = chat_messages.task_id
 
                ) AS tasks
                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-               ORDER BY is_flagged DESC, last_communicated_at DESC;
+							  AND (remark_id = (
+									SELECT MAX(id) FROM remarks WHERE taskid = tasks.id
+									) OR remark_id IS NULL)
+
+									AND (message_id = (
+										SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
+										) OR message_id IS NULL)
+               ORDER BY is_flagged DESC, message_created_at DESC;
 						');
+
+						// dd($data['task']['pending']);
 
 		// $currentPage = LengthAwarePaginator::resolveCurrentPage();
 		// $perPage = Setting::get('pagination');
@@ -132,7 +132,6 @@ class TaskModuleController extends Controller {
 
 		$data['task']['completed'] = DB::select('
                 SELECT *,
- 							 (SELECT mm5.remark FROM remarks mm5 WHERE mm5.id = remark_id) AS remark,
  							 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
                 (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                 (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
@@ -141,14 +140,6 @@ class TaskModuleController extends Controller {
 
                 FROM (
                   SELECT * FROM tasks
-
-                  LEFT JOIN (
-                    SELECT MAX(id) as remark_id, taskid
-                    FROM remarks
- 									 WHERE module_type = "task"
-                    GROUP BY taskid
-                  ) AS remarks
-                  ON tasks.id = remarks.taskid
 
                   LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
                   ON tasks.id = chat_messages.task_id
@@ -225,7 +216,6 @@ class TaskModuleController extends Controller {
 
 		 $data['task']['statutory_not_completed'] = DB::select('
 	               SELECT *,
-								 (SELECT mm5.remark FROM remarks mm5 WHERE mm5.id = remark_id) AS remark,
 								 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
 	               (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
 	               (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
@@ -234,14 +224,6 @@ class TaskModuleController extends Controller {
 
 	               FROM (
 	                 SELECT * FROM tasks
-
-	                 LEFT JOIN (
-	                   SELECT MAX(id) as remark_id, taskid
-	                   FROM remarks
-										 WHERE module_type = "task"
-	                   GROUP BY taskid
-	                 ) AS remarks
-	                 ON tasks.id = remarks.taskid
 
 	                 LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
 	                 ON tasks.id = chat_messages.task_id

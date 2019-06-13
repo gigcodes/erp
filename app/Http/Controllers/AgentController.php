@@ -53,7 +53,7 @@ class AgentController extends Controller
       if ($request->model_type == 'App\Supplier') {
         return redirect()->route('supplier.show', $request->model_id)->withSuccess('You have successfully added an agent!');
       } else if ($request->model_type == 'App\Vendor') {
-        return redirect()->route('vendor.index')->withSuccess('You have successfully added an agent!');
+        return redirect()->route('vendor.show', $request->model_id)->withSuccess('You have successfully added an agent!');
       }
     }
 
@@ -107,7 +107,7 @@ class AgentController extends Controller
          return redirect()->back()->withSuccess('You have successfully updated an agent!');
          // return redirect()->route('supplier.index')->withSuccess('You have successfully updated an agent!');
        } else if ($agent->model_type == 'App\Vendor') {
-         return redirect()->route('vendor.index')->withSuccess('You have successfully updated an agent!');
+         return redirect()->back()->withSuccess('You have successfully updated an agent!');
        }
      }
 

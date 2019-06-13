@@ -42,22 +42,45 @@ class UpdateGnbPrice extends Command
      */
     public function handle()
     {
-      $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
+      // $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
+      $products = ScrapedProducts::where('updated_at', '>', '2019-06-05 00:00')->get();
 
-      foreach ($products as $product) {
+      // dd(count($products));
+      foreach ($products as $key => $product) {
+        dump("$key - Scraped Product");
+
         if ($old_product = Product::where('sku', $product->sku)->first()) {
+          dump("$key - Product Found");
+
           $brand = Brand::find($product->brand_id);
 
           if (strpos($product->price, ',') !== false) {
+            dump("$key - comma found");
+
             if (strpos($product->price, '.') !== false) {
+              dump("$key - dot found");
+
               if (strpos($product->price, ',') < strpos($product->price, '.')) {
+                dump("$key - comma first than dot");
+
                 $final_price = str_replace(',', '', $product->price);;
               }
             } else {
+              dump("$key - no dot found");
               $final_price = str_replace(',', '.', $product->price);
             }
           } else {
+            dump("$key - no changes");
             $final_price = $product->price;
+          }
+
+          if (strpos($final_price, '.') !== false) {
+            $exploded = explode('.', $final_price);
+
+            if (strlen($exploded[1]) > 2) {
+              dump("$key - has more than 2 digits after dot");
+              $final_price = implode('', $exploded);
+            }
           }
 
           $price = round(preg_replace('/[\&euro;€,]/', '', $final_price));

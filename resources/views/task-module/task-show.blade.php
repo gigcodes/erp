@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tasks Show')
+@section('title', 'Task Show')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -9,8 +9,6 @@
 @endsection
 
 @section('content')
-
-@section('title', 'Task Page - ERP Sololuxury')
 
 <div class="row">
   <div class="col-lg-12 margin-tb">
@@ -211,210 +209,7 @@
 
       <button type="submit" class="btn btn-xs btn-secondary">Update</button>
     </form>
-
-
-
-
-
-    {{-- <div class="form-group">
-        <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task->id}}" data-id="{{$task->id}}">Add</a>
-        <span> | </span>
-        <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a>
-    </div> --}}
-
-
-    {{-- <div class="d-flex">
-      @if ($customer->is_priority == 1)
-        <div class="form-group">
-          <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
-        </div>
-      @else
-        <div class="form-group">
-          <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
-        </div>
-      @endif
-
-      <div class="form-group form-inline">
-        <input type="text" name="name" id="customer_name" class="form-control input-sm" placeholder="Name" value="{{ $customer->name }}">
-      </div>
-
-      <div class="form-group">
-        <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
-
-        @if ($customer->is_blocked == 1)
-          <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
-        @else
-          <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
-        @endif
-
-        @if ($customer->do_not_disturb == 1)
-          <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-not-disturb.png" /></button>
-        @else
-          <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-disturb.png" /></button>
-        @endif
-
-        @if ($customer->is_flagged == 1)
-          <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
-        @else
-          <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
-        @endif
-
-        <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
-
-        @include('customers.partials.modal-advance-link')
-      </div>
-    </div>
-
-    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-      <div class="form-group form-inline">
-        <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
-
-        @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
-          <span class="badge badge-danger ml-3" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
-        @endif
-      </div>
-    @endif
-
-    <div class="form-group">
-      <textarea name="address" id="customer_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address">{{ $customer->address }}</textarea>
-    </div>
-
-    <div class="row">
-      <div class="col-6">
-        <div class="form-group">
-          <input type="text" name="city" id="customer_city" class="form-control input-sm" placeholder="City" value="{{ $customer->city }}">
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="form-group">
-          <input type="text" name="country" id="customer_country" class="form-control input-sm" placeholder="Country" value="{{ $customer->country }}">
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="form-group">
-          <input type="number" name="pincode" id="customer_pincode" class="form-control input-sm" placeholder="91111" value="{{ $customer->pincode }}">
-        </div>
-      </div>
-    </div>
-
-    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-      <div class="form-group">
-        <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
-      </div>
-
-      <div class="form-group">
-        <input type="text" name="insta_handle" id="customer_insta_handle" class="form-control input-sm" placeholder="Instagram Handle" value="{{ $customer->insta_handle }}">
-      </div>
-
-      <div class="form-group">
-        <select name="whatsapp_number" class="form-control input-sm" id="whatsapp_change">
-          <option value>Whatsapp Number</option>
-
-          @foreach ($api_keys as $api_key)
-            <option value="{{ $api_key->number }}" {{ $customer->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
-          @endforeach
-        </select>
-
-        <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
-      </div>
-    @endif
-
-    <div class="row">
-      <div class="col-6">
-        <div class="form-group">
-          <select name="rating" class="form-control input-sm" id="customer_rating">
-            <option value>Select Rating</option>
-            <option value="1" {{ '1' == $customer->rating ? 'selected' : '' }}>1</option>
-            <option value="2" {{ '2' == $customer->rating ? 'selected' : '' }}>2</option>
-            <option value="3" {{ '3' == $customer->rating ? 'selected' : '' }}>3</option>
-            <option value="4" {{ '4' == $customer->rating ? 'selected' : '' }}>4</option>
-            <option value="5" {{ '5' == $customer->rating ? 'selected' : '' }}>5</option>
-            <option value="6" {{ '6' == $customer->rating ? 'selected' : '' }}>6</option>
-            <option value="7" {{ '7' == $customer->rating ? 'selected' : '' }}>7</option>
-            <option value="8" {{ '8' == $customer->rating ? 'selected' : '' }}>8</option>
-            <option value="9" {{ '9' == $customer->rating ? 'selected' : '' }}>9</option>
-            <option value="10" {{ '10' == $customer->rating ? 'selected' : '' }}>10</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="form-group">
-          <select class="form-control input-sm" name="shoe_size" id="customer_shoe_size">
-            <option value="">Select a Shoe Size</option>
-            <option value="34" {{ $customer->shoe_size == '34' }}>34</option>
-            <option value="34.5" {{ $customer->shoe_size == '34.5' }}>34.5</option>
-            <option value="35" {{ $customer->shoe_size == '35' }}>35</option>
-            <option value="35.5" {{ $customer->shoe_size == '35.5' }}>35.5</option>
-            <option value="36" {{ $customer->shoe_size == '36' }}>36</option>
-            <option value="36.5" {{ $customer->shoe_size == '36.5' }}>36.5</option>
-            <option value="37" {{ $customer->shoe_size == '37' }}>37</option>
-            <option value="37.5" {{ $customer->shoe_size == '37.5' }}>37.5</option>
-            <option value="38" {{ $customer->shoe_size == '38' }}>38</option>
-            <option value="38.5" {{ $customer->shoe_size == '38.5' }}>38.5</option>
-            <option value="39" {{ $customer->shoe_size == '39' }}>39</option>
-            <option value="39.5" {{ $customer->shoe_size == '39.5' }}>39.5</option>
-            <option value="40" {{ $customer->shoe_size == '40' }}>40</option>
-            <option value="40.5" {{ $customer->shoe_size == '40.5' }}>40.5</option>
-            <option value="41" {{ $customer->shoe_size == '41' }}>41</option>
-            <option value="41.5" {{ $customer->shoe_size == '41.5' }}>41.5</option>
-            <option value="42" {{ $customer->shoe_size == '42' }}>42</option>
-            <option value="42.5" {{ $customer->shoe_size == '42.5' }}>42.5</option>
-            <option value="43" {{ $customer->shoe_size == '43' }}>43</option>
-            <option value="43.5" {{ $customer->shoe_size == '43.5' }}>43.5</option>
-            <option value="44" {{ $customer->shoe_size == '44' }}>44</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="form-group">
-          <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control input-sm" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="form-group">
-          <select class="form-control input-sm" name="gender" id="customer_gender">
-            <option value="female" {{ 'female' == $customer->gender ? 'selected' : '' }}>Female</option>
-            <option value="male" {{ 'male' == $customer->gender ? 'selected' : '' }}>Male</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="form-group">
-          <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <button type="button" id="updateCustomerButton" class="btn btn-xs btn-secondary">Save</button>
-    </div>
-
-    @if ($customer->credit > 0)
-      <div class="form-group">
-        <strong>Credit:</strong> {{ $customer->credit }}
-      </div>
-
-      <div class="form-group">
-        <button type="button" class="btn btn-xs btn-secondary issue-credit-button" data-id="{{ $customer->id }}">Issue Credit</button>
-      </div>
-
-      @if ($customer->credits_issued)
-        <ul>
-          @foreach ($customer->credits_issued as $credit)
-            <li>Email sent on {{ \Carbon\Carbon::parse($credit->created_at)->format('H:i d-m') }}</li>
-          @endforeach
-        </ul>
-      @endif
-    @endif --}}
   </div>
-
-
 
   <div class="col-xs-12 col-md-4 mb-3">
     <div class="border">
@@ -533,17 +328,13 @@
 
 @include('task-module.partials.modal-reminder')
 
-{{-- @include('customers.partials.modal-reply') --}}
-
-{{-- @include('customers.partials.modal-forward') --}}
-
 @endsection
 
 @section('scripts')
-  {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script> --}}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
 
   <script type="text/javascript">
   jQuery(document).ready(function( $ ) {
@@ -1092,18 +883,29 @@
 
                  });
         }
+
+        const socket = io("https://sololuxury.co/?realtime_id=task_{{ $task->id }}", {
+          'secure': false
+        });
+
+        socket.on("new-message", function (message) {
+          console.log(message);
+          renderMessage(message, null);
+        });
+
              function scrollChatTop() {
                  // console.log("scrollChatTop called");
                  // var el = $(".chat-frame");
                  // el.scrollTop(el[0].scrollHeight - el[0].clientHeight);
              }
-        function startPolling() {
-          setTimeout( function() {
-                     pollMessages(null, null, addElapse).then(function() {
-                         startPolling();
-                     }, errorHandler);
-                 }, 1000);
-        }
+
+        // function startPolling() {
+        //   setTimeout( function() {
+        //              pollMessages(null, null, addElapse).then(function() {
+        //                  startPolling();
+        //              }, errorHandler);
+        //          }, 1000);
+        // }
         // function sendWAMessage() {
         //   var data = createMessageArgs();
         //          //var data = new FormData();
@@ -1130,7 +932,8 @@
         // sendBtn.click(function() {
         //   sendWAMessage();
         // } );
-        startPolling();
+        // startPolling();
+        pollMessages(null, null, addElapse);
 
          $(document).on('click', '.send-communication', function(e) {
            e.preventDefault();
