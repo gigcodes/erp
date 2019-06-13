@@ -16,29 +16,12 @@ class ProductsCreator
 {
     public function createProduct($image)
     {
-      $data['sku'] = (string) str_replace(' ', '', $image->sku);
-      $validator = Validator::make($data, [
-        'sku' => 'unique:products,sku'
-      ]);
-
-      if ($validator->fails()) {
-        $product = Product::where('sku', $data['sku'])->first();
-      } else {
-        $product = new Product;
-      }
-
-      if ($product === null) {
-          echo "SKIPPED ============================================== \n";
-          return;
-      }
-
-
       $properties_array = $image->properties;
 
       switch ($image->website) {
         case 'lidiashopping':
           $supplier = 'Lidia';
-          $formatted_details = $this->getLidiaDetails($properties_array);
+          $formatted_details = $this->getGeneralDetails($properties_array);
 
           break;
         case 'cuccuini':
@@ -68,12 +51,12 @@ class ProductsCreator
           break;
         case 'Divo':
           $supplier = 'Divo Boutique';
-          $formatted_details = $this->getDivoDetails($properties_array);
+          $formatted_details = $this->getGeneralDetails($properties_array);
 
           break;
         case 'Spinnaker':
           $supplier = 'Spinnaker 101';
-          $formatted_details = $this->getSpinnakerDetails($properties_array);
+          $formatted_details = $this->getGeneralDetails($properties_array);
 
           break;
         case 'alducadaosta':
@@ -91,11 +74,11 @@ class ProductsCreator
           $formatted_details = $this->getGeneralDetails($properties_array);
 
           break;
-        case 'carofigliojunior':
-          $supplier = "Carofiglio Junior";
-          $formatted_details = $this->getGeneralDetails($properties_array);
-
-          break;
+        // case 'carofigliojunior':
+        //   $supplier = "Carofiglio Junior";
+        //   $formatted_details = $this->getGeneralDetails($properties_array);
+        //
+        //   break;
         case 'italiani':
           $supplier = "Italiani";
           $formatted_details = $this->getGeneralDetails($properties_array);
@@ -205,6 +188,53 @@ class ProductsCreator
           return;
       }
 
+      $data['sku'] = (string) str_replace(' ', '', $image->sku);
+      $validator = Validator::make($data, [
+        'sku' => 'unique:products,sku'
+      ]);
+
+      $formatted_prices = $this->formatPrices($image);
+
+      if ($validator->fails()) {
+        echo "Product found \n";
+        $product = Product::where('sku', $data['sku'])->first();
+
+        if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
+          $product->suppliers()->syncWithoutDetaching([$db_supplier->id => ['stock' => 1, 'price' => $formatted_prices['price'], 'size' => $formatted_details['size']]]);
+        }
+
+        $dup_count = 0;
+        $supplier_prices = [];
+
+        foreach ($product->suppliers_info as $info) {
+          $supplier_prices[] = $info->price;
+        }
+
+        foreach (array_count_values($supplier_prices) as $price => $c) {
+          $dup_count++;
+        }
+
+        if ($dup_count > 1) {
+          dump('Price Change');
+          $product->is_price_different = 1;
+        } else {
+          dump('Price is the same');
+          $product->is_price_different = 0;
+        }
+
+        $product->stock += 1;
+        $product->save();
+
+        return;
+      } else {
+        $product = new Product;
+      }
+
+      if ($product === null) {
+          echo "SKIPPED ============================================== \n";
+          return;
+      }
+
        $product->sku = str_replace(' ', '', $image->sku);
        $product->brand = $image->brand_id;
        $product->supplier = $supplier;
@@ -227,39 +257,14 @@ class ProductsCreator
        $product->made_in = $formatted_details['made_in'];
        $product->category = $formatted_details['category'];
 
-       $brand = Brand::find($image->brand_id);
-
-       if (strpos($image->price, ',') !== false) {
-         if (strpos($image->price, '.') !== false) {
-           if (strpos($image->price, ',') < strpos($image->price, '.')) {
-             $final_price = str_replace(',', '', $image->price);;
-           } else {
-             $final_price = $image->price;
-           }
-         } else {
-           $final_price = str_replace(',', '.', $image->price);
-         }
-       } else {
-         $final_price = $image->price;
-       }
-
-       $price =  round(preg_replace('/[\&euro;€,]/', '', $final_price));
-       $product->price = $price;
-
-       if(!empty($brand->euro_to_inr))
-         $product->price_inr = $brand->euro_to_inr * $product->price;
-       else
-         $product->price_inr = Setting::get('euro_to_inr') * $product->price;
-
-       $product->price_inr = round($product->price_inr, -3);
-       $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
-
-       $product->price_special = round($product->price_special, -3);
+       $product->price = $formatted_prices['price'];
+       $product->price_inr = $formatted_prices['price_inr'];
+       $product->price_special = $formatted_prices['price_special'];
 
        $product->save();
 
        if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
-         $product->suppliers()->syncWithoutDetaching($db_supplier->id);
+         $product->suppliers()->syncWithoutDetaching([$db_supplier->id => ['stock' => 1, 'price' => $formatted_prices['price'], 'size' => $formatted_details['size']]]);
        }
 
        // $images = $image->images;
@@ -274,6 +279,54 @@ class ProductsCreator
        //   $product->attachMedia($media,config('constants.media_tags'));
        // }
 
+    }
+
+    public function formatPrices($image)
+    {
+      $brand = Brand::find($image->brand_id);
+
+      if (strpos($image->price, ',') !== false) {
+        if (strpos($image->price, '.') !== false) {
+          if (strpos($image->price, ',') < strpos($image->price, '.')) {
+            $final_price = str_replace(',', '', $image->price);
+          } else {
+             $final_price = str_replace(',', '|', $image->price);
+             $final_price = str_replace('.', ',', $final_price);
+             $final_price = str_replace('|', '.', $final_price);
+             $final_price = str_replace(',', '', $final_price);
+          }
+        } else {
+          $final_price = str_replace(',', '.', $image->price);
+        }
+      } else {
+        $final_price = $image->price;
+      }
+
+       if (strpos($final_price, '.') !== false) {
+         $exploded = explode('.', $final_price);
+         $replaced = trim(preg_replace('/[\&euro;€,eur]/i', '', $exploded[1]));
+
+         if (strlen($replaced) > 2) {
+           $final_price = implode('', $exploded);
+         }
+       }
+
+      $price =  round(preg_replace('/[\&euro;€,]/', '', $final_price));
+
+      if(!empty($brand->euro_to_inr))
+        $price_inr = $brand->euro_to_inr * $price;
+      else
+        $price_inr = Setting::get('euro_to_inr') * $price;
+
+      $price_inr = round($price_inr, -3);
+      $price_special = $price_inr - ($price_inr * $brand->deduction_percentage) / 100;
+      $price_special = round($price_special, -3);
+
+      return [
+        'price' => $price,
+        'price_inr' => $price_inr,
+        'price_special' => $price_special
+      ];
     }
 
     public function getDoubleDetails($properties_array)
@@ -779,23 +832,54 @@ class ProductsCreator
 
       if (array_key_exists('dimension', $properties_array)) {
         if (!is_array($properties_array['dimension'])) {
-          if (strpos($properties_array['dimension'], 'Width:') !== false) {
-            if (preg_match_all('/Width: ([\d]+)/', $properties_array['dimension'], $match)) {
+          if (strpos($properties_array['dimension'], 'Width') !== false || strpos($properties_array['dimension'], 'W') !== false) {
+            if (preg_match_all('/Width ([\d]+)/', $properties_array['dimension'], $match)) {
               $lmeasurement = (int) $match[1][0];
               $measurement_size_type = 'measurement';
             }
 
+            if (preg_match_all('/W ([\d]+)/', $properties_array['dimension'], $match)) {
+              $lmeasurement = (int) $match[1][0];
+              $measurement_size_type = 'measurement';
+            }
           }
 
-          if (strpos($properties_array['dimension'], 'Height:') !== false) {
-            if (preg_match_all('/Height: ([\d]+)/', $properties_array['dimension'], $match)) {
+          if (strpos($properties_array['dimension'], 'Height') !== false || strpos($properties_array['dimension'], 'H') !== false) {
+            if (preg_match_all('/Height ([\d]+)/', $properties_array['dimension'], $match)) {
+              $hmeasurement = (int) $match[1][0];
+            }
+
+            if (preg_match_all('/H ([\d]+)/', $properties_array['dimension'], $match)) {
               $hmeasurement = (int) $match[1][0];
             }
           }
 
-          if (strpos($properties_array['dimension'], 'Depth:') !== false) {
-            if (preg_match_all('/Depth: ([\d]+)/', $properties_array['dimension'], $match)) {
+          if (strpos($properties_array['dimension'], 'Depth') !== false || strpos($properties_array['dimension'], 'D') !== false) {
+            if (preg_match_all('/Depth ([\d]+)/', $properties_array['dimension'], $match)) {
               $dmeasurement = (int) $match[1][0];
+            }
+
+            if (preg_match_all('/D ([\d]+)/', $properties_array['dimension'], $match)) {
+              $dmeasurement = (int) $match[1][0];
+            }
+          }
+
+          if (strpos($properties_array['dimension'], 'x') !== false) {
+            $formatted = str_replace('cm', '', $properties_array['dimension']);
+            $formatted = str_replace(' ', '', $formatted);
+            $exploded = explode('x', $formatted);
+
+            if (array_key_exists('0', $exploded)) {
+              $lmeasurement = (int) $exploded[0];
+              $measurement_size_type = 'measurement';
+            }
+
+            if (array_key_exists('1', $exploded)) {
+              $hmeasurement = (int) $exploded[1];
+            }
+
+            if (array_key_exists('2', $exploded)) {
+              $dmeasurement = (int) $exploded[2];
             }
           }
         }
