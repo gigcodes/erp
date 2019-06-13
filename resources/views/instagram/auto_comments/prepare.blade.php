@@ -14,10 +14,25 @@
         </div>
 
         <div class="col-md-12 text-center">
-            @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-default mb-4" href="{{ action('AutoReplyHashtagsController@show', 'all') }}?country={{$countryText ?? ''}}">FIRST PAGE</a>
-{{--                <a class="btn btn-default mb-4" href="{{ action('AutoReplyHashtagsController@show', 'all') }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}&country={{$countryText ?? ''}}">NEXT</a>--}}
-            @endif
+            <form action="{{ action('AutoReplyHashtagsController@show', 'all') }}">
+                <input type="hidden" name="country" value="{{$countryText ?? ''}}">
+                @foreach($alltags as $tag)
+                    <input type="hidden" name="hashtags[]" value="{{$tag}}">
+                @endforeach
+                <button class="btn btn-default">First Page</button>
+            </form>
+            <form action="{{ action('AutoReplyHashtagsController@show', 'all') }}">
+                <input type="hidden" name="country" value="{{$countryText ?? ''}}">
+                @foreach($alltags as $tag)
+                    <input type="hidden" name="hashtags[]" value="{{$tag}}">
+                @endforeach
+                @if(is_array($maxIds) && count($maxIds) > 0)
+                    <button class="btn btn-default">Next Page</button>
+                    @foreach($maxIds as $key=>$maxId)
+                        <input type="hidden" name="maxId[{{$key}}]" value="{{$maxId}}">
+                    @endforeach
+                @endif
+            </form>
         </div>
 
         <form method="post" action="{{ action('AutoReplyHashtagsController@update', 'all') }}">
@@ -99,10 +114,25 @@
         </form>
 
         <div class="col-md-12 text-center">
-            @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-default mb-4" href="{{ action('AutoReplyHashtagsController@show', 'all') }}?country={{$countryText ?? ''}}">FIRST PAGE</a>
-{{--                <a class="btn btn-default mb-4" href="{{ action('AutoReplyHashtagsController@show', $hid) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}&country={{$countryText ?? ''}}">NEXT</a>--}}
-            @endif
+            <form action="{{ action('AutoReplyHashtagsController@show', 'all') }}">
+                <input type="hidden" name="country" value="{{$countryText ?? ''}}">
+                @foreach($alltags as $tag)
+                    <input type="hidden" name="hashtags[]" value="{{$tag}}">
+                @endforeach
+                <button class="btn btn-default">First Page</button>
+            </form>
+            <form action="{{ action('AutoReplyHashtagsController@show', 'all') }}">
+                <input type="hidden" name="country" value="{{$countryText ?? ''}}">
+                @foreach($alltags as $tag)
+                    <input type="hidden" name="hashtags[]" value="{{$tag}}">
+                @endforeach
+                @if(is_array($maxIds) && count($maxIds) > 0)
+                    <button class="btn btn-default">Next Page</button>
+                    @foreach($maxIds as $key=>$maxId)
+                        <input type="hidden" name="maxId[{{$key}}]" value="{{$maxId}}">
+                    @endforeach
+                @endif
+            </form>
         </div>
     </div>
 @endsection

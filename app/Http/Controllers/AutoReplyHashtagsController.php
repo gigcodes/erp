@@ -72,6 +72,8 @@ class AutoReplyHashtagsController extends Controller
         $alltags = $request->get('hashtags');
         $allMedias = [];
         $allCounts = [];
+        $maxIds = [];
+        $alltagsWithCount = [];
 
         foreach ($alltags as $tag) {
 
@@ -86,6 +88,7 @@ class AutoReplyHashtagsController extends Controller
 
             [$medias, $maxId] = $hashtags->getFeed($tag, $maxId[$tag] ?? '', $country, $keywords);
             $media_count = $hashtags->getMediaCount($tag);
+            $alltagsWithCount[] = $tag . "($media_count)";
             $allCounts[$tag] = $media_count;
             $maxIds[$tag] = $maxId;
             $allMedias = array_merge($allMedias, $medias);
@@ -95,9 +98,9 @@ class AutoReplyHashtagsController extends Controller
 
         $medias = $allMedias;
 
-        $hashtag = implode(',', $alltags);
+        $hashtag = implode(',', $alltagsWithCount);
 
-        return view('instagram.auto_comments.prepare', compact('medias', 'media_count', 'maxId', 'hashtag', 'countryText'));
+        return view('instagram.auto_comments.prepare', compact('medias', 'media_count', 'maxId', 'hashtag', 'countryText', 'maxIds', 'allCounts', 'alltags'));
 
     }
 

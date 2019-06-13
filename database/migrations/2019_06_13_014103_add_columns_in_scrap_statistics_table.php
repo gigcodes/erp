@@ -14,7 +14,7 @@ class AddColumnsInScrapStatisticsTable extends Migration
     public function up()
     {
         Schema::table('scrap_statistics', function (Blueprint $table) {
-            $table->integer('brand_id')->nullable();
+            $table->string('brand')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddColumnsInScrapStatisticsTable extends Migration
     public function down()
     {
         Schema::table('scrap_statistics', function (Blueprint $table) {
-            $table->dropColumn('brand_id');
+            $table->dropColumn('brand');
         });
     }
 }

@@ -9,23 +9,7 @@
             <form action="{{ action('ScrapStatisticsController@index') }}" method="get">
                 <div class="row">
                     <div class="col-md-2">
-                        <select class="form-control" name="supplier" id="supplier">
-                            <option value="">All</option>
-                            @foreach($suppliers as $s)
-                                <option value="{{$s->supplier}}">{{$s->supplier}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control" name="type" id="type">
-                            <option value="">All</option>
-                            @foreach($type as $t)
-                                <option value="{{$t->type}}">{{$t->type}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="date" class="form-control" value="{{$request->get('date') ?? date('Y-m-d')}}">
+                        <input name="date" type="date" class="form-control" value="{{$request->get('date') ?? date('Y-m-d')}}">
                     </div>
                     <div class="col-md-1">
                         <button class="btn btn-default">Filter</button>
@@ -34,23 +18,86 @@
             </form>
         </div>
         <div class="col-md-12">
-            <table class="table table-striped table-bordered">
-                <tr>
-                    <th>Supplier</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                    <th>Url</th>
-                </tr>
-                @foreach($statistics as $static)
-                    <tr>
-                        <th>{{ $static->supplier }}</th>
-                        <th>{{ $static->type }}</th>
-                        <th>{{ $static->description }}</th>
-                        <th>{{ $static->url }}</th>
-                    </tr>
-                @endforeach
-            </table>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#home">Scrap Counts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#menu1">Scrap Progress</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#menu2">Others</a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div id="home" class="container tab-pane active">
+                    <br>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-striped table-bordered table-sm">
+                                <tr>
+                                    <th colspan="2">
+                                        Scraped Existing Products
+                                    </th>
+                                </tr>
+                                @foreach($scrapedExistingProducts as $entry)
+                                    <tr>
+                                        <td>
+                                            {{ $entry->supplier }}
+                                        </td>
+                                        <th>
+                                            {{$entry->total}}
+                                        </th>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-striped table-bordered table-sm">
+                                <tr>
+                                    <th colspan="2">
+                                        Scraped New Products
+                                    </th>
+                                </tr>
+                                @foreach($scrapedNewProducts as $entry)
+                                    <tr>
+                                        <td>
+                                            {{ $entry->supplier }}
+                                        </td>
+                                        <th>
+                                            {{$entry->total}}
+                                        </th>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="menu1" class="container tab-pane fade">
+                    @foreach($progressStats as $key=>$stat)
+                        <h2 class="text-center">{{ $key }}</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                                <tr>
+                                    @foreach($stat as $st)
+                                        <td>
+                                            {{ $st->brand }}<br>
+                                            {{ $st->total }}
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            </table>
+                        </div>
+                    @endforeach
+                </div>
+                <div id="menu2" class="container tab-pane fade"><br>
+                    //Other items..
+                </div>
+            </div>
         </div>
+
     </div>
 @endsection
 

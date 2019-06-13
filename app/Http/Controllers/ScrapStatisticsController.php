@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\ScrapStatistics;
+use App\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ScrapStatisticsController extends Controller
 {
@@ -14,21 +16,36 @@ class ScrapStatisticsController extends Controller
      */
     public function index(Request $request)
     {
-        $statistics = new ScrapStatistics();
+        $date = $request->get('date');
 
-        if ($request->get('type') != '') {
-            $statistics = $statistics->where('type', $request->get('type'));
-        }
-        if ($request->get('supplier') != '') {
-            $statistics = $statistics->where('supplier', $request->get('supplier'));
-        }
+        $scrapedExistingProducts = DB::table('scrap_statistics')->selectRaw('COUNT(*) as total, supplier')->where('type', 'EXISTING_SCRAP_PRODUCT');
+        $scrapedNewProducts = DB::table('scrap_statistics')->selectRaw('COUNT(*) as total, supplier')->where('type', 'NEW_SCRAP_PRODUCT');
+
+
 
         $suppliers = ScrapStatistics::distinct()->get(['supplier']);
-        $type = ScrapStatistics::distinct()->get(['type']);
 
-        $statistics = $statistics->get();
 
-        return view('scrap.stats', compact('statistics', 'suppliers', 'type', 'request'));
+        if (strlen($date) === 10) {
+            $scrapedNewProducts = $scrapedNewProducts->whereRaw('DATE(created_at) = "'. $date.'"');
+            $scrapedExistingProducts = $scrapedExistingProducts->whereRaw('DATE(created_at) = "'. $date.'"');
+        }
+
+        $scrapedNewProducts = $scrapedNewProducts->groupBy(['supplier'])->get();
+        $scrapedExistingProducts = $scrapedExistingProducts->groupBy(['supplier'])->get();
+
+
+        $progressStats = [];
+
+        foreach ($suppliers as $supplier) {
+            $data = DB::table('scrap_statistics')->selectRaw('COUNT(*) as total, brand')->where('supplier', $supplier->supplier)->groupBy('brand');
+            if (strlen($date) === 10) {
+                $data = $data->whereRaw('DATE(created_at) = "'. $date . '"');
+            }
+            $progressStats[$supplier->supplier] = $data->get();
+        }
+
+        return view('scrap.stats', compact('scrapedExistingProducts', 'scrapedNewProducts', 'request', 'progressStats'));
     }
 
     /**
