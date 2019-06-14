@@ -20,7 +20,16 @@
                                 {{ $category->title }}
                             </td>
                             <td>
-                                <textarea name="category[{{ $category->id }}]" cols="30" rows="2" class="form-control">{{ $category->references }}</textarea>
+                                <select name="category[{{ $category->id }}][]" cols="30" rows="2" class="form-control" multiple>
+                                    @php $options = explode(',', $category->references) @endphp
+                                    @if(count($options)>0)
+                                        @foreach($options as $option)
+                                            @if(strlen($option) > 1)
+                                                <option selected value="{{$option}}">{{$option}}</option>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </select>
                             </td>
                         </tr>
                     @endforeach
@@ -33,4 +42,15 @@
             </form>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+
+    <script>
+        $("select").select2({
+            tags: true
+        });
+    </script>
 @endsection

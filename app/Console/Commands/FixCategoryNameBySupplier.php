@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Category;
 use App\Product;
 use App\ScrapedProducts;
+use App\Supplier;
 use Illuminate\Console\Command;
 use League\Csv\Reader;
 use League\Csv\Statement;

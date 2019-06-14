@@ -162,11 +162,12 @@ class CategoryController extends Controller
     }
 
     public function saveReferences(Request $request) {
+
 	    $categories = $request->get('category');
 
 	    foreach ($categories as $catId=>$reference) {
 	        $category = Category::find($catId);
-	        $category->references = $reference;
+	        $category->references = implode(',', $reference);
 	        $category->save();
         }
 
