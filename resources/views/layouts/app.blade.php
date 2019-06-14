@@ -1470,6 +1470,7 @@
                                 @can('category-edit')
 
                                     <a class="dropdown-item" href="{{route('category')}}">Category</a>
+                                    <a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category References</a>
 
                                 @endcan
 
