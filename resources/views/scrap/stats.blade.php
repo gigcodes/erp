@@ -93,7 +93,12 @@
                     @endforeach
                 </div>
                 <div id="menu2" class="container tab-pane fade"><br>
-                    //Other items..
+                    @foreach($progress as $key=>$progressItem)
+                        <p>{{$key}}</p>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{$progressItem[1]}}%" aria-valuenow="{{$progressItem[1]}}" aria-valuemin="0" aria-valuemax="100">{{ $progressItem[0] . ' of ' . $progressItem[2] }}</div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
