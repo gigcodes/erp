@@ -77,7 +77,12 @@
                 @endif
               </td>
               <td>
-                <img src="{{ $product['imageurl'] }}" class="img-responsive" width="50px">
+                @php
+                  $special_product = \App\Product::find($product['id']);
+                @endphp
+                @if ($special_product->hasMedia(config('constants.media_tags')))
+                  <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" width="50px">
+                @endif
               </td>
               {{-- <td>
                 @if (count($product['orderproducts']) > 0)

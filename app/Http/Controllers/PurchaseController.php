@@ -149,6 +149,43 @@ class PurchaseController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+      $purchase_data = [
+        '0' => 0,
+        '1' => 0,
+        '2' => 0,
+        '3' => 0,
+        '4' => 0,
+      ];
+      $purchase_products = Product::with('orderproducts')->whereHas('purchases')->get();
+
+      foreach ($purchase_products as $product) {
+        if (count($product->orderproducts) > 0) {
+          if ($product->orderproducts[0]->purchase_status != 'In Transit from Italy to Dubai' && $product->orderproducts[0]->purchase_status != 'Shipment Received in Dubai' && $product->orderproducts[0]->purchase_status != 'Shipment in Transit from Dubai to India' && $product->orderproducts[0]->purchase_status != 'Shipment Received in India') {
+            $purchase_data['0'] += 1;
+          }
+
+          if ($product->orderproducts[0]->purchase_status == 'In Transit from Italy to Dubai') {
+            $purchase_data['1'] += 1;
+          }
+
+          if ($product->orderproducts[0]->purchase_status == 'Shipment Received in Dubai') {
+            $purchase_data['2'] += 1;
+          }
+
+          if ($product->orderproducts[0]->purchase_status == 'Shipment in Transit from Dubai to India') {
+            $purchase_data['3'] += 1;
+          }
+
+          if ($product->orderproducts[0]->purchase_status == 'Shipment Received in India') {
+            $purchase_data['4'] += 1;
+          }
+        } else {
+          $purchase_data['0'] += 1;
+        }
+      }
+
+      // dd($purchase_data);
+
       $suppliers = Supplier::select(['id', 'supplier'])->get();
       $agents = Agent::where('model_type', 'App\Supplier')->get();
       $agents_array = [];
@@ -163,7 +200,7 @@ class PurchaseController extends Controller
   			return response()->json(['html' => $html]);
   		}
 
-  		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users', 'suppliers', 'agents_array' ) );
+  		return view( 'purchase.index', compact('purchases_array','term', 'orderby', 'users', 'suppliers', 'agents_array', 'purchase_data' ) );
     }
 
     public function purchaseGrid(Request $request, $page = null)

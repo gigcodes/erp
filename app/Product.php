@@ -59,6 +59,11 @@ class Product extends Model
 		return $this->belongsToMany('App\Supplier', 'product_suppliers', 'product_id', 'supplier_id');
 	}
 
+	public function suppliers_info()
+	{
+		return $this->hasMany('App\ProductSupplier');
+	}
+
 	public function suggestions()
   {
     return $this->belongsToMany('App\Suggestion', 'suggestion_products', 'product_id', 'suggestion_id');
