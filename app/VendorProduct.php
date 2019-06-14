@@ -10,7 +10,7 @@ class VendorProduct extends Model
   use Mediable;
 
   protected $fillable = [
-    'vendor_id', 'date_of_order', 'name', 'qty', 'price', 'payment_terms', 'delivery_date', 'received_by', 'approved_by', 'payment_details'
+    'vendor_id', 'date_of_order', 'name', 'qty', 'price', 'payment_terms', 'recurring_type', 'delivery_date', 'received_by', 'approved_by', 'payment_details'
   ];
 
   public function vendor()

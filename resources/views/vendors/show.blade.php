@@ -43,6 +43,8 @@
 
 @include('partials.flash_messages')
 
+@include('vendors.partials.product-modals')
+
 <div id="exTab2" class="container">
   <ul class="nav nav-tabs">
     <li class="active">
@@ -127,6 +129,18 @@
 
               <div class="form-group">
                 <input type="text" name="social_handle" id="vendor_social_handle" class="form-control input-sm" placeholder="Social Handle" value="{{ $vendor->social_handle }}">
+              </div>
+
+              <div class="form-group">
+                <input type="text" name="website" id="vendor_website" class="form-control input-sm" placeholder="Website" value="{{ $vendor->website }}">
+              </div>
+
+              <div class="form-group">
+                <input type="text" name="login" id="vendor_login" class="form-control input-sm" placeholder="Login" value="{{ $vendor->login }}">
+              </div>
+
+              <div class="form-group">
+                <input type="password" name="password" id="vendor_password" class="form-control input-sm" placeholder="Password" value="{{ $vendor->password }}">
               </div>
 
               {{-- <div class="form-group">
@@ -348,6 +362,142 @@
   </div>
 </div>
 
+<div class="row mt-3">
+  <div class="col">
+    <div class="pull-left">
+      <h4>Products</h4>
+    </div>
+
+    <div class="pull-right">
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productCreateModal">+</a>
+    </div>
+
+    <div class="table-responsive mt-3">
+      <table class="table table-bordered m-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date of Order</th>
+            <th>Name</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total Price</th>
+            <th>Payments Terms</th>
+            <th>Recurring Type</th>
+            <th>Delivery Date</th>
+            <th>Received By</th>
+            <th>Approved By</th>
+            <th>Payment Details</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @foreach ($vendor->products()->orderBy('created_at', 'DESC')->offset(0)->limit(3)->get() as $product)
+            <tr>
+              <td>{{ $product->id }}</td>
+              <td>{{ \Carbon\Carbon::parse($product->date_of_order)->format('d-m') }}</td>
+              <td>
+                @if ($product->hasMedia(config('constants.media_tags')))
+                  @foreach ($product->getMedia(config('constants.media_tags')) as $image)
+                    <img src="{{ $image->getUrl() }}" class="img-responsive m-1" width="50px" alt="">
+                  @endforeach
+
+                  <br>
+                @endif
+
+                {{ $product->name }}
+                <br>
+
+                {{-- <span class="text-muted">
+                  <strong>Vendor: </strong>{{ $product->vendor->name ?? 'No Vendor' }}
+                </span> --}}
+              </td>
+              <td>{{ $product->qty }}</td>
+              <td>{{ $product->price }}</td>
+              <td>{{ $product->qty * $product->price }}</td>
+              <td>{{ $product->payment_terms }}</td>
+              <td>{{ $product->recurring_type }}</td>
+              <td>{{ $product->delivery_date ? \Carbon\Carbon::parse($product->delivery_date)->format('d-m') : '' }}</td>
+              <td>{{ $product->received_by }}</td>
+              <td>{{ $product->approved_by }}</td>
+              <td>{{ $product->payment_details }}</td>
+              <td>
+                <button type="button" class="btn btn-image edit-product" data-toggle="modal" data-target="#productEditModal" data-product="{{ $product }}"><img src="/images/edit.png" /></button>
+
+                {!! Form::open(['method' => 'DELETE','route' => ['vendor.product.destroy', $product->id],'style'=>'display:inline']) !!}
+                  <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                {!! Form::close() !!}
+              </td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+
+    <div id="vendorAccordion">
+      <div class="card mb-5">
+        <div class="card-header" id="headingVendor">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#vendorAcc" aria-expanded="false" aria-controls="">
+              Rest of Products
+            </button>
+          </h5>
+        </div>
+
+        <div id="vendorAcc" class="collapse collapse-element" aria-labelledby="headingVendor" data-parent="#vendorAccordion">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <tbody>
+                  @foreach ($vendor->products()->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $product)
+                    <tr>
+                      <td>{{ $product->id }}</td>
+                      <td>{{ \Carbon\Carbon::parse($product->date_of_order)->format('d-m') }}</td>
+                      <td>
+                        @if ($product->hasMedia(config('constants.media_tags')))
+                          @foreach ($product->getMedia(config('constants.media_tags')) as $image)
+                            <img src="{{ $image->getUrl() }}" class="img-responsive m-1" width="50px" alt="">
+                          @endforeach
+
+                          <br>
+                        @endif
+
+                        {{ $product->name }}
+                        <br>
+
+                        {{-- <span class="text-muted">
+                          <strong>Vendor: </strong>{{ $product->vendor->name ?? 'No Vendor' }}
+                        </span> --}}
+                      </td>
+                      <td>{{ $product->qty }}</td>
+                      <td>{{ $product->price }}</td>
+                      <td>{{ $product->qty * $product->price }}</td>
+                      <td>{{ $product->payment_terms }}</td>
+                      <td>{{ $product->recurring_type }}</td>
+                      <td>{{ $product->delivery_date ? \Carbon\Carbon::parse($product->delivery_date)->format('d-m') : '' }}</td>
+                      <td>{{ $product->received_by }}</td>
+                      <td>{{ $product->approved_by }}</td>
+                      <td>{{ $product->payment_details }}</td>
+                      <td>
+                        <button type="button" class="btn btn-image edit-product" data-toggle="modal" data-target="#productEditModal" data-product="{{ $product }}"><img src="/images/edit.png" /></button>
+
+                        {!! Form::open(['method' => 'DELETE','route' => ['vendor.product.destroy', $product->id],'style'=>'display:inline']) !!}
+                          <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                        {!! Form::close() !!}
+                      </td>
+                    </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {{-- @include('suppliers.partials.modal-email') --}}
 
 @include('customers.partials.modal-reply')
@@ -361,7 +511,7 @@
 @endsection
 
 @section('scripts')
-  {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script> --}}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script> --}}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script> --}}
@@ -1164,6 +1314,9 @@
         var address = $('#vendor_address').val();
         var email = $('#vendor_email').val();
         var social_handle = $('#vendor_social_handle').val();
+        var website = $('#vendor_website').val();
+        var login = $('#vendor_login').val();
+        var password = $('#vendor_password').val();
         var gst = $('#vendor_gst').val();
 
         $.ajax({
@@ -1179,6 +1332,9 @@
             address: address,
             email: email,
             social_handle: social_handle,
+            website: website,
+            login: login,
+            password: password,
             gst: gst,
           },
           beforeSend: function() {
@@ -1284,6 +1440,28 @@
 
           console.log(response);
         });
+      });
+
+      $(document).on('click', '.edit-product', function() {
+        var product = $(this).data('product');
+        var url = "{{ url('vendor/product') }}/" + product.id;
+
+        $('#productEditModal form').attr('action', url);
+        $('#vendor_vendor_id').val(product.vendor_id);
+        $('#vendor_date_of_order').val(product.date_of_order);
+        $('#vendor_name').val(product.name);
+        $('#vendor_qty').val(product.qty);
+        $('#vendor_price').val(product.price);
+        $('#vendor_payment_terms').val(product.payment_terms);
+        $('#vendor_recurring_type option[value="' + product.recurring_type + '"]').prop('selected', true);
+        $('#vendor_delivery_date').val(product.delivery_date);
+        $('#vendor_received_by').val(product.received_by);
+        $('#vendor_approved_by').val(product.approved_by);
+        $('#vendor_payment_details').val(product.payment_details);
+      });
+
+      $('#date-of-order, #vendor-date-of-order, #delivery-date, #vendor-delivery-date').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm'
       });
   </script>
 @endsection

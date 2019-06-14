@@ -21,6 +21,11 @@ class VendorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __construct() {
+      $this->middleware('permission:vendor-all');
+    }
+
     public function index(Request $request)
     {
       // $vendors = Vendor::with('agents')->latest()->paginate(Setting::get('pagination'));
@@ -39,7 +44,7 @@ class VendorController extends Controller
                   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
-                  FROM (SELECT vendors.id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.gst,
+                  FROM (SELECT vendors.id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst,
                   chat_messages.message_id FROM vendors
 
                   LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
@@ -108,6 +113,9 @@ class VendorController extends Controller
         'phone'         => 'sometimes|nullable|numeric',
         'email'         => 'sometimes|nullable|email',
         'social_handle' => 'sometimes|nullable',
+        'website'       => 'sometimes|nullable',
+        'login'         => 'sometimes|nullable',
+        'password'      => 'sometimes|nullable',
         'gst'           => 'sometimes|nullable|max:255'
       ]);
 
@@ -128,6 +136,7 @@ class VendorController extends Controller
         'qty'             => 'sometimes|nullable|numeric',
         'price'           => 'sometimes|nullable|numeric',
         'payment_terms'   => 'sometimes|nullable|string',
+        'recurring_type'  => 'required|string',
         'delivery_date'   => 'sometimes|nullable|date',
         'received_by'     => 'sometimes|nullable|string',
         'approved_by'     => 'sometimes|nullable|string',
@@ -145,7 +154,7 @@ class VendorController extends Controller
         }
       }
 
-      return redirect()->route('vendor.product.index')->withSuccess('You have successfully saved a vendor product!');
+      return redirect()->back()->withSuccess('You have successfully saved a vendor product!');
     }
 
     /**
@@ -157,11 +166,13 @@ class VendorController extends Controller
     public function show($id)
     {
       $vendor = Vendor::find($id);
+      $vendor_show = true;
       $reply_categories = ReplyCategory::all();
       $users_array = Helpers::getUserArray(User::all());
 
       return view('vendors.show', [
         'vendor'  => $vendor,
+        'vendor_show'  => $vendor_show,
         'reply_categories'  => $reply_categories,
         'users_array'  => $users_array
       ]);
@@ -195,6 +206,9 @@ class VendorController extends Controller
         'whatsapp_number' => 'sometimes|nullable|numeric',
         'email'           => 'sometimes|nullable|email',
         'social_handle'   => 'sometimes|nullable',
+        'website'         => 'sometimes|nullable',
+        'login'           => 'sometimes|nullable',
+        'password'        => 'sometimes|nullable',
         'gst'             => 'sometimes|nullable|max:255'
       ]);
 
@@ -208,13 +222,14 @@ class VendorController extends Controller
     public function productUpdate(Request $request, $id)
     {
       $this->validate($request, [
-        'vendor_id'       => 'required|numeric',
+        'vendor_id'       => 'sometimes|nullable|numeric',
         'images.*'        => 'sometimes|nullable|image',
         'date_of_order'   => 'required|date',
         'name'            => 'required|string|max:255',
         'qty'             => 'sometimes|nullable|numeric',
         'price'           => 'sometimes|nullable|numeric',
         'payment_terms'   => 'sometimes|nullable|string',
+        'recurring_type'  => 'required|string',
         'delivery_date'   => 'sometimes|nullable|date',
         'received_by'     => 'sometimes|nullable|string',
         'approved_by'     => 'sometimes|nullable|string',
@@ -233,7 +248,7 @@ class VendorController extends Controller
         }
       }
 
-      return redirect()->route('vendor.product.index')->withSuccess('You have successfully updated a vendor product!');
+      return redirect()->back()->withSuccess('You have successfully updated a vendor product!');
     }
 
     /**
@@ -264,6 +279,6 @@ class VendorController extends Controller
       $product->detachMediaTags(config('constants.media_tags'));
       $product->delete();
 
-      return redirect()->route('vendor.product.index')->withSuccess('You have successfully deleted a vendor product!');
+      return redirect()->back()->withSuccess('You have successfully deleted a vendor product!');
     }
 }
