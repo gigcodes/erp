@@ -401,7 +401,7 @@ class CustomerController extends Controller
   									SELECT * FROM
                     (SELECT customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, customers.deleted_at,
                     order_id, order_status, order_created, purchase_status,
-                    (SELECT mm5.status FROM leads mm5 WHERE mm5.id = lead_id) AS lead_status,
+                    (SELECT mm5.status FROM leads mm5 WHERE mm5.id = lead_id) AS lead_status, lead_id,
                     (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
                     (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                     (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
@@ -489,7 +489,7 @@ class CustomerController extends Controller
   							');
 
 
-                // dd($customers_leads);
+                // dd($leads_data);
         $ids_list = [];
         // $leads_data = [0, 0, 0, 0, 0, 0, 0];
         foreach ($customers as $customer) {

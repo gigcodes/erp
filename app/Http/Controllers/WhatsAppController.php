@@ -972,7 +972,7 @@ class WhatsAppController extends FindByNumberController
         //     return FALSE;
         // }
         // $url = implode("/", array( \Config::get("app.url"), "uploads", $fileName));
-        $file_path = public_path() . '/uploads/' . '/one.jpg';
+        $file_path = public_path() . '/uploads' . '/one.jpg';
 
         file_put_contents($file_path, file_get_contents($formatted_url));
 

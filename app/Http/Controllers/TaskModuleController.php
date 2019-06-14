@@ -599,7 +599,8 @@ class TaskModuleController extends Controller {
 
 	public function update(Request $request, $id) {
 		$this->validate($request, [
-			'assign_to.*'	=> 'required_without:assign_to_contacts'
+			'assign_to.*'		=> 'required_without:assign_to_contacts',
+			'sending_time'	=> 'sometimes|nullable|date'
 		]);
 
 		$task = Task::find($id);
@@ -612,7 +613,6 @@ class TaskModuleController extends Controller {
 			}
 
 			$task->assign_to = $request->assign_to[0];
-			$task->save();
 		}
 
 		if ($request->assign_to_contacts) {
@@ -621,8 +621,13 @@ class TaskModuleController extends Controller {
 			}
 
 			$task->assign_to = $request->assign_to_contacts[0];
-			$task->save();
 		}
+
+		if ($request->sending_time) {
+			$task->sending_time = $request->sending_time;
+		}
+
+		$task->save();
 
 		return redirect()->route('task.show', $id)->withSuccess('You have successfully reassigned users!');
 	}

@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Vendor Product Info')
+
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
@@ -44,6 +46,7 @@
             <th>Price</th>
             <th>Total Price</th>
             <th>Payments Terms</th>
+            <th>Recurring Type</th>
             <th>Delivery Date</th>
             <th>Received By</th>
             <th>Approved By</th>
@@ -69,14 +72,15 @@
                 {{ $product->name }}
                 <br>
 
-                <span class="text-muted">
+                {{-- <span class="text-muted">
                   <strong>Vendor: </strong>{{ $product->vendor->name ?? 'No Vendor' }}
-                </span>
+                </span> --}}
               </td>
               <td>{{ $product->qty }}</td>
               <td>{{ $product->price }}</td>
               <td>{{ $product->qty * $product->price }}</td>
               <td>{{ $product->payment_terms }}</td>
+              <td>{{ $product->recurring_type }}</td>
               <td>{{ $product->delivery_date ? \Carbon\Carbon::parse($product->delivery_date)->format('d-m') : '' }}</td>
               <td>{{ $product->received_by }}</td>
               <td>{{ $product->approved_by }}</td>
@@ -114,6 +118,7 @@
       $('#vendor_qty').val(product.qty);
       $('#vendor_price').val(product.price);
       $('#vendor_payment_terms').val(product.payment_terms);
+      $('#vendor_recurring_type option[value="' + product.recurring_type + '"]').prop('selected', true);
       $('#vendor_delivery_date').val(product.delivery_date);
       $('#vendor_received_by').val(product.received_by);
       $('#vendor_approved_by').val(product.approved_by);

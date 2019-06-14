@@ -83,10 +83,24 @@
       </div>
     </div>
 
+    <form action="{{ route('task.update', $task->id) }}" method="POST">
+      @csrf
+      @method('PUT')
+
     @if ($task->is_statutory == 1)
       <div class="form-group">
         <strong>Recurring:</strong>
         {{ $task->recurring_type }}
+      </div>
+
+      <div class="form-group">
+        <div class='input-group date' id='sending-datetime'>
+          <input type='text' class="form-control input-sm" name="sending_time" value="{{ $task->sending_time }}" required />
+
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
       </div>
     @endif
 
@@ -177,9 +191,7 @@
       @endforeach
     </div>
 
-    <form action="{{ route('task.update', $task->id) }}" method="POST">
-      @csrf
-      @method('PUT')
+
 
       <div class="form-group">
         <strong>Assigned To (users):</strong>
@@ -366,7 +378,7 @@
     console.log(selected_product_images);
   });
 
-    $('#date, #report-completion-datetime, #reminder-datetime').datetimepicker({
+    $('#date, #report-completion-datetime, #reminder-datetime, #sending-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
 

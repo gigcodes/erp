@@ -22,7 +22,7 @@
             {{-- <div class="form-group ml-3">
               <select class="form-control" name="type">
                 <option value="">Select Type</option>
-                <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
+                ndr<option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
               </select>
             </div> --}}
 
@@ -41,12 +41,15 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Social handle</th>
-            <th>Communication</th>
-            <th>Action</th>
+            <th width="5%">ID</th>
+            <th width="10%">Name</th>
+            <th width="10%">Phone</th>
+            <th width="15%">Email</th>
+            <th width="10%">Address</th>
+            <th width="10%">Social handle</th>
+            <th width="10%">Website</th>
+            <th width="20%">Communication</th>
+            <th width="10%">Action</th>
           </tr>
         </thead>
 
@@ -54,29 +57,13 @@
           @foreach ($vendors as $vendor)
             <tr>
               <td>{{ $vendor->id }}</td>
-              <td>
-                {{ $vendor->name }}
-
-                {{-- @if ($supplier->is_flagged == 1)
-                  <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
-                @else
-                  <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
-                @endif --}}
-
-                <br>
-                <span class="text-muted">
-                  {{ $vendor->phone }}
-                  <br>
-                  {{ $vendor->email }}
-                  {{-- <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a> --}}
-                  {{-- @if ($supplier->has_error == 1)
-                    <span class="text-danger">!!!</span>
-                  @endif --}}
-                </span>
-              </td>
-              <td>{{ $vendor->address }}</td>
+              <td>{{ $vendor->name }}</td>
+              <td>{{ $vendor->phone }}</td>
+              <td style="word-break: break-all;">{{ $vendor->email }}</td>
+              <td style="word-break: break-all;">{{ $vendor->address }}</td>
 
               <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
+              <td style="word-break: break-all;">{{ $vendor->website }}</td>
               {{-- <td>
                 @if ($supplier->agents)
                   <ul>
@@ -96,8 +83,14 @@
               {{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
                 {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
               </td> --}}
-              <td class="{{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
+              <td class="expand-row table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
+                <span class="td-mini-container">
+                  {{ strlen($vendor->message) > 32 ? substr($vendor->message, 0, 29) . '...' : $vendor->message }}
+                </span>
+
+                <span class="td-full-container hidden">
                   {{ $vendor->message }}
+                </span>
 
                   {{-- @if ($supplier->message != '')
                     <br>
@@ -146,6 +139,9 @@
       $('#vendor_phone').val(vendor.phone);
       $('#vendor_email').val(vendor.email);
       $('#vendor_social_handle').val(vendor.social_handle);
+      $('#vendor_website').val(vendor.website);
+      $('#vendor_login').val(vendor.login);
+      $('#vendor_password').val(vendor.password);
       $('#vendor_gst').val(vendor.gst);
     });
 
@@ -219,6 +215,14 @@
 
         alert('Could not fetch remarks');
       });
+    });
+
+    $(document).on('click', '.expand-row', function() {
+      var selection = window.getSelection();
+      if (selection.toString().length === 0) {
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+      }
     });
   </script>
 @endsection

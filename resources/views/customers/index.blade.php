@@ -160,8 +160,6 @@
                         }
                       @endphp
 
-                      <span class="user-status" style="background-color: {{ $customer_color }};"></span>
-
                       <form class="d-inline" action="{{ route('customer.post.show', $customer->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
@@ -187,6 +185,28 @@
                         <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
                       @else
                         <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
+                      @endif
+
+                      @php
+                        $first_color = $customer_color == 'rgba(163,103,126,1)' ? 1 : '0.2';
+                        $second_color = $customer_color == 'rgba(63,203,226,1)' ? 1 : '0.2';
+                        $third_color = $customer_color == 'rgba(63,103,126,1)' ? 1 : '0.2';
+                        $fourth_color = $customer_color == 'rgba(94, 80, 226, 1)' ? 1 : '0.2';
+                        $fifth_color = $customer_color == 'rgba(58, 223, 140, 1)' ? 1 : '0.2';
+                        $sixth_color = $customer_color == 'rgba(187, 221, 49, 1)' ? 1 : '0.2';
+                        $seventh_color = $customer_color == 'rgba(207, 207, 211, 1)' ? 1 : '0.2';
+                      @endphp
+
+                      @if ($customer->lead_id != '')
+                        <div class="">
+                          <span class="user-status" style="opacity: {{ $seventh_color }}; background-color: rgba(207, 207, 211, 1);"></span>
+                          <span class="user-status change-lead-status" data-id="1" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $first_color }}; cursor:pointer; background-color: rgba(163,103,126,1);"></span>
+                          <span class="user-status change-lead-status" data-id="2" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $second_color }}; cursor:pointer; background-color: rgba(63,203,226,1);"></span>
+                          <span class="user-status change-lead-status" data-id="3" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $third_color }}; cursor:pointer; background-color: rgba(63,103,126,1);"></span>
+                          <span class="user-status change-lead-status" data-id="4" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $fourth_color }}; cursor:pointer; background-color: rgba(94, 80, 226, 1);"></span>
+                          <span class="user-status change-lead-status" data-id="5" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $fifth_color }}; cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
+                          <span class="user-status change-lead-status" data-id="6" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $sixth_color }}; cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
+                        </div>
                       @endif
                     </td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
@@ -1274,6 +1294,31 @@
                 }
             },
           }
+      });
+
+      $(document).on('click', '.change-lead-status', function() {
+        var id = $(this).data('id');
+        var lead_id = $(this).data('leadid');
+        var thiss = $(this);
+
+        $.ajax({
+          type: "POST",
+          url: "{{ url('leads') }}/" + lead_id + "/changestatus",
+          data: {
+            _token: "{{ csrf_token() }}",
+            status: id
+          }
+        }).done(function() {
+          $(thiss).parent('div').children().each(function (index) {
+            console.log(index);
+            $(this).css({'opacity' : '0.2'});
+          });
+
+          $(thiss).css({'opacity' : '1'});
+        }).fail(function(response) {
+          console.log(response);
+          alert('Could not change lead status');
+        });
       });
   </script>
 @endsection

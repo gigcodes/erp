@@ -11,20 +11,24 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <strong>Vendor:</strong>
-            <select class="form-control" name="vendor_id" required>
-              <option value="">Select a Vendor</option>
+          @if (!isset($vendor_show))
+            <div class="form-group">
+              <strong>Vendor:</strong>
+              <select class="form-control" name="vendor_id" required>
+                <option value="">Select a Vendor</option>
 
-              @foreach ($vendors as $vendor)
-                <option value="{{ $vendor->id }}" {{ old('vendor_id') == $vendor->id ? 'selected' : '' }}>{{ $vendor->name }}</option>
-              @endforeach
-            </select>
+                @foreach ($vendors as $vendor)
+                  <option value="{{ $vendor->id }}" {{ old('vendor_id') == $vendor->id ? 'selected' : '' }}>{{ $vendor->name }}</option>
+                @endforeach
+              </select>
 
-            @if ($errors->has('vendor_id'))
-              <div class="alert alert-danger">{{$errors->first('vendor_id')}}</div>
-            @endif
-          </div>
+              @if ($errors->has('vendor_id'))
+                <div class="alert alert-danger">{{$errors->first('vendor_id')}}</div>
+              @endif
+            </div>
+          @else
+            <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
+          @endif
 
           <div class="form-group">
             <strong>Images:</strong>
@@ -61,7 +65,7 @@
 
           <div class="form-group">
             <strong>Quantity:</strong>
-            <input type="number" name="qty" class="form-control" min="0" value="{{ old('qty') ?? '0' }}">
+            <input type="number" name="qty" class="form-control" min="1" value="{{ old('qty') ?? '1' }}">
 
             @if ($errors->has('qty'))
               <div class="alert alert-danger">{{$errors->first('qty')}}</div>
@@ -83,6 +87,21 @@
 
             @if ($errors->has('payment_terms'))
               <div class="alert alert-danger">{{$errors->first('payment_terms')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Recurring Type:</strong>
+            <select class="form-control" name="recurring_type" required>
+              <option value="OneTime" {{ "OneTime" == old('recurring_type') ? 'selected' : '' }}>One Time</option>
+              <option value="EveryDay" {{ "EveryDay" == old('recurring_type') ? 'selected' : '' }}>Every Day</option>
+              <option value="EveryWeek" {{ "EveryWeek" == old('recurring_type') ? 'selected' : '' }}>Every Week</option>
+              <option value="EveryMonth" {{ "EveryMonth" == old('recurring_type') ? 'selected' : '' }}>Every Month</option>
+              <option value="EveryYear" {{ "EveryYear" == old('recurring_type') ? 'selected' : '' }}>Every Year</option>
+            </select>
+
+            @if ($errors->has('recurring_type'))
+              <div class="alert alert-danger">{{$errors->first('recurring_type')}}</div>
             @endif
           </div>
 
@@ -152,20 +171,22 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <strong>Vendor:</strong>
-            <select class="form-control" name="vendor_id" id="vendor_vendor_id" required>
-              <option value="">Select a Vendor</option>
+          @if (!isset($vendor_show))
+            <div class="form-group">
+              <strong>Vendor:</strong>
+              <select class="form-control" name="vendor_id" id="vendor_vendor_id" required>
+                <option value="">Select a Vendor</option>
 
-              @foreach ($vendors as $vendor)
-                <option value="{{ $vendor->id }}" {{ old('vendor_id') == $vendor->id ? 'selected' : '' }}>{{ $vendor->name }}</option>
-              @endforeach
-            </select>
+                @foreach ($vendors as $vendor)
+                  <option value="{{ $vendor->id }}" {{ old('vendor_id') == $vendor->id ? 'selected' : '' }}>{{ $vendor->name }}</option>
+                @endforeach
+              </select>
 
-            @if ($errors->has('vendor_id'))
-              <div class="alert alert-danger">{{$errors->first('vendor_id')}}</div>
-            @endif
-          </div>
+              @if ($errors->has('vendor_id'))
+                <div class="alert alert-danger">{{$errors->first('vendor_id')}}</div>
+              @endif
+            </div>
+          @endif
 
           <div class="form-group">
             <strong>More Images:</strong>
@@ -202,7 +223,7 @@
 
           <div class="form-group">
             <strong>Quantity:</strong>
-            <input type="number" name="qty" class="form-control" min="0" id="vendor_qty" value="{{ old('qty') ?? '0' }}">
+            <input type="number" name="qty" class="form-control" min="1" id="vendor_qty" value="{{ old('qty') ?? '1' }}">
 
             @if ($errors->has('qty'))
               <div class="alert alert-danger">{{$errors->first('qty')}}</div>
@@ -224,6 +245,21 @@
 
             @if ($errors->has('payment_terms'))
               <div class="alert alert-danger">{{$errors->first('payment_terms')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Recurring Type:</strong>
+            <select class="form-control" name="recurring_type" id="vendor_recurring_type" required>
+              <option value="OneTime" {{ "OneTime" == old('recurring_type') ? 'selected' : '' }}>One Time</option>
+              <option value="EveryDay" {{ "EveryDay" == old('recurring_type') ? 'selected' : '' }}>Every Day</option>
+              <option value="EveryWeek" {{ "EveryWeek" == old('recurring_type') ? 'selected' : '' }}>Every Week</option>
+              <option value="EveryMonth" {{ "EveryMonth" == old('recurring_type') ? 'selected' : '' }}>Every Month</option>
+              <option value="EveryYear" {{ "EveryYear" == old('recurring_type') ? 'selected' : '' }}>Every Year</option>
+            </select>
+
+            @if ($errors->has('recurring_type'))
+              <div class="alert alert-danger">{{$errors->first('recurring_type')}}</div>
             @endif
           </div>
 
