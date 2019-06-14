@@ -20,6 +20,7 @@ class Task extends Model {
 		'assign_to',
 		'is_statutory',
 		'is_completed',
+		'sending_time',
 		'recurring_type',
 		'statutory_id',
 		'model_type',

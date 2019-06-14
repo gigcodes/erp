@@ -47,7 +47,9 @@ class SendRecurringTasks extends Command
         'start_time'  => Carbon::now()
       ]);
 
+      $now = Carbon::now();
       $today_date = Carbon::now()->format('Y-m-d');
+      $today_time = Carbon::now()->format('H:i');
       $today_weekday = strtoupper(Carbon::now()->format('l'));
       $today_day = Carbon::now()->format('d');
       $today_month = Carbon::now()->format('m');
@@ -62,28 +64,27 @@ class SendRecurringTasks extends Command
       ];
 
       foreach ($tasks as $task) {
-        $sending_date = Carbon::parse($task->created_at)->format('Y-m-d');
-        $sending_weekday = strtoupper(Carbon::parse($task->created_at)->format('l'));
-        $sending_day = Carbon::parse($task->created_at)->format('d');
-        $sending_month = Carbon::parse($task->created_at)->format('m');
+        $selected_time = $task->sending_time ?? $task->created_at;
+        $sending_date = Carbon::parse($selected_time)->format('Y-m-d');
+        $sending_time = Carbon::create($now->year, $now->month, $now->day, Carbon::parse($selected_time)->format('H'), Carbon::parse($selected_time)->format('i'), 0);
+        // $sending_time = Carbon::parse($selected_time);
+        $sending_weekday = strtoupper(Carbon::parse($selected_time)->format('l'));
+        $sending_day = Carbon::parse($selected_time)->format('d');
+        $sending_month = Carbon::parse($selected_time)->format('m');
 
         $params['message'] = $task->task_subject . ". " . $task->task_details;
         $params['task_id'] = $task->id;
         $params['user_id'] = $task->assign_from;
 
-        // if (count($task->users) > 0) {
-        //   $params['erp_user'] = $task->assign_to;
-        // }
-        //
-        // if (count($task->contacts) > 0) {
-        //   $params['contact_id'] = $task->assign_to;
-        // }
+        dump($today_time);
+        dump($sending_time->format('H:i'));
+        dump($sending_time->diffInMinutes($now));
 
         $can_send_message = false;
 
         switch ($task->recurring_type) {
           case "EveryDay":
-            if ($today_date >= $sending_date) {
+            if ($today_date >= $sending_date && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
               dump('Send Recurring Task Daily');
 
               $can_send_message = true;
@@ -91,7 +92,7 @@ class SendRecurringTasks extends Command
 
             break;
           case "EveryWeek":
-            if ($today_date >= $sending_date && $today_weekday == $sending_weekday) {
+            if ($today_date >= $sending_date && $today_weekday == $sending_weekday && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
               dump('Send Recurring Task Weekly');
 
               $can_send_message = true;
@@ -99,7 +100,7 @@ class SendRecurringTasks extends Command
 
             break;
           case "EveryMonth":
-            if ($today_day == $sending_day) {
+            if ($today_day == $sending_day && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
               dump('Send Recurring Task Monthly');
 
               $can_send_message = true;
@@ -107,7 +108,7 @@ class SendRecurringTasks extends Command
 
             break;
           case "EveryYear":
-            if ($today_day == $sending_day && $today_month == $sending_month) {
+            if ($today_day == $sending_day && $today_month == $sending_month && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
               dump('Send Recurring Task Yearly');
 
               $can_send_message = true;
@@ -120,6 +121,7 @@ class SendRecurringTasks extends Command
         }
 
         if ($can_send_message) {
+          dump("Sending a message");
           if (count($task->users) > 0) {
    				 foreach ($task->users as $key => $user) {
    					 if ($key == 0) {
@@ -147,7 +149,9 @@ class SendRecurringTasks extends Command
          $myRequest->request->add(['messageId' => $chat_message->id]);
 
          app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
-        }
+       } else {
+         dump('No message to send');
+       }
       }
 
       $report->update(['end_time' => Carbon:: now()]);

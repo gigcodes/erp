@@ -16,6 +16,7 @@ use App\Console\Commands\AutoReminder;
 use App\Console\Commands\AutoMessenger;
 use App\Console\Commands\FetchEmails;
 use App\Console\Commands\CheckEmailsErrors;
+use App\Console\Commands\SaveProductsImages;
 use App\Console\Commands\MessageScheduler;
 use App\Console\Commands\SendRecurringTasks;
 use App\Console\Commands\CheckMessagesErrors;
@@ -91,6 +92,7 @@ class Kernel extends ConsoleKernel
         DoubleFProductDetailScraper::class,
         DoubleFScraper::class,
         SendHourlyReports::class,
+        SaveProductsImages::class,
         RunMessageQueue::class,
         MonitorCronJobs::class,
         SendVoucherReminder::class,
@@ -115,7 +117,7 @@ class Kernel extends ConsoleKernel
         ]);
 
         $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
-        $tasks = Task::where('is_statutory', 0 )->whereNotNull('is_completed')->get();
+        $tasks = Task::where('is_statutory', 0 )->whereNotNull('is_verified')->get();
 
         if ($benchmark['for_date'] != date('Y-m-d')) {
           $benchmark['for_date'] = date('Y-m-d');
@@ -157,6 +159,8 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
         // $schedule->exec('/usr/local/php72/bin/php-cli artisan queue:work --once --timeout=120')->everyMinute()->withoutOverlapping(3);
 
+        // $schedule->command('save:products-images')->hourly();
+
         // Voucher Reminders
         // $schedule->command('send:voucher-reminder')->daily();
 
@@ -176,7 +180,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
         $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
         $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:recurring-tasks')->dailyAt('07:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:recurring-tasks')->everyFifteenMinutes()->timezone('Asia/Kolkata');
 
         // Fetches Emails
         $schedule->command('fetch:emails')->everyFifteenMinutes();

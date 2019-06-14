@@ -146,6 +146,20 @@
                               <option value="EveryYear">EveryYear</option>
                           </select>
                         </div>
+
+                        <div class="form-group">
+                          <div class='input-group date' id='sending-datetime'>
+                            <input type='text' class="form-control input-sm" name="sending_time" value="{{ date('Y-m-d H:i') }}" required />
+
+                            <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                          </div>
+
+                          @if ($errors->has('sending_time'))
+                            <div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
+                          @endif
+                        </div>
                       </div>
 
                       <div id="calendar-task" style="display: none;">
@@ -1089,7 +1103,7 @@
         });
       }
 
-      $('#completion-datetime, #reminder-datetime').datetimepicker({
+      $('#completion-datetime, #reminder-datetime, #sending-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
       });
 
