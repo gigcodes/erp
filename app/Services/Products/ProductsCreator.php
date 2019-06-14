@@ -200,14 +200,25 @@ class ProductsCreator
         $product = Product::where('sku', $data['sku'])->first();
 
         if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
-          $product->suppliers()->syncWithoutDetaching([$db_supplier->id => ['stock' => 1, 'price' => $formatted_prices['price'], 'size' => $formatted_details['size']]]);
+          $product->suppliers()->syncWithoutDetaching([$db_supplier->id => [
+            'title'         => $image->title,
+            'description'   => $image->description,
+            'supplier_link' => $image->url,
+            'stock'         => 1,
+            'price'         => $formatted_prices['price'],
+            'size'          => $formatted_details['size'],
+            'color'         => $formatted_details['color'],
+            'composition'   => $formatted_details['composition'],
+            ]]);
         }
 
         $dup_count = 0;
         $supplier_prices = [];
 
         foreach ($product->suppliers_info as $info) {
-          $supplier_prices[] = $info->price;
+            if ($info->price != '') {
+                $supplier_prices[] = $info->price;
+            }
         }
 
         foreach (array_count_values($supplier_prices) as $price => $c) {
@@ -264,7 +275,16 @@ class ProductsCreator
        $product->save();
 
        if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
-         $product->suppliers()->syncWithoutDetaching([$db_supplier->id => ['stock' => 1, 'price' => $formatted_prices['price'], 'size' => $formatted_details['size']]]);
+         $product->suppliers()->syncWithoutDetaching([$db_supplier->id => [
+           'title'         => $image->title,
+           'description'   => $image->description,
+           'supplier_link' => $image->url,
+           'stock'         => 1,
+           'price'         => $formatted_prices['price'],
+           'size'          => $formatted_details['size'],
+           'color'         => $formatted_details['color'],
+           'composition'   => $formatted_details['composition'],
+           ]]);
        }
 
        // $images = $image->images;
