@@ -155,4 +155,22 @@ class CategoryController extends Controller
 		return $category ? $category->id : 0;
 	}
 
+	public function mapCategory() {
+	    $categories = Category::where('id', '>', 1)->get();
+
+	    return view('category.references', compact('categories'));
+    }
+
+    public function saveReferences(Request $request) {
+	    $categories = $request->get('category');
+
+	    foreach ($categories as $catId=>$reference) {
+	        $category = Category::find($catId);
+	        $category->references = $reference;
+	        $category->save();
+        }
+
+	    return redirect()->back()->with('message', 'Category updated successfully!');
+    }
+
 }

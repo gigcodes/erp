@@ -31,6 +31,10 @@
 
             <div class="row">
                 <div class="col-md-6">
+                    <h3>
+                        <img style="width: 15px;" src="{{ asset('images/edit.png') }}" alt="">
+                        <a href="{{ action('CategoryController@mapCategory') }}">Edit References</a>
+                    </h3>
                     <h3>Category List</h3>
                     <ul id="tree1">
                         @foreach($categories as $category)

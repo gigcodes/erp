@@ -93,6 +93,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
 	Route::resource('settings','SettingController');
+	Route::get('category/references', 'CategoryController@mapCategory');
+	Route::post('category/references', 'CategoryController@saveReferences');
 	Route::resource('category','CategoryController');
 	Route::resource('categorymap','CategoryMapController');
 	Route::resource('benchmark','BenchmarkController');

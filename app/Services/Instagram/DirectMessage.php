@@ -13,9 +13,10 @@ class DirectMessage {
     private $instagram;
     private $currentId;
 
-    public function __construct(Instagram $instagram)
+    public function __construct()
+//    public function __construct(Instagram $instagram)
     {
-        $this->instagram = $instagram;
+//        $this->instagram = $instagram;
         $username = env('IG_USERNAME');
         $password = env('IG_PASSWORD');
         $verification_method = 0;
