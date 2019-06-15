@@ -506,7 +506,7 @@
                                             @endif
                                           @endif
 
-                                          @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
+                                          @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
                                             <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
                                           @endif
 
@@ -2073,16 +2073,22 @@
           // }
         });
 
-        $('#taskCreateButton').on('click', function() {
+        $('#taskCreateButton').on('click', function(e) {
+          e.preventDefault();
+          
           var users = $('#multi_users').val();
           var contacts = $('#multi_contacts').val();
 
           console.log(users, contacts);
 
-          if (users == '' && contacts == '') {
-            alert('Please select atleast one user or contact');
+          if ($('#taskCreateForm')[0].checkValidity()) {
+            if (users == '' && contacts == '') {
+              alert('Please select atleast one user or contact');
+            } else {
+              $('#taskCreateForm').submit();
+            }
           } else {
-            $('#taskCreateForm').submit();
+            $('#taskCreateForm')[0].reportValidity();
           }
         });
   </script>
