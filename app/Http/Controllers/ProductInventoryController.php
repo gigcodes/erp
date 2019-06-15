@@ -29,8 +29,10 @@ class ProductInventoryController extends Controller
 											->where('stock', '>=', 1)
 		                   ->where('stage','>=',$stage->get('Approver') )
 		                   ->whereNull('dnf')
-											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
-		                   ->paginate(Setting::get('pagination'));
+											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+
+$products_count = $products->count();
+		                   $products = $products->paginate(Setting::get('pagination'));
 
 		$roletype = 'Inventory';
 
@@ -38,7 +40,7 @@ class ProductInventoryController extends Controller
 		                                        ->selected(1)
 		                                        ->renderAsDropdown();
 
-		return view('partials.grid',compact('products','roletype', 'category_selection'))
+		return view('partials.grid',compact('products', 'products_count', 'roletype', 'category_selection'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 
 	}
