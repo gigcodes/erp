@@ -64,6 +64,11 @@ class Product extends Model
 		return $this->hasMany('App\ProductSupplier');
 	}
 
+	public function private_views()
+  {
+    return $this->belongsToMany('App\PrivateView', 'private_view_products', 'product_id', 'private_view_id');
+  }
+
 	public function suggestions()
   {
     return $this->belongsToMany('App\Suggestion', 'suggestion_products', 'product_id', 'suggestion_id');
@@ -113,6 +118,6 @@ class Product extends Model
 
 	public function user()
 	{
-		return $this->hasOne('App\User', 'user_products', 'product_id', 'user_id');
+		return $this->belongsToMany('App\User', 'user_products', 'product_id', 'user_id');
 	}
 }
