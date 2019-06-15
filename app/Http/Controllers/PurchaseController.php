@@ -1193,8 +1193,9 @@ class PurchaseController extends Controller
 
       // dd(Carbon::parse($latest_email_date)->format('d M y 11:i:50'));
 
-      if ($supplier->agents()->count() > 1) {
+      if ($supplier->agents()->count() > 0) {
         if ($supplier->agents()->count() > 1) {
+
           foreach ($supplier->agents as $key => $agent) {
             if ($key == 0) {
               $emails = $inbox->messages()->where($direction, $agent->email)->where([
