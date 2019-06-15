@@ -18,6 +18,7 @@ use App\Console\Commands\FetchEmails;
 use App\Console\Commands\CheckEmailsErrors;
 use App\Console\Commands\SaveProductsImages;
 use App\Console\Commands\MessageScheduler;
+use App\Console\Commands\SendPendingTasksReminders;
 use App\Console\Commands\SendRecurringTasks;
 use App\Console\Commands\CheckMessagesErrors;
 use App\Console\Commands\SendBroadcastMessageToColdLeads;
@@ -77,6 +78,7 @@ class Kernel extends ConsoleKernel
         CheckMessagesErrors::class,
         SendProductSuggestion::class,
         SendActivitiesListing::class,
+        SendPendingTasksReminders::class,
         MakeApprovedImagesSchedule::class,
         UpdateSkuInGnb::class,
         CreateScrapedProducts::class,
@@ -181,6 +183,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
         $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
         $schedule->command('send:recurring-tasks')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        $schedule->command('send:pending-tasks-reminders')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
         // Fetches Emails
         $schedule->command('fetch:emails')->everyFifteenMinutes();
