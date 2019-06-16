@@ -15,16 +15,16 @@
             </div>
             <div class="row">
                 @foreach($products as $product)
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-2">
                         <div class="card">
-                            <img class="card-img-top" src="..." alt="Card image cap">
+                            <img class="card-img-top" src="{{ $product->imageurl }}" alt="Card image cap">
                             <div class="card-body">
                                 <h5 class="card-title">{{ $product->title }}</h5>
                                 <p class="card-text">
                                     {{ $product->sku }}<br>
                                     {{ $product->supplier }}
                                 </p>
-                                <a href="#" class="btn btn-primary">Check Cropping</a>
+                                <a href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-primary">Check Cropping</a>
                             </div>
                         </div>
                     </div>
