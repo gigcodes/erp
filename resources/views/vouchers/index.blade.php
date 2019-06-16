@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Convenience Vouchers')
+
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -17,11 +19,11 @@
         </div>
     </div>
 
-    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-      <div class="row mb-3">
-        <div class="col-sm-12">
-          <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
-            <div class="row full-width" style="width: 100%;">
+    <div class="row mb-3">
+      <div class="col-sm-12">
+        <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
+          <div class="row full-width" style="width: 100%;">
+            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="col-md-4 col-sm-12">
                 <div class="form-group mr-3">
                   <select class="form-control select-multiple" name="user[]" multiple>
@@ -31,71 +33,80 @@
                   </select>
                 </div>
               </div>
+            @endif
 
-              <div class="col-sm-12 col-md-4">
-                <div class="form-group mr-3">
-                  <input type="text" value="" name="range_start" hidden/>
-                  <input type="text" value="" name="range_end" hidden/>
-                  <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                    <i class="fa fa-calendar"></i>&nbsp;
-                    <span></span> <i class="fa fa-caret-down"></i>
-                  </div>
+            <div class="col-sm-12 col-md-4">
+              <div class="form-group mr-3">
+                <input type="text" value="" name="range_start" hidden/>
+                <input type="text" value="" name="range_end" hidden/>
+                <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                  <i class="fa fa-calendar"></i>&nbsp;
+                  <span></span> <i class="fa fa-caret-down"></i>
                 </div>
               </div>
-
-              <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
             </div>
-          </form>
-        </div>
+
+            <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
+          </div>
+        </form>
       </div>
-    @endif
+    </div>
 
     @include('partials.flash_messages')
 
     <div class="table-responsive">
         <table class="table table-bordered">
         <tr>
-          <th>Date</th>
-          <th>Travel Type</th>
-          <th>Description</th>
-          <th>Amount Spent</th>
-          <th>Amount Paid</th>
-          <th>Balance</th>
-          <th colspan="3" class="text-center">Action</th>
+          <th width="10%">User</th>
+          <th width="10%">Date</th>
+          <th width="10%">Travel Type</th>
+          <th width="10%">Category</th>
+          <th width="20%">Description</th>
+          <th width="10%">Amount Spent</th>
+          <th width="10%">Amount Paid</th>
+          <th width="10%">Balance</th>
+          <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
-        @foreach ($vouchers as $user_id => $data)
-          <tr>
+        {{-- @foreach ($vouchers as $user_id => $data) --}}
+          {{-- <tr>
             <td colspan="9"><strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'Not Existing User' }}</strong></td>
-          </tr>
-          @foreach ($data as $voucher)
+          </tr> --}}
+          @foreach ($vouchers as $voucher)
             <tr>
+              <td>{{ array_key_exists($voucher->user_id, $users_array) ? $users_array[$voucher->user_id] : 'Not Existing User' }}</td>
               <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
               <td>{{ ucwords($voucher->travel_type) }}</td>
-              <td>{{ $voucher->description }}</td>
+              <td class="expand-row table-hover-cell">
+                <span class="td-mini-container">
+                  @if ($voucher->category)
+                    {{ strlen($voucher->category->title) > 7 ? substr($voucher->category->title, 0, 7) : $voucher->category->title }}
+                  @endif
+                </span>
+
+                <span class="td-full-container hidden">
+                  @if ($voucher->category)
+                    {{ $voucher->category->title }}
+                  @endif
+                </span>
+              </td>
+              <td class="expand-row table-hover-cell">
+                <span class="td-mini-container">
+                  {{ strlen($voucher->description) > 20 ? (substr($voucher->description, 0, 17) . '...') : $voucher->description }}
+                </span>
+
+                <span class="td-full-container hidden">
+                  {{ $voucher->description }}
+                </span>
+              </td>
               <td>{{ $voucher->amount }}</td>
               <td>{{ $voucher->paid }}</td>
               <td>
                 {{ ($voucher->amount - $voucher->paid) * -1 }}
               </td>
               <td>
-                @if ($voucher->approved > 0)
-                  Approved
-                @else
-                  @if (Auth::id() == 49 || Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-                    <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
-                      @csrf
-
-                      <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-                    </form>
-                  @else
-                    Not approved
-                  @endif
-                @endif
-              </td>
-              <td>
                 @if ($voucher->approved == 2)
-                  Approved
-                @else
+                  <span class="badge">Approved</span>
+                @elseif ($voucher->approved == 1)
                   @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                     <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
                       @csrf
@@ -103,20 +114,28 @@
                       <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
                     </form>
                   @else
-                    Not approved
+                    <span class="badge">Waiting for Approval</span>
                   @endif
+                @else
+                  <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
+                    @csrf
+
+                    <button type="submit" class="btn btn-xs btn-secondary">Request Approval</button>
+                  </form>
                 @endif
               </td>
               <td>
-                <a class="btn btn-image" href="{{ route('voucher.edit', $voucher->id) }}"><img src="/images/edit.png" /></a>
+                <div class="d-flex">
+                  <a class="btn btn-image" href="{{ route('voucher.edit', $voucher->id) }}"><img src="/images/edit.png" /></a>
 
-                {!! Form::open(['method' => 'DELETE','route' => ['voucher.destroy', $voucher->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                {!! Form::close() !!}
+                  {!! Form::open(['method' => 'DELETE','route' => ['voucher.destroy', $voucher->id],'style'=>'display:inline']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                  {!! Form::close() !!}
+                </div>
               </td>
             </tr>
           @endforeach
-        @endforeach
+        {{-- @endforeach --}}
       </table>
     </div>
 
@@ -166,6 +185,14 @@
         jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
         jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
 
+    });
+
+    $(document).on('click', '.expand-row', function() {
+      var selection = window.getSelection();
+      if (selection.toString().length === 0) {
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+      }
     });
   </script>
 @endsection
