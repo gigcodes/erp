@@ -239,7 +239,20 @@ class ProductCropperController extends Controller
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping rejected!');
     }
 
-    public function showRejectedCrops() {
+    public function showRejectedCrops()
+    {
+        $products = Product::where('is_crop_rejected', 1)->paginate(24);
+
+        return view('products.rejected_crop_list', compact('products'));
+    }
+
+    public function showRejectedImageToBeverified($id) {
+	    $product = Product::find($id);
+
+	    dd($product);
+    }
+
+    public function approveRejectedCropped($id, Request $request) {
 
     }
 }
