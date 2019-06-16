@@ -75,6 +75,15 @@ class AccountController extends Controller
         return redirect()->back()->with('message', 'test passed!');
     }
 
+    public function startAccountGrowth($id) {
+        $account = Account::findOrFail($id);
+        $account->is_seeding = 1;
+        $account->seeding_stage = 0;
+        $account->save();
+
+        return redirect()->back()->with('message', 'Account started for growth!');
+    }
+
     public function agreeConsentFirstStep()
     {
         return $this->ig->request('consent/existing_user_flow/')

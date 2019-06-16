@@ -579,6 +579,7 @@ Route::prefix('instagram')->group(function () {
     Route::resource('auto-comments', 'InstagramAutoCommentsController');
     Route::post('media/comment', 'HashtagController@commentOnHashtag');
     Route::get('test/{id}', 'AccountController@test');
+    Route::get('start-growth/{id}', 'AccountController@startAccountGrowth');
     Route::get('accounts', 'InstagramController@accounts');
     Route::get('notification', 'HashtagController@showNotification');
     Route::resource('influencer', 'InfluencersController');
