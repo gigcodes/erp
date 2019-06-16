@@ -134,7 +134,19 @@
                                         {!! $account->manual_comment ? '<span>Manual Cmt</span>' : '' !!}
                                         {!! $account->bulk_comment ? '<span>Bulk Cmt</span>' : '' !!}
                                     </td>
-                                    <td>{{ $account->blocked ? 'Blocked' : 'Active' }}</td>
+                                    <td>
+                                        @if($account->blocked)
+                                            <strong class="text-danger">Blocked</strong>
+                                        @else
+                                            @if(!$account->is_seeding)
+                                                <strong class="text-success">Active</strong>
+                                            @else
+                                                <div style="width: 150px;" class="progress">
+                                                    <div class="progress-bar" role="progressbar" style="width: {{$account->seeding_stage*10}}%" aria-valuenow="{{$account->seeding_stage*10}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            @endif
+                                        @endif
+                                    </td>
                                     <td>
                                         <div style="width: 100px;">
                                             {{ substr($account->created_at, 0, 10) }}
@@ -167,7 +179,19 @@
                                     {!! $account->manual_comment ? '<span class="label label-default">Manual Cmt</span>' : '' !!}
                                     {!! $account->bulk_comment ? '<span class="label label-default">Bulk Cmt</span>' : '' !!}
                                 </td>
-                                <td>{{ $account->blocked ? 'Blocked' : 'Active' }}</td>
+                                <td>
+                                    @if($account->blocked)
+                                        <strong class="text-danger">Blocked</strong>
+                                    @else
+                                        @if(!$account->is_seeding)
+                                            <strong class="text-success">Active</strong>
+                                        @else
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" style="width: {{$account->seeding_stage*10}}%" aria-valuenow="{{$account->seeding_stage*10}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        @endif
+                                    @endif
+                                </td>
                                 <td>
                                     <div style="width: 100px;">
                                         {{ substr($account->created_at, 0, 10) }}
@@ -175,6 +199,11 @@
                                 </td>
                                 <td>
                                     <div style="width:150px !important;">
+                                        @if(!$account->broadcast && !$account->manual_comment && !$account->bulk_comment)
+                                            <a class="btn btn-image" title="Start Growing">
+                                                <i class="text-warning fa fa-play"></i>
+                                            </a>
+                                        @endif
                                         <a class="btn btn-image" href="{{ action('AccountController@test', $account->id) }}">
                                             <i class="fa fa-check"></i>
                                         </a>
