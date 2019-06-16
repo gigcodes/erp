@@ -153,6 +153,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('task/{id}/addSubnote', 'TaskModuleController@addSubnote')->name('task.add.subnote');
 	Route::post('task/{id}/updateCategory', 'TaskModuleController@updateCategory')->name('task.update.category');
 	Route::resource('task','TaskModuleController');
+	Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
 	Route::resource('task_category','TaskCategoryController');
 
 	// Route::get('/', 'TaskModuleController@index')->name('home');
