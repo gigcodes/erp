@@ -44,10 +44,11 @@ class UpdateGnbPrice extends Command
     {
       // $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
       $products = ScrapedProducts::where('updated_at', '>', '2019-06-05 00:00')->get();
+      // $products = ScrapedProducts::where('sku', '1190524')->get();
 
       // dd(count($products));
       foreach ($products as $key => $product) {
-        dump("$key - Scraped Product");
+        dump("$key - Scraped Product - $product->sku");
 
         if ($old_product = Product::where('sku', $product->sku)->first()) {
           dump("$key - Product Found");
@@ -63,7 +64,13 @@ class UpdateGnbPrice extends Command
               if (strpos($product->price, ',') < strpos($product->price, '.')) {
                 dump("$key - comma first than dot");
 
-                $final_price = str_replace(',', '', $product->price);;
+                $final_price = str_replace(',', '', $product->price);
+              } else {
+                // $final_price = $product->price;
+                $final_price = str_replace(',', '|', $product->price);
+                $final_price = str_replace('.', ',', $final_price);
+                $final_price = str_replace('|', '.', $final_price);
+                $final_price = str_replace(',', '', $final_price);
               }
             } else {
               dump("$key - no dot found");
@@ -75,15 +82,20 @@ class UpdateGnbPrice extends Command
           }
 
           if (strpos($final_price, '.') !== false) {
+            dump($final_price);
             $exploded = explode('.', $final_price);
-
-            if (strlen($exploded[1]) > 2) {
+            dump(json_encode($exploded));
+            $replaced = trim(preg_replace('/[\&euro;€,eur]/i', '', $exploded[1]));
+            dump(strlen($replaced));
+            if (strlen($replaced) > 2) {
               dump("$key - has more than 2 digits after dot");
               $final_price = implode('', $exploded);
             }
           }
 
-          $price = round(preg_replace('/[\&euro;€,]/', '', $final_price));
+          // dd($final_price);
+
+          $price = round(preg_replace('/[\&euro;€,eur]/i', '', $final_price));
 
           $old_product->price = $price;
 
