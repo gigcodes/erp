@@ -2106,5 +2106,63 @@
             $('#taskCreateForm')[0].reportValidity();
           }
         });
+
+        $('#task_category_selection').on('change', function() {
+          var category_id = $(this).val();
+          var is_approved = $(this).find('option:selected').data('approved');
+          var is_admin = {{ Auth::user()->hasRole('Admin') }};
+          console.log(is_approved, is_admin);
+          if (is_admin == 1 && !is_approved) {
+            $('#approveTaskCategoryButton').parent().removeClass('hidden');
+          } else {
+            $('#approveTaskCategoryButton').parent().addClass('hidden');
+          }
+
+          $('#deleteTaskCategoryButton').attr('data-id', category_id);
+          $('#approveTaskCategoryButton').attr('data-id', category_id);
+        });
+
+        $('#deleteTaskCategoryButton').on('click', function() {
+          var id = $(this).attr('data-id');
+
+          if (id == '') {
+            alert('Please select category first');
+          } else {
+            $.ajax({
+              type: "POST",
+              url: "{{ url('task_category') }}/" + id,
+              data: {
+                _token: "{{ csrf_token() }}",
+                _method: "DELETE"
+              }
+            }).done(function() {
+              window.location.reload();
+            }).fail(function(response) {
+              console.log(response);
+              alert('Could not delete a category');
+            });
+          }
+        });
+
+        $('#approveTaskCategoryButton').on('click', function() {
+          var id = $(this).attr('data-id');
+
+          if (id == '') {
+            alert('Please select category first');
+          } else {
+            $.ajax({
+              type: "POST",
+              url: "{{ url('task_category') }}/" + id + '/approve',
+              data: {
+                _token: "{{ csrf_token() }}"
+              }
+            }).done(function() {
+              window.location.reload();
+            }).fail(function(response) {
+              console.log(response);
+              alert('Could not approve a category');
+            });
+          }
+        });
   </script>
 @endsection

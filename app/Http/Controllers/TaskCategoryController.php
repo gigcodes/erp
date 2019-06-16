@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\TaskCategory;
+use Auth;
 use Illuminate\Http\Request;
 
 class TaskCategoryController extends Controller
@@ -40,12 +41,14 @@ class TaskCategoryController extends Controller
 			'title' => 'required_without:subcategory'
 		]);
 
+		$is_approved = Auth::user()->hasRole('Admin') ? 1 : 0;
+
 		if ($request->title != '') {
-			TaskCategory::create(['title' => $request->title]);
+			TaskCategory::create(['title' => $request->title, 'is_approved' => $is_approved]);
 		}
 
 		if ($request->parent_id != '' && $request->subcategory != '') {
-			TaskCategory::create(['title' => $request->subcategory, 'parent_id' => $request->parent_id]);
+			TaskCategory::create(['title' => $request->subcategory, 'parent_id' => $request->parent_id, 'is_approved' => $is_approved]);
 		}
 
 
@@ -63,8 +66,19 @@ class TaskCategoryController extends Controller
 		return redirect()->route('task_category.index')->with('success','Category udpated successfully');
 	}
 
-	public function destroy(TaskCategory $task_category){
+	public function approve(Request $request, $id){
+		$task_category = TaskCategory::find($id);
+		$task_category->is_approved = 1;
+		$task_category->save();
 
+		if ($request->ajax()) {
+			return response('success', 200);
+		}
+
+		return redirect()->route('task_category.index')->with('success','Category approved successfully');
+	}
+
+	public function destroy(TaskCategory $task_category){
 		$task_category->delete();
 
 		return redirect()->route('task_category.index')->with('success','Category deleted successfully');

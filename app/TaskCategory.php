@@ -13,6 +13,6 @@ class TaskCategory extends Model
 
 	protected $parent = 'parent_id';
 	protected $fillable = [
-		'title', 'parent_id'
+		'title', 'parent_id', 'is_approved'
 	];
 }

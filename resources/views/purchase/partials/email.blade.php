@@ -8,13 +8,25 @@
               @if ($email['seen'] == 0)
                 <u>
                   <strong>{{ $email['subject'] }}</strong>
-                  {{ $email['from'] }}
+
+                  @if ($email['type'] == 'outgoing')
+                    {{ $email['to'] }}
+                  @else
+                    {{ $email['from'] }}
+                  @endif
+
                   <br>
                   {{ $email['date'] }}
                 </u>
               @else
                 <strong>{{ $email['subject'] }}</strong>
-                {{ $email['from'] }}
+
+                @if ($email['type'] == 'outgoing')
+                  {{ $email['to'] }}
+                @else
+                  {{ $email['from'] }}
+                @endif
+                
                 <br>
                 {{ $email['date'] }}
               @endif
