@@ -1426,8 +1426,10 @@ class PurchaseController extends Controller
           $emails_array[$count + $key2]['id'] = $email->id;
           $emails_array[$count + $key2]['subject'] = $email->subject;
           $emails_array[$count + $key2]['seen'] = $email->seen;
+          $emails_array[$count + $key2]['type'] = $email->type;
           $emails_array[$count + $key2]['date'] = $email->created_at;
           $emails_array[$count + $key2]['from'] = $email->from;
+          $emails_array[$count + $key2]['to'] = $email->to;
         }
       } else {
         $db_emails = $supplier->emails()->where('type', 'outgoing')->get();
@@ -1436,8 +1438,10 @@ class PurchaseController extends Controller
           $emails_array[$count + $key2]['id'] = $email->id;
           $emails_array[$count + $key2]['subject'] = $email->subject;
           $emails_array[$count + $key2]['seen'] = $email->seen;
+          $emails_array[$count + $key2]['type'] = $email->type;
           $emails_array[$count + $key2]['date'] = $email->created_at;
           $emails_array[$count + $key2]['from'] = $email->from;
+          $emails_array[$count + $key2]['to'] = $email->to;
         }
       }
 
