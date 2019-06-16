@@ -186,8 +186,10 @@
                                         @if(!$account->is_seeding)
                                             <strong class="text-success">Active</strong>
                                         @else
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" style="width: {{$account->seeding_stage*10}}%" aria-valuenow="{{$account->seeding_stage*10}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <span class="label label-default">Growing</span>
+                                            <br><br>
+                                            <div style="width: 150px;" class="progress">
+                                                <div class="progress-bar" role="progressbar" style="width: {{$account->seeding_stage*10}}%" aria-valuenow="{{$account->seeding_stage*10}}" aria-valuemin="0" aria-valuemax="100"><span class="text-dark">{{$account->seeding_stage}} of 10</span></div>
                                             </div>
                                         @endif
                                     @endif
@@ -199,8 +201,8 @@
                                 </td>
                                 <td>
                                     <div style="width:150px !important;">
-                                        @if(!$account->broadcast && !$account->manual_comment && !$account->bulk_comment)
-                                            <a class="btn btn-image" title="Start Growing">
+                                        @if($account->is_seeding === 0 && !$account->broadcast && !$account->manual_comment && !$account->bulk_comment)
+                                            <a href="{{ action('AccountController@startAccountGrowth', $account->id) }}" class="btn btn-image" title="Start Growing">
                                                 <i class="text-warning fa fa-play"></i>
                                             </a>
                                         @endif

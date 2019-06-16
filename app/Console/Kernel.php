@@ -8,6 +8,7 @@ use App\Console\Commands\EnrichWiseProducts;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
+use App\Console\Commands\GrowInstagramAccounts;
 use App\Console\Commands\MakeApprovedImagesSchedule;
 use App\Console\Commands\PostScheduledMedia;
 use App\Console\Commands\CheckLogins;
@@ -101,7 +102,8 @@ class Kernel extends ConsoleKernel
         GetGebnegozionlineProductDetailsWithEmulator::class,
         UpdateInventory::class,
         UpdateMagentoProductStatus::class,
-        SendBroadcastMessageToColdLeads::class
+        SendBroadcastMessageToColdLeads::class,
+        GrowInstagramAccounts::class
     ];
 
     /**
@@ -153,6 +155,7 @@ class Kernel extends ConsoleKernel
           $report->update(['end_time' => Carbon:: now()]);
         })->hourly();
 
+        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');

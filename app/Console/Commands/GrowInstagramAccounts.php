@@ -39,6 +39,7 @@ class GrowInstagramAccounts extends Command
      */
     public function handle()
     {
+
         $accounts = Account::where('is_seeding', 1)->get();
 
         foreach ($accounts as $account) {
@@ -85,9 +86,11 @@ class GrowInstagramAccounts extends Command
             ];
 
             $imagesToPost = $imageSet[$stage];
+            $id1 = $instagram->people->getUserIdForName($followSet[$stage][0]);
+            $id2 = $instagram->people->getUserIdForName($followSet[$stage][1]);
 
-            $instagram->people->follow($followSet[$stage][0]);
-            $instagram->people->follow($followSet[$stage][1]);
+            $instagram->people->follow($id1);
+            $instagram->people->follow($id2);
 
             foreach ($imagesToPost as $i) {
                 $filename = __DIR__ . '/images/'. $i . '.jpeg';
