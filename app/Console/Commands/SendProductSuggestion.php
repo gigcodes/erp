@@ -115,7 +115,7 @@ class SendProductSuggestion extends Command
             $products = (new Product)->newQuery();
           }
 
-          $products = $products->whereHas('scraped_products')->where('category', '!=', 1)->latest()->take($suggestion->number)->get();
+          $products = $products->where('is_scraped', 1)->where('category', '!=', 1)->latest()->take($suggestion->number)->get();
 
           if (count($products) > 0) {
             $params = [

@@ -91,11 +91,19 @@
 
                             <div class="form-group mr-3">
                               {{-- @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp --}}
-                              @php $suppliers = \App\Supplier::whereHas('products')->get(); @endphp
+                              @php $suppliers = \Illuminate\Support\Facades\DB::select('
+                          				SELECT id, supplier
+                          				FROM suppliers
+
+                          				INNER JOIN (
+                          					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                          					) as product_suppliers
+                          				ON suppliers.id = product_suppliers.supplier_id
+                          		'); @endphp
                               {{-- {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                               <select class="form-control select-multiple" name="supplier[]" multiple>
                                 <optgroup label="Suppliers">
-                                  @foreach ($suppliers->all() as $key => $item)
+                                  @foreach ($suppliers as $key => $item)
                                     <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
                                   @endforeach
                               </optgroup>

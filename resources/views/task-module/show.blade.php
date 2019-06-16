@@ -106,7 +106,7 @@
         ?>
             <div class="row mb-4">
               <div class="col-xs-12">
-                <form action="{{ route('task.store') }}" method="POST" enctype="multipart/form-data" id="taskCreateForm">
+                <form action="{{ route('task.store') }}" method="POST" id="taskCreateForm">
                   @csrf
 
                   <div class="row">
@@ -226,6 +226,16 @@
                         <div class="form-group flex-fill">
                             {{-- <strong>Category:</strong> --}}
                             {!! $task_categories_dropdown !!}
+                            {{-- <select class="form-control input-sm" name="category" id="required_category" required>
+                              <option value="">Select a Category</option>
+                              @foreach ($task_categories_dropdown as $category)
+                                <option value="{{ $category['id'] }}">{{ $category['title'] }}</option>
+
+                                @foreach ($category['child'] as $child)
+                                  <option value="{{ $child['id'] }}">&nbsp;&nbsp;{{ $child['title'] }}</option>
+                                @endforeach
+                              @endforeach
+                            </select> --}}
                         </div>
 
                         <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="/images/add.png" /></button>
@@ -2075,17 +2085,22 @@
 
         $('#taskCreateButton').on('click', function(e) {
           e.preventDefault();
-          
+
           var users = $('#multi_users').val();
           var contacts = $('#multi_contacts').val();
+          var category = $(this).closest('form').find('select[name="category"]').val();
 
-          console.log(users, contacts);
+          console.log(users, contacts, category);
 
           if ($('#taskCreateForm')[0].checkValidity()) {
-            if (users == '' && contacts == '') {
+            if (users.length == 0 && contacts.length == 0) {
               alert('Please select atleast one user or contact');
             } else {
-              $('#taskCreateForm').submit();
+              if (category == '1') {
+                alert('Category is required!');
+              } else {
+                $('#taskCreateForm').submit();
+              }
             }
           } else {
             $('#taskCreateForm')[0].reportValidity();
