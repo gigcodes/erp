@@ -248,8 +248,9 @@ class ProductCropperController extends Controller
 
     public function showRejectedImageToBeverified($id) {
 	    $product = Product::find($id);
+	    $secondProduct = Product::where('id', '!=', $id)->where('is_crop_rejected', 1)->first();
 
-	    dd($product);
+	    return view('products.rejected_crop', compact('product', 'secondProduct'));
     }
 
     public function approveRejectedCropped($id, Request $request) {
