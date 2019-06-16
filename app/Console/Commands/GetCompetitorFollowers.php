@@ -44,7 +44,7 @@ class GetCompetitorFollowers extends Command
     {
         $comp = CompetitorPage::whereRaw('`competitor_pages`.`is_processed` = 0')->first();
         $instagram = new Instagram();
-        $instagram->login('sololuxury.official', 'Insta123!');
+        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
 
             try {
                 $profileData = $instagram->people->getInfoByName($comp->username)->asArray();

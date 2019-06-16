@@ -46,7 +46,7 @@ class GetCommentTemplatesFromDifferentWebsites extends Command
         foreach ($accounts as $account) {
             echo "====================== $account ==================";
             $instagram = new Instagram();
-            $instagram->login('sololuxury.official', 'Insta123!');
+            $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
             $response = $instagram->request('https://www.instagram.com/'.$account.'/?__a=1')->getDecodedResponse();
 
             $medias = $response['graphql']['user']['edge_owner_to_timeline_media']['edges'];
