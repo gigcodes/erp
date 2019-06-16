@@ -975,7 +975,9 @@ class ProductController extends Controller {
         if ($request->hasFile('file')) {
             $image = $request->file('file');
             $media = MediaUploader::fromSource($image)->upload();
-            $product->attachMedia($media, config('constants.media_tags'));
+            $product->attachMedia($media, 'cropped');
+            ++$product->crop_count;
+            $product->save();
         }
 
 

@@ -189,7 +189,7 @@
                                             <span class="label label-default">Growing</span>
                                             <br><br>
                                             <div style="width: 150px;" class="progress">
-                                                <div class="progress-bar" role="progressbar" style="width: {{$account->seeding_stage*10}}%" aria-valuenow="{{$account->seeding_stage*10}}" aria-valuemin="0" aria-valuemax="100"><span class="text-dark">{{$account->seeding_stage}} of 10</span></div>
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: {{$account->seeding_stage*10}}%" aria-valuenow="{{$account->seeding_stage*10}}" aria-valuemin="0" aria-valuemax="100"><strong class="text-dark">{{$account->seeding_stage}} of 10</strong></div>
                                             </div>
                                         @endif
                                     @endif

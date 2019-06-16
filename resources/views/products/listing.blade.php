@@ -102,7 +102,8 @@
         <tr>
           <th width="10%">Thumbnail</th>
           <th width="10%">Name</th>
-          <th width="25%">Description</th>
+          <th width="5%">Crop Count</th>
+          <th width="20%">Description</th>
           <th width="10%">Category</th>
           <th width="10%">Sizes</th>
           <th width="10%">Composition</th>
@@ -136,6 +137,10 @@
               <td class="table-hover-cell quick-edit-name" data-id="{{ $product->id }}">
                 <span class="quick-name">{{ $product->name }}</span>
                 <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
+              </td>
+
+              <td>
+                {{ $product->crop_count }}
               </td>
 
               <td class="read-more-button table-hover-cell">

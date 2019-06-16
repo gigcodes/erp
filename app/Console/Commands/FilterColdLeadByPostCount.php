@@ -42,7 +42,7 @@ class FilterColdLeadByPostCount extends Command
         $coldLeads = ColdLeads::orderBy('id', 'DESC')->get();
 
         $instagram = new Instagram();
-        $instagram->login('sololuxury.official', 'Insta123!');
+        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
 
         foreach ($coldLeads as $coldLead) {
             $username = $coldLead->username;

@@ -158,7 +158,7 @@ class Instagram {
         }
 
         $instagram = new \InstagramAPI\Instagram();
-        $instagram->login('sololuxury.official', 'Insta123!');
+        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
         if (count($images) > 1) {
             $instagram->timeline->uploadAlbum($files, ['caption' => $message]);
         } else {

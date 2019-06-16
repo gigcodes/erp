@@ -75,7 +75,7 @@ class CompetitorPageController extends Controller
 
     private function getInstagramUserData($username) {
         $instagram = new Instagram();
-        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
 
         $request = $instagram->request('https://www.instagram.com/'.$username.'/?__a=1')->getDecodedResponse();
         $preparedMedia = [];
@@ -144,7 +144,7 @@ class CompetitorPageController extends Controller
 
     private function getInstagramUserDataWithoutFollowers($user, $id) {
         $instagram = new Instagram();
-        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
         try {
             $profileData = $instagram->people->getInfoByName($user)->asArray();
         } catch (\Exception $exception) {

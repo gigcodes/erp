@@ -34,7 +34,7 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
-
+    Route::get('products/auto-cropped', 'ProductCropperController@getListOfImagesToBeVerified');
 	Route::resource('roles','RoleController');
 	Route::get('users/logins', 'UserController@login')->name('users.login.index');
 	Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');

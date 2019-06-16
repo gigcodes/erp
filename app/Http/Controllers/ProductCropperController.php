@@ -191,4 +191,10 @@ class ProductCropperController extends Controller
 		              ->where('isApproved',-1)
 		              ->count();
 	}
+
+	public function getListOfImagesToBeVerified() {
+	    $products = Product::where('is_image_processed', 1)->paginate(50);
+
+	    return view('products.crop_list', compact('products'));
+    }
 }

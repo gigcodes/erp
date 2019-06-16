@@ -39,7 +39,7 @@ class InstagramProfileController extends Controller
 
     private function getInstagramUserData($customer) {
         $instagram = new Instagram();
-        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
         try {
             $profileData = $instagram->people->getInfoByName($customer['instahandler'])->asArray();
         } catch (\Exception $exception) {
@@ -75,7 +75,7 @@ class InstagramProfileController extends Controller
 
     public function getFollowers($id) {
         $instagram = new Instagram();
-        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
         $rankToken = Signatures::generateUUID();
         $followers = $instagram->people->getFollowers($id, $rankToken);
 
@@ -88,7 +88,7 @@ class InstagramProfileController extends Controller
         $customers = Customer::where('instahandler', '!=', '')->where('rating', '>', 5)->orderBy('rating', 'DESC')->get(10);
 
         $instagram = new Instagram();
-        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
         $rankToken = Signatures::generateUUID();
 
         foreach ($customers as $customer) {
@@ -143,7 +143,7 @@ class InstagramProfileController extends Controller
         $customers = Customer::where('instahandler', '!=', '')->where('rating', '>', 5)->orderBy('rating', 'DESC')->get();
 
         $instagram = new Instagram();
-        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', 'Insta123!'));
+        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
 //        $rankToken = Signatures::generateUUID();
 
         $captions = '';
