@@ -486,6 +486,9 @@
                                             <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper
 
                                                 Grid</a>
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
+
+                                                Grid</a>
 
                                         </ul>
 

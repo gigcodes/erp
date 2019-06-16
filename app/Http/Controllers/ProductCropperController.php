@@ -192,9 +192,54 @@ class ProductCropperController extends Controller
 		              ->count();
 	}
 
-	public function getListOfImagesToBeVerified() {
-	    $products = Product::where('is_image_processed', 1)->paginate(50);
+	public function getListOfImagesToBeVerified(Stage $stage) {
+	    $products = Product::where('is_image_processed', 1)
+            ->where('stage', '>=', $stage->get('Supervisor'))
+            ->where('is_crop_rejected', 0)
+            ->paginate(24);
 
 	    return view('products.crop_list', compact('products'));
+    }
+
+    public function showImageToBeVerified($id, Stage $stage) {
+	    $product = Product::find($id);
+        $secondProduct = Product::where('is_image_processed', 1)
+            ->where('stage', '>=', $stage->get('Supervisor'))
+            ->where('id', '!=', $id)
+            ->where('is_crop_rejected', 0)
+            ->first();
+
+	    return view('products.crop', compact('product', 'secondProduct'));
+    }
+
+    public function approveCrop($id,Stage $stage) {
+	    $product = Product::findOrFail($id);
+	    $product->state = $product->stage+1;
+	    $product->save();
+
+        $secondProduct = Product::where('is_image_processed', 1)
+            ->where('stage', '>=', $stage->get('Supervisor'))
+            ->where('id', '!=', $id)
+            ->where('is_crop_rejected', 0)
+            ->first();
+
+        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+    }
+
+    public function rejectCrop($id,Stage $stage) {
+        $product = Product::findOrFail($id);
+        $product->is_crop_rejected = 1;
+        $product->save();
+
+        $secondProduct = Product::where('is_image_processed', 1)
+            ->where('stage', '>=', $stage->get('Supervisor'))
+            ->where('id', '!=', $id)
+            ->first();
+
+        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping rejected!');
+    }
+
+    public function showRejectedCrops() {
+
     }
 }

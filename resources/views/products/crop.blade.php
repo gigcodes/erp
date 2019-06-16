@@ -3,22 +3,27 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">
+            <h5 class="page-heading">
                 Crop Image Approval
-            </h2>
+            </h5>
+        </div>
+        <div class="col-md-12 text-center">
+            <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-default">Approve</a>
+            <a href="{{ action('ProductCropperController@rejectCrop', $product->id) }}" class="btn btn-danger">Reject</a>
+            @if($secondProduct)
+                <a href="{{ action('ProductCropperController@showImageToBeVerified', $secondProduct->id) }}">Next Image</a>
+            @endif
         </div>
         <div class="col-md-12">
-            <div class="fotorama">
-                @foreach($images as $image)
-
+            <div class="text-center">
+                <h4>{{ $product->title }}</h4>
+                <p>{{ $product->sku }}</p>
+            </div>
+            <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
+                @foreach($product->media()->get() as $image)
+                    <a href="{{ $image->getUrl() }}"><img src="{{ $image->getUrl() }}"></a>
                 @endforeach
             </div>
-        </div>
-        <div class="col-md-12">
-            <form action="">
-                <input type="button" class="btn btn-default" name="approved" value="Approve">
-                <input type="button" class="btn btn-danger" name="rejected" value="Reject">
-            </form>
         </div>
     </div>
 @endsection
@@ -27,4 +32,16 @@
     <!-- Fotorama from CDNJS, 19 KB -->
     <link  href="https://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.4/fotorama.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.4/fotorama.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+
+    @if (Session::has('mesage'))
+        <script>
+            Swal.fire(
+                'Success',
+                '{{Session::get('message')}}',
+                'success'
+            )
+        </script>
+    @endif
 @endsection
