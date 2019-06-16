@@ -81,7 +81,20 @@ class ProductController extends Controller {
 		$category_tree = [];
 		$categories_array = [];
 		$brands = Brand::getAll();
-		$suppliers = Supplier::whereHas('products')->get();
+		// $suppliers = Supplier::whereHas('products')->get();
+		// dd($suppliers);
+
+		$suppliers = DB::select('
+				SELECT id, supplier
+				FROM suppliers
+
+				INNER JOIN (
+					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+					) as product_suppliers
+				ON suppliers.id = product_suppliers.supplier_id
+		');
+
+		// dd($suppliers);
 
 		foreach (Category::all() as $category) {
 			if ($category->parent_id != 0) {

@@ -1551,7 +1551,7 @@ class CustomerController extends Controller
         $products = (new Product)->newQuery();
       }
 
-      $products = $products->whereHas('scraped_products')->where('category', '!=', 1)->latest()->take($request->number)->get();
+      $products = $products->where('scraped', 1)->where('category', '!=', 1)->latest()->take($request->number)->get();
 
       if ($customer->suggestion) {
         $suggestion = Suggestion::find($customer->suggestion->id);
