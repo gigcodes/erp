@@ -40,7 +40,7 @@ class TaskCategoryController extends Controller
 			'title' => 'required_without:subcategory'
 		]);
 
-		if ($request->name != '') {
+		if ($request->title != '') {
 			TaskCategory::create(['title' => $request->title]);
 		}
 

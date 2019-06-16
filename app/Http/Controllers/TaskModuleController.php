@@ -314,8 +314,9 @@ class TaskModuleController extends Controller {
 		$selected_user = $request->input( 'selected_user' );
 		$users         = Helpers::getUserArray( User::all() );
 		$task_categories = TaskCategory::where('parent_id', 0)->get();
-		$task_categories_dropdown = TaskCategory::attr(['name' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category'])
+		$task_categories_dropdown = TaskCategory::attr(['name' => 'category','class' => 'form-control input-sm'])
 		                                        ->renderAsDropdown();
+
 
 		$categories = [];
 		foreach (TaskCategory::all() as $category) {
