@@ -346,7 +346,7 @@
                         @else
                           @php $image_message = \App\ChatMessage::find($customer->message_id); @endphp
 
-                          @if ($image_message->hasMedia(config('constants.media_tags')))
+                          @if ($image_message && $image_message->hasMedia(config('constants.media_tags')))
                             <div class="image-container hidden">
                               @foreach ($image_message->getMedia(config('constants.media_tags')) as $image)
                                 <div class="d-inline-block">
