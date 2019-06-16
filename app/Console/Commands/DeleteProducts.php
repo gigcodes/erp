@@ -39,7 +39,7 @@ class DeleteProducts extends Command
      */
     public function handle()
     {
-      $products = Product::withTrashed()->where('supplier', 'MARIA STORE')->get();
+      $products = Product::withTrashed()->where('supplier', "Les Market")->get();
       // $product = Product::find(127805);
       // dd(count($products));
       foreach ($products as $key => $product) {
@@ -66,8 +66,9 @@ class DeleteProducts extends Command
 
         $product->suppliers()->detach();
 
-        if ($product->user) {
-          $product->user->delete();
+        if ($product->user()) {
+          dump('user');
+          $product->user()->detach();
         }
 
         $product->references()->delete();
