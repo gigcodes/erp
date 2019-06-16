@@ -4,6 +4,8 @@ namespace App\Services\Products;
 
 use App\Brand;
 use App\Product;
+use App\ScrapActivity;
+use App\ScrapedProducts;
 use App\Setting;
 use App\Category;
 use App\Supplier;
@@ -11,9 +13,184 @@ use Validator;
 use Storage;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\Http\Controllers\ProductInventoryController;
 
 class ProductsCreator
 {
+
+    public function setStockZero()
+    {
+
+        $scraped_products = ScrapedProducts::whereRaw('TIMESTAMPDIFF(HOUR, updated_at, NOW()) > 24')->get();
+
+
+        foreach ($scraped_products as $scraped_product) {
+
+            $supplier = $scraped_product->website;
+
+            switch ($supplier) {
+                case 'lidiashopping':
+                    $supplier_name = 'Lidia';
+
+                    break;
+                case 'cuccuini':
+                    $supplier_name = 'Cuccini';
+
+                    break;
+                case 'DoubleF':
+                    $supplier_name = 'Double F';
+
+                    break;
+                case 'G&B':
+                    $supplier_name = 'G & B Negozionline';
+
+                    break;
+                case 'Tory':
+                    $supplier_name = 'Tory Burch';
+
+                    break;
+                case 'Wiseboutique':
+                    $supplier_name = 'Wise Boutique';
+
+                    break;
+                case 'Divo':
+                    $supplier_name = 'Divo Boutique';
+
+                    break;
+                case 'Spinnaker':
+                    $supplier_name = 'Spinnaker 101';
+
+                    break;
+                case 'alducadaosta':
+                    $supplier_name = "Al Duca d'Aosta";
+
+                    break;
+                case 'biffi':
+                    $supplier_name = "Biffi Boutique (S.P.A.)";
+
+                    break;
+                case 'brunarosso':
+                    $supplier_name = "BRUNA ROSSO";
+
+                    break;
+                case 'carofigliojunior':
+                    $supplier_name = "Carofiglio Junior";
+
+                    break;
+                case 'italiani':
+                    $supplier_name = "Italiani";
+
+                    break;
+                case 'coltorti':
+                    $supplier_name = "Coltorti";
+
+                    break;
+                case 'griffo210':
+                    $supplier_name = "Grifo210";
+
+                    break;
+                case 'linoricci':
+                    $supplier_name = "Lino Ricci Lei";
+
+                    break;
+                case 'conceptstore':
+                    $supplier_name = "Women Concept Store Cagliari";
+
+                    break;
+                case 'deliberti':
+                    $supplier_name = "Deliberti";
+
+                    break;
+                case 'giglio':
+                    $supplier_name = "Giglio Lamezia Terme";
+
+                    break;
+                case 'laferramenta':
+                    $supplier_name = "La Ferramenta";
+
+                    break;
+                case 'les-market':
+                    $supplier_name = "Les Market";
+
+                    break;
+                case 'leam':
+                    $supplier_name = "Leam";
+
+                    break;
+                case 'mimmaninnishop':
+                    $supplier_name = "Mimma Ninni Boutique";
+
+                    break;
+                case 'montiboutique':
+                    $supplier_name = "Monti";
+
+                    break;
+                case 'nugnes1920':
+                    $supplier_name = "Nugnes 1920";
+
+                    break;
+                case 'railso':
+                    $supplier_name = "Rail";
+
+                    break;
+                case 'savannahs':
+                    $supplier_name = "Savannah's";
+
+                    break;
+                case 'tessabit':
+                    $supplier_name = "Tessabit";
+
+                    break;
+                case 'stilmoda':
+                    $supplier_name = "Stilmoda";
+
+                    break;
+                case 'tizianafausti':
+                    $supplier_name = "Tiziana Fausti";
+
+                    break;
+                case 'vinicio':
+                    $supplier_name = "Vinicio";
+
+                    break;
+                case 'mariastore':
+                    $supplier_name = "MARIA STORE";
+
+                    break;
+                case 'angelominetti':
+                    $supplier_name = "MINETTI";
+
+                    break;
+                default:
+                    return;
+            }
+
+            $params = [
+                'website' => $supplier,
+                'status' => 0
+            ];
+
+            $params['scraped_product_id'] = $scraped_product->id;
+
+
+            if ($product = Product::where('sku', $scraped_product->sku)->first()) {
+                if ($db_supplier = Supplier::where('supplier', $supplier_name)->first()) {
+                    if ($product->stock > 0) {
+                        --$product->stock;
+                        $product->save();
+                    }
+                    $product->suppliers()->syncWithoutDetaching([$db_supplier->id => ['stock' => 0]]);
+                }
+
+                app(ProductInventoryController::class)->magentoSoapUpdateStock($product, 0);
+            }
+
+            ScrapActivity::create($params);
+        }
+
+
+    }
+
     public function createProduct($image)
     {
       $properties_array = $image->properties;
@@ -199,17 +376,24 @@ class ProductsCreator
         echo "Product found \n";
         $product = Product::where('sku', $data['sku'])->first();
 
+        if (!$product) {
+            return;
+        }
+
         if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
-          $product->suppliers()->syncWithoutDetaching([$db_supplier->id => [
-            'title'         => $image->title,
-            'description'   => $image->description,
-            'supplier_link' => $image->url,
-            'stock'         => 1,
-            'price'         => $formatted_prices['price'],
-            'size'          => $formatted_details['size'],
-            'color'         => $formatted_details['color'],
-            'composition'   => $formatted_details['composition'],
-            ]]);
+            if ($product) {
+                $product->suppliers()->syncWithoutDetaching([$db_supplier->id => [
+                    'title' => $image->title,
+                    'description' => $image->description,
+                    'supplier_link' => $image->url,
+                    'stock' => 1,
+                    'price' => $formatted_prices['price'],
+                    'size' => $formatted_details['size'],
+                    'color' => $formatted_details['color'],
+                    'composition' => $formatted_details['composition'],
+                    'sku' => $image->original_sku
+                ]]);
+            }
         }
 
         $dup_count = 0;
@@ -236,7 +420,18 @@ class ProductsCreator
         $product->stock += 1;
         $product->save();
 
+        $supplier = $image->website;
+
+        $params = [
+            'website'             => $supplier,
+            'scraped_product_id'  => $product->id,
+            'status'              => 1
+        ];
+
+        ScrapActivity::create($params);
+
         return;
+
       } else {
         $product = new Product;
       }
@@ -272,7 +467,12 @@ class ProductsCreator
        $product->price_inr = $formatted_prices['price_inr'];
        $product->price_special = $formatted_prices['price_special'];
 
-       $product->save();
+       try {
+           $product->save();
+       } catch (\Exception $exception) {
+           echo "Couldnt create product...";
+           return;
+       }
 
        if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
          $product->suppliers()->syncWithoutDetaching([$db_supplier->id => [
@@ -284,6 +484,7 @@ class ProductsCreator
            'size'          => $formatted_details['size'],
            'color'         => $formatted_details['color'],
            'composition'   => $formatted_details['composition'],
+           'sku'           => $image->original_sku
            ]]);
        }
 

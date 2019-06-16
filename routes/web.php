@@ -292,6 +292,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// Cash Vouchers
 	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');
+	Route::post('voucher/store/category', 'VoucherController@storeCategory')->name('voucher.store.category');
 	Route::resource('voucher', 'VoucherController');
 
 	// Budget

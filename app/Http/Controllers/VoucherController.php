@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Voucher;
+use App\VoucherCategory;
 use App\Setting;
 use App\Helpers;
 use App\User;
@@ -32,7 +33,7 @@ class VoucherController extends Controller
         $vouchers = Voucher::where('user_id', Auth::id())->whereBetween('date', [$start, $end]);
       }
 
-      $vouchers = $vouchers->orderBy('date', 'DESC')->get()->groupBy('user_id');
+      $vouchers = $vouchers->orderBy('date', 'DESC')->get();
       // dd($vouchers);
       //
       // $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -61,7 +62,14 @@ class VoucherController extends Controller
      */
     public function create()
     {
-      return view('vouchers.create');
+      $voucher_categories = VoucherCategory::where('parent_id', 0)->get();
+      $voucher_categories_dropdown = VoucherCategory::attr(['name' => 'category_id','class' => 'form-control', 'placeholder' => 'Select a Category'])
+  		                                        ->renderAsDropdown();
+
+      return view('vouchers.create', [
+        'voucher_categories' => $voucher_categories,
+        'voucher_categories_dropdown' => $voucher_categories_dropdown,
+      ]);
     }
 
     /**
@@ -92,6 +100,24 @@ class VoucherController extends Controller
       return redirect()->route('voucher.index')->with('success', 'You have successfully created cash voucher');
     }
 
+    public function storeCategory(Request $request)
+    {
+      $this->validate($request,[
+  			'title' => 'required_without:subcategory'
+  		]);
+
+  		if ($request->title != '') {
+  			VoucherCategory::create(['title' => $request->title]);
+  		}
+
+  		if ($request->parent_id != '' && $request->subcategory != '') {
+  			VoucherCategory::create(['title' => $request->subcategory, 'parent_id' => $request->parent_id]);
+  		}
+
+
+  		return redirect()->back()->with('success','Category created successfully');
+    }
+
     /**
      * Display the specified resource.
      *
@@ -111,8 +137,16 @@ class VoucherController extends Controller
      */
     public function edit($id)
     {
+      $voucher = Voucher::find($id);
+      $voucher_categories = VoucherCategory::where('parent_id', 0)->get();
+      $voucher_categories_dropdown = VoucherCategory::attr(['name' => 'category_id','class' => 'form-control', 'placeholder' => 'Select a Category'])
+                                              ->selected($voucher->category_id)
+  		                                        ->renderAsDropdown();
+
       return view('vouchers.edit', [
-        'voucher' => Voucher::find($id)
+        'voucher' => $voucher,
+        'voucher_categories'  => $voucher_categories,
+        'voucher_categories_dropdown'  => $voucher_categories_dropdown,
       ]);
     }
 

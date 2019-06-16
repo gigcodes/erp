@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Edit Cash Voucher')
+
 @section('styles')
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
@@ -15,22 +17,7 @@
 	</div>
 </div>
 
-@if ($message = Session::get('success'))
-	<div class="alert alert-success">
-		<p>{{ $message }}</p>
-	</div>
-@endif
-
-@if ($errors->any())
-	<div class="alert alert-danger">
-		<strong>Whoops!</strong> There were some problems with your input.<br><br>
-		<ul>
-			@foreach ($errors->all() as $error)
-				<li>{{ $error }}</li>
-			@endforeach
-		</ul>
-	</div>
-@endif
+@include('partials.flash_messages')
 
 <div class="row">
 	<div class="col-xs-12 col-md-8 col-md-offset-2">
@@ -43,6 +30,15 @@
 				<textarea class="form-control" name="description" placeholder="Descripton" required>{{ $voucher->description }}</textarea>
 				@if ($errors->has('description'))
 					<div class="alert alert-danger">{{$errors->first('description')}}</div>
+				@endif
+			</div>
+
+			<div class="form-group">
+				<strong>Category:</strong>
+				{!! $voucher_categories_dropdown !!}
+
+				@if ($errors->has('category_id'))
+					<div class="alert alert-danger">{{$errors->first('category_id')}}</div>
 				@endif
 			</div>
 
@@ -96,6 +92,14 @@
 				<button type="submit" class="btn btn-secondary">Update</button>
 			</div>
 		</form>
+	</div>
+</div>
+
+@include('vouchers.partials.modal-voucher-category')
+
+<div class="row">
+	<div class="col-xs-12 col-md-8 col-md-offset-2">
+		<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVoucherCategorytModal">Create Categories</button>
 	</div>
 </div>
 
