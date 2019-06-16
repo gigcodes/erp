@@ -305,6 +305,7 @@ class SearchController extends Controller {
 
 		$products = $productQuery->where('stock', '>=', 1)->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
 		$products_count = $products->count();
+		$data['products_count'] = $products_count;
 		$data['products'] = $products->paginate( Setting::get( 'pagination' ) );
 
 		if ($request->model_type == 'broadcast-images') {

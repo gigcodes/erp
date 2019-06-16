@@ -103,7 +103,7 @@ class FetchEmails extends Command
 
           dump($latest_email_date);
 
-          if ($supplier->agents()->count() > 1) {
+          if ($supplier->agents()->count() > 0) {
             if ($supplier->agents()->count() > 1) {
               dump('Multiple Agents');
 

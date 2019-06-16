@@ -13,7 +13,11 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">{{ $roletype }}</h2>
+                <h2 class="page-heading">{{ $roletype }}
+                  @if (isset($products_count))
+                    ({{ $products_count }})
+                  @endif
+                </h2>
 
                 <!--pending products count-->
                 @can('admin')
