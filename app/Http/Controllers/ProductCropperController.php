@@ -9,6 +9,7 @@ use App\Setting;
 use App\Sizes;
 use App\Stage;
 use App\Brand;
+use File;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -194,7 +195,7 @@ class ProductCropperController extends Controller
 
 	public function getListOfImagesToBeVerified(Stage $stage) {
 	    $products = Product::where('is_image_processed', 1)
-            ->where('stage', '>=', $stage->get('Supervisor'))
+            ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('is_crop_rejected', 0)
             ->paginate(24);
 
@@ -204,7 +205,7 @@ class ProductCropperController extends Controller
     public function showImageToBeVerified($id, Stage $stage) {
 	    $product = Product::find($id);
         $secondProduct = Product::where('is_image_processed', 1)
-            ->where('stage', '>=', $stage->get('Supervisor'))
+            ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('id', '!=', $id)
             ->where('is_crop_rejected', 0)
             ->first();
@@ -214,25 +215,52 @@ class ProductCropperController extends Controller
 
     public function approveCrop($id,Stage $stage) {
 	    $product = Product::findOrFail($id);
-	    $product->stage = $product->stage+1;
+	    ++$product->stage;
 	    $product->save();
 
         $secondProduct = Product::where('is_image_processed', 1)
-            ->where('stage', '>=', $stage->get('Supervisor'))
+            ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('id', '!=', $id)
             ->where('is_crop_rejected', 0)
             ->first();
 
+        $this->deleteUncroppedImages($product);
+
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
     }
 
-    public function rejectCrop($id,Stage $stage) {
+    private function deleteUncroppedImages($product) {
+        if ($product->hasMedia(config('constants.media_tags'))) {
+            $this->info($product->id);
+            $tc = count($product->getMedia(config('constants.media_tags')));
+            foreach ($product->getMedia(config('constants.media_tags')) as $key=>$image) {
+                if ($key+1 <= $tc/2) {
+                    $image_path = $image->getAbsolutePath();
+
+                    echo "DELETED $key \n";
+
+                    if (File::exists($image_path)) {
+                        File::delete($image_path);
+                    }
+
+                    $image->delete();
+                }
+            }
+
+            $product->is_image_processed = 0;
+            $product->save();
+
+        }
+    }
+
+    public function rejectCrop($id,Stage $stage, Request $request) {
         $product = Product::findOrFail($id);
         $product->is_crop_rejected = 1;
+        $product->crop_remark = $request->get('remark');
         $product->save();
 
         $secondProduct = Product::where('is_image_processed', 1)
-            ->where('stage', '>=', $stage->get('Supervisor'))
+            ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('id', '!=', $id)
             ->first();
 

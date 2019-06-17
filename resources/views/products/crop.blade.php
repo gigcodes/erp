@@ -8,11 +8,14 @@
             </h5>
         </div>
         <div class="col-md-12 text-center">
-            <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-default">Approve</a>
-            <a href="{{ action('ProductCropperController@rejectCrop', $product->id) }}" class="btn btn-danger">Reject</a>
-            @if($secondProduct)
-                <a href="{{ action('ProductCropperController@showImageToBeVerified', $secondProduct->id) }}">Next Image</a>
-            @endif
+            <form action="{{ action('ProductCropperController@rejectCrop', $product->id) }}">
+                <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-default">Approve</a>
+                <br>
+                <input type="text" class="form-control" placeholder="Remark..." name="remark" id="remark"><button href="{{ action('ProductCropperController@rejectCrop', $product->id) }}" class="btn btn-danger">Reject</button>
+                @if($secondProduct)
+                    <a href="{{ action('ProductCropperController@showImageToBeVerified', $secondProduct->id) }}">Next Image</a>
+                @endif
+            </form>
         </div>
         <div class="col-md-12">
             <div class="text-center">
