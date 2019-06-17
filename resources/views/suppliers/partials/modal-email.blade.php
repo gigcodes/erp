@@ -14,7 +14,7 @@
 
         <div class="modal-body">
           <div class="form-group">
-            <select class="form-control input-sm" name="email[]" multiple required>
+            <select class="form-control input-sm select-multiple" name="email[]" multiple required>
               <option value="">Select Default Email</option>
               @if ($supplier->email != '')
                 <option value="{{ $supplier->email }}" {{ $supplier->email == $supplier->default_email ? 'selected' : '' }}>{{ $supplier->email }} - Supplier's Email</option>
