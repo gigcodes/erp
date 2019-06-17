@@ -39,6 +39,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get('products/auto-cropped/{id}', 'ProductCropperController@showImageToBeVerified');
     Route::get('products/auto-cropped/{id}/show-rejected', 'ProductCropperController@showRejectedImageToBeverified');
     Route::get('products/auto-cropped/{id}/approve', 'ProductCropperController@approveCrop');
+    Route::get('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
 	Route::resource('roles','RoleController');
 	Route::get('users/logins', 'UserController@login')->name('users.login.index');
