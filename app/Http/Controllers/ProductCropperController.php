@@ -231,13 +231,10 @@ class ProductCropperController extends Controller
 
     private function deleteUncroppedImages($product) {
         if ($product->hasMedia(config('constants.media_tags'))) {
-            $this->info($product->id);
             $tc = count($product->getMedia(config('constants.media_tags')));
             foreach ($product->getMedia(config('constants.media_tags')) as $key=>$image) {
                 if ($key+1 <= $tc/2) {
                     $image_path = $image->getAbsolutePath();
-
-                    echo "DELETED $key \n";
 
                     if (File::exists($image_path)) {
                         File::delete($image_path);

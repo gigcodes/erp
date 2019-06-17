@@ -21,7 +21,7 @@ class ScrapStatisticsController extends Controller
         'lidiashopping' => 10,
         'Spinnaker' => 19,
         'alducadaosta' => 16,
-        'biffi' => 6,
+        'biffi' => 11,
         'brunarosso' => 21,
         'conceptstore' => 8,
         'deliberti' => 12,
@@ -55,8 +55,8 @@ class ScrapStatisticsController extends Controller
     {
         $date = $request->get('date');
 
-        $scrapedExistingProducts = DB::table('scrap_statistics')->selectRaw('COUNT(*) as total, supplier')->where('type', 'EXISTING_SCRAP_PRODUCT');
-        $scrapedNewProducts = DB::table('scrap_statistics')->selectRaw('COUNT(*) as total, supplier')->where('type', 'NEW_SCRAP_PRODUCT');
+        $scrapedExistingProducts = DB::table('scrap_statistics')->selectRaw('COUNT(DISTINCT description) as total, supplier')->where('type', 'EXISTING_SCRAP_PRODUCT');
+        $scrapedNewProducts = DB::table('scrap_statistics')->selectRaw('COUNT(DISTINCT description) as total, supplier')->where('type', 'NEW_SCRAP_PRODUCT');
 
 
 
@@ -65,9 +65,28 @@ class ScrapStatisticsController extends Controller
         $supplierList = $this->suppliers;
         $progress = [];
 
+        $totalBrands = 0;
+        $doneBrands = 0;
+
         foreach ($supplierList as $key=>$item) {
-            $count = ScrapStatistics::where('supplier', $key)->whereRaw('DATE(created_at) = "'. date('Y-m-d'.'"'))->distinct()->get(['brand'])->count();
-            $progress[$key] = [$count, ($count/$item)*100,$item];
+            $count = ScrapStatistics::where('supplier', $key);
+            $stat = ScrapStatistics::selectRaw('MIN(created_at) as started_at, MAX(created_at) as ended_at')->where('supplier', $key);
+            if (strlen($date) === 10) {
+                $count = $count->whereRaw('DATE(created_at) = "'. $date . '"');
+                $stat = $stat->whereRaw('DATE(created_at) = "'. $date . '"');
+            } else {
+                $count = $count->whereRaw('DATE(created_at) = "'. date('Y-m-d'.'"'));
+                $stat = $stat->whereRaw('DATE(created_at) = "'. date('Y-m-d'.'"'));
+            }
+
+            $count = $count->distinct()->pluck('brand')->toArray();
+
+            $doneBrands+=count($count);
+            $totalBrands+=$item;
+
+            $blist = implode('<br>', $count);
+
+            $progress[$key] = [count($count), round((count($count)/$item)*100),$item, $blist, $stat->first()];
         }
 
 
@@ -75,6 +94,10 @@ class ScrapStatisticsController extends Controller
             $scrapedNewProducts = $scrapedNewProducts->whereRaw('DATE(created_at) = "'. $date.'"');
             $scrapedExistingProducts = $scrapedExistingProducts->whereRaw('DATE(created_at) = "'. $date.'"');
         }
+
+        $totalPercent = $doneBrands/$totalBrands;
+
+        $totalProgress = round($totalPercent*100);
 
         $scrapedNewProducts = $scrapedNewProducts->groupBy(['supplier'])->get();
         $scrapedExistingProducts = $scrapedExistingProducts->groupBy(['supplier'])->get();
@@ -90,7 +113,7 @@ class ScrapStatisticsController extends Controller
             $progressStats[$supplier->supplier] = $data->get();
         }
 
-        return view('scrap.stats', compact('scrapedExistingProducts', 'scrapedNewProducts', 'request', 'progressStats', 'progress'));
+        return view('scrap.stats', compact('scrapedExistingProducts', 'scrapedNewProducts', 'request', 'progressStats', 'progress', 'totalProgress'));
     }
 
     /**
