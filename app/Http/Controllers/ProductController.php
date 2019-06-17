@@ -223,7 +223,7 @@ class ProductController extends Controller {
 			// ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
 			// ;
 
-			$termWhereClause = ' OR sku LIKE "%' . $term . '%" OR id LIKE "%' . $term . '%"';
+			$termWhereClause = ' AND (sku LIKE "%' . $term . '%" OR id LIKE "%' . $term . '%")';
 
 			// if ($term == - 1) {
 			// 	$products = $products->orWhere( 'isApproved', - 1 );
