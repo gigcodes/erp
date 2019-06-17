@@ -12,6 +12,21 @@
         </div>
         <div class="modal-body">
           <div class="form-group">
+            <strong>Category:</strong>
+            <select class="form-control" name="category_id">
+              <option value="">Select a Category</option>
+
+              @foreach ($vendor_categories as $category)
+                <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->title }}</option>
+              @endforeach
+            </select>
+
+            @if ($errors->has('category_id'))
+              <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Name:</strong>
             <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
 
@@ -116,6 +131,21 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
+          <div class="form-group">
+            <strong>Category:</strong>
+            <select class="form-control" name="category_id" id="vendor_category">
+              <option value="">Select a Category</option>
+
+              @foreach ($vendor_categories as $category)
+                <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->title }}</option>
+              @endforeach
+            </select>
+
+            @if ($errors->has('category_id'))
+              <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
+            @endif
+          </div>
+
           <div class="form-group">
             <strong>Name:</strong>
             <input type="text" name="name" class="form-control" value="{{ old('name') }}" required id="vendor_name">

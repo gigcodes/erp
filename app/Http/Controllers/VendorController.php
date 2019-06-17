@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Vendor;
 use App\VendorProduct;
+use App\VendorCategory;
 use App\Setting;
 use App\ReplyCategory;
 use App\Helpers;
@@ -44,11 +45,15 @@ class VendorController extends Controller
                   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
-                  FROM (SELECT vendors.id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst,
+                  FROM (SELECT vendors.id, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst,
+                  category_name,
                   chat_messages.message_id FROM vendors
 
                   LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
                   ON vendors.id = chat_messages.vendor_id
+
+                  LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
+                  ON vendors.category_id = vendor_categories.id
                   )
 
                   AS vendors
@@ -72,8 +77,11 @@ class VendorController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+      $vendor_categories = VendorCategory::all();
+
       return view('vendors.index', [
         'vendors' => $vendors,
+        'vendor_categories' => $vendor_categories,
         'term'    => $term,
       ]);
     }
@@ -108,6 +116,7 @@ class VendorController extends Controller
     public function store(Request $request)
     {
       $this->validate($request, [
+        'category_id'   => 'sometimes|nullable|numeric',
         'name'          => 'required|string|max:255',
         'address'       => 'sometimes|nullable|string',
         'phone'         => 'sometimes|nullable|numeric',
@@ -166,12 +175,14 @@ class VendorController extends Controller
     public function show($id)
     {
       $vendor = Vendor::find($id);
+      $vendor_categories = VendorCategory::all();
       $vendor_show = true;
       $reply_categories = ReplyCategory::all();
       $users_array = Helpers::getUserArray(User::all());
 
       return view('vendors.show', [
         'vendor'  => $vendor,
+        'vendor_categories'  => $vendor_categories,
         'vendor_show'  => $vendor_show,
         'reply_categories'  => $reply_categories,
         'users_array'  => $users_array
@@ -199,6 +210,7 @@ class VendorController extends Controller
     public function update(Request $request, $id)
     {
       $this->validate($request, [
+        'category_id'     => 'sometimes|nullable|numeric',
         'name'            => 'required|string|max:255',
         'address'         => 'sometimes|nullable|string',
         'phone'           => 'sometimes|nullable|numeric',

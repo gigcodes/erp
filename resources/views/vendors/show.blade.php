@@ -62,8 +62,18 @@
       <div class="tab-pane active mt-3" id="info-tab">
         <div class="row">
           <div class="col-xs-12">
+            <div class="form-group">
+              <select class="form-control input-sm" name="category_id" id="vendor_category">
+                <option value="">Select a Category</option>
+
+                @foreach ($vendor_categories as $category)
+                  <option value="{{ $category->id }}" {{ $category->id == $vendor->category_id ? 'selected' : '' }}>{{ $category->title }}</option>
+                @endforeach
+              </select>
+            </div>
+
             <div class="form-group form-inline">
-              <input type="text" name="name" id="vendor_name" class="form-control input-sm" placeholder="Vendor" value="{{ $vendor->name }}">
+              <input type="text" name="name" id="vendor_name_name" class="form-control input-sm" placeholder="Vendor" value="{{ $vendor->name }}">
 
               {{-- @if ($supplier->is_flagged == 1)
                 <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
@@ -1307,7 +1317,8 @@
       $('#updateVendorButton').on('click', function() {
         var id = {{ $vendor->id }};
         var thiss = $(this);
-        var name = $('#vendor_name').val();
+        var name = $('#vendor_name_name').val();
+        var category = $('#vendor_category').val();
         var phone = $('#vendor_phone').val();
         var default_phone = $('#vendor_default_phone').val();
         var whatsapp_number = $('#vendor_whatsapp_number').val();
@@ -1318,13 +1329,14 @@
         var login = $('#vendor_login').val();
         var password = $('#vendor_password').val();
         var gst = $('#vendor_gst').val();
-
+        
         $.ajax({
           type: "POST",
           url: "{{ url('vendor') }}/" + id,
           data: {
             _token: "{{ csrf_token() }}",
             _method: "PUT",
+            category_id: category,
             name: name,
             phone: phone,
             default_phone: default_phone,
