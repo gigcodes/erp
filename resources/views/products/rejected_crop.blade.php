@@ -7,23 +7,26 @@
                 Rejected Cropped Image
             </h5>
         </div>
-        <div class="col-md-12 text-center">
-            <button href="{{ action('ProductCropperController@approveRejectedCropped', $product->id) }}" type="button" class="btn btn-default">Approve</button>
-            @if($secondProduct)
-                <a href="{{ action('ProductCropperController@showRejectedImageToBeverified', $secondProduct->id) }}">Next Image</a>
-            @endif
-        </div>
-        <div class="col-md-12">
-            <div class="text-center">
-                <h4>{{ $product->title }}</h4>
-                <p>{{ $product->sku }}</p>
+        <form action="{{action('ProductCropperController@approveRejectedCropped', $product->id)}}" method="post">
+            @csrf
+            <div class="col-md-12 text-center">
+                <button href="{{ action('ProductCropperController@approveRejectedCropped', $product->id) }}" type="button" class="btn btn-default">Approve</button>
+                @if($secondProduct)
+                    <a href="{{ action('ProductCropperController@showRejectedImageToBeverified', $secondProduct->id) }}">Next Image</a>
+                @endif
             </div>
-            <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
-                @foreach($product->media()->get() as $image)
-                    <a href="{{ $image->getUrl() }}"><img src="{{ $image->getUrl() }}"></a>
-                @endforeach
+            <div class="col-md-12">
+                <div class="text-center">
+                    <h4>{{ $product->title }}</h4>
+                    <p>{{ $product->sku }}</p>
+                </div>
+                <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
+                    @foreach($product->media()->get() as $image)
+                        <a href="{{ $image->getUrl() }}"><img src="{{ $image->getUrl() }}"></a>
+                    @endforeach
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 @endsection
 
