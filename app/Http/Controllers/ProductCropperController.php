@@ -214,7 +214,7 @@ class ProductCropperController extends Controller
 
     public function approveCrop($id,Stage $stage) {
 	    $product = Product::findOrFail($id);
-	    $product->state = $product->stage+1;
+	    $product->stage = $product->stage+1;
 	    $product->save();
 
         $secondProduct = Product::where('is_image_processed', 1)
