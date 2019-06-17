@@ -252,7 +252,7 @@ class ProductController extends Controller {
 
 
 		// $products = $products->where('is_scraped', 1)->where('stock', '>=', 1);
-
+		$cropped = $request->cropped == "on" ? "on" : '';
     if ($request->get('cropped') == 'on') {
       // $products = $products->where('is_image_processed', 1);
 			$croppedWhereClause = ' AND is_image_processed = 1';
@@ -352,6 +352,7 @@ class ProductController extends Controller {
 			'supplier'	=> $supplier,
 			'type'	=> $type,
 			'assigned_to_users'	=> $assigned_to_users,
+			'cropped'	=> $cropped
 		]);
 	}
 
