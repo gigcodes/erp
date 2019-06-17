@@ -129,6 +129,8 @@ class ProductListerController extends Controller
 					'stock_data' => array(
 						'use_config_manage_stock' => 1,
 						'manage_stock' => 1,
+						'qty'					=> 1,
+						'is_in_stock'	=> 1,
 					),
 					'price'                 => $product->price_inr,
 					// Same price than configurable product, no price change
@@ -176,6 +178,8 @@ class ProductListerController extends Controller
 				'stock_data' => array(
 					'use_config_manage_stock' => 1,
 					'manage_stock' => 1,
+					'qty'					=> 1,
+					'is_in_stock'	=> 1,
 				),
 				'price'                   => $product->price_inr,
 				// Same price than configurable product, no price change
@@ -225,6 +229,8 @@ class ProductListerController extends Controller
 				'stock_data' => array(
 					'use_config_manage_stock' => 1,
 					'manage_stock' => 1,
+					'qty'					=> 1,
+					'is_in_stock'	=> 1,
 				),
 				'price'                 => $product->price_inr,
 				// Same price than configurable product, no price change

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Product Listing - ERP Sololuxury')
+@section('title', 'Product Listing')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">

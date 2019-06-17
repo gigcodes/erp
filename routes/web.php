@@ -497,6 +497,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
 	Route::resource('vendor', 'VendorController');
 
+	Route::resource('vendor_category', 'VendorCategoryController');
+
 	// Suppliers Module
 	// Route::post('supplier/agent/store', 'SupplierController@agentStore')->name('supplier.agent.store');
 	// Route::put('supplier/agent/update/{id}', 'SupplierController@agentUpdate')->name('supplier.agent.update');

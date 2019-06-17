@@ -30,6 +30,7 @@
           </form>
         </div>
         <div class="pull-right">
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</a>
         </div>
       </div>
@@ -42,9 +43,10 @@
         <thead>
           <tr>
             <th width="5%">ID</th>
+            <th width="5%">Category</th>
             <th width="10%">Name</th>
             <th width="10%">Phone</th>
-            <th width="15%">Email</th>
+            <th width="10%">Email</th>
             <th width="10%">Address</th>
             <th width="10%">Social handle</th>
             <th width="10%">Website</th>
@@ -57,9 +59,26 @@
           @foreach ($vendors as $vendor)
             <tr>
               <td>{{ $vendor->id }}</td>
+              <td class="expand-row table-hover-cell">
+                <span class="td-mini-container">
+                  {{ strlen($vendor->category_name) > 7 ? substr($vendor->category_name, 0, 7) : $vendor->category_name }}
+                </span>
+
+                <span class="td-full-container hidden">
+                  {{ $vendor->category_name }}
+                </span>
+              </td>
               <td>{{ $vendor->name }}</td>
               <td>{{ $vendor->phone }}</td>
-              <td style="word-break: break-all;">{{ $vendor->email }}</td>
+              <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                <span class="td-mini-container">
+                  {{ strlen($vendor->email) > 10 ? substr($vendor->email, 0, 10) : $vendor->email }}
+                </span>
+
+                <span class="td-full-container hidden">
+                  {{ $vendor->email }}
+                </span>
+              </td>
               <td style="word-break: break-all;">{{ $vendor->address }}</td>
 
               <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
@@ -124,6 +143,7 @@
 
     @include('vendors.partials.vendor-modals')
     @include('vendors.partials.agent-modals')
+    @include('vendors.partials.vendor-category-modals')
 
 @endsection
 
@@ -134,6 +154,7 @@
       var url = "{{ url('vendor') }}/" + vendor.id;
 
       $('#vendorEditModal form').attr('action', url);
+      $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
       $('#vendor_name').val(vendor.name);
       $('#vendor_address').val(vendor.address);
       $('#vendor_phone').val(vendor.phone);

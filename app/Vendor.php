@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Vendor extends Model
 {
   protected $fillable = [
-    'name', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'social_handle', 'website', 'login', 'password', 'gst'
+    'category_id', 'name', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'social_handle', 'website', 'login', 'password', 'gst'
   ];
 
   public function products()
@@ -18,5 +18,10 @@ class Vendor extends Model
   public function agents()
   {
     return $this->hasMany('App\Agent', 'model_id')->where('model_type', 'App\Vendor');
+  }
+
+  public function category()
+  {
+    return $this->belongsTo('App\VendorCategory');
   }
 }
