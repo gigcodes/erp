@@ -489,6 +489,9 @@
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
 
                                                 Grid</a>
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
+
+                                                Grid</a>
 
                                         </ul>
 

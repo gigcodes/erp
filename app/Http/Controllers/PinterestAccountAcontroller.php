@@ -35,6 +35,7 @@ class PinterestAccountAcontroller extends Controller
             'last_name' => 'required',
             'first_name' => 'required',
             'password' => 'required',
+            'email' => 'required'
         ]);
 
         $account = new Account();
@@ -52,7 +53,31 @@ class PinterestAccountAcontroller extends Controller
     }
 
     public function edit($id) {
+        $account = Account::find($id);
+        $countries = TargetLocation::all();
 
+        return view('pinterest.account-edit', compact('countries', 'account'));
+
+    }
+
+    public function update($id, Request $request) {
+        $this->validate($request, [
+            'last_name' => 'required',
+            'first_name' => 'required',
+            'password' => 'required',
+            'email' => 'required'
+        ]);
+
+        $account = Account::findOrFail($id);
+        $account->last_name = $request->get('last_name');
+        $account->first_name = $request->get('first_name');
+        $account->password = $request->get('password');
+        $account->email = $request->get('email');
+        $account->blocked = $request->get('blocked') == 'on' ? 1 : 0;
+        $account->country = $request->get('country');
+        $account->save();
+
+        return redirect()->back()->with('message', 'Account updated successfully!');
     }
 
     public function destroy($id) {
