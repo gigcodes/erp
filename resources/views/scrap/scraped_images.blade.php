@@ -24,7 +24,9 @@
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-image">
-                                    <img style="width: 100%;" src="{!! (strpos($product->images[0], 'http')===false) ? asset('uploads/social-media/'.$product->images[0]) : $product->images[0] !!}">
+                                    @if (isset($product->images[0]))
+                                        <img style="width: 100%;" src="{!! (strpos($product->images[0], 'http')===false) ? asset('uploads/social-media/'.$product->images[0]) : $product->images[0] !!}">
+                                    @endif
                                 </div><!-- card image -->
 
                                 <div class="card-content">
