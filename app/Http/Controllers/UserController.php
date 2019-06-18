@@ -14,6 +14,7 @@ use App\PushNotification;
 use App\ApiKey;
 use App\Task;
 use App\Product;
+use App\Customer;
 use App\UserProduct;
 use Spatie\Permission\Models\Role;
 use DB;
@@ -164,9 +165,10 @@ class UserController extends Controller
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
     $user_agent_roles = explode(',', $user->agent_role);
 		$api_keys = ApiKey::select('number')->get();
+		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
 
-		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles', 'api_keys'));
+		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles', 'api_keys', 'customers_all'));
 	}
 
 
@@ -187,7 +189,6 @@ class UserController extends Controller
 			'roles' => 'required',
 
 		]);
-
 
 		$input = $request->all();
 		$input['name'] = str_replace(' ', '_', $input['name']);
@@ -211,21 +212,25 @@ class UserController extends Controller
 		$user = User::find($id);
 		$user->update($input);
 
-		if (!$user->hasRole('Products Lister') && in_array('Products Lister', $request->roles)) {
+		if ($request->customer[0] != '') {
+			$user->customers()->sync($request->customer);
+		}
+
+		if (!$user->hasRole('Products Lister') && in_array('Prod  ucts Lister', $request->roles)) {
 			$requestData = new Request();
 			$requestData->setMethod('POST');
 			$requestData->request->add(['amount_assigned' => 100]);
 
 			$this->assignProducts($requestData, Auth::id());
 		}
-		
+
 		DB::table('model_has_roles')->where('model_id',$id)->delete();
 
 		$user->assignRole($request->input('roles'));
 
 
 
-		return redirect()->route('users.show', $id)
+		return redirect()->back()
 		                 ->with('success','User updated successfully');
 	}
 

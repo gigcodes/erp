@@ -142,7 +142,7 @@
     @include('partials.modals.remarks')
 
     @include('vendors.partials.vendor-modals')
-    @include('vendors.partials.agent-modals')
+    {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
 
 @endsection
