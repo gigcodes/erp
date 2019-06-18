@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'User Edit Page')
+
 
 @section('content')
     <div class="row">
@@ -14,16 +16,7 @@
     </div>
 
 
-    @if (count($errors) > 0)
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    @include('partials.flash_messages')
 
 
     {!! Form::model($user, ['method' => 'PATCH','route' => ['users.update', $user->id]]) !!}
@@ -122,6 +115,23 @@
             <input type="number" name="amount_assigned" class="form-control" value="{{ $user->amount_assigned }}">
           </div>
         </div>
+
+        @if ($user->hasRole('Customer Care'))
+          <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+              <strong>Assigned Customers:</strong>
+              <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer[]" title="Choose Customers" multiple>
+                @foreach ($customers_all as $customer)
+                  <option data-tokens="{{ $customer['name'] }} {{ $customer['email'] }}  {{ $customer['phone'] }} {{ $customer['instahandler'] }}" value="{{ $customer['id'] }}" {{ $user->customers && $user->customers->contains($customer['id']) ? 'selected' : '' }}>{{ $customer['id'] }} - {{ $customer['name'] }} - {{ $customer['phone'] }}</option>
+                @endforeach
+              </select>
+
+              @if ($errors->has('customer'))
+                <div class="alert alert-danger">{{$errors->first('customer')}}</div>
+              @endif
+            </div>
+          </div>
+        @endif
 
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <button type="submit" class="btn btn-secondary">+</button>

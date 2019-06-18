@@ -397,6 +397,12 @@ class CustomerController extends Controller
           $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
         }
 
+        $assignedWhereClause = '';
+        if (Auth::user()->hasRole('Customer Care')) {
+          $user_id = Auth::id();
+          $assignedWhereClause = " AND id IN (SELECT customer_id FROM user_customers WHERE user_id = $user_id)";
+        }
+
         $customers = DB::select('
   									SELECT * FROM
                     (SELECT customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, customers.deleted_at,
@@ -431,10 +437,13 @@ class CustomerController extends Controller
                     ) AS customers
                     WHERE (deleted_at IS NULL) AND (id IS NOT NULL)
                     ' . $searchWhereClause . '
+                    ' . $assignedWhereClause . '
                     ' . $orderByClause . '
                   ) AS customers
                   ' . $filterWhereClause . $leadsWhereClause . ';
   							');
+
+                // dd($customers);
 
         // $customers = DB::select('
   			// 						SELECT * FROM
