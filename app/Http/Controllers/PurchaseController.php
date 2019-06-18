@@ -1635,7 +1635,7 @@ class PurchaseController extends Controller
           'model_id'        => $supplier->id,
           'model_type'      => Supplier::class,
           'from'            => 'buying@amourint.com',
-          'to'              => $supplier->default_email ?? $supplier->email,
+          'to'              => $request->email[0],
           'seen'            => 1,
           'subject'         => $request->subject,
           'message'         => $request->message,

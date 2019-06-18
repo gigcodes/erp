@@ -17,12 +17,12 @@
             <select class="form-control input-sm select-multiple" name="email[]" multiple required>
               <option value="">Select Default Email</option>
               @if ($supplier->email != '')
-                <option value="{{ $supplier->email }}" {{ $supplier->email == $supplier->default_email ? 'selected' : '' }}>{{ $supplier->email }} - Supplier's Email</option>
+                <option value="{{ $supplier->email }}">{{ $supplier->email }} - Supplier's Email</option>
               @endif
 
               @if ($supplier->agents)
                 @foreach ($supplier->agents as $agent)
-                  <option value="{{ $agent->email }}" {{ $agent->email == $supplier->default_email ? 'selected' : '' }}>{{ $agent->email }} - {{ $agent->name }}</option>
+                  <option value="{{ $agent->email }}">{{ $agent->email }} - {{ $agent->name }}</option>
                 @endforeach
               @endif
             </select>

@@ -2201,11 +2201,11 @@ class WhatsAppController extends FindByNumberController
 
             $additional_message = ChatMessage::create($params);
 
-            if ($customer->whatsapp_number == '919152731483') {
+            // if ($customer->whatsapp_number == '919152731483') {
               $data = $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
-            } else {
-              $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
-            }
+            // } else {
+            //   $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
+            // }
 
             sleep(5);
           }
@@ -2226,11 +2226,11 @@ class WhatsAppController extends FindByNumberController
 
               $additional_message = ChatMessage::create($params);
 
-              if ($default_api->number == '919152731483') {
+              // if ($default_api->number == '919152731483') {
                 $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id);
-              } else {
-                $this->sendWithWhatsApp($customer->phone, $default_api->number, $additional_message->message, TRUE, $additional_message->id);
-              }
+              // } else {
+              //   $this->sendWithWhatsApp($customer->phone, $default_api->number, $additional_message->message, TRUE, $additional_message->id);
+              // }
 
               sleep(5);
 
@@ -2293,21 +2293,21 @@ class WhatsAppController extends FindByNumberController
           if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
-            if ($whatsapp_number == '919152731483') {
+            // if ($whatsapp_number == '919152731483') {
               $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
-            } else {
-              $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
-            }
+            // } else {
+            //   $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
+            // }
           }
         }
 
         if ($message->media_url != '') {
 
-          if ($whatsapp_number == '919152731483') {
+          // if ($whatsapp_number == '919152731483') {
             $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $message->media_url, $message->id);
-          } else {
-            $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
-          }
+          // } else {
+          //   $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
+          // }
         }
 
         if ($images = $message->getMedia(config('constants.media_tags'))) {
@@ -2316,11 +2316,13 @@ class WhatsAppController extends FindByNumberController
 
             if ($context == 'task' || $context == 'vendor') {
               $this->sendWithThirdApi($phone, $whatsapp_number, NULL, $send);
-            } else if ($whatsapp_number == '919152731483') {
-              $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
             } else {
-              $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
+              $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
             }
+            // else if ($whatsapp_number == '919152731483') {
+            // } else {
+            //   $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
+            // }
           }
         }
 
@@ -2658,9 +2660,30 @@ class WhatsAppController extends FindByNumberController
     //   }
     // }
 
+    // 917534013101 -
+    // 919604019000 +
+    // 919582881540 +
+    // 919811906360 +
+    // 919819119863 +
+    // 916370347484 +
+    // 919717147814 +
+    // 919820026342 +
+    // 919811455004 +
+    // 919825766685 -
+    // 919881790007 -
+    // 919818156656 -
+    // 919819749796 -
+    // 919833049260 -
+    // 919811912233 -
+    // 919650780018 -
+    // 917011450395 -
+    // 919623737289 -
+    // 919819363304 -
+    // 919819882253 -
+
     $key = "Z802FWHI8E2OP0X120QR";
 
-    $encodedNumber = urlencode('919769854079');
+    $encodedNumber = urlencode('917534013101');
     // $encodedText = urlencode($text);
     $encodedType = urlencode('IN');
 
@@ -2690,12 +2713,24 @@ class WhatsAppController extends FindByNumberController
       //  }
     }
 
+    // dd($result);
+
     $filtered_data = [];
+    //
+    // foreach ($result as $item) {
+    //   if (Carbon::parse($item['creation_date'])->gt(Carbon::parse("2019-06-17 00:00:00"))) {
+    //     $filtered_data[] = $item;
+    //   }
+    // }
+    //
+    // dd($filtered_data);
 
     foreach ($result as $item) {
-      if (Carbon::parse($item['creation_date'])->gt(Carbon::parse("2019-06-03 00:00:00"))) {
+      if (Carbon::parse($item['creation_date'])->gt(Carbon::parse("2019-06-17 00:00:00"))) {
         $filtered_data[] = $item;
         $customer = $this->findCustomerByNumber($item['from']);
+
+        // dd($filtered_data);
 
         if ($customer) {
           $params = [
@@ -2705,7 +2740,7 @@ class WhatsAppController extends FindByNumberController
             'created_at'  => $item['creation_date']
           ];
 
-          ChatMessage::create($params);
+          // ChatMessage::create($params);
         }
       }
     }
