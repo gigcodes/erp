@@ -127,12 +127,20 @@ class AccountController extends Controller
     }
 
     public function createAccount(Request $request) {
+
+        $this->validate($request, [
+            'username' => 'required',
+            'name' => 'required',
+            'password' => 'required'
+        ]);
+
         $account = new Account();
         $account->first_name = $request->get('name');
+        $account->email = $request->get('email');
         $account->last_name = $request->get('username');
         $account->password = $request->get('password');
-        $account->country = $request->get('country');
-        $account->gender = $request->get('gender');
+        $account->gender = 'female';
+        $account->platform = 'instagram';
         $account->save();
 
         return response()->json([

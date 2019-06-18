@@ -60,7 +60,7 @@ class GrowInstagramAccounts extends Command
             $account->manual_comment = 1;
             $account->save();
 
-            if ($stage >= 10) {
+            if ($stage >= 7) {
                 $account->bulk_comment = 1;
                 $account->manual_comment = 0;
                 $account->is_seeding = 0;
@@ -76,9 +76,6 @@ class GrowInstagramAccounts extends Command
                 4 => ['9', '10'],
                 5 => ['11', '12'],
                 6 => ['13', '14'],
-                7 => ['15', '16'],
-                8 => ['17', '18'],
-                9 => ['19', '20'],
             ];
 
             $followSet = [
@@ -89,9 +86,6 @@ class GrowInstagramAccounts extends Command
                 4 => ['dolcegabbana', 'bottegaveneta'],
                 5 => ['celine', 'chloe'],
                 6 => ['dior', 'fendi'],
-                7 => ['isseymiyakeparfums', 'jimmychoo'],
-                8 => ['ysl', 'tomford'],
-                9 => ['toryburch', 'stellamccartney'],
             ];
 
             $imagesToPost = $imageSet[$stage];

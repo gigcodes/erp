@@ -23,6 +23,8 @@
                                 <p class="card-text">
                                     {{ $product->sku }}<br>
                                     {{ $product->supplier }}
+                                    <br>
+                                    Note: {{ $product->crop_remark }}
                                 </p>
                                 <a href="{{ action('ProductCropperController@showRejectedImageToBeverified', $product->id) }}" class="btn btn-primary">Check Cropping</a>
                             </div>

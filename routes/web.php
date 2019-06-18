@@ -580,6 +580,8 @@ Route::prefix('pinterest')->group(function () {
     Route::resource('accounts', 'PinterestAccountAcontroller');
 });
 
+Route::resource('pre-accounts', 'PreAccountController');
+
 Route::prefix('instagram')->group(function () {
     Route::post('store', 'InstagramController@store');
     Route::get('{id}/edit', 'InstagramController@edit');

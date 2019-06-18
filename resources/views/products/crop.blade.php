@@ -10,8 +10,8 @@
         <div class="col-md-12 text-center">
             <form action="{{ action('ProductCropperController@rejectCrop', $product->id) }}">
                 <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-default">Approve</a>
-                <br>
-                <input type="text" class="form-control" placeholder="Remark..." name="remark" id="remark"><button href="{{ action('ProductCropperController@rejectCrop', $product->id) }}" class="btn btn-danger">Reject</button>
+                <br><br>
+                <input style="display: inline; width: 400px;" type="text" class="form-control" placeholder="Remark..." name="remark" id="remark">&nbsp;<button class="btn btn-danger">Reject</button>
                 @if($secondProduct)
                     <a href="{{ action('ProductCropperController@showImageToBeVerified', $secondProduct->id) }}">Next Image</a>
                 @endif
@@ -22,10 +22,34 @@
                 <h4>{{ $product->title }}</h4>
                 <p>{{ $product->sku }}</p>
             </div>
-            <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
-                @foreach($product->media()->get() as $image)
-                    <a href="{{ $image->getUrl() }}"><img src="{{ $image->getUrl() }}"></a>
-                @endforeach
+            <div>
+                <form action="">
+                    @foreach($product->media()->get() as $image)
+                        <?php
+                        list($height, $width) = getimagesize($image->getUrl())
+                        ?>
+                        @if ($height == 1000 && $width === 1000)
+                            <div style="position: relative; margin-bottom: 5px; width: 1000px;height: 1000px; background-image: url('{{$image->getUrl()}}'); background-size: cover">
+                                <img src="{{ asset('images/'.$img) }}" alt="">
+                                <div style="position: absolute; top: 5px;left:380px;">
+                                    <p><strong>Image Info</strong></p>
+                                    <select class="form-control" name="" id="">
+                                        <option value="ok">Ok</option>
+                                    </select>
+                                    <li>
+                                        Dimension: {{$product->lmeasurement}} X {{$product->hmeasurement}} X {{$product->dmeasurement}}
+                                    </li>
+                                </div>
+                            </div>
+                                <br>
+                            <hr>
+                                <br>
+                        @endif
+                    @endforeach
+                    <div class="form-group text-right">
+                        <button class="btn btn-default">Update Cropped Images</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

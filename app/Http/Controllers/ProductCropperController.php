@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\CropAmends;
 use App\Image;
 use App\Product;
 use App\Setting;
@@ -210,7 +211,39 @@ class ProductCropperController extends Controller
             ->where('is_crop_rejected', 0)
             ->first();
 
-	    return view('products.crop', compact('product', 'secondProduct'));
+        $category = $product->category;
+        $img = $this->getCategoryForCropping($category);
+
+	    return view('products.crop', compact('product', 'secondProduct', 'img'));
+    }
+
+    private function getCategoryForCropping($categoryId) {
+	    $imagesForGrid = [
+	        'Shoes' => 'shoes_grid.png',
+            'Clothing' => 'clothing_grid.png',
+            'Belt' => 'belt_grid.png',
+            'Bags' => 'bags_grid.png',
+            'Backpacks' => 'backpacks_grid.png'
+        ];
+
+	    $category = Category::find($categoryId);
+	    $catName = $category->title;
+
+	    if (isset($imagesForGrid[$catName])) {
+	        return $imagesForGrid[$catName];
+        }
+
+	    if ($category->parent_id > 1) {
+	        $category = Category::find($category->parent_id);
+	        return $imagesForGrid[$category->title] ?? '';
+        }
+
+	    return '';
+
+    }
+
+    public function ammendCrop(Request $request) {
+	    dd($request->all());
     }
 
     public function approveCrop($id,Stage $stage) {
@@ -280,5 +313,15 @@ class ProductCropperController extends Controller
 
     public function approveRejectedCropped($id, Request $request) {
 
+    }
+
+    public function updateCroppedImages(Request $request) {
+	    dd($request->all());
+
+    }
+
+    public function giveImagesToBeAmended() {
+	    $image = CropAmends::where('status', 1)->first();
+	    return response()->json($image);
     }
 }
