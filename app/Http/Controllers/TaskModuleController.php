@@ -229,7 +229,7 @@ class TaskModuleController extends Controller {
 	                 ON tasks.id = chat_messages.task_id
 
 	               ) AS tasks
-	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . '
+	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . '
 	               ORDER BY last_communicated_at DESC;
 							');
 							// dd($data['task']['statutory_completed']);
@@ -470,6 +470,18 @@ class TaskModuleController extends Controller {
 		return response()->json(['is_flagged' => $task->is_flagged]);
 	}
 
+	public function plan(Request $request, $id)
+	{
+		$task = Task::find($id);
+		$task->time_slot = $request->time_slot;
+		$task->planned_at = Carbon::now()->format('Y-m-d');
+		$task->save();
+
+		return response()->json([
+			'task'	=> $task
+		]);
+	}
+
 	public function loadView(Request $request)
 	{
 		$tasks = Task::whereIn('id', $request->selected_tasks)->get();
@@ -677,22 +689,22 @@ class TaskModuleController extends Controller {
 		// 	$task->save();
 		// }
 
-		$tasks = Task::where('category', $task->category)->where('assign_from', $task->assign_from)->where('is_statutory', $task->is_statutory)->where('task_details', $task->task_details)->where('task_subject', $task->task_subject)->get();
-
-		foreach ($tasks as $item) {
-			if ($request->type == 'complete') {
-				if ($item->is_completed == '') {
-					$item->is_completed = date( 'Y-m-d H:i:s' );
-				} else if ($item->is_verified == '') {
-					$item->is_verified = date( 'Y-m-d H:i:s' );
-				}
-			} else if ($request->type == 'clear') {
-				$item->is_completed = NULL;
-				$item->is_verified = NULL;
-			}
-
-			$item->save();
-		}
+		// $tasks = Task::where('category', $task->category)->where('assign_from', $task->assign_from)->where('is_statutory', $task->is_statutory)->where('task_details', $task->task_details)->where('task_subject', $task->task_subject)->get();
+		//
+		// foreach ($tasks as $item) {
+		// 	if ($request->type == 'complete') {
+		// 		if ($item->is_completed == '') {
+		// 			$item->is_completed = date( 'Y-m-d H:i:s' );
+		// 		} else if ($item->is_verified == '') {
+		// 			$item->is_verified = date( 'Y-m-d H:i:s' );
+		// 		}
+		// 	} else if ($request->type == 'clear') {
+		// 		$item->is_completed = NULL;
+		// 		$item->is_verified = NULL;
+		// 	}
+		//
+		// 	$item->save();
+		// }
 
 		if ($request->type == 'complete') {
 			if ($task->is_completed == '') {
@@ -701,8 +713,8 @@ class TaskModuleController extends Controller {
 				$task->is_verified = date( 'Y-m-d H:i:s' );
 			}
 		} else if ($request->type == 'clear') {
-			$item->is_completed = NULL;
-			$item->is_verified = NULL;
+			$task->is_completed = NULL;
+			$task->is_verified = NULL;
 		}
 
 		$task->save();

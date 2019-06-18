@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DailyActivity;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DailyActivityController extends Controller
@@ -21,6 +22,25 @@ class DailyActivityController extends Controller
 			    DailyActivity::create($item);
 		    }
 	    }
+    }
+
+    public function quickStore(Request $request)
+    {
+      $data = $request->except('_token');
+      $activity = DailyActivity::create($data);
+
+      return response()->json([
+        'activity'  => $activity
+      ]);
+    }
+
+    public function complete(Request $request, $id)
+    {
+      $activity = DailyActivity::find($id);
+      $activity->is_completed = Carbon::now();
+      $activity->save();
+
+      return response('success', 200);
     }
 
     function get(Request $request){

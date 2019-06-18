@@ -150,6 +150,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	Route::get('task/list', 'TaskModuleController@list')->name('task.list');
 	Route::post('task/flag', 'TaskModuleController@flag')->name('task.flag');
+	Route::post('task/{id}/plan', 'TaskModuleController@plan')->name('task.plan');
 	Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
 	Route::post('task/loadView', 'TaskModuleController@loadView')->name('task.load.view');
 	Route::post('task/message/reminder', 'TaskModuleController@messageReminder')->name('task.message.reminder');
@@ -315,6 +316,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('/pushNotification/status/{push_notification}','PushNotificationController@changeStatus')->name('pushNotificationStatus');
 
 	Route::post('dailyActivity/store','DailyActivityController@store')->name('dailyActivity.store');
+	Route::post('dailyActivity/quickStore','DailyActivityController@quickStore')->name('dailyActivity.quick.store');
+	Route::get('dailyActivity/complete/{id}','DailyActivityController@complete');
 	Route::get('dailyActivity/get','DailyActivityController@get')->name('dailyActivity.get');
 
 	// Complete the task

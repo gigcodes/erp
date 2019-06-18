@@ -838,7 +838,7 @@ form.display-inline{
 }
 
 .btn-image {
-    padding: 6px 6px !important;
+    /* padding: 6px 6px !important; */
 }
 
 .navbar-expand-md .navbar-nav .dropdown-menu {
