@@ -576,6 +576,10 @@ Route::prefix('sitejabber')->group(function() {
     Route::resource('qa', 'SitejabberQAController');
 });
 
+Route::prefix('pinterest')->group(function () {
+    Route::resource('accounts', 'PinterestAccountAcontroller');
+});
+
 Route::prefix('instagram')->group(function () {
     Route::post('store', 'InstagramController@store');
     Route::get('{id}/edit', 'InstagramController@edit');

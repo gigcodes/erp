@@ -85,7 +85,7 @@ class ScrapStatisticsController extends Controller
             $doneBrands+=count($count);
             $totalBrands+=$item;
 
-            $blist = implode('<br>', $count);
+            $blist = implode(', ', $count);
 
             $progress[$key] = [count($count), round((count($count)/$item)*100),$item, $blist, $stat->first()];
         }

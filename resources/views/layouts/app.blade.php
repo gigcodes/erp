@@ -1303,6 +1303,21 @@
                                       </ul>
 
                                   </li>
+                                  <li class="nav-item dropdown dropdown-submenu">
+
+                                      <a id="pinterestMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
+                                          Pinterest<span class="caret"></span>
+
+                                      </a>
+
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="pinterestMenu">
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                              <a class="dropdown-item" href="{{ action('PinterestAccountAcontroller@index') }}">Accounts</a>
+                                          </li>
+                                      </ul>
+
+                                  </li>
 
                               @endif
                           </ul>
