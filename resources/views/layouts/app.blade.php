@@ -519,7 +519,7 @@
                                     </li>
 
                                     @can ('product-lister')
-                                      <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
+                                      <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Listings</a>
                                     @endcan
 
 

@@ -22,7 +22,7 @@
       <div class="pull-left">
         <form class="form-inline" action="{{ route('products.listing') }}" method="GET">
           <div class="form-group mr-3 mb-3">
-            <input type="checkbox" name="cropped" id="cropped"> <label for="cropped"><strong>Cropped</strong></label>
+            <input type="checkbox" name="cropped" id="cropped" {{ isset($cropped) && $cropped == 'on' ? 'checked' : '' }}> <label for="cropped"><strong>Cropped</strong></label>
           </div>
 
           <div class="form-group mr-3 mb-3">
