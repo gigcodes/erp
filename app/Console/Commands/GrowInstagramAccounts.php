@@ -48,12 +48,21 @@ class GrowInstagramAccounts extends Command
 
 
             $instagram = new Instagram();
-            $instagram->login($username, $password);
+
+            try {
+                $instagram->login($username, $password);
+            } catch (\Exception $exception) {
+                continue;
+            }
 
             $stage = $account->seeding_stage;
 
+            $account->manual_comment = 1;
+            $account->save();
+
             if ($stage >= 10) {
                 $account->bulk_comment = 1;
+                $account->manual_comment = 0;
                 $account->is_seeding = 0;
                 $account->save();
                 continue;

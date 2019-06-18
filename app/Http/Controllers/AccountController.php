@@ -77,6 +77,14 @@ class AccountController extends Controller
 
     public function startAccountGrowth($id) {
         $account = Account::findOrFail($id);
+        $this->ig = new Instagram();
+
+        try {
+            $this->ig->login($account->last_name, $account->password);
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('message', 'Please connect your account to server before starting growth!');
+        }
+
         $account->is_seeding = 1;
         $account->seeding_stage = 0;
         $account->save();
