@@ -10,6 +10,7 @@ use App\Instruction;
 use App\InstructionCategory;
 use App\ReplyCategory;
 use App\DeveloperTask;
+use App\DailyActivity;
 use App\Order;
 use App\Purchase;
 use App\Email;
@@ -119,13 +120,15 @@ class MasterControlController extends Controller
       // dd($new_data);
 
       $tasks = [];
-      $userid = Auth::id();
-  		$tasks['tasks']      = Task::where('is_statutory', '=', 0)
+      $userid = $request->user_id ?? Auth::id();
+      // dd($userid);
+      $temp = Task::where('is_statutory', '=', 0)
   										->where(function ($query) use ($userid) {
   											return $query->orWhere('assign_from', '=', $userid)
   											             ->orWhere('assign_to', '=', $userid);
   										})
-  		                               ->oldest()->get()->groupBy(['assign_to', function ($query) {
+  		                               ->oldest()->get();
+  		$tasks['tasks']  =    $temp->groupBy(['assign_to', function ($query) {
                                        // return $query->is_completed;
                                        if ($query->is_completed != '') {
                                          return 1;
@@ -133,6 +136,8 @@ class MasterControlController extends Controller
                                          return 0;
                                        }
                                      }])->toArray();
+
+                                     $tasks['list'] = $temp;
 
        $tasks['statutory'] = DB::select('
                    SELECT *,
@@ -158,9 +163,55 @@ class MasterControlController extends Controller
                      ON tasks.id = chat_messages.task_id
 
                    ) AS tasks
-                   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_watched = 1 AND is_completed IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . '))
+                   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_watched = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . '))
                    ORDER BY last_communicated_at DESC;
     						');
+
+      $planned_tasks  = Task::whereNotNull('time_slot')->where('planned_at', Carbon::now()->format('Y-m-d'))->where(function ($query) use ($userid) {
+        return $query->orWhere('assign_from', '=', $userid)
+                     ->orWhere('assign_to', '=', $userid);
+      })->whereNull('is_completed')->orderBy('time_slot', 'ASC')->get()->groupBy('time_slot');
+
+      $statutory  = Task::where(function ($query) use ($userid) {
+        return $query->whereRaw("tasks.id IN (SELECT task_id FROM task_users WHERE user_id = $userid)")->orWhere('assign_from', '=', $userid)
+                     ->orWhere('assign_to', '=', $userid);
+      })->where('is_statutory', 1)->whereNull('is_verified')->get();
+
+      $daily_activities = DailyActivity::where('user_id', $userid)->where('for_date', Carbon::now()->format('Y-m-d'))->get()->groupBy('time_slot');
+
+      // dd($daily_activities);
+
+      // dd($statutory);
+
+      $time_slots = [
+        '08:00am - 10:00am' => [],
+        '10:00am - 12:00pm' => [],
+        '12:00pm - 02:00pm' => [],
+        '02:00pm - 04:00pm' => [],
+        '04:00pm - 06:00pm' => [],
+        '06:00pm - 08:00pm' => [],
+        '08:00pm - 10:00pm' => [],
+      ];
+
+      foreach ($statutory as $task) {
+        $time_slots['08:00am - 10:00am'][] = $task;
+      }
+
+      foreach ($planned_tasks as $time_slot => $data) {
+        foreach ($data as $task) {
+          $time_slots[$time_slot][] = $task;
+        }
+      }
+
+      foreach ($daily_activities as $time_slot => $data) {
+        foreach ($data as $task) {
+          $time_slots[$time_slot][] = $task;
+        }
+      }
+
+      $tasks['planned'] = $time_slots;
+      // dd($tasks['planned']);
+                // dd($tasks);
                                      // dd($tasks['tasks']);
 
   		// $tasks['completed']  = Task::where( 'is_statutory', '=', 0 )
@@ -213,42 +264,42 @@ class MasterControlController extends Controller
       // $last_pending_developer_task = DeveloperTask::where('status', '!=', 'Done')->first();
       // $completed_developer_tasks = DeveloperTask::where('status', 'Done')->get()->groupBy('user_id');
 
-      $customers = DB::select( '
-									SELECT * FROM (SELECT id, name, created_at, is_error_flagged,
-                  (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
-                  (SELECT mm2.message FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message,
-                  (SELECT mm3.status FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_status,
-                  (SELECT mm4.id FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_id,
-                  (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type
-                  FROM customers
-                  LEFT JOIN (SELECT MAX(id) AS chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent
-                     FROM chat_messages
-                     WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9
-                     GROUP BY chat_messages.customer_id
-                     ORDER BY chat_messages.created_at DESC) AS chat_messages
-                  ON customers.id = chat_messages.cmcid
-                  ORDER BY chat_message_created_at DESC)
-                  AS customers
-                  LIMIT 10;
-							');
+      // $customers = DB::select( '
+			// 						SELECT * FROM (SELECT id, name, created_at, is_error_flagged,
+      //             (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
+      //             (SELECT mm2.message FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message,
+      //             (SELECT mm3.status FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_status,
+      //             (SELECT mm4.id FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_id,
+      //             (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type
+      //             FROM customers
+      //             LEFT JOIN (SELECT MAX(id) AS chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent
+      //                FROM chat_messages
+      //                WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9
+      //                GROUP BY chat_messages.customer_id
+      //                ORDER BY chat_messages.created_at DESC) AS chat_messages
+      //             ON customers.id = chat_messages.cmcid
+      //             ORDER BY chat_message_created_at DESC)
+      //             AS customers
+      //             LIMIT 10;
+			// 				');
+      //
+      //         $unread_messages = DB::select( '
+      //   									SELECT COUNT(CASE message_status WHEN 0 THEN 1 ELSE null END) AS unread, COUNT(CASE message_status WHEN 1 THEN 1 ELSE null END) AS waiting_approval FROM
+      //                     (SELECT
+      //                     (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
+      //                     (SELECT mm3.status FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_status
+      //                     FROM customers
+      //                     LEFT JOIN (SELECT MAX(id) AS chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent
+      //                        FROM chat_messages
+      //                        WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9
+      //                        GROUP BY chat_messages.customer_id
+      //                        ORDER BY chat_messages.created_at DESC) AS chat_messages
+      //                     ON customers.id = chat_messages.cmcid
+      //                     ORDER BY chat_message_created_at DESC)
+      //                     AS customers;
+      //   							');
 
-              $unread_messages = DB::select( '
-        									SELECT COUNT(CASE message_status WHEN 0 THEN 1 ELSE null END) AS unread, COUNT(CASE message_status WHEN 1 THEN 1 ELSE null END) AS waiting_approval FROM
-                          (SELECT
-                          (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
-                          (SELECT mm3.status FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_status
-                          FROM customers
-                          LEFT JOIN (SELECT MAX(id) AS chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent
-                             FROM chat_messages
-                             WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9
-                             GROUP BY chat_messages.customer_id
-                             ORDER BY chat_messages.created_at DESC) AS chat_messages
-                          ON customers.id = chat_messages.cmcid
-                          ORDER BY chat_message_created_at DESC)
-                          AS customers;
-        							');
-
-      $reply_categories = ReplyCategory::all();
+      // $reply_categories = ReplyCategory::all();
 
       // $orders = Order::where('order_date', $today)->count();
       $orders_data = Order::whereBetween('order_date', [$start, $end])->get();
@@ -302,16 +353,33 @@ class MasterControlController extends Controller
       //               GROUP BY website;
 			// 				', [$two_days_ago]);
 
+      // $products_count = DB::select("
+			// 						SELECT website, created_at, COUNT(*) as total FROM
+			// 					 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, '%Y-%m-%d') as created_at
+			// 					  		 FROM scraped_products
+			// 					  		 WHERE scraped_products.created_at BETWEEN '$start' AND '$end'
+      //                  AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku)
+      //                  )
+      //
+			// 					    AS SUBQUERY
+      //               GROUP BY website;
+			// 				");
+
       $products_count = DB::select("
 									SELECT website, created_at, COUNT(*) as total FROM
 								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, '%Y-%m-%d') as created_at
 								  		 FROM scraped_products
+
+                       RIGHT JOIN (
+                         SELECT products.sku FROM products
+                       ) AS products
+                       ON scraped_products.sku = products.sku
+
 								  		 WHERE scraped_products.created_at BETWEEN '$start' AND '$end'
-                       AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku)
                        )
 
 								    AS SUBQUERY
-                    GROUP BY website;
+								   	GROUP BY website;
 							");
 
               // dd($scraped_count);
@@ -320,8 +388,13 @@ class MasterControlController extends Controller
   									SELECT website, created_at, COUNT(*) as total FROM
   								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, '%Y-%m-%d') as created_at
   								  		 FROM scraped_products
+
+                         RIGHT JOIN (
+                           SELECT products.sku, products.isUploaded FROM products WHERE products.isUploaded = 1
+                         ) AS products
+                         ON scraped_products.sku = products.sku
+
   								  		 WHERE scraped_products.created_at BETWEEN '$start' AND '$end'
-                         AND scraped_products.sku IN (SELECT products.sku FROM products WHERE products.sku = scraped_products.sku AND products.isUploaded = 1)
                          )
 
   								    AS SUBQUERY
@@ -364,7 +437,7 @@ class MasterControlController extends Controller
 
       // dd($emails_array);
       $suppliers_array = [];
-      $suppliers = Supplier::all();
+      $suppliers = Supplier::select(['id', 'supplier'])->get();
 
       foreach ($suppliers as $supplier) {
         $suppliers_array[$supplier->id] = $supplier->supplier;
@@ -404,16 +477,17 @@ class MasterControlController extends Controller
         'tasks'           => $tasks,
         'users_array'     => $users_array,
         'instructions'     => $instructions,
+        'selected_user'   => $userid,
         // 'last_pending_instruction'     => $last_pending_instruction,
         // 'completed_instructions'     => $completed_instructions,
-        'customers'     => $customers,
-        'reply_categories'     => $reply_categories,
+        // 'customers'     => $customers,
+        // 'reply_categories'     => $reply_categories,
         'developer_tasks'     => $developer_tasks,
         // 'last_pending_developer_task'     => $last_pending_developer_task,
         // 'completed_developer_tasks'     => $completed_developer_tasks,
         'orders'     => $orders,
         'purchases'     => $purchases,
-        'unread_messages'     => $unread_messages,
+        // 'unread_messages'     => $unread_messages,
         'scraped_count'     => $scraped_count,
         // 'scraped_days_ago_count'     => $scraped_days_ago_count,
         'products_count'     => $products_count,

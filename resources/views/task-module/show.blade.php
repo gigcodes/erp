@@ -698,7 +698,16 @@
                                     <td class="p-2">
                                       <div class="d-flex">
                                         @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                                          <a href="/task/complete/{{ $task->id }}" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></a>
+                                          {{-- <a href="/task/complete/{{ $task->id }}" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></a> --}}
+                                          @if ($task->is_completed == '')
+                                            <button type="button" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button>
+                                          @else
+                                            @if ($task->assign_from == Auth::id())
+                                              <button type="button" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/completed-green.png" /></button>
+                                            @else
+                                              <button type="button" class="btn btn-image"><img src="/images/completed-green.png" /></button>
+                                            @endif
+                                          @endif
                                         @endif
 
                                         @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))

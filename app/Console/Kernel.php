@@ -43,6 +43,10 @@ use App\Console\Commands\RunMessageQueue;
 use App\Console\Commands\MonitorCronJobs;
 use App\Console\Commands\SendVoucherReminder;
 
+use App\Console\Commands\MovePlannedTasks;
+
+// use App\Console\Commands\SaveProductsImages;
+
 use App\Console\Commands\UpdateMagentoProductStatus;
 
 use App\Http\Controllers\MagentoController;
@@ -103,6 +107,8 @@ class Kernel extends ConsoleKernel
         UpdateInventory::class,
         UpdateMagentoProductStatus::class,
         SendBroadcastMessageToColdLeads::class,
+        MovePlannedTasks::class,
+        // SaveProductsImages::class,
         GrowInstagramAccounts::class
     ];
 
@@ -185,12 +191,18 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
         $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
         $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
+
+        // Tasks
         $schedule->command('send:recurring-tasks')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('send:pending-tasks-reminders')->dailyAt('07:30')->timezone('Asia/Kolkata');
+        $schedule->command('move:planned-tasks')->dailyAt('01:00')->timezone('Asia/Kolkata');
 
         // Fetches Emails
         $schedule->command('fetch:emails')->everyFifteenMinutes();
         $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
+
+
+        // $schedule->command('save:products-images')->hourly()->withoutOverlapping()->timezone('Asia/Kolkata');
 
 //        $schedule->command('gebnegozionline:get-products-list')
 //            ->hourly()
