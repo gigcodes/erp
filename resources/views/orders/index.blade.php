@@ -1,9 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Orders List - ERP Sololuxury')
+@section('title', 'Orders List')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 @endsection
 
 @section('content')
@@ -24,11 +25,11 @@
                   </div>
 
                   <div class="form-group ml-3">
-                    <select class="form-control" name="status">
+                    <select class="form-control select-multiple" name="status[]" multiple>
                       <option value="">Select a Status</option>
 
                       @foreach ($order_status_list as $order_st)
-                        <option value="{{ $order_st }}" {{ isset($order_status) && $order_status == $order_st ? 'selected' : '' }}>{{ $order_st }}</option>
+                        <option value="{{ $order_st }}" {{ isset($order_status) && in_array($order_st, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
                       @endforeach
                     </select>
                   </div>
@@ -65,7 +66,7 @@
             <th width="10%">Products</th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
-            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
+            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
             {{-- <th style="width: 5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
             <th style="width: 8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
             {{-- <th style="width: 8%">Message Status</th> --}}
@@ -201,10 +202,16 @@
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
+      });
+
+      $(".select-multiple").multiselect({
+        // buttonWidth: '100%',
+        // includeSelectAllOption: true
       });
     });
 

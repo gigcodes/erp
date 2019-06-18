@@ -70,7 +70,7 @@ class OrderController extends Controller {
 	public function index(Request $request) {
 
 		$term = $request->input('term');
-		$order_status = $request->status ?? '';
+		$order_status = $request->status ?? [''];
 		$date = $request->date ?? '';
 
 		if($request->input('orderby') == '')
@@ -135,8 +135,8 @@ class OrderController extends Controller {
 			               ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
 
-		if ($order_status != '') {
-			$orders = $orders->where('order_status', $order_status);
+		if ($order_status[0] != '') {
+			$orders = $orders->whereIn('order_status', $order_status);
 		}
 
 		if ($date != '') {
