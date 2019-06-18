@@ -23,18 +23,28 @@
                 <p>{{ $product->sku }}</p>
             </div>
             <div>
-                <form action="">
+                <form action="{{ action('ProductCropperController@ammendCrop', $product->id) }}" method="post">
+                    @csrf
                     @foreach($product->media()->get() as $image)
                         <?php
-                        list($height, $width) = getimagesize($image->getUrl())
+                        [$height, $width] = getimagesize($image->getUrl())
                         ?>
-                        @if ($height == 1000 && $width === 1000)
+                        @if ($height === 1000 && $width === 1000 && stripos($image->getUrl(), 'cropped') !== false)
                             <div style="position: relative; margin-bottom: 5px; width: 1000px;height: 1000px; background-image: url('{{$image->getUrl()}}'); background-size: cover">
                                 <img src="{{ asset('images/'.$img) }}" alt="">
                                 <div style="position: absolute; top: 5px;left:380px;">
                                     <p><strong>Image Info</strong></p>
                                     <select class="form-control" name="" id="">
-                                        <option value="ok">Ok</option>
+                                        <option value="ok">Dimension...</option>
+                                        <option value="H790">Clothing - HEIGHT- 790</option>
+                                        <option value="H812">Clothing - HEIGHT - 812</option>
+                                        <option value="W720">Shoes - WIDTH - 720</option>
+                                        <option value="H812">SHoes - HEIGHT - 812</option>
+                                    </select>
+                                    <select name="padding" id="padding">
+                                        <option value="ok">Padding...</option>
+                                        <option value="204">204</option>
+                                        <option value="96">96</option>
                                     </select>
                                     <li>
                                         Dimension: {{$product->lmeasurement}} X {{$product->hmeasurement}} X {{$product->dmeasurement}}

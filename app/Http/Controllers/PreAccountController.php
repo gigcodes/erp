@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\PeopleNames;
 use App\PreAccount;
+use App\TargetLocation;
 use Illuminate\Http\Request;
+use InstagramAPI\Request\People;
 
 class PreAccountController extends Controller
 {
@@ -16,7 +19,11 @@ class PreAccountController extends Controller
     public function index()
     {
         $accounts = PreAccount::all();
+        $firstName = PeopleNames::inRandomOrder()->take(100)->get();
+        $lastName = PeopleNames::inRandomOrder()->take(100)->get()->toArray();
+        $countries = TargetLocation::all();
 
+        return view('pre.accounts', compact('accounts','firstName', 'lastName', 'countries'));
     }
 
     /**
@@ -42,7 +49,7 @@ class PreAccountController extends Controller
             'password' => 'required'
         ]);
 
-        $account = new Account();
+        $account = new PreAccount();
         $account->first_name = $request->get('first_name');
         $account->last_name = $request->get('last_name');
         $account->email = $request->get('email');
@@ -96,8 +103,11 @@ class PreAccountController extends Controller
      * @param  \App\PreAccount  $preAccount
      * @return \Illuminate\Http\Response
      */
-    public function destroy(PreAccount $preAccount)
+    public function destroy($id)
     {
-        //
+        $pre = PreAccount::findOrFail($id);
+        $pre->delete();
+
+        return redirect()->back()->with('success', 'Deleted successfully!');
     }
 }

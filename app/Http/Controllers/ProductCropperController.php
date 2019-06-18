@@ -242,7 +242,7 @@ class ProductCropperController extends Controller
 
     }
 
-    public function ammendCrop(Request $request) {
+    public function ammendCrop($id, Request $request) {
 	    dd($request->all());
     }
 

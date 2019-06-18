@@ -1245,7 +1245,9 @@
                           <ul style="width: 200px; height: 500px !important;"  class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
                             @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com')
                                   <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                  <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
                               @else
+                                  <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
                                   <li class="nav-item dropdown dropdown-submenu">
 
                                       <a id="instagramMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
