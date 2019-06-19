@@ -106,6 +106,33 @@
               <div class="alert alert-danger">{{$errors->first('gst')}}</div>
             @endif
           </div>
+
+          <div class="form-group">
+            <strong>Account Name:</strong>
+            <input type="text" name="account_name" class="form-control" value="{{ old('account_name') }}">
+
+            @if ($errors->has('account_name'))
+              <div class="alert alert-danger">{{$errors->first('account_name')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>IBAN:</strong>
+            <input type="text" name="account_iban" class="form-control" value="{{ old('account_iban') }}">
+
+            @if ($errors->has('account_iban'))
+              <div class="alert alert-danger">{{$errors->first('account_iban')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>SWIFT:</strong>
+            <input type="text" name="account_swift" class="form-control" value="{{ old('account_swift') }}">
+
+            @if ($errors->has('account_swift'))
+              <div class="alert alert-danger">{{$errors->first('account_swift')}}</div>
+            @endif
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -224,6 +251,33 @@
 
             @if ($errors->has('gst'))
               <div class="alert alert-danger">{{$errors->first('gst')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Account Name:</strong>
+            <input type="text" name="account_name" class="form-control" value="{{ old('account_name') }}" id="vendor_account_name">
+
+            @if ($errors->has('account_name'))
+              <div class="alert alert-danger">{{$errors->first('account_name')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>IBAN:</strong>
+            <input type="text" name="account_iban" class="form-control" value="{{ old('account_iban') }}" id="vendor_account_iban">
+
+            @if ($errors->has('account_iban'))
+              <div class="alert alert-danger">{{$errors->first('account_iban')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>SWIFT:</strong>
+            <input type="text" name="account_swift" class="form-control" value="{{ old('account_swift') }}" id="vendor_account_swift">
+
+            @if ($errors->has('account_swift'))
+              <div class="alert alert-danger">{{$errors->first('account_swift')}}</div>
             @endif
           </div>
         </div>

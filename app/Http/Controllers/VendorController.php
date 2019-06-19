@@ -45,7 +45,7 @@ class VendorController extends Controller
                   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
-                  FROM (SELECT vendors.id, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst,
+                  FROM (SELECT vendors.id, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
                   category_name,
                   chat_messages.message_id FROM vendors
 
@@ -126,7 +126,10 @@ class VendorController extends Controller
         'website'       => 'sometimes|nullable',
         'login'         => 'sometimes|nullable',
         'password'      => 'sometimes|nullable',
-        'gst'           => 'sometimes|nullable|max:255'
+        'gst'           => 'sometimes|nullable|max:255',
+        'account_name'  => 'sometimes|nullable|max:255',
+        'account_iban'  => 'sometimes|nullable|max:255',
+        'account_swift' => 'sometimes|nullable|max:255'
       ]);
 
       $data = $request->except('_token');
@@ -222,7 +225,10 @@ class VendorController extends Controller
         'website'         => 'sometimes|nullable',
         'login'           => 'sometimes|nullable',
         'password'        => 'sometimes|nullable',
-        'gst'             => 'sometimes|nullable|max:255'
+        'gst'             => 'sometimes|nullable|max:255',
+        'account_name'    => 'sometimes|nullable|max:255',
+        'account_iban'    => 'sometimes|nullable|max:255',
+        'account_swift'   => 'sometimes|nullable|max:255'
       ]);
 
       $data = $request->except('_token');

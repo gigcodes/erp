@@ -164,6 +164,9 @@
       $('#vendor_login').val(vendor.login);
       $('#vendor_password').val(vendor.password);
       $('#vendor_gst').val(vendor.gst);
+      $('#vendor_account_name').val(vendor.account_name);
+      $('#vendor_account_iban').val(vendor.account_iban);
+      $('#vendor_account_swift').val(vendor.account_swift);
     });
 
     $(document).on('click', '.create-agent', function() {
