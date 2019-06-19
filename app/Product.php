@@ -74,6 +74,10 @@ class Product extends Model
     return $this->belongsToMany('App\Suggestion', 'suggestion_products', 'product_id', 'suggestion_id');
   }
 
+  public function amends() {
+	    return $this->hasMany(CropAmends::class);
+  }
+
 
 	public function brands(){
 		return $this->hasOne('App\Brand','id','brand');

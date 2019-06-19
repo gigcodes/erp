@@ -34,14 +34,16 @@
                                 <img src="{{ asset('images/'.$img) }}" alt="">
                                 <div style="position: absolute; top: 5px;left:380px;">
                                     <p><strong>Image Info</strong></p>
-                                    <select class="form-control" name="" id="">
+                                    <input type="hidden" name="url[{{$image->filename}}]" value="{!! $image->getUrl() !!}">
+                                    <input type="hidden" name="mediaIds[{{$image->filename}}]" value="{!! $image->id !!}">
+                                    <select class="form-control" name="size[{{$image->filename}}]" id="">
                                         <option value="ok">Dimension...</option>
                                         <option value="H790">Clothing - HEIGHT- 790</option>
                                         <option value="H812">Clothing - HEIGHT - 812</option>
                                         <option value="W720">Shoes - WIDTH - 720</option>
                                         <option value="H812">SHoes - HEIGHT - 812</option>
                                     </select>
-                                    <select name="padding" id="padding">
+                                    <select name="padding[{{$image->filename}}]" id="padding">
                                         <option value="ok">Padding...</option>
                                         <option value="204">204</option>
                                         <option value="96">96</option>

@@ -51,24 +51,35 @@
 {{--            </form>--}}
 {{--        </div>--}}
         <div class="col-md-12 mt-4">
-            <table class="table table-striped table-bordered">
-                <tr>
-                    <th>S.N</th>
-                    <th>First name</th>
-                    <th>Last name</th>
-                    <th>Email</th>
-                    <th>Password</th>
-                </tr>
-                @foreach($firstName as $key=>$fn)
+            <form action="{{ action('PreAccountController@store') }}" method="post">
+                @csrf
+                <table class="table table-striped table-bordered">
                     <tr>
-                        <th>{{$key+1}}</th>
-                        <th>{{ $fn->name }}</th>
-                        <th>{{ $lastName[$key]['name'] }}</th>
-                        <th><input type="text" name="email[]" placeholder="E-mail" class="form-control"></th>
-                        <th><input type="text" name="password[]" placeholder="Password" class="form-control"></th>
+                        <th>S.N</th>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>Email</th>
+                        <th>Password</th>
                     </tr>
-                @endforeach
-            </table>
+                    @foreach($firstName as $key=>$fn)
+                        <tr>
+                            <th>{{$key+1}}</th>
+                            <th><input type="hidden" name="first_name[{{$key}}]" value="{{$fn->name}}">
+                                {{ $fn->name }}
+                            </th>
+                            <th>
+                                {{ $lastName[$key]['name'] }}
+                                <input type="hidden"name="last_name[{{$key}}]" value="{{ $lastName[$key]['name'] }}">
+                            </th>
+                            <th><input type="text" name="email[{{$key}}]" placeholder="E-mail" class="form-control"></th>
+                            <th><input type="text" name="password[{{$key}}]" placeholder="Password" class="form-control"></th>
+                        </tr>
+                    @endforeach
+                </table>
+                <div class="text-center">
+                    <button class="btn btn-default">Add Accounts</button>
+                </div>
+            </form>
         </div>
     </div>
 @endsection
