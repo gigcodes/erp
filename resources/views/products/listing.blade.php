@@ -137,7 +137,8 @@
               </td>
               <td class="table-hover-cell" data-id="{{ $product->id }}">
                 <span class="quick-name">{{ $product->name }}</span>
-                <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
+                {{-- <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}"> --}}
+                <textarea name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" rows="8" cols="80">{{ $product->name }}</textarea>
 
                 <button type="button" class="btn-link quick-edit-name" data-id="{{ $product->id }}">Edit</button>
               </td>
@@ -190,7 +191,8 @@
               </td>
               <td class="table-hover-cell" data-id="{{ $product->id }}">
                 <span class="quick-composition">{{ $product->composition }}</span>
-                <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}">
+                {{-- <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}"> --}}
+                <textarea name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" rows="8" cols="80">{{ $product->composition }}</textarea>
 
                 <button type="button" class="btn-link quick-edit-composition" data-id="{{ $product->id }}">Edit</button>
               </td>
