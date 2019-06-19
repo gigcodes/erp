@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\PeopleNames;
 use App\PreAccount;
+use App\TargetLocation;
 use Illuminate\Http\Request;
+use InstagramAPI\Request\People;
 
 class PreAccountController extends Controller
 {
@@ -16,7 +19,11 @@ class PreAccountController extends Controller
     public function index()
     {
         $accounts = PreAccount::all();
+        $firstName = PeopleNames::inRandomOrder()->take(100)->get();
+        $lastName = PeopleNames::inRandomOrder()->take(100)->get()->toArray();
+        $countries = TargetLocation::all();
 
+        return view('pre.accounts', compact('accounts','firstName', 'lastName', 'countries'));
     }
 
     /**
@@ -38,20 +45,27 @@ class PreAccountController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'email' => 'required|unique:pre_accounts',
-            'password' => 'required'
+            'email' => 'required|array',
+            'password' => 'required|array'
         ]);
 
-        $account = new Account();
-        $account->first_name = $request->get('first_name');
-        $account->last_name = $request->get('last_name');
-        $account->email = $request->get('email');
-        $account->password = $request->get('password');
-        $account->instagram = 1;
-        $account->facebook = 1;
-        $account->pinterest = 1;
-        $account->twitter = 1;
-        $account->save();
+        $emails = $request->get('email');
+
+        foreach ($emails as $key=>$email) {
+            if (!$email) {
+                continue;
+            }
+            $account = new PreAccount();
+            $account->first_name = $request->get('first_name')[$key];
+            $account->last_name = $request->get('last_name')[$key];
+            $account->email = $email;
+            $account->password = $request->get('password')[$key];
+            $account->instagram = 0;
+            $account->facebook = 0;
+            $account->pinterest = 0;
+            $account->twitter = 0;
+            $account->save();
+        }
 
         return redirect()->back()->with('message', 'E-mail added successfully!');
     }
@@ -96,8 +110,11 @@ class PreAccountController extends Controller
      * @param  \App\PreAccount  $preAccount
      * @return \Illuminate\Http\Response
      */
-    public function destroy(PreAccount $preAccount)
+    public function destroy($id)
     {
-        //
+        $pre = PreAccount::findOrFail($id);
+        $pre->delete();
+
+        return redirect()->back()->with('success', 'Deleted successfully!');
     }
 }

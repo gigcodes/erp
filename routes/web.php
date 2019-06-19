@@ -34,6 +34,7 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
+    Route::post('ammend-crop/{id}', 'ProductCropperController@ammendCrop');
     Route::get('products/auto-cropped', 'ProductCropperController@getListOfImagesToBeVerified');
     Route::get('products/rejected-auto-cropped', 'ProductCropperController@showRejectedCrops');
     Route::get('products/auto-cropped/{id}', 'ProductCropperController@showImageToBeVerified');
@@ -287,6 +288,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('purchase/email/fetch', 'PurchaseController@emailFetch')->name('purchase.email.fetch');
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
 	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
+
+	Route::get('asassaassa', 'HomeController@index')->name('purchase.calendar');
 
 	// Master Plan
 	Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');

@@ -30,3 +30,6 @@ Route::get('crop', 'ProductController@giveImage');
 Route::post('link/image-crop', 'ProductController@saveImage');
 Route::post('instagram/create', 'AccountController@createAccount');
 Route::resource('stat', 'ScrapStatisticsController');
+
+Route::get('crop/amends', 'ProductCropperController@giveAmends');
+Route::post('crop/amends', 'ProductCropperController@saveAmends');

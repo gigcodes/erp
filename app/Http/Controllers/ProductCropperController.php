@@ -198,6 +198,7 @@ class ProductCropperController extends Controller
 	    $products = Product::where('is_image_processed', 1)
             ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('is_crop_rejected', 0)
+            ->whereDoesntHave('amends')
             ->paginate(24);
 
 	    return view('products.crop_list', compact('products'));
@@ -242,8 +243,79 @@ class ProductCropperController extends Controller
 
     }
 
-    public function ammendCrop(Request $request) {
-	    dd($request->all());
+    public function ammendCrop($id, Request $request, Stage $stage) {
+	    $product = Product::findOrFail($id);
+
+	    $this->validate($request, [
+	        'size' => 'required'
+        ]);
+
+	    $sizes = $request->get('size');
+	    $padding = $request->get('padding');
+	    $urls = $request->get('url');
+	    $mediaIds = $request->get('mediaIds');
+
+
+	    foreach ($sizes as $key=>$size) {
+	        if ($size != 'ok') {
+	            $rec = new CropAmends();
+	            $rec->file_url = $urls[$key];
+	            $rec->settings = ['size' => $size, 'padding' => $padding[$key] ?? 96, 'media_id' => $mediaIds[$key]];
+	            $rec->product_id = $id;
+	            $rec->save();
+            }
+        }
+
+        $secondProduct = Product::where('is_image_processed', 1)
+            ->where('stage', '=', $stage->get('ImageCropper'))
+            ->where('id', '!=', $id)
+            ->where('is_crop_rejected', 0)
+            ->whereDoesntHave('amends')
+            ->first();
+
+        $this->deleteUncroppedImages($product);
+
+        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+
+    }
+
+    public function giveAmends() {
+	    $amend = CropAmends::where('status', 1)->first();
+
+	    return response()->json($amend);
+    }
+
+    public function saveAmends(Request $request) {
+	    $this->validate($request,[
+	        'file' => 'required',
+	        'product_id' => 'required',
+	        'media_id' => 'required',
+            'amend_id' => 'required'
+        ]);
+        $product = Product::findOrFail($request->get('product_id'));
+
+        $product->media()->where('id', $request->get('media_id'))->delete();
+
+        if ($request->hasFile('file')) {
+            $image = $request->file('file');
+            $media = MediaUploader::fromSource($image)->upload();
+            $product->attachMedia($media, 'gallery');
+        }
+
+        if ($product->stage == 5) {
+            ++$product->stage;
+            $product->save();
+        }
+
+        CropAmends::where('id', $request->get('amend_id'))->update([
+            'status' => 0
+        ]);
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+
+
     }
 
     public function approveCrop($id,Stage $stage) {
@@ -265,6 +337,9 @@ class ProductCropperController extends Controller
     private function deleteUncroppedImages($product) {
         if ($product->hasMedia(config('constants.media_tags'))) {
             $tc = count($product->getMedia(config('constants.media_tags')));
+            if ($tc < 6) {
+                return;
+            }
             foreach ($product->getMedia(config('constants.media_tags')) as $key=>$image) {
                 if ($key+1 <= $tc/2) {
                     $image_path = $image->getAbsolutePath();
