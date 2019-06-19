@@ -109,8 +109,9 @@
           <th width="10%">Composition</th>
           <th width="10%">Color</th>
           <th width="5%">Price</th>
-          <th width="5%">Cropper</th>
+          {{-- <th width="5%">Cropper</th> --}}
           <th width="5%">Action</th>
+          <th width="5%">Remarks</th>
         </tr>
 
         @foreach ($products as $key => $product)
@@ -134,9 +135,11 @@
                 <br>
                 SKU: {{ $product->sku }}
               </td>
-              <td class="table-hover-cell quick-edit-name" data-id="{{ $product->id }}">
+              <td class="table-hover-cell" data-id="{{ $product->id }}">
                 <span class="quick-name">{{ $product->name }}</span>
                 <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
+
+                <button type="button" class="btn-link quick-edit-name" data-id="{{ $product->id }}">Edit</button>
               </td>
 
               <td>
@@ -185,9 +188,11 @@
 
                 <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product->id }}">Save</button>
               </td>
-              <td class="table-hover-cell quick-edit-composition" data-id="{{ $product->id }}">
+              <td class="table-hover-cell" data-id="{{ $product->id }}">
                 <span class="quick-composition">{{ $product->composition }}</span>
                 <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}">
+
+                <button type="button" class="btn-link quick-edit-composition" data-id="{{ $product->id }}">Edit</button>
               </td>
 
               <td class="table-hover-cell">
@@ -208,7 +213,7 @@
                 <span class="quick-price-special">{{ $product->price_special }}</span>
               </td>
 
-              <td>
+              {{-- <td>
                 @if ($special_product->hasMedia(config('constants.media_tags')))
                   <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
                 @endif
@@ -222,7 +227,7 @@
                     <img src="/images/1.png" class="ml-1" alt="">
                   @endif
                 </div>
-              </td>
+              </td> --}}
 
               <td>
                 {{ $product->isUploaded }} {{ $product->isFinal }}
@@ -244,6 +249,9 @@
                 {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
 
                 {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
+              </td>
+              <td>
+                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $product->id }}"><img src="/images/remark.png" /></button>
               </td>
             @else
               <td>
@@ -303,7 +311,7 @@
                 <span>{{ $product->price_special }}</span>
               </td>
 
-              <td>
+              {{-- <td>
                 @if ($special_product->hasMedia(config('constants.media_tags')))
                   <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
                 @endif
@@ -311,7 +319,7 @@
                 <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
 
                 <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
-              </td>
+              </td> --}}
 
               <td>
                 {{ $product->isUploaded }} {{ $product->isFinal }}
@@ -330,6 +338,10 @@
                   {{ \App\User::find($product->product_user_id)->name }}
                 @endif
               </td>
+
+              <td>
+                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $product->id }}"><img src="/images/remark.png" /></button>
+              </td>
             @endif
           </tr>
         @endforeach
@@ -338,6 +350,8 @@
 
     {!! $products->appends(Request::except('page'))->links() !!}
   </div>
+
+  @include('partials.modals.remarks')
 
 @endsection
 
@@ -426,14 +440,14 @@
       $('#editTaskForm').attr('action', url);
     });
 
-    $(document).on('dblclick', '.quick-edit-name', function() {
+    $(document).on('click', '.quick-edit-name', function() {
       var id = $(this).data('id');
 
-      $(this).find('.quick-name').addClass('hidden');
-      $(this).find('.quick-edit-name-input').removeClass('hidden');
-      $(this).find('.quick-edit-name-input').focus();
+      $(this).closest('td').find('.quick-name').addClass('hidden');
+      $(this).closest('td').find('.quick-edit-name-input').removeClass('hidden');
+      $(this).closest('td').find('.quick-edit-name-input').focus();
 
-      $(this).find('.quick-edit-name-input').keypress(function(e) {
+      $(this).closest('td').find('.quick-edit-name-input').keypress(function(e) {
         var key = e.which;
         var thiss = $(this);
 
@@ -461,14 +475,14 @@
       });
     });
 
-    $(document).on('dblclick', '.quick-edit-composition', function() {
+    $(document).on('click', '.quick-edit-composition', function() {
       var id = $(this).data('id');
 
-      $(this).find('.quick-composition').addClass('hidden');
-      $(this).find('.quick-edit-composition-input').removeClass('hidden');
-      $(this).find('.quick-edit-composition-input').focus();
+      $(this).closest('td').find('.quick-composition').addClass('hidden');
+      $(this).closest('td').find('.quick-edit-composition-input').removeClass('hidden');
+      $(this).closest('td').find('.quick-edit-composition-input').focus();
 
-      $(this).find('.quick-edit-composition-input').keypress(function(e) {
+      $(this).closest('td').find('.quick-edit-composition-input').keypress(function(e) {
         var key = e.which;
         var thiss = $(this);
 
@@ -857,6 +871,61 @@
         }
 
         alert('Could not update product on magento');
+      });
+    });
+
+    $(document).on('click', '.make-remark', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
+
+      $.ajax({
+          type: 'GET',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.gettaskremark') }}',
+          data: {
+            id:id,
+            module_type: "productlistings"
+          },
+      }).done(response => {
+          var html='';
+
+          $.each(response, function( index, value ) {
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
+          });
+          $("#makeRemarkModal").find('#remark-list').html(html);
+      });
+    });
+
+    $('#addRemarkButton').on('click', function() {
+      var id = $('#add-remark input[name="id"]').val();
+      var remark = $('#add-remark').find('textarea[name="remark"]').val();
+
+      $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.addRemark') }}',
+          data: {
+            id:id,
+            remark:remark,
+            module_type: 'productlistings'
+          },
+      }).done(response => {
+          $('#add-remark').find('textarea[name="remark"]').val('');
+
+          var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
+
+          $("#makeRemarkModal").find('#remark-list').append(html);
+      }).fail(function(response) {
+        console.log(response);
+
+        alert('Could not fetch remarks');
       });
     });
   </script>
