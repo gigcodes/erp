@@ -622,9 +622,11 @@ class PurchaseController extends Controller
 
       $purchase->save();
 
-      $purchase->products()->attach($request->products);
+      $products = json_decode($request->products);
 
-      foreach ($request->products as $product_id) {
+      $purchase->products()->attach($products);
+
+      foreach ($products as $product_id) {
         $product = Product::find($product_id);
 
         foreach ($product->orderproducts as $order_product) {

@@ -160,10 +160,11 @@
       @csrf
       <input type="hidden" name="purchase_handler" value="{{ Auth::id() }}" />
       <input type="hidden" name="supplier_id" value="" />
+      <input type="hidden" name="products" value="">
 
       <div class="row">
         <div class="col text-center">
-          <button type="submit" class="btn btn-secondary">Submit</button>
+          <button type="submit" class="btn btn-secondary" id="createPurchaseButton">Submit</button>
         </div>
       </div>
     </form>
@@ -343,10 +344,23 @@
           }
         });
 
+        var selected_products = [];
         $(document).on('click', '.select-product', function() {
           var supplier_id = $(this).data('supplier');
 
           $('input[name="supplier_id"]').val(supplier_id);
+
+          var checked = $(this).prop('checked');
+
+          if (checked) {
+            selected_products.push($(this).val());
+          } else {
+            var index = selected_products.indexOf($(this).val());
+
+            selected_products.splice(index, 1);
+          }
+
+          console.log(selected_products);
         });
 
         $(window).scroll(function() {
@@ -426,6 +440,17 @@
                 });
                 $("#viewRemarkModal").find('#remark-list').html(html);
             });
+        });
+
+        $('#createPurchaseButton').on('click', function(e) {
+          if (selected_products.length > 0) {
+            $(this).closest('form').find('input[name="products"]').val(JSON.stringify(selected_products));
+            $(this).closest('form').submit();
+          } else {
+            e.preventDefault();
+
+            alert('Please select atleast one product');
+          }
         });
     </script>
 
