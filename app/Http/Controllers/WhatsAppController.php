@@ -1494,6 +1494,12 @@ class WhatsAppController extends FindByNumberController
                 $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
               }
             }
+          } else if (!$task->users->contains(Auth::id())) {
+            $data['erp_user'] = $task->assign_from;
+            
+            foreach ($task->users as $key => $user) {
+              $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+            }
           } else {
             foreach ($task->users as $key => $user) {
               if ($key == 0) {
