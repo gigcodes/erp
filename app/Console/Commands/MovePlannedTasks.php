@@ -47,7 +47,7 @@ class MovePlannedTasks extends Command
       ]);
 
       $today = Carbon::now()->format('Y-m-d');
-      $planned_tasks  = Task::whereNotNull('time_slot')->where('planned_at', '<', "$today 00:00")->orderBy('time_slot', 'ASC')->get();
+      $planned_tasks  = Task::whereNotNull('time_slot')->where('planned_at', '<', "$today 00:00")->whereNull('is_completed')->orderBy('time_slot', 'ASC')->get();
 
       foreach ($planned_tasks as $task) {
         $task->planned_at = $today;

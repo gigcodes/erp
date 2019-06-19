@@ -170,7 +170,7 @@ class MasterControlController extends Controller
       $planned_tasks  = Task::whereNotNull('time_slot')->where('planned_at', Carbon::now()->format('Y-m-d'))->where(function ($query) use ($userid) {
         return $query->orWhere('assign_from', '=', $userid)
                      ->orWhere('assign_to', '=', $userid);
-      })->whereNull('is_completed')->orderBy('time_slot', 'ASC')->get()->groupBy('time_slot');
+      })->orderBy('time_slot', 'ASC')->get()->groupBy('time_slot');
 
       $statutory  = Task::where(function ($query) use ($userid) {
         return $query->whereRaw("tasks.id IN (SELECT task_id FROM task_users WHERE user_id = $userid)")->orWhere('assign_from', '=', $userid)
@@ -210,6 +210,9 @@ class MasterControlController extends Controller
       }
 
       $tasks['planned'] = $time_slots;
+
+      $call_instructions = Instruction::select(['id', 'category_id', 'instruction', 'assigned_to', 'created_at'])->where('category_id', 10)->where('created_at', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->where('assigned_to', $userid)->get();
+      // dd($call_instructions);
       // dd($tasks['planned']);
                 // dd($tasks);
                                      // dd($tasks['tasks']);
@@ -487,6 +490,7 @@ class MasterControlController extends Controller
         // 'completed_developer_tasks'     => $completed_developer_tasks,
         'orders'     => $orders,
         'purchases'     => $purchases,
+        'call_instructions'     => $call_instructions,
         // 'unread_messages'     => $unread_messages,
         'scraped_count'     => $scraped_count,
         // 'scraped_days_ago_count'     => $scraped_days_ago_count,
