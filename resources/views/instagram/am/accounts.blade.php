@@ -119,7 +119,7 @@
                     @foreach($accounts as $key=>$account)
                         @if(Auth::user()->email == 'facebooktest@test.com')
                             @if(substr($account->created_at, 0, 10) == date('Y-m-d'))
-                                <tr>
+                                <tr @if(!$account->last_name) style="color: red" @endif>
                                     <td>{{ $key+1 }}</td>
                                     <td>{{ $account->first_name }}</td>
                                     <td>{{ $account->last_name }}</td>
@@ -168,7 +168,7 @@
                                 </tr>
                             @endif
                         @else
-                            <tr>
+                            <tr @if(!$account->last_name) style="color: red" @endif>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $account->first_name }}</td>
                                 <td>{{ $account->last_name }}</td>

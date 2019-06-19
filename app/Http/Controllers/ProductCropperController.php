@@ -221,10 +221,28 @@ class ProductCropperController extends Controller
     private function getCategoryForCropping($categoryId) {
 	    $imagesForGrid = [
 	        'Shoes' => 'shoes_grid.png',
-            'Clothing' => 'clothing_grid.png',
-            'Belt' => 'belt_grid.png',
-            'Bags' => 'bags_grid.png',
-            'Backpacks' => 'backpacks_grid.png'
+            'Backpacks' => 'Backpack.png',
+            'Beach' => 'Backpack.png',
+            'Travel' => 'Backpack.png',
+            'Belt' => 'belt.png',
+            'Clothing' => 'Clothing.png',
+            'Tie & Bow Ties' => 'bow.png',
+            'Clutches' => 'Clutch.png',
+            'Crossbody Bags' => 'Clutch.png',
+            'Hair Accessories' => 'Hair_accessories.png',
+            'Beanies & Caps' => 'Hair_accessories.png',
+            'Handbags' => 'Handbag.png',
+            'Laptop Bag' => 'Handbag.png',
+            'Jewelry' => 'Jewellery.png',
+            'Shoulder Bags' => 'Shoulder_bag.png',
+            'Sunglasses & Frames' => 'Sunglasses.png',
+            'Tote Bags' => 'Tote.png',
+            'Wallet' => 'Wallet.png',
+            'Wallets & Cardholders' => 'Wallet.png',
+            'Key Pouches' => 'Wallet.png',
+            'Coin Case / Purse' => 'Wallet.png',
+            'Shawls And Scarves' => 'Shawl.png',
+            'Key Rings & Chains' => 'Keychains.png',
         ];
 
 	    $category = Category::find($categoryId);

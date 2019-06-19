@@ -7,7 +7,6 @@ use App\PeopleNames;
 use App\PreAccount;
 use App\TargetLocation;
 use Illuminate\Http\Request;
-use InstagramAPI\Request\People;
 
 class PreAccountController extends Controller
 {
@@ -19,8 +18,8 @@ class PreAccountController extends Controller
     public function index()
     {
         $accounts = PreAccount::all();
-        $firstName = PeopleNames::inRandomOrder()->take(100)->get();
-        $lastName = PeopleNames::inRandomOrder()->take(100)->get()->toArray();
+        $firstName = PeopleNames::inRandomOrder()->take(10)->get();
+        $lastName = PeopleNames::inRandomOrder()->take(10)->get()->toArray();
         $countries = TargetLocation::all();
 
         return view('pre.accounts', compact('accounts','firstName', 'lastName', 'countries'));
@@ -65,6 +64,21 @@ class PreAccountController extends Controller
             $account->pinterest = 0;
             $account->twitter = 0;
             $account->save();
+
+            $a = new Account();
+            $a->email = $account->email;
+            $a->first_name = $account->first_name . ' ' . $account->last_name;
+            $a->platform = 'instagram';
+            $a->dob = date('Y-m-d');
+            $a->save();
+
+            $a = new Account();
+            $a->email = $account->email;
+            $a->first_name = $account->first_name . ' ' . $account->last_name;
+            $a->platform = 'pinterest';
+            $a->dob = date('Y-m-d');
+            $a->save();
+
         }
 
         return redirect()->back()->with('message', 'E-mail added successfully!');
