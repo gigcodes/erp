@@ -260,7 +260,7 @@ class UserController extends Controller
 		$amount_assigned = $request->amount_assigned ?? $user->amount_assigned;
 
 		if ($amount_assigned != '') {
-			$products = Product::where('is_scraped', 1)->where('stock', '>=', 1)->where('is_image_processed', 1)->where('isUploaded', 0)->where('is_approved', 0)->where('isFinal', 0);
+			$products = Product::where('is_scraped', 1)->where('stock', '>=', 1)->where('is_image_processed', 1)->where('is_crop_approved', 1)->where('isUploaded', 0)->where('is_approved', 0)->where('isFinal', 0);
 			$user_products = UserProduct::all();
 
 			$product_ids = [];
