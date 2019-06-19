@@ -39,13 +39,23 @@ class ReportPerUserSheet implements FromQuery, WithTitle, WithHeadings, ShouldAu
 
     public function title(): string
     {
-      return $this->users_array[$this->user_id];
+      if (array_key_exists($this->user_id, $this->users_array)) {
+        return $this->users_array[$this->user_id];
+      }
+
+      return 'User Not Exists'
     }
 
     public function headings(): array
     {
+      if (array_key_exists($this->user_id, $this->users_array)) {
+        $username = $this->users_array[$this->user_id];
+      } else {
+        $username = 'User Not Exists';
+      }
+
       return [
-        [$this->users_array[$this->user_id]],
+        [$username],
         ['Time',
         'Activity']
       ];

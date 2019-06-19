@@ -279,6 +279,7 @@ class VendorController extends Controller
       }
 
       $vendor->products()->delete();
+      $vendor->chat_messages()->delete();
       $vendor->agents()->delete();
       $vendor->delete();
 

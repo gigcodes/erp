@@ -20,6 +20,11 @@ class Vendor extends Model
     return $this->hasMany('App\Agent', 'model_id')->where('model_type', 'App\Vendor');
   }
 
+  public function chat_messages()
+  {
+    return $this->hasMany('App\ChatMessage');
+  }
+
   public function category()
   {
     return $this->belongsTo('App\VendorCategory');
