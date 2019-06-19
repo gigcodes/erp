@@ -374,6 +374,22 @@
               callback: function() {
                   // $('ul.pagination').remove();
                   $('.dropify').dropify();
+                  
+                  $('.quick-edit-category').each(function(item) {
+                    product_id = $(this).siblings('input[name="product_id"]').val();
+                    category_id = $(this).siblings('input[name="category_id"]').val();
+                    sizes = $(this).siblings('input[name="sizes"]').val();
+                    selected_sizes = sizes.split(',');
+
+                    $(this).attr('data-id', product_id);
+                    $(this).find('option[value="' + category_id + '"]').prop('selected', true);
+
+                    updateSizes(this, category_id);
+
+                    for (var i = 0; i < selected_sizes.length; i++) {
+                      $(this).closest('tr').find('.quick-edit-size option[value="' + selected_sizes[i] + '"]').attr('selected', 'selected');
+                    }
+                  });
               }
           });
       });
