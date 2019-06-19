@@ -238,6 +238,12 @@
                     </div>
                   </form>
 
+                  <form action="{{ route('agent.destroy', $agent->id) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                  </form>
                 </div>
               </div>
             </div>
