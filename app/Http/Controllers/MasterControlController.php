@@ -167,51 +167,51 @@ class MasterControlController extends Controller
                    ORDER BY last_communicated_at DESC;
     						');
 
-      $planned_tasks  = Task::whereNotNull('time_slot')->where('planned_at', Carbon::now()->format('Y-m-d'))->where(function ($query) use ($userid) {
-        return $query->orWhere('assign_from', '=', $userid)
-                     ->orWhere('assign_to', '=', $userid);
-      })->orderBy('time_slot', 'ASC')->get()->groupBy('time_slot');
-
-      $statutory  = Task::where(function ($query) use ($userid) {
-        return $query->whereRaw("tasks.id IN (SELECT task_id FROM task_users WHERE user_id = $userid)")->orWhere('assign_from', '=', $userid)
-                     ->orWhere('assign_to', '=', $userid);
-      })->where('is_statutory', 1)->whereNull('is_verified')->get();
-
-      $daily_activities = DailyActivity::where('user_id', $userid)->where('for_date', Carbon::now()->format('Y-m-d'))->get()->groupBy('time_slot');
-
-      // dd($daily_activities);
-
-      // dd($statutory);
-
-      $time_slots = [
-        '08:00am - 10:00am' => [],
-        '10:00am - 12:00pm' => [],
-        '12:00pm - 02:00pm' => [],
-        '02:00pm - 04:00pm' => [],
-        '04:00pm - 06:00pm' => [],
-        '06:00pm - 08:00pm' => [],
-        '08:00pm - 10:00pm' => [],
-      ];
-
-      foreach ($statutory as $task) {
-        $time_slots['08:00am - 10:00am'][] = $task;
-      }
-
-      foreach ($planned_tasks as $time_slot => $data) {
-        foreach ($data as $task) {
-          $time_slots[$time_slot][] = $task;
-        }
-      }
-
-      foreach ($daily_activities as $time_slot => $data) {
-        foreach ($data as $task) {
-          $time_slots[$time_slot][] = $task;
-        }
-      }
-
-      $tasks['planned'] = $time_slots;
-
-      $call_instructions = Instruction::select(['id', 'category_id', 'instruction', 'assigned_to', 'created_at'])->where('category_id', 10)->where('created_at', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->where('assigned_to', $userid)->get();
+      // $planned_tasks  = Task::whereNotNull('time_slot')->where('planned_at', Carbon::now()->format('Y-m-d'))->where(function ($query) use ($userid) {
+      //   return $query->orWhere('assign_from', '=', $userid)
+      //                ->orWhere('assign_to', '=', $userid);
+      // })->orderBy('time_slot', 'ASC')->get()->groupBy('time_slot');
+      //
+      // $statutory  = Task::where(function ($query) use ($userid) {
+      //   return $query->whereRaw("tasks.id IN (SELECT task_id FROM task_users WHERE user_id = $userid)")->orWhere('assign_from', '=', $userid)
+      //                ->orWhere('assign_to', '=', $userid);
+      // })->where('is_statutory', 1)->whereNull('is_verified')->get();
+      //
+      // $daily_activities = DailyActivity::where('user_id', $userid)->where('for_date', Carbon::now()->format('Y-m-d'))->get()->groupBy('time_slot');
+      //
+      // // dd($daily_activities);
+      //
+      // // dd($statutory);
+      //
+      // $time_slots = [
+      //   '08:00am - 10:00am' => [],
+      //   '10:00am - 12:00pm' => [],
+      //   '12:00pm - 02:00pm' => [],
+      //   '02:00pm - 04:00pm' => [],
+      //   '04:00pm - 06:00pm' => [],
+      //   '06:00pm - 08:00pm' => [],
+      //   '08:00pm - 10:00pm' => [],
+      // ];
+      //
+      // foreach ($statutory as $task) {
+      //   $time_slots['08:00am - 10:00am'][] = $task;
+      // }
+      //
+      // foreach ($planned_tasks as $time_slot => $data) {
+      //   foreach ($data as $task) {
+      //     $time_slots[$time_slot][] = $task;
+      //   }
+      // }
+      //
+      // foreach ($daily_activities as $time_slot => $data) {
+      //   foreach ($data as $task) {
+      //     $time_slots[$time_slot][] = $task;
+      //   }
+      // }
+      //
+      // $tasks['planned'] = $time_slots;
+      //
+      // $call_instructions = Instruction::select(['id', 'category_id', 'instruction', 'assigned_to', 'created_at'])->where('category_id', 10)->where('created_at', 'LIKE', "%" . Carbon::now()->format('Y-m-d') . "%")->where('assigned_to', $userid)->get();
       // dd($call_instructions);
       // dd($tasks['planned']);
                 // dd($tasks);
@@ -490,7 +490,7 @@ class MasterControlController extends Controller
         // 'completed_developer_tasks'     => $completed_developer_tasks,
         'orders'     => $orders,
         'purchases'     => $purchases,
-        'call_instructions'     => $call_instructions,
+        // 'call_instructions'     => $call_instructions,
         // 'unread_messages'     => $unread_messages,
         'scraped_count'     => $scraped_count,
         // 'scraped_days_ago_count'     => $scraped_days_ago_count,

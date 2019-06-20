@@ -167,6 +167,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Route::get('/', 'TaskModuleController@index')->name('home');
 	Route::get('/', 'MasterControlController@index')->name('home');
 
+	// Daily Planner
+	Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
+	Route::resource('dailyplanner', 'DailyPlannerController');
+
 	Route::resource('refund', 'RefundController');
 
 	// Contacts

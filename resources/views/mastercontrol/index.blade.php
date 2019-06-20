@@ -48,9 +48,9 @@
         <li>
           <a href="#statutory-tab" data-toggle="tab" class="btn btn-image">Statutory Tasks</a>
         </li>
-        <li>
+        {{-- <li>
           <a href="#dailyplanner-tab" data-toggle="tab" class="btn btn-image">Daily Planner</a>
-        </li>
+        </li> --}}
         <li>
           <a href="#orders-tab" data-toggle="tab" class="btn btn-image">Orders</a>
         </li>
@@ -473,167 +473,11 @@
             </div>
           </div>
 
-          <div class="tab-pane mt-3" id="dailyplanner-tab">
-            <div class="d-flex">
-              <h4>Daily Planner</h4>
+          {{-- <div class="tab-pane mt-3" id="dailyplanner-tab">
 
-              @if (Auth::user()->hasRole('Admin'))
-                <form action="{{ route('mastercontrol.index') }}" class="d-flex" method="GET">
-                  <select class="form-control input-sm ml-3" name="user_id">
-                    <option value="">Select a User</option>
+          </div> --}}
 
-                    @foreach ($users_array as $id => $user)
-                      <option value="{{ $id }}" {{ isset($selected_user) && $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
-                    @endforeach
-                  </select>
-
-                  <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-                </form>
-              @endif
-            </div>
-
-            <div class="row no-gutters">
-              <div class="col-xs-12 col-md-8">
-                <div class="table-responsive">
-                  <table class="table table-bordered table-sm">
-                    <thead>
-                      <tr>
-                        <th width="20%">Time</th>
-                        <th width="50%">Planned</th>
-                        <th width="20%">Actual</th>
-                        <th width="10%">Remark</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      @php $count = 0; @endphp
-                      @foreach ($tasks['planned'] as $time_slot => $data)
-                        {{-- <tr id="timeslot{{ $count }}">
-                          <td class="p-2" rowspan="{{ (count($data) + 1) > 5 ? 5 : (count($data) + 1)  }}">{{ $time_slot }}</td>
-                        </tr> --}}
-                        @if (count($data) > 0)
-                          @foreach ($data as $key => $task)
-                            {{-- @if () --}}
-                              <tr class="{{ $key <= 3 ? '' : "hidden hiddentask$count" }}">
-                                {{-- @if ($key > 3) --}}
-                                  <td class="p-2">{{ $time_slot }}</td>
-                                {{-- @endif --}}
-                                <td class="p-2">
-                                  <div class="d-flex justify-content-between">
-                                    <span>
-                                      @if ($task->activity == '')
-                                        {{ $task->task_subject ?? substr($task->task_details, 0, 20) }}
-                                      @else
-                                        {{ $task->activity }}
-                                      @endif
-
-                                      @if ($task->pending_for != 0)
-                                        - pending for {{ $task->pending_for }} days
-                                      @endif
-                                    </span>
-
-                                    <span>
-                                      @if ($task->is_completed == '')
-                                        <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
-                                      @endif
-
-                                      @if ($key == 3)
-                                        <button type="button" class="btn btn-image show-tasks p-0 m-0" data-count="{{ $count }}" data-rowspan="{{ count($data) + 2 }}">v</button>
-                                      @endif
-                                    </span>
-                                  </div>
-                                </td>
-                                <td class="p-2 task-time">{{ $task->is_completed ? \Carbon\Carbon::parse($task->is_completed)->format('d-m H:i') : '' }}</td>
-                                <td class="p-2"><button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $task->id }}"><img src="/images/remark.png" /></button></td>
-                              </tr>
-                            {{-- @endif --}}
-                          @endforeach
-                        @else
-                          <tr>
-                            <td class="p-2">{{ $time_slot }}</td>
-                            <td class="p-2"></td>
-                            <td class="p-2 task-complete"></td>
-                            <td class="p-2"></td>
-                          </tr>
-                        @endif
-
-                        {{-- @if (count($data) == 0)
-                          <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                          </tr>
-                        @endif --}}
-
-                        <tr>
-                          {{-- @if (count($data) != 0) --}}
-
-                          <td class="p-2"></td>
-                          {{-- @endif --}}
-                          <td class="p-2">
-                            {{-- <select class="form-control input-sm plan-task" name="task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
-                              <option value="">Select a Task</option>
-
-                              @foreach ($tasks['list'] as $task)
-                                <option value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
-                              @endforeach
-                            </select> --}}
-
-                            <div class="d-flex">
-                              <select class="selectpicker form-control input-sm plan-task" data-live-search="true" data-size="15" name="task" title="Select a Task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
-                                @foreach ($tasks['list'] as $task)
-                                  <option data-tokens="{{ $task['id'] }} {{ $task['task_subject'] }} {{ $task['task_details'] }}" value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
-                                @endforeach
-                              </select>
-
-                              <input type="text" class="form-control input-sm quick-plan-input" name="task" placeholder="New Plan" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}" value="">
-
-                              <button type="button" class="btn btn-image quick-plan-button" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}"><img src="/images/filled-sent.png" /></button>
-                            </div>
-
-
-                          </td>
-                          <td class="p-2"></td>
-                          <td class="p-2"></td>
-                        </tr>
-
-                        @php $count++; @endphp
-                      @endforeach
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="col-xs-12 col-md-4">
-                <div class="table-responsive">
-                  <table class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th colspan="3">Meeting & Call</th>
-                      </tr>
-                      <tr>
-                        <th>#</th>
-                        <th>Time</th>
-                        <th>Details</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      @foreach ($call_instructions as $key => $instruction)
-                        <tr>
-                          <td>{{ $key + 1 }}</td>
-                          <td>{{ \Carbon\Carbon::parse($instruction->created_at)->format('d-m H:i') }}</td>
-                          <td>{{ $instruction->instruction }}</td>
-                        </tr>
-                      @endforeach
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          @include('partials.modals.remarks')
+          {{-- @include('partials.modals.remarks') --}}
 
           <div class="tab-pane mt-3" id="orders-tab">
             <div class="pull-left">

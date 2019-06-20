@@ -607,7 +607,7 @@
                             <li class="nav-item dropdown">
 
                                 @if(Auth::user()->email != 'facebooktest@test.com')
-                                  @can('admin')
+                                  {{-- @can('admin') --}}
                                     <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
 
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -615,7 +615,7 @@
                                         Product<span class="caret"></span>
 
                                     </a>
-                                  @endcan
+                                  {{-- @endcan --}}
 
                                 @endif
 
