@@ -487,7 +487,7 @@
                                             <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper
 
                                                 Grid</a>
-                                            <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
+                                              <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
 
                                                 Grid</a>
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
@@ -607,7 +607,7 @@
                             <li class="nav-item dropdown">
 
                                 @if(Auth::user()->email != 'facebooktest@test.com')
-
+                                  @can('admin')
                                     <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
 
                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -615,14 +615,17 @@
                                         Product<span class="caret"></span>
 
                                     </a>
+                                  @endcan
 
                                 @endif
 
+                                @can ('admin')
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
                                     <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
 
                                 </div>
+                              @endcan
 
                                 @can ('product-lister')
                                   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -713,6 +716,41 @@
                                 </li>
 
                             @endcan
+
+                            @can('crop-approval')
+                              <li class="nav-item dropdown">
+
+                                  <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                      Image Cropper Grid<span class="caret"></span>
+
+                                  </a>
+
+
+
+                                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                    {{-- <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper
+
+                                        Grid</a> --}}
+                                        @can('crop-approval')
+                                      <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
+                                      @endcan
+
+                                        Grid</a>
+                                    {{-- <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
+
+                                        Grid</a> --}}
+
+                                  </div>
+
+                              </li>
+
+
+
+                          @endcan
 
 
 
@@ -875,7 +913,7 @@
 
 
 
-                        @can('crm')
+
 
                             <li class="nav-item dropdown">
 
@@ -890,7 +928,7 @@
 
 
                                 <ul class="dropdown-menu multi-level" aria-labelledby="navbarDropdown">
-
+                                  @can('crm')
                                     <li class="nav-item dropdown dropdown-submenu">
 
                                         <a id="coldLeadsMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
@@ -908,18 +946,24 @@
                                         </ul>
 
                                     </li>
+                                  @endcan
 
+                                    @can('customer')
+                                      <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
+                                    @endcan
 
-                                    <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
-                                    <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
-                                    <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}">Cold Leads</a>
-                                    <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
-                                    <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
-                                    <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
-                                    <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
-                                    <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
-                                    <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
-                                    <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
+                                    @can('crm')
+                                      <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
+                                      <a class="dropdown-item" href="{{ route('dailyplanner.index') }}">Daily Planner</a>
+                                      <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}">Cold Leads</a>
+                                      <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                      <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
+                                      <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
+                                      <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
+                                      <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
+                                      <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
+                                      <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
+                                    @endcan
 
                                     @can('lead-create')
 
@@ -927,13 +971,15 @@
 
                                     @endcan
 
-                                    <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image Grid</a>
+                                    @can('crm')
+                                      <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image Grid</a>
 
-                                    {{--<a class="dropdown-item" href="{{ route('task.index') }}">Task</a>--}}
+                                      {{--<a class="dropdown-item" href="{{ route('task.index') }}">Task</a>--}}
 
-                                    {{--<a class="dropdown-item" href="{{ route('task.create') }}">Add Task</a>--}}
+                                      {{--<a class="dropdown-item" href="{{ route('task.create') }}">Add Task</a>--}}
 
-                                    <a class="dropdown-item" href="{{ route('refund.index') }}">Refunds</a>
+                                      <a class="dropdown-item" href="{{ route('refund.index') }}">Refunds</a>
+                                    @endcan
 
                                     @can('order-view')
 
@@ -951,6 +997,7 @@
 
                                     @endcan
 
+                                    @can('crm')
                                     <a class="dropdown-item" href="{{ route('order.missed-calls') }}">Missed calls
 
                                         List</a>
@@ -958,6 +1005,7 @@
                                       <a class="dropdown-item" href="{{ route('order.calls-history') }}">Calls History</a>
 
                                       <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
+                                    @endcan
 
                                       @can ('private-viewing')
                                         <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
@@ -976,8 +1024,6 @@
 
 
                             </li>
-
-                        @endcan
 
 
 
@@ -998,6 +1044,7 @@
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
                                     <a class="dropdown-item" href="{{ route('purchase.index') }}">Purchases</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.calendar') }}">Purchase Calendar</a>
 
                                     <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
                                     <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Canc\Ref Grid</a>
@@ -1460,6 +1507,7 @@
                               @endcan
 
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
+                              <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
                             </div>
