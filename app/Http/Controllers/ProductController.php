@@ -316,7 +316,7 @@ class ProductController extends Controller {
 												) as user_products
 											ON products.id = user_products.product_id
 
-											WHERE is_scraped = 1 AND is_crop_approved = 1 ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
+											WHERE is_scraped = 1 ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
 											ORDER BY is_image_processed DESC, updated_at DESC
 				');
 			}
