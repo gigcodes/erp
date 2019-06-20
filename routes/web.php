@@ -45,6 +45,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::resource('roles','RoleController');
 	Route::get('users/logins', 'UserController@login')->name('users.login.index');
 	Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');
+	Route::post('users/{id}/activate', 'UserController@activate')->name('user.activate');
 	Route::resource('users','UserController');
 	Route::get('products/listing', 'ProductController@listing')->name('products.listing');
 	Route::post('products/{id}/updateName', 'ProductController@updateName');

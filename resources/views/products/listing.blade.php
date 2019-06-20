@@ -85,9 +85,18 @@
         </form>
       </div>
 
-      {{-- <div class="pull-right">
-        <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#createTaskModal">Add Task</button>
-      </div> --}}
+      <div class="pull-right">
+        {{-- <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#createTaskModal">Add Task</button> --}}
+        @if (Auth::user()->hasRole('Products Lister') && Auth::user()->is_active == 1)
+          <div class="form-group">
+            <form action="{{ route('user.assign.products', Auth::id()) }}" method="POST">
+              @csrf
+
+              <button type="submit" class="btn btn-secondary">Assign Products</button>
+            </form>
+          </div>
+        @endif
+      </div>
     </div>
   </div>
 
@@ -374,7 +383,7 @@
               callback: function() {
                   // $('ul.pagination').remove();
                   $('.dropify').dropify();
-                  
+
                   $('.quick-edit-category').each(function(item) {
                     product_id = $(this).siblings('input[name="product_id"]').val();
                     category_id = $(this).siblings('input[name="category_id"]').val();

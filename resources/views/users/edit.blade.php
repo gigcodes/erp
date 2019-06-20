@@ -140,12 +140,26 @@
     {!! Form::close() !!}
 
     <div class="form-group">
+      <form action="{{ route('user.activate', $user->id) }}" method="POST">
+        @csrf
+
+        <button type="submit" class="btn btn-secondary">
+          @if ($user->is_active == 1)
+            Is Active
+          @else
+            Not Active
+          @endif
+        </button>
+      </form>
+    </div>
+
+    {{-- <div class="form-group">
       <form action="{{ route('user.assign.products', $user->id) }}" method="POST">
         @csrf
 
         <button type="submit" class="btn btn-secondary">Assign Products</button>
       </form>
-    </div>
+    </div> --}}
 
 
 @endsection
