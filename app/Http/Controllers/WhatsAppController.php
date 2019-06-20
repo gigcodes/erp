@@ -496,11 +496,14 @@ class WhatsAppController extends FindByNumberController
 
       if ($user) {
         $instruction = Instruction::where('assigned_to', $user->id)->latest()->first();
-        $myRequest = new Request();
-        $myRequest->setMethod('POST');
-        $myRequest->request->add(['remark' => $params['message'], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => "User from Whatsapp"]);
 
-        app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
+        if ($instruction) {
+          $myRequest = new Request();
+          $myRequest->setMethod('POST');
+          $myRequest->request->add(['remark' => $params['message'], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => "User from Whatsapp"]);
+
+          app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
+        }
 
         NotificationQueueController::createNewNotification([
           'message' => $params['message'],
