@@ -32,6 +32,16 @@ class VendorController extends Controller
       // $vendors = Vendor::with('agents')->latest()->paginate(Setting::get('pagination'));
 
       $term = $request->term ?? '';
+      $sortByClause = '';
+      $orderby = 'DESC';
+
+      if ($request->orderby == '') {
+         $orderby = 'ASC';
+      }
+
+      if ($request->sortby == 'category') {
+        $sortByClause = "category_name $orderby,";
+      }
       // $type = $request->type ?? '';
       // $typeWhereClause = '';
       //
@@ -65,7 +75,7 @@ class VendorController extends Controller
                   social_handle LIKE "%' . $term . '%" OR
                   category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
                    id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))
-                  ORDER BY message_created_at DESC;
+                  ORDER BY ' . $sortByClause . ' message_created_at DESC;
 							');
 
               // dd($vendors);
@@ -84,6 +94,7 @@ class VendorController extends Controller
         'vendors' => $vendors,
         'vendor_categories' => $vendor_categories,
         'term'    => $term,
+        'orderby'    => $orderby,
       ]);
     }
 

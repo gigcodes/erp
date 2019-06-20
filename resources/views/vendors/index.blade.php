@@ -43,13 +43,14 @@
         <thead>
           <tr>
             <th width="5%">ID</th>
-            <th width="5%">Category</th>
+            <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
             <th width="10%">Name</th>
             <th width="10%">Phone</th>
             <th width="10%">Email</th>
             <th width="10%">Address</th>
-            <th width="10%">Social handle</th>
-            <th width="10%">Website</th>
+            {{-- <th width="10%">Social handle</th>
+            <th width="10%">Website</th> --}}
+            <th width="20%">Send</th>
             <th width="20%">Communication</th>
             <th width="10%">Action</th>
           </tr>
@@ -68,7 +69,7 @@
                   {{ $vendor->category_name }}
                 </span>
               </td>
-              <td>{{ $vendor->name }}</td>
+              <td style="word-break: break-all;">{{ $vendor->name }}</td>
               <td>{{ $vendor->phone }}</td>
               <td class="expand-row table-hover-cell" style="word-break: break-all;">
                 <span class="td-mini-container">
@@ -81,8 +82,14 @@
               </td>
               <td style="word-break: break-all;">{{ $vendor->address }}</td>
 
-              <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
-              <td style="word-break: break-all;">{{ $vendor->website }}</td>
+              {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
+              <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
+              <td>
+                <div class="d-flex">
+                  <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                  <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $vendor->id }}"><img src="/images/filled-sent.png" /></button>
+                </div>
+              </td>
               {{-- <td>
                 @if ($supplier->agents)
                   <ul>
@@ -121,15 +128,17 @@
                   @endif --}}
               </td>
               <td>
-                <a href="{{ route('vendor.show', $vendor->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
+                <div class="d-flex">
+                  <a href="{{ route('vendor.show', $vendor->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
 
 
-                <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="/images/edit.png" /></button>
-                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $vendor->id }}"><img src="/images/remark.png" /></a>
+                  <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="/images/edit.png" /></button>
+                  <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $vendor->id }}"><img src="/images/remark.png" /></a>
 
-                {!! Form::open(['method' => 'DELETE','route' => ['vendor.destroy', $vendor->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                {!! Form::close() !!}
+                  {!! Form::open(['method' => 'DELETE','route' => ['vendor.destroy', $vendor->id],'style'=>'display:inline']) !!}
+                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                  {!! Form::close() !!}
+                </div>
               </td>
             </tr>
           @endforeach
@@ -246,6 +255,45 @@
       if (selection.toString().length === 0) {
         $(this).find('.td-mini-container').toggleClass('hidden');
         $(this).find('.td-full-container').toggleClass('hidden');
+      }
+    });
+
+    $(document).on('click', '.send-message', function() {
+      var thiss = $(this);
+      var data = new FormData();
+      var vendor_id = $(this).data('vendorid');
+      var message = $(this).siblings('input').val();
+
+      data.append("vendor_id", vendor_id);
+      data.append("message", message);
+      data.append("status", 1);
+
+      if (message.length > 0) {
+        if (!$(thiss).is(':disabled')) {
+          $.ajax({
+            url: '/whatsapp/sendMessage/vendor',
+            type: 'POST',
+           "dataType"    : 'json',           // what to expect back from the PHP script, if anything
+           "cache"       : false,
+           "contentType" : false,
+           "processData" : false,
+           "data": data,
+           beforeSend: function() {
+             $(thiss).attr('disabled', true);
+           }
+         }).done( function(response) {
+            $(thiss).siblings('input').val('');
+
+            $(thiss).attr('disabled', false);
+          }).fail(function(errObj) {
+            $(thiss).attr('disabled', false);
+
+            alert("Could not send message");
+            console.log(errObj);
+          });
+        }
+      } else {
+        alert('Please enter a message first');
       }
     });
   </script>
