@@ -16,7 +16,7 @@ class CheckDailyPlanner
      */
     public function handle($request, Closure $next)
     {
-      if (Auth::user()->is_planner_completed == 0 && !(strpos($request->getPathInfo(), 'dailyplanner') !== false)) {
+      if (Auth::check() && Auth::user()->is_planner_completed == 0 && !(strpos($request->getPathInfo(), 'dailyplanner') !== false)) {
         return redirect()->route('dailyplanner.index')->withErrors('Please complete daily planner first!');
       }
 
