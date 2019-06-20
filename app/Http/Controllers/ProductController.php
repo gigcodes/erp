@@ -255,7 +255,7 @@ class ProductController extends Controller {
 		$cropped = $request->cropped == "on" ? "on" : '';
     if ($request->get('cropped') == 'on') {
       // $products = $products->where('is_image_processed', 1);
-			$croppedWhereClause = ' AND is_image_processed = 1';
+			$croppedWhereClause = ' AND is_crop_approved = 1';
     }
 
 		if ($request->users == 'on') {
@@ -461,7 +461,7 @@ class ProductController extends Controller {
 		return response('success');
 	}
 
-	public function updateComposition(Request $request, $id)
+	public function updateCompositfion(Request $request, $id)
 	{
 		$product = Product::find($id);
 		$product->composition = $request->composition;
