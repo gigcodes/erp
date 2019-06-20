@@ -1496,7 +1496,7 @@ class WhatsAppController extends FindByNumberController
             }
           } else if (!$task->users->contains(Auth::id())) {
             $data['erp_user'] = $task->assign_from;
-            
+
             foreach ($task->users as $key => $user) {
               $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
             }
@@ -2347,7 +2347,7 @@ class WhatsAppController extends FindByNumberController
   {
     if ($validate) {
       $this->validate($request, [
-        'message'         => 'required_without:images',
+        // 'message'         => 'required_without:images,linked_images',
         // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
         // 'images.*'        => 'required_without:message|mimetypes:image/jpeg,image/png',
         'file'            => 'sometimes|mimes:xlsx,xls',
