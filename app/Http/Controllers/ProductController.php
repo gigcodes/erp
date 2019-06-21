@@ -948,6 +948,7 @@ class ProductController extends Controller {
 //	    $allShoes[] = 41;
 
 	    $product = Product::where('is_image_processed', 0)
+            ->where('is_being_cropped', 0)
             ->where('is_scraped', 1)
             ->where('is_without_image', 0)
             ->where('category', '>', 3)
@@ -971,6 +972,9 @@ class ProductController extends Controller {
                 $child = $cat;
             }
         }
+
+	    $product->is_being_cropped = 1;
+	    $product->save();
 
 
         return response()->json([

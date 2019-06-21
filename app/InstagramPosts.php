@@ -3,9 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Plank\Mediable\Mediable;
 
 class InstagramPosts extends Model
 {
+
+    use Mediable;
+
     protected $casts = [
         'media_url' => 'array'
     ];
