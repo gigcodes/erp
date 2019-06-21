@@ -21,6 +21,7 @@ use App\Task;
 use App\Remark;
 use App\Brand;
 use App\Email;
+use App\PrivateView;
 use App\PurchaseDiscount;
 use App\StatusChange;
 use App\Mail\CustomerEmail;
@@ -377,7 +378,16 @@ class PurchaseController extends Controller
       $brand = isset($brand) ? $brand : '';
       $order_status = (new OrderStatus)->all();
       $supplier_list = (new SupplierList)->all();
-      $suppliers = Supplier::select(['id', 'supplier'])->whereHas('products')->get();
+      // $suppliers = Supplier::select(['id', 'supplier'])->whereHas('products')->get();
+      $suppliers = DB::select('
+  				SELECT id, supplier
+  				FROM suppliers
+
+  				INNER JOIN (
+  					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+  					) as product_suppliers
+  				ON suppliers.id = product_suppliers.supplier_id
+  		');
 
       $suppliers_array = [];
 
@@ -600,6 +610,48 @@ class PurchaseController extends Controller
       return redirect()->route('purchase.index')->with('success', 'You have successfully merged purchases');
     }
 
+    public function calendar()
+    {
+      $purchases = Purchase::whereNotNull('shipment_date')->get();
+      $order_products = OrderProduct::whereNotNull('shipment_date')->get();
+      $purchase_data = [];
+
+      foreach ($order_products as $order_product) {
+        if ($order_product->order && $order_product->order->customer) {
+          $purchase_data[] = [
+            'customer_id'   => $order_product->order->customer->id,
+            'order_product_id'   => $order_product->id,
+            'customer_city' => $order_product->order->customer->city,
+            'shipment_date' => $order_product->shipment_date
+          ];
+        }
+      }
+
+      // foreach ($purchases as $purchase) {
+      //   if ($purchase->products) {
+      //     foreach ($purchase->products as $product) {
+      //       if ($product->orderproducts) {
+      //         foreach ($product->orderproducts as $order_product) {
+      //           if ($order_product->order && $order_product->order->customer) {
+      //             $purchase_data[] = [
+      //               'purchase_id' => $purchase->id,
+      //               'customer_city' => $order_product->order->customer->city,
+      //               'shipment_date' => $purchase->shipment_date
+      //             ];
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
+
+      // dd($purchase_data);
+
+      return view('purchase.calendar', [
+        'purchase_data' => $purchase_data
+      ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -622,9 +674,11 @@ class PurchaseController extends Controller
 
       $purchase->save();
 
-      $purchase->products()->attach($request->products);
+      $products = json_decode($request->products);
 
-      foreach ($request->products as $product_id) {
+      $purchase->products()->attach($products);
+
+      foreach ($products as $product_id) {
         $product = Product::find($product_id);
 
         foreach ($product->orderproducts as $order_product) {
@@ -634,6 +688,15 @@ class PurchaseController extends Controller
       }
 
       return redirect()->route('purchase.index');
+    }
+
+    public function updateDelivery(Request $request, $id)
+    {
+      $order_product = OrderProduct::find($id);
+      $order_product->shipment_date = $request->shipment_date;
+      $order_product->save();
+
+      return response('success', 200);
     }
 
     /**
@@ -871,7 +934,9 @@ class PurchaseController extends Controller
         }
       }
 
-      if ($request->status == 'Shipment Received in Dubai' || $request->status == 'Shipment in Transit from Dubai to India') {
+      if ($request->status == 'Shipment Received in Dubai') {
+        $product_names = '';
+
         if ($purchase->products) {
           foreach ($purchase->products as $product) {
             $supplier = Supplier::where('supplier', 'In-stock')->first();
@@ -882,36 +947,163 @@ class PurchaseController extends Controller
 
             $product->suppliers()->syncWithoutDetaching($supplier);
 
-            if ($product->orderproducts) {
-              $params = [
-                 'number'       => NULL,
-                 'user_id'      => Auth::id(),
-                 'approved'     => 0,
-                 'status'       => 1,
-                 'message'      => 'Your Order is received in Dubai and is being shipped to Dubai'
-               ];
+            $product_names .= "$product->name, ";
+          }
+        }
 
-              foreach ($product->orderproducts as $order_product) {
-                if ($order_product->order && !$purchase->is_sent_in_dubai()) {
-                  $params['customer_id'] = $order_product->order->customer->id;
+        if (!$purchase->is_sent_in_dubai()) {
+          // Making task for Yogesh
+          $data = [
+            'task_subject'  => 'Shipment to India',
+            'task_details'  => "Please arrange shipment for India - ID $purchase->id",
+            'is_statutory'  => 0,
+            'assign_from'   => Auth::id(),
+            'assign_to'     => 6,
+            'category'      => 12
+          ];
 
-                  ChatMessage::create($params);
+          $task = Task::create($data);
 
-                  CommunicationHistory::create([
-            				'model_id'		=> $purchase->id,
-            				'model_type'	=> Purchase::class,
-            				'type'				=> 'purchase-in-dubai',
-            				'method'			=> 'whatsapp'
-            			]);
-                }
-              }
+          $task->users()->attach([6 => ['type' => User::class]]);
+
+          // Message to Carier
+          $params = [
+            'number'    => NULL,
+            'user_id'   => Auth::id(),
+            'message'   => "These pcs: $product_names are available for shipment to India - confirm if urgency needed to drop for faster transit",
+            'approved'  => 0,
+            'status'    => 1
+          ];
+
+          $chat_message = ChatMessage::create($params);
+
+          $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
+
+          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+          $chat_message->update([
+            'approved' => 1,
+            'status'   => 2
+          ]);
+
+          CommunicationHistory::create([
+            'model_id'		=> $purchase->id,
+            'model_type'	=> Purchase::class,
+            'type'				=> 'purchase-in-dubai',
+            'method'			=> 'whatsapp'
+          ]);
+        }
+
+
+        // if ($product->orderproducts) {
+        //   $product_names = '';
+        //
+        //   foreach ($product->orderproducts as $order_product) {
+        //     if ($order_product->order && !$purchase->is_sent_in_dubai()) {
+        //       $params['customer_id'] = $order_product->order->customer->id;
+        //
+        //       ChatMessage::create($params);
+        //
+        //       CommunicationHistory::create([
+        //         'model_id'		=> $purchase->id,
+        //         'model_type'	=> Purchase::class,
+        //         'type'				=> 'purchase-in-dubai',
+        //         'method'			=> 'whatsapp'
+        //       ]);
+        //     }
+        //   }
+
+          // $params = [
+          //    'number'       => NULL,
+          //    'user_id'      => Auth::id(),
+          //    'approved'     => 0,
+          //    'status'       => 1,
+          //    'message'      => 'Your Order is received in Dubai and is being shipped to Dubai'
+          //  ];
+          //
+          // foreach ($product->orderproducts as $order_product) {
+          //   if ($order_product->order && !$purchase->is_sent_in_dubai()) {
+          //     $params['customer_id'] = $order_product->order->customer->id;
+          //
+          //     ChatMessage::create($params);
+          //
+          //     CommunicationHistory::create([
+          // 			'model_id'		=> $purchase->id,
+          // 			'model_type'	=> Purchase::class,
+          // 			'type'				=> 'purchase-in-dubai',
+          // 			'method'			=> 'whatsapp'
+          // 		]);
+          //   }
+          // }
+        // }
+      }
+
+      if ($request->status == 'Shipment in Transit from Dubai to India') {
+        if (!$purchase->is_sent_dubai_to_india()) {
+          $product_names = '';
+
+          if ($purchase->products) {
+            foreach ($purchase->products as $product) {
+              $product_names .= "$product->name, ";
             }
           }
+
+          // Message to Stock Coordinator
+          $params = [
+            'number'    => NULL,
+            'user_id'   => Auth::id(),
+            'message'   => "These pcs: $product_names are expected to arrive in India - x + 2 days -pls. coordinate and arrange collection",
+            'approved'  => 0,
+            'status'    => 1
+          ];
+
+          $chat_message = ChatMessage::create($params);
+
+          $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
+
+          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+          $chat_message->update([
+            'approved' => 1,
+            'status'   => 2
+          ]);
+
+          // Message to Delivery Coordinator
+          $params = [
+            'number'    => NULL,
+            'user_id'   => Auth::id(),
+            'message'   => "These pcs: $product_names are expected to arrive in India - x + 2 days to you. - for delivery to the follow customers pls. coordinate",
+            'approved'  => 0,
+            'status'    => 1
+          ];
+
+          $coordinators = User::role('Delivery Coordinator')->get();
+
+          foreach ($coordinators as $coordinator) {
+            $params['erp_user'] = $coordinator->id;
+            $chat_message = ChatMessage::create($params);
+
+            $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+    				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+            $chat_message->update([
+              'approved' => 1,
+              'status'   => 2
+            ]);
+          }
+
+          CommunicationHistory::create([
+            'model_id'		=> $purchase->id,
+            'model_type'	=> Purchase::class,
+            'type'				=> 'purchase-dubai-to-india',
+            'method'			=> 'whatsapp'
+          ]);
         }
       }
 
       if ($request->status == 'Shipment Received in India') {
-        if ($purchase->products) {
+        if ($purchase->products && !$purchase->is_sent_in_mumbai()) {
           foreach ($purchase->products as $product) {
             $supplier = Supplier::where('supplier', 'In-stock')->first();
 
@@ -930,10 +1122,18 @@ class PurchaseController extends Controller
                ];
 
               foreach ($product->orderproducts as $order_product) {
-                if ($order_product->order && !$purchase->is_sent_in_mumbai()) {
+                if ($order_product->order && $order_product->order->customer) {
                   $params['customer_id'] = $order_product->order->customer->id;
 
                   ChatMessage::create($params);
+
+                  // Creating inventory for Aliya
+                  $private_view = new PrivateView;
+                  $private_view->customer_id = $order_product->order->customer->id;
+                  $private_view->date = Carbon::now()->addDays(3);
+                  $private_view->save();
+
+                  $private_view->products()->attach($product);
 
                   CommunicationHistory::create([
             				'model_id'		=> $purchase->id,
@@ -945,6 +1145,32 @@ class PurchaseController extends Controller
               }
             }
           }
+
+          // Message to Aliya about time ?
+
+          // Message to Stock Holder
+          $params = [
+            'number'    => NULL,
+            'user_id'   => Auth::id(),
+            'message'   => "Confirm Aliyas time if it is ok to hand over the products",
+            'approved'  => 0,
+            'status'    => 1
+          ];
+
+          $chat_message = ChatMessage::create($params);
+
+          $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
+
+          if ($whatsapp_number == '919152731483') {
+            app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
+          } else {
+            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp('37067501865', $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+          }
+
+          $chat_message->update([
+            'approved' => 1,
+            'status'   => 2
+          ]);
         }
       }
 
@@ -1038,12 +1264,112 @@ class PurchaseController extends Controller
       $purchase->bill_number = $request->bill_number;
       $purchase->shipper = $request->shipper;
       $purchase->shipment_cost = $request->shipment_cost;
+      $purchase->shipment_date = $request->shipment_date;
       $purchase->shipment_status = $request->shipment_status;
       $purchase->supplier_phone = $request->supplier_phone;
       $purchase->whatsapp_number = $request->whatsapp_number;
 
       if ($request->bill_number != '') {
         $purchase->status = 'AWB Details Received';
+
+        if (!$purchase->is_sent_awb_actions()) {
+          // Task to Sushil
+          $data = [
+            'task_subject'  => 'Purchase Delivery',
+            'task_details'  => "Please Follow up with Purchase Delivery - ID $purchase->id",
+            'is_statutory'  => 0,
+            'assign_from'   => Auth::id(),
+            'assign_to'     => 7,
+            'category'      => 12
+          ];
+
+          $task = Task::create($data);
+
+          $task->users()->attach([7 => ['type' => User::class]]);
+
+          // Message to Yogesh
+          $params = [
+    				 'number'       => NULL,
+    				 'user_id'      => Auth::id(),
+    				 'approved'     => 1,
+    				 'status'       => 2,
+    				 // 'task_id'      => $task->id,
+             'erp_user'     => 6,
+    				 'message'      => 'Products are in transit'
+    			 ];
+
+    			$chat_message = ChatMessage::create($params);
+          $yogesh = User::find(6);
+
+  				// app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($yogesh->phone, $yogesh->whatsapp_number, $params['message']);
+
+          // Customer Message
+          $params = [
+    				 'number'       => NULL,
+    				 'user_id'      => Auth::id(),
+    				 'approved'     => 0,
+    				 'status'       => 1,
+    			 ];
+
+          $delivery_information = '';
+          foreach ($purchase->products as $product) {
+            if ($product->orderproducts) {
+              foreach ($product->orderproducts as $order_product) {
+                if ($order_product->order && $order_product->order->customer) {
+                  $shipment_days = Carbon::parse($order_product->shipment_date)->diffInDays(Carbon::now()) + 7;
+                  $params['customer_id'] = $order_product->order->customer->id;
+                  $params['message'] = "Your product $product->name has been shipped from our Italy office and is expected to be delivered to you in $shipment_days days - account for weekend and holiday";
+
+                  $chat_message = ChatMessage::create($params);
+
+                  // Aliya message details
+                  $customer_city = $order_product->order->customer->city;
+                  $customer_name = $order_product->order->customer->name;
+                  $delivery_information .= "$customer_city - $product->name for $customer_name; ";
+                }
+
+                // Update Order Product Details
+                $order_product->shipment_date = Carbon::now()->addDays(14);
+                $order_product->save();
+              }
+            }
+          }
+
+          // throw new \Exception($delivery_information);
+
+          $params = [
+            'number'    => NULL,
+            'user_id'   => Auth::id(),
+            'message'   => "These are the shipments that need to be delivered in the next 12 days and please ensure office boys are allocated and all travel bookings are made $delivery_information",
+            'approved'  => 0,
+            'status'    => 1
+          ];
+
+          $coordinators = User::role('Delivery Coordinator')->get();
+
+          foreach ($coordinators as $coordinator) {
+            $params['erp_user'] = $coordinator->id;
+            $chat_message = ChatMessage::create($params);
+
+            $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+            // throw new \Exception($coordinator->id);
+
+    				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+            $chat_message->update([
+              'approved' => 1,
+              'status'   => 2
+            ]);
+          }
+
+          CommunicationHistory::create([
+    				'model_id'		=> $id,
+    				'model_type'	=> Purchase::class,
+    				'type'				=> 'purchase-awb-generated',
+    				'method'			=> 'whatsapp'
+    			]);
+        }
       }
 
       $purchase->save();

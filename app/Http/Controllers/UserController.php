@@ -37,10 +37,11 @@ class UserController extends Controller
 	 */
 	function __construct()
 	{
-		$this->middleware('permission:user-list');
+		$this->middleware('permission:user-list', ['except' => ['assignProducts']]);
 		$this->middleware('permission:user-create', ['only' => ['create','store']]);
 		$this->middleware('permission:user-edit', ['only' => ['edit','update']]);
 		$this->middleware('permission:user-delete', ['only' => ['destroy']]);
+		$this->middleware('permission:product-lister', ['only' => ['assignProducts']]);
 	}
 
 
@@ -257,24 +258,29 @@ class UserController extends Controller
 	{
 		$user = User::find($id);
 
-		$amount_assigned = $request->amount_assigned ?? $user->amount_assigned;
+		// $amount_assigned = $request->amount_assigned ?? $user->amount_assigned;
+		$amount_assigned = 25;
 
 		if ($amount_assigned != '') {
-			$products = Product::where('is_scraped', 1)->where('stock', '>=', 1)->where('is_image_processed', 1)->where('isUploaded', 0)->where('is_approved', 0)->where('isFinal', 0);
-			$user_products = UserProduct::all();
-
-			$product_ids = [];
-			foreach ($user_products as $product) {
-				$product_ids[] = $product->product_id;
-			}
-
+			$products = Product::where('is_scraped', 1)->where('stock', '>=', 1)->where('is_image_processed', 1)->where('is_crop_approved', 1)->where('is_approved', 0)->where('isUploaded', 0)->where('isFinal', 0);
+			$user_products = UserProduct::pluck('product_id');
+			// dd($user_products);
+			// $product_ids = [];
+			// foreach ($user_products as $product) {
+			// 	$product_ids[] = $product->product_id;
+			// }
+			//
+			// dd($product_ids);
+			// dd($products->get());
 			// if ($user->products()->count()) {
 				// $product_ids = [];
 				// foreach ($user->products as $product) {
 				// 	$product_ids[] = $product->id;
 				// }
 
-				$products = $products->whereNotIn('id', $product_ids)->latest()->take($amount_assigned)->get();
+				$products = $products->whereNotIn('id', $user_products)->latest()->take($amount_assigned)->get();
+
+				// dd($products);
 				$user->products()->attach($products);
 			// } else {
 			// 	$products = $products->whereNotIn('id', $product_ids)->take($user->amount_assigned)->get();
@@ -284,7 +290,13 @@ class UserController extends Controller
 			return redirect()->back()->withErrors('Please select amount assigned first!');
 		}
 
-		return redirect()->back()->withSuccess('You have successfully assigned products to user');
+		if (count($products) > 0) {
+			$message = "You have successfully assigned " . count($products) . " products";
+		} else {
+			$message = "There were no products to assign!";
+		}
+
+		return redirect()->back()->withSuccess($message);
 	}
 
 	public function login(Request $request)
@@ -296,6 +308,21 @@ class UserController extends Controller
 			'logins'	=> $logins,
 			'date'		=> $date
 		]);
+	}
+
+	public function activate(Request $request, $id)
+	{
+		$user = User::find($id);
+
+		if ($user->is_active == 1) {
+			$user->is_active = 0;
+		} else {
+			$user->is_active = 1;
+		}
+
+		$user->save();
+
+		return redirect()->back()->withSuccess('You have successfully updated the user!');
 	}
 
 	public function checkUserLogins()

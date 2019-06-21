@@ -25,6 +25,7 @@ use App\Console\Commands\CheckMessagesErrors;
 use App\Console\Commands\SendBroadcastMessageToColdLeads;
 use App\Console\Commands\SendProductSuggestion;
 use App\Console\Commands\SendActivitiesListing;
+use App\Console\Commands\SendDailyPlannerReport;
 //use App\Console\Commands\SyncInstagramMessage;
 use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
@@ -44,6 +45,7 @@ use App\Console\Commands\MonitorCronJobs;
 use App\Console\Commands\SendVoucherReminder;
 
 use App\Console\Commands\MovePlannedTasks;
+use App\Console\Commands\ResetDailyPlanner;
 
 // use App\Console\Commands\SaveProductsImages;
 
@@ -108,6 +110,8 @@ class Kernel extends ConsoleKernel
         UpdateMagentoProductStatus::class,
         SendBroadcastMessageToColdLeads::class,
         MovePlannedTasks::class,
+        SendDailyPlannerReport::class,
+        ResetDailyPlanner::class,
         // SaveProductsImages::class,
         GrowInstagramAccounts::class
     ];
@@ -200,6 +204,10 @@ class Kernel extends ConsoleKernel
         // Fetches Emails
         $schedule->command('fetch:emails')->everyFifteenMinutes();
         $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
+
+        $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
+        $schedule->command('reset:daily-planner')->dailyAt('05:00')->timezone('Asia/Kolkata');
 
 
         // $schedule->command('save:products-images')->hourly()->withoutOverlapping()->timezone('Asia/Kolkata');

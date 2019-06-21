@@ -474,7 +474,7 @@ class TaskModuleController extends Controller {
 	{
 		$task = Task::find($id);
 		$task->time_slot = $request->time_slot;
-		$task->planned_at = Carbon::now()->format('Y-m-d');
+		$task->planned_at = $request->planned_at;
 		$task->save();
 
 		return response()->json([

@@ -12,6 +12,7 @@ use App\Order;
 use App\OrderProduct;
 use App\CommunicationHistory;
 use App\AutoReply;
+use App\Product;
 use Carbon\Carbon;
 use Validator;
 
@@ -403,14 +404,30 @@ class MagentoController extends Controller {
 			if ( strpos( $splitted_sku[0], $color ) ) {
 
 				$result['color'] = $color;
-				$result['sku']   = str_replace( $color, '', $splitted_sku[0] );
+				$sku  = str_replace( $color, '', $splitted_sku[0] );
+
+				$product = Product::where('sku', 'LIKE', "%$sku%")->first();
+
+				if ($product) {
+					$result['sku'] = $product->sku;
+				} else {
+					$result['sku'] = $sku;
+				}
 
 				return $result;
 			}
 		}
 
 		$result['color'] = null;
-		$result['sku']   = $splitted_sku[0];
+		$sku   = $splitted_sku[0];
+
+		$product = Product::where('sku', 'LIKE', "%$sku%")->first();
+
+		if ($product) {
+			$result['sku'] = $product->sku;
+		} else {
+			$result['sku'] = $sku;
+		}
 
 		return $result;
 	}

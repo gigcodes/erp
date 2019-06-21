@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DeliveryApproval;
 use App\StatusChange;
 use App\PrivateView;
+use App\ChatMessage;
 use App\Helpers;
 use App\User;
 use Auth;
@@ -106,9 +107,68 @@ class DeliveryApprovalController extends Controller
       if ($request->status == 'delivered') {
         $delivery_approval->private_view->products[0]->supplier = '';
         $delivery_approval->private_view->products[0]->save();
+
+        // Message to Customer
+        $params = [
+          'number'    => NULL,
+          'user_id'   => Auth::id(),
+          'customer_id' => $delivery_approval->private_view->customer_id,
+          'message'   => "This product has been delivered. Thank you for your business",
+          'approved'  => 0,
+          'status'    => 1
+        ];
+
+        $chat_message = ChatMessage::create($params);
       } elseif ($request->status == 'returned') {
         $delivery_approval->private_view->products[0]->supplier = 'In-stock';
         $delivery_approval->private_view->products[0]->save();
+
+        // Message to Stock Holder
+        $params = [
+          'number'    => NULL,
+          'user_id'   => Auth::id(),
+          'message'   => "This product will be sent back",
+          'approved'  => 0,
+          'status'    => 1
+        ];
+
+        $chat_message = ChatMessage::create($params);
+
+        $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
+
+        if ($whatsapp_number == '919152731483') {
+          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
+        } else {
+          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp('37067501865', $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+        }
+
+        $chat_message->update([
+          'approved' => 1,
+          'status'   => 2
+        ]);
+
+        // Message to Aliya
+        $coordinators = User::role('Delivery Coordinator')->get();
+
+        foreach ($coordinators as $coordinator) {
+          $params['erp_user'] = $coordinator->id;
+          $chat_message = ChatMessage::create($params);
+
+          $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+          if ($whatsapp_number == '919152731483') {
+            app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+          } else {
+            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($coordinator->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+          }
+
+          $chat_message->update([
+            'approved' => 1,
+            'status'   => 2
+          ]);
+        }
+
+
       }
 
       if ($delivery_approval->private_view) {

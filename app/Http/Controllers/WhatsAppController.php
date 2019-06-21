@@ -496,11 +496,14 @@ class WhatsAppController extends FindByNumberController
 
       if ($user) {
         $instruction = Instruction::where('assigned_to', $user->id)->latest()->first();
-        $myRequest = new Request();
-        $myRequest->setMethod('POST');
-        $myRequest->request->add(['remark' => $params['message'], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => "User from Whatsapp"]);
 
-        app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
+        if ($instruction) {
+          $myRequest = new Request();
+          $myRequest->setMethod('POST');
+          $myRequest->request->add(['remark' => $params['message'], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => "User from Whatsapp"]);
+
+          app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
+        }
 
         NotificationQueueController::createNewNotification([
           'message' => $params['message'],
@@ -1494,6 +1497,12 @@ class WhatsAppController extends FindByNumberController
                 $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
               }
             }
+          } else if (!$task->users->contains(Auth::id())) {
+            $data['erp_user'] = $task->assign_from;
+
+            foreach ($task->users as $key => $user) {
+              $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+            }
           } else {
             foreach ($task->users as $key => $user) {
               if ($key == 0) {
@@ -2341,7 +2350,7 @@ class WhatsAppController extends FindByNumberController
   {
     if ($validate) {
       $this->validate($request, [
-        'message'         => 'required_without:images',
+        // 'message'         => 'required_without:images,linked_images',
         // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
         // 'images.*'        => 'required_without:message|mimetypes:image/jpeg,image/png',
         'file'            => 'sometimes|mimes:xlsx,xls',

@@ -255,7 +255,7 @@ class ProductController extends Controller {
 		$cropped = $request->cropped == "on" ? "on" : '';
     if ($request->get('cropped') == 'on') {
       // $products = $products->where('is_image_processed', 1);
-			$croppedWhereClause = ' AND is_image_processed = 1';
+			$croppedWhereClause = ' AND is_crop_approved = 1';
     }
 
 		if ($request->users == 'on') {
@@ -303,7 +303,7 @@ class ProductController extends Controller {
 											ON products.id = user_products.product_id
 
 
-											WHERE is_scraped = 1 AND stock >= 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+											WHERE is_scraped = 1 AND stock >= 1 AND is_crop_approved = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
 											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
 											ORDER BY is_image_processed DESC, created_at DESC
 				');
@@ -461,7 +461,7 @@ class ProductController extends Controller {
 		return response('success');
 	}
 
-	public function updateComposition(Request $request, $id)
+	public function updateCompositfion(Request $request, $id)
 	{
 		$product = Product::find($id);
 		$product->composition = $request->composition;

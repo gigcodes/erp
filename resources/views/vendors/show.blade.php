@@ -175,6 +175,18 @@
             </div>
 
             <div class="form-group">
+              <input type="text" name="account_name" id="vendor_account_name" class="form-control input-sm" placeholder="Account Name" value="{{ $vendor->account_name }}">
+            </div>
+
+            <div class="form-group">
+              <input type="text" name="account_iban" id="vendor_account_iban" class="form-control input-sm" placeholder="IBAN" value="{{ $vendor->account_iban }}">
+            </div>
+
+            <div class="form-group">
+              <input type="text" name="account_swift" id="vendor_account_swift" class="form-control input-sm" placeholder="SWIFT" value="{{ $vendor->account_swift }}">
+            </div>
+
+            <div class="form-group">
               <button type="button" id="updateVendorButton" class="btn btn-xs btn-secondary">Save</button>
             </div>
           </div>
@@ -351,6 +363,30 @@
         </div>
 
       </form>
+
+      <h4>Remarks</h4>
+
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="form-group">
+            <textarea class="form-control" name="remark" rows="3" cols="10" placeholder="Remark"></textarea>
+          </div>
+
+          <div class="form-inline">
+            <button type="button" class="btn btn-xs btn-secondary" id="sendRemarkButton">Send</button>
+            <button type="button" class="btn btn-xs btn-secondary ml-1" id="hideRemarksButton">Show</button>
+          </div>
+        </div>
+
+        <div class="col-xs-12">
+
+          <div id="remarks-container" class="hidden">
+            <ul>
+
+            </ul>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -936,28 +972,37 @@
            formData.append("screenshot_path", screenshot_path);
 
            if ($(this).closest('form')[0].checkValidity()) {
-             $.ajax({
-               type: 'POST',
-               url: url,
-               data: formData,
-               processData: false,
-               contentType: false
-             }).done(function(response) {
-               console.log(response);
-               pollMessages();
-               $(thiss).closest('form').find('textarea').val('');
-               $('#paste-container').empty();
-               $('#screenshot_path').val('');
-               $(thiss).closest('form').find('.dropify-clear').click();
+             if (!$(thiss).is(':disabled')) {
+               $.ajax({
+                 type: 'POST',
+                 url: url,
+                 data: formData,
+                 processData: false,
+                 contentType: false,
+                 beforeSend: function() {
+                   $(thiss).attr('disabled', true);
+                 }
+               }).done(function(response) {
+                 console.log(response);
+                 pollMessages();
+                 $(thiss).closest('form').find('textarea').val('');
+                 $('#paste-container').empty();
+                 $('#screenshot_path').val('');
+                 $(thiss).closest('form').find('.dropify-clear').click();
 
-               if ($(thiss).hasClass('received-customer')) {
-                 $(thiss).closest('form').find('#supplierMessageButton').removeClass('hidden');
-                 $(thiss).closest('form').find('textarea').addClass('hidden');
-               }
-             }).fail(function(response) {
-               console.log(response);
-               alert('Error sending a message');
-             });
+                 if ($(thiss).hasClass('received-customer')) {
+                   $(thiss).closest('form').find('#supplierMessageButton').removeClass('hidden');
+                   $(thiss).closest('form').find('textarea').addClass('hidden');
+                 }
+
+                 $(thiss).attr('disabled', false);
+               }).fail(function(response) {
+                 console.log(response);
+                 alert('Error sending a message');
+
+                 $(thiss).attr('disabled', false);
+               });
+             }
            } else {
              $(this).closest('form')[0].reportValidity();
            }
@@ -1329,7 +1374,10 @@
         var login = $('#vendor_login').val();
         var password = $('#vendor_password').val();
         var gst = $('#vendor_gst').val();
-        
+        var account_name = $('#vendor_account_name').val();
+        var account_iban = $('#vendor_account_iban').val();
+        var account_swift = $('#vendor_account_swift').val();
+
         $.ajax({
           type: "POST",
           url: "{{ url('vendor') }}/" + id,
@@ -1348,6 +1396,9 @@
             login: login,
             password: password,
             gst: gst,
+            account_name: account_name,
+            account_swift: account_swift,
+            account_iban: account_iban,
           },
           beforeSend: function() {
             $(thiss).text('Saving...');
@@ -1474,6 +1525,56 @@
 
       $('#date-of-order, #vendor-date-of-order, #delivery-date, #vendor-delivery-date').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
+      });
+
+      $('#sendRemarkButton').on('click', function() {
+        var id = {{ $vendor->id }};
+        var remark = $(this).parent('div').siblings('.form-group').find('textarea').val();
+        var thiss = $(this);
+
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.addRemark') }}',
+            data: {
+              id: id,
+              remark: remark,
+              module_type: 'vendor'
+            },
+        }).done(response => {
+            $(thiss).parent('div').siblings('.form-group').find('textarea').val('');
+            var comment = '<li> '+ remark +' <br> <small>By updated on '+ moment().format('DD-M H:mm') +' </small></li>';
+
+            $('#remarks-container').find('ul').prepend(comment);
+        }).fail(function(response) {
+          console.log(response);
+          alert('Could not add remark');
+        });
+      });
+
+      $.ajax({
+          type: 'GET',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.gettaskremark') }}',
+          data: {
+            id: "{{ $vendor->id }}",
+            module_type: "vendor"
+          },
+      }).done(response => {
+          var html='';
+
+          $.each(response, function( index, value ) {
+            html+=' <li> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></li>';
+          });
+          $("#remarks-container").find('ul').html(html);
+      });
+
+      $('#hideRemarksButton').on('click', function() {
+        $('#remarks-container').toggleClass('hidden');
       });
   </script>
 @endsection

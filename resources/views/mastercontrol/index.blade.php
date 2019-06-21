@@ -48,9 +48,9 @@
         <li>
           <a href="#statutory-tab" data-toggle="tab" class="btn btn-image">Statutory Tasks</a>
         </li>
-        <li>
+        {{-- <li>
           <a href="#dailyplanner-tab" data-toggle="tab" class="btn btn-image">Daily Planner</a>
-        </li>
+        </li> --}}
         <li>
           <a href="#orders-tab" data-toggle="tab" class="btn btn-image">Orders</a>
         </li>
@@ -473,112 +473,11 @@
             </div>
           </div>
 
-          <div class="tab-pane mt-3" id="dailyplanner-tab">
-            <div class="d-flex">
-              <h4>Daily Planner</h4>
+          {{-- <div class="tab-pane mt-3" id="dailyplanner-tab">
 
-              <form action="{{ route('mastercontrol.index') }}" class="d-flex" method="GET">
-                <select class="form-control input-sm ml-3" name="user_id">
-                  <option value="">Select a User</option>
+          </div> --}}
 
-                  @foreach ($users_array as $id => $user)
-                    <option value="{{ $id }}" {{ isset($selected_user) && $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
-                  @endforeach
-                </select>
-
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-              </form>
-            </div>
-
-            <div class="table-responsive">
-              <table class="table table-bordered table-sm">
-                <thead>
-                  <tr>
-                    <th width="20%">Time</th>
-                    <th width="40%">Planned</th>
-                    <th width="30%">Actual</th>
-                    <th width="10%">Remark</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  @php $count = 0; @endphp
-                  @foreach ($tasks['planned'] as $time_slot => $data)
-                    <tr id="timeslot{{ $count }}">
-                      <td class="p-2" rowspan="{{ (count($data) + 2) > 6 ? 6 : (count($data) + 2)  }}">{{ $time_slot }}</td>
-                    </tr>
-
-                    @foreach ($data as $key => $task)
-                      {{-- @if () --}}
-                        <tr class="{{ $key <= 3 ? '' : "hidden hiddentask$count" }}">
-                          @if ($key > 4)
-                            <td></td>
-                          @endif
-                          <td class="p-2">
-                            <div class="d-flex justify-content-between">
-                              <span>
-                                @if ($task->activity == '')
-                                  {{ $task->task_subject ?? substr($task->task_details, 0, 20) }}
-                                @else
-                                  {{ $task->activity }}
-                                @endif
-
-                                @if ($task->pending_for != 0)
-                                  - pending for {{ $task->pending_for }} days
-                                @endif
-                              </span>
-
-                              <span>
-                                @if ($task->is_completed == '')
-                                  <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
-                                @endif
-
-                                @if ($key == 3)
-                                  <button type="button" class="btn btn-image show-tasks p-0 m-0" data-count="{{ $count }}" data-rowspan="{{ count($data) + 2 }}">v</button>
-                                @endif
-                              </span>
-                            </div>
-                          </td>
-                          <td class="p-2">{{ $task->is_completed ? \Carbon\Carbon::parse($task->is_completed)->format('d-m H:i') : '' }}</td>
-                          <td class="p-2"><button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $task->id }}"><img src="/images/remark.png" /></button></td>
-                        </tr>
-                      {{-- @endif --}}
-                    @endforeach
-
-                    <tr>
-                      <td class="p-2">
-                        {{-- <select class="form-control input-sm plan-task" name="task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
-                          <option value="">Select a Task</option>
-
-                          @foreach ($tasks['list'] as $task)
-                            <option value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
-                          @endforeach
-                        </select> --}}
-
-                        <div class="d-flex">
-                          <select class="selectpicker form-control input-sm plan-task" data-live-search="true" data-size="15" name="task" title="Select a Task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
-                            @foreach ($tasks['list'] as $task)
-                              <option data-tokens="{{ $task['id'] }} {{ $task['task_subject'] }} {{ $task['task_details'] }}" value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
-                            @endforeach
-                          </select>
-
-                          <input type="text" class="form-control input-sm quick-plan-input" name="task" placeholder="New Plan" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}" value="">
-                        </div>
-
-
-                      </td>
-                      <td class="p-2"></td>
-                      <td class="p-2"></td>
-                    </tr>
-
-                    @php $count++; @endphp
-                  @endforeach
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          @include('partials.modals.remarks')
+          {{-- @include('partials.modals.remarks') --}}
 
           <div class="tab-pane mt-3" id="orders-tab">
             <div class="pull-left">
@@ -1184,21 +1083,22 @@
             time_slot: time_slot
           }
         }).done(function(response) {
-          var count = $('#' + target_id).find('td').attr('rowspan');
-          console.log(count, '#' + target_id);
-          $('#' + target_id).find('td').attr('rowspan', parseInt(count, 10)+ 1);
+          // var count = $('#' + target_id).find('td').attr('rowspan');
+          // console.log(count, '#' + target_id);
+          // $('#' + target_id).find('td').attr('rowspan', parseInt(count, 10)+ 1);
           var row = `<tr>
+            <td class="p-2">` + time_slot + `</td>
             <td class="p-2">
               <div class="d-flex justify-content-between">
                 <span>
                 ` + response.task.task_subject + `
                 </span>
                 <span>
-                  <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.task.id + `"><img src="/images/incomplete.png" /></button>
+                  <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.task.id + `" data-type="task"><img src="/images/incomplete.png" /></button>
                 </span>
               </div>
             </td>
-            <td class="p-2"></td>
+            <td class="p-2 task-time"></td>
             <td class="p-2"><button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="` + response.task.id + `"><img src="/images/remark.png" /></button></td>
           </tr>`;
 
@@ -1293,6 +1193,7 @@
           }
         }).done(function(response) {
           // $(thiss).parent()
+          $(thiss).closest('tr').find('.task-time').text(moment().format('DD-MM HH:mm'));
           $(thiss).remove();
         }).fail(function(response) {
           $(thiss).html(image);
@@ -1310,53 +1211,70 @@
       $('.hiddentask' + count).toggleClass('hidden');
     });
 
-    $('.quick-plan-input').keypress(function(e) {
+    function storeDailyActivity(element, activity, time_slot, target_id) {
+      $.ajax({
+        type: 'POST',
+        url: "{{ route('dailyActivity.quick.store') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          activity: activity,
+          time_slot: time_slot,
+          user_id: "{{ isset($selected_user) && $selected_user != '' ? $selected_user : Auth::id() }}",
+          for_date: "{{ date('Y-m-d') }}"
+        }
+      }).done(function(response) {
+        var count = $('#' + target_id).find('td').attr('rowspan');
+        var row = `<tr>
+          <td class="p-2"></td>
+          <td class="p-2">
+            <div class="d-flex justify-content-between">
+              <span>
+              ` + activity + `
+              </span>
+              <span>
+                <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.activity.id + `" data-type="activity"><img src="/images/incomplete.png" /></button>
+              </span>
+            </div>
+          </td>
+          <td class="p-2 task-time"></td>
+          <td class="p-2"><button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="` + response.activity.id + `"><img src="/images/remark.png" /></button></td>
+        </tr>`;
+
+        $('#' + target_id).find('td').attr('rowspan', parseInt(count, 10)+ 1);
+
+        $(element).closest('tr').before(row);
+        $(element).val('');
+      }).fail(function(response) {
+        console.log(response);
+
+        alert('Could not create activity');
+      });
+    }
+
+    $('.quick-plan-input').on('keypress', function(e) {
+      console.log(e);
       var key = e.which;
       var thiss = $(this);
       var time_slot = $(this).data('timeslot');
       var target_id = $(this).data('targetid');
+      var activity = $(this).val();
 
       if (key == 13) {
         e.preventDefault();
-        var activity = $(thiss).val();
 
-        $.ajax({
-          type: 'POST',
-          url: "{{ route('dailyActivity.quick.store') }}",
-          data: {
-            _token: "{{ csrf_token() }}",
-            activity: activity,
-            time_slot: time_slot,
-            user_id: "{{ Auth::id() }}",
-            for_date: "{{ date('Y-m-d') }}"
-          }
-        }).done(function(response) {
-          var count = $('#' + target_id).find('td').attr('rowspan');
-          var row = `<tr>
-            <td class="p-2">
-              <div class="d-flex justify-content-between">
-                <span>
-                ` + activity + `
-                </span>
-                <span>
-                  <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.activity.id + `"><img src="/images/incomplete.png" /></button>
-                </span>
-              </div>
-            </td>
-            <td class="p-2"></td>
-            <td class="p-2"><button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="` + response.activity.id + `"><img src="/images/remark.png" /></button></td>
-          </tr>`;
-
-          $('#' + target_id).find('td').attr('rowspan', parseInt(count, 10)+ 1);
-
-          $(thiss).closest('tr').before(row);
-          $(thiss).val('');
-        }).fail(function(response) {
-          console.log(response);
-
-          alert('Could not create activity');
-        });
+        storeDailyActivity(thiss, activity, time_slot, target_id);
       }
+    });
+
+    $('.quick-plan-button').on('click', function(e) {
+      var thiss = $(this);
+      var time_slot = $(this).data('timeslot');
+      var target_id = $(this).data('targetid');
+      var activity = $(this).siblings('.quick-plan-input').val();
+
+      storeDailyActivity(thiss, activity, time_slot, target_id);
+
+      $(this).siblings('.quick-plan-input').val('');
     });
   </script>
 @endsection

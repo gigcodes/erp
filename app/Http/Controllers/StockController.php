@@ -259,11 +259,7 @@ class StockController extends Controller
 
         $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
 
-  			if ($whatsapp_number == '919152731483') {
-  				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
-  			} else {
-  				app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($coordinator->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
-  			}
+				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
 
         $chat_message->update([
           'approved' => 1,
@@ -275,11 +271,7 @@ class StockController extends Controller
 
       $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
 
-			if ($whatsapp_number == '919152731483') {
-				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
-			} else {
-				app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp('37067501865', $whatsapp_number, $params['message'], FALSE, $chat_message->id);
-			}
+			app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
 
       $chat_message->update([
         'approved' => 1,
@@ -376,6 +368,42 @@ class StockController extends Controller
       $delivery_approval->status = $private_view->status;
       $delivery_approval->date = $private_view->date;
       $delivery_approval->save();
+
+      $product_information = '';
+
+      foreach ($private_view->products as $key => $product) {
+        if ($key == 0) {
+          $product_information .= "$product->name - Size $product->size - $product->color";
+        } else {
+          $product_information .= ", $product->name - Size $product->size - $product->color";
+        }
+      }
+
+      $address = $private_view->customer->address . ", " . $private_view->customer->pincode . ", " . $private_view->customer->city;
+
+      $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-details')->first();
+
+      $auto_message = preg_replace("/{customer_name}/i", $private_view->customer->name, $auto_reply->reply);
+      $auto_message = preg_replace("/{customer_phone}/i", $private_view->customer->phone, $auto_message);
+      $auto_message = preg_replace("/{customer_address}/i", $address, $auto_message);
+      $auto_message = preg_replace("/{product_information}/i", $product_information, $auto_message);
+
+      // $params['message'] = "Details for Private Viewing: Customer - " . $private_view->customer->name . ", Phone: " . $private_view->customer->phone . ", Address: $address" . "; Products $product_information";
+      $params['message'] = $auto_message;
+
+      $params['erp_user'] = $request->assigned_user_id;
+      $chat_message = ChatMessage::create($params);
+
+      $office_boy = User::find($request->assigned_user_id);
+
+      $whatsapp_number = $office_boy->whatsapp_number != '' ? $office_boy->whatsapp_number : NULL;
+
+      app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($office_boy->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+      $chat_message->update([
+        'approved' => 1,
+        'status'   => 2
+      ]);
 
       return response('success');
     }

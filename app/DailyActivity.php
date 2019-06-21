@@ -14,4 +14,9 @@ class DailyActivity extends Model {
 		'activity',
 		'for_date',
 	];
+
+	public function remarks()
+	{
+		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
+	}
 }

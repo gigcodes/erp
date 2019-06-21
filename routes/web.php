@@ -45,6 +45,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::resource('roles','RoleController');
 	Route::get('users/logins', 'UserController@login')->name('users.login.index');
 	Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');
+	Route::post('users/{id}/activate', 'UserController@activate')->name('user.activate');
 	Route::resource('users','UserController');
 	Route::get('products/listing', 'ProductController@listing')->name('products.listing');
 	Route::post('products/{id}/updateName', 'ProductController@updateName');
@@ -167,6 +168,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Route::get('/', 'TaskModuleController@index')->name('home');
 	Route::get('/', 'MasterControlController@index')->name('home');
 
+	// Daily Planner
+	Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
+	Route::resource('dailyplanner', 'DailyPlannerController');
+
 	Route::resource('refund', 'RefundController');
 
 	// Contacts
@@ -264,6 +269,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
+	Route::get('purchase/calendar', 'PurchaseController@calendar')->name('purchase.calendar');
+	Route::post('purchase/{id}/updateDelivery', 'PurchaseController@updateDelivery');
 	Route::post('purchase/export', 'PurchaseController@export')->name('purchase.export');
 	Route::post('purchase/merge', 'PurchaseController@merge')->name('purchase.merge');
 	Route::post('purchase/sendExport', 'PurchaseController@sendExport')->name('purchase.send.export');
