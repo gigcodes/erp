@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Customer List - ERP Sololuxury')
+@section('title', 'Customer List')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
@@ -200,12 +200,12 @@
                       @if ($customer->lead_id != '')
                         <div class="">
                           <span class="user-status" style="opacity: {{ $seventh_color }}; background-color: rgba(207, 207, 211, 1);"></span>
-                          <span class="user-status change-lead-status" data-id="1" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $first_color }}; cursor:pointer; background-color: rgba(163,103,126,1);"></span>
-                          <span class="user-status change-lead-status" data-id="2" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $second_color }}; cursor:pointer; background-color: rgba(63,203,226,1);"></span>
-                          <span class="user-status change-lead-status" data-id="3" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $third_color }}; cursor:pointer; background-color: rgba(63,103,126,1);"></span>
-                          <span class="user-status change-lead-status" data-id="4" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $fourth_color }}; cursor:pointer; background-color: rgba(94, 80, 226, 1);"></span>
-                          <span class="user-status change-lead-status" data-id="5" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $fifth_color }}; cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
-                          <span class="user-status change-lead-status" data-id="6" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $sixth_color }}; cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
+                          <span class="user-status change-lead-status" title="Cold Lead" data-id="1" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $first_color }}; cursor:pointer; background-color: rgba(163,103,126,1);"></span>
+                          <span class="user-status change-lead-status" title="Cold / Important Lead" data-id="2" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $second_color }}; cursor:pointer; background-color: rgba(63,203,226,1);"></span>
+                          <span class="user-status change-lead-status" title="Hot Lead" data-id="3" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $third_color }}; cursor:pointer; background-color: rgba(63,103,126,1);"></span>
+                          <span class="user-status change-lead-status" title="Very Hot Lead" data-id="4" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $fourth_color }}; cursor:pointer; background-color: rgba(94, 80, 226, 1);"></span>
+                          <span class="user-status change-lead-status" title="Advance Follow Up" data-id="5" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $fifth_color }}; cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
+                          <span class="user-status change-lead-status" title="High Priority" data-id="6" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $sixth_color }}; cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
                         </div>
                       @endif
                     </td>

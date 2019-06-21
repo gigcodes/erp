@@ -45,7 +45,7 @@ class ResetDailyPlanner extends Command
         'start_time'  => Carbon::now()
       ]);
 
-      $users_array = [7];
+      $users_array = [6, 7, 49, 56, 72];
 
       $users = User::whereIn('id', $users_array)->get();
 

@@ -207,7 +207,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
-        $schedule->command('reset:daily-planner')->dailyAt('05:00')->timezone('Asia/Kolkata');
+        $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
 
         // $schedule->command('save:products-images')->hourly()->withoutOverlapping()->timezone('Asia/Kolkata');
