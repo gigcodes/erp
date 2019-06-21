@@ -2826,14 +2826,16 @@ class WhatsAppController extends FindByNumberController
       } else {
         $result = json_decode($response, true);
 
-        if (array_key_exists('status', $result)) {
-          if ($result['status'] == 409) {
-            $image_id = $result['meta']['file'];
+        if (is_array($result)) {
+          if (array_key_exists('status', $result)) {
+            if ($result['status'] == 409) {
+              $image_id = $result['meta']['file'];
+            } else {
+              throw new \Exception("Something was wrong with image: " . $result['message']);
+            }
           } else {
-            throw new \Exception("Something was wrong with image: " . $result['message']);
+            $image_id = $result[0]['id'];
           }
-        } else {
-          $image_id = $result[0]['id'];
         }
       }
     }
