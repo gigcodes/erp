@@ -269,6 +269,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('broadcast/{id}/doNotDisturb', 'BroadcastMessageController@doNotDisturb')->name('broadcast.donot.disturb');
 
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
+	Route::get('purchase/calendar', 'PurchaseController@calendar')->name('purchase.calendar');
+	Route::post('purchase/{id}/updateDelivery', 'PurchaseController@updateDelivery');
 	Route::post('purchase/export', 'PurchaseController@export')->name('purchase.export');
 	Route::post('purchase/merge', 'PurchaseController@merge')->name('purchase.merge');
 	Route::post('purchase/sendExport', 'PurchaseController@sendExport')->name('purchase.send.export');

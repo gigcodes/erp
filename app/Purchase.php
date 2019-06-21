@@ -67,9 +67,23 @@ class Purchase extends Model
 		return $count > 0 ? TRUE : FALSE;
 	}
 
+  public function is_sent_dubai_to_india()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Purchase')->where('type', 'purchase-dubai-to-india')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
   public function is_sent_in_mumbai()
 	{
 		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Purchase')->where('type', 'purchase-in-mumbai')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
+  public function is_sent_awb_actions()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Purchase')->where('type', 'purchase-awb-generated')->count();
 
 		return $count > 0 ? TRUE : FALSE;
 	}

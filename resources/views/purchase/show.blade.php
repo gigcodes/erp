@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Purchase Bulk Order')
+
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
@@ -105,7 +107,8 @@
       <input type="number" class="form-control input-sm" placeholder="Transaction Amount" name="transaction_amount" value="{{ $order->transaction_amount }}">
     </div>
 
-    <div class="form-group" id="bill-wrapper" style="display: {{ (isset($order->status) && $order->status != 'Ordered') ? 'block' : 'none' }}">
+    {{-- style="display: {{ (isset($order->status) && $order->status != 'Ordered') ? 'block' : 'none' }}" --}}
+    <div class="form-group" id="bill-wrapper">
       <input type="text" name="bill_number" class="form-control input-sm" placeholder="AWB Number" value="{{ $order->bill_number }}">
     </div>
 
@@ -115,6 +118,16 @@
 
     <div class="form-group">
       <input type="number" class="form-control input-sm" placeholder="Shipment Cost" name="shipment_cost" value="{{ $order->shipment_cost }}">
+    </div>
+
+    <div class="form-group">
+      <div class='input-group date' id='shipment-datetime'>
+        <input type='text' class="form-control input-sm" name="shipment_date" placeholder="Shipment Date" value="{{ $order->shipment_date }}" />
+
+        <span class="input-group-addon">
+          <span class="glyphicon glyphicon-calendar"></span>
+        </span>
+      </div>
     </div>
 
     <div class="form-group">
@@ -720,7 +733,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
 
   <script type="text/javascript">
-    $('#completion-datetime, #transaction-datetime, #proforma-datetime').datetimepicker({
+    $('#completion-datetime, #transaction-datetime, #proforma-datetime, #shipment-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });
 
@@ -1019,6 +1032,7 @@
       var bill_number = $('input[name="bill_number"]').val();
       var shipper = $('input[name="shipper"]').val();
       var shipment_cost = $('input[name="shipment_cost"]').val();
+      var shipment_date = $('input[name="shipment_date"]').val();
       var shipment_status = $('input[name="shipment_status"]').val();
       var supplier_phone = $('input[name="supplier_phone"]').val();
       var whatsapp_number = $('select[name="whatsapp_number"]').val();
@@ -1041,6 +1055,7 @@
       data.append("shipper", shipper);
       data.append("shipment_cost", shipment_cost);
       data.append("shipment_status", shipment_status);
+      data.append("shipment_date", shipment_date);
       data.append("supplier_phone", supplier_phone);
       data.append("whatsapp_number", whatsapp_number);
 
