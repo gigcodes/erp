@@ -933,24 +933,24 @@ class ProductController extends Controller {
 	public function giveImage() {
 
 			// $shoes1 = Category::find(11);
-	    $shoes1 = Category::find(5);
-	    $shoeIds = $shoes1->childs()->pluck('id')->toArray();
-			// $shoes2 = Category::find(39);
-	    $shoes2 = Category::find(41);
-	    $shoeIds2 = $shoes2->childs()->pluck('id')->toArray();
-
-	    $allShoes = array_merge($shoeIds, $shoeIds2);
-
-	    // $allShoes[] = 11;
-	    // $allShoes[] = 39;
-
-			$allShoes[] = 5;
-	    $allShoes[] = 41;
+//	    $shoes1 = Category::find(5);
+//	    $shoeIds = $shoes1->childs()->pluck('id')->toArray();
+//			// $shoes2 = Category::find(39);
+//	    $shoes2 = Category::find(41);
+//	    $shoeIds2 = $shoes2->childs()->pluck('id')->toArray();
+//
+//	    $allShoes = array_merge($shoeIds, $shoeIds2);
+//
+//	    // $allShoes[] = 11;
+//	    // $allShoes[] = 39;
+//
+//			$allShoes[] = 5;
+//	    $allShoes[] = 41;
 
 	    $product = Product::where('is_image_processed', 0)
             ->where('is_scraped', 1)
             ->where('is_without_image', 0)
-            ->whereIn('category', $allShoes)
+            ->where('category', '>', 3)
             ->first();
 
 

@@ -313,20 +313,24 @@ class ScrapController extends Controller
     }
 
     public function getProductsForImages() {
-        $products = Product::where('status', '2')->get();
+//        $products = Product::where('supplier', 'Monti')->where('is_farfetched', 0)->get();
+        $products = Product::whereIn('supplier', ['Valenti'])->where('is_farfetched', 0)->whereRaw('DATE(created_at) IN ("'.date('Y-m-d').'", "2019-06-20", "2019-06-19")')->get();
+//        $products = Product::whereIn('supplier', ['Cuccini', 'Monti'])->where('is_farfetched', 0)->get();
+
         $productsToPush = [];
 
 
         foreach ($products as $product) {
-            if ($product->hasMedia(config('constants.media_tags'))) {
-                continue;
-            }
+//            if ($product->hasMedia(config('constants.media_tags'))) {
+//                continue;
+//            }
 
             $productsToPush[] = [
                 'id' => $product->id,
                 'sku' => $product->sku,
-                'brand' => $product->brands->name,
-                'url' => $product->url
+                'brand' => $product->brands ? $product->brands->name : '',
+                'url' => $product->url,
+                'supplier' => $product->supplier
             ];
         }
 
@@ -337,24 +341,58 @@ class ScrapController extends Controller
         $this->validate($request, [
             'id' => 'required',
             'website' => 'required',
-            'images' => 'required|array'
+            'images' => 'required|array',
+            'description' => 'required'
         ]);
 
         $website = str_replace(' ', '', $request->get('website'));
 
         $product = Product::find($request->get('id'));
-        $images = $this->downloadImagesForSites($request->get('images'), $website);
-        $product->detachMediaTags(config('constants.media_tags'));
-
-        $downloadedImages = $images;
-
-        foreach ($images as $image_name) {
-            // Storage::disk('uploads')->delete('/social-media/' . $image_name);
-
-            $path = public_path('uploads') . '/social-media/' . $image_name;
-            $media = MediaUploader::fromSource($path)->upload();
-            $product->attachMedia($media,config('constants.media_tags'));
+        $product->short_description = $request->get('description');
+        $product->composition = $request->get('material_used');
+        $dimension = $request->get('dimension');
+        foreach ($dimension as $dimension) {
+            if (stripos(strtoupper($dimension), 'WIDTH') !== false) {
+                $width = str_replace(['WIDTH', 'CM', ' '], '', strtoupper($dimension));
+                $product->lmeasurement = $width;
+                $product->save();
+                continue;
+            }
+            if (stripos(strtoupper($dimension), 'HEIGHT') !== false) {
+                $width = str_replace(['HEIGHT', 'CM', ' '], '', strtoupper($dimension));
+                $product->hmeasurement = $width;
+                $product->save();
+                continue;
+            }
+            if (stripos(strtoupper($dimension), 'DEPTH') !== false) {
+                $width = str_replace(['DEPTH', 'CM', ' '], '', strtoupper($dimension));
+                $product->dmeasurement = $width;
+                $product->save();
+                continue;
+            }
         }
+
+
+        $product->detachMediaTags('gallery');
+
+        // Attach other information like description, etc..
+
+        if ($product->supplier == 'Valenti') {
+            $images = $this->downloadImagesForSites($request->get('images'), $website);
+            foreach ($images as $image_name) {
+                // Storage::disk('uploads')->delete('/social-media/' . $image_name);
+
+                $path = public_path('uploads') . '/social-media/' . $image_name;
+                $media = MediaUploader::fromSource($path)->upload();
+                $product->attachMedia($media,config('constants.media_tags'));
+            }
+
+            $product->is_without_image = 0;
+            $product->save();
+        }
+
+        $product->is_farfetched = 1;
+        $product->save();
 
         return response()->json([
             'status' => 'Added items successfuly!'
@@ -439,13 +477,15 @@ class ScrapController extends Controller
         foreach ($data as $key=>$datum) {
             try {
                 $imgData = file_get_contents($datum);
+                echo $datum . "\n";
             } catch (\Exception $exception) {
                 continue;
             }
 
-            $fileName = $prefix . '_' . md5(time()).'.png';
+            $fileName = $prefix . '_' . md5(time() .'_'. rand(5,9999999)).'.png';
             Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
 
+            echo "$fileName \n";
             $images[] = $fileName;
         }
 

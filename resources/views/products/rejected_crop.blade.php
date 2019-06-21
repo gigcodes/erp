@@ -18,7 +18,11 @@
             <div class="col-md-12">
                 <div class="text-center">
                     <h4>{{ $product->title }}</h4>
-                    <p>{{ $product->sku }}</p>
+                    <p>
+                        {{ $product->sku }}
+                        <a href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'cropped']) }}">Download Cropped</a> &nbsp;
+                        <a href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'original']) }}">Download Original</a>
+                    </p>
                 </div>
                 <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
                     @foreach($product->media()->get() as $image)

@@ -289,6 +289,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
 	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
 
+	Route::get('download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts');
+
 	// Master Plan
 	Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');
 	Route::resource('mastercontrol', 'MasterControlController');

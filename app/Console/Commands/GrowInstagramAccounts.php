@@ -43,7 +43,7 @@ class GrowInstagramAccounts extends Command
         $accounts = Account::where('is_seeding', 1)->get();
 
         foreach ($accounts as $account) {
-            $username = $account->first_name;
+            $username = $account->last_name;
             $password = $account->password;
 
 
@@ -52,8 +52,12 @@ class GrowInstagramAccounts extends Command
             try {
                 $instagram->login($username, $password);
             } catch (\Exception $exception) {
+                $this->warn($account->last_name);
+                $this->info($exception->getMessage());
                 continue;
             }
+
+            $this->warn($username);
 
             $stage = $account->seeding_stage;
 
@@ -89,8 +93,12 @@ class GrowInstagramAccounts extends Command
             ];
 
             $imagesToPost = $imageSet[$stage];
-            $id1 = $instagram->people->getUserIdForName($followSet[$stage][0]);
-            $id2 = $instagram->people->getUserIdForName($followSet[$stage][1]);
+            try {
+                $id1 = $instagram->people->getUserIdForName($followSet[$stage][0]);
+                $id2 = $instagram->people->getUserIdForName($followSet[$stage][1]);
+            } catch (\Exception $exception) {
+                $this->info($exception->getMessage());
+            }
 
             $instagram->people->follow($id1);
             $instagram->people->follow($id2);
@@ -107,7 +115,11 @@ class GrowInstagramAccounts extends Command
                 imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
                 imagejpeg($destination, __DIR__ . '/images/'. $i . '.jpeg', 100);
 
-                $instagram->timeline->uploadPhoto($filename);
+                try {
+                    $instagram->timeline->uploadPhoto($filename);
+                } catch (\Exception $exception) {
+                    $this->info($exception->getMessage());
+                }
 
             }
 

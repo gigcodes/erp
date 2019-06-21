@@ -73,7 +73,7 @@ class FixCategoryNameBySupplier extends Command
             $rec = explode(',', $record->references);
             foreach ($rec as $cat) {
                 if (stripos(strtoupper($category), strtoupper($cat)) !== false) {
-                    $this->info($category . ' ' . $cat . ' ' . $record->id);
+                    $this->info($category . ' =>  ' . $cat . ' ' . $record->id . ' => ' .  $originalCategory);
                     $c = Category::where('title', $originalCategory)->first();
 
                     if (!$c) {
@@ -95,6 +95,7 @@ class FixCategoryNameBySupplier extends Command
                     foreach ($childrenCategories as $childrenCategory) {
                         if ($childrenCategory->title == $originalCategory) {
                             $product->category = $childrenCategory->id;
+                            $this->error('SAVED');
                             $product->save();
                             return;
                         }
@@ -104,6 +105,7 @@ class FixCategoryNameBySupplier extends Command
                             if ($grandChild->title == $originalCategory) {
                                 $product->category = $grandChild->id;
                                 $product->save();
+                                $this->error('SAVED');
                                 return;
                             }
                         }

@@ -152,39 +152,75 @@ class SitejabberQAController extends Controller
         //
     }
 
-    public function accounts() {
+    public function accounts(Request $request) {
+        $date = null;
+
+        if (strlen($request->get('date')) === 10) {
+            $date = $request->get('date');
+        }
+
         $negativeReviews = NegativeReviews::all();
-        $accounts = Account::where('platform', 'sitejabber')->orderBy('updated_at', 'DESC')->get();
+        $reviewsPostedToday = Review::whereIn('status', ['posted', 'posted_one'])->whereRaw('DATE(updated_at) = "' . date('Y-m-d'). '"')->get();
+        $accounts = Account::where('platform', 'sitejabber');
+
+        if ($date !== null) {
+            $accounts = $accounts->whereHas('reviews', function($query) use ($date) {
+                $query->where('updated_at', 'LIKE', "%$date%");
+            });
+        }
+
+        if ($request->get('filter') !== '') {
+            $filter = $request->get('filter');
+            if ($filter === 'live') {
+                $accounts = $accounts->whereHas('reviews', function($query) {
+                    $query->where('status', 'posted');
+                });
+            } else if ($filter === 'approved') {
+                $accounts = $accounts->whereHas('reviews', function($query) {
+                    $query->where('is_approved', 1)->where('status', '0');
+                });
+            } else if ($filter === 'unapproved') {
+                $accounts = $accounts->whereHas('reviews', function($query) {
+                    $query->where('is_approved', 0)->where('status', '0');
+                });
+            } else if ($filter === 'not_live') {
+                $accounts = $accounts->whereHas('reviews', function($query) {
+                    $query->where('status', 'posted_one');
+                });
+            }
+        }
+
+        $accounts = $accounts->orderBy('updated_at', 'DESC')->get();
+
         $brandReviews = BrandReviews::where('used', 0)->take(100)->get();
         $accountsRemaining = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->count();
         $remainingReviews = Review::whereHas('account')->whereNotIn('status', ['posted', 'posted_one'])->count();
-        $totalAccounts = $accounts->count();
         $sjs = SitejabberQA::where('type', 'question')->get();
-        $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
+//        $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
         $quickReplies = QuickReply::all();
-        if (!$setting) {
-            $setting = new ActivitiesRoutines();
-            $setting->action = 'sitejabber_review';
-            $setting->times_a_day = 5;
-            $setting->save();
-        }
-        $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
-        if (!$setting2) {
-            $setting2 = new ActivitiesRoutines();
-            $setting2->action = 'sitejabber_account_creation';
-            $setting2->times_a_day = 5;
-            $setting2->save();
-        }
+//        if (!$setting) {
+//            $setting = new ActivitiesRoutines();
+//            $setting->action = 'sitejabber_review';
+//            $setting->times_a_day = 5;
+//            $setting->save();
+//        }
+//        $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
+//        if (!$setting2) {
+//            $setting2 = new ActivitiesRoutines();
+//            $setting2->action = 'sitejabber_account_creation';
+//            $setting2->times_a_day = 5;
+//            $setting2->save();
+//        }
+//
+//        $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
+//        if (!$setting3) {
+//            $setting3 = new ActivitiesRoutines();
+//            $setting3->action = 'sitejabber_qa_post';
+//            $setting3->times_a_week = 1;
+//            $setting3->save();
+//        }
 
-        $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
-        if (!$setting3) {
-            $setting3 = new ActivitiesRoutines();
-            $setting3->action = 'sitejabber_qa_post';
-            $setting3->times_a_week = 1;
-            $setting3->save();
-        }
-
-        return view('sitejabber.accounts', compact('accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies'));
+        return view('sitejabber.accounts', compact('reviewsPostedToday', 'accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies', 'request'));
     }
 
     public function reviews() {

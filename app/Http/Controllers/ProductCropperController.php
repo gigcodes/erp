@@ -195,27 +195,37 @@ class ProductCropperController extends Controller
 	}
 
 	public function getListOfImagesToBeVerified(Stage $stage) {
-	    $products = Product::where('is_image_processed', 1)
-            ->where('stage', '=', $stage->get('ImageCropper'))
-            ->where('is_crop_rejected', 0)
-            ->whereDoesntHave('amends')
-            ->paginate(24);
+//	    $products = Product::where('is_image_processed', 1)
+//            ->where('is_crop_rejected', 0)
+//            ->where('is_crop_approved', 0)
+//            ->whereDoesntHave('amends')
+//            ->whereRaw('DATE(updated_at) = "2019-06-19"')
+//            ->paginate(24);
 
-	    return view('products.crop_list', compact('products'));
+        $secondProduct = Product::where('is_image_processed', 1)
+            ->where('is_crop_rejected', 0)
+            ->where('is_crop_approved', 0)
+            ->whereDoesntHave('amends')
+            ->first();
+
+        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id);
+
+//	    return view('products.crop_list', compact('products'));
     }
 
     public function showImageToBeVerified($id, Stage $stage) {
-	    $product = Product::find($id);
+        $product = Product::find($id);
         $secondProduct = Product::where('is_image_processed', 1)
-            ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('id', '!=', $id)
             ->where('is_crop_rejected', 0)
+            ->where('is_crop_approved', 0)
+            ->whereDoesntHave('amends')
             ->first();
 
         $category = $product->category;
         $img = $this->getCategoryForCropping($category);
 
-	    return view('products.crop', compact('product', 'secondProduct', 'img'));
+	    return view('products.crop', compact('product', 'secondProduct', 'img', 'category'));
     }
 
     private function getCategoryForCropping($categoryId) {
@@ -225,24 +235,35 @@ class ProductCropperController extends Controller
             'Beach' => 'Backpack.png',
             'Travel' => 'Backpack.png',
             'Belt' => 'belt.png',
+            'Belts' => 'belt.png',
             'Clothing' => 'Clothing.png',
+            'Clothings ' => 'Clothing.png',
+            'Coats & Jackets' => 'Clothing.png',
             'Tie & Bow Ties' => 'bow.png',
             'Clutches' => 'Clutch.png',
+            'Clutch Bags' => 'Clutch.png',
+            'Crossbody Bag' => 'Clutch.png',
             'Crossbody Bags' => 'Clutch.png',
             'Hair Accessories' => 'Hair_accessories.png',
             'Beanies & Caps' => 'Hair_accessories.png',
             'Handbags' => 'Handbag.png',
+            'Duffle Bags' => 'Handbag.png',
             'Laptop Bag' => 'Handbag.png',
+            'Laptop Bags' => 'Handbag.png',
             'Jewelry' => 'Jewellery.png',
             'Shoulder Bags' => 'Shoulder_bag.png',
             'Sunglasses & Frames' => 'Sunglasses.png',
             'Tote Bags' => 'Tote.png',
             'Wallet' => 'Wallet.png',
+            'Wallets & Cardholder' => 'Wallet.png',
             'Wallets & Cardholders' => 'Wallet.png',
             'Key Pouches' => 'Wallet.png',
+            'Key Pouch' => 'Wallet.png',
             'Coin Case / Purse' => 'Wallet.png',
             'Shawls And Scarves' => 'Shawl.png',
+            'Shawls And Scarve' => 'Shawl.png',
             'Key Rings & Chains' => 'Keychains.png',
+            'Key Rings & Chain' => 'Keychains.png',
         ];
 
 	    $category = Category::find($categoryId);
@@ -254,7 +275,7 @@ class ProductCropperController extends Controller
 
 	    if ($category->parent_id > 1) {
 	        $category = Category::find($category->parent_id);
-	        return $imagesForGrid[$category->title] ?? '';
+	        return $imagesForGrid[trim($category->title)] ?? '';
         }
 
 	    return '';
@@ -288,10 +309,11 @@ class ProductCropperController extends Controller
             ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('id', '!=', $id)
             ->where('is_crop_rejected', 0)
+            ->where('is_crop_approved', 0)
             ->whereDoesntHave('amends')
             ->first();
 
-        $this->deleteUncroppedImages($product);
+//        $this->deleteUncroppedImages($product);
 
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
 
@@ -310,9 +332,9 @@ class ProductCropperController extends Controller
 	        'media_id' => 'required',
             'amend_id' => 'required'
         ]);
-        $product = Product::findOrFail($request->get('product_id'));
 
-        $product->media()->where('id', $request->get('media_id'))->delete();
+        $product = Product::findOrFail($request->get('product_id'));
+        Media::where('id', $request->get('media_id'))->delete();
 
         if ($request->hasFile('file')) {
             $image = $request->file('file');
@@ -320,14 +342,8 @@ class ProductCropperController extends Controller
             $product->attachMedia($media, 'gallery');
         }
 
-        if ($product->stage == 5) {
-            ++$product->stage;
-            $product->save();
-        }
-
-        CropAmends::where('id', $request->get('amend_id'))->update([
-            'status' => 0
-        ]);
+        $amend = CropAmends::findOrFail($request->get('amend_id'));
+        $amend->delete();
 
         return response()->json([
             'status' => 'success'
@@ -338,13 +354,14 @@ class ProductCropperController extends Controller
 
     public function approveCrop($id,Stage $stage) {
 	    $product = Product::findOrFail($id);
-	    ++$product->stage;
+	    $product->is_crop_approved = 1;
 	    $product->save();
 
         $secondProduct = Product::where('is_image_processed', 1)
             ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('id', '!=', $id)
             ->where('is_crop_rejected', 0)
+            ->where('is_crop_approved', 0)
             ->first();
 
         $this->deleteUncroppedImages($product);
@@ -359,18 +376,22 @@ class ProductCropperController extends Controller
                 return;
             }
             foreach ($product->getMedia(config('constants.media_tags')) as $key=>$image) {
-                if ($key+1 <= $tc/2) {
+                if (stripos(strtoupper($image->filename), 'CROPPED') === false) {
                     $image_path = $image->getAbsolutePath();
 
                     if (File::exists($image_path)) {
-                        File::delete($image_path);
+                        try {
+                            File::delete($image_path);
+                        } catch (\Exception $exception) {
+
+                        }
                     }
 
                     $image->delete();
                 }
             }
 
-            $product->is_image_processed = 0;
+            $product->is_image_processed = 1;
             $product->save();
 
         }
@@ -385,6 +406,8 @@ class ProductCropperController extends Controller
         $secondProduct = Product::where('is_image_processed', 1)
             ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('id', '!=', $id)
+            ->where('is_crop_rejected', 0)
+            ->where('is_crop_approved', 0)
             ->first();
 
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping rejected!');
@@ -404,8 +427,36 @@ class ProductCropperController extends Controller
 	    return view('products.rejected_crop', compact('product', 'secondProduct'));
     }
 
-    public function approveRejectedCropped($id, Request $request) {
+    public function downloadImagesForProducts($id, $type) {
+	    $product = Product::findOrFail($id);
 
+	    $medias = $product->getMedia('gallery');
+	    $zip_file = 'images_' . $id . '.zip';
+	    $zip = new \ZipArchive();
+        $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        foreach ($medias as $key => $media) {
+            $fileName = $media->getAbsolutePath();
+            if ($type === 'cropped') {
+                $zip->addFile($fileName);
+            }
+	        if ($type === 'original') {
+	            $zip->addFile($fileName);
+            }
+        }
+
+	    $zip->close();
+
+	    return response()->download($zip);
+
+    }
+
+    public function approveRejectedCropped($id, Request $request) {
+	    $product = Product::find($id);
+	    $product->is_crop_rejected = 0;
+	    $product->is_crop_approved = 1;
+	    $product->save();
+
+	    //Delete original images...
     }
 
     public function updateCroppedImages(Request $request) {
