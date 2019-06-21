@@ -12,6 +12,7 @@ use App\Order;
 use App\OrderProduct;
 use App\CommunicationHistory;
 use App\AutoReply;
+use App\Product;
 use Carbon\Carbon;
 use Validator;
 
