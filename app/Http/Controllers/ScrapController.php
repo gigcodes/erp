@@ -314,7 +314,7 @@ class ScrapController extends Controller
 
     public function getProductsForImages() {
 //        $products = Product::where('supplier', 'Monti')->where('is_farfetched', 0)->get();
-        $products = Product::whereIn('supplier', ['Valenti'])->where('is_farfetched', 0)->whereRaw('DATE(created_at) IN ("'.date('Y-m-d').'", "2019-06-20", "2019-06-19")')->get();
+        $products = Product::whereIn('supplier', ['Valenti'])->whereRaw('DATE(created_at) IN ("'.date('Y-m-d').'", "2019-06-20", "2019-06-19", "2019-06-21")')->get();
 //        $products = Product::whereIn('supplier', ['Cuccini', 'Monti'])->where('is_farfetched', 0)->get();
 
         $productsToPush = [];
@@ -350,7 +350,10 @@ class ScrapController extends Controller
         $product = Product::find($request->get('id'));
         $product->short_description = $request->get('description');
         $product->composition = $request->get('material_used');
+        $product->color = $request->get('color');
+        $product->description_link = $request->get('url');
         $dimension = $request->get('dimension');
+        $product->made_in = $request->get('country');
         foreach ($dimension as $dimension) {
             if (stripos(strtoupper($dimension), 'WIDTH') !== false) {
                 $width = str_replace(['WIDTH', 'CM', ' '], '', strtoupper($dimension));
@@ -373,23 +376,23 @@ class ScrapController extends Controller
         }
 
 
-        $product->detachMediaTags('gallery');
-
-        // Attach other information like description, etc..
-
-        if ($product->supplier == 'Valenti') {
-            $images = $this->downloadImagesForSites($request->get('images'), $website);
-            foreach ($images as $image_name) {
-                // Storage::disk('uploads')->delete('/social-media/' . $image_name);
-
-                $path = public_path('uploads') . '/social-media/' . $image_name;
-                $media = MediaUploader::fromSource($path)->upload();
-                $product->attachMedia($media,config('constants.media_tags'));
-            }
-
-            $product->is_without_image = 0;
-            $product->save();
-        }
+//        $product->detachMediaTags('gallery');
+//
+//        // Attach other information like description, etc..
+//
+//        if ($product->supplier == 'Valenti') {
+//            $images = $this->downloadImagesForSites($request->get('images'), $website);
+//            foreach ($images as $image_name) {
+//                // Storage::disk('uploads')->delete('/social-media/' . $image_name);
+//
+//                $path = public_path('uploads') . '/social-media/' . $image_name;
+//                $media = MediaUploader::fromSource($path)->upload();
+//                $product->attachMedia($media,config('constants.media_tags'));
+//            }
+//
+//            $product->is_without_image = 0;
+//            $product->save();
+//        }
 
         $product->is_farfetched = 1;
         $product->save();

@@ -124,4 +124,16 @@ class Product extends Model
 	{
 		return $this->belongsToMany('App\User', 'user_products', 'product_id', 'user_id');
 	}
+
+	public function cropApprover() {
+	    return $this->hasOne(User::class, 'id', 'crop_approved_by');
+    }
+
+    public function cropRejector() {
+        return $this->hasOne(User::class, 'id', 'crop_rejected_by');
+    }
+
+    public function rejectedCropApprover() {
+        return $this->hasOne(User::class, 'id', 'reject_approved_by');
+    }
 }

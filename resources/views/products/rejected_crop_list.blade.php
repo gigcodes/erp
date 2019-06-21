@@ -24,7 +24,8 @@
                                     {{ $product->sku }}<br>
                                     {{ $product->supplier }}
                                     <br>
-                                    Note: {{ $product->crop_remark }}
+                                    Note: {{ $product->crop_remark }}<br>
+                                    Rejected By: {{ $product->cropRejector ? $product->cropRejector->name : 'N/A' }}
                                 </p>
                                 <a href="{{ action('ProductCropperController@showRejectedImageToBeverified', $product->id) }}" class="btn btn-primary">Check Cropping</a>
                             </div>

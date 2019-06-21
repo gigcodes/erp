@@ -40,7 +40,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get('products/auto-cropped/{id}', 'ProductCropperController@showImageToBeVerified');
     Route::get('products/auto-cropped/{id}/show-rejected', 'ProductCropperController@showRejectedImageToBeverified');
     Route::get('products/auto-cropped/{id}/approve', 'ProductCropperController@approveCrop');
-    Route::get('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
+    Route::post('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
 	Route::resource('roles','RoleController');
 	Route::get('users/logins', 'UserController@login')->name('users.login.index');
@@ -622,6 +622,7 @@ Route::prefix('instagram')->group(function () {
     Route::resource('keyword', 'KeywordsController');
     Route::resource('profiles', 'InstagramProfileController');
     Route::get('posts', 'InstagramController@showPosts');
+    Route::resource('account-posts', 'InstagramPostsController');
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
     Route::get('hashtag/grid/{id}', 'HashtagController@showGrid');

@@ -3,9 +3,9 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h5 class="page-heading">
+            <h4 class="page-heading">
                 Rejected Cropped Image
-            </h5>
+            </h4>
         </div>
         <form action="{{action('ProductCropperController@approveRejectedCropped', $product->id)}}" method="post">
             @csrf
@@ -15,22 +15,48 @@
                     <a href="{{ action('ProductCropperController@showRejectedImageToBeverified', $secondProduct->id) }}">Next Image</a>
                 @endif
             </div>
-            <div class="col-md-12">
-                <div class="text-center">
-                    <h4>{{ $product->title }}</h4>
-                    <p>
-                        {{ $product->sku }}
-                        <a href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'cropped']) }}">Download Cropped</a> &nbsp;
-                        <a href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'original']) }}">Download Original</a>
-                    </p>
-                </div>
-                <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
-                    @foreach($product->media()->get() as $image)
-                        <a href="{{ $image->getUrl() }}"><img src="{{ $image->getUrl() }}"></a>
-                    @endforeach
-                </div>
-            </div>
         </form>
+        <div class="col-md-12">
+            <table class="table table-striped table-bordered" style="width: 100%">
+                <tr>
+                    <td>
+                        {{ $product->name }}
+                        <br>
+                        {{ $product->sku }}
+                        <br>
+                        {{ $product->product_category->title }}
+                        <br>
+                        <a class="btn btn-secondary" href="{{ action('ProductController@show', $product->id) }}">Product Details</a>
+                    </td>
+                    <td>
+                        <p>Reject Remark : {{ $product->crop_remark ?? 'N/A' }}</p>
+                        <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'cropped']) }}">Download Cropped</a>
+                        <br><br>
+                        <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'original']) }}">Download Original</a>
+                    </td>
+                    <td>
+                        <strong>Dimension: {{round($product->lmeasurement*0.393701)}} X {{round($product->hmeasurement*0.393701)}} X {{round($product->dmeasurement*0.393701)}}</strong>
+                    </td>
+                    <td>
+                        <form method="post" action="{{ action('ProductCropperController@approveRejectedCropped', $product->id) }}" enctype="multipart/form-data">
+                            @csrf
+                            <div class="form-group">
+                                <label for="images">Images</label>
+                                <input type="file" name="images[]" id="images" multiple class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-secondary">Approve With Changes</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+            <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
+                @foreach($product->media()->get() as $image)
+                    <a href="{{ $image->getUrl() }}"><img src="{{ $image->getUrl() }}"></a>
+                @endforeach
+            </div>
+        </div>
     </div>
 @endsection
 
