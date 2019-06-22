@@ -271,6 +271,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('purchases', 'PurchaseController@index')->name('purchase.index');
 	Route::get('purchase/calendar', 'PurchaseController@calendar')->name('purchase.calendar');
 	Route::post('purchase/{id}/updateDelivery', 'PurchaseController@updateDelivery');
+	Route::post('purchase/{id}/assignBatch', 'PurchaseController@assignBatch')->name('purchase.assign.batch');
+	Route::post('purchase/{id}/assignSplitBatch', 'PurchaseController@assignSplitBatch')->name('purchase.assign.split.batch');
 	Route::post('purchase/export', 'PurchaseController@export')->name('purchase.export');
 	Route::post('purchase/merge', 'PurchaseController@merge')->name('purchase.merge');
 	Route::post('purchase/sendExport', 'PurchaseController@sendExport')->name('purchase.send.export');

@@ -19,6 +19,11 @@ class PrivateView extends Model
     return $this->hasOne('App\DeliveryApproval');
   }
 
+  public function order_product()
+  {
+    return $this->belongsTo('App\OrderProduct');
+  }
+
   public function products()
   {
     return $this->belongsToMany('App\Product', 'private_view_products', 'private_view_id', 'product_id');

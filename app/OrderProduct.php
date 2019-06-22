@@ -31,6 +31,23 @@ class OrderProduct extends Model
 
 	}
 
+  public function purchase()
+  {
+		return $this->belongsTo('App\Purchase');
+	}
+
+  public function private_view()
+  {
+		return $this->hasOne('App\PrivateView');
+	}
+
+  public function is_delivery_date_changed()
+	{
+		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\OrderProduct')->where('type', 'order-delivery-date-changed')->count();
+
+		return $count > 0 ? TRUE : FALSE;
+	}
+
   public function messages()
 	{
 		return $this->hasMany('App\Message', 'moduleid', 'order_id')->where('moduletype', 'order')->latest()->first();
