@@ -109,8 +109,8 @@ class ProductController extends Controller {
 			$categories_array[$category->id] = $category->parent_id;
 		}
 
-		$category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
-																					 ->renderAsDropdown();
+		// $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
+		// 																			 ->renderAsDropdown();
 
 		$term = $request->input('term');
 		$brand = '';
@@ -358,10 +358,14 @@ class ProductController extends Controller {
 		// }
 		// dd($products);
 
-		$selected_categories = $request->category ? $request->category : 1;
-		$category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
-		                                        ->selected($selected_categories)
-		                                        ->renderAsDropdown();
+		$selected_categories = $request->category ? $request->category : [1];
+		// $category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		//                                         ->selected($selected_categories)
+		//                                         ->renderAsDropdown();
+
+		$category_array = Category::renderAsArray();
+
+		// dd($category_array);
 
 		return view('products.listing', [
 			'products'					=> $new_products,
@@ -372,8 +376,8 @@ class ProductController extends Controller {
 			'categories'				=> $categories,
 			'category_tree'			=> $category_tree,
 			'categories_array'	=> $categories_array,
-			'category_selection'	=> $category_selection,
-			'category_search'	=> $category_search,
+			// 'category_selection'	=> $category_selection,
+			// 'category_search'	=> $category_search,
 			'term'	=> $term,
 			'brand'	=> $brand,
 			'category'	=> $category,
@@ -383,6 +387,8 @@ class ProductController extends Controller {
 			'assigned_to_users'	=> $assigned_to_users,
 			'cropped'	=> $cropped,
 			'left_for_users'	=> $left_for_users,
+			'category_array'	=> $category_array,
+			'selected_categories'	=> $selected_categories,
 		]);
 	}
 
@@ -1016,7 +1022,7 @@ class ProductController extends Controller {
 
     public function saveImage(Request $request) {
         $product = Product::findOrFail($request->get('product_id'));
-        
+
 
         $product->is_image_processed = 1;
         $product->stage = 5;
