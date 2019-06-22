@@ -34,6 +34,7 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
+    Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
     Route::post('save-sequence/{id}', 'ProductCropperController@saveSequence');
     Route::post('ammend-crop/{id}', 'ProductCropperController@ammendCrop');

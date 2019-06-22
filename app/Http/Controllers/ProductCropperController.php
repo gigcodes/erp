@@ -235,12 +235,10 @@ class ProductCropperController extends Controller
 
     public function getApprovedImages() {
         $products = Product::where('is_image_processed', 1)
-            ->where('is_crop_rejected', 0)
-            ->where('is_crop_approved', 0)
-            ->whereDoesntHave('amends')
+            ->where('is_crop_approved', 1)
             ->paginate(24);
 
-        $stats = DB::table('products')->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')->where('is_scraped', 1)->where('is_without_image', 0)->first();
+//        $stats = DB::table('products')->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')->where('is_scraped', 1)->where('is_without_image', 0)->first();
 
 
 //
@@ -252,7 +250,7 @@ class ProductCropperController extends Controller
 
 //        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id);
 
-        return view('products.crop_list', compact('products', 'stats'));
+        return view('products.approved_crop_list', compact('products'));
     }
 
     private function getCategoryForCropping($categoryId) {
