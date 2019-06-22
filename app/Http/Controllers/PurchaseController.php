@@ -48,7 +48,7 @@ use Webklex\IMAP\Client;
 class PurchaseController extends Controller
 {
     public function __construct() {
-      $this->middleware( 'permission:purchase');
+      $this->middleware('permission:purchase');
     }
 
     public function index(Request $request)
@@ -610,6 +610,48 @@ class PurchaseController extends Controller
       return redirect()->route('purchase.index')->with('success', 'You have successfully merged purchases');
     }
 
+    public function assignBatch(Request $request, $id)
+    {
+      $purchase = Purchase::find($id);
+
+      if ($purchase->products) {
+        foreach ($purchase->products as $product) {
+          if ($product->orderproducts) {
+            foreach ($product->orderproducts as $order_product) {
+              $order_product->purchase_id = $id;
+              $order_product->batch_number = '';
+              $order_product->save();
+            }
+          }
+        }
+      }
+
+      return redirect()->route('purchase.show', $id)->withSuccess('You have successfully assigned a batch number!');
+    }
+
+    public function assignSplitBatch(Request $request, $id)
+    {
+      $max_batch_number = OrderProduct::where('purchase_id', $id)->latest('batch_number')->first();
+
+      if ($max_batch_number) {
+        foreach (json_decode($request->order_products) as $order_product_id) {
+          $order_product = OrderProduct::find($order_product_id);
+          $order_product->purchase_id = $id;
+          $order_product->batch_number = (int) $max_batch_number->batch_number + 1;
+          $order_product->save();
+        }
+      } else {
+        foreach (json_decode($request->order_products) as $order_product_id) {
+          $order_product = OrderProduct::find($order_product_id);
+          $order_product->purchase_id = $id;
+          $order_product->batch_number = 1;
+          $order_product->save();
+        }
+      }
+
+      return redirect()->route('purchase.show', $id)->withSuccess('You have successfully assigned a batch number!');
+    }
+
     public function calendar()
     {
       $purchases = Purchase::whereNotNull('shipment_date')->get();
@@ -621,8 +663,12 @@ class PurchaseController extends Controller
           $purchase_data[] = [
             'customer_id'   => $order_product->order->customer->id,
             'order_product_id'   => $order_product->id,
+            'customer_name' => $order_product->order->customer->name,
             'customer_city' => $order_product->order->customer->city,
-            'shipment_date' => $order_product->shipment_date
+            'shipment_date' => $order_product->shipment_date,
+            'product_name'  => $order_product->product->name,
+            'reschedule_count'  => $order_product->reschedule_count,
+            'is_order_priority' => $order_product->order->is_priority
           ];
         }
       }
@@ -693,8 +739,36 @@ class PurchaseController extends Controller
     public function updateDelivery(Request $request, $id)
     {
       $order_product = OrderProduct::find($id);
+      $old_shipment_date = $order_product->shipment_date;
       $order_product->shipment_date = $request->shipment_date;
+      $order_product->reschedule_count += 1;
       $order_product->save();
+
+      if (!$order_product->is_delivery_date_changed()) {
+        // Customer Message
+        $params = [
+           'number'       => NULL,
+           'user_id'      => Auth::id(),
+           'approved'     => 0,
+           'status'       => 1,
+         ];
+
+        if ($order_product->private_view) {
+          $delivery_date = Carbon::parse($order_product->shipment_date)->format('d \of\ F');
+          $product_name = $order_product->product->name;
+          $params['customer_id'] = $order_product->private_view->customer_id;
+          $params['message'] = "Your product $product_name delivery time has been rescheduled. It will be delivered on $delivery_date";
+
+          $chat_message = ChatMessage::create($params);
+        }
+
+        CommunicationHistory::create([
+  				'model_id'		=> $order_product->id,
+  				'model_type'	=> OrderProduct::class,
+  				'type'				=> 'order-delivery-date-changed',
+  				'method'			=> 'whatsapp'
+  			]);
+      }
 
       return response('success', 200);
     }
@@ -895,44 +969,44 @@ class PurchaseController extends Controller
       $purchase->status = $request->status;
       $purchase->save();
 
-      if ($request->status == 'In Transit from Italy to Dubai') {
-        if ($purchase->products) {
-          foreach ($purchase->products as $product) {
-            $supplier = Supplier::where('supplier', 'In-stock')->first();
-
-            $product->supplier = 'In-stock';
-            $product->location = 'Italy';
-            $product->save();
-
-            $product->suppliers()->syncWithoutDetaching($supplier);
-
-            if ($product->orderproducts) {
-              $params = [
-                 'number'       => NULL,
-                 'user_id'      => Auth::id(),
-                 'approved'     => 0,
-                 'status'       => 1,
-                 'message'      => 'Your Order is shipped from Italy'
-               ];
-
-              foreach ($product->orderproducts as $order_product) {
-                if ($order_product->order && !$purchase->is_sent_in_italy()) {
-                  $params['customer_id'] = $order_product->order->customer->id;
-
-                  ChatMessage::create($params);
-
-                  CommunicationHistory::create([
-            				'model_id'		=> $purchase->id,
-            				'model_type'	=> Purchase::class,
-            				'type'				=> 'purchase-in-italy',
-            				'method'			=> 'whatsapp'
-            			]);
-                }
-              }
-            }
-          }
-        }
-      }
+      // if ($request->status == 'In Transit from Italy to Dubai') {
+      //   if ($purchase->products) {
+      //     foreach ($purchase->products as $product) {
+      //       $supplier = Supplier::where('supplier', 'In-stock')->first();
+      //
+      //       $product->supplier = 'In-stock';
+      //       $product->location = 'Italy';
+      //       $product->save();
+      //
+      //       $product->suppliers()->syncWithoutDetaching($supplier);
+      //
+      //       if ($product->orderproducts) {
+      //         $params = [
+      //            'number'       => NULL,
+      //            'user_id'      => Auth::id(),
+      //            'approved'     => 0,
+      //            'status'       => 1,
+      //            'message'      => 'Your Order is shipped from Italy'
+      //          ];
+      //
+      //         foreach ($product->orderproducts as $order_product) {
+      //           if ($order_product->order && !$purchase->is_sent_in_italy()) {
+      //             $params['customer_id'] = $order_product->order->customer->id;
+      //
+      //             ChatMessage::create($params);
+      //
+      //             CommunicationHistory::create([
+      //       				'model_id'		=> $purchase->id,
+      //       				'model_type'	=> Purchase::class,
+      //       				'type'				=> 'purchase-in-italy',
+      //       				'method'			=> 'whatsapp'
+      //       			]);
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
 
       if ($request->status == 'Shipment Received in Dubai') {
         $product_names = '';
@@ -979,12 +1053,21 @@ class PurchaseController extends Controller
 
           $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
 
-          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
+          $stock_coordinators = User::role('Stock Coordinator')->get();
 
-          $chat_message->update([
-            'approved' => 1,
-            'status'   => 2
-          ]);
+          foreach ($stock_coordinators as $coordinator) {
+            $params['erp_user'] = $coordinator->id;
+            $chat_message = ChatMessage::create($params);
+
+            $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+    				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+            $chat_message->update([
+              'approved' => 1,
+              'status'   => 2
+            ]);
+          }
 
           CommunicationHistory::create([
             'model_id'		=> $purchase->id,
@@ -1038,13 +1121,41 @@ class PurchaseController extends Controller
         // }
       }
 
+      $product_information = '';
+      $letters_array = [
+        '1' => 'A',
+        '2' => 'B',
+        '3' => 'C',
+        '4' => 'D',
+        '5' => 'E',
+        '6' => 'F',
+        '7' => 'G',
+      ];
+
       if ($request->status == 'Shipment in Transit from Dubai to India') {
         if (!$purchase->is_sent_dubai_to_india()) {
           $product_names = '';
 
           if ($purchase->products) {
-            foreach ($purchase->products as $product) {
-              $product_names .= "$product->name, ";
+            foreach ($purchase->products as $key => $product) {
+              $product_names .= "$product->name - ";
+
+              if ($key == 0) {
+                $product_information .= "$product->name - Size $product->size - $product->color";
+              } else {
+                $product_information .= ", $product->name - Size $product->size - $product->color";
+              }
+
+              if ($product->orderproducts) {
+                foreach ($product->orderproducts as $order_product) {
+                  $batch_number = $order_product->purchase_id . (array_key_exists($order_product->batch_number, $letters_array) ? $letters_array[$order_product->batch_number] : '');
+                  $product_names .= "#$batch_number, ";
+
+                  if ($order_product->order && $order_product->order->customer) {
+                    $product_information .= $order_product->order->customer->address . ", " . $order_product->order->customer->pincode . ", " . $order_product->order->customer->city . "; ";
+                  }
+                }
+              }
             }
           }
 
@@ -1057,22 +1168,27 @@ class PurchaseController extends Controller
             'status'    => 1
           ];
 
-          $chat_message = ChatMessage::create($params);
+          $stock_coordinators = User::role('Stock Coordinator')->get();
 
-          $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
+          foreach ($stock_coordinators as $coordinator) {
+            $params['erp_user'] = $coordinator->id;
+            $chat_message = ChatMessage::create($params);
 
-          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
+            $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
 
-          $chat_message->update([
-            'approved' => 1,
-            'status'   => 2
-          ]);
+    				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+            $chat_message->update([
+              'approved' => 1,
+              'status'   => 2
+            ]);
+          }
 
           // Message to Delivery Coordinator
           $params = [
             'number'    => NULL,
             'user_id'   => Auth::id(),
-            'message'   => "These pcs: $product_names are expected to arrive in India - x + 2 days to you. - for delivery to the follow customers pls. coordinate",
+            'message'   => "This: $product_information are expected to arrive in India - x + 2 days to you. - for delivery to the follow customers pls. coordinate",
             'approved'  => 0,
             'status'    => 1
           ];
@@ -1134,19 +1250,42 @@ class PurchaseController extends Controller
                   $private_view->save();
 
                   $private_view->products()->attach($product);
-
-                  CommunicationHistory::create([
-            				'model_id'		=> $purchase->id,
-            				'model_type'	=> Purchase::class,
-            				'type'				=> 'purchase-in-mumbai',
-            				'method'			=> 'whatsapp'
-            			]);
                 }
               }
             }
           }
 
+          CommunicationHistory::create([
+            'model_id'		=> $purchase->id,
+            'model_type'	=> Purchase::class,
+            'type'				=> 'purchase-in-mumbai',
+            'method'			=> 'whatsapp'
+          ]);
+
           // Message to Aliya about time ?
+          $params = [
+            'number'    => NULL,
+            'user_id'   => Auth::id(),
+            'message'   => "Orders are in India, please coordinate",
+            'approved'  => 0,
+            'status'    => 1
+          ];
+
+          $coordinators = User::role('Delivery Coordinator')->get();
+
+          foreach ($coordinators as $coordinator) {
+            $params['erp_user'] = $coordinator->id;
+            $chat_message = ChatMessage::create($params);
+
+            $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+    				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+            $chat_message->update([
+              'approved' => 1,
+              'status'   => 2
+            ]);
+          }
 
           // Message to Stock Holder
           $params = [
@@ -1157,20 +1296,21 @@ class PurchaseController extends Controller
             'status'    => 1
           ];
 
-          $chat_message = ChatMessage::create($params);
+          $stock_coordinators = User::role('Stock Coordinator')->get();
 
-          $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
+          foreach ($stock_coordinators as $coordinator) {
+            $params['erp_user'] = $coordinator->id;
+            $chat_message = ChatMessage::create($params);
 
-          if ($whatsapp_number == '919152731483') {
-            app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
-          } else {
-            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp('37067501865', $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+            $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+    				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+            $chat_message->update([
+              'approved' => 1,
+              'status'   => 2
+            ]);
           }
-
-          $chat_message->update([
-            'approved' => 1,
-            'status'   => 2
-          ]);
         }
       }
 
@@ -1271,7 +1411,9 @@ class PurchaseController extends Controller
 
       if ($request->bill_number != '') {
         $purchase->status = 'AWB Details Received';
+      }
 
+      if ($request->transaction_date != '') {
         if (!$purchase->is_sent_awb_actions()) {
           // Task to Sushil
           $data = [
@@ -1295,7 +1437,7 @@ class PurchaseController extends Controller
     				 'status'       => 2,
     				 // 'task_id'      => $task->id,
              'erp_user'     => 6,
-    				 'message'      => 'Products are in transit'
+    				 'message'      => "Products from Purchase ID $purchase->id are in transit"
     			 ];
 
     			$chat_message = ChatMessage::create($params);
@@ -1315,8 +1457,12 @@ class PurchaseController extends Controller
           foreach ($purchase->products as $product) {
             if ($product->orderproducts) {
               foreach ($product->orderproducts as $order_product) {
+                // Update Order Product Details
+                $order_product->shipment_date = Carbon::parse($request->transaction_date)->addDays(12);
+                $order_product->save();
+
                 if ($order_product->order && $order_product->order->customer) {
-                  $shipment_days = Carbon::parse($order_product->shipment_date)->diffInDays(Carbon::now()) + 7;
+                  $shipment_days = Carbon::parse($order_product->shipment_date)->diffInDays(Carbon::now());
                   $params['customer_id'] = $order_product->order->customer->id;
                   $params['message'] = "Your product $product->name has been shipped from our Italy office and is expected to be delivered to you in $shipment_days days - account for weekend and holiday";
 
@@ -1326,11 +1472,16 @@ class PurchaseController extends Controller
                   $customer_city = $order_product->order->customer->city;
                   $customer_name = $order_product->order->customer->name;
                   $delivery_information .= "$customer_city - $product->name for $customer_name; ";
-                }
 
-                // Update Order Product Details
-                $order_product->shipment_date = Carbon::now()->addDays(14);
-                $order_product->save();
+                  // Creating inventory for Aliya
+                  $private_view = new PrivateView;
+                  $private_view->customer_id = $order_product->order->customer->id;
+                  $private_view->order_product_id = $order_product->id;
+                  $private_view->date = Carbon::parse($order_product->shipment_date)->addDays(10);
+                  $private_view->save();
+
+                  $private_view->products()->attach($product);
+                }
               }
             }
           }

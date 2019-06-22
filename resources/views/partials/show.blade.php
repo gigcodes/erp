@@ -89,7 +89,7 @@
                                                         : ($measurement_size_type == 'size' ? 'checked' : '') }} />--}}
                         </div>
 
-                        <div id="measurement_row" class="row" style="display:none;">
+                        <div id="measurement_row2" class="row">
                             <div class="col-4">
                                 <strong>L</strong>
                                 <p>{{$lmeasurement}}</p>

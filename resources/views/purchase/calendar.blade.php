@@ -54,6 +54,8 @@
   </div>
 </div>
 
+@include('purchase.partials.modal-calendar-detail')
+
 @endsection
 
 @section('scripts')
@@ -62,6 +64,7 @@
     $(document).ready(function() {
        $('#calendar').fullCalendar({
          editable: true,
+         eventColor: '#eeeeee',
          header: {
            right: "month,agendaWeek,agendaDay, today prev,next",
          },
@@ -70,7 +73,12 @@
               {
                 title: "{{ $purchase['customer_city'] }} - Customer ID {{ $purchase['customer_id'] }}",
                 start: "{{ $purchase['shipment_date']}}",
-                order_product_id: "{{ $purchase['order_product_id'] }}"
+                order_product_id: "{{ $purchase['order_product_id'] }}",
+                customer_name: "{{ $purchase['customer_name'] }}",
+                customer_city: "{{ $purchase['customer_city'] }}",
+                product_name: "{{ $purchase['product_name'] }}",
+                reschedule_count: "{{ $purchase['reschedule_count'] }}",
+                is_order_priority: "{{ $purchase['is_order_priority'] }}",
               },
             @endforeach
           ],
@@ -88,47 +96,39 @@
               alert('Could not update delivery date!');
               console.log(response);
             });
-          }
-          // eventClick: function(calEvent, jsEvent, view) {
-          //   $('#image_container').empty();
-          //
-          //   var download_images = [];
-          //   var image = '<div class="row">';
-          //   calEvent.image_names.forEach(function(img) {
-          //     image += '<div class="col-md-4"><img src="' + img.name + '" class="img-responsive" /></div>';
-          //     download_images.push(img.id);
-          //   });
-          //   image += '</div>';
-          //
-          //   $('#image_container').append($(image));
-          //   $('#download_images_field').val(JSON.stringify(download_images));
-          //
-          //   // jQuery.noConflict();
-          //   $('#calendarModal').modal('toggle');
-          // },
-          // eventRender: function(event, eventElement) {
-          //   if (event.image_names) {
-          //     event.image_names.forEach(function(image) {
-          //       eventElement.find("div.fc-content").prepend("<img src='" + image.name +"' width='50' height='50'>");
-          //     });
-          //   }
-          // },
-          // eventDrop: function(event, delta, revertFunc) {
-          //   $.ajax({
-          //     type: "POST",
-          //     url: "{{ route('image.grid.update.schedule') }}",
-          //     data: {
-          //       _token: "{{ csrf_token() }}",
-          //       images: event.image_names,
-          //       date: event.start.format('Y-MM-DD H:mm')
-          //     }
-          //   }).done(function(response) {
-          //
-          //   }).fail(function(response) {
-          //     alert('Could not update schedule');
-          //     console.log(response);
-          //   });
-          // }
+          },
+          eventClick: function(calEvent, jsEvent, view) {
+            $('#calendar_detail_body').empty();
+
+            // var image = '<div class="row">';
+            // calEvent.image_names.forEach(function(img) {
+            //   image += '<div class="col-md-4"><img src="' + img.name + '" class="img-responsive" /></div>';
+            //   download_images.push(img.id);
+            // });
+            // image += '</div>';
+            console.log(calEvent);
+            var image = "<div>";
+            // image += calEvent.customer_name;
+            image += calEvent.customer_name + " expects " + calEvent.product_name + " to be delivered to " + calEvent.customer_city + " on " + moment(calEvent.start).format('DD-MM') + ". Rescheduled: <strong>" + calEvent.reschedule_count + "</strong> times.";
+            image += '</div>';
+
+            $('#calendar_detail_body').append($(image));
+
+            $('#calendarDetailModal').modal('toggle');
+          },
+          eventRender: function(event, eventElement) {
+            if (event.is_order_priority == 1) {
+              eventElement.css({
+                'background-color': 'rgba(163,103,126,1)',
+                'color': 'white'
+              });
+            }
+            // if (event.image_names) {
+            //   event.image_names.forEach(function(image) {
+            //     eventElement.find("div.fc-content").prepend("<img src='" + image.name +"' width='50' height='50'>");
+            //   });
+            // }
+          },
         });
     });
   </script>

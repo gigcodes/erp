@@ -123,7 +123,7 @@ class DeliveryApprovalController extends Controller
         $delivery_approval->private_view->products[0]->supplier = 'In-stock';
         $delivery_approval->private_view->products[0]->save();
 
-        // Message to Stock Holder
+        // Message to Stock Coordinator
         $params = [
           'number'    => NULL,
           'user_id'   => Auth::id(),
@@ -136,16 +136,21 @@ class DeliveryApprovalController extends Controller
 
         $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
 
-        if ($whatsapp_number == '919152731483') {
-          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], NULL, $chat_message->id);
-        } else {
-          app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp('37067501865', $whatsapp_number, $params['message'], FALSE, $chat_message->id);
-        }
+        $stock_coordinators = User::role('Stock Coordinator')->get();
 
-        $chat_message->update([
-          'approved' => 1,
-          'status'   => 2
-        ]);
+        foreach ($stock_coordinators as $coordinator) {
+          $params['erp_user'] = $coordinator->id;
+          $chat_message = ChatMessage::create($params);
+
+          $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
+
+          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+
+          $chat_message->update([
+            'approved' => 1,
+            'status'   => 2
+          ]);
+        }
 
         // Message to Aliya
         $coordinators = User::role('Delivery Coordinator')->get();
@@ -156,11 +161,7 @@ class DeliveryApprovalController extends Controller
 
           $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
 
-          if ($whatsapp_number == '919152731483') {
-            app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
-          } else {
-            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($coordinator->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
-          }
+          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
 
           $chat_message->update([
             'approved' => 1,

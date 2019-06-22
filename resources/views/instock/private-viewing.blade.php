@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Private Viewing')
+
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 @endsection
@@ -46,18 +48,22 @@
     <div class="table-responsive mt-3">
         <table class="table table-bordered">
         <tr>
-          <th>Customer</th>
-          <th>Date</th>
-          <th>Products</th>
-          <th>Delivery Images</th>
-          <th>Status</th>
-          <th>Office Boy</th>
-          <th>Action</th>
+          <th width="20%">Customer</th>
+          <th width="10%">Date</th>
+          <th width="10%">Products</th>
+          <th width="20%">Delivery Images</th>
+          <th width="15%">Status</th>
+          <th width="20%">Office Boy</th>
+          <th width="5%">Action</th>
         </tr>
         @foreach ($private_views as $key => $view)
             <tr class="{{ \Carbon\Carbon::parse($view->date)->format('Y-m-d') == date('Y-m-d') ? 'row-highlight' : '' }}">
                 <td>
                   <a href="{{ route('customer.show', $view->customer->id) }}" target="_blank">{{ $view->customer->name }}</a>
+
+                  @if ($view->order_product && $view->order_product->order->is_priority == 1)
+                    <span style="color: red;">!!!</span>
+                  @endif
 
                   <br>
 
@@ -67,7 +73,13 @@
 
                   {{ $view->customer->address }}, {{ $view->customer->pincode }}, {{ $view->customer->city }}
                 </td>
-                <td>{{ Carbon\Carbon::parse($view->date)->format('d-m') }}</td>
+                <td>
+                  @if ($view->order_product)
+                    {{ Carbon\Carbon::parse($view->order_product->shipment_date)->format('d-m') }}
+                  @else
+                    {{ Carbon\Carbon::parse($view->date)->format('d-m') }}
+                  @endif
+                </td>
                 <td>
                   @foreach ($view->products as $product)
                     <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive" style="width: 50px;" alt="">
@@ -95,27 +107,31 @@
                   {{-- @endif --}}
                 </td>
                 <td>
-                  <select class="form-control status-change" name="status" data-id="{{ $view->id }}">
-                    <option value="">Select Status</option>
-                    <option value="delivered" {{ 'delivered' == $view->status ? 'selected' : '' }}>Delivered</option>
-                    <option value="returned" {{ 'returned' == $view->status ? 'selected' : '' }}>Returned</option>
-                  </select>
+                  <div class="d-flex2">
+                    <div class="">
+                      <select class="form-control status-change" name="status" data-id="{{ $view->id }}">
+                        <option value="">Select Status</option>
+                        <option value="delivered" {{ 'delivered' == $view->status ? 'selected' : '' }}>Delivered</option>
+                        <option value="returned" {{ 'returned' == $view->status ? 'selected' : '' }}>Returned</option>
+                      </select>
 
-                  @if (count($view->status_changes) > 0)
-                    <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
-
-                    <div class="change-history-container hidden">
-                      <ul>
-                        @foreach ($view->status_changes as $status_history)
-                          <li>
-                            {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
-                          </li>
-                        @endforeach
-                      </ul>
+                      <span class="text-success change_status_message" style="display: none;">Successfully updated status</span>
                     </div>
-                  @endif
 
-                  <span class="text-success change_status_message" style="display: none;">Successfully updated status</span>
+                    @if (count($view->status_changes) > 0)
+                      <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
+
+                      <div class="change-history-container hidden">
+                        <ul>
+                          @foreach ($view->status_changes as $status_history)
+                            <li>
+                              {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
+                            </li>
+                          @endforeach
+                        </ul>
+                      </div>
+                    @endif
+                  </div>
                 </td>
                 <td>
                   <select class="form-control change-office-boy" name="office_boy_id" data-id="{{ $view->id }}">

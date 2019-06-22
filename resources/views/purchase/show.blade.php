@@ -163,6 +163,32 @@
 
     <div class="form-group">
       <strong>Customers List</strong>
+
+      <form action="{{ route('purchase.assign.batch', $order->id) }}" method="POST">
+        @csrf
+
+        <button type="submit" class="btn btn-xs btn-secondary">Assign Batch Number All</button>
+      </form>
+
+      <form class="mt-3" action="{{ route('purchase.assign.split.batch', $order->id) }}" method="POST">
+        @csrf
+        <input type="hidden" name="order_products" id="selected_order_products" value="">
+
+        <button type="submit" class="btn btn-xs btn-secondary">Assign Split Batch</button>
+      </form>
+
+      @php
+        $letters_array = [
+          '1' => 'A',
+          '2' => 'B',
+          '3' => 'C',
+          '4' => 'D',
+          '5' => 'E',
+          '6' => 'F',
+          '7' => 'G',
+        ];
+      @endphp
+
       <ul>
         @foreach ($order->products as $product)
           @php
@@ -182,11 +208,18 @@
 
                 @endphp
 
+                <input type="checkbox" class="select-order-product" name="order_product" value="{{ $order_product->id }}">
+
                 <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
                  - ({{ $order_product->purchase_status }})
 
                  @if (in_array($order_product->order->customer->id, $dups))
                    <span class="badge">Duplicate</span>
+                 @endif
+
+                 @if ($order_product->purchase_id != '')
+
+                   <span class="badge">#{{ $order_product->purchase_id }}{{ array_key_exists($order_product->batch_number, $letters_array) ? $letters_array[$order_product->batch_number] : '' }}</span>
                  @endif
                @else
                  No Customer
@@ -1363,6 +1396,24 @@
           text: agents_array[supplier_id][agent]
         }));
       });
+    });
+
+    var selected_order_products = [];
+    $('.select-order-product').on('click', function() {
+      var checked = $(this).prop('checked');
+      var order_product_id = $(this).val();
+
+      if (checked) {
+        selected_order_products.push(order_product_id);
+      } else {
+        var index = selected_order_products.indexOf(order_product_id);
+
+        selected_order_products.splice(index, 1);
+      }
+
+      $('#selected_order_products').val(JSON.stringify(selected_order_products));
+
+      console.log(selected_order_products);
     });
   </script>
 @endsection

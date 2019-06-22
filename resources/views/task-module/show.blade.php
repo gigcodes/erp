@@ -2119,7 +2119,7 @@
         $('#task_category_selection').on('change', function() {
           var category_id = $(this).val();
           var is_approved = $(this).find('option:selected').data('approved');
-          var is_admin = {{ Auth::user()->hasRole('Admin') }};
+          var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
           console.log(is_approved, is_admin);
           if (is_admin == 1 && !is_approved) {
             $('#approveTaskCategoryButton').parent().removeClass('hidden');
