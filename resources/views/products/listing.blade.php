@@ -79,6 +79,10 @@
             <div class="form-group mr-3">
               <input type="checkbox" name="users" id="users" {{ $assigned_to_users == 'on' ? 'checked' : '' }}> <label for="users"><strong>Assigned To Users</strong></label>
             </div>
+
+            <div class="form-group mr-3">
+              <input type="checkbox" name="left_products" id="left_products" {{ $left_for_users == 'on' ? 'checked' : '' }}> <label for="left_products"><strong>Left For Users</strong></label>
+            </div>
           @endif
 
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
