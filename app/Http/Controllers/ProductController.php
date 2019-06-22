@@ -991,6 +991,8 @@ class ProductController extends Controller {
 
     public function saveImage(Request $request) {
         $product = Product::findOrFail($request->get('product_id'));
+        
+
         $product->is_image_processed = 1;
         $product->stage = 5;
         $product->save();

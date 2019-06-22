@@ -494,6 +494,9 @@
 
                                                 Grid</a>
 
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@showCropVerifiedForOrdering') }}">Crop-Sequencer
+                                            </a>
+
                                         </ul>
 
                                     </li>

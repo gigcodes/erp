@@ -56,3 +56,9 @@
         </div>
     </div>
 @endsection
+
+@section('scripts')
+    @if(Session::has('message'))
+
+    @endif
+@endsection

@@ -55,12 +55,13 @@ class InstagramPostsController extends Controller
         try {
             $instagram->login($account->last_name, $account->password);
         } catch (\Exception $exception) {
+            dd($exception);
             return redirect()->back()->with('message', 'Account could not log in!');
         }
 
         $image = $request->file('image');
 
-        $media = MediaUploader::fromSource($image)->useFilename('instagram_post')->upload();
+        $media = MediaUploader::fromSource($image)->useFilename(md5(time()))->upload();
 
         $instagramPost = new InstagramPosts();
         $instagramPost->user_id = \Auth::user()->id;

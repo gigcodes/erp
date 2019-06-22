@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
+use Plank\Mediable\Mediable;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 
@@ -230,6 +231,28 @@ class ProductCropperController extends Controller
         $img = $this->getCategoryForCropping($category);
 
 	    return view('products.crop', compact('product', 'secondProduct', 'img', 'category'));
+    }
+
+    public function getApprovedImages() {
+        $products = Product::where('is_image_processed', 1)
+            ->where('is_crop_rejected', 0)
+            ->where('is_crop_approved', 0)
+            ->whereDoesntHave('amends')
+            ->paginate(24);
+
+        $stats = DB::table('products')->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')->where('is_scraped', 1)->where('is_without_image', 0)->first();
+
+
+//
+//        $secondProduct = Product::where('is_image_processed', 1)
+//            ->where('is_crop_rejected', 0)
+//            ->where('is_crop_approved', 0)
+//            ->whereDoesntHave('amends')
+//            ->first();
+
+//        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id);
+
+        return view('products.crop_list', compact('products', 'stats'));
     }
 
     private function getCategoryForCropping($categoryId) {
@@ -516,4 +539,28 @@ class ProductCropperController extends Controller
 	    $image = CropAmends::where('status', 1)->first();
 	    return response()->json($image);
     }
+
+    public function showCropVerifiedForOrdering() {
+	    $product = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->first();
+	    $total = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->count();
+
+	    return view('products.sequence', compact('product', 'total'));
+
+    }
+
+    public function saveSequence($id, Request $request) {
+	    $product  = Product::findOrFail($id);
+
+	    $medias = $request->get('images');
+	    foreach ($medias as $key=>$mediaId) {
+	        DB::table('mediables')->where('media_id', $mediaId)->update([
+	            'order' => $key+1
+            ]);
+        }
+
+	    $product->is_crop_ordered = 1;
+	    $product->save();
+
+	    return redirect()->action('ProductCropperController@showCropVerifiedForOrdering')->with('message', 'Previous image ordered successfully!');
+	}
 }

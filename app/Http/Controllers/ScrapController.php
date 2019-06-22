@@ -358,17 +358,20 @@ class ScrapController extends Controller
             if (stripos(strtoupper($dimension), 'WIDTH') !== false) {
                 $width = str_replace(['WIDTH', 'CM', ' '], '', strtoupper($dimension));
                 $product->lmeasurement = $width;
+                echo "$width \n";
                 $product->save();
                 continue;
             }
             if (stripos(strtoupper($dimension), 'HEIGHT') !== false) {
                 $width = str_replace(['HEIGHT', 'CM', ' '], '', strtoupper($dimension));
+                echo "$width \n";
                 $product->hmeasurement = $width;
                 $product->save();
                 continue;
             }
             if (stripos(strtoupper($dimension), 'DEPTH') !== false) {
                 $width = str_replace(['DEPTH', 'CM', ' '], '', strtoupper($dimension));
+                echo "$width \n";
                 $product->dmeasurement = $width;
                 $product->save();
                 continue;
