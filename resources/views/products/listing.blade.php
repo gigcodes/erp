@@ -32,7 +32,33 @@
           </div>
 
           <div class="form-group mr-3 mb-3">
-            {!! $category_search !!}
+            {{-- {!! $category_search !!} --}}
+            <select class="form-control" name="category[]">
+              @foreach ($category_array as $data)
+                <option value="{{ $data['id'] }}" {{ in_array($data['id'], $selected_categories) ? 'selected' : '' }}>{{ $data['title'] }}</option>
+                @if ($data['title'] == 'Men')
+                  @php
+                    $color = "#D6EAF8";
+                  @endphp
+                @elseif ($data['title'] == 'Women')
+                  @php
+                    $color = "#FADBD8";
+                  @endphp
+                @else
+                  @php
+                    $color = "";
+                  @endphp
+                @endif
+
+                @foreach ($data['child'] as $children)
+                  <option style="background-color: {{ $color }};" value="{{ $children['id'] }}" {{ in_array($children['id'], $selected_categories) ? 'selected' : '' }}>&nbsp;&nbsp;{{ $children['title'] }}</option>
+
+                  @foreach ($children['child'] as $child)
+                    <option style="background-color: {{ $color }};" value="{{ $child['id'] }}" {{ in_array($child['id'], $selected_categories) ? 'selected' : '' }}>&nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
+                  @endforeach
+                @endforeach
+              @endforeach
+            </select>
           </div>
 
           <div class="form-group mr-3">
@@ -78,6 +104,10 @@
           @if (Auth::user()->hasRole('Admin'))
             <div class="form-group mr-3">
               <input type="checkbox" name="users" id="users" {{ $assigned_to_users == 'on' ? 'checked' : '' }}> <label for="users"><strong>Assigned To Users</strong></label>
+            </div>
+
+            <div class="form-group mr-3">
+              <input type="checkbox" name="left_products" id="left_products" {{ $left_for_users == 'on' ? 'checked' : '' }}> <label for="left_products"><strong>Left For Users</strong></label>
             </div>
           @endif
 
@@ -169,7 +199,33 @@
               </td>
 
               <td class="table-hover-cell">
-                {!! $category_selection !!}
+                {{-- {!! $category_selection !!} --}}
+                <select class="form-control quick-edit-category" name="category" data-id="">
+                  @foreach ($category_array as $data)
+                    <option value="{{ $data['id'] }}">{{ $data['title'] }}</option>
+                    @if ($data['title'] == 'Men')
+                      @php
+                        $color = "#D6EAF8";
+                      @endphp
+                    @elseif ($data['title'] == 'Women')
+                      @php
+                        $color = "#FADBD8";
+                      @endphp
+                    @else
+                      @php
+                        $color = "";
+                      @endphp
+                    @endif
+
+                    @foreach ($data['child'] as $children)
+                      <option style="background-color: {{ $color }};" value="{{ $children['id'] }}">&nbsp;&nbsp;{{ $children['title'] }}</option>
+
+                      @foreach ($children['child'] as $child)
+                        <option style="background-color: {{ $color }};" value="{{ $child['id'] }}">&nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
+                      @endforeach
+                    @endforeach
+                  @endforeach
+                </select>
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="category_id" value="{{ $product->category }}">
                 <input type="hidden" name="sizes" value='{{ $product->size }}'>

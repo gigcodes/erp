@@ -109,8 +109,8 @@ class ProductController extends Controller {
 			$categories_array[$category->id] = $category->parent_id;
 		}
 
-		$category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
-																					 ->renderAsDropdown();
+		// $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
+		// 																			 ->renderAsDropdown();
 
 		$term = $request->input('term');
 		$brand = '';
@@ -272,6 +272,17 @@ class ProductController extends Controller {
 			$assigned_to_users = 'on';
 		}
 
+		$left_for_users = '';
+		if ($request->left_products == 'on') {
+			// $users_products = User::role('Products Lister')->pluck('id');
+			//
+			// $users_list = implode(',', $users_products);
+
+			$userWhereClause = " AND products.id NOT IN (SELECT product_id FROM user_products)";
+			$stockWhereClause = " AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 AND is_image_processed = 1 AND isUploaded = 0 AND isFinal = 0";
+			$left_for_users = 'on';
+		}
+
 		// if (Auth::user()->hasRole('Products Lister')) {
 		// 	// dd('as');
 		// 	$products_count = Auth::user()->products;
@@ -295,29 +306,42 @@ class ProductController extends Controller {
 
 
 				$new_products = DB::select('
-											SELECT *, user_products.user_id as product_user_id FROM products
+											SELECT *, user_products.user_id as product_user_id,
+											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
+											FROM products
 
 											LEFT JOIN (
 												SELECT user_id, product_id FROM user_products
 												) as user_products
 											ON products.id = user_products.product_id
 
+											LEFT JOIN (
+												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
+												) AS remarks
+											ON products.id = remarks.taskid
 
 											WHERE is_scraped = 1 AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
 											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
-											ORDER BY is_image_processed DESC, created_at DESC
+											ORDER BY is_image_processed DESC, remark_created_at DESC, created_at DESC
 				');
 			} else {
 				$new_products = DB::select('
-											SELECT *, user_products.user_id as product_user_id FROM products
+											SELECT *, user_products.user_id as product_user_id,
+											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
+											FROM products
 
 											LEFT JOIN (
 												SELECT user_id, product_id FROM user_products
 												) as user_products
 											ON products.id = user_products.product_id
 
+											LEFT JOIN (
+												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
+												) AS remarks
+											ON products.id = remarks.taskid
+
 											WHERE is_scraped = 1 ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
-											ORDER BY is_image_processed DESC, updated_at DESC
+											ORDER BY is_image_processed DESC, remark_created_at DESC, updated_at DESC
 				');
 			}
 
@@ -334,10 +358,14 @@ class ProductController extends Controller {
 		// }
 		// dd($products);
 
-		$selected_categories = $request->category ? $request->category : 1;
-		$category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
-		                                        ->selected($selected_categories)
-		                                        ->renderAsDropdown();
+		$selected_categories = $request->category ? $request->category : [1];
+		// $category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
+		//                                         ->selected($selected_categories)
+		//                                         ->renderAsDropdown();
+
+		$category_array = Category::renderAsArray();
+
+		// dd($category_array);
 
 		return view('products.listing', [
 			'products'					=> $new_products,
@@ -348,8 +376,8 @@ class ProductController extends Controller {
 			'categories'				=> $categories,
 			'category_tree'			=> $category_tree,
 			'categories_array'	=> $categories_array,
-			'category_selection'	=> $category_selection,
-			'category_search'	=> $category_search,
+			// 'category_selection'	=> $category_selection,
+			// 'category_search'	=> $category_search,
 			'term'	=> $term,
 			'brand'	=> $brand,
 			'category'	=> $category,
@@ -357,7 +385,10 @@ class ProductController extends Controller {
 			'supplier'	=> $supplier,
 			'type'	=> $type,
 			'assigned_to_users'	=> $assigned_to_users,
-			'cropped'	=> $cropped
+			'cropped'	=> $cropped,
+			'left_for_users'	=> $left_for_users,
+			'category_array'	=> $category_array,
+			'selected_categories'	=> $selected_categories,
 		]);
 	}
 
@@ -991,7 +1022,7 @@ class ProductController extends Controller {
 
     public function saveImage(Request $request) {
         $product = Product::findOrFail($request->get('product_id'));
-        
+
 
         $product->is_image_processed = 1;
         $product->stage = 5;
