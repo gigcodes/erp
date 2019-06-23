@@ -313,9 +313,9 @@ class ScrapController extends Controller
     }
 
     public function getProductsForImages() {
-//        $products = Product::where('supplier', 'Monti')->where('is_farfetched', 0)->get();
-        $products = Product::whereIn('supplier', ['Valenti'])->whereRaw('DATE(created_at) IN ("'.date('Y-m-d').'", "2019-06-20", "2019-06-19", "2019-06-21")')->get();
-//        $products = Product::whereIn('supplier', ['Cuccini', 'Monti'])->where('is_farfetched', 0)->get();
+//        $products = Product::where('supplier', 'Monti')->get();
+//        $products = Product::whereIn('supplier', ['Valenti'])->whereRaw('DATE(created_at) IN ("'.date('Y-m-d').'", "2019-06-20", "2019-06-19", "2019-06-21")')->get();
+        $products = Product::whereIn('supplier', ['Cuccini'])->get();
 
         $productsToPush = [];
 
@@ -337,6 +337,86 @@ class ScrapController extends Controller
         return  response()->json($productsToPush);
     }
 
+    public function saveImagesToProducts2(Request $request) {
+        $this->validate($request, [
+            'id' => 'required',
+            'website' => 'required',
+//            'images' => 'required|array',
+            'description' => 'required'
+        ]);
+
+        $website = str_replace(' ', '', $request->get('website'));
+
+        $product = Product::find($request->get('id'));
+
+        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
+
+//        if ($scrapedProduct) {
+//            echo "Scraped product found \n";
+//            $properties = $scrapedProduct->properties;
+//            $properties['category'] = $request->get('category');
+//            $scrapedProduct->properties = $properties;
+//            $scrapedProduct->save();
+//        }
+
+        $product->short_description = $request->get('description');
+//        $product->composition = $request->get('material_used');
+//        $product->color = $request->get('color');
+        $product->description_link = $request->get('url');
+        $dimension = $request->get('dimension');
+//        $product->made_in = $request->get('country');
+        foreach ($dimension as $dimension) {
+            if (stripos(strtoupper($dimension), 'WIDTH') !== false) {
+                $width = str_replace(['WIDTH', 'CM', ' ', 'MAXIMUM WIDTH'], '', strtoupper($dimension));
+                $product->lmeasurement = $width;
+                echo "$width \n";
+                $product->save();
+                continue;
+            }
+            if (stripos(strtoupper($dimension), 'HEIGHT') !== false) {
+                $width = str_replace(['HEIGHT', 'CM', ' '], '', strtoupper($dimension));
+                echo "$width \n";
+                $product->hmeasurement = $width;
+                $product->save();
+                continue;
+            }
+            if (stripos(strtoupper($dimension), 'DEPTH') !== false) {
+                $width = str_replace(['DEPTH', 'CM', ' '], '', strtoupper($dimension));
+                echo "$width \n";
+                $product->dmeasurement = $width;
+                $product->save();
+                continue;
+            }
+        }
+
+
+//        $product->detachMediaTags('gallery');
+//
+//        // Attach other information like description, etc..
+//
+//        if ($product->supplier == 'Valenti') {
+//            $images = $this->downloadImagesForSites($request->get('images'), $website);
+//            foreach ($images as $image_name) {
+//                // Storage::disk('uploads')->delete('/social-media/' . $image_name);
+//
+//                $path = public_path('uploads') . '/social-media/' . $image_name;
+//                $media = MediaUploader::fromSource($path)->upload();
+//                $product->attachMedia($media,config('constants.media_tags'));
+//            }
+//
+//            $product->is_without_image = 0;
+//            $product->save();
+//        }
+
+        $product->is_farfetched = 1;
+        $product->save();
+
+        return response()->json([
+            'status' => 'Added items successfuly!'
+        ]);
+
+    }
+
     public function saveImagesToProducts(Request $request) {
         $this->validate($request, [
             'id' => 'required',
@@ -348,6 +428,17 @@ class ScrapController extends Controller
         $website = str_replace(' ', '', $request->get('website'));
 
         $product = Product::find($request->get('id'));
+
+        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
+
+        if ($scrapedProduct) {
+            echo "Scraped product found \n";
+            $properties = $scrapedProduct->properties;
+            $properties['category'] = $request->get('category');
+            $scrapedProduct->properties = $properties;
+            $scrapedProduct->save();
+        }
+
         $product->short_description = $request->get('description');
         $product->composition = $request->get('material_used');
         $product->color = $request->get('color');
@@ -356,7 +447,7 @@ class ScrapController extends Controller
         $product->made_in = $request->get('country');
         foreach ($dimension as $dimension) {
             if (stripos(strtoupper($dimension), 'WIDTH') !== false) {
-                $width = str_replace(['WIDTH', 'CM', ' '], '', strtoupper($dimension));
+                $width = str_replace(['WIDTH', 'CM', ' ', 'MAXIMUM WIDTH'], '', strtoupper($dimension));
                 $product->lmeasurement = $width;
                 echo "$width \n";
                 $product->save();

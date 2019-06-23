@@ -546,13 +546,24 @@ class ProductCropperController extends Controller
 
     }
 
+    public function skipSequence($id) {
+	    $product = Product::findOrFail($id);
+	    $product->is_crop_approved = 0;
+	    $product->save();
+
+	    return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
+
+
+    }
+
     public function saveSequence($id, Request $request) {
+
 	    $product  = Product::findOrFail($id);
 
 	    $medias = $request->get('images');
-	    foreach ($medias as $key=>$mediaId) {
-	        DB::table('mediables')->where('media_id', $mediaId)->update([
-	            'order' => $key+1
+	    foreach ($medias as $mediaId=>$order) {
+	        DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', 'App\Product')->update([
+	            'order' => $order
             ]);
         }
 

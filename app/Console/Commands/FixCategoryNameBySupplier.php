@@ -43,7 +43,7 @@ class FixCategoryNameBySupplier extends Command
      */
     public function handle()
     {
-        Product::orderBy('id', 'DESC')->chunk(1000, function ($products) {
+        Product::where('is_scraped', 1)->orderBy('id', 'ASC')->chunk(1000, function ($products) {
             echo 'Chunk again=======================================================' . "\n";
             foreach ($products as $product) {
                 $this->classify($product);
@@ -83,6 +83,7 @@ class FixCategoryNameBySupplier extends Command
                     $gender = $this->getMaleOrFemale($scrapedProduct->properties);
 
                     if ($gender === false) {
+                        $this->warn('NOOOOO');
                         $product->category = 1;
                         $product->save();
                         continue;

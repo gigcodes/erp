@@ -487,13 +487,15 @@
                                             <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper
 
                                                 Grid</a>
-                                              <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@getApprovedImages') }}">Approved Crop
 
                                                 Grid</a>
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
+
+                                                  Grid</a>
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
 
                                                 Grid</a>
-
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@showCropVerifiedForOrdering') }}">Crop-Sequencer
                                             </a>
 

@@ -37,6 +37,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
     Route::post('save-sequence/{id}', 'ProductCropperController@saveSequence');
+    Route::get('skip-sequence/{id}', 'ProductCropperController@skipSequence');
     Route::post('ammend-crop/{id}', 'ProductCropperController@ammendCrop');
     Route::get('products/auto-cropped', 'ProductCropperController@getListOfImagesToBeVerified');
     Route::get('products/rejected-auto-cropped', 'ProductCropperController@showRejectedCrops');

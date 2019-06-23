@@ -56,6 +56,14 @@ class ScrapStatisticsController extends Controller
     {
         $date = $request->get('date');
 
+
+//        $inactiveScrapping = DB::table('scrap_statistics')
+//            ->selectRaw('supplier, MAX(created_at) as created_at, TIMESTAMPDIFF(HOUR, created_at, NOW()) as last_scraped`')
+//            ->groupBy('supplier')
+//            ->get();
+//
+//        dd($inactiveScrapping);
+
         $scrapedExistingProducts = DB::table('scrap_statistics')->selectRaw('COUNT(DISTINCT description) as total, supplier')->where('type', 'EXISTING_SCRAP_PRODUCT');
         $scrapedNewProducts = DB::table('scrap_statistics')->selectRaw('COUNT(DISTINCT description) as total, supplier')->where('type', 'NEW_SCRAP_PRODUCT');
 

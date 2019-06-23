@@ -24,6 +24,7 @@ Route::post('sync-product', 'ScrapController@syncGnbProducts');
 Route::post('add-product-entries', 'ScrapController@addProductEntries');
 Route::post('add-product-images', 'ScrapController@getProductsForImages');
 Route::post('save-product-images', 'ScrapController@saveImagesToProducts');
+Route::post('save-product-images2', 'ScrapController@saveImagesToProducts2');
 Route::post('save-supplier', 'ScrapController@saveSupplier');
 Route::get('hashtags', 'HashtagController@sendHashtagsApi');
 Route::get('crop', 'ProductController@giveImage');

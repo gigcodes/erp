@@ -174,6 +174,7 @@ class ProductsCreator
 
 
             if ($product = Product::where('sku', $scraped_product->sku)->first()) {
+
                 if ($db_supplier = Supplier::where('supplier', $supplier_name)->first()) {
                     if ($product->stock > 0) {
                         --$product->stock;
@@ -382,6 +383,8 @@ class ProductsCreator
 
         if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
             if ($product) {
+                $product->short_description = $image->description;
+                $product->save();
                 $product->suppliers()->syncWithoutDetaching([$db_supplier->id => [
                     'title' => $image->title,
                     'description' => $image->description,

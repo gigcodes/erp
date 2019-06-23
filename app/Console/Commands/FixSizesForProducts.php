@@ -38,6 +38,6 @@ class FixSizesForProducts extends Command
      */
     public function handle()
     {
-//        $records =
+
     }
 }
