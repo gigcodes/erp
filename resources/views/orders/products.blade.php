@@ -61,7 +61,7 @@
           <tr style="{{ $product['order'] ? '' : 'color:red' }}">
             <td>
               <a href="{{ route('order.show', $product['order_id']) }}">
-                <img src="{{ $product['product'] ? $product['product']['imageurl'] : '' }}" class="img-responsive" alt="">
+                <img src="{{ $product['product'] ? ($product['product']['imageurl'] ?? '') : '' }}" class="img-responsive" alt="">
               </a>
             </td>
             <td>{{ $product['product']['supplier'] }}</td>

@@ -562,9 +562,14 @@ class ProductCropperController extends Controller
 
 	    $medias = $request->get('images');
 	    foreach ($medias as $mediaId=>$order) {
-	        DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', 'App\Product')->update([
-	            'order' => $order
-            ]);
+	        if ($order!==null) {
+                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', 'App\Product')->update([
+                    'order' => $order
+                ]);
+            } else {
+	            DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', 'App\Product')->delete();
+	            DB::table('media')->where('id', $mediaId)->delete();
+            }
         }
 
 	    $product->is_crop_ordered = 1;

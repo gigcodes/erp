@@ -5,27 +5,31 @@
         <div class="col-md-12">
             <h2 class="page-heading">Order Cropped Images ({{$total}})</h2>
         </div>
-        <form action="{{ action('ProductCropperController@saveSequence', $product->id) }}" method="post">
-            @csrf
-            <div class="col-md-12">
-                <div id="sortable">
-                    @foreach($product->getMedia('gallery') as $media)
-                        <div class="card" style="display: inline-block; background: #dddddd">
-                            <img class="order-selector" src="{{ $media->getUrl() }}" alt="" style="width:250px;" data-mediaId="{{$media->id}}">
-                            <input class="media_order" type="hidden" name="images[{{$media->id}}]" value="" id="order_{{$media->id}}">
-                            <span style="position: absolute; bottom: 10px; left: 10px; padding: 15px; font-size: 16px; font-weight: bold" class="label label-default sequence-tag" id="sequence_{{$media->id}}">-</span>
-                        </div>
-                    @endforeach
+        @if($product)
+            <form action="{{ action('ProductCropperController@saveSequence', $product->id) }}" method="post">
+                @csrf
+                <div class="col-md-12">
+                    <div id="sortable">
+                        @foreach($product->getMedia('gallery') as $media)
+                            <div class="card" style="display: inline-block; background: #dddddd">
+                                <img class="order-selector" src="{{ $media->getUrl() }}" alt="" style="width:250px;" data-mediaId="{{$media->id}}">
+                                <input class="media_order" type="hidden" name="images[{{$media->id}}]" value="" id="order_{{$media->id}}">
+                                <span style="position: absolute; bottom: 10px; left: 10px; padding: 15px; font-size: 16px; font-weight: bold" class="label label-default sequence-tag" id="sequence_{{$media->id}}">-</span>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-12 mt-4">
-                <div class="form-group">
-                    <button class="btn btn-secondary">Save Sequence</button>
-                    <span class="clear-sequence btn btn-default">Clear Sequence</span>
-                    <a href="{{}}"></a>
+                <div class="col-md-12 mt-4">
+                    <div class="form-group">
+                        <button class="btn btn-secondary">Save Sequence</button>
+                        <span class="clear-sequence btn btn-default">Clear Sequence</span>
+                        <a class="btn btn-default" href="{{action('ProductCropperController@skipSequence', $product->id)}}">Skip Product</a>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        @else
+            <h2 class="text-center">No Images to be ordered at the moment!</h2>
+        @endif
     </div>
 @endsection
 

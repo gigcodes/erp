@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use GuzzleHttp\Client;
+use InstagramAPI\Exception\ChallengeRequiredException;
 use InstagramAPI\Instagram;
 use Illuminate\Http\Request;
 use InstagramAPI\Response\GenericResponse;
@@ -64,12 +65,44 @@ class AccountController extends Controller
 
     public function test($id) {
         $account = Account::find($id);
-        $this->ig = new Instagram();
+//        $this->ig = new Instagram();
+//        try {
+//            $this->ig->login($account->last_name, $account->password);
+//        } catch (\Exception $exception) {
+//            dd($exception);
+//            $account->forceDelete();
+//        }
+
+
+        $Instagram = new Instagram();
+
         try {
-            $this->ig->login($account->last_name, $account->password);
-        } catch (\Exception $exception) {
-            dd($exception);
-            $account->forceDelete();
+            $Instagram->login($account->last_name, $account->password);
+
+        } catch (\Exception $Exception) {
+            if ($Exception instanceof ChallengeRequiredException) {
+                sleep(5);
+
+                dd($Exception->getResponse());
+
+                $resp = $Exception->getResponse()->asStdClass();
+
+                $customResponse = $Instagram->request(substr($resp->challenge['api_path'], 1))->setNeedsAuth(false)->addPost('choice', 0)->getDecodedResponse();
+
+                if (is_array($customResponse)) {
+                    dd($customResponse);
+                    $ifId = $customResponse['user_id'];
+                    $code = $customResponse['nonce_code'];
+
+                    dd($ifId, $code);
+
+                    //Other stuff.
+                } else {
+                    //Other stuff.
+                }
+            } else {
+                //Other stuff.
+            }
         }
 
         return redirect()->back()->with('message', 'test passed!');
