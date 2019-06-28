@@ -57,7 +57,7 @@
                             <div class="form-group mr-3">
                                 @php $brands = \App\Brand::getAll(); @endphp
                                 {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
-                                <select class="form-control select-multiple" name="brand[]" multiple>
+                                <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
                                   <optgroup label="Brands">
                                     @foreach ($brands as $key => $name)
                                       <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
@@ -70,7 +70,7 @@
                               {{-- <strong>Color</strong> --}}
                               @php $colors = new \App\Colors(); @endphp
                               {{-- {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
-                              <select class="form-control select-multiple" name="color[]" multiple>
+                              <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Colors...">
                                 <optgroup label="Colors">
                                   @foreach ($colors->all() as $key => $col)
                                     <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
@@ -82,7 +82,7 @@
                             <div class="form-group mr-3">
                               {{-- @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp --}}
                               {{-- {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
-                              <select class="form-control select-multiple" name="supplier[]" multiple>
+                              <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier...">
                                 <optgroup label="Suppliers">
                                   @foreach ($suppliers as $key => $supp)
                                     <option value="{{ $supp->id }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
@@ -93,7 +93,7 @@
 
                             @if (Auth::user()->hasRole('Admin'))
                               <div class="form-group mr-3">
-                                <select class="form-control select-multiple" name="location[]" multiple>
+                                <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
                                   <optgroup label="Locations">
                                     @foreach ($locations as $name)
                                       <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
@@ -164,7 +164,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
     $(document).ready(function() {
-       $(".select-multiple").multiselect();
+       $(".select-multiple").select2();
+       $(".select-multiple-cat").multiselect();
        $("body").tooltip({ selector: '[data-toggle=tooltip]' });
        $('.lazy').Lazy({
          effect: 'fadeIn'
@@ -368,4 +369,5 @@
         });
 
     </script>
+
 @endsection

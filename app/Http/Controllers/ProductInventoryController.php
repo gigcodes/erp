@@ -31,7 +31,7 @@ class ProductInventoryController extends Controller
 		                   ->whereNull('dnf')
 											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
 
-$products_count = $products->count();
+                        $products_count = $products->count();
 		                   $products = $products->paginate(Setting::get('pagination'));
 
 		$roletype = 'Inventory';
@@ -361,8 +361,8 @@ $products_count = $products->count();
 				}
 
 				if ($error_message == 'Product not exists.') {
-          $product->isUploaded = 0;
-          $product->isFinal = 0;
+                      $product->isUploaded = 0;
+                      $product->isFinal = 0;
 					$product->save();
 				}
 			}

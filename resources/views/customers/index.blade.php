@@ -9,7 +9,7 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 
-@section('content')
+@section('large_content')
 
 
     <div class="row">
@@ -122,10 +122,10 @@
             <th width="10%">Message Status</th>
             <th>Order Status</th>
             <th>Purchase Status</th>
-            <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
+            <th width="15%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
             <th width="30%">Send Message</th>
             <th>Shortcuts</th>
-            <th width="15%">Action</th>
+            <th width="20%">Action</th>
             </thead>
             <tbody>
             @foreach ($customers as $key => $customer)
@@ -136,12 +136,6 @@
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
                     <td>
-                      @if ($customer->is_priority == 1)
-                        <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
-                      @else
-                        <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
-                      @endif
-
                       @php
                         if ($customer->lead_status == 1) {
                           $customer_color = 'rgba(163,103,126,1)';
@@ -187,6 +181,12 @@
                         <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
                       @endif
 
+                      @if ($customer->is_priority == 1)
+                          <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
+                      @else
+                          <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+                      @endif
+
                       @php
                         $first_color = $customer_color == 'rgba(163,103,126,1)' ? 1 : '0.2';
                         $second_color = $customer_color == 'rgba(63,203,226,1)' ? 1 : '0.2';
@@ -208,6 +208,23 @@
                           <span class="user-status change-lead-status" title="High Priority" data-id="6" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $sixth_color }}; cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
                         </div>
                       @endif
+
+
+                        @if (array_key_exists($customer->id, $orders))
+                            @if (count($orders[$customer->id]) >= 1)
+                                <?php
+                                    $order = $orders[$customer->id][0];
+                                ?>
+                                <span class="order-status change-order-status" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Follow up for advance' ? '1' : '0.2' }}; cursor:pointer; background-color: rgb(163,0,8);"></span>
+                                <span class="order-status change-order-status" title="Advance received" data-id="Advance received" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Advance received' ? '1' : '0.2' }}; cursor:pointer; background-color: rgb(0,193,226);"></span>
+                                <span class="order-status change-order-status" title="Delivered" data-id="Delivered" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Delivered' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(63,103,126,1);"></span>
+                                <span class="order-status change-order-status" title="Cancel" data-id="Cancel" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Cancel' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(94, 80, 226, 1);"></span>
+                                <span class="order-status change-order-status" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Product shiped to Client' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
+                                <span class="order-status change-order-status" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Refund to be processed' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
+                                <span class="order-status change-order-status" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Refund Credited' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
+                            @endif
+                        @endif
+
                     </td>
                     {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                       <td>{{ $customer['email'] }}</td>
@@ -252,22 +269,28 @@
                           {{ array_key_exists($instructions[$customer->id][0]['assigned_to'], $users_array) ? $users_array[$instructions[$customer->id][0]['assigned_to']] : 'No User' }} -
 
 
-                          <div class="form-inline">
+                          <div class="form-inline expand-row">
                             @if ($instructions[$customer->id][0]['is_priority'] == 1)
                               <strong class="text-danger mr-1">!</strong>
                             @endif
 
-                            {{ $instructions[$customer->id][0]['instruction'] }}
+                              <div class="td-mini-container">
+                                  {{ strlen($instructions[$customer->id][0]['instruction']) > 10 ? substr($instructions[$customer->id][0]['instruction'], 0, 10).'...' : $instructions[$customer->id][0]['instruction'] }}
+                              </div>
+                              <div class="td-full-container hidden">
+                                  {{ $instructions[$customer->id][0]['instruction'] }}
+                              </div>
+
                           </div>
 
                           @if ($instructions[$customer->id][0]['completed_at'])
-                            {{ Carbon\Carbon::parse($instructions[$customer->id][0]['completed_at'])->format('d-m H:i') }}
+                              <span style="color: #5e5e5e">{{ Carbon\Carbon::parse($instructions[$customer->id][0]['completed_at'])->format('d-m H:i') }}</span>
                           @else
                             <a href="#" class="btn-link complete-call" data-id="{{ $instructions[$customer->id][0]['id'] }}">Complete</a>
                           @endif
 
                           @if ($instructions[$customer->id][0]['completed_at'])
-                            Completed
+                                <strong style="color: #5e5e5e">Completed</strong>
                           @else
                             @if ($instructions[$customer->id][0]['pending'] == 0)
                               <a href="#" class="btn-link pending-call" data-id="{{ $instructions[$customer->id][0]['id'] }}">Mark as Pending</a>
@@ -278,13 +301,13 @@
                         @endif
 
                         <textarea name="instruction" class="form-control quick-add-instruction-textarea hidden" rows="8" cols="80"></textarea>
-
+                            <input title="Priority" class="hidden quick-priority-check" type="checkbox" name="instruction_priority" data-id="{{ $customer->id }}" id="instruction_priority_{{$customer->id}}">
                         <button type="button" class="btn-link quick-add-instruction" data-id="{{ $customer->id }}">Add Instruction</button>
                     </td>
                   @else
                     <td>
                       <textarea name="instruction" class="form-control quick-add-instruction-textarea hidden" rows="8" cols="80"></textarea>
-
+                        <input title="Priority" class="hidden quick-priority-check" type="checkbox" name="instruction_priority" data-id="{{ $customer->id }}" id="instruction_priority_{{$customer->id}}">
                       <button type="button" class="btn-link quick-add-instruction" data-id="{{ $customer->id }}">Add Instruction</button>
                     </td>
                   @endif
@@ -320,7 +343,14 @@
                             <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
                           </div>
                         @else
-                          Multiple Orders
+                            <strong>status:</strong>
+                            <select name="status" class="form-control change_status order_status" data-orderid="{{ $orders[$customer->id][0]['id'] }}">
+                                @php $order_status = (new \App\ReadOnly\OrderStatus)->all(); @endphp
+                                @foreach($order_status as $key => $value)
+                                    <option value="{{$value}}" {{$value == $orders[$customer->id][0]['order_status'] ? 'selected' : '' }}>{{ $key }}</option>
+                                @endforeach
+                            </select>
+                            Has Multiple Orders
                         @endif
                       @else
                         No Orders
@@ -373,9 +403,9 @@
                       @endif --}}
                     </td>
                     <td>
-                      <div class="d-inline">
-                        <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-                        <button class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png" /></button>
+                      <div class="d-inline form-inline">
+                          <input style="width: 75%" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                          <button style="display: inline;width: 20%" class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png" /></button>
                       </div>
 
                       <p class="pb-4 mt-3" style="display: block;">
@@ -464,13 +494,17 @@
                         <button type="submit" class="btn btn-image quick-shortcut-button" title="Check for the Purchase"><img src="/images/purchase.png" /></button>
                       </form>
 
-                      <div class="d-inline">
-                        <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
-                      </div>
+                        <div class="d-inline">
+                            <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png" /></button>
+                        </div>
 
-                      <div class="d-inline">
-                        <button type="button" class="btn btn-image latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
-                      </div>
+                        <div class="d-inline">
+                            <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
+                        </div>
+
+                        <div class="d-inline">
+                            <button type="button" class="btn btn-image latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
+                        </div>
 
                       <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
@@ -479,7 +513,6 @@
                         <input type="hidden" name="category_id" value="13">
                         <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
 
-                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png" /></button>
                       </form>
                     </td>
                     <td>
@@ -552,7 +585,50 @@
       $('#page-goto option[value="' + page_number[0] + '?page=' + current_page + '"]').attr('selected', 'selected');
     });
 
+    $(document).on('click', '.change-order-status', function() {
+        let orderId = $(this).attr('data-orderid');
+        let status = $(this).attr('title');
+
+        let url = '/order/'+orderId+'/changestatus';
+
+        let thiss = $(this);
+
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {
+                _token: "{{ csrf_token() }}",
+                status: status
+            },
+            success: function() {
+                toastr['success']('Status changed successfully!', 'Success');
+                $(thiss).siblings('.change-order-status').css('opacity', '0.2');
+                $(thiss).css('opacity', '1');
+                if (status == 'Product shiped to Client') {
+                    $('#tracking-wrapper-' + id).css({'display' : 'block'});
+                }
+            }
+        });
+    });
+
     $(document).ready(function() {
+
+
+        $(document).on('click', '.expand-row', function() {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                // if ($(this).data('switch') == 0) {
+                //   $(this).text($(this).data('details'));
+                //   $(this).data('switch', 1);
+                // } else {
+                //   $(this).text($(this).data('subject'));
+                //   $(this).data('switch', 0);
+                // }
+                $(this).find('.td-mini-container').toggleClass('hidden');
+                $(this).find('.td-full-container').toggleClass('hidden');
+            }
+        });
+
       $('ul.pagination').hide();
       $(function() {
           $('.infinite-scroll').jscroll({
@@ -1065,10 +1141,12 @@
         var id = $(this).data('id');
 
         $(this).siblings('.quick-add-instruction-textarea').removeClass('hidden');
+        $(this).siblings('.quick-priority-check').removeClass('hidden');
 
         $(this).siblings('.quick-add-instruction-textarea').keypress(function(e) {
           var key = e.which;
           var thiss = $(this);
+          let priority = $('#instruction_priority_'+id).is(':checked') ? 'on' : '';
 
           if (key == 13) {
             e.preventDefault();
@@ -1082,10 +1160,12 @@
                 instruction: instruction,
                 category_id: 1,
                 customer_id: id,
-                assigned_to: 7
+                assigned_to: 7,
+                is_priority: priority
               }
             }).done(function() {
               $(thiss).addClass('hidden');
+                $('#instruction_priority_'+id).addClass('hidden');
               $(thiss).val('');
             }).fail(function(response) {
               console.log(response);
@@ -1294,6 +1374,15 @@
                 }
             },
           }
+      });
+
+      $(documet).on('keyup', 'add-new-note', function(event) {
+          if (event.which != 13) {
+              return;
+          }
+
+
+
       });
 
       $(document).on('click', '.change-lead-status', function() {

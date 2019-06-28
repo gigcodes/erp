@@ -13,4 +13,12 @@ class ColdLeads extends Model
     public function account() {
         return $this->belongsTo(Account::class);
     }
+
+    public function customer() {
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
+    }
+
+    public function whatsapp() {
+        return $this->belongsTo(Customer::class, 'platform_id', 'phone');
+    }
 }

@@ -1114,6 +1114,13 @@ form.display-inline{
     border-bottom: 1px solid #6f6767;
 }
 
+.order-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #eeeeee;
+}
+
 .user-status {
     display: inline-block;
     width: 10px;

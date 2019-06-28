@@ -53,7 +53,7 @@
         <thead>
           <tr>
             <th>User</th>
-            <th>Name</th>
+            <th>Document Type</th>
             <th>Filename</th>
             <th>Actions</th>
           </tr>
@@ -106,7 +106,7 @@
               </div>
 
               <div class="form-group">
-                <strong>Name:</strong>
+                <strong>Document Type:</strong>
                 <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
 
                 @if ($errors->has('name'))

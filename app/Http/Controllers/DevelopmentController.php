@@ -37,6 +37,7 @@ class DevelopmentController extends Controller
       $type = $request->type ?? '';
 
       $tasks = DeveloperTask::where('user_id', $user)->where('module', 0);
+//      $tasks = DeveloperTask::where('user_id', $user);
 
       if ($request->range_start != '') {
         $tasks = $tasks->whereBetween('created_at', [$start, $end]);
@@ -60,7 +61,7 @@ class DevelopmentController extends Controller
       // $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->where('completed', 1)->whereBetween('start_time', [$start, $end])->orderBy('priority')->get()->groupBy('module_id');
 
       // dd($tasks);
-      $tasks = $tasks->orderBy('priority')->get()->groupBy(['module_id', 'status']);
+      $tasks = $tasks->orderBy('priority')->with(['user', 'messages'])->get()->groupBy(['module_id', 'status']);
       $total_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->get();
 
       $all_time_cost = 0;
@@ -96,14 +97,30 @@ class DevelopmentController extends Controller
       ]);
     }
 
-    public function issueIndex()
+    public function issueIndex(Request $request)
     {
-      $issues = Issue::all();
+        $issues = new Issue;
+
+        if ($request->get('submitted_by') > 0) {
+            $issues = $issues->where('submitted_by', $request->get('submitted_by'));
+        }
+        if ($request->get('responsible_user') > 0) {
+            $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
+        }
+
+        if ($request->get('corrected_by') > 0) {
+            $issues = $issues->where('user_id', $request->get('corrected_by'));
+        }
+
+      $modules = DeveloperModule::all();
       $users = Helpers::getUserArray(User::all());
+      $issues = $issues->orderBy('created_at', 'DESC')->get();
 
       return view('development.issue', [
         'issues'  => $issues,
-        'users'   => $users
+        'users'   => $users,
+          'modules' => $modules,
+          'request' => $request
       ]);
     }
 
@@ -140,6 +157,16 @@ class DevelopmentController extends Controller
 
       $data = $request->except('_token');
       $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
+
+      $module = $request->get('module_id');
+
+      $module = DeveloperModule::find($module);
+      if (!$module) {
+          $module = new DeveloperModule();
+          $module->name = $request->get('module_id');
+          $module->save();
+          $data['module_id'] = $module->id;
+      }
 
       $task = DeveloperTask::create($data);
 
@@ -188,7 +215,20 @@ class DevelopmentController extends Controller
 
       $data = $request->except('_token');
 
+      $module = $request->get('module');
+
+      $module = DeveloperModule::find($module);
+      if (!$module) {
+          $module = new DeveloperModule();
+          $module->name = $request->get('module');
+          $module->save();
+          $data['module'] = $module->id;
+      }
+
       $issue = Issue::create($data);
+
+      $issue->submitted_by = Auth::user()->id;
+      $issue->save();
 
       if ($request->hasfile('images')) {
         foreach ($request->file('images') as $image) {
@@ -553,5 +593,68 @@ class DevelopmentController extends Controller
       $module->delete();
 
       return redirect()->route('development.index')->with('success', 'You have successfully archived the module!');
+    }
+
+    public function assignUser(Request $request) {
+        $issue = Issue::find($request->get('issue_id'));
+        $issue->user_id = $request->get('user_id');
+        $issue->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function assignResponsibleUser(Request $request) {
+        $issue = Issue::find($request->get('issue_id'));
+        $issue->responsible_user_id = $request->get('responsible_user_id');
+        $issue->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function saveAmount(Request $request) {
+        $issue = Issue::find($request->get('issue_id'));
+        $issue->cost = $request->get('cost');
+        $issue->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function resolveIssue(Request $request) {
+        $issue = Issue::find($request->get('issue_id'));
+        $issue->is_resolved = $request->get('is_resolved');
+        $issue->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function updateValues(Request $request) {
+        $task = DeveloperTask::find($request->get('id'));
+        $type = $request->get('type');
+        $value = $request->get('value');
+        if ($type == 'start_date') {
+            $task->start_date = $request->get('value');
+        } else if ($type == 'end_date') {
+            $task->end_date = $request->get('value');
+        } else if ($type == 'estimate_date') {
+            $task->estimate_date = $request->get('value');
+        } else if ($type == 'cost') {
+            $task->cost = $request->get('value');
+        } else if ($type=='module') {
+            $task->module_id = $request->get('value');
+        }
+        $task->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+
     }
 }

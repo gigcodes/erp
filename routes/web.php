@@ -22,6 +22,8 @@ Route::get('/productselection/list','ProductSelectionController@sList')->name('p
 Route::get('/productsearcher/list','ProductSearcherController@sList')->name('productsearcher.list');
 // adding chat contro
 
+Route::get('sop', 'ProductController@showSOP');
+
 Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 
 	Route::get('/message', 'MessageController@index')->name('message');
@@ -38,6 +40,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
     Route::post('save-sequence/{id}', 'ProductCropperController@saveSequence');
     Route::get('skip-sequence/{id}', 'ProductCropperController@skipSequence');
+    Route::get('reject-sequence/{id}', 'ProductCropperController@rejectSequence');
     Route::post('ammend-crop/{id}', 'ProductCropperController@ammendCrop');
     Route::get('products/auto-cropped', 'ProductCropperController@getListOfImagesToBeVerified');
     Route::get('products/rejected-auto-cropped', 'ProductCropperController@showRejectedCrops');
@@ -52,6 +55,13 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('users/{id}/activate', 'UserController@activate')->name('user.activate');
 	Route::resource('users','UserController');
 	Route::get('products/listing', 'ProductController@listing')->name('products.listing');
+	Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
+	Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
+	Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
+	Route::get('product/update-listing-remark', 'ProductController@updateProductListingStats');
+	Route::get('product/delete-product', 'ProductController@deleteProduct');
+	Route::get('product/relist-product', 'ProductController@relistProduct');
+	Route::get('products/stats', 'ProductController@productStats');
 	Route::post('products/{id}/updateName', 'ProductController@updateName');
 	Route::post('products/{id}/updateDescription', 'ProductController@updateDescription');
 	Route::post('products/{id}/updateComposition', 'ProductController@updateComposition');
@@ -89,6 +99,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('stock/private/viewing/upload', 'StockController@privateViewingUpload')->name('stock.private.viewing.upload');
 	Route::post('stock/private/viewing/{id}/updateStatus', 'StockController@privateViewingUpdateStatus')->name('stock.private.viewing.updateStatus');
 	Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
+	Route::post('sop', 'ProductController@saveSOP');
 
 	// Delivery Approvals
 	Route::post('deliveryapproval/{id}/updateStatus', 'DeliveryApprovalController@updateStatus')->name('deliveryapproval.updateStatus');
@@ -371,6 +382,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
   Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
 
+  Route::get('imported/leads', 'ColdLeadsController@showImportedColdLeads');
+  Route::get('imported/leads/save', 'ColdLeadsController@addLeadToCustomer');
+
 	// Development
 	Route::get('development', 'DevelopmentController@index')->name('development.index');
 	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
@@ -386,6 +400,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
 	Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
 	Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
+	Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
+	Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
+	Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
+	Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
 	Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
 	Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
 
@@ -400,6 +418,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// Development
 	Route::get('development', 'DevelopmentController@index')->name('development.index');
+	Route::get('development/update-values', 'DevelopmentController@updateValues');
 	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
 	Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
 	Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
@@ -581,6 +600,7 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
  * feature in this ERP
  */
 
+Route::get('cold-leads/delete', 'ColdLeadsController@deleteColdLead');
 Route::resource('cold-leads-broadcasts', 'ColdLeadBroadcastsController');
 Route::resource('cold-leads', 'ColdLeadsController');
 

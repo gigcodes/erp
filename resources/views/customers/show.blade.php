@@ -180,7 +180,11 @@
 @endsection
 
 @section('content')
-
+    <div id="overlay">
+        <div style="position: absolute; top: 10px; right: 10px">
+            <button class="btn btn-danger btn-sm maximize-chat-box">Close</button>
+        </div>
+    </div>
 
 <div class="row">
   <div class="col-lg-12 margin-tb">
@@ -1554,8 +1558,11 @@
         @endif
       </div>
 
-      <div class="row">
+      <div class="row" id="allHolder">
         <div class="col-12 my-3" id="message-wrapper">
+            <button class="btn btn-secondary btn-sm maximize-chat-box">
+                View Fullscreen
+            </button>
           <div id="message-container"></div>
         </div>
 
@@ -2095,7 +2102,6 @@
 
 
 </form>
-
 @endsection
 
 @section('scripts')
@@ -4443,5 +4449,41 @@
           console.log(response);
         });
       });
+
+      $(document).on('click', '.maximize-chat-box', function() {
+          $("#allHolder").toggleClass('chat-window');
+          $("#overlay").fadeToggle();
+      });
   </script>
+
+  <style>
+      .chat-window {
+          display: block;
+          position: fixed;
+          top: 50px;
+          left: 600px;
+          width: 500px;
+          /*height: 700px;*/
+          background: aliceblue;
+          border: 5px solid #ccc;
+          z-index: 4;
+          /*overflow: auto;*/
+      }
+
+      .chat-window #message-wrapper {
+          height: 600px;
+      }
+
+      #overlay {
+          background: #000;
+          opacity: 0.6;
+          position: fixed;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          left: 0;
+          z-index: 4;
+          display: none;
+      }
+  </style>
 @endsection

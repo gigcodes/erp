@@ -140,6 +140,7 @@
                         <div class="form-group">
                           {{-- <strong>Recurring Type:</strong> --}}
                           <select name="recurring_type" class="form-control input-sm">
+                              <option value="EveryHour">EveryHour</option>
                               <option value="EveryDay">EveryDay</option>
                               <option value="EveryWeek">EveryWeek</option>
                               <option value="EveryMonth">EveryMonth</option>

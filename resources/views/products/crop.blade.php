@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-12">
             <h5 class="page-heading">
-                Crop Image Approval
+                Crop Image Approval <a href="{{ action('ProductController@showSOP') }}?type=Crop" class="pull-right">SOP</a>
             </h5>
             <div class="row">
                 <div class="col-md-12">
@@ -19,11 +19,21 @@
                                 <form action="{{ action('ProductCropperController@rejectCrop', $product->id) }}">
                                     <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-secondary approvebtn">Approve</a>
                                     <br><br>
-                                    <input type="text" class="form-control" placeholder="Remark..." name="remark" id="remark">
+                                    <select name="remark" id="remark">
+                                        <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
+                                        <option value="No Images Shown">No Images Shown</option>
+                                        <option value="Grid Not Shown">Grid Not Shown</option>
+                                        <option value="First Image Not Available">First Image Not Available</option>
+                                        <option value="Dimension Not Available">Dimension Not Available</option>
+                                        <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>
+                                        <option value="Incorrect Category">Incorrect Category</option>
+                                        <option value="Only One Image Available">Only One Image Available</option>
+                                    </select>
+{{--                                    <input type="text" class="form-control" placeholder="Remark..." name="remark" id="remark">--}}
                                     <button class="btn btn-danger">Reject</button>
                                     <br>
                                     @if($secondProduct)
-                                        <a href="{{ action('ProductCropperController@showImageToBeVerified', $secondProduct->id) }}">Next Image</a>
+{{--                                        <a href="{{ action('ProductCropperController@showImageToBeVerified', $secondProduct->id) }}">Next Image</a>--}}
                                     @endif
                                 </form>
                             </td>

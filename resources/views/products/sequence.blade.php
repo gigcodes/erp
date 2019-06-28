@@ -3,7 +3,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Order Cropped Images ({{$total}})</h2>
+            <h2 class="page-heading">Order Cropped Images ({{$total}}) <a href="{{ action('ProductController@showSOP') }}?type=Sequence" class="pull-right">SOP</a></h2>
         </div>
         @if($product)
             <form action="{{ action('ProductCropperController@saveSequence', $product->id) }}" method="post">

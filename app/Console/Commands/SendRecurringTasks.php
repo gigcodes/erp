@@ -83,6 +83,16 @@ class SendRecurringTasks extends Command
         $can_send_message = false;
 
         switch ($task->recurring_type) {
+            case 'EveryHour':
+                $hourBefore = $task->updated_at->format('H');
+                $hourNow = Carbon::now()->hour;
+
+                if ($hourBefore != $hourNow) {
+                    $can_send_message = true;
+                    $task->touch();
+                }
+
+            break;
           case "EveryDay":
             if ($today_date >= $sending_date && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
               dump('Send Recurring Task Daily');

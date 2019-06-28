@@ -75,9 +75,8 @@ class Product extends Model
   }
 
   public function amends() {
-	    return $this->hasMany(CropAmends::class);
+	    return $this->hasMany(CropAmends::class, 'product_id', 'id');
   }
-
 
 	public function brands(){
 		return $this->hasOne('App\Brand','id','brand');
@@ -126,14 +125,21 @@ class Product extends Model
 	}
 
 	public function cropApprover() {
-	    return $this->hasOne(User::class, 'id', 'crop_approved_by');
+	    return $this->belongsTo(User::class, 'crop_approved_by', 'id');
     }
 
     public function cropRejector() {
-        return $this->hasOne(User::class, 'id', 'crop_rejected_by');
+        return $this->belongsTo(User::class, 'crop_rejected_by', 'id');
+    }
+
+    public function approver() {
+        return $this->belongsTo(User::class, 'approved_by', 'id');
+    }
+    public function cropOrderer() {
+        return $this->belongsTo(User::class, 'crop_ordered_by', 'id');
     }
 
     public function rejectedCropApprover() {
-        return $this->hasOne(User::class, 'id', 'reject_approved_by');
+        return $this->hasOne(User::class, 'reject_approved_by', 'id');
     }
 }

@@ -43,7 +43,7 @@ class FixCategoryNameBySupplier extends Command
      */
     public function handle()
     {
-        Product::where('is_scraped', 1)->orderBy('id', 'ASC')->chunk(1000, function ($products) {
+        Product::where('is_scraped', 1)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
             echo 'Chunk again=======================================================' . "\n";
             foreach ($products as $product) {
                 $this->classify($product);
@@ -57,10 +57,12 @@ class FixCategoryNameBySupplier extends Command
         $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->orderBy('id', 'DESC')->first();
         $category = $scrapedProduct->properties['category'] ?? [];
         if ($category === []) {
-            return;
-        }
-        if (is_array($category)) {
-            $category = implode(' ', $category);
+            dump('TITLE assigned..................................................');
+            $category = $scrapedProduct->title;
+        } else {
+            if (is_array($category)) {
+                $category = implode(' ', $category);
+            }
         }
 
         $records = Category::where('id', '>', 3)->whereNotNull('references')->where('references', '!=', '')->orderBy('id', 'DESC')->get();
@@ -71,16 +73,23 @@ class FixCategoryNameBySupplier extends Command
                 continue;
             }
             $rec = explode(',', $record->references);
-            foreach ($rec as $cat) {
+            foreach ($rec as $kk=>$cat) {
                 if (stripos(strtoupper($category), strtoupper($cat)) !== false) {
                     $this->info($category . ' =>  ' . $cat . ' ' . $record->id . ' => ' .  $originalCategory);
                     $c = Category::where('title', $originalCategory)->first();
-
                     if (!$c) {
                         continue;
                     }
 
                     $gender = $this->getMaleOrFemale($scrapedProduct->properties);
+
+                    if ($gender === false) {
+                        $gender = $this->getMaleOrFemale($scrapedProduct->title);
+                    }
+
+                    if ($gender === false) {
+                        $gender = $this->getMaleOrFemale($scrapedProduct->url);
+                    }
 
                     if ($gender === false) {
                         $this->warn('NOOOOO');

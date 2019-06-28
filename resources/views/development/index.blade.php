@@ -72,8 +72,135 @@
     </ul>
   </div> --}}
 
+
   <div class="tab-content ">
     <div class="tab-pane active mt-3" id="1">
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+          <tr>
+            <td width="10%">
+              Date
+            </td>
+            <td width="10%">
+              Module
+            </td>
+            <td width="10%">
+              Sub-module
+            </td>
+            <td width="10%">
+              Assigned To
+            </td>
+            <td width="10%">
+              Expd. Date Of Completion
+            </td>
+            <td width="10%">
+              Date Of Completion
+            </td>
+            <td width="10%">
+              Subject
+            </td>
+            <td width="10%">
+              Status
+            </td>
+            <td width="10%">
+              Communication
+            </td>
+            <td width="10%">
+              Cost
+            </td>
+            <td></td>
+          </tr>
+          @foreach ($tasks as $key => $module_tasks)
+              @foreach($module_tasks as $mmodule_task)
+                @foreach($mmodule_task as $module_task)
+                  <tr>
+                    <td>
+                      {{ $module_task->created_at->format('Y-m-d') }}
+                    </td>
+                    <td>
+                      <select class="form-control change-module" data-id="{{$module_task->id}}" name="module_select_{{$module_task->id}}" id="module_task_{{$module_task->id}}">
+                        @foreach($modules as $module)
+                          <option {{ $module->id==$key ? 'selected' : '' }} value="{{ $module->id }}">{{ $module->name }}</option>
+                        @endforeach
+                      </select>
+                    </td>
+                    <td class="expand-row">
+                      <div class="td-mini-container">
+                        {{ strlen($module_task->task) > 20 ? substr($module_task->task, 0, 10).'...' : $module_task->task }}
+                      </div>
+                      <div class="td-full-container hidden">
+                        {{ $module_task->task }}
+                      </div>
+                    </td>
+                    <td>
+{{--                        <select class="form-control" name="assigned_to" style="width: 150px;">--}}
+{{--                          @foreach ($users as $id => $name)--}}
+{{--                            <option value="{{ $id }}" {{ $id == $module_task->user_id ? 'selected' : '' }}>{{ $name }}</option>--}}
+{{--                          @endforeach--}}
+{{--                        </select>--}}
+                      {{ $module_task->user->name }}
+                    </td>
+                    <td style="color: #FF0000;">
+                      @if($module_task->estimate_time)
+                        {{ \Carbon\Carbon::createFromTimeString($module_task->estimate_time)->format('m-d H:i') }}
+                      @else
+                        -
+{{--                        <input data-id="{{$module_task->id}}" class="change-value" data-type="estimate_date" type="date" name="set_estimate_time">--}}
+                      @endif
+                    </td>
+                    <td>
+                      @if($module_task->end_time)
+                        {{ \Carbon\Carbon::createFromTimeString($module_task->end_time)->format('m-d H:i') }}
+                      @else
+                        -
+{{--                        <input data-id="{{ $module_task->id }}" class="change-value" data-type="end_date" type="date" name="set_end_time">--}}
+                      @endif
+                    </td>
+                    <td>
+                      {{ $module_task->subject ?? '-' }}
+                    </td>
+                    <td>
+                      <div class="form-group">
+                        <select class="form-control update-task-status" name="status" data-id="{{ $module_task->id }}">
+                          <option value="Discussing" {{ $module_task->status == 'Discussing' ? 'selected' : '' }}>Discussing</option>
+                          <option value="Planned" {{ $module_task->status == 'Planned' ? 'selected' : '' }}>Planned</option>
+                          <option value="In Progress" {{ $module_task->status == 'In Progress' ? 'selected' : '' }}>In Progress</option>
+                          <option value="Done" {{ $module_task->status == 'Done' ? 'selected' : '' }}>Done</option>
+                        </select>
+
+                        <span class="text-success change_status_message" style="display: none;">Successfully changed task status</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="message-list expand-row">
+                        <div class="td-mini-container">
+                          {{ $module_task->messages()->first() ? $module_task->messages()->first()->message.'...' : ''}}
+                        </div>
+                        <div class="td-full-container hidden">
+                          @foreach($module_task->messages()->get() as $message)
+                            <li>-{{ $message->message }}</li>
+                          @endforeach
+                        </div>
+                      </div>
+                      <input style="width: 200px;" type="text" class="form-control send-message" name="message" data-id="{{$module_task->id}}" placeholder="Enter to send..">
+                    </td>
+                    <td>
+                      @if($module_task->cost)
+                        {{ $module_task->cost }}
+                      @else
+                        -
+{{--                        <input data-id="{{ $key }}" class="change-value" data-type="cost" type="text" name="cost" placeholder="Estd. Cost" style="width: 75px;">--}}
+                      @endif
+                    </td>
+                    <td>
+                      <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $module_task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button>
+                    </td>
+                  </tr>
+                @endforeach
+              @endforeach
+          @endforeach
+        </table>
+      </div>
       <div class="table-responsive">
         <table class="table table-bordered">
           <tr>
@@ -772,6 +899,8 @@
 @endsection
 
 @section('scripts')
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
@@ -1325,5 +1454,116 @@
         console.log(response);
       });
     });
+
+    $(document).on('click', '.expand-row', function() {
+      var selection = window.getSelection();
+      if (selection.toString().length === 0) {
+        // if ($(this).data('switch') == 0) {
+        //   $(this).text($(this).data('details'));
+        //   $(this).data('switch', 1);
+        // } else {
+        //   $(this).text($(this).data('subject'));
+        //   $(this).data('switch', 0);
+        // }
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+      }
+    });
+
+    $(document).on('change', '.change-module', function() {
+      let id = $(this).attr('data-id');
+      let self = this;
+      let value = $(this).val();
+
+      $.ajax({
+        url: "{{action('DevelopmentController@updateValues')}}",
+        data: {
+          id: id,
+          type: 'module',
+          value:value
+        },
+        success: function() {
+          toastr['success']('Module updated successfully!');
+        },
+        error: function() {
+          toastr['error']('Could not change module!');
+        }
+      });
+
+    });
+
+    $(document).on('change', '.change-value', function() {
+      let id = $(this).attr('data-id');
+      let type = $(this).attr('data-type');
+      let value = $(this).val();
+
+      if (type=='' || value  == '' || id == '') {
+        return;
+      }
+
+      let self = this;
+
+      $.ajax({
+        url: "{{action('DevelopmentController@updateValues')}}",
+        data: {
+          id: id,
+          type: type,
+          value: value
+        },
+        type: 'GET',
+        success: function() {
+          $(self).removeAttr('disabled');
+          $(self).css('transition', 'background 0.5s  linear 0s')
+          $(self).css('background', '#badab8');
+          setTimeout($(self).css('background', '#ffffff'), 0.4);
+        },
+        beforeSend: function() {
+          $(self).attr('disabled', true);
+        },
+        error: function() {
+          $(self).removeAttr('disabled');
+        }
+      });
+
+    });
+
+    $(document).on('keyup', '.send-message', function(event) {
+      let self = this;
+      let developer_task_id = $(this).attr('data-id');
+      let message = $(this).val();
+
+      if (event.which != 13) {
+        return;
+      }
+
+      $.ajax({
+        url: "{{action('WhatsAppController@sendMessage', 'developer_task')}}",
+        type: 'POST',
+        data: {
+          _token: "{{csrf_token()}}",
+          message: message,
+          developer_task_id: developer_task_id,
+          status: 2
+        },
+        success: function() {
+          $(self).removeAttr('disabled');
+          $(self).val('');
+          toastr['success']('Message sent successfully!', 'Message');
+        },
+        error: function() {
+          $(self).removeAttr('disabled');
+        },
+        beforeSend: function() {
+          $(self).attr('disabled', true);
+        }
+      });
+    });
+
+    $(document).ready(function() {
+      $('.select2').select2({
+        tags: true
+      });
+    });
+
   </script>
 @endsection

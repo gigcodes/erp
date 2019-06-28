@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\UserActions;
+use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
 use App\Instruction;
 use App\Setting;

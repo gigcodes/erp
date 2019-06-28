@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">
-                Cropped Images ({{$products->total()}})
+                Cropped Images ({{$products->total()}}) <a href="{{ action('ProductController@showSOP') }}?type=Crop" class="pull-right">SOP</a>
             </h2>
         </div>
         <div class="col-md-12">

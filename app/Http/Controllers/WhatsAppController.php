@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\DeveloperTask;
+use App\Issue;
 use Illuminate\Support\Facades\URL;
 use Twilio\Jwt\ClientToken;
 use Twilio\Twiml;
@@ -1545,6 +1547,37 @@ class WhatsAppController extends FindByNumberController
       } elseif ($context == 'dubbizle') {
         $data['dubbizle_id'] = $request->dubbizle_id;
         $module_id = $request->dubbizle_id;
+      } elseif ($context == 'issue') {
+          $params['issue_id'] = $request->get('issue_id');
+          $issue = Issue::find($request->get('issue_id'));
+          $params['erp_user'] = $issue->user_id;
+          $params['approved'] = 1;
+          $params['message'] = '#'.$issue->id.' '.$request->get('message');
+          $params['status'] = 2;
+
+          $number = User::find($issue->user_id)->phone;
+
+          $this->sendWithThirdApi($number, null, $params['message']);
+
+          $chat_message = ChatMessage::create($params);
+
+          return response()->json(['message' => $chat_message]);
+
+      } else if ($context == 'developer_task') {
+          $params['developer_task_id'] = $request->get('developer_task_id');
+          $task = DeveloperTask::find($request->get('developer_task_id'));
+          $params['erp_user'] = $task->user_id;
+          $params['approved'] = 1;
+          $params['message'] = '#' . $task->id . ' ' . $request->get('message');
+          $params['status'] = 2;
+
+          $number = User::find($task->user_id)->phone;
+
+          $this->sendWithThirdApi($number, null, $params['message']);
+
+          $chat_message = ChatMessage::create($params);
+
+          return response()->json(['message' => $chat_message]);
       }
 
       if ($context != 'task') {
@@ -1630,7 +1663,7 @@ class WhatsAppController extends FindByNumberController
         File::delete('uploads/temp_screenshot.png');
       }
 
-      if ((Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || $context == 'task') && $chat_message->status != 0) {
+      if ((Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task') && $chat_message->status != 0) {
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);

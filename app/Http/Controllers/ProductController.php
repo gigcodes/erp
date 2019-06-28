@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 
 use App\Category;
+use App\ListingHistory;
 use App\Order;
 use App\OrderProduct;
 use App\Product;
@@ -12,6 +13,7 @@ use App\ScrapedProducts;
 use App\Sale;
 use App\Setting;
 use App\Sizes;
+use App\Sop;
 use App\Stage;
 use App\Brand;
 use App\User;
@@ -19,9 +21,11 @@ use App\Supplier;
 use App\Stock;
 use App\Colors;
 use App\ReadOnly\LocationList;
+use App\UserProductFeedback;
 use Cache;
 use Auth;
 use Chumper\Zipper\Zipper;
+use FacebookAds\Object\ProductFeed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
@@ -73,6 +77,323 @@ class ProductController extends Controller {
 		return view('products.index', compact( 'products', 'term', 'archived'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 	}
+
+	public function approvedListing(Request $request) {
+        $colors = (new Colors)->all();
+        $categories = Category::all();
+        $category_tree = [];
+        $categories_array = [];
+        $brands = Brand::getAll();
+        // $suppliers = Supplier::whereHas('products')->get();
+        // dd($suppliers);
+
+        $suppliers = DB::select('
+				SELECT id, supplier
+				FROM suppliers
+
+				INNER JOIN (
+					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+					) as product_suppliers
+				ON suppliers.id = product_suppliers.supplier_id
+		');
+
+        // dd($suppliers);
+
+        foreach (Category::all() as $category) {
+            if ($category->parent_id != 0) {
+                $parent = $category->parent;
+                if ($parent->parent_id != 0) {
+                    $category_tree[$parent->parent_id][$parent->id][$category->id];
+                } else {
+                    $category_tree[$parent->id][$category->id] = $category->id;
+                }
+            }
+
+            $categories_array[$category->id] = $category->parent_id;
+        }
+
+        // $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
+        // 																			 ->renderAsDropdown();
+
+        $term = $request->input('term');
+        $brand = '';
+        $category = '';
+        $color = '';
+        $supplier = [];
+        $type = '';
+        $assigned_to_users = '';
+
+        $brandWhereClause = '';
+        $colorWhereClause = '';
+        $categoryWhereClause = '';
+        $supplierWhereClause = '';
+        $typeWhereClause = '';
+        $termWhereClause = '';
+        $croppedWhereClause = '';
+        $stockWhereClause = ' AND stock >= 1';
+
+        $userWhereClause = '';
+
+        // if (Auth::user()->hasRole('Products Lister')) {
+        // 	$products = Auth::user()->products();
+        // } else {
+        // 	$products = (new Product)->newQuery();
+        // }
+
+
+
+        if ($request->brand[0] != null) {
+            // $products = $products->whereIn('brand', $request->brand);
+            $brands_list = implode(',', $request->brand);
+
+            $brand = $request->brand[0];
+            $brandWhereClause = " AND brand IN ($brands_list)";
+        }
+
+        if ($request->color[0] != null) {
+            // $products = $products->whereIn('color', $request->color);
+            $colors_list = implode(',', $request->color);
+
+            $color = $request->color[0];
+            $colorWhereClause = " AND color IN ($colors_list)";
+        }
+        //
+        if ($request->category[0] != null && $request->category[0] != 1) {
+            $category_children = [];
+
+            foreach ($request->category as $category) {
+                $is_parent = Category::isParent($category);
+
+                if ($is_parent) {
+                    $childs = Category::find($category)->childs()->get();
+
+                    foreach ($childs as $child) {
+                        $is_parent = Category::isParent($child->id);
+
+                        if ($is_parent) {
+                            $children = Category::find($child->id)->childs()->get();
+
+                            foreach ($children as $chili) {
+                                array_push($category_children, $chili->id);
+                            }
+                        } else {
+                            array_push($category_children, $child->id);
+                        }
+                    }
+                } else {
+                    array_push($category_children, $category);
+                }
+            }
+
+            // $products = $products->whereIn('category', $category_children);
+            $category_list = implode(',', $category_children);
+
+            $category = $request->category[0];
+            $categoryWhereClause = " AND category IN ($category_list)";
+        }
+        //
+        if ($request->supplier[0] != null) {
+            $suppliers_list = implode(',', $request->supplier);
+
+            // $products = $products->with('Suppliers')
+            // ->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+
+            $supplier = $request->supplier;
+            $supplierWhereClause = " AND products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))";
+        }
+        //
+        if ($request->type != '') {
+            if ($request->type == 'Not Listed') {
+                // $products = $products->newQuery()->where('isFinal', 0)->where('isUploaded', 0);
+                $typeWhereClause = ' AND isFinal = 0 AND isUploaded = 0';
+            } else if ($request->type == 'Listed') {
+                // $products = $products->where('isUploaded', 1);
+                $typeWhereClause = ' AND isUploaded = 1';
+            } else if ($request->type == 'Approved') {
+                // $products = $products->where('is_approved', 1)->whereNull('last_imagecropper');
+                $typeWhereClause = ' AND is_approved = 1 AND last_imagecropper IS NULL';
+            } else if ($request->type == 'Image Cropped') {
+                // $products = $products->where('is_approved', 1)->whereNotNull('last_imagecropper');
+                $typeWhereClause = ' AND is_approved = 1 AND last_imagecropper IS NOT NULL';
+            }
+
+            $type = $request->type;
+        }
+        //
+        if (trim($term) != '') {
+            // $products = $products
+            // ->orWhere( 'sku', 'LIKE', "%$term%" )
+            // ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+            // ;
+
+            $termWhereClause = ' AND (sku LIKE "%' . $term . '%" OR id LIKE "%' . $term . '%")';
+
+            // if ($term == - 1) {
+            // 	$products = $products->orWhere( 'isApproved', - 1 );
+            // }
+
+            // if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+            // 	$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+            // 	$products = $products->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+            // }
+            //
+            // if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+            // 	$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+            // 	$products = $products->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
+            // }
+            //
+            // if (!empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+            // 	$products = $products->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+            // }
+        }
+        //  else {
+        // 	if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
+        // 		$products = $products;
+        // 	}
+        // }
+
+
+
+        // $products = $products->where('is_scraped', 1)->where('stock', '>=', 1);
+        $cropped = $request->cropped == "on" ? "on" : '';
+        if ($request->get('cropped') == 'on') {
+            // $products = $products->where('is_image_processed', 1);
+            $croppedWhereClause = ' AND is_crop_approved = 1';
+        }
+
+        if ($request->users == 'on') {
+            $users_products = User::role('Products Lister')->pluck('id');
+            // dd($users_products);
+            $users = [];
+            foreach ($users_products as $user) {
+                $users[] = $user;
+            }
+            $users_list = implode(',', $users);
+
+            $userWhereClause = " AND products.id IN (SELECT product_id FROM user_products WHERE user_id IN ($users_list))";
+            $stockWhereClause = '';
+            $assigned_to_users = 'on';
+        }
+
+        $left_for_users = '';
+        if ($request->left_products == 'on') {
+            // $users_products = User::role('Products Lister')->pluck('id');
+            //
+            // $users_list = implode(',', $users_products);
+
+            $userWhereClause = " AND products.id NOT IN (SELECT product_id FROM user_products)";
+            $stockWhereClause = " AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 AND is_image_processed = 1 AND isUploaded = 0 AND isFinal = 0";
+            $left_for_users = 'on';
+        }
+
+        // if (Auth::user()->hasRole('Products Lister')) {
+        // 	// dd('as');
+        // 	$products_count = Auth::user()->products;
+        // 	$products = Auth::user()->products()->get()->toArray();
+
+        // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        // $perPage = Setting::get('pagination');
+        // $currentItems = array_slice($products, $perPage * ($currentPage - 1), $perPage);
+        //
+        // $products = new LengthAwarePaginator($currentItems, count($products), $perPage, $currentPage, [
+        //   'path'  => LengthAwarePaginator::resolveCurrentPath()
+        // ]);
+
+        // dd($products);
+        // } else {
+        // $products_count = $products->take(5000)->get();
+        // $products = $products->take(5000)->orderBy('is_image_processed', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
+
+
+        if (Auth::user()->hasRole('Products Lister')) {
+
+
+            $new_products = DB::select('
+											SELECT *, user_products.user_id as product_user_id,
+											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
+											FROM products
+
+											LEFT JOIN (
+												SELECT user_id, product_id FROM user_products
+												) as user_products
+											ON products.id = user_products.product_id
+
+											LEFT JOIN (
+												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
+												) AS remarks
+											ON products.id = remarks.taskid
+
+											WHERE is_approved = 1 AND is_listing_rejected = 0 AND  is_scraped = 1 AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
+											ORDER BY is_image_processed DESC, remark_created_at DESC, created_at DESC
+				');
+        } else {
+            $new_products = DB::select('
+											SELECT *, user_products.user_id as product_user_id,
+											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
+											FROM products
+
+											LEFT JOIN (
+												SELECT user_id, product_id FROM user_products
+												) as user_products
+											ON products.id = user_products.product_id
+
+											LEFT JOIN (
+												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
+												) AS remarks
+											ON products.id = remarks.taskid
+
+											WHERE is_approved = 1 AND is_listing_rejected = 0 AND is_scraped = 1 AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
+											ORDER BY is_image_processed DESC, remark_created_at DESC, updated_at DESC
+				');
+        }
+
+        // dd($new_products);
+        $products_count = count($new_products);
+        //
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = Setting::get('pagination');
+        $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
+
+        $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
+            'path'  => LengthAwarePaginator::resolveCurrentPath()
+        ]);
+        // }
+        // dd($products);
+
+        $selected_categories = $request->category ? $request->category : [1];
+        // $category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
+        //                                         ->selected($selected_categories)
+        //                                         ->renderAsDropdown();
+
+        $category_array = Category::renderAsArray();
+
+        // dd($category_array);
+
+        return view('products.final_listing', [
+            'products'					=> $new_products,
+            'products_count'		=> $products_count,
+            'colors'						=> $colors,
+            'brands'						=> $brands,
+            'suppliers'					=> $suppliers,
+            'categories'				=> $categories,
+            'category_tree'			=> $category_tree,
+            'categories_array'	=> $categories_array,
+            // 'category_selection'	=> $category_selection,
+            // 'category_search'	=> $category_search,
+            'term'	=> $term,
+            'brand'	=> $brand,
+            'category'	=> $category,
+            'color'	=> $color,
+            'supplier'	=> $supplier,
+            'type'	=> $type,
+            'assigned_to_users'	=> $assigned_to_users,
+            'cropped'	=> $cropped,
+            'left_for_users'	=> $left_for_users,
+            'category_array'	=> $category_array,
+            'selected_categories'	=> $selected_categories,
+        ]);
+    }
 
 	public function listing(Request $request, Stage $stage)
 	{
@@ -301,9 +622,9 @@ class ProductController extends Controller {
 			// $products_count = $products->take(5000)->get();
 			// $products = $products->take(5000)->orderBy('is_image_processed', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
 
+        $messages = UserProductFeedback::where('action', 'LISTING_APPROVAL_REJECTED')->where('user_id', Auth::id())->with('product')->get();
 
 			if (Auth::user()->hasRole('Products Lister')) {
-
 
 				$new_products = DB::select('
 											SELECT *, user_products.user_id as product_user_id,
@@ -320,7 +641,7 @@ class ProductController extends Controller {
 												) AS remarks
 											ON products.id = remarks.taskid
 
-											WHERE is_scraped = 1 AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+											WHERE is_approved = 0 AND is_listing_rejected = 0 AND  is_scraped = 1 AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
 											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
 											ORDER BY is_image_processed DESC, remark_created_at DESC, created_at DESC
 				');
@@ -340,7 +661,7 @@ class ProductController extends Controller {
 												) AS remarks
 											ON products.id = remarks.taskid
 
-											WHERE is_scraped = 1 ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
+											WHERE is_approved = 0 AND is_listing_rejected = 0 AND is_scraped = 1 AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
 											ORDER BY is_image_processed DESC, remark_created_at DESC, updated_at DESC
 				');
 			}
@@ -389,6 +710,7 @@ class ProductController extends Controller {
 			'left_for_users'	=> $left_for_users,
 			'category_array'	=> $category_array,
 			'selected_categories'	=> $selected_categories,
+            'messages' => $messages
 		]);
 	}
 
@@ -469,6 +791,13 @@ class ProductController extends Controller {
 			$product = Product::find($id);
 			$product->category = $category;
 			$product->save();
+
+            $lh = new ListingHistory();
+            $lh->user_id = Auth::user()->id;
+            $lh->product_id = $id;
+            $lh->content = ['Category updated', $category];
+            $lh->save();
+
 		}
 
 		return redirect()->back()->withSuccess('You have successfully bulk updated products!');
@@ -480,6 +809,12 @@ class ProductController extends Controller {
 		$product->name = $request->name;
 		$product->save();
 
+        $lh = new ListingHistory();
+        $lh->user_id = Auth::user()->id;
+        $lh->product_id = $id;
+        $lh->content = ['Name updated', $request->get('name')];
+        $lh->save();
+
 		return response('success');
 	}
 
@@ -489,14 +824,26 @@ class ProductController extends Controller {
 		$product->short_description = $request->description;
 		$product->save();
 
+		$lh = new ListingHistory();
+		$lh->user_id = Auth::user()->id;
+		$lh->product_id = $id;
+		$lh->content = ['Description updated', $request->get('description')];
+		$lh->save();
+
 		return response('success');
 	}
 
-	public function updateCompositfion(Request $request, $id)
+	public function updateComposition(Request $request, $id)
 	{
 		$product = Product::find($id);
 		$product->composition = $request->composition;
 		$product->save();
+
+        $lh = new ListingHistory();
+        $lh->user_id = Auth::user()->id;
+        $lh->product_id = $id;
+        $lh->content = ['Composition updated', $request->get('composition')];
+        $lh->save();
 
 		return response('success');
 	}
@@ -507,6 +854,12 @@ class ProductController extends Controller {
 		$product->color = $request->color;
 		$product->save();
 
+        $lh = new ListingHistory();
+        $lh->user_id = Auth::user()->id;
+        $lh->product_id = $id;
+        $lh->content = ['Color updated', $request->get('color')];
+        $lh->save();
+
 		return response('success');
 	}
 
@@ -515,6 +868,12 @@ class ProductController extends Controller {
 		$product = Product::find($id);
 		$product->category = $request->category;
 		$product->save();
+
+        $lh = new ListingHistory();
+        $lh->user_id = Auth::user()->id;
+        $lh->product_id = $id;
+        $lh->content = ['Category updated', $request->get('category')];
+        $lh->save();
 
 		return response('success');
 	}
@@ -527,6 +886,12 @@ class ProductController extends Controller {
 		$product->hmeasurement = $request->hmeasurement;
 		$product->dmeasurement = $request->dmeasurement;
 		$product->save();
+
+        $lh = new ListingHistory();
+        $lh->user_id = Auth::user()->id;
+        $lh->product_id = $id;
+        $lh->content = ['Sizes updated', $request->get('lmeasurement') . ' X ' . $request->get('hmeasurement') . ' X ' . $request->get('dmeasurement')];
+        $lh->save();
 
 		return response('success');
 	}
@@ -542,6 +907,11 @@ class ProductController extends Controller {
 		}
 
 		$product->save();
+
+		$l = new ListingHistory();
+		$l->user_id = Auth::user()->id;
+		$l->product_id = $id;
+		$l->content = ['Price updated', $product->price];
 
 		return response()->json([
 			'price_inr'	=> $product->price_inr,
@@ -655,7 +1025,15 @@ class ProductController extends Controller {
 		$product = Product::find($id);
 
 		$product->is_approved = 1;
+		$product->approved_by = Auth::user()->id;
 		$product->save();
+
+		$l = new ListingHistory();
+		$l->user_id = Auth::user()->id;
+		$l->product_id = $product->id;
+		$l->action = 'LISTING_APPROVAL';
+		$l->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
+		$l->save();
 
 		ActivityConroller::create($product->id, 'productlister', 'create');
 
@@ -737,7 +1115,6 @@ class ProductController extends Controller {
 	}
 
 	public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request) {
-
 		$roletype = $request->input( 'roletype' ) ?? 'Sale';
 		$products = Product::where(function($query) {
 			$query->where('stock', '>=', 1)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
@@ -759,18 +1136,19 @@ class ProductController extends Controller {
 
 			$brand = $request->brand;
 		} else {
-			if (Cache::has('filter-brand-' . Auth::id())) {
-				$products = $products->where('brand', Cache::get('filter-brand-' . Auth::id()));
-
-				$brand = Cache::get('filter-brand-' . Auth::id());
-			}
+//			if (Cache::has('filter-brand-' . Auth::id())) {
+//				$products = $products->where('brand', Cache::get('filter-brand-' . Auth::id()));
+//
+//				$brand = Cache::get('filter-brand-' . Auth::id());
+//			}
 		}
 
 		$filtered_category = json_decode($request->category, true);
 
+
 		if ($filtered_category[0] == null) {
 			if (Cache::has('filter-category-' . Auth::id())) {
-				$filtered_category[0] = Cache::get('filter-category-' . Auth::id());
+//				$filtered_category[0] = Cache::get('filter-category-' . Auth::id());
 			}
 		}
 
@@ -801,9 +1179,10 @@ class ProductController extends Controller {
 			$products = $products->whereIn('category', $category_children);
 		}
 
+
 		if (Cache::has('filter-color-' . Auth::id())) {
-			$color = Cache::get('filter-color-' . Auth::id());
-			$products = $products->where('color', $color);
+//			$color = Cache::get('filter-color-' . Auth::id());
+//			$products = $products->where('color', $color);
 		}
 
 		if (Cache::has('filter-supplier-' . Auth::id())) {
@@ -816,10 +1195,10 @@ class ProductController extends Controller {
 		if ($request->page) {
 			Cache::put('filter-page-' . Auth::id(), $request->page, 120);
 		} else {
-			if (Cache::has('filter-page-' . Auth::id())) {
-				$page = Cache::get('filter-page-' . Auth::id());
-				$request->request->add(['page' => $page]);
-			}
+//			if (Cache::has('filter-page-' . Auth::id())) {
+//				$page = Cache::get('filter-page-' . Auth::id());
+//				$request->request->add(['page' => $page]);
+//			}
 		}
 
 		$products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status']);
@@ -827,18 +1206,18 @@ class ProductController extends Controller {
 
 		$products = $products->paginate(Setting::get('pagination'));
 
-		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
+        if ($request->ajax()) {
+            $html = view('partials.image-load', ['products' => $products, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
+
+            return response()->json(['html' => $html]);
+        }
+
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple-cat', 'multiple' => 'multiple'])
 		                                        ->selected($filtered_category)
 		                                        ->renderAsDropdown();
 
 		$locations = (new LocationList)->all();
-		$suppliers = Supplier::select(['id', 'supplier'])->whereHas('Products')->get();
-
-		if ($request->ajax()) {
-			$html = view('partials.image-load', ['products' => $products, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
-
-			return response()->json(['html' => $html]);
-		}
+		$suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
 		return view( 'partials.image-grid', compact( 'products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers') );
 	}
@@ -985,6 +1364,10 @@ class ProductController extends Controller {
             ->where('category', '>', 3)
             ->first();
 
+//	    if ($product) {
+//	        return '';
+//        }
+
 
 	    $imgs = $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
 
@@ -1041,5 +1424,202 @@ class ProductController extends Controller {
         return response()->json([
 	        'status' => 'success'
         ]);
+    }
+
+    public function addListingRemarkToProduct(Request $request) {
+	    $productId = $request->get('product_id');
+	    $remark = $request->get('remark');
+
+	    $product = Product::find($productId);
+	    if ($product) {
+	        $product->listing_remark = $remark;
+	        $product->is_listing_rejected = $request->get('rejected');
+	        $product->listing_rejected_by = Auth::user()->id;
+	        $product->is_approved = 0;
+	        $product->listing_rejected_on = date('Y-m-d');
+	        $product->save();
+        }
+
+        if ($request->get('senior') && $product) {
+            $s = new UserProductFeedback();
+            $s->user_id = $product->approved_by;
+            $s->senior_user_id = Auth::user()->id;
+            $s->action = 'LISTING_APPROVAL_REJECTED';
+            $s->content = ['action' => 'LISTING_APPROVAL_REJECTED', 'previous_action' => 'LISTING_APPROVAL', 'current_action' => 'LISTING_REJECTED', 'message' => 'Your listing has been rejected because of : ' . $remark];
+            $s->message = "Your listing approval has been discarded by the Admin because of this issue: $remark. Please make sure you check these details before approving any future product.";
+            $s->product_id = $product->id;
+            $s->save();
+        }
+
+	    if ($request->get('rejected') && $product) {
+            $l = new ListingHistory();
+            $l->action = 'LISTING_REJECTED';
+            $l->content = ['action' => 'LISTING_REJECTED', 'page' => 'LISTING'];
+            $l->user_id = Auth::user()->id;
+            $l->product_id = $product->id;
+            $l->save();
+        }
+
+	    return response()->json([
+	        'status' => 'success'
+        ]);
+    }
+
+    public function showRejectedListedProducts(Request $request) {
+	    $products = Product::where('listing_remark', '!=', '');
+	    $reason = '';
+	    $supplier = [];
+	    $selected_categories = [];
+
+	    if ($request->get('reason') !== '') {
+	        $reason = $request->get('reason');
+	        $products = $products->where('listing_remark' , 'LIKE', "%$reason%");
+        }
+
+	    if ($request->get('type') === 'accepted') {
+	        $products = $products->where('is_listing_rejected', 0);
+        }
+        if ($request->get('type') === 'rejected') {
+            $products = $products->where('is_listing_rejected', 1);
+        }
+
+        $suppliers = DB::select('
+				SELECT id, supplier
+				FROM suppliers
+
+				INNER JOIN (
+					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+					) as product_suppliers
+				ON suppliers.id = product_suppliers.supplier_id
+		');
+
+        if ($request->supplier[0] != null) {
+
+            $supplier = $request->get('supplier');
+            $products = $products->whereIn('id', DB::table('product_suppliers')->whereIn('supplier_id', $supplier)->pluck('product_id'));
+        }
+
+
+
+        if ($request->category[0] != null && $request->category[0] != 1) {
+            $category_children = [];
+            foreach ($request->category as $category) {
+                $is_parent = Category::isParent($category);
+
+
+                if ($is_parent) {
+                    $childs = Category::find($category)->childs()->get();
+
+                    foreach ($childs as $child) {
+                        $is_parent = Category::isParent($child->id);
+
+                        if ($is_parent) {
+                            $children = Category::find($child->id)->childs()->get();
+
+                            foreach ($children as $chili) {
+                                array_push($category_children, $chili->id);
+                            }
+                        } else {
+                            array_push($category_children, $child->id);
+                        }
+                    }
+                } else {
+                    array_push($category_children, $category);
+                }
+
+            }
+            $products = $products->whereIn('category', $category_children);
+            $selected_categories = [$request->get('category')[0]];
+        }
+
+        $category_array = Category::renderAsArray();
+
+        $products = $products->orderBy('updated_at', 'DESC')->orderBy('listing_rejected_on', 'DESC')->paginate(25);
+
+	    return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier'));
+    }
+
+    public function updateProductListingStats(Request $request) {
+
+	    $product = Product::find($request->get('product_id'));
+	    if ($product) {
+	        $product->is_corrected = $request->get('is_corrected');
+	        $product->is_script_corrected = $request->get('is_script_corrected');
+	        $product->save();
+        }
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function deleteProduct(Request $request) {
+        $product = Product::find($request->get('product_id'));
+
+        if ($product) {
+            $product->forceDelete();
+        }
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function relistProduct(Request $request) {
+        $product = Product::find($request->get('product_id'));
+
+        if ($product) {
+            $product->is_listing_rejected = $request->get('rejected');
+            $product->save();
+        }
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function productStats(Request $request) {
+	    $products = Product::orderBy('updated_at', 'DESC');
+	    $sku = '';
+
+	    if ($request->get('sku') !== '') {
+	        $sku = $request->get('sku');
+	        $products = $products->where('sku', 'LIKE', "%$sku%");
+        }
+
+	    $products = $products->paginate(50);
+
+	    return view('products.stats', compact('products', 'sku'));
+    }
+
+    public function showSOP(Request $request) {
+	    $sopType = $request->get('type');
+	    $sop = Sop::where('name', $sopType)->first();
+
+	    if (!$sop) {
+	        $sop = new Sop();
+	        $sop->name = $request->get('type');
+	        $sop->content = '<p>Start Here...</p>';
+	        $sop->save();
+        }
+
+	    return view('products.sop', compact('sop'));
+
+    }
+
+    public function saveSOP(Request $request) {
+        $sopType = $request->get('type');
+        $sop = Sop::where('name', $sopType)->first();
+
+        if (!$sop) {
+            $sop = new Sop();
+            $sop->name = $request->get('type');
+            $sop->save();
+        }
+
+        $sop->content = $request->get('content');
+        $sop->save();
+
+        return redirect()->back()->with('message', 'Updated successfully!');
     }
 }

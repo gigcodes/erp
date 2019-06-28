@@ -57,6 +57,7 @@ class CustomerController extends Controller
     {
       $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
+
       // dd(';s');
       // $customers = Customer::with('whatsapps')->get();
       // $messages = DB::table('chat_messages')->selectRaw('id, message, customer_id GROUP BY customer_id')->get();
@@ -1608,6 +1609,7 @@ class CustomerController extends Controller
         $products = Product::whereIn('brand', $request->brand);
       }
 
+
       if ($request->category[0] != null && $request->category[0] != 1) {
         if ($request->brand[0] != null) {
           $products = $products->whereIn('category', $request->category);
@@ -1620,8 +1622,7 @@ class CustomerController extends Controller
         $products = (new Product)->newQuery();
       }
 
-      $products = $products->whereHas('scraped_products')->where('category', '!=', 1)->latest()->take(20)->get();
-
+      $products = $products->where('is_scraped', 1)->where('is_without_image', '0')->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take(20)->get();
       if (count($products) > 0) {
         $params = [
           'number'      => NULL,

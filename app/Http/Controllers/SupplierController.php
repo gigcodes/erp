@@ -25,7 +25,7 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-      // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
+        // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
       $solo_numbers = (new SoloNumbers)->all();
       $term = $request->term ?? '';
       $type = $request->type ?? '';

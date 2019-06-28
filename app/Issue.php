@@ -12,6 +12,26 @@ class Issue extends Model
   use SoftDeletes;
 
   protected $fillable = [
-    'user_id', 'issue', 'priority'
+    'user_id', 'issue', 'priority', 'module'
   ];
+
+  public function responsibleUser() {
+      return $this->belongsTo(User::class, 'responsible_user_id', 'id');
+  }
+
+  public function assignedUser() {
+      return $this->belongsTo(User::class, 'user_id', 'id');
+  }
+
+  public function submitter() {
+      return $this->belongsTo(User::class, 'submitted_by', 'id');
+  }
+
+  public function communications() {
+      return $this->hasMany(ChatMessage::class, 'issue_id', 'id');
+  }
+
+  public function devModule() {
+      return $this->belongsTo(DeveloperModule::class, 'module', 'id');
+  }
 }

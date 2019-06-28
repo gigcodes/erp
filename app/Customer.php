@@ -23,6 +23,10 @@ class Customer extends Model
     return $this->hasMany('App\Order');
   }
 
+  public function latestOrder() {
+      return $this->hasMany('App\Order')->orderBy('created_at', 'DESC')->first();
+  }
+
   public function suggestion()
   {
     return $this->hasOne('App\Suggestion');

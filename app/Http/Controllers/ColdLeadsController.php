@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\Brand;
 use App\ColdLeads;
+use App\Customer;
 use App\InstagramDirectMessages;
 use App\InstagramThread;
 use App\Product;
@@ -283,22 +284,69 @@ class ColdLeadsController extends Controller
 
     }
 
-    public function deleteColdLead($leadId) {
+    public function deleteColdLead(Request $request) {
+        $leadId = $request->get('lead_id');
         $dl = ColdLeads::findOrFail($leadId);
-        try {
-            $dl->threads->conversation()->delete();
-        } catch (\Exception $exception) {
-        }
-        try {
-            $dl->threads()->delete();
-        } catch (\Exception $exception) {
-        }
+//        try {
+//            $dl->threads->conversation()->delete();
+//        } catch (\Exception $exception) {
+//        }
+//        try {
+//            $dl->threads()->deleadslete();
+//        } catch (\Exception $exception) {
+//        }
 
-        $dl->delete();
+        $dl->forceDelete();
 
         return response()->json([
             'status' => 'success'
         ]);
+    }
+
+    public function showImportedColdLeads(Request $request) {
+        $leads = ColdLeads::where('is_imported', 1);
+
+        if ($request->get('address') !== '') {
+            $leads = $leads->where(function($query) use($request) {
+                $query->where('address', 'LIKE', $request->get('address'))
+                    ->orWhere('name', 'LIKE', $request->get('address'))
+                    ->orWhere('username', 'LIKE', $request->get('address'))
+                    ->orWhere('platform_id', 'LIKE', $request->get('address'));
+            });
+        }
+
+        $query = $request->get('address');
+
+        $leads = $leads->paginate(200);
+
+        return view('leads.imported_index', compact('leads', 'query'));
+    }
+
+    public function addLeadToCustomer(Request $request) {
+        $this->validate($request, [
+            'cold_lead_id' => 'required'
+        ]);
+
+        $lead = ColdLeads::find($request->get('cold_lead_id'));
+
+        if ($lead) {
+            $customer = new Customer();
+            $customer->name = $lead->name;
+            $customer->phone = $lead->platform_id;
+            $customer->whatsapp_number = $lead->platform_id;
+            $customer->city = $lead->address;
+            $customer->country = 'IN';
+            $customer->save();
+
+            $lead->customer_id = $customer->id;
+            $lead->save();
+        }
+
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+
     }
 
 }

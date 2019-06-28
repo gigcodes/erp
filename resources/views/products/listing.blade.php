@@ -14,11 +14,30 @@
   </style>
 @endsection
 
-@section('content')
+@section('large_content')
   <div class="row">
     <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Product Listing ({{ $products_count }})</h2>
-
+      <h2 class="page-heading">Product Listing ({{ $products_count }}) <a href="{{ action('ProductController@showSOP') }}?type=Listing" class="pull-right">SOP</a></h2>
+      <div class="m-5">
+        <table class="table table-striped table-bordered">
+          <tr>
+            <th>Product</th>
+            <th>Message</th>
+          </tr>
+          @foreach($messages as $message)
+            <tr>
+              <td>
+                <a href="{{ action('ProductController@show', $message->product_id) }}">
+                  {{ $message->product_id }}
+                </a>
+              </td>
+              <td>
+                {{ $message->message }}
+              </td>
+            </tr>
+          @endforeach
+        </table>
+      </div>
       <div class="pull-left">
         <form class="form-inline" action="{{ route('products.listing') }}" method="GET">
           <div class="form-group mr-3 mb-3">
@@ -62,7 +81,7 @@
           </div>
 
           <div class="form-group mr-3">
-            <select class="form-control select-multiple" name="brand[]" multiple>
+            <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brand..">
               <optgroup label="Brands">
                 @foreach ($brands as $key => $name)
                   <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
@@ -72,7 +91,7 @@
           </div>
 
           <div class="form-group mr-3">
-            <select class="form-control select-multiple" name="color[]" multiple>
+            <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Color..">
               <optgroup label="Colors">
                 @foreach ($colors as $key => $col)
                   <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
@@ -82,7 +101,7 @@
           </div>
 
           <div class="form-group mr-3">
-            <select class="form-control select-multiple" name="supplier[]" multiple>
+            <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier..">
               <optgroup label="Suppliers">
                 @foreach ($suppliers as $key => $item)
                   <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
@@ -117,7 +136,7 @@
 
       <div class="pull-right">
         {{-- <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#createTaskModal">Add Task</button> --}}
-        @if (Auth::user()->hasRole('Products Lister') && Auth::user()->is_active == 1)
+        @if (Auth::user()->hasRole('Products Lister') && Auth::user()->is_active == 1 && count($products) == 0)
           <div class="form-group">
             <form action="{{ route('user.assign.products', Auth::id()) }}" method="POST">
               @csrf
@@ -135,289 +154,310 @@
 
   @include('partials.flash_messages')
 
-  <div class="infinite-scroll mt-5">
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped">
-        <tr>
-          <th width="10%">Thumbnail</th>
-          <th width="10%">Name</th>
-          <th width="5%">Crop Count</th>
-          <th width="20%">Description</th>
-          <th width="10%">Category</th>
-          <th width="10%">Sizes</th>
-          <th width="10%">Composition</th>
-          <th width="10%">Color</th>
-          <th width="5%">Price</th>
-          {{-- <th width="5%">Cropper</th> --}}
-          <th width="5%">Action</th>
-          <th width="5%">Remarks</th>
-        </tr>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="infinite-scroll mt-5">
+        <table class="table table-bordered table-striped" style="max-width: 100% !important;">
+          <tr>
+            <th width="10%" style="max-width: 100px;">Thumbnail</th>
+            <th width="10%">Name</th>
+            <th width="10%">Description</th>
+            <th width="10%">Category</th>
+            <th width="2%">Sizes</th>
+            <th width="5%">Composition</th>
+            <th width="10%">Color</th>
+            <th width="5%">Price</th>
+            {{-- <th width="5%">Cropper</th> --}}
+            <th width="10%">Action</th>
+            <th width="20%">Remarks</th>
+          </tr>
 
-        @foreach ($products as $key => $product)
-          <tr id="product_{{ $product->id }}">
-            @if (!Auth::user()->hasRole('ImageCropers'))
-              <td>
-                @if ($product->is_approved == 1)
-                  <img src="/images/1.png" alt="">
-                @endif
+          @foreach ($products as $key => $product)
+            <tr id="product_{{ $product->id }}">
+              @if (!Auth::user()->hasRole('ImageCropers'))
+                <td style="word-break: break-all; word-wrap: break-word">
+                  @if ($product->is_approved == 1)
+                    <img src="/images/1.png" alt="">
+                  @endif
 
-                @php $special_product = \App\Product::find($product->id) @endphp
-                @if ($special_product->hasMedia(config('constants.media_tags')))
-                  <a href="{{ route('products.show', $product->id) }}" target="_blank">
-                    <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
-                  </a>
-                @else
-                  <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
-                @endif
+                  @php $special_product = \App\Product::find($product->id) @endphp
+                  @if ($special_product->hasMedia(config('constants.media_tags')))
+                    <a href="{{ route('products.show', $product->id) }}" target="_blank">
+                      <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 70px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                    </a>
+                  @else
+                    <img src="" class="quick-image-container img-responive" style="width: 70px;" alt="">
+                  @endif
 
-                {{ (new \App\Stage)->getNameById($product->stage) }}
-                <br>
-                SKU: {{ $product->sku }}
-              </td>
-              <td class="table-hover-cell" data-id="{{ $product->id }}">
-                <span class="quick-name">{{ $product->name }}</span>
-                {{-- <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}"> --}}
-                <textarea name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" rows="8" cols="80">{{ $product->name }}</textarea>
+                  {{--                {{ (new \App\Stage)->getNameById($product->stage) }}--}}
+                  <br>
+                  SKU: {{ $product->sku }}
+                </td>
+                <td class="table-hover-cell" data-id="{{ $product->id }}">
+                  <span class="quick-name">{{ $product->name }}</span>
+                  {{-- <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}"> --}}
+                  <textarea name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" rows="8" cols="80">{{ $product->name }}</textarea>
 
-                <button type="button" class="btn-link quick-edit-name" data-id="{{ $product->id }}">Edit</button>
-              </td>
+                  <button type="button" class="btn-link quick-edit-name" data-id="{{ $product->id }}">Edit</button>
+                </td>
 
-              <td>
-                {{ $product->crop_count }}
-              </td>
+                {{--              <td>--}}
+                {{--                {{ $product->crop_count }}--}}
+                {{--              </td>--}}
 
-              <td class="read-more-button table-hover-cell">
-                <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                <td class="read-more-button table-hover-cell">
+                  <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
 
-                <span class="long-description-container hidden">
+                  <span class="long-description-container hidden">
                   <span class="description-container">{{ $product->short_description }}</span>
 
                   <textarea name="description" class="form-control quick-description-edit-textarea hidden" rows="8" cols="80">{{ $product->short_description }}</textarea>
                 </span>
 
-                <button type="button" class="btn-link quick-edit-description" data-id="{{ $product->id }}">Edit</button>
-              </td>
+                  <button type="button" class="btn-link quick-edit-description" data-id="{{ $product->id }}">Edit</button>
+                </td>
 
-              <td class="table-hover-cell">
-                {{-- {!! $category_selection !!} --}}
-                <select class="form-control quick-edit-category" name="category" data-id="">
-                  @foreach ($category_array as $data)
-                    <option value="{{ $data['id'] }}">{{ $data['title'] }}</option>
-                    @if ($data['title'] == 'Men')
-                      @php
-                        $color = "#D6EAF8";
-                      @endphp
-                    @elseif ($data['title'] == 'Women')
-                      @php
-                        $color = "#FADBD8";
-                      @endphp
-                    @else
-                      @php
-                        $color = "";
-                      @endphp
-                    @endif
+                <td class="table-hover-cell">
+                  {{-- {!! $category_selection !!} --}}
+{{--                  {{ $product->pr->title }}--}}
+                  <select class="form-control quick-edit-category" name="category" data-id="">
+                    @foreach ($category_array as $data)
+                      <option value="{{ $data['id'] }}">{{ $data['title'] }}</option>
+                      @if ($data['title'] == 'Men')
+                        @php
+                          $color = "#D6EAF8";
+                        @endphp
+                      @elseif ($data['title'] == 'Women')
+                        @php
+                          $color = "#FADBD8";
+                        @endphp
+                      @else
+                        @php
+                          $color = "";
+                        @endphp
+                      @endif
 
-                    @foreach ($data['child'] as $children)
-                      <option style="background-color: {{ $color }};" value="{{ $children['id'] }}">&nbsp;&nbsp;{{ $children['title'] }}</option>
+                      @foreach ($data['child'] as $children)
+                        <option style="background-color: {{ $color }};" value="{{ $children['id'] }}">&nbsp;&nbsp;{{ $children['title'] }}</option>
 
-                      @foreach ($children['child'] as $child)
-                        <option style="background-color: {{ $color }};" value="{{ $child['id'] }}">&nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
+                        @foreach ($children['child'] as $child)
+                          <option style="background-color: {{ $color }};" value="{{ $child['id'] }}">&nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
+                        @endforeach
                       @endforeach
                     @endforeach
-                  @endforeach
-                </select>
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                <input type="hidden" name="category_id" value="{{ $product->category }}">
-                <input type="hidden" name="sizes" value='{{ $product->size }}'>
-              </td>
+                  </select>
+                  <input type="hidden" name="product_id" value="{{ $product->id }}">
+                  <input type="hidden" name="category_id" value="{{ $product->category }}">
+                  <input type="hidden" name="sizes" value='{{ $product->size }}'>
+                </td>
 
-              <td class="table-hover-cell">
-                <select class="form-control quick-edit-size select-multiple" name="size[]" multiple>
-                  <option value="">Select Size</option>
-                </select>
+                <td class="table-hover-cell">
+                  <select class="form-control quick-edit-size select-multiple" name="size[]" multiple data-placement="Sizes" style="width: 80px;">
+                    <option value="">Size</option>
+                  </select>
 
-                {{-- <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}"> --}}
-                <span class="lmeasurement-container">
+                  {{-- <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}"> --}}
+                  <span class="lmeasurement-container">
                   <strong>L:</strong>
                   <input type="number" name="lmeasurement" class="form-control mt-1" placeholder="12" min="0" max="999" value="{{ $product->lmeasurement }}">
                 </span>
 
-                <span class="hmeasurement-container">
+                  <span class="hmeasurement-container">
                   <strong>H:</strong>
                   <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="14" min="0" max="999" value="{{ $product->hmeasurement }}">
                 </span>
 
-                <span class="dmeasurement-container">
+                  <span class="dmeasurement-container">
                   <strong>D:</strong>
                   <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="16" min="0" max="999" value="{{ $product->dmeasurement }}">
                 </span>
 
-                <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product->id }}">Save</button>
-              </td>
-              <td class="table-hover-cell" data-id="{{ $product->id }}">
-                <span class="quick-composition">{{ $product->composition }}</span>
-                {{-- <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}"> --}}
-                <textarea name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" rows="8" cols="80">{{ $product->composition }}</textarea>
+                  <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product->id }}">Save</button>
+                </td>
+                <td class="table-hover-cell" data-id="{{ $product->id }}">
+                  <span class="quick-composition">{{ $product->composition }}</span>
+                  {{-- <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}"> --}}
+                  <textarea name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" rows="8" cols="80">{{ $product->composition }}</textarea>
 
-                <button type="button" class="btn-link quick-edit-composition" data-id="{{ $product->id }}">Edit</button>
-              </td>
+                  <button type="button" class="btn-link quick-edit-composition" data-id="{{ $product->id }}">Edit</button>
+                </td>
 
-              <td class="table-hover-cell">
-                <select class="form-control quick-edit-color" name="color" data-id="{{ $product->id }}">
-                  <option value="">Select a Color</option>
+                <td class="table-hover-cell">
+                  <select class="form-control quick-edit-color" name="color" data-id="{{ $product->id }}">
+                    <option value="">Select a Color</option>
 
-                  @foreach ($colors as $color)
-                    <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
-                  @endforeach
-                </select>
-              </td>
+                    @foreach ($colors as $color)
+                      <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
+                    @endforeach
+                  </select>
+                </td>
 
-              <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
-                <span class="quick-price">{{ $product->price }}</span>
-                <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
+                <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
+                  <span class="quick-price">{{ $product->price }}</span>
+                  <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
 
-                <span class="quick-price-inr">{{ $product->price_inr }}</span>
-                <span class="quick-price-special">{{ $product->price_special }}</span>
-              </td>
+                  <span class="quick-price-inr">{{ $product->price_inr }}</span>
+                  <span class="quick-price-special">{{ $product->price_special }}</span>
+                </td>
 
-              {{-- <td>
-                @if ($special_product->hasMedia(config('constants.media_tags')))
-                  <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
-                @endif
-
-                <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
-
-                <div class="form-inline">
-                  <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
-
-                  @if ($product->last_imagecropper != '')
-                    <img src="/images/1.png" class="ml-1" alt="">
+                {{-- <td>
+                  @if ($special_product->hasMedia(config('constants.media_tags')))
+                    <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
                   @endif
-                </div>
-              </td> --}}
 
-              <td>
-                {{ $product->isUploaded }} {{ $product->isFinal }}
+                  <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
 
-                @if ($product->is_approved == 0)
-                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
-                @else
-                  <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
-                @endif
+                  <div class="form-inline">
+                    <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
 
-                @if ($product->product_user_id != null)
-                  {{ \App\User::find($product->product_user_id)->name }}
-                @endif
+                    @if ($product->last_imagecropper != '')
+                      <img src="/images/1.png" class="ml-1" alt="">
+                    @endif
+                  </div>
+                </td> --}}
 
-                {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
+                <td>
+                  @if ($product->is_approved == 0)
+                    <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
+                  @endif
 
-                {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
-              </td>
-              <td>
-                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $product->id }}"><img src="/images/remark.png" /></button>
-              </td>
-            @else
-              <td>
-                @if ($product->is_approved == 1)
-                  <img src="/images/1.png" alt="">
-                @endif
+                  @if ($product->product_user_id != null)
+                    {{ \App\User::find($product->product_user_id)->name }}
+                  @endif
 
-                @php $special_product = \App\Product::find($product->id) @endphp
-                @if ($special_product->hasMedia(config('constants.media_tags')))
-                  <a href="{{ route('products.show', $product['id']) }}" target="_blank">
-                    <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product['id'] }}">
-                  </a>
-                @else
-                  <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
-                @endif
+                  {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
 
-                {{ (new \App\Stage)->getNameById($product->stage) }}
-                <br>
-                SKU: {{ $product->sku }}
-              </td>
-              <td>
-                <span>{{ $product->name }}</span>
-              </td>
+                  {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
+                </td>
+                <td style="min-width: 80px;">
+                  <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}"> Reject<br>
+                  <select class="form-control post-remark" id="post_remark_{{$product->id}}" data-id="{{$product->id}}">
+                    <option value="0">Select Remark</option>
+                    <option value="Category Incorrect">Category Incorrect</option>
+                    <option value="Price Not Incorrect">Price Not Correct</option>
+                    <option value="Price Not Found">Price Not Found</option>
+                    <option value="Color Not Found">Color Not Found</option>
+                    <option value="Category Not Found">Category Not Found</option>
+                    <option value="Description Not Found">Description Not Found</option>
+                    <option value="Details Not Found">Details Not Found</option>
+                    <option value="Composition Not Found">Composition Not Found</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <textarea name="remark-input-{{$product->id}}" id="remark-input-{{$product->id}}" class="form-control remark-input-post" data-id="{{$product->id}}" style="display: none;"></textarea>
+                  {{--                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $product->id }}"><img src="/images/remark.png" /></button>--}}
+                </td>
+              @else
+                <td>
+                  @if ($product->is_approved == 1)
+                    <img src="/images/1.png" alt="">
+                  @endif
 
-              <td class="read-more-button">
-                <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                  @php $special_product = \App\Product::find($product->id) @endphp
+                  @if ($special_product->hasMedia(config('constants.media_tags')))
+                    <a href="{{ route('products.show', $product['id']) }}" target="_blank">
+                      <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product['id'] }}">
+                    </a>
+                  @else
+                    <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
+                  @endif
 
-                <span class="long-description-container hidden">
+                  {{ (new \App\Stage)->getNameById($product->stage) }}
+                  <br>
+                  SKU: {{ $product->sku }}
+                </td>
+                <td>
+                  <span>{{ $product->name }}</span>
+                </td>
+
+                <td class="read-more-button">
+                  <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+
+                  <span class="long-description-container hidden">
                   <span class="description-container">{{ $product->short_description }}</span>
                 </span>
-              </td>
+                </td>
 
-              <td>
-                {{-- {{ $product->product_category->title }} --}}
-              </td>
+                <td>
+                  {{-- {{ $product->product_category->title }} --}}
+                </td>
 
-              <td>
-                @if ($product->price != '')
-                  {{ $product->size }}
-                @else
-                  L-{{ $product->lmeasurement }}, H-{{ $product->hmeasurement }}, D-{{ $product->dmeasurement }}
-                @endif
-              </td>
+                <td>
+                  @if ($product->price != '')
+                    {{ $product->size }}
+                  @else
+                    L-{{ $product->lmeasurement }}, H-{{ $product->hmeasurement }}, D-{{ $product->dmeasurement }}
+                  @endif
+                </td>
 
-              <td>
-                <span class="quick-composition">{{ $product->composition }}</span>
-              </td>
+                <td>
+                  <span class="quick-composition">{{ $product->composition }}</span>
+                </td>
 
-              <td>
-                {{ $product->color }}
-              </td>
+                <td>
+                  {{ $product->color }}
+                </td>
 
-              <td>
-                <span>{{ $product->price }}</span>
+                <td>
+                  <span>{{ $product->price }}</span>
 
-                <span>{{ $product->price_inr }}</span>
-                <span>{{ $product->price_special }}</span>
-              </td>
+                  <span>{{ $product->price_inr }}</span>
+                  <span>{{ $product->price_special }}</span>
+                </td>
 
-              {{-- <td>
-                @if ($special_product->hasMedia(config('constants.media_tags')))
-                  <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
-                @endif
+                {{-- <td>
+                  @if ($special_product->hasMedia(config('constants.media_tags')))
+                    <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
+                  @endif
 
-                <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
+                  <input type="file" class="dropify quick-images-upload-input" name="images[]" value="" data-height="100" multiple>
 
-                <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
-              </td> --}}
+                  <button type="button" class="btn btn-xs btn-secondary mt-1 quick-images-upload" data-id="{{ $product->id }}">Upload</button>
+                </td> --}}
 
-              <td>
-                {{ $product->isUploaded }} {{ $product->isFinal }}
+                <td>
+                  {{ $product->isUploaded }} {{ $product->isFinal }}
 
-                @if ($product->is_approved == 0)
-                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
-                @else
-                  <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
-                @endif
+                  @if ($product->is_approved == 0)
+                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
+                  @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
+                  @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
+                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                  @else
+                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                  @endif
 
-                @if ($product->product_user_id != null)
-                  {{ \App\User::find($product->product_user_id)->name }}
-                @endif
-              </td>
+                  @if ($product->product_user_id != null)
+                    {{ \App\User::find($product->product_user_id)->name }}
+                  @endif
+                </td>
 
-              <td>
-                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $product->id }}"><img src="/images/remark.png" /></button>
-              </td>
-            @endif
-          </tr>
-        @endforeach
-      </table>
+                <td>
+                  <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}">Reject
+                  <select class="form-control post-remark" id="post_remark_{{$product->id}}" data-id="{{$product->id}}">
+                    <option value="0">Select Remark</option>
+                    <option value="Category Incorrect">Category Incorrect</option>
+                    <option value="Price Not Incorrect">Price Not Correct</option>
+                    <option value="Price Not Found">Price Not Found</option>
+                    <option value="Color Not Found">Color Not Found</option>
+                    <option value="Category Not Found">Category Not Found</option>
+                    <option value="Description Not Found">Description Not Found</option>
+                    <option value="Details Not Found">Details Not Found</option>
+                    <option value="Composition Not Found">Composition Not Found</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <textarea name="remark-input-{{$product->id}}" id="remark-input-{{$product->id}}" class="form-control remark-input-post" data-id="{{$product->id}}" style="display: none;"></textarea>
+                </td>
+              @endif
+            </tr>
+          @endforeach
+        </table>
+
+        {!! $products->appends(Request::except('page'))->links() !!}
+      </div>
+
     </div>
-
-    {!! $products->appends(Request::except('page'))->links() !!}
   </div>
-
   @include('partials.modals.remarks')
 
 @endsection
@@ -427,7 +467,85 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
+    $(document).on('keyup', '.remark-input-post', function(event) {
+      let pid = $(this).data('id');
+      let self = this;
+      let remark = $(this).val();
+
+      if (event.which != 13) {
+        return;
+      }
+
+      if (remark == '') {
+        return;
+      }
+
+      let rejected = $("#reject_"+pid).is(':checked') ? 1 : 0;
+
+      $.ajax({
+        url: '{{action('ProductController@addListingRemarkToProduct')}}',
+        data: {
+          product_id: pid,
+          remark: remark,
+          rejected: rejected
+        },
+        success: function(response) {
+          if (rejected == 1) {
+            $('#product_'+pid).hide('fast');
+          }
+          $(self).removeAttr('disabled');
+          $(self).val();
+        },
+        beforeSend: function() {
+          $(self).attr('disabled');
+        }, error: function() {
+          $(self).removeAttr('disabled');
+        }
+      });
+
+    });
+
+    $(document).on('change', '.post-remark', function(event) {
+      let pid = $(this).data('id');
+      let remark = $(this).val();
+
+      if (remark == 0 || remark == '0') {
+        return;
+      }
+
+      let self = this;
+
+      if (remark == 'Other') {
+        $('#remark-input-'+pid).show();
+        return;
+      }
+
+      let rejected = $("#reject_"+pid).is(':checked') ? 1 : 0;
+
+      $.ajax({
+        url: '{{action('ProductController@addListingRemarkToProduct')}}',
+        data: {
+          product_id: pid,
+          remark: remark,
+          rejected: rejected
+        },
+        success: function(response) {
+          if (rejected == 1) {
+            $('#product_'+pid).hide('fast');
+          }
+          $(self).removeAttr('disabled');
+          $(self).val();
+        },
+        beforeSend: function() {
+          $(self).attr('disabled');
+        }, error: function() {
+          $(self).removeAttr('disabled');
+        }
+      });
+
+    });
     $(document).ready(function() {
+
       $('ul.pagination').hide();
       $(function() {
           $('.infinite-scroll').jscroll({
@@ -452,7 +570,9 @@
                     updateSizes(this, category_id);
 
                     for (var i = 0; i < selected_sizes.length; i++) {
-                      $(this).closest('tr').find('.quick-edit-size option[value="' + selected_sizes[i] + '"]').attr('selected', 'selected');
+                      console.log(selected_sizes[i]);
+                      // $(this).closest('tr').find('.quick-edit-size option[value="' + selected_sizes[i] + '"]').attr('selected', 'selected');
+                      $(this).closest('tr').find(".quick-edit-size option[value='" + selected_sizes[i] + "']").attr('selected', 'selected');
                     }
                   });
               }
@@ -460,7 +580,8 @@
       });
 
       $('.dropify').dropify();
-      $(".select-multiple").multiselect();
+      // $(".select-multiple").multiselect();
+      $(".select-multiple").select2();
       $("body").tooltip({selector: '[data-toggle=tooltip]'});
     });
 
@@ -500,7 +621,7 @@
       updateSizes(this, category_id);
 
       for (var i = 0; i < selected_sizes.length; i++) {
-        $(this).closest('tr').find('.quick-edit-size option[value="' + selected_sizes[i] + '"]').attr('selected', 'selected');
+        $(this).closest('tr').find(".quick-edit-size option[value='" + selected_sizes[i] + "']").attr('selected', 'selected');
       }
     });
 
@@ -985,6 +1106,7 @@
     });
 
     $('#addRemarkButton').on('click', function() {
+      alert('adding remark...');
       var id = $('#add-remark input[name="id"]').val();
       var remark = $('#add-remark').find('textarea[name="remark"]').val();
 

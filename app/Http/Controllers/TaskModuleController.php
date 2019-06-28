@@ -337,10 +337,10 @@ class TaskModuleController extends Controller {
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_details'	=> 'required',
-			'assign_to'			=> 'required_without:assign_to_contacts'
+			'assign_to' => 'required_without:assign_to_contacts'
 		]);
 
-		$data                = $request->except( '_token' );
+		$data = $request->except( '_token' );
 		$data['assign_from'] = Auth::id();
 
 		if ($request->task_type == 'quick_task') {
@@ -352,8 +352,6 @@ class TaskModuleController extends Controller {
 
 		if ($request->task_type == 'note-task') {
 			$main_task = Task::find($request->task_id);
-
-
 		} else {
 			if ($request->assign_to) {
 				$data['assign_to'] = $request->assign_to[0];
@@ -403,7 +401,7 @@ class TaskModuleController extends Controller {
 			 'status'       => 2,
 			 'task_id'			=> $task->id,
 			 'message'      => $message
-		 ];
+		    ];
 
 		 if (count($task->users) > 0) {
 			 if ($task->assign_from == Auth::id()) {

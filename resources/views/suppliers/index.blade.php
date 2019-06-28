@@ -89,25 +89,41 @@
                   @endif
                 </span>
               </td>
-              <td>{{ $supplier->address }}</td>
+              <td class="expand-row">
+                  <div class="td-mini-container">
+                      {{ strlen($supplier->address) > 10 ? substr($supplier->address, 0, 10).'...' : $supplier->address }}
+                  </div>
+                  <div class="td-full-container hidden">
+                      {{ $supplier->address }}
+                  </div>
+              </td>
                 <td>{{ $supplier->source }}</td>
-                <td>
+                <td class="expand-row">
                     @if(strlen($supplier->brands) > 4)
                         @php
                             $dns = $supplier->brands;
                             $dns = str_replace('"[', '', $dns);
                             $dns = str_replace(']"', '', $dns);
-                            $dns = explode(',', $dns);
                         @endphp
 
-                        @foreach($dns as $dn)
-                            <li>{{ $dn }}</li>
-                        @endforeach
+                        <div class="td-mini-container">
+                            {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+                        </div>
+                        <div class="td-full-container hidden">
+                            {{ $dns }}
+                        </div>
                     @else
                         N/A
                     @endif
                 </td>
-              <td style="word-break: break-all;">{{ $supplier->social_handle }}</td>
+              <td class="expand-row" style="word-break: break-all;">
+                  <div class="td-mini-container">
+                      {{ strlen($supplier->social_handle) > 10 ? substr($supplier->social_handle, 0, 10).'...' : $supplier->social_handle }}
+                  </div>
+                  <div class="td-full-container hidden">
+                      {{ $supplier->social_handle }}
+                  </div>
+              </td>
               {{-- <td>
                 @if ($supplier->agents)
                   <ul>
@@ -134,11 +150,19 @@
               {{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
                 {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
               </td> --}}
-              <td class="{{ $supplier->last_type == "email" && $supplier->email_seen == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
+              <td class="expand-row {{ $supplier->last_type == "email" && $supplier->email_seen == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
+                  @if($supplier->phone)
+                      <input type="text" name="message" id="message_{{$supplier->id}}" placeholder="whatsapp message..." class="form-control send-message" data-id="{{$supplier->id}}">
+                  @endif
                 @if ($supplier->last_type == "email")
                   Email
                 @elseif ($supplier->last_type == "message")
-                  {{ $supplier->message }}
+                      <div class="td-mini-container">
+                          {{ strlen($supplier->message) > 10 ? substr($supplier->message, 0, 10).'...' : $supplier->message }}
+                      </div>
+                      <div class="td-full-container hidden">
+                          {{ $supplier->message }}
+                      </div>
 
                   @if ($supplier->message != '')
                     <br>
@@ -338,6 +362,58 @@
 
         alert('Could not fetch remarks');
       });
+    });
+
+    $(document).on('click', '.expand-row', function() {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            // if ($(this).data('switch') == 0) {
+            //   $(this).text($(this).data('details'));
+            //   $(this).data('switch', 1);
+            // } else {
+            //   $(this).text($(this).data('subject'));
+            //   $(this).data('switch', 0);
+            // }
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+
+    $(document).on('keyup', '.send-message', function(event) {
+        if (event.keyCode != 13) {
+            return;
+        }
+
+        let supplierId = $(this).attr('data-id');
+        let message = $(this).val();
+        let self = this;
+
+        if (message == '') {
+            return;
+        }
+
+        $.ajax({
+            url: "{{action('WhatsAppController@sendMessage', 'supplier')}}",
+            type: 'post',
+            data: {
+                message: message,
+                supplier_id: supplierId,
+                _token: "{{csrf_token()}}",
+                status: 2
+            },
+            success: function() {
+                $(self).removeAttr('disabled');
+                $(self).val('');
+                toastr['success']("Message sent successfully!", "Success");
+            },
+            beforeSend: function() {
+                $(self).attr('disabled', true);
+            },
+            error: function() {
+                $(self).removeAttr('disabled');
+            }
+        });
+
     });
   </script>
 @endsection

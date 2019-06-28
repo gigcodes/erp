@@ -531,6 +531,12 @@
                                       <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Listings</a>
                                     @endcan
 
+                                    @can('admin')
+                                        <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
+                                        <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statics</a>
+                                        <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}">Approved Listing</a>
+                                    @endcan
+
 
 
                                     <li class="nav-item dropdown dropdown-submenu">
@@ -638,6 +644,10 @@
                                   </div>
                                 @endcan
 
+                                @can('admin')
+                                        <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}">Approved Listing</a>
+                                    @endcan
+
                             </li>
 
                             @can('inventory-list')
@@ -740,11 +750,10 @@
                                     {{-- <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper
 
                                         Grid</a> --}}
-                                        @can('crop-approval')
-                                      <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
-                                      @endcan
-
+                                      @can('crop-approval')
+                                        <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
                                         Grid</a>
+                                      @endcan
                                     {{-- <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
 
                                         Grid</a> --}}
@@ -754,8 +763,39 @@
                               </li>
 
 
-
                           @endcan
+
+                            @can('crop-sequence')
+                                <li class="nav-item dropdown">
+
+                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                        Image Cropper Grid<span class="caret"></span>
+
+                                    </a>
+
+
+
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                        {{-- <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper
+
+                                            Grid</a> --}}
+                                        @can('crop-sequence')
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@showCropVerifiedForOrdering') }}">Crop Sequencer</a>
+                                        @endcan
+                                            {{-- <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
+
+                                                Grid</a> --}}
+
+                                    </div>
+
+                                </li>
+
+
+                            @endcan
 
 
 
@@ -947,6 +987,7 @@
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="coldLeadsMenu">
 
                                             <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}?via=hashtags">Via Hashtags</a>
+                                            <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold Leads</a>
 
                                         </ul>
 
@@ -1617,83 +1658,86 @@
     </nav>
 
     @if (Auth::check())
-      <div class="float-container developer-float">
-        @php
-          $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
-          $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
-          $rishab_pending_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', '!=', 'Done')->count();
-          $rishab_completed_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', 'Done')->count();
-        @endphp
 
-        <a href="{{ route('development.index') }}">
-          <span class="badge badge-task-pending">L-{{ $lukas_pending_devtasks_count }}</span>
-        </a>
+        @can('admin')
+            <div class="float-container developer-float">
+                @php
+                    $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
+                    $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
+                    $rishab_pending_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', '!=', 'Done')->count();
+                    $rishab_completed_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', 'Done')->count();
+                @endphp
 
-        <a href="{{ route('development.index') }}">
-          <span class="badge badge-task-completed">L-{{ $lukas_completed_devtasks_count }}</span>
-        </a>
+                <a href="{{ route('development.index') }}">
+                    <span class="badge badge-task-pending">L-{{ $lukas_pending_devtasks_count }}</span>
+                </a>
 
-        <a href="{{ route('development.index') }}">
-          <span class="badge badge-task-other">R-{{ $rishab_pending_devtasks_count }}</span>
-        </a>
+                <a href="{{ route('development.index') }}">
+                    <span class="badge badge-task-completed">L-{{ $lukas_completed_devtasks_count }}</span>
+                </a>
 
-        <a href="{{ route('development.index') }}">
-          <span class="badge badge-task-other right completed">R-{{ $rishab_completed_devtasks_count }}</span>
-        </a>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
-      </div>
+                <a href="{{ route('development.index') }}">
+                    <span class="badge badge-task-other">R-{{ $rishab_pending_devtasks_count }}</span>
+                </a>
 
-      <div class="float-container instruction-float">
-        @php
-          $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
-          $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
-          $sushil_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 7)->whereNull('completed_at')->count();
-          $andy_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 56)->whereNull('completed_at')->count();
-        @endphp
+                <a href="{{ route('development.index') }}">
+                    <span class="badge badge-task-other right completed">R-{{ $rishab_completed_devtasks_count }}</span>
+                </a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
+            </div>
 
-        <a href="{{ route('instruction.index') }}">
-          <span class="badge badge-task-pending">{{ $pending_instructions_count }}</span>
-        </a>
+            <div class="float-container instruction-float">
+                @php
+                    $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
+                    $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
+                    $sushil_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 7)->whereNull('completed_at')->count();
+                    $andy_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 56)->whereNull('completed_at')->count();
+                @endphp
 
-        <a href="{{ route('instruction.index') }}#verify-instructions">
-          <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
-        </a>
+                <a href="{{ route('instruction.index') }}">
+                    <span class="badge badge-task-pending">{{ $pending_instructions_count }}</span>
+                </a>
 
-        <a href="{{ route('instruction.list') }}">
-          <span class="badge badge-task-other">S-{{ $sushil_pending_instructions_count }}</span>
-        </a>
+                <a href="{{ route('instruction.index') }}#verify-instructions">
+                    <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
+                </a>
 
-        <a href="{{ route('instruction.list') }}">
-          <span class="badge badge-task-other right">A-{{ $andy_pending_instructions_count }}</span>
-        </a>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
-      </div>
+                <a href="{{ route('instruction.list') }}">
+                    <span class="badge badge-task-other">S-{{ $sushil_pending_instructions_count }}</span>
+                </a>
 
-      <div class="float-container">
-        @php
-          $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
-          $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
-          $sushil_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 7)->whereNull('is_completed')->count();
-          $andy_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 56)->whereNull('is_completed')->count();
-        @endphp
+                <a href="{{ route('instruction.list') }}">
+                    <span class="badge badge-task-other right">A-{{ $andy_pending_instructions_count }}</span>
+                </a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
+            </div>
 
-        <a href="/#1">
-          <span class="badge badge-task-pending">{{ $pending_tasks_count }}</span>
-        </a>
+            <div class="float-container">
+                @php
+                    $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
+                    $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
+                    $sushil_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 7)->whereNull('is_completed')->count();
+                    $andy_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 56)->whereNull('is_completed')->count();
+                @endphp
 
-        <a href="/#3">
-          <span class="badge badge-task-completed">{{ $completed_tasks_count }}</span>
-        </a>
+                <a href="/#1">
+                    <span class="badge badge-task-pending">{{ $pending_tasks_count }}</span>
+                </a>
 
-        <a href="{{ route('task.list') }}">
-          <span class="badge badge-task-other">S-{{ $sushil_pending_tasks_count }}</span>
-        </a>
+                <a href="/#3">
+                    <span class="badge badge-task-completed">{{ $completed_tasks_count }}</span>
+                </a>
 
-        <a href="{{ route('task.list') }}">
-          <span class="badge badge-task-other right">A-{{ $andy_pending_tasks_count }}</span>
-        </a>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
-      </div>
+                <a href="{{ route('task.list') }}">
+                    <span class="badge badge-task-other">S-{{ $sushil_pending_tasks_count }}</span>
+                </a>
+
+                <a href="{{ route('task.list') }}">
+                    <span class="badge badge-task-other right">A-{{ $andy_pending_tasks_count }}</span>
+                </a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
+            </div>
+        @endcan
 
       @include('partials.modals.quick-task')
       @include('partials.modals.quick-instruction')
@@ -1773,23 +1817,23 @@
           collectedData[0].data += y;
       });
 
-      $(document).click(function() {
-          if (collectedData[0].data.length > 10) {
-              let data_ = collectedData[0].data;
-              let type_ = collectedData[0].type;
-
-              $.ajax({
-                  url: "/track",
-                  type: 'post',
-                  csrf: token,
-                  data: {
-                      url: url,
-                      item: type_,
-                      data: data_
-                  }
-              });
-          }
-      });
+      // $(document).click(function() {
+      //     if (collectedData[0].data.length > 10) {
+      //         let data_ = collectedData[0].data;
+      //         let type_ = collectedData[0].type;
+      //
+      //         $.ajax({
+      //             url: "/track",
+      //             type: 'post',
+      //             csrf: token,
+      //             data: {
+      //                 url: url,
+      //                 item: type_,
+      //                 data: data_
+      //             }
+      //         });
+      //     }
+      // });
   </script>
 {{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
 </body>

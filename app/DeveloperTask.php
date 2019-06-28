@@ -28,4 +28,8 @@ class DeveloperTask extends Model
   {
     return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-discussion')->latest();
   }
+
+  public function messages() {
+      return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->take(5);
+  }
 }
