@@ -210,7 +210,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
 
-        $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping(); // every 3 hours
+        $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
 //        $schedule->command('gebnegozionline:get-products-list')
 //            ->hourly()
