@@ -207,7 +207,21 @@ class ProductCropperController extends Controller
             ->whereDoesntHave('amends')
             ->paginate(24);
 
-	    $stats = DB::table('products')->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')->where('is_scraped', 1)->where('is_without_image', 0)->first();
+	    $totalApproved = 0;
+	    $totalRejected = 0;
+	    $totalSequenced = 0;
+
+	    if (Auth::user()->hasRole('Crop Approval')) {
+	        $stats = UserProductFeedback::where('user_id')->whereIn('action', [
+	            'CROP_APPROVAL_REJECTED',
+                'CROP_SEQUENCED_REJECTED'
+            ])->get();
+	        $totalApproved = Product::where('crop_approved_by', Auth::id())->count();
+	        $totalRejected = Product::where('crop_rejected_by', Auth::id())->count();
+	        $totalSequenced = Product::where('crop_rejected_by', Auth::id())->count();
+        } else {
+            $stats = DB::table('products')->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')->where('is_scraped', 1)->where('is_without_image', 0)->first();
+        }
 
 
 //
@@ -219,7 +233,7 @@ class ProductCropperController extends Controller
 
 //        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id);
 
-	    return view('products.crop_list', compact('products', 'stats'));
+	    return view('products.crop_list', compact('products', 'stats', 'totalRejected', 'totalSequenced', 'totalApproved'));
     }
 
     public function showImageToBeVerified($id, Stage $stage) {
@@ -420,7 +434,7 @@ class ProductCropperController extends Controller
         $e = new ListingHistory();
         $e->user_id = Auth::user()->id;
         $e->product_id = $product->id;
-        $e->content = ['action' => 'PRODUCT_LISTING', 'page' => 'Approved Listing Page'];
+        $e->content = ['action' => 'CROP_APPROVAL', 'page' => 'Approved Listing Page'];
         $e->action = 'CROP_APPROVAL';
         $e->save();
 

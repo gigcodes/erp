@@ -182,6 +182,9 @@
                     </p>
                   </div>
                   <div class="col-md-4">
+                    <h2 class="page-heading">
+                      <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                    </h2>
                     <table class="table table-striped table-bordered">
                       <tr>
                         <th>Activity</th>
@@ -194,23 +197,17 @@
                         <td>{{ $special_product->crop_approved_at ?? 'N/A' }}</td>
                         <td>{{ $special_product->cropApprover ? $special_product->cropApprover->name : 'N/A' }}</td>
                         <td>
-                          <div class="dropdown">
-                            <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Reject</button>
-                            <ul class="dropdown-menu">
-                              <li>
-                                <select data-id="{{$product->id}}" class="form-control-sm form-control reject-cropping" name="reject_cropping" id="reject_cropping_{{$product->id}}">
-                                  <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
-                                  <option value="No Images Shown">No Images Shown</option>
-                                  <option value="Grid Not Shown">Grid Not Shown</option>
-                                  <option value="First Image Not Available">First Image Not Available</option>
-                                  <option value="Dimension Not Available">Dimension Not Available</option>
-                                  <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>
-                                  <option value="Incorrect Category">Incorrect Category</option>
-                                  <option value="Only One Image Available">Only One Image Available</option>
-                                </select>
-                              </li>
-                            </ul>
-                          </div>
+                          <select style="width: 90px !important;" data-id="{{$product->id}}" class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" id="reject_cropping_{{$product->id}}">
+                            <option value="0">Select...</option>
+                            <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
+                            <option value="No Images Shown">No Images Shown</option>
+                            <option value="Grid Not Shown">Grid Not Shown</option>
+                            <option value="First Image Not Available">First Image Not Available</option>
+                            <option value="Dimension Not Available">Dimension Not Available</option>
+                            <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>
+                            <option value="Incorrect Category">Incorrect Category</option>
+                            <option value="Only One Image Available">Only One Image Available</option>
+                          </select>
                         </td>
                       </tr>
                       <tr>
@@ -218,7 +215,7 @@
                         <td>{{ $special_product->crop_rejected_at ?? 'N/A' }}</td>
                         <td>{{ $special_product->cropOrderer ? $special_product->cropOrderer->name : 'N/A' }}</td>
                         <td>
-                          <button style="width: 70.2px" data-button-type="sequence" data-id="{{$product->id}}" class="btn btn-danger btn-sm reject-sequence">Reject</button>
+                          <button style="width: 90px" data-button-type="sequence" data-id="{{$product->id}}" class="btn btn-secondary btn-sm reject-sequence">Reject</button>
                         </td>
                       </tr>
                       <tr>
@@ -226,24 +223,17 @@
                         <td>{{ $special_product->listing_approved_at ?? 'N/A' }}</td>
                         <td>{{ $special_product->approver ? $special_product->approver->name : 'N/A' }}</td>
                         <td>
-                          <div class="dropdown">
-                            <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Reject</button>
-                            <ul class="dropdown-menu">
-                              <li>
-                                <select data-id="{{$product->id}}" class="form-control-sm form-control reject-listing" name="reject_listing" id="reject_listing_{{$product->id}}">
-                                  <option value="0">Select Remark</option>
-                                  <option value="Category Incorrect">Category Incorrect</option>
-                                  <option value="Price Not Incorrect">Price Not Correct</option>
-                                  <option value="Price Not Found">Price Not Found</option>
-                                  <option value="Color Not Found">Color Not Found</option>
-                                  <option value="Category Not Found">Category Not Found</option>
-                                  <option value="Description Not Found">Description Not Found</option>
-                                  <option value="Details Not Found">Details Not Found</option>
-                                  <option value="Composition Not Found">Composition Not Found</option>
-                                </select>
-                              </li>
-                            </ul>
-                          </div>
+                          <select style="width: 90px !important;" data-id="{{$product->id}}" class="form-control-sm form-control reject-listing bg-secondary text-light" name="reject_listing" id="reject_listing_{{$product->id}}">
+                            <option value="0">Select Remark</option>
+                            <option value="Category Incorrect">Category Incorrect</option>
+                            <option value="Price Not Incorrect">Price Not Correct</option>
+                            <option value="Price Not Found">Price Not Found</option>
+                            <option value="Color Not Found">Color Not Found</option>
+                            <option value="Category Not Found">Category Not Found</option>
+                            <option value="Description Not Found">Description Not Found</option>
+                            <option value="Details Not Found">Details Not Found</option>
+                            <option value="Composition Not Found">Composition Not Found</option>
+                          </select>
                         </td>
                       </tr>
                     </table>

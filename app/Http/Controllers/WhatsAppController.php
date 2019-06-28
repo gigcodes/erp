@@ -2244,6 +2244,7 @@ class WhatsAppController extends FindByNumberController
             $additional_message = ChatMessage::create($params);
 
             // if ($customer->whatsapp_number == '919152731483') {
+
               $data = $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
             // } else {
             //   $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);

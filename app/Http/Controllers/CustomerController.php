@@ -1622,7 +1622,7 @@ class CustomerController extends Controller
         $products = (new Product)->newQuery();
       }
 
-      $products = $products->where('is_scraped', 1)->where('is_without_image', '0')->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take(20)->get();
+      $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take(20)->get();
       if (count($products) > 0) {
         $params = [
           'number'      => NULL,

@@ -192,6 +192,8 @@
                   {{--                {{ (new \App\Stage)->getNameById($product->stage) }}--}}
                   <br>
                   SKU: {{ $product->sku }}
+                    <br>
+                    <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
                 </td>
                 <td class="table-hover-cell" data-id="{{ $product->id }}">
                   <span class="quick-name">{{ $product->name }}</span>
