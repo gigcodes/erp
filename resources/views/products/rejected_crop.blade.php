@@ -4,10 +4,10 @@
     <div class="row">
         <div class="col-md-12">
             <h4 class="page-heading">
-                Rejected Cropped Image
+                <a href="{{ action('ProductCropperController@showRejectedCrops') }}">Show All</a> &nbsp; Rejected Cropped Image
             </h4>
         </div>
-        <form action="{{action('ProductCropperController@approveRejectedCropped', $product->id)}}" method="post">
+        <form action="{{action('ProductCropperController@approveRejectedCropped', $product->id)}}" method="post" enctype="multipart/form-data">
             @csrf
             <div class="col-md-12 text-center">
                 <button href="{{ action('ProductCropperController@approveRejectedCropped', $product->id) }}" type="button" class="btn btn-default">Approve</button>
@@ -65,12 +65,11 @@
     <link  href="https://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.4/fotorama.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.4/fotorama.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+{{--    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>--}}
 
     @if (Session::has('mesage'))
         <script>
-            Swal.fire(
-                'Success',
+            toastr['success'](
                 '{{Session::get('message')}}',
                 'success'
             )

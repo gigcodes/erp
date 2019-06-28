@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 
-@section('content')
+@section('large_content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
@@ -45,6 +45,136 @@
     {{--<form action="{{ route('productattribute.update',$id) }}" method="POST" enctype="multipart/form-data">--}}
         {{--@csrf--}}
         {{--@method('PUT')--}}
+
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <td colspan="3">ID: <strong>{{ $id }}</strong></td>
+                    <td colspan="2">Name: <strong>{{ $name }}</strong></td>
+                    <td colspan="3">Scraped: <strong>{{ $scraped->created_at ? $scraped->created_at->format('Y-m-d') : 'N/A' }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3"></td>
+                    <td colspan="2"></td>
+                    <td colspan="3"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Size: <strong>{{ $size ?? 'N/A' }}</strong></td>
+                    <td colspan="2" rowspan="4">
+                        <div style="width: 250px;">
+                            <strong>Short Description:</strong> <br>{{ $short_description }}
+                        </div>
+                    </td>
+                    <td colspan="3">Cropped: <strong>{{ 'N/A' }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3"></td>
+                    <td colspan="3"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Made In: <strong>{{ $made_in ?? 'N/A' }}</strong></td>
+                    <td>Crop Approval</td>
+                    <td>Date & Time</td>
+                    <td>User</td>
+                </tr>
+                <tr>
+                    <td colspan="3"></td>
+                    <td>{{ $product->is_crop_approved ? 'Yes' : 'No' }}</td>
+                    <td>{{ $product->crop_approved_at ?? 'N/A' }}</td>
+                    <td>{{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3">Brand: {{ \App\Http\Controllers\BrandController::getBrandName($brand)}}</td>
+                    <td colspan="2">Measurement</td>
+                    <td>Sequence Approval</td>
+                    <td>Date</td>
+                    <td>User</td>
+                </tr>
+                <tr>
+                    <td colspan="5"></td>
+                    <td>{{ $product->is_crop_ordered ? 'Yes' : 'No' }}</td>
+                    <td>{{ $product->crop_ordered_at ?? 'N/A' }}</td>
+                    <td>{{ $product->cropOrderer ? $product->cropOrderer->name : 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3">Color: <strong>{{ $color }}</strong></td>
+                    <td colspan="2">Composition: <strong>{{ $composition }}</strong></td>
+                    <td>Attribute Approval</td>
+                    <td>Date</td>
+                    <td>User</td>
+                </tr>
+                <tr>
+                    <td colspan="5"></td>
+                    <td>{{ $product->is_approved ? 'Yes' : 'No' }}</td>
+                    <td>{{ $product->listing_approved_at ?? 'N/A' }}</td>
+                    <td>{{ $product->approver ? $product->approver->name : 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3">Price (In Euro): <strong>{{$price}}</strong></td>
+                    <td colspan="2">SKU: <strong>{{$sku}}</strong></td>
+                    <td colspan="3"></td>
+                </tr>
+                <tr>
+                    <td colspan="8"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Price (in INR): <strong>{{$price_inr}}</strong></td>
+                    <td colspan="2">Sku+color: {{ $sku.$color }}</td>
+                    <td colspan="3">Activities</td>
+                </tr>
+                <tr>
+                    <td colspan="3"></td>
+                    <td colspan="2"></td>
+                    <td colspan="3" rowspan="6">
+                        <div style="max-height: 400px; overflow: auto">
+                            <table class="table table-striped table-bordered">
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Date</th>
+                                    <th>User</th>
+                                </tr>
+                                @foreach($activities as $activity)
+                                    <tr>
+                                        <td>{{ $activity->action }}</td>
+                                        <td>{{ $activity->created_at->format('Y-m-d') }}</td>
+                                        <td>{{ $activity->user->name }}</td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">Price Special (in INR): <strong>{{ $price_special }}</strong></td>
+                    <td colspan="2">
+                        Category:
+                        <strong>
+                            @for( $i = 0 ; $i < count($categories) - 1 ; $i++)
+                                {{ $categories[$i] }}->
+                            @endfor
+                            {{ $categories[$i] }}
+                        </strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Supplier: <strong>{{ $supplier }} | {{ $suppliers }}</strong></td>
+                    <td colspan="2">Supplier Link: <a target="_new" href="{{ $supplier_link }}"><strong>Open</strong></a></td>
+                </tr>
+                <tr>
+                    <td colspan="5"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Location: {{ $location ?? 'N/A' }}</td>
+                    <td colspan="2">Description Link: <strong><a href="{{ $description_link }}" target="_new">Open</a></strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xs-12 col-md-6">
             <div class="row">

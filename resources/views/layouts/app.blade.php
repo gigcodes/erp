@@ -528,7 +528,7 @@
                                     </li>
 
                                     @can ('product-lister')
-                                      <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Listings</a>
+                                      <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute Edit Page</a>
                                     @endcan
 
                                     @can('admin')
@@ -640,7 +640,7 @@
 
                                 @can ('product-lister')
                                   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('products.listing') }}">Listings</a>
+                                    <a class="dropdown-item" href="{{ route('products.listing') }}">Attribute Edit Page</a>
                                   </div>
                                 @endcan
 

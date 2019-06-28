@@ -20,6 +20,7 @@
                                     <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-secondary approvebtn">Approve</a>
                                     <br><br>
                                     <select name="remark" id="remark">
+                                        <option value="0">Select reason...</option>
                                         <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
                                         <option value="No Images Shown">No Images Shown</option>
                                         <option value="Grid Not Shown">Grid Not Shown</option>

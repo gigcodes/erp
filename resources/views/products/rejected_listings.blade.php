@@ -143,7 +143,7 @@
                             <p><strong>Final Action</strong></p>
                             <div class="form-group">
                                 <a data-id="{{$product->id}}" class="btn btn-danger btn-sm text-light delete-product">Delete</a>&nbsp;
-                                @if($product->is_approved)
+                                @if(!$product->is_approved)
                                     <a data-id="{{$product->id}}" class="btn btn-secondary btn-sm text-light relist-product">Re-list</a>
                                 @endif
                             </div>
@@ -178,7 +178,6 @@
                     console.log(response);
                 }
             });
-
         });
 
         $(document).on('click', '.delete-product', function() {
@@ -205,6 +204,7 @@
                 },
                 success: function(response) {
                     $('.rec_'+pid).hide();
+                    toastr['success']('Product relisted successfully!');
                 }
             });
         });

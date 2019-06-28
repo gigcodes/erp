@@ -142,4 +142,8 @@ class Product extends Model
     public function rejectedCropApprover() {
         return $this->hasOne(User::class, 'reject_approved_by', 'id');
     }
+
+    public function activities() {
+	    return $this->hasMany(ListingHistory::class, 'product_id','id');
+    }
 }

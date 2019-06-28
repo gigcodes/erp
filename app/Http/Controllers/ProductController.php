@@ -625,7 +625,6 @@ class ProductController extends Controller {
         $messages = UserProductFeedback::where('action', 'LISTING_APPROVAL_REJECTED')->where('user_id', Auth::id())->with('product')->get();
 
 			if (Auth::user()->hasRole('Products Lister')) {
-
 				$new_products = DB::select('
 											SELECT *, user_products.user_id as product_user_id,
 											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
@@ -729,6 +728,8 @@ class ProductController extends Controller {
 		$data['id']                = $product->id;
 		$data['name']              = $product->name;
 		$data['short_description'] = $product->short_description;
+		$data['activities'] = $product->activities;
+		$data['scraped'] = $product->scraped_products;
 
 		$data['measurement_size_type'] = $product->measurement_size_type;
 		$data['lmeasurement']          = $product->lmeasurement;
@@ -778,6 +779,8 @@ class ProductController extends Controller {
 		$data['categories'] = $product->category ? CategoryController::getCategoryTree( $product->category ) : '';
 
 		$data['has_reference'] = ScrapedProducts::where('sku', $product->sku)->first() ? true : false;
+
+		$data['product'] = $product;
 
 		return view( 'partials.show', $data );
 	}

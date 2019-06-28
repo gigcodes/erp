@@ -303,7 +303,7 @@ class ProductCropperController extends Controller
             'Sweaters' => 'Clothing.png',
             'Clothings' => 'Clothing.png',
             'Coats & Jackets' => 'Clothing.png',
-            'Tie & Bow Ties' => 'bow.png',
+            'Tie & Bow Ties' => 'Bow.png',
             'Clutches' => 'Clutch.png',
             'Document Holder' => 'Clutch.png',
             'Clutch Bags' => 'Clutch.png',
@@ -429,6 +429,7 @@ class ProductCropperController extends Controller
 	    $product = Product::findOrFail($id);
 	    $product->is_crop_approved = 1;
 	    $product->crop_approved_by = Auth::user()->id;
+	    $product->crop_approved_at = Carbon::now()->toDateTimeString();
 	    $product->save();
 
         $e = new ListingHistory();
@@ -482,10 +483,6 @@ class ProductCropperController extends Controller
 
     private function deleteCroppedImages($product) {
         if ($product->hasMedia(config('constants.media_tags'))) {
-            $tc = count($product->getMedia(config('constants.media_tags')));
-            if ($tc < 6) {
-                return;
-            }
             foreach ($product->getMedia(config('constants.media_tags')) as $key=>$image) {
                 if (stripos(strtoupper($image->filename), 'CROPPED') !== false) {
                     $image_path = $image->getAbsolutePath();
@@ -569,6 +566,8 @@ class ProductCropperController extends Controller
         if ($request->get('reason') !== '') {
             $reason = $request->get('reason');
             $products = $products->where('crop_remark' , 'LIKE', "%$reason%");
+            $products = $products->where('id', 'LIKE', "%$reason%");
+            $products = $products->where('sku', 'LIKE', "%$reason%");
         }
 
         $suppliers = DB::select('
@@ -621,7 +620,7 @@ class ProductCropperController extends Controller
         $category_array = Category::renderAsArray();
 
 
-        $products = $products->paginate(24);
+        $products = $products->orderBy('updated_at', 'DESC')->paginate(24);
 
         return view('products.rejected_crop_list', compact('products', 'suppliers', 'supplier', 'reason', 'selected_categories', 'category_array'));
     }
@@ -657,14 +656,17 @@ class ProductCropperController extends Controller
     }
 
     public function approveRejectedCropped($id, Request $request) {
+	    $this->validate($request, [
+	        'images' => 'required'
+        ]);
 	    $product = Product::find($id);
 
 	    $files = $request->allFiles();
 
 	    $this->deleteCroppedImages($product);
 
-	    foreach ($files as $file) {
-	        $media = MediaUploader::fromSource($file)->setFilename('CROPPED')->upload();
+	    foreach ($files['images'] as $file) {
+	        $media = MediaUploader::fromSource($file)->useFilename('CROPPED_' . time() . '_' . rand(555,455545))->upload();
 	        $product->attachMedia($media, 'gallery');
         }
 
@@ -672,6 +674,13 @@ class ProductCropperController extends Controller
         $product->is_crop_approved = 0;
         $product->reject_approved_by = Auth::user()->id;
         $product->save();
+
+        $l = new ListingHistory();
+        $l->action = 'CROP_REJECTED_APPROVAL';
+        $l->content = ['action' => 'CROP_REJECTED_APPROVAL', 'message' => 'The rejected cropped image is back for re verification!'];
+        $l->user_id = Auth::user()->id;
+        $l->product_id = $product->id;
+        $l->save();
 
         $secondProduct = Product::where('id', '!=', $id)->where('is_crop_rejected', 1)->first();
 
@@ -689,8 +698,13 @@ class ProductCropperController extends Controller
 	    return response()->json($image);
     }
 
+    public function showCropOrderRejectedList() {
+	    $products = Product::where('is_order_rejected', 1)->orderBy('updated_at', 'DESC')->paginate(24);
+
+    }
+
     public function showCropVerifiedForOrdering() {
-	    $product = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->first();
+	    $product = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->orderBy('is_order_rejected', 'DESC')->first();
 	    $total = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->count();
 
 	    return view('products.sequence', compact('product', 'total'));
@@ -700,7 +714,7 @@ class ProductCropperController extends Controller
     public function skipSequence($id, Request $request) {
 	    $product = Product::findOrFail($id);
 	    $product->is_crop_approved = 0;
-	    $product->is_crop_sequenced = 0;
+	    $product->is_crop_ordered = 0;
 	    $product->save();
 
 	    $l = new ListingHistory();
@@ -709,6 +723,10 @@ class ProductCropperController extends Controller
 	    $l->user_id = Auth::user()->id;
 	    $l->content = ['action' => 'SKIP_SEQUENCE', 'page' => 'Sequence Approver'];
 	    $l->save();
+
+
+
+
 
 	    if ($request->isXmlHttpRequest()) {
 	        return response()->json([
@@ -723,7 +741,8 @@ class ProductCropperController extends Controller
     public function rejectSequence($id, Request $request)
     {
         $product = Product::findOrFail($id);
-        $product->is_crop_sequenced = 0;
+        $product->is_crop_ordered = 0;
+        $product->is_approved = 0;
         $product->save();
 
         $l = new ListingHistory();

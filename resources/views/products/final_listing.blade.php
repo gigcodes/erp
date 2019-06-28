@@ -151,7 +151,7 @@
                     <p class="same-color">{{ $special_product->name }}</p>
                     <br>
                     <p class="same-color" style="font-size: 18px;">
-                      Rs. {{ number_format($special_product->price_inr) }}
+                      <span style="text-decoration: line-through">Rs. {{ number_format($special_product->price_inr) }}</span> Rs. {{ number_format($special_product->price_special) }}
                     </p>
                     <br>
                     <p>
@@ -183,7 +183,7 @@
                   </div>
                   <div class="col-md-4">
                     <h2 class="page-heading">
-                      <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                      <a target="_new" href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
                     </h2>
                     <table class="table table-striped table-bordered">
                       <tr>
@@ -580,7 +580,7 @@
       let pid = $(this).data('id');
 
       $.ajax({
-        url: '/skip-sequence/'+pid,
+        url: '/reject-sequence/'+pid,
         data: {
           senior: 1
         },
