@@ -494,9 +494,15 @@
                         <button type="submit" class="btn btn-image quick-shortcut-button" title="Check for the Purchase"><img src="/images/purchase.png" /></button>
                       </form>
 
-                        <div class="d-inline">
-                            <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png" /></button>
-                        </div>
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="instruction" value="Please Show Client Chat">
+                        <input type="hidden" name="category_id" value="13">
+                        <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
+
+                        <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png" /></button>
+                      </form>
 
                         <div class="d-inline">
                             <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
@@ -1075,10 +1081,10 @@
       $(document).on('click', '.quick-shortcut-button', function(e) {
         e.preventDefault();
 
-        var customer_id = $(this).parent().find('input[name="customer_id"]').val();
-        var instruction = $(this).parent().find('input[name="instruction"]').val();
-        var category_id = $(this).parent().find('input[name="category_id"]').val();
-        var assigned_to = $(this).parent().find('input[name="assigned_to"]').val();
+        var customer_id = $(this).closest('form').find('input[name="customer_id"]').val();
+        var instruction = $(this).closest('form').find('input[name="instruction"]').val();
+        var category_id = $(this).closest('form').find('input[name="category_id"]').val();
+        var assigned_to = $(this).closest('form').find('input[name="assigned_to"]').val();
 
         $.ajax({
           type: "POST",
