@@ -47,7 +47,7 @@ use App\Console\Commands\SendVoucherReminder;
 use App\Console\Commands\MovePlannedTasks;
 use App\Console\Commands\ResetDailyPlanner;
 
-// use App\Console\Commands\SaveProductsImages;
+use App\Console\Commands\SaveProductsImages;
 
 use App\Console\Commands\UpdateMagentoProductStatus;
 
@@ -112,7 +112,7 @@ class Kernel extends ConsoleKernel
         MovePlannedTasks::class,
         SendDailyPlannerReport::class,
         ResetDailyPlanner::class,
-        // SaveProductsImages::class,
+        SaveProductsImages::class,
         GrowInstagramAccounts::class
     ];
 
@@ -210,7 +210,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
 
-        // $schedule->command('save:products-images')->hourly()->withoutOverlapping()->timezone('Asia/Kolkata');
+        $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping(); // every 3 hours
 
 //        $schedule->command('gebnegozionline:get-products-list')
 //            ->hourly()
