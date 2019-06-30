@@ -1037,17 +1037,17 @@ class ProductController extends Controller {
 
 		ActivityConroller::create($product->id, 'productlister', 'create');
 
-		if (Auth::user()->hasRole('Products Lister')) {
-			$products_count = Auth::user()->products()->count();
-			$approved_products_count = Auth::user()->approved_products()->count();
-			if (($products_count - $approved_products_count) < 100) {
-				$requestData = new Request();
-				$requestData->setMethod('POST');
-				$requestData->request->add(['amount_assigned' => 100]);
-
-				app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
-			}
-		}
+		// if (Auth::user()->hasRole('Products Lister')) {
+		// 	$products_count = Auth::user()->products()->count();
+		// 	$approved_products_count = Auth::user()->approved_products()->count();
+		// 	if (($products_count - $approved_products_count) < 100) {
+		// 		$requestData = new Request();
+		// 		$requestData->setMethod('POST');
+		// 		$requestData->request->add(['amount_assigned' => 100]);
+		//
+		// 		app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
+		// 	}
+		// }
 
 		return response()->json([
 			'result'	=> true,
