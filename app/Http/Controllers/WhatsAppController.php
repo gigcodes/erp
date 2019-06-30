@@ -39,6 +39,7 @@ use App\NotificationQueue;
 use App\Purchase;
 use App\Customer;
 use App\MessageQueue;
+use App\Jobs\SendImagesWithWhatsapp;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -2359,7 +2360,8 @@ class WhatsAppController extends FindByNumberController
             if ($context == 'task' || $context == 'vendor') {
               $this->sendWithThirdApi($phone, $whatsapp_number, NULL, $send);
             } else {
-              $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
+              // $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
+              SendImagesWithWhatsapp::dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
             }
             // else if ($whatsapp_number == '919152731483') {
             // } else {
@@ -2872,6 +2874,9 @@ class WhatsAppController extends FindByNumberController
         }
       }
     }
+    // if (isset($response)) {
+    //   throw new \Exception($response);
+    // }
 
 
     $array = [
