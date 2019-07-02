@@ -75,4 +75,25 @@ class User extends Authenticatable
 	{
 		return $this->belongsToMany('App\Customer', 'user_customers', 'user_id', 'customer_id');
 	}
+
+	public function cropApproval() {
+	    return $this->hasMany(User::class)->where('action', 'CROP_APPROVAL');
+    }
+
+    public function cropRejection() {
+        return $this->hasMany(ListingHistory::class)->where('action', 'CROP_REJECTED');
+    }
+
+    public function attributeApproval() {
+        return $this->hasMany(ListingHistory::class)->where('action', 'LISTING_APPROVAL');
+    }
+
+    public function attributeRejected() {
+        return $this->hasMany(ListingHistory::class)->where('action', 'LISTING_REJECTED');
+
+    }
+    public function cropSequenced() {
+        return $this->hasMany(ListingHistory::class)->where('action', 'CROP_SEQUENCED');
+
+    }
 }

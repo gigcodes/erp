@@ -98,17 +98,18 @@
                                 </td>
                             </tr>
                             <tr class="rec_{{$product->id}}">
-                                <td colspan="3">
+                                <td colspan="2">
 
                                 </td>
                                 <td colspan="2">
                                     <strong>Remark</strong><br>
                                     {{ $product->crop_remark ?? '-' }}
                                 </td>
-                                <td colspan="2">
+                                <td colspan="3">
                                     <strong>Actions</strong><br>
-                                    <a href="{{ action('ProductCropperController@showRejectedImageToBeverified', $product->id) }}" class="btn btn-sm btn-secondary">Check Cropping</a>
-                                    <a href="{{ action('ProductController@show', $product->id) }}" class="btn btn-default btn-sm">Show Product</a>
+{{--                                    <a target="_new" href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-sm btn-secondary">Show Grid</a>--}}
+                                    <a target="_new" href="{{ action('ProductCropperController@showRejectedImageToBeverified', $product->id) }}" class="btn btn-sm btn-secondary">Check Cropping</a>
+                                    <a target="_new" href="{{ action('ProductController@show', $product->id) }}" class="btn btn-default btn-sm">Show Product</a>
                                     <a data-id="{{$product->id}}" class="btn btn-danger btn-sm text-light delete-product btn-sm">Delete</a>&nbsp;
                                 </td>
                             </tr>

@@ -43,6 +43,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get('reject-sequence/{id}', 'ProductCropperController@rejectSequence');
     Route::post('ammend-crop/{id}', 'ProductCropperController@ammendCrop');
     Route::get('products/auto-cropped', 'ProductCropperController@getListOfImagesToBeVerified');
+    Route::get('products/crop-issue-summary', 'ProductCropperController@cropIssuesPage');
     Route::get('products/rejected-auto-cropped', 'ProductCropperController@showRejectedCrops');
     Route::get('products/auto-cropped/{id}', 'ProductCropperController@showImageToBeVerified');
     Route::get('products/auto-cropped/{id}/show-rejected', 'ProductCropperController@showRejectedImageToBeverified');
@@ -76,6 +77,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');
 	Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
 	Route::resource('products','ProductController');
+	Route::resource('attribute-replacements', 'AttributeReplacementController');
 	Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
 	Route::post('products/{id}/archive','ProductController@archive')->name('products.archive');
 	Route::post('products/{id}/restore','ProductController@restore')->name('products.restore');
@@ -600,11 +602,13 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
  * feature in this ERP
  */
 
-Route::get('cold-leads/delete', 'ColdLeadsController@deleteColdLead');
-Route::resource('cold-leads-broadcasts', 'ColdLeadBroadcastsController');
-Route::resource('cold-leads', 'ColdLeadsController');
+Route::middleware('auth')->group(function() {
+    Route::get('cold-leads/delete', 'ColdLeadsController@deleteColdLead');
+    Route::resource('cold-leads-broadcasts', 'ColdLeadBroadcastsController');
+    Route::resource('cold-leads', 'ColdLeadsController');
+});
 
-Route::prefix('sitejabber')->group(function() {
+Route::prefix('sitejabber')->middleware('auth')->group(function() {
     Route::post('sitejabber/attach-detach', 'SitejabberQAController@attachOrDetachReviews');
     Route::post('review/reply', 'SitejabberQAController@sendSitejabberQAReply');
     Route::get('review/{id}/confirm', 'SitejabberQAController@confirmReviewAsPosted');
@@ -615,13 +619,13 @@ Route::prefix('sitejabber')->group(function() {
     Route::resource('qa', 'SitejabberQAController');
 });
 
-Route::prefix('pinterest')->group(function () {
+Route::prefix('pinterest')->middleware('auth')->group(function () {
     Route::resource('accounts', 'PinterestAccountAcontroller');
 });
 
-Route::resource('pre-accounts', 'PreAccountController');
+Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
 
-Route::prefix('instagram')->group(function () {
+Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('store', 'InstagramController@store');
     Route::get('{id}/edit', 'InstagramController@edit');
     Route::put('update/{id}', 'InstagramController@update');
@@ -680,7 +684,7 @@ Route::prefix('comments')->group(function () {
     Route::post('/facebook', 'SocialController@postComment');
 });
 
-Route::prefix('scrap')->group(function () {
+Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::resource('statistics', 'ScrapStatisticsController');
     Route::get('facebook/inbox', 'FacebookController@getInbox');
     Route::resource('facebook', 'FacebookController');
@@ -693,6 +697,7 @@ Route::prefix('scrap')->group(function () {
     Route::put('/dubbizle/{id}', 'DubbizleController@update');
     Route::get('/dubbizle/{id}', 'DubbizleController@show')->name('dubbizle.show');
     Route::get('/products', 'ScrapController@showProductStat');
+    Route::get('/products/auto-rejected-stat', 'ProductController@showAutoRejectedProducts');
     Route::get('/activity', 'ScrapController@activity')->name('scrap.activity');
     Route::get('/excel', 'ScrapController@excel_import');
     Route::post('/excel', 'ScrapController@excel_store');

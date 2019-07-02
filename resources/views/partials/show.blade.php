@@ -52,7 +52,7 @@
                 <tr>
                     <td colspan="3">ID: <strong>{{ $id }}</strong></td>
                     <td colspan="2">Name: <strong>{{ $name }}</strong></td>
-                    <td colspan="3">Scraped: <strong>{{ $scraped->created_at ? $scraped->created_at->format('Y-m-d') : 'N/A' }}</strong></td>
+                    <td colspan="3">Scraped: <strong>@if($scraped) {{ $scraped->created_at ? $scraped->created_at->format('Y-m-d') : 'N/A' }} @else N/A @endif</strong></td>
                 </tr>
                 <tr>
                     <td colspan="3"></td>
@@ -86,7 +86,12 @@
                 </tr>
                 <tr>
                     <td colspan="3">Brand: {{ \App\Http\Controllers\BrandController::getBrandName($brand)}}</td>
-                    <td colspan="2">Measurement</td>
+                    <td colspan="2">
+                        Measurement <br>
+                        L : {{$lmeasurement ?? 'N/A'}} &nbsp;
+                        H : {{$hmeasurement ?? 'N/A'}} &nbsp;
+                        D : {{$dmeasurement ?? 'N/A'}} &nbsp;
+                    </td>
                     <td>Sequence Approval</td>
                     <td>Date</td>
                     <td>User</td>
@@ -137,8 +142,8 @@
                                 @foreach($activities as $activity)
                                     <tr>
                                         <td>{{ $activity->action }}</td>
-                                        <td>{{ $activity->created_at->format('Y-m-d') }}</td>
-                                        <td>{{ $activity->user->name }}</td>
+                                        <td>{{ $activity->created_at ? $activity->created_at->format('Y-m-d') : 'N/A' }}</td>
+                                        <td>{{ $activity->user ? $activity->user->name : '' }}</td>
                                     </tr>
                                 @endforeach
                             </table>
@@ -176,203 +181,203 @@
     </div>
 
     <div class="row">
-        <div class="col-xs-12 col-md-6">
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong>Details not found:</strong>
-                        <input type="checkbox" disabled class="" name="dnf" value="Details not found"
-                                {{ old('dnf') == 'Details not found' ? 'checked'
-                                                             : ($dnf == 'Details not found' ? 'checked' : '') }}/>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong>ID:</strong>
-                        <p>{{$id}}</p>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong>Name:</strong>
-                        <p>{{$name}}</p>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong>Short Description:</strong>
-                        <p>{{$short_description}}</p>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong>Mesaurement{{--/Size--}}</strong>
-                        <div style="padding: 10px 0;">
-                            <label for="measurement_type"> Measurement :</label>
-                            <input disabled id="measurement_type" type="radio" name="measurement_size_type"
-                                   value="measurement" {{ old('measurement_size_type') == 'measurement' ? 'checked'
-                                                        : ($measurement_size_type == 'measurement' ? 'checked' : '') }} />
+{{--        <div class="col-xs-12 col-md-6">--}}
+{{--            <div class="row">--}}
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong>Details not found:</strong>--}}
+{{--                        <input type="checkbox" disabled class="" name="dnf" value="Details not found"--}}
+{{--                                {{ old('dnf') == 'Details not found' ? 'checked'--}}
+{{--                                                             : ($dnf == 'Details not found' ? 'checked' : '') }}/>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong>ID:</strong>--}}
+{{--                        <p>{{$id}}</p>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong>Name:</strong>--}}
+{{--                        <p>{{$name}}</p>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong>Short Description:</strong>--}}
+{{--                        <p>{{$short_description}}</p>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong>Mesaurement--}}{{--/Size--}}{{--</strong>--}}
+{{--                        <div style="padding: 10px 0;">--}}
+{{--                            <label for="measurement_type"> Measurement :</label>--}}
+{{--                            <input disabled id="measurement_type" type="radio" name="measurement_size_type"--}}
+{{--                                   value="measurement" {{ old('measurement_size_type') == 'measurement' ? 'checked'--}}
+{{--                                                        : ($measurement_size_type == 'measurement' ? 'checked' : '') }} />--}}
 
-                           {{-- <label for="size_type"> Size :</label>
-                            <input disabled id="size_type" type="radio" name="measurement_size_type"
-                                   value="size" {{ old('measurement_size_type') == 'size' ? 'checked'
-                                                        : ($measurement_size_type == 'size' ? 'checked' : '') }} />--}}
-                        </div>
+{{--                           --}}{{-- <label for="size_type"> Size :</label>--}}
+{{--                            <input disabled id="size_type" type="radio" name="measurement_size_type"--}}
+{{--                                   value="size" {{ old('measurement_size_type') == 'size' ? 'checked'--}}
+{{--                                                        : ($measurement_size_type == 'size' ? 'checked' : '') }} />--}}
+{{--                        </div>--}}
 
-                        <div id="measurement_row2" class="row">
-                            <div class="col-4">
-                                <strong>L</strong>
-                                <p>{{$lmeasurement}}</p>
-                            </div>
-                            <div class="col-4">
-                                <strong>H</strong>
-                                <p>{{$hmeasurement}}</p>
-                            </div>
-                            <div class="col-4">
-                                <strong>D</strong>
-                                <p>{{$dmeasurement}}</p>
-                            </div>
-                        </div>
+{{--                        <div id="measurement_row2" class="row">--}}
+{{--                            <div class="col-4">--}}
+{{--                                <strong>L</strong>--}}
+{{--                                <p>{{$lmeasurement}}</p>--}}
+{{--                            </div>--}}
+{{--                            <div class="col-4">--}}
+{{--                                <strong>H</strong>--}}
+{{--                                <p>{{$hmeasurement}}</p>--}}
+{{--                            </div>--}}
+{{--                            <div class="col-4">--}}
+{{--                                <strong>D</strong>--}}
+{{--                                <p>{{$dmeasurement}}</p>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
 
-                    </div>
+{{--                    </div>--}}
 
-                </div>
+{{--                </div>--}}
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                    <strong>Size</strong> : {{$size}}
-                    </div>
-                </div>
-
-
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Composition :</strong>
-                        <p>{{ $composition  }}</p>
-                    </div>
-                </div>
-
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> SKU :</strong> {{ $sku }}
-                    </div>
-                </div>
-
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> SKU+Color:</strong>
-                        {{ $sku.$color }}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-md-6">
-            <div class="row">
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                    <strong>Size</strong> : {{$size}}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Made In :</strong> {{ $made_in }}
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Composition :</strong>--}}
+{{--                        <p>{{ $composition  }}</p>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Brand :</strong> {{ \App\Http\Controllers\BrandController::getBrandName($brand)}}
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> SKU :</strong> {{ $sku }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Color :</strong> {{ $color }}
-                    </div>
-                </div>
-
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Price (in Euro):</strong> {{ $price }}
-                    </div>
-                </div>
-
-                {{--<div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong>Euro to Inr (conversion):</strong> {{ $euro_to_inr }}
-                    </div>
-                </div>--}}
-
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Price (in INR):</strong> {{ $price_inr }}
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> SKU+Color:</strong>--}}
+{{--                        {{ $sku.$color }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--        <div class="col-xs-12 col-md-6">--}}
+{{--            <div class="row">--}}
 
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Price Special (in INR):</strong> {{ $price_special }}
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Made In :</strong> {{ $made_in }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong>Category : </strong>
-                        @for( $i = 0 ; $i < sizeof($categories) - 1 ; $i++)
-                            {{ $categories[$i] }}->
-                        @endfor
-                        {{ $categories[$i] }}
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Brand :</strong> {{ \App\Http\Controllers\BrandController::getBrandName($brand)}}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Color :</strong> {{ $color }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Price (in Euro):</strong> {{ $price }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+
+{{--                --}}{{--<div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong>Euro to Inr (conversion):</strong> {{ $euro_to_inr }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Price (in INR):</strong> {{ $price_inr }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Product Link :</strong>
-                        {{ $product_link }}
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Price Special (in INR):</strong> {{ $price_special }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Supplier :</strong>
-                        {{ $supplier }}
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong>Category : </strong>--}}
+{{--                        @for( $i = 0 ; $i < sizeof($categories) - 1 ; $i++)--}}
+{{--                            {{ $categories[$i] }}->--}}
+{{--                        @endfor--}}
+{{--                        {{ $categories[$i] }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Suppliers :</strong>
-                        {{ $suppliers }}
-                    </div>
-                </div>
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Supplier Link :</strong>
-                        <a href="{{ $supplier_link }}" target="_blank">{{ $supplier_link }}</a>
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Product Link :</strong>--}}
+{{--                        {{ $product_link }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong> Description Link :</strong>
-                        {{ $description_link }}
-                    </div>
-                </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Supplier :</strong>--}}
+{{--                        {{ $supplier }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
-                @if (Auth::user()->hasRole('Admin'))
-                  <div class="col-xs-12 col-sm-12 col-md-12">
-                      <div class="form-group">
-                          <strong>Location :</strong>
-                          {{ $location }}
-                      </div>
-                  </div>
-                @endif
-            </div>
-        </div>
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Suppliers :</strong>--}}
+{{--                        {{ $suppliers }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Supplier Link :</strong>--}}
+{{--                        <a href="{{ $supplier_link }}" target="_blank">{{ $supplier_link }}</a>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+
+{{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <strong> Description Link :</strong>--}}
+{{--                        {{ $description_link }}--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+
+{{--                @if (Auth::user()->hasRole('Admin'))--}}
+{{--                  <div class="col-xs-12 col-sm-12 col-md-12">--}}
+{{--                      <div class="form-group">--}}
+{{--                          <strong>Location :</strong>--}}
+{{--                          {{ $location }}--}}
+{{--                      </div>--}}
+{{--                  </div>--}}
+{{--                @endif--}}
+{{--            </div>--}}
+{{--        </div>--}}
 
 	    <?php $i = 0 ?>
 
-        @for(  ; $i < sizeof($images) ; $i++ )
+        @for(  ; $i < count($images) ; $i++ )
 
             <div class="col-xs-12 col-sm-6 col-md-3">
                 <strong>Image {{ $i+1 }}:</strong>

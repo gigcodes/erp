@@ -35,12 +35,20 @@ class DevelopmentController extends Controller
       $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
       $tab = $request->tab ?? NULL;
       $type = $request->type ?? '';
+      $id = null;
 
       $tasks = DeveloperTask::where('user_id', $user)->where('module', 0);
 //      $tasks = DeveloperTask::where('user_id', $user);
 
       if ($request->range_start != '') {
         $tasks = $tasks->whereBetween('created_at', [$start, $end]);
+      }
+
+      if ($request->get('id') != '') {
+          $tasks = $tasks->where(function($query) use ($request) {
+              $id = $request->get('id');
+              $query = $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+          });
       }
 
       if ($type != '') {
@@ -61,6 +69,7 @@ class DevelopmentController extends Controller
       // $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->where('completed', 1)->whereBetween('start_time', [$start, $end])->orderBy('priority')->get()->groupBy('module_id');
 
       // dd($tasks);
+//      $tasks = $tasks->orderBy('priority')->with(['user', 'messages'])->get();
       $tasks = $tasks->orderBy('priority')->with(['user', 'messages'])->get()->groupBy(['module_id', 'status']);
       $total_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->get();
 
@@ -71,8 +80,8 @@ class DevelopmentController extends Controller
 
       $modules = DeveloperModule::all();
       $users = Helpers::getUserArray(User::role('Developer')->get());
-      $comments = DeveloperComment::where('send_to', $user)->latest()->get();
-      $amounts = DeveloperCost::where('user_id', $user)->orderBy('paid_date')->get();
+//      $comments = DeveloperComment::where('send_to', $user)->latest()->get();
+//      $amounts = DeveloperCost::where('user_id', $user)->orderBy('paid_date')->get();
       $module_names = [];
 
       foreach ($modules as $module) {
@@ -90,10 +99,11 @@ class DevelopmentController extends Controller
         'start'  => $start,
         'end'  => $end,
         'module_names'  => $module_names,
-        'comments'  => $comments,
-        'amounts'  => $amounts,
+//        'comments'  => $comments,
+//        'amounts'  => $amounts,
         'all_time_cost' => $all_time_cost,
         'tab' => $tab,
+          'id' => $id
       ]);
     }
 
@@ -112,11 +122,18 @@ class DevelopmentController extends Controller
             $issues = $issues->where('user_id', $request->get('corrected_by'));
         }
 
-      $modules = DeveloperModule::all();
-      $users = Helpers::getUserArray(User::all());
-      $issues = $issues->orderBy('created_at', 'DESC')->get();
+        if ($request->get('subject') != '') {
+            $issues = $issues->where(function($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%");
+            });
+        }
 
-      return view('development.issue', [
+        $modules = DeveloperModule::all();
+        $users = Helpers::getUserArray(User::all());
+        $issues = $issues->orderBy('created_at', 'DESC')->with('communications')->get();
+
+        return view('development.issue', [
         'issues'  => $issues,
         'users'   => $users,
           'modules' => $modules,

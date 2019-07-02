@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Activity;
 use App\Benchmark;
+use App\ListingHistory;
 use App\User;
 use App\Leads;
 use App\Order;
@@ -84,186 +85,45 @@ class ActivityConroller extends Controller {
 	}
 
 	public function showActivity( Request $request ) {
+	    $allActivity = DB::table('listing_histories')->selectRaw('
+	        SUM(case when action = "CROP_APPROVAL" then 1 Else 0 End) as crop_approved,
+            SUM(case when action = "CROP_REJECTED"  then 1 Else 0 End) as crop_rejected,
+            SUM(case when action = "CROP_SEQUENCED" then 1 Else 0 End) as crop_ordered,
+            SUM(case when action = "LISTING_APPROVAL" then 1 Else 0 End) as attribute_approved,
+            SUM(case when action = "LISTING_REJECTED" then 1 Else 0 End) as attribute_rejected
+	    ');
 
-		$data['users']         = $this->getUserArray();
-		$data['selected_user'] = $request->input( 'selected_user' );
-		$data['type']          = [
-			'selection'    => 'Selection',
-			'searcher'     => 'Searcher',
-			'attribute'    => 'Attribute',
-			'supervisor'   => 'Supervisor',
-			'imagecropper' => 'Imagecropper',
-			'lister'       => 'Lister',
-			'approver'     => 'Approver',
-			'inventory'    => 'Inventory',
-			'sales'        => 'Sales',
-			'productlister'	=> 'Products Lister',
-		];
-
-		$data['range_start'] = $request->input( 'range_start' );
-		$data['range_end']   = $request->input( 'range_end' );
-
-		$product_ids = Activity::select(['subject_id', 'subject_type', 'causer_id', 'description', 'created_at'])
-														->where('subject_type', 'lister')
-														->whereIn('causer_id', $request->selected_user ?? [])
-														->where('description', 'create')
-														->where('created_at', 'LIKE', "%$request->range_start%")->get();
-
-		$data['filtered_product_ids'] = '';
-		if (count($product_ids) > 0) {
-			foreach ($product_ids as $id) {
-				$data['filtered_product_ids'] .= "&ids%5B%5D=" . $id->subject_id;
-				// array_push($data['filtered_product_ids'], $id->subject_id);
-			}
-
-			// dd($filtered_product_ids);
-		}
+        $activity = DB::table('listing_histories')->selectRaw('
+            user_id,
+            SUM(case when action = "CROP_APPROVAL" then 1 Else 0 End) as crop_approved,
+            SUM(case when action = "CROP_REJECTED"  then 1 Else 0 End) as crop_rejected,
+            SUM(case when action = "CROP_SEQUENCED" then 1 Else 0 End) as crop_ordered,
+            SUM(case when action = "LISTING_APPROVAL" then 1 Else 0 End) as attribute_approved,
+            SUM(case when action = "LISTING_REJECTED" then 1 Else 0 End) as attribute_rejected
+        ')->whereNotNull('user_id');
 
 
-		if ( ! $request->has( 'range_start' ) && ! $request->has( 'range_end' ) ) {
-			$end   = date( 'Y-m-d H:i:s' );
-			$start = date( 'Y-m-d H:i:s', strtotime( '-7 Days', strtotime( $end ) ) );
-		} else {
-			$start = $request->input( 'range_start' ) . " 00:00:00.000000";
-			$end   = $request->input( 'range_end' ) . " 23:59:59.000000";
-		}
+        if (is_array($request->get('selected_user'))) {
+            $activity = $activity->whereIn('user_id', $request->get('selected_user'));
+        }
 
-		if ( $request->has( 'selected_user' ) ) {
-			$users = implode( ',', $request->input( 'selected_user' ) );
+		$users         = $this->getUserArray();
+		$selected_user = $request->input( 'selected_user' );
 
-			$results = DB::select( '
-									SELECT causer_id,subject_type,COUNT(*) AS total FROM
-								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.causer_id
-								  		 FROM activities
-								  		 WHERE activities.description = "create"
-								  		 AND activities.causer_id IN (' . $users . ')
-								  		 AND activities.created_at BETWEEN ? AND ?)
-								    AS SUBQUERY
-								   	GROUP BY subject_type,causer_id;
-							', [ $start, $end ] );
+        $range_start = $request->input( 'range_start' );
+        $range_end =  $request->input( 'range_end' );
 
-			$results2 = DB::select( '
-									SELECT subject_type,COUNT(*) AS total FROM
-								 		(SELECT DISTINCT activities.subject_id,activities.subject_type
-								  		 FROM activities
-								  		 WHERE activities.description = "create"
-								  		 AND activities.causer_id IN (' . $users . ')
-								  		 AND activities.created_at BETWEEN ? AND ?)
-								    AS SUBQUERY
-								   	GROUP BY subject_type;
-							', [ $start, $end ] );
+        if ($range_start != '' && $range_end != '') {
+            $activity = $activity->where(function($query) use ($range_end, $range_start) {
+                $query->whereBetween('created_at', [$range_start. ' 00:00', $range_end . ' 23:59']);
+            });
 
-		} else {
+            $allActivity = $allActivity->whereBetween('created_at', [$range_start. ' 00:00', $range_end . ' 23:59']);
+        }
+        $allActivity = $allActivity->first();
+		$userActions = $activity->groupBy('user_id')->get();
 
-			$results = DB::select( '
-									SELECT causer_id,subject_type,COUNT(*) AS total FROM
-								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.causer_id
-								  		 FROM activities
-								  		 WHERE activities.description = "create"
-								  		 AND activities.created_at BETWEEN ? AND ?)
-								    AS SUBQUERY
-								   	GROUP BY subject_type,causer_id;
-							', [ $start, $end ] );
-
-
-			$results2 = DB::select( '
-									SELECT subject_type,COUNT(*) AS total FROM
-								 		(SELECT DISTINCT activities.subject_id,activities.subject_type
-								  		 FROM activities
-								  		 WHERE activities.description = "create"
-								  		 AND activities.created_at BETWEEN ? AND ?)
-								    AS SUBQUERY
-								   	GROUP BY subject_type;
-							', [ $start, $end ] );
-		}
-
-
-
-		// $benchmark2 = Benchmark::whereBetween('for_date', [$start, $end])->get();
-		//
-		// // dd();
-		//
-		// $day_difference = Carbon::parse($end)->diffInDays(Carbon::parse($start));
-		//
-		// if ($day_difference != $benchmark2->count()) {
-		// 	if ($benchmark2->count() == 0) {
-		// 		$benchmark_last = Benchmark::orderBy('for_date', 'DESC')->first();
-		// 		$benchmark[0]['selections'] = $benchmark_last->selections * $day_difference;
-		// 		$benchmark[0]['searches'] = $benchmark_last->searches * $day_difference;
-		// 		$benchmark[0]['attributes'] = $benchmark_last->attributes * $day_difference;
-		// 		$benchmark[0]['supervisor'] = $benchmark_last->supervisor * $day_difference;
-		// 		$benchmark[0]['imagecropper'] = $benchmark_last->imagecropper * $day_difference;
-		// 		$benchmark[0]['lister'] = $benchmark_last->lister * $day_difference;
-		// 		$benchmark[0]['approver'] = $benchmark_last->approver * $day_difference;
-		// 		$benchmark[0]['inventory'] = $benchmark_last->inventory * $day_difference;
-		// 	} else {
-		//
-		// 	}
-		// } else {
-			$benchmark = Benchmark::whereBetween( 'for_date', [ $start, $end ] )
-			                      ->selectRaw( 'sum(selections) as selections,
-			                                             sum(searches) as searches,
-			                                             sum(attributes) as attributes,
-			                                             sum(supervisor) as supervisor,
-			                                             sum(imagecropper) as imagecropper,
-			                                             sum(lister) as lister,
-			                                             sum(approver) as approver,
-			                                             sum(inventory) as inventory' )
-			                      ->get()->toArray();
-		// }
-		// dd('stap');
-		$rows      = [];
-
-		foreach ( $results as $result ) {
-
-			$rows[ $result->causer_id ][ $result->subject_type ] = $result->total;
-		}
-
-		$total_data = [];
-
-		$total_data['selection']    = 0;
-		$total_data['searcher']     = 0;
-		$total_data['attribute']    = 0;
-		$total_data['supervisor']   = 0;
-		$total_data['imagecropper'] = 0;
-		$total_data['lister']       = 0;
-		$total_data['approver']     = 0;
-		$total_data['inventory']    = 0;
-		$total_data['sales']        = 0;
-		$total_data['productlister']        = 0;
-
-		foreach ( $results2 as $result ) {
-			$total_data[ $result->subject_type ] += $result->total;
-		}
-
-		$data['results']    = $rows;
-		$data['total_data'] = $total_data;
-		$data['benchmark']  = $benchmark[0];
-
-		$leads = Leads::where('created_at', '>=', date('Y-m-d 00:00:00'))->get()->count();
-		$orders = Order::where('created_at', '>=', date('Y-m-d 00:00:00'))->get()->count();
-
-		$data['leads'] = $leads;
-		$data['orders'] = $orders;
-
-		$data['scraped_gnb_count'] = ScrapedProducts::where('website', 'G&B')->whereBetween('created_at', [$start, $end])->get()->count();
-		$data['scraped_wise_count'] = ScrapedProducts::where('website', 'Wiseboutique')->whereBetween('created_at', [$start, $end])->get()->count();
-		$data['scraped_double_count'] = ScrapedProducts::where('website', 'DoubleF')->whereBetween('created_at', [$start, $end])->get()->count();
-
-		// $data['scraped_gnb_product_count'] = ScrapedProducts::with('Product')->where('website', 'G&B')->whereHas('Product')->get();
-		// $data['scraped_wise_product_count'] = ScrapedProducts::with('Product')->where('website', 'Wiseboutique')->whereHas('Product')->get()->count();
-		// $data['scraped_double_product_count'] = ScrapedProducts::with('Product')->where('website', 'DoubleF')->whereHas('Product')->get()->count();
-
-		$data['scraped_gnb_product_count'] = Product::where('supplier', 'G & B Negozionline')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
-		$data['scraped_wise_product_count'] = Product::where('supplier', 'Wise Boutique')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
-		$data['scraped_double_product_count'] = Product::where('supplier', 'Double F')->where('is_scraped', 1)->whereBetween('created_at', [$start, $end])->get()->count();
-
-		$data['import_created_product_count'] = Product::where('status', 2)->whereBetween('import_date', [$start, $end])->get()->count();
-		$data['import_updated_product_count'] = Product::where('status', 3)->whereBetween('import_date', [$start, $end])->get()->count();
-		$data['import_total_created_product_count'] = Product::where('status', 2)->get()->count();
-		$data['import_total_updated_product_count'] = Product::where('status', 3)->get()->count();
-
-		return view( 'activity.index', $data );
+		return view( 'activity.index', compact('userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity'));
 	}
 
 	public function showGraph( Request $request ) {

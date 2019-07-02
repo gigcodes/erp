@@ -24,6 +24,7 @@ use App\ReadOnly\LocationList;
 use App\UserProductFeedback;
 use Cache;
 use Auth;
+use Carbon\Carbon;
 use Chumper\Zipper\Zipper;
 use FacebookAds\Object\ProductFeed;
 use Illuminate\Http\Request;
@@ -303,6 +304,10 @@ class ProductController extends Controller {
         // } else {
         // $products_count = $products->take(5000)->get();
         // $products = $products->take(5000)->orderBy('is_image_processed', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
+        $whereUserClause = '';
+        if ($request->get('user_id') > 0) {
+            $whereUserClause = ' AND approved_by = ' . $request->get('user_id');
+        }
 
 
         if (Auth::user()->hasRole('Products Lister')) {
@@ -323,7 +328,7 @@ class ProductController extends Controller {
 												) AS remarks
 											ON products.id = remarks.taskid
 
-											WHERE is_approved = 1 AND is_listing_rejected = 0 AND  is_scraped = 1 AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+											WHERE is_approved = 1 AND is_listing_rejected = 0  AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $whereUserClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
 											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
 											ORDER BY is_crop_ordered DESC, remark_created_at DESC, created_at DESC
 				');
@@ -343,7 +348,7 @@ class ProductController extends Controller {
 												) AS remarks
 											ON products.id = remarks.taskid
 
-											WHERE is_approved = 1 AND is_listing_rejected = 0 AND is_scraped = 1 AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
+											WHERE is_approved = 1 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $whereUserClause . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
 											ORDER BY is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
 				');
         }
@@ -368,6 +373,8 @@ class ProductController extends Controller {
 
         $category_array = Category::renderAsArray();
 
+        $users = User::all();
+
         // dd($category_array);
 
         return view('products.final_listing', [
@@ -387,6 +394,7 @@ class ProductController extends Controller {
             'color'	=> $color,
             'supplier'	=> $supplier,
             'type'	=> $type,
+            'users' => $users,
             'assigned_to_users'	=> $assigned_to_users,
             'cropped'	=> $cropped,
             'left_for_users'	=> $left_for_users,
@@ -640,7 +648,7 @@ class ProductController extends Controller {
 												) AS remarks
 											ON products.id = remarks.taskid
 
-											WHERE is_approved = 0 AND is_listing_rejected = 0 AND  is_scraped = 1 AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+											WHERE is_approved = 0 AND is_listing_rejected = 0  AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
 											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
 											ORDER BY is_crop_ordered DESC, remark_created_at DESC, created_at DESC
 				');
@@ -660,7 +668,7 @@ class ProductController extends Controller {
 												) AS remarks
 											ON products.id = remarks.taskid
 
-											WHERE is_approved = 0 AND is_listing_rejected = 0 AND is_scraped = 1 AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
+											WHERE is_approved = 0 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
 											ORDER BY is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
 				');
 			}
@@ -684,6 +692,10 @@ class ProductController extends Controller {
 		//                                         ->renderAsDropdown();
 
 		$category_array = Category::renderAsArray();
+
+		$userStats = [];
+		$userStats['approved'] = ListingHistory::where('action', 'LISTING_APPROVAL')->where('user_id', Auth::user()->id)->count();
+		$userStats['rejected'] = ListingHistory::where('action', 'LISTING_REJECTED')->where('user_id', Auth::user()->id)->count();
 
 		// dd($category_array);
 
@@ -709,7 +721,8 @@ class ProductController extends Controller {
 			'left_for_users'	=> $left_for_users,
 			'category_array'	=> $category_array,
 			'selected_categories'	=> $selected_categories,
-            'messages' => $messages
+            'messages' => $messages,
+            'userStatus' => $userStats
 		]);
 	}
 
@@ -1029,6 +1042,7 @@ class ProductController extends Controller {
 
 		$product->is_approved = 1;
 		$product->approved_by = Auth::user()->id;
+		$product->listing_approved_at = Carbon::now()->toDateTimeString();
 		$product->save();
 
 		$l = new ListingHistory();
@@ -1040,17 +1054,17 @@ class ProductController extends Controller {
 
 		ActivityConroller::create($product->id, 'productlister', 'create');
 
-		if (Auth::user()->hasRole('Products Lister')) {
-			$products_count = Auth::user()->products()->count();
-			$approved_products_count = Auth::user()->approved_products()->count();
-			if (($products_count - $approved_products_count) < 100) {
-				$requestData = new Request();
-				$requestData->setMethod('POST');
-				$requestData->request->add(['amount_assigned' => 100]);
-
-				app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
-			}
-		}
+//		if (Auth::user()->hasRole('Products Lister')) {
+//			$products_count = Auth::user()->products()->count();
+//			$approved_products_count = Auth::user()->approved_products()->count();
+//			if (($products_count - $approved_products_count) < 100) {
+//				$requestData = new Request();
+//				$requestData->setMethod('POST');
+//				$requestData->request->add(['amount_assigned' => 100]);
+//
+//				app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
+//			}
+//		}
 
 		return response()->json([
 			'result'	=> true,
@@ -1468,6 +1482,13 @@ class ProductController extends Controller {
         ]);
     }
 
+    public function showAutoRejectedProducts() {
+	    $totalRemaining = Product::where('is_listing_rejected_automatically', 1)->count();
+	    $totalDone = Product::where('was_auto_rejected', 1)->count();
+
+	    return view('products.auto_rejected_stats', compact('totalDone', 'totalRemaining'));
+    }
+
     public function showRejectedListedProducts(Request $request) {
 	    $products = Product::where('listing_remark', '!=', '');
 	    $reason = '';
@@ -1477,6 +1498,15 @@ class ProductController extends Controller {
 	    if ($request->get('reason') !== '') {
 	        $reason = $request->get('reason');
 	        $products = $products->where('listing_remark' , 'LIKE', "%$reason%");
+        }
+
+	    if ($request->get('id') != '') {
+	        $id = $request->get('id');
+            $products = $products->where('id' , $id)->orWhere('sku', 'LIKE', "%$id%");
+        }
+
+	    if ($request->get('user_id') > 0) {
+	        $products = $products->where('listing_rejected_by', $request->get('user_id'));
         }
 
 	    if ($request->get('type') === 'accepted') {
@@ -1534,12 +1564,13 @@ class ProductController extends Controller {
             $products = $products->whereIn('category', $category_children);
             $selected_categories = [$request->get('category')[0]];
         }
+        $users = User::all();
 
         $category_array = Category::renderAsArray();
 
         $products = $products->orderBy('updated_at', 'DESC')->orderBy('listing_rejected_on', 'DESC')->paginate(25);
 
-	    return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier'));
+	    return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier', 'request', 'users'));
     }
 
     public function updateProductListingStats(Request $request) {
@@ -1583,16 +1614,53 @@ class ProductController extends Controller {
 
     public function productStats(Request $request) {
 	    $products = Product::orderBy('updated_at', 'DESC');
+
+        if ($request->get('status') != '') {
+            $status = $request->get('status')=='approved' ? 1 : 0;
+            $products = $products->where('is_approved', $status);
+        }
+        if ($request->has('user_id') >= 1) {
+            $products = $products->where(function($query) use ($request) {
+                $query->where('approved_by', $request->get('user_id'))
+                    ->orWhere('crop_approved_by', $request->get('user_id'))
+                    ->orWhere('listing_rejected_by', $request->get('user_id'))
+                    ->orWhere('crop_rejected_by', $request->get('user_id'))
+                    ->orWhere('crop_ordered_by', $request->get('user_id'))
+                ;
+            });
+        }
 	    $sku = '';
 
-	    if ($request->get('sku') !== '') {
+	    if ($request->get('sku') != '') {
 	        $sku = $request->get('sku');
 	        $products = $products->where('sku', 'LIKE', "%$sku%");
         }
 
-	    $products = $products->paginate(50);
+	    if ($request->get('range_start') != '') {
+	        $products = $products->where(function($query) use ($request) {
+                $query->where('crop_approved_at', '>=', $request->get('range_start'))
+                    ->orWhere('listing_approved_at', '>=',  $request->get('range_start'))
+                    ->orWhere('listing_rejected_on', '>=',  $request->get('range_start'))
+                    ->orWhere('crop_ordered_at', '>=',  $request->get('range_start'))
+                    ->orWhere('crop_rejected_at', '>=',  $request->get('range_start'))
+                ;
+            });
+        }
+        if ($request->get('range_end') != '') {
+            $products = $products->where(function($query) use ($request) {
+                $query->where('crop_approved_at', '<=', $request->get('range_end'))
+                    ->orWhere('listing_approved_at', '<=',  $request->get('range_end'))
+                    ->orWhere('listing_rejected_on', '<=',  $request->get('range_end'))
+                    ->orWhere('crop_ordered_at', '<=',  $request->get('range_end'))
+                    ->orWhere('crop_rejected_at', '<=',  $request->get('range_end'))
+                ;
+            });
+        }
 
-	    return view('products.stats', compact('products', 'sku'));
+	    $products = $products->paginate(50);
+	    $users = User::all();
+
+	    return view('products.stats', compact('products', 'sku', 'users', 'request'));
     }
 
     public function showSOP(Request $request) {

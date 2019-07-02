@@ -493,6 +493,7 @@
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval
 
                                                   Grid</a>
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@cropIssuesPage') }}">Crop Issue Summary</a>
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
 
                                                 Grid</a>
@@ -535,6 +536,8 @@
                                         <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statics</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}">Approved Listing</a>
+                                        <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
+                                        <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Rejected Statistics</a>
                                     @endcan
 
 

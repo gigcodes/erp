@@ -135,6 +135,11 @@ class Product extends Model
     public function approver() {
         return $this->belongsTo(User::class, 'approved_by', 'id');
     }
+
+    public function rejector() {
+        return $this->belongsTo(User::class, 'listing_rejected_by', 'id');
+    }
+
     public function cropOrderer() {
         return $this->belongsTo(User::class, 'crop_ordered_by', 'id');
     }

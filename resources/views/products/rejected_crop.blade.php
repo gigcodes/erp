@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('content')
+@section('large_content')
     <div class="row">
         <div class="col-md-12">
             <h4 class="page-heading">
@@ -24,13 +24,17 @@
                         <br>
                         {{ $product->sku }}
                         <br>
+                        <a href="{{ action('ProductController@show', $product->id) }}" target="_new">{{ $product->id }}</a>
+                        <br>
                         {{ $product->product_category->title }}
                         <br>
                         <a class="btn btn-secondary" href="{{ action('ProductController@show', $product->id) }}">Product Details</a>
                     </td>
                     <td>
                         <p>Reject Remark : {{ $product->crop_remark ?? 'N/A' }}</p>
-                        <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'cropped']) }}">Download Cropped</a>
+                        @if($product->is_image_processed)
+                            <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'cropped']) }}">Download Cropped</a>
+                        @endif
                         <br><br>
                         <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'original']) }}">Download Original</a>
                     </td>
@@ -40,17 +44,36 @@
                     <td>
                         <form method="post" action="{{ action('ProductCropperController@approveRejectedCropped', $product->id) }}" enctype="multipart/form-data">
                             @csrf
+{{--                            <div class="form-group">--}}
+{{--                                <label for="images">Images</label>--}}
+{{--                                <input type="file" name="images[]" id="images" multiple class="form-control">--}}
+{{--                            </div>--}}
                             <div class="form-group">
-                                <label for="images">Images</label>
-                                <input type="file" name="images[]" id="images" multiple class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-secondary">Approve With Changes</button>
+                                <fieldset id="actions" label="Choose Action">
+                                    <input type="radio" name="action" id="approved" value="approved"><label for="approved"> &nbsp;Approve Crop</label><br>
+                                    <input type="radio" name="action" id="uncropped" value="uncropped"><label for="uncropped"> &nbsp;Mark as Not cropped</label><br>
+                                    <input type="radio" name="action" id="manual" value="manual"><label for="manual"> &nbsp;Move to Manual Cropping</label>
+                                </fieldset>
+                                <button class="btn btn-secondary">Update Changes</button>
                             </div>
                         </form>
                     </td>
                 </tr>
             </table>
+            <div>
+                @foreach($product->media()->get() as $image)
+                    <?php
+                    //                        [$height, $width] = getimagesize($image->getUrl())
+                    ?>
+                    @if (stripos($image->filename, 'cropped') !== false)
+                        <div style="display: inline-block; border: 1px solid #ccc" class="mt-5">
+                            <div style=" margin-bottom: 5px; width: 500px;height: 500px; background-image: url('{{$image->getUrl()}}'); background-size: 500px">
+                                <img style="width: 500px;" src="{{ asset('images/'.$img) }}" alt="">
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
             <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
                 @foreach($product->media()->get() as $image)
                     <a href="{{ $image->getUrl() }}"><img src="{{ $image->getUrl() }}"></a>

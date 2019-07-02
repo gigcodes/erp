@@ -72,8 +72,8 @@ class FixCategoryNameBySupplier extends Command
 //                dump($catt, $scrapedProduct->title, $scrapedProduct->url, 'AGAINST', $cat);
 
                 if (stripos(strtoupper($catt), $cat) !== false
-                    || stripos(strtoupper($scrapedProduct->title), $cat) !== false
-                    || stripos(strtoupper($scrapedProduct->url), $cat) !== false
+                    || stripos(strtoupper($scrapedProduct->title ?? ''), $cat) !== false
+                    || stripos(strtoupper($scrapedProduct->url ?? ''), $cat) !== false
                 ) {
                     $gender = $this->getMaleOrFemale($scrapedProduct->properties);
 

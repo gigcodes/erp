@@ -101,6 +101,14 @@
             </select>
           </div>
 
+          <div class="form-group mr-3">
+            <select class="form-control" name="user_id" id="user_id">
+              @foreach($users as $user)
+                <option value="{{$user->id}}">{{ $user->name }}</option>
+              @endforeach
+            </select>
+          </div>
+
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
         </form>
       </div>
@@ -212,7 +220,7 @@
                       </tr>
                       <tr>
                         <th>Sequencing</th>
-                        <td>{{ $special_product->crop_rejected_at ?? 'N/A' }}</td>
+                        <td>{{ $special_product->crop_ordered_at ?? 'N/A' }}</td>
                         <td>{{ $special_product->cropOrderer ? $special_product->cropOrderer->name : 'N/A' }}</td>
                         <td>
                           <button style="width: 90px" data-button-type="sequence" data-id="{{$product->id}}" class="btn btn-secondary btn-sm reject-sequence">Reject</button>

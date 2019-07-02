@@ -13,6 +13,7 @@
                             <td>
                                 <strong>{{ $product->name }}</strong>
                                 <br>{{ $product->sku }}
+                                <br><a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
                                 <br><strong>{{ $product->product_category->title }}</strong>
                             </td>
                             <td>
@@ -21,6 +22,7 @@
                                     <br><br>
                                     <select name="remark" id="remark">
                                         <option value="0">Select reason...</option>
+                                        <option value="White Image Crop Issue">White Image Crop Issue</option>
                                         <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
                                         <option value="No Images Shown">No Images Shown</option>
                                         <option value="Grid Not Shown">Grid Not Shown</option>

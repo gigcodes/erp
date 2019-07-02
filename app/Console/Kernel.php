@@ -47,7 +47,7 @@ use App\Console\Commands\SendVoucherReminder;
 use App\Console\Commands\MovePlannedTasks;
 use App\Console\Commands\ResetDailyPlanner;
 
-use App\Console\Commands\SaveProductsImages;
+//use App\Console\Commands\SaveProductsImages;
 
 use App\Console\Commands\UpdateMagentoProductStatus;
 
@@ -112,7 +112,7 @@ class Kernel extends ConsoleKernel
         MovePlannedTasks::class,
         SendDailyPlannerReport::class,
         ResetDailyPlanner::class,
-        SaveProductsImages::class,
+//        SaveProductsImages::class,
         GrowInstagramAccounts::class
     ];
 

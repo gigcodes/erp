@@ -16,16 +16,6 @@
                 <div class="col-lg-12">
                     <form action="{{ route('activity') }}" method="GET" enctype="multipart/form-data">
                         <div class="row">
-                        <!--<div class="col-md-4">
-                            <div class="form-group">
-                                <strong>Type</strong>
-					            <?php
-						/*					            echo Form::select( 'type', $type, old('type'), [
-                                                            'placeholder' => 'Select a value',
-                                                            'class'       => 'form-control'
-                                                        ] );*/?>
-                                </div>
-                            </div>-->
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <strong>User</strong>
@@ -63,253 +53,39 @@
     <section class="dashboard-counts section-padding">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-xl-12 col-md-12">
-                    <div class="row">
-                        <!-- Count item widget-->
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-user"></i></div>
-                                <div class="name"><strong class="text-uppercase">Selections</strong>
-                                    <div class="count-number
-                                        {{ ( $total_data['selection'] < $benchmark['selections'] ) ? 'red' : '' }}">
-                                        {{ $total_data['selection'] }}
-                                    </div>
-                                    <span>Out of {{ $benchmark['selections'] }}</span>
-                                    @if( $benchmark['selections'] - $total_data['selection'] > 0 )
-                                        <span>Pending : {{ $benchmark['selections'] - $total_data['selection'] }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Count item widget-->
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-padnote"></i></div>
-                                <div class="name"><strong class="text-uppercase">Searches</strong>
-                                    <div class="count-number {{ ( $total_data['searcher'] < $benchmark['searches'] ) ? 'red' : '' }} ">{{ $total_data['searcher']  }}</div>
-                                    <span>Out of {{ $benchmark['searches'] }}</span>
-                                    @if( $benchmark['searches'] - $total_data['searcher'] > 0 )
-                                        <span>Pending : {{ $benchmark['searches'] - $total_data['searcher'] }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Count item widget-->
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-check"></i></div>
-                                <div class="name"><strong class="text-uppercase">Attribute filling</strong>
-                                    <div class="count-number {{ ( $total_data['attribute'] < $benchmark['attributes'] ) ? 'red' : '' }} ">{{ $total_data['attribute'] }}</div>
-                                    <span>Out of {{ $benchmark['attributes'] }}</span>
-                                    @if( $benchmark['attributes'] - $total_data['attribute'] > 0 )
-                                        <span>Pending : {{ $benchmark['attributes'] - $total_data['attribute'] }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Count item widget-->
-                        {{-- <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-bill"></i></div>
-                                <div class="name"><strong class="text-uppercase">Supervise</strong>
-                                    <div class="count-number {{ ( $total_data['supervisor'] < $benchmark['supervisor'] ) ? 'red' : '' }} ">{{ $total_data['supervisor']  }}</div>
-                                    <span>Out of {{ $benchmark['supervisor'] }}</span>
-                                    @if( $benchmark['supervisor'] - $total_data['supervisor'] > 0 )
-                                        <span>Pending : {{ $benchmark['supervisor'] - $total_data['supervisor'] }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div> --}}
-
-                        <!-- Count item widget-->
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-bill"></i></div>
-                                <div class="name"><strong class="text-uppercase">Imagecropping</strong>
-                                    <div class="count-number {{ ( $total_data['imagecropper'] < $benchmark['imagecropper'] ) ? 'red' : '' }} ">{{ $total_data['imagecropper'] }}</div>
-                                    <span>Out of {{ $benchmark['imagecropper'] }}</span>
-                                    @if( $benchmark['imagecropper'] - $total_data['imagecropper'] > 0 )
-                                        <span>Pending : {{ $benchmark['imagecropper'] - $total_data['imagecropper'] }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Count item widget-->
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list"></i></div>
-                                <div class="name"><strong class="text-uppercase">Approvals</strong>
-                                    <div class="count-number {{ ( $total_data['approver'] < $benchmark['approver'] ) ? 'red' : '' }} ">{{ $total_data['approver']  }}</div>
-                                    <span>Out of {{ $benchmark['approver'] }}</span>
-                                    @if( $benchmark['approver'] - $total_data['approver'] > 0 )
-                                        <span>Pending : {{ $benchmark['approver'] - $total_data['approver'] }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Count item widget-->
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Listings</strong>
-                                  <a href="/search?term=&roletype=Approver&category%5B%5D=1&type%5B%5D=&size=&price=0%2C10000000&date={{ $filtered_product_ids }}">
-                                    <div class="count-number {{ ( $total_data['lister'] < $benchmark['lister'] ) ? 'red' : '' }} ">{{ $total_data['lister'] }}</div>
-                                  </a>
-                                    <span>Out of {{ $benchmark['lister'] }}</span>
-                                    @if( $benchmark['lister'] - $total_data['lister'] > 0 )
-                                        <span>Pending : {{ $benchmark['lister'] - $total_data['lister'] }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Product Listings</strong>
-                                  <div class="count-number">{{ $total_data['productlister'] }}</div>
-                                  {{-- <span>Out of {{ $benchmark['lister'] }}</span>
-
-                                  @if( $benchmark['lister'] - $total_data['lister'] > 0 )
-                                    <span>Pending : {{ $benchmark['lister'] - $total_data['lister'] }}</span>
-                                  @endif --}}
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Count item widget-->
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Sales Enquiry</strong>
-                                    <div class="count-number">{{ $total_data['sales'] }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Todays Leads</strong>
-                                    <div class="count-number">{{ $leads }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Todays Orders</strong>
-                                    <div class="count-number">{{ $orders }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Scraped G&B</strong>
-                                    <div class="count-number">{{ $scraped_gnb_count }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Scraped Wise Boutique</strong>
-                                    <div class="count-number">{{ $scraped_wise_count }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Scraped Double F</strong>
-                                    <div class="count-number">{{ $scraped_double_count }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Scraped G&B Products</strong>
-                                    <div class="count-number">{{ $scraped_gnb_product_count }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Scraped Wise Boutique Products</strong>
-                                    <div class="count-number">{{ $scraped_wise_product_count }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Scraped Double F Products</strong>
-                                    <div class="count-number">{{ $scraped_double_product_count }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Import Created Products</strong>
-                                    <div class="count-number">{{ $import_created_product_count }}</div>
-                                    <span>Out of {{ $import_total_created_product_count }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <div class="wrapper count-title d-flex">
-                                <div class="icon"><i class="icon-list-1"></i></div>
-                                <div class="name"><strong class="text-uppercase">Import Updated Products</strong>
-                                    <div class="count-number">{{ $import_updated_product_count }}</div>
-                                    <span>Out of {{ $import_total_updated_product_count }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="dashboard-counts section-padding">
-        <div class="container-fluid">
-            <div class="row">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Crop Approval</th>
+                        <th>Crop Rejection</th>
+                        <th>Crop Sequencing</th>
+                        <th>Attribute Approval</th>
+                        <th>Attribute Rejected</th>
+                    </tr>
+                    <tr>
+                        <td>{{ $allActivity->crop_approved }}</td>
+                        <td>{{ $allActivity->crop_rejected }}</td>
+                        <td>{{ $allActivity->crop_ordered }}</td>
+                        <td>{{ $allActivity->attribute_approved }}</td>
+                        <td>{{ $allActivity->attribute_rejected }}</td>
+                    </tr>
+                </table>
                 <table class="table table-bordered">
                     <tr>
                         <th>Name</th>
-                        <th>Selection</th>
-                        <th>Searcher</th>
-                        <th>Attribute</th>
-                        <th>Supervisor</th>
-                        <th>ImageCropper</th>
-                        <th>Lister</th>
-                        <th>Approver</th>
-                        <th>Inventory</th>
-                        <th>Sale</th>
+                        <th>Crop Approval</th>
+                        <th>Crop Rejection</th>
+                        <th>Crop Sequencing</th>
+                        <th>Attribute Approval</th>
+                        <th>Attribute Rejection</th>
                     </tr>
-                    @foreach ($results as $key => $item)
+                    @foreach ($userActions as $key => $user)
                         <tr>
-                            <td>{{ $users[$key] ?? 'Unknown' }}</td>
-                            <td>{{ isset( $item['selection'] ) ? $item['selection'] : 0 }}</td>
-                            <td>{{ isset( $item['searcher'] ) ? $item['searcher'] : 0 }}</td>
-                            <td>{{ isset( $item['attribute'] ) ? $item['attribute'] : 0 }}</td>
-                            <td>{{ isset( $item['supervisor'] ) ? $item['supervisor'] : 0 }}</td>
-                            <td>{{ isset( $item['imagecropper'] ) ? $item['imagecropper'] : 0 }}</td>
-                            <td>{{ isset( $item['lister'] ) ? $item['lister'] : 0 }}</td>
-                            <td>{{ isset( $item['approver'] ) ? $item['approver'] : 0 }}</td>
-                            <td>{{ isset( $item['inventory'] ) ? $item['inventory'] : 0 }}</td>
-                            <td>{{ isset( $item['sales'] ) ? $item['sales'] : 0 }}</td>
+                            <td>{{ $users[$user->user_id] }}</td>
+                            <td>{{ $user->crop_approved }}</td>
+                            <td>{{ $user->crop_rejected }}</td>
+                            <td>{{ $user->crop_ordered }}</td>
+                            <td>{{ $user->attribute_approved }}</td>
+                            <td>{{ $user->attribute_rejected }}</td>
                         </tr>
                     @endforeach
                 </table>

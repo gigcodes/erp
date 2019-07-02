@@ -59,283 +59,354 @@
 @include('partials.flash_messages')
 
 <div class="row">
-  <div class="col-xs-12 col-md-4 py-3 border">
-    <div class="row text-muted">
-      <div class="col-6">
-        <div class="form-group">
-          {{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
-        </div>
-      </div>
+    @if($task->is_statutory == 3)
+        <table class="table table-striped table-bordered">
+            <tr>
+                <th width="15%">Subject</th>
+                <th width="15%">Details</th>
+                <th width="30%">Update</th>
+                <th width="40%">Remarks</th>
+{{--                <td></td>--}}
+            </tr>
+            @foreach ($task->notes as $key=>$note)
+                <tr>
+                    @if($key==0)
+                        <td rowspan="{{ count($task->notes) }}">
+                            <div class="form-group">
+                                @if ($task->task_subject)
+                                    <strong class="task-subject">{{ $task->task_subject }}</strong>
+                                @endif
 
-      <div class="col-6">
-        <div class="form-group">
-          {{-- <select class="form-control input-sm" id="task_category" name="category">
-            <option value="">Select a Category</option>
-
-            @foreach ($categories as $id => $category)
-              <option value="{{ $id }}" {{ $id == $task->category ? 'selected' : '' }}>{{ $category }}</option>
+                                <input type="text" name="subject" id="task_subject_field" class="form-control input-sm hidden" value="{{ $task->task_subject }}">
+                                    <br>
+                                <a href="#" id="edit_subject_button" class="btn btn-secondary btn-xs">Edit</a>
+                            </div>
+                        </td>
+                        <td rowspan="{{ count($task->notes) }}">{{ $task->task_details ?? 'N/A' }}</td>
+                    @endif
+                    <td>
+                        {{ $note->remark }}
+                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}"><img src="/images/add.png" /></button>
+                    </td>
+                    <td>
+                        <div class="panel-group" style="margin-bottom: 0 !important;">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#collapse_{{$note->id}}">Remarks ({{count($note->subnotes)}})</a>
+                                    </h4>
+                                </div>
+                                <div id="collapse_{{$note->id}}" class="panel-collapse collapse">
+                                    <div class="panel-body" id="rec_{{$note->id}}" style="padding: 0 !important;">
+                                        <table class="table table-striped table-bordered" style="margin-bottom: 0 !important;">
+                                            @foreach ($note->subnotes as $subnote)
+                                                <tr>
+                                                    <td><strong>{{$subnote->created_at->format('Y-m-d')}}</strong></td>
+                                                    <td>{{ $subnote->remark }}</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $subnote->remark }}"><img src="/images/add.png" /></button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </table>
+                                    </div>
+                                    <div class="panel-footer">
+                                        <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
             @endforeach
-          </select> --}}
-          {!! $categories !!}
+            <tr>
+                <td></td>
+                <td></td>
+                <td>
+                    <input type="text" id="create-note-field-for-appointment" class="form-control input-sm" name="note" placeholder="Add New Update..." value="">
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    @else
+        <div class="col-xs-12 col-md-4 py-3 border">
+            <div class="row text-muted">
+                <div class="col-6">
+                    <div class="form-group">
+                        {{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
+                    </div>
+                </div>
 
-          <span class="text-success change_status_message" style="display: none;">Successfully changed category</span>
-        </div>
-      </div>
-    </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        {{-- <select class="form-control input-sm" id="task_category" name="category">
+                          <option value="">Select a Category</option>
 
-    <form action="{{ route('task.update', $task->id) }}" method="POST">
-      @csrf
-      @method('PUT')
+                          @foreach ($categories as $id => $category)
+                            <option value="{{ $id }}" {{ $id == $task->category ? 'selected' : '' }}>{{ $category }}</option>
+                          @endforeach
+                        </select> --}}
+                        {!! $categories !!}
 
-    @if ($task->is_statutory == 1)
-      <div class="form-group">
-        <strong>Recurring:</strong>
-        {{ $task->recurring_type }}
-      </div>
+                        <span class="text-success change_status_message" style="display: none;">Successfully changed category</span>
+                    </div>
+                </div>
+            </div>
 
-      <div class="form-group">
-        <div class='input-group date' id='sending-datetime'>
-          <input type='text' class="form-control input-sm" name="sending_time" value="{{ $task->sending_time }}" required />
+            <form action="{{ route('task.update', $task->id) }}" method="POST">
+                @csrf
+                @method('PUT')
 
-          <span class="input-group-addon">
+                @if ($task->is_statutory == 1)
+                    <div class="form-group">
+                        <strong>Recurring:</strong>
+                        {{ $task->recurring_type }}
+                    </div>
+
+                    <div class="form-group">
+                        <div class='input-group date' id='sending-datetime'>
+                            <input type='text' class="form-control input-sm" name="sending_time" value="{{ $task->sending_time }}" required />
+
+                            <span class="input-group-addon">
             <span class="glyphicon glyphicon-calendar"></span>
           </span>
-        </div>
-      </div>
-    @endif
+                        </div>
+                    </div>
+                @endif
 
-    <div class="form-group">
-      @if ($task->task_subject)
-        <strong class="task-subject">{{ $task->task_subject }}</strong>
-      @endif
+                <div class="form-group">
+                    @if ($task->task_subject)
+                        <strong class="task-subject">{{ $task->task_subject }}</strong>
+                    @endif
 
-      <input type="text" name="subject" id="task_subject_field" class="form-control input-sm hidden" value="{{ $task->task_subject }}">
+                    <input type="text" name="subject" id="task_subject_field" class="form-control input-sm hidden" value="{{ $task->task_subject }}">
 
-      <a href="#" id="edit_subject_button" class="btn-link">Edit</a>
-    </div>
+                    <a href="#" id="edit_subject_button" class="btn-link">Edit</a>
+                </div>
 
-    <div class="form-group">
-      {{ $task->task_details }}
-    </div>
+                <div class="form-group">
+                    {{ $task->task_details }}
+                </div>
 
-    @if ($task->is_statutory == 3)
-      <div class="form-group">
-        <ul class="list-group">
-          <div id="note-list-container">
-            @foreach ($task->notes as $note)
-              <li class="list-group-item d-flex justify-content-between align-items-start">
-                <div class="">
-                  {{ $note->remark }}
+                @if ($task->is_statutory == 3)
+                    <div class="form-group">
+                        <ul class="list-group">
+                            <div id="note-list-container">
+                                @foreach ($task->notes as $note)
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="">
+                                            {{ $note->remark }}
 
-                  <ul class="pl-2">
-                    @foreach ($note->subnotes as $subnote)
-                      <li class="d-flex justify-content-between align-items-center">
-                        {{ $subnote->remark }}
+                                            <ul class="pl-2">
+                                                @foreach ($note->subnotes as $subnote)
+                                                    <li class="d-flex justify-content-between align-items-center">
+                                                        {{ $subnote->remark }}
 
-                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $subnote->remark }}"><img src="/images/add.png" /></button>
-                      </li>
+                                                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $subnote->remark }}"><img src="/images/add.png" /></button>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+
+                                            <input type="text" class="form-control input-sm create-subnote" data-id="{{ $note->id }}" name="note" placeholder="Note" value="">
+                                        </div>
+
+                                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}"><img src="/images/add.png" /></button>
+                                    </li>
+                                @endforeach
+                            </div>
+
+                            <li class="list-group-item">
+                                <input type="text" id="create-note-field" class="form-control input-sm" name="note" placeholder="Note" value="">
+                            </li>
+                        </ul>
+                    </div>
+                @endif
+
+
+
+                {{-- <div class="form-group">
+                  {{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i') }}
+                </div> --}}
+
+                <div class="form-group">
+                    <strong>Assigned from:</strong> {{ array_key_exists($task->assign_from, $users_array) ? $users_array[$task->assign_from] : 'User Does Not Exist' }}
+                </div>
+
+                <div class="form-group">
+                    <strong>Assigned to:</strong>
+                    @foreach ($task->users as $key => $user)
+                        @if ($key != 0)
+                            ,
+                        @endif
+
+                        @if (array_key_exists($user->id, $users_array))
+                            @if ($user->id == Auth::id())
+                                <a href="{{ route('users.show', $user->id) }}">{{ $users_array[$user->id] }}</a>
+                            @else
+                                {{ $users_array[$user->id] }}
+                            @endif
+                        @else
+                            User Does Not Exist
+                        @endif
                     @endforeach
-                  </ul>
 
-                  <input type="text" class="form-control input-sm create-subnote" data-id="{{ $note->id }}" name="note" placeholder="Note" value="">
+                    <br>
+
+                    @foreach ($task->contacts as $key => $contact)
+                        @if ($key != 0)
+                            ,
+                        @endif
+
+                        {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
+                    @endforeach
                 </div>
 
-                <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}"><img src="/images/add.png" /></button>
-              </li>
-            @endforeach
-          </div>
 
-          <li class="list-group-item">
-            <input type="text" id="create-note-field" class="form-control input-sm" name="note" placeholder="Note" value="">
-          </li>
-        </ul>
-      </div>
+
+                <div class="form-group">
+                    <strong>Assigned To (users):</strong>
+                    <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple>
+                        @foreach ($users as $user)
+                            <option data-tokens="{{ $user->id }} {{ $user->name }}" value="{{ $user->id }}" {{ $task->users->contains($user) ? 'selected' : '' }}>{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+
+                    @if ($errors->has('assign_to'))
+                        <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                    @endif
+                </div>
+
+                <div class="form-group">
+                    <strong>Assigned To (contacts):</strong>
+                    <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
+                        @foreach (Auth::user()->contacts as $contact)
+                            <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}" {{ $task->contacts->contains($contact) ? "selected" : '' }}>{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+                        @endforeach
+                    </select>
+
+                    @if ($errors->has('assign_to_contacts'))
+                        <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
+                    @endif
+                </div>
+
+                <button type="submit" class="btn btn-xs btn-secondary">Update</button>
+            </form>
+        </div>
+
+        <div class="col-xs-12 col-md-4 mb-3">
+            <div class="border">
+                <form action="{{ route('whatsapp.send', 'task') }}" method="POST" enctype="multipart/form-data">
+                    <div class="d-flex">
+                        @csrf
+
+                        <div class="form-group">
+                            <div class="upload-btn-wrapper btn-group pr-0 d-flex">
+                                <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                                <input type="file" name="image" />
+
+                                <button type="submit" class="btn btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png" /></button>
+                            </div>
+                        </div>
+
+                        <div class="form-group flex-fill mr-3">
+                            <button type="button" id="customerMessageButton" class="btn btn-image"><img src="/images/support.png" /></button>
+                            <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from User"></textarea>
+                            <input type="hidden" name="status" value="0" />
+                        </div>
+
+                        {{-- <div class="form-group">
+                          <div class="upload-btn-wrapper">
+                            <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                            <input type="file" name="image" />
+                          </div>
+                        </div> --}}
+                    </div>
+
+                </form>
+
+                <form action="{{ route('whatsapp.send', 'task') }}" method="POST" enctype="multipart/form-data">
+                    <div id="paste-container" style="width: 200px;">
+
+                    </div>
+
+                    <div class="d-flex">
+                        @csrf
+
+                        <div class="form-group">
+                            <div class=" d-flex flex-column">
+                                <div class="">
+                                    <div class="upload-btn-wrapper btn-group px-0">
+                                        <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
+                                        <input type="file" name="image" />
+
+                                    </div>
+                                    <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+
+                                </div>
+
+                                <div class="">
+                                    {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
+
+
+                                    {{-- <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button> --}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group flex-fill mr-3">
+                            <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
+
+                            <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
+                            <input type="hidden" name="status" value="1" />
+
+                            <div class="paste-container"></div>
+
+
+                        </div>
+
+                    </div>
+
+                    {{-- <div class="pb-4 mt-3">
+                      <div class="row">
+                        <div class="col">
+                          <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
+                            <option value="">Select Category</option>
+                            @foreach($reply_categories as $category)
+                              <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                            @endforeach
+                          </select>
+
+                          <select name="quickComment" id="quickComment" class="form-control input-sm">
+                            <option value="">Quick Reply</option>
+                          </select>
+                        </div>
+                        <div class="col">
+                          <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
+                        </div>
+                      </div>
+                    </div> --}}
+
+                </form>
+
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-4">
+            <div class="border">
+                {{-- <h4>Messages</h4> --}}
+
+                <div class="row">
+                    <div class="col-12 my-3" id="message-wrapper">
+                        <div id="message-container"></div>
+                    </div>
+
+                    <div class="col-xs-12 text-center hidden">
+                        <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
-
-
-
-    {{-- <div class="form-group">
-      {{ Carbon\Carbon::parse($task->completion_date)->format('d-m H:i') }}
-    </div> --}}
-
-    <div class="form-group">
-      <strong>Assigned from:</strong> {{ array_key_exists($task->assign_from, $users_array) ? $users_array[$task->assign_from] : 'User Does Not Exist' }}
-    </div>
-
-    <div class="form-group">
-      <strong>Assigned to:</strong>
-      @foreach ($task->users as $key => $user)
-        @if ($key != 0)
-          ,
-        @endif
-
-        @if (array_key_exists($user->id, $users_array))
-          @if ($user->id == Auth::id())
-            <a href="{{ route('users.show', $user->id) }}">{{ $users_array[$user->id] }}</a>
-          @else
-            {{ $users_array[$user->id] }}
-          @endif
-        @else
-          User Does Not Exist
-        @endif
-      @endforeach
-
-      <br>
-
-      @foreach ($task->contacts as $key => $contact)
-        @if ($key != 0)
-          ,
-        @endif
-
-        {{ $contact->name }} - {{ $contact->phone }} ({{ ucwords($contact->category) }})
-      @endforeach
-    </div>
-
-
-
-      <div class="form-group">
-        <strong>Assigned To (users):</strong>
-        <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User" multiple>
-          @foreach ($users as $user)
-            <option data-tokens="{{ $user->id }} {{ $user->name }}" value="{{ $user->id }}" {{ $task->users->contains($user) ? 'selected' : '' }}>{{ $user->name }}</option>
-          @endforeach
-        </select>
-
-        @if ($errors->has('assign_to'))
-          <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
-        @endif
-      </div>
-
-      <div class="form-group">
-        <strong>Assigned To (contacts):</strong>
-        <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
-          @foreach (Auth::user()->contacts as $contact)
-            <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}" {{ $task->contacts->contains($contact) ? "selected" : '' }}>{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
-          @endforeach
-        </select>
-
-        @if ($errors->has('assign_to_contacts'))
-          <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
-        @endif
-      </div>
-
-      <button type="submit" class="btn btn-xs btn-secondary">Update</button>
-    </form>
-  </div>
-
-  <div class="col-xs-12 col-md-4 mb-3">
-    <div class="border">
-      <form action="{{ route('whatsapp.send', 'task') }}" method="POST" enctype="multipart/form-data">
-        <div class="d-flex">
-          @csrf
-
-          <div class="form-group">
-            <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-              <input type="file" name="image" />
-
-              <button type="submit" class="btn btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png" /></button>
-            </div>
-          </div>
-
-          <div class="form-group flex-fill mr-3">
-            <button type="button" id="customerMessageButton" class="btn btn-image"><img src="/images/support.png" /></button>
-            <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from User"></textarea>
-            <input type="hidden" name="status" value="0" />
-          </div>
-
-          {{-- <div class="form-group">
-            <div class="upload-btn-wrapper">
-              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-              <input type="file" name="image" />
-            </div>
-          </div> --}}
-        </div>
-
-      </form>
-
-      <form action="{{ route('whatsapp.send', 'task') }}" method="POST" enctype="multipart/form-data">
-        <div id="paste-container" style="width: 200px;">
-
-        </div>
-
-        <div class="d-flex">
-          @csrf
-
-          <div class="form-group">
-            <div class=" d-flex flex-column">
-              <div class="">
-                <div class="upload-btn-wrapper btn-group px-0">
-                  <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-                  <input type="file" name="image" />
-
-                </div>
-                <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-
-              </div>
-
-              <div class="">
-                {{-- <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a> --}}
-
-
-                {{-- <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button> --}}
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group flex-fill mr-3">
-            <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
-
-            <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
-            <input type="hidden" name="status" value="1" />
-
-            <div class="paste-container"></div>
-
-
-          </div>
-
-        </div>
-
-        {{-- <div class="pb-4 mt-3">
-          <div class="row">
-            <div class="col">
-              <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
-                <option value="">Select Category</option>
-                @foreach($reply_categories as $category)
-                  <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                @endforeach
-              </select>
-
-              <select name="quickComment" id="quickComment" class="form-control input-sm">
-                <option value="">Quick Reply</option>
-              </select>
-            </div>
-            <div class="col">
-              <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
-            </div>
-          </div>
-        </div> --}}
-
-      </form>
-
-    </div>
-  </div>
-
-  <div class="col-xs-12 col-md-4">
-    <div class="border">
-      {{-- <h4>Messages</h4> --}}
-
-      <div class="row">
-        <div class="col-12 my-3" id="message-wrapper">
-          <div id="message-container"></div>
-        </div>
-
-        <div class="col-xs-12 text-center hidden">
-          <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 @include('task-module.partials.modal-reminder')
@@ -1807,6 +1878,43 @@
         }
       });
 
+  $('#create-note-field-for-appointment').keypress(function(e) {
+      var key = e.which;
+      var thiss = $(this);
+
+      if (key == 13) {
+          e.preventDefault();
+          var note = $(thiss).val();
+          var id = "{{ $task->id }}";
+
+          if (note != '') {
+              $.ajax({
+                  type: 'POST',
+                  url: "{{ url('task') }}/" + id + '/addNote',
+                  data: {
+                      _token: "{{ csrf_token() }}",
+                      note: note,
+                  }
+              }).done(function() {
+                  $(thiss).val('');
+                  location.reload();
+                  // var note_html = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                  //               ` + note + `
+                  //               <button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button>
+                  //             </li>`;
+
+                  // $('#note-list-container').append(note_html);
+              }).fail(function(response) {
+                  console.log(response);
+
+                  alert('Could not add note');
+              });
+          } else {
+              alert('Please enter note first!')
+          }
+      }
+  });
+
       $(document).on('keypress', '.create-subnote', function(e) {
         var key = e.which;
         var thiss = $(this);
@@ -1828,7 +1936,7 @@
               $(thiss).val('');
               var note_html = `<li class="d-flex justify-content-between align-items-center">` + note + `<button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button></li>`;
 
-              $(thiss).siblings('ul').append(note_html);
+                $(thiss).siblings('ul').append(note_html);
             }).fail(function(response) {
               console.log(response);
 
@@ -1839,6 +1947,39 @@
           }
         }
       });
+
+  $(document).on('keypress', '.create-subnote-for-appointment', function(e) {
+      var key = e.which;
+      var thiss = $(this);
+      var id = $(this).data('id');
+
+      if (key == 13) {
+          e.preventDefault();
+          var note = $(thiss).val();
+
+          if (note != '') {
+              $.ajax({
+                  type: 'POST',
+                  url: "{{ url('task') }}/" + id + '/addSubnote',
+                  data: {
+                      _token: "{{ csrf_token() }}",
+                      note: note,
+                  }
+              }).done(function() {
+                  $(thiss).val('');
+                  var note_html = `<tr><td><strong>Just Now</strong></td><td>` + note + `</td><td><button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button></td></tr>`;
+
+                  $('#rec_'+id + ' table').prepend(note_html);
+              }).fail(function(response) {
+                  console.log(response);
+
+                  alert('Could not add note');
+              });
+          } else {
+              alert('Please enter note first!')
+          }
+      }
+  });
 
       $('#task_category').on('change', function() {
         var category = $(this).val();

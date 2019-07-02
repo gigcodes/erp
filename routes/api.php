@@ -34,3 +34,6 @@ Route::resource('stat', 'ScrapStatisticsController');
 
 Route::get('crop/amends', 'ProductCropperController@giveAmends');
 Route::post('crop/amends', 'ProductCropperController@saveAmends');
+
+Route::get('products/auto-rejected', 'ScrapController@getAutoRejectedProducts');
+Route::post('products/auto-rejected', 'ScrapController@saveAutoRejectedProducts');

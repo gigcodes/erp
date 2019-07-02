@@ -12,7 +12,7 @@ class Issue extends Model
   use SoftDeletes;
 
   protected $fillable = [
-    'user_id', 'issue', 'priority', 'module'
+    'user_id', 'issue', 'priority', 'module', 'subject'
   ];
 
   public function responsibleUser() {

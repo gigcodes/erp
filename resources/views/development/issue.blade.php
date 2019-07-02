@@ -4,7 +4,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
 
-@section('content')
+@section('large_content')
   <div class="row">
     <div class="col-lg-12 margin-tb">
       <h2 class="page-heading">Issue List</h2>
@@ -65,6 +65,9 @@
             </select>
           </div>
           <div class="col-md-2">
+            <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control">
+          </div>
+          <div class="col-md-2">
             <button class="btn btn-image">
               <img src="{{ asset('images/search.png') }}" alt="Search">
             </button>
@@ -80,13 +83,14 @@
       <tr class="add-new-issue">
         <form action="{{ route('development.issue.store') }}" method="post" enctype="multipart/form-data">
           @csrf
-          <td colspan="10">
+          <td colspan="11">
             <select class="form-control d-inline select2" name="module" id="module" style="width: 150px !important;">
               <option value="0">Select Module</option>
               @foreach($modules as $module)
                 <option value="{{$module->id}}">{{ $module->name }}</option>
               @endforeach
             </select>
+            <input type="text" name="subject" placeholder="Subject..." id="subject" class="form-control d-inline" style="width: 150px !important;">
             <input type="text" name="issue" placeholder="Issue..." id="issue" class="form-control d-inline" style="width: 150px !important;">
             <select class="form-control d-inline" name="priority" required style="width: 150px !important;">
               <option value="">Select Priority...</option>
@@ -100,22 +104,31 @@
         </form>
       </tr>
       <tr>
-        <th>Module</th>
-        <th>Issue</th>
-        <th>Date Created</th>
-        <th>Submitted By</th>
-        <th>Assigned To</th>
-        <th>Correction By</th>
-        <th>Resolved</th>
-        <th>Cost</th>
-        <th>Communication</th>
+        <th width="1%">ID</th>
+        <th width="5%">Module</th>
+        <th width="10%">Subject</th>
+        <th width="15%">Issue</th>
+        <th width="5%">Date Created</th>
+        <th width="5%">Submitted By</th>
+        <th width="5%">Assigned To</th>
+        <th width="5%">Correction By</th>
+        <th width="5%">Resolved</th>
+        <th width="5%">Cost</th>
+        <th width="25%">Communication</th>
       </tr>
       @foreach ($issues as $key => $issue)
         @can('admin')
           <tr>
+            <td>{{ $issue->id }}</td>
             <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
-            <td>
-              {{ $issue->issue }}
+            <td>{{ $issue->subject ?? 'N/A' }}</td>
+            <td class="expand-row">
+              <div class="td-mini-container">
+                {{ strlen($issue->issue) > 20 ? substr($issue->issue, 0, 20).'...' : $issue->issue }}
+              </div>
+              <div class="td-full-container hidden">
+                {{ $issue->issue }}
+              </div>
               @if ($issue->getMedia(config('constants.media_tags'))->first())
                 <br>
                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -169,13 +182,28 @@
               @endif
             </td>
             <td>
-              <div class="messageList" id="message_list_{{$issue->id}}">
-                @foreach($issue->communications()->take(4)->get() as $message)
-                  <li>{{ $message->message }}</li>
-                @endforeach
-              </div>
-              <div class="d-inline">
-                <input type="text" class="form-control send-message" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}">
+              <div>
+                <div class="panel-group">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse_{{$issue->id}}">Messages({{count($issue->communications)}})</a>
+                      </h4>
+                    </div>
+                    <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="messageList" id="message_list_{{$issue->id}}">
+                          @foreach($issue->communications as $message)
+                            <li>{{ $message->message }}</li>
+                          @endforeach
+                        </div>
+                      </div>
+                      <div class="panel-footer">
+                        <input type="text" class="form-control send-message" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}">
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </td>
           </tr>
@@ -240,7 +268,7 @@
                 @endif
               </td>
               <td>
-                <div class="messageList" id="message_list_{{$issue->id}}">
+                <div class="messageLis" style="max-height: 50px; overflow: auto" data-id="{{$issue->id}}" id="message_list_{{$issue->id}}">
                   @foreach($issue->communications()->take(4)->get() as $message)
                     <li>{{ $message->message }}</li>
                   @endforeach
@@ -378,7 +406,7 @@
         },
         success: function() {
           toastr["success"]("Message sent successfully!", "Message");
-          $('#message_list_'+issueId).append('<li>' + message + '<li>');
+          $('#message_list_'+issueId).append('<li>' + message + '</li>');
           $(self).removeAttr('disabled');
           $(self).val('');
         },
@@ -466,5 +494,20 @@
         }
       });
       });
+
+    $(document).on('click', '.expand-row', function() {
+      var selection = window.getSelection();
+      if (selection.toString().length === 0) {
+        // if ($(this).data('switch') == 0) {
+        //   $(this).text($(this).data('details'));
+        //   $(this).data('switch', 1);
+        // } else {
+        //   $(this).text($(this).data('subject'));
+        //   $(this).data('switch', 0);
+        // }
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+      }
+    });
   </script>
 @endsection

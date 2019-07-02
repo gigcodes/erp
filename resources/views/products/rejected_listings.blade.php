@@ -11,6 +11,9 @@
             <form method="get" action="{{action('ProductController@showRejectedListedProducts')}}">
                 <div class="row">
                     <div class="col-md-2">
+                        <input type="text"name="id" id="id" class="form-control" placeholder="Id, sku...">
+                    </div>
+                    <div class="col-md-2">
                         <select name="type" id="type" class="form-control">
                             <option value="">Any</option>
                             <option value="rejected">Only Rejected</option>
@@ -58,12 +61,20 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <select class="form-control select-multiple" name="supplier[]" multiple>
+                        <select data-placeholder="Select Supplier..." class="form-control select-multiple" name="supplier[]" multiple>
                             <optgroup label="Suppliers">
                                 @foreach ($suppliers as $key => $item)
                                     <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
                                 @endforeach
                             </optgroup>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" name="user_id" id="user_id">
+                            <option value="">Select User</option>
+                            @foreach($users as $user)
+                                <option {{ $request->get('user_id')==$user->id ? 'selected' : '' }} value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-1">
@@ -75,7 +86,7 @@
     </div>
     <div class="row">
         <div class="col-md-12 text-center">
-            {!! $products->links() !!}
+            {!! $products->appends($request->except('page'))->links() !!}
         </div>
     </div>
     <div class="row">
@@ -101,6 +112,8 @@
                             <a href="{{ action('ProductController@show', $product->id) }}">
                                 <img style="width: 150px;" src="{{ $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getUrl() : '' }}" alt="Image">
                             </a>
+                            <br>
+                            <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
                         </td>
                         <td>{{ $product->listing_rejected_on }}</td>
                         <td>{{ $product->listing_remark ?? 'N/A' }}</td>
@@ -138,6 +151,8 @@
                         <td colspan="4">
                             <p><strong>Remarks</strong></p>
                             <p>{{ $product->listing_remark }}</p>
+                            <p><strong>Rejected By</strong></p>
+                            <p>{{ $product->rejector ? $product->rejector->name : 'N/A' }}</p>
                         </td>
                         <td colspan="4">
                             <p><strong>Final Action</strong></p>
@@ -155,13 +170,16 @@
     </div>
     <div class="row">
         <div class="col-md-12 text-center">
-            {!! $products->links() !!}
+            {!! $products->appends($request->except('page'))->links() !!}
         </div>
     </div>
 @endsection
 
 @section('scripts')
     <script>
+        $(document).ready(function() {
+            $('.select-multiple').select2();
+        });
         $(document).on('click', '.save-corrections', function() {
             let pid = $(this).attr('data-id');
             let is_corrected = $("#corrected_"+pid).is(':checked') ? 1 : 0;

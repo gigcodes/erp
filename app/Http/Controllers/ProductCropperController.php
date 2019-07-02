@@ -430,6 +430,7 @@ class ProductCropperController extends Controller
 	    $product->is_crop_approved = 1;
 	    $product->crop_approved_by = Auth::user()->id;
 	    $product->crop_approved_at = Carbon::now()->toDateTimeString();
+	    $product->is_crop_rejected = 0;
 	    $product->save();
 
         $e = new ListingHistory();
@@ -520,7 +521,7 @@ class ProductCropperController extends Controller
         $e = new ListingHistory();
         $e->user_id = Auth::user()->id;
         $e->product_id = $product->id;
-        $e->content = ['action' => 'PRODUCT_LISTING', 'page' => 'Approved Listing Page'];
+        $e->content = ['action' => 'CROP_REJECTED', 'page' => 'Approved Listing Page'];
         $e->action = 'CROP_REJECTED';
         $e->save();
 
@@ -565,10 +566,13 @@ class ProductCropperController extends Controller
 
         if ($request->get('reason') !== '') {
             $reason = $request->get('reason');
-            $products = $products->where('crop_remark' , 'LIKE', "%$reason%");
-            $products = $products->where('id', 'LIKE', "%$reason%");
-            $products = $products->where('sku', 'LIKE', "%$reason%");
+            $products = $products->where(function($query) use ($reason) {
+                $query = $query->where('crop_remark' , 'LIKE', "%$reason%")
+                    ->orWhere('id', 'LIKE', "%$reason%")
+                    ->orWhere('sku', 'LIKE', "%$reason%");
+            });
         }
+
 
         $suppliers = DB::select('
 				SELECT id, supplier
@@ -625,11 +629,24 @@ class ProductCropperController extends Controller
         return view('products.rejected_crop_list', compact('products', 'suppliers', 'supplier', 'reason', 'selected_categories', 'category_array'));
     }
 
+    public function cropIssuesPage() {
+	    $issues = DB::table('products')->selectRaw('DISTINCT(crop_remark) as remark, COUNT(crop_remark) as issue_count')->where('is_crop_rejected',1)->groupBy('crop_remark')->orderBy('issue_count', 'DESC')->get();
+
+	    return view('products.crop_issue_summary', compact('issues'));
+    }
+
     public function showRejectedImageToBeverified($id) {
 	    $product = Product::find($id);
 	    $secondProduct = Product::where('id', '!=', $id)->where('is_crop_rejected', 1)->first();
 
-	    return view('products.rejected_crop', compact('product', 'secondProduct'));
+        $category = $product->category;
+        $img = $this->getCategoryForCropping($category);
+
+	    return view('products.rejected_crop', compact('product', 'secondProduct', 'img'));
+    }
+
+    public function approveRejectedImage(Request $request) {
+
     }
 
     public function downloadImagesForProducts($id, $type) {
@@ -656,28 +673,42 @@ class ProductCropperController extends Controller
     }
 
     public function approveRejectedCropped($id, Request $request) {
-	    $this->validate($request, [
-	        'images' => 'required'
-        ]);
 	    $product = Product::find($id);
 
-	    $files = $request->allFiles();
+//	    $files = $request->allFiles();
+//
+//	    if ($files !== []) {
+//            $this->deleteCroppedImages($product);
+//            foreach ($files['images'] as $file) {
+//                $media = MediaUploader::fromSource($file)->useFilename('CROPPED_' . time() . '_' . rand(555,455545))->upload();
+//                $product->attachMedia($media, 'gallery');
+//            }
+//
+//        }
 
-	    $this->deleteCroppedImages($product);
-
-	    foreach ($files['images'] as $file) {
-	        $media = MediaUploader::fromSource($file)->useFilename('CROPPED_' . time() . '_' . rand(555,455545))->upload();
-	        $product->attachMedia($media, 'gallery');
+        $action = 'MARK_NOT_CROPPED';
+        if ($request->get('action') == 'uncropped') {
+            $product->is_image_processed = 0;
+            $product->is_crop_rejected = 0;
+            $product->is_crop_approved = 0;
+            $product->save();
+        } else if ($request->get('action') == 'approved') {
+            $product->is_crop_approved = 1;
+            $product->crop_approved_by = Auth::id();
+            $product->is_crop_rejected = 0;
+            $product->crop_approved_at = Carbon::now()->toDateTimeString();
+            $product->save();
+            $action = 'CROP_APPROVAL';
+        } else if ($request->get('action') == 'manual') {
+            $product->manual_crop = 1;
+            $product->is_crop_rejected = 0;
+            $product->save();
+            $action = 'SENT_FOR_MANUAL_CROPPING';
         }
 
-        $product->is_crop_rejected = 0;
-        $product->is_crop_approved = 0;
-        $product->reject_approved_by = Auth::user()->id;
-        $product->save();
-
         $l = new ListingHistory();
-        $l->action = 'CROP_REJECTED_APPROVAL';
-        $l->content = ['action' => 'CROP_REJECTED_APPROVAL', 'message' => 'The rejected cropped image is back for re verification!'];
+        $l->action = $action;
+        $l->content = ['action' => $action, 'message' => ''];
         $l->user_id = Auth::user()->id;
         $l->product_id = $product->id;
         $l->save();
@@ -704,7 +735,7 @@ class ProductCropperController extends Controller
     }
 
     public function showCropVerifiedForOrdering() {
-	    $product = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->orderBy('is_order_rejected', 'DESC')->first();
+	    $product = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->orderBy('is_order_rejected', 'DESC')->orderBy('updated_at', 'DESC')->first();
 	    $total = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->count();
 
 	    return view('products.sequence', compact('product', 'total'));
@@ -742,6 +773,7 @@ class ProductCropperController extends Controller
     {
         $product = Product::findOrFail($id);
         $product->is_crop_ordered = 0;
+        $product->is_order_rejected = 1;
         $product->is_approved = 0;
         $product->save();
 
@@ -787,6 +819,7 @@ class ProductCropperController extends Controller
 	    $product->is_crop_ordered = 1;
 	    $product->crop_ordered_by = Auth::user()->id;
 	    $product->crop_ordered_at = Carbon::now()->toDateTimeString();
+	    $product->is_crop_approved = 1;
 	    $product->save();
 
 	    $l = new ListingHistory();

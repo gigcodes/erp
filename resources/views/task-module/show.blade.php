@@ -55,6 +55,16 @@
             </div>
           @endcan
 
+            <div class="form-group ml-3">
+                <select name="is_statutory_query" id="is_statutory_query" class="form-control">
+                    <option value="0">Other Task</option>
+                    <option value="1">Statutory Task</option>
+                    <option value="2">Calendar Task</option>
+                    <option value="3">Appointment Task</option>
+                </select>
+            </div>
+
+
           <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
         </form>
       </div>

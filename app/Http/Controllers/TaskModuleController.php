@@ -51,6 +51,10 @@ class TaskModuleController extends Controller {
 			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%"))';
 		}
 
+		if ($request->get('is_statutory_query') != '') {
+		    $searchWhereClause = ' AND is_statutory = ' . $request->get('is_statutory_query');
+        }
+
 		$data['task'] = [];
 
 		// $data['task']['pending']      = Task::with('remarks')->where( 'is_statutory', '=', 0 )

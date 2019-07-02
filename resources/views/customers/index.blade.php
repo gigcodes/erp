@@ -1382,7 +1382,7 @@
           }
       });
 
-      $(documet).on('keyup', 'add-new-note', function(event) {
+      $(document).on('keyup', 'add-new-note', function(event) {
           if (event.which != 13) {
               return;
           }

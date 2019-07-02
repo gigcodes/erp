@@ -1552,7 +1552,7 @@ class WhatsAppController extends FindByNumberController
           $issue = Issue::find($request->get('issue_id'));
           $params['erp_user'] = $issue->user_id;
           $params['approved'] = 1;
-          $params['message'] = '#'.$issue->id.' '.$request->get('message');
+          $params['message'] = '#'.$issue->id.'-'. $issue->subject . '=>' .$request->get('message');
           $params['status'] = 2;
 
           $number = User::find($issue->user_id)->phone;
