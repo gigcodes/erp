@@ -48,11 +48,11 @@ class TaskModuleController extends Controller {
 		$searchWhereClause = '';
 
 		if ($request->term != '') {
-			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%"))';
+			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")))';
 		}
 
 		if ($request->get('is_statutory_query') != '') {
-		    $searchWhereClause = ' AND is_statutory = ' . $request->get('is_statutory_query');
+		    $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
         }
 
 		$data['task'] = [];
@@ -312,6 +312,22 @@ class TaskModuleController extends Controller {
 			$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
 		}
 
+		$search_term_suggestions = [];
+		foreach ($data['task']['pending'] as $task) {
+			$search_term_suggestions[] = User::find($task->assign_from)->name;
+			$special_task = Task::find($task->id);
+
+			if (count($special_task->users) > 0) {
+				foreach ($special_task->users as $user) {
+					$search_term_suggestions[] = $user->name;
+				}
+			}
+
+			$search_term_suggestions[] = "$task->id";
+			$search_term_suggestions[] = $task->task_subject;
+			$search_term_suggestions[] = $task->task_details;
+		}
+
 		// $category = '';
 
 		//My code start
@@ -334,7 +350,7 @@ class TaskModuleController extends Controller {
 
 		$tasks_view = [];
 
-		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown'));
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown'));
 	}
 
 	public function store( Request $request ) {

@@ -37,7 +37,7 @@
           <input type="hidden" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}">
 
           <div class="form-group">
-            <input type="text" name="term" placeholder="Search Term" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
+            <input type="text" name="term" placeholder="Search Term" id="task_search" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
           </div>
 
           <div class="form-group ml-3">
@@ -1024,6 +1024,7 @@
   {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script> --}}
   <script>
   var taskSuggestions = {!! json_encode($search_suggestions, true) !!};
+  var searchSuggestions = {!! json_encode($search_term_suggestions, true) !!};
   var cached_suggestions = localStorage['message_suggestions'];
   var suggestions = [];
 
@@ -1035,6 +1036,15 @@
         response(results.slice(0, 10));
       }
     });
+
+    $('#task_search').autocomplete({
+      source: function(request, response) {
+        var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+
+        response(results.slice(0, 10));
+      }
+    });
+
     var hash = window.location.hash.substr(1);
 
     if (hash == '3') {
