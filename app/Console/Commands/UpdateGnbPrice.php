@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\ScrapedProducts;
 use App\Brand;
 use App\Product;
+use App\Setting;
 
 class UpdateGnbPrice extends Command
 {
@@ -44,8 +45,8 @@ class UpdateGnbPrice extends Command
     {
       // $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
       // $products = ScrapedProducts::where('updated_at', '>', '2019-06-05 00:00')->get();
-      // $products = ScrapedProducts::where('sku', 'CHC18U00606001')->get();
-      $products = ScrapedProducts::where('website', 'deliberti')->get();
+      // $products = ScrapedProducts::where('sku', '182400abs000058025pi')->get();
+      $products = ScrapedProducts::where('website', 'griffo210')->get();
 
       // dd(count($products));
       foreach ($products as $key => $product) {
@@ -56,62 +57,76 @@ class UpdateGnbPrice extends Command
 
           $brand = Brand::find($product->brand_id);
 
-          if (strpos($product->price, ',') !== false) {
-            dump("$key - comma found");
+          if ($brand) {
+            if (strpos($product->price, ',') !== false) {
+              dump("$key - comma found");
 
-            if (strpos($product->price, '.') !== false) {
-              dump("$key - dot found");
+              if (strpos($product->price, '.') !== false) {
+                dump("$key - dot found");
 
-              if (strpos($product->price, ',') < strpos($product->price, '.')) {
-                dump("$key - comma first than dot");
+                if (strpos($product->price, ',') < strpos($product->price, '.')) {
+                  dump("$key - comma first than dot");
 
-                $final_price = str_replace(',', '', $product->price);
+                  $final_price = str_replace(',', '', $product->price);
+                } else {
+                  // $final_price = $product->price;
+                  $final_price = str_replace(',', '|', $product->price);
+                  $final_price = str_replace('.', ',', $final_price);
+                  $final_price = str_replace('|', '.', $final_price);
+                  $final_price = str_replace(',', '', $final_price);
+                }
               } else {
-                // $final_price = $product->price;
-                $final_price = str_replace(',', '|', $product->price);
-                $final_price = str_replace('.', ',', $final_price);
-                $final_price = str_replace('|', '.', $final_price);
-                $final_price = str_replace(',', '', $final_price);
+                dump("$key - no dot found");
+                $final_price = str_replace(',', '.', $product->price);
               }
             } else {
-              dump("$key - no dot found");
-              $final_price = str_replace(',', '.', $product->price);
+              dump("$key - no changes");
+              $final_price = $product->price;
             }
+
+            $final_price = trim(preg_replace('/[^0-9\.]/i', '', $final_price));
+
+            if (strpos($final_price, '.') !== false) {
+              dump($final_price);
+
+              $exploded = explode('.', $final_price);
+              dump(json_encode($exploded));
+
+              dump(strlen($exploded[1]));
+              if (strlen($exploded[1]) > 2) {
+                if (count($exploded) > 2) {
+                  $sliced = array_slice($exploded, 0, 2);
+                } else {
+                  $sliced = $exploded;
+                }
+
+                dump("$key - has more than 2 digits after dot");
+                $final_price = implode('', $sliced);
+              }
+            }
+
+            // dd($final_price);
+
+            $price = round($final_price);
+
+            dump("FINAL PRICE - $price");
+
+            $old_product->price = $price;
+
+            if(!empty($brand->euro_to_inr))
+              $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
+            else
+              $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
+
+            $old_product->price_inr = round($old_product->price_inr, -3);
+            $old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
+
+            $old_product->price_special = round($old_product->price_special, -3);
+
+            $old_product->save();
           } else {
-            dump("$key - no changes");
-            $final_price = $product->price;
+            dump("NO BRAND");
           }
-
-          if (strpos($final_price, '.') !== false) {
-            dump($final_price);
-            $exploded = explode('.', $final_price);
-            dump(json_encode($exploded));
-            $replaced = trim(preg_replace('/[^A-Za-z0-9\-.]/', '', $exploded[1]));
-
-            dump(strlen($replaced));
-            if (strlen($replaced) > 2) {
-              dump("$key - has more than 2 digits after dot");
-              $final_price = implode('', $exploded);
-            }
-          }
-
-          // dd($final_price);
-
-          $price = round(preg_replace('/[\&euro;€,eur]/i', '', $final_price));
-
-          $old_product->price = $price;
-
-          if(!empty($brand->euro_to_inr))
-            $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
-          else
-            $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
-
-          $old_product->price_inr = round($old_product->price_inr, -3);
-          $old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
-
-          $old_product->price_special = round($old_product->price_special, -3);
-
-          $old_product->save();
         }
       }
     }
