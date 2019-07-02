@@ -43,8 +43,9 @@ class UpdateGnbPrice extends Command
     public function handle()
     {
       // $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
-      $products = ScrapedProducts::where('updated_at', '>', '2019-06-05 00:00')->get();
-      // $products = ScrapedProducts::where('sku', '1190524')->get();
+      // $products = ScrapedProducts::where('updated_at', '>', '2019-06-05 00:00')->get();
+      // $products = ScrapedProducts::where('sku', 'CHC18U00606001')->get();
+      $products = ScrapedProducts::where('website', 'deliberti')->get();
 
       // dd(count($products));
       foreach ($products as $key => $product) {
@@ -85,7 +86,8 @@ class UpdateGnbPrice extends Command
             dump($final_price);
             $exploded = explode('.', $final_price);
             dump(json_encode($exploded));
-            $replaced = trim(preg_replace('/[\&euro;€,eur]/i', '', $exploded[1]));
+            $replaced = trim(preg_replace('/[^A-Za-z0-9\-.]/', '', $exploded[1]));
+
             dump(strlen($replaced));
             if (strlen($replaced) > 2) {
               dump("$key - has more than 2 digits after dot");

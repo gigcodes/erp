@@ -258,6 +258,7 @@ class UserController extends Controller
 	{
 		$user = User::find($id);
 		$amount_assigned = 25;
+
         $products = Product::where('is_scraped', 1)
             ->where('stock', '>=', 1)
             ->where('is_crop_ordered', 1)
@@ -266,13 +267,20 @@ class UserController extends Controller
             ->where('is_listing_rejected', 0)
             ->where('isUploaded', 0)
             ->where('isFinal', 0);
+
         $user_products = UserProduct::pluck('product_id')->toArray();
-        $products = $products->whereNotIn('id', $user_products)->whereIn('category', [5,6,7,9,11,21,22,23,24,25,26,29,34,36,37,52,53,54,55,56,57,58,65,66,67,68,69,70,71,72,73,74,76,78,79,80,81,83,84,85,87,97,98,99,100,105,109,110,111,114,117,118])->latest()->take($amount_assigned)->get();
+
+        $products = $products->whereNotIn('id', $user_products)
+            ->whereIn('category', [5,6,7,9,11,21,22,23,24,25,26,29,34,36,37,52,53,54,55,56,57,58,65,66,67,68,69,70,71,72,73,74,76,78,79,80,81,83,84,85,87,97,98,99,100,105,109,110,111,114,117,118])
+            ->latest()
+            ->take($amount_assigned)
+            ->get();
+
         $user->products()->attach($products);
 
         if (count($products) >= $amount_assigned-1) {
             $message = 'You have successfully assigned ' . count($products) . ' products';
-            return redirect()->back()->withSuccess($message);
+            return redirect()->back()->with('success', $message);
         }
 
         $remaining = $amount_assigned-count($products);
