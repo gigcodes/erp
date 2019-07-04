@@ -104,8 +104,8 @@ class InstructionController extends Controller
 
       $instructions = $instructions->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'));
       $pending_instructions = $pending_instructions->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
-      $verify_instructions = $verify_instructions->orderBy('completed_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page');
-      $completed_instructions = $completed_instructions->orderBy('completed_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page');
+      $verify_instructions = $verify_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'verify-page');
+      $completed_instructions = $completed_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
       // if ($request->sortby != 'created_at') {
       //   $instructions = array_values(array_sort($instructions, function ($value) {
