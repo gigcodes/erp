@@ -1481,6 +1481,12 @@ class WhatsAppController extends FindByNumberController
       } else if ($context == 'vendor') {
         $data['vendor_id'] = $request->vendor_id;
         $module_id = $request->vendor_id;
+        if ($request->get('is_vendor_user') == 'yes') {
+            $user = User::find($request->get('vendor_id'));
+            $vendor = Vendor::where('phone', $user->phone)->first();
+            $data['vendor_id'] = $vendor->id;
+            $module_id = $vendor->id;
+        }
       } elseif ($context == 'task') {
         $data['task_id'] = $request->task_id;
         $task = Task::find($request->task_id);
@@ -1664,7 +1670,7 @@ class WhatsAppController extends FindByNumberController
         File::delete('uploads/temp_screenshot.png');
       }
 
-      if ((Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task') && $chat_message->status != 0) {
+      if ((Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0) {
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);

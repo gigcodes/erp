@@ -39,7 +39,7 @@
                     <ul id="tree1">
                         @foreach($categories as $category)
                             <li>
-                                {{ $category->title }}
+                                {{ $category->title }} ({{$category->id}})
                                 @if(count($category->childs))
                                     @include('category.manageChild',['childs' => $category->childs])
                                 @endif

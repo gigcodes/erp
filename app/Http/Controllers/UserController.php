@@ -217,13 +217,13 @@ class UserController extends Controller
 			$user->customers()->sync($request->customer);
 		}
 
-		if (!$user->hasRole('Products Lister') && in_array('Prod  ucts Lister', $request->roles)) {
-			$requestData = new Request();
-			$requestData->setMethod('POST');
-			$requestData->request->add(['amount_assigned' => 100]);
-
-			$this->assignProducts($requestData, Auth::id());
-		}
+//		if (!$user->hasRole('Products Lister') && in_array('Products Lister', $request->roles)) {
+//			$requestData = new Request();
+//			$requestData->setMethod('POST');
+//			$requestData->request->add(['amount_assigned' => 100]);
+//
+//			$this->assignProducts($requestData, Auth::id());
+//		}
 
 		DB::table('model_has_roles')->where('model_id',$id)->delete();
 
@@ -272,6 +272,7 @@ class UserController extends Controller
 
         $products = $products->whereNotIn('id', $user_products)
             ->whereIn('category', [5,6,7,9,11,21,22,23,24,25,26,29,34,36,37,52,53,54,55,56,57,58,65,66,67,68,69,70,71,72,73,74,76,78,79,80,81,83,84,85,87,97,98,99,100,105,109,110,111,114,117,118])
+            ->orderBy('is_on_sale', 'DESC')
             ->latest()
             ->take($amount_assigned)
             ->get();
@@ -296,7 +297,7 @@ class UserController extends Controller
 
         $user_products = UserProduct::pluck('product_id')->toArray();
 
-        $products = $products->whereNotIn('id', $user_products)->latest()->take($remaining)->get();
+        $products = $products->whereNotIn('id', $user_products)->orderBy('is_on_sale', 'DESC')->latest()->take($remaining)->get();
         $user->products()->attach($products);
 
 		if (count($products) > 0) {

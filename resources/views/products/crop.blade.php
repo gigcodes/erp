@@ -41,7 +41,16 @@
                                 </form>
                             </td>
                             <td>
-                                <strong>Dimension: {{round($product->lmeasurement*0.393701)}} X {{round($product->hmeasurement*0.393701)}} X {{round($product->dmeasurement*0.393701)}}</strong>
+                                <strong>Dimenson: {{$product->lmeasurement }} X {{ $product->hmeasurement }} X {{ $product->dmeasurement }}</strong>
+                                <?php
+                                try {
+                                    ?>
+                                        <strong>Dimension: {{round($product->lmeasurement*0.393701)}} X {{round($product->hmeasurement*0.393701)}} X {{round($product->dmeasurement*0.393701)}}</strong>
+                                    <?php
+                                } catch (Exception $exception) {
+
+                                }
+                                ?>
                             </td>
                         </tr>
                     </table>

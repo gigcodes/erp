@@ -274,6 +274,12 @@ class Kernel extends ConsoleKernel
         //     ->hourly();
 
 
+
+        // Code related to refine the products, category and other field...
+        //sizes, category, fix dashes and other characters, attribute replacement...
+
+
+
     }
 
     /**

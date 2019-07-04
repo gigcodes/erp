@@ -17,6 +17,9 @@
 
 Auth::routes();
 
+Route::get('/products/affiliate', 'ProductController@affiliateProducts');
+
+
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list','ProductSelectionController@sList')->name('productselection.list');
 Route::get('/productsearcher/list','ProductSearcherController@sList')->name('productsearcher.list');
@@ -55,6 +58,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');
 	Route::post('users/{id}/activate', 'UserController@activate')->name('user.activate');
 	Route::resource('users','UserController');
+	Route::resource('listing-payments', 'ListingPaymentsController');
 	Route::get('products/listing', 'ProductController@listing')->name('products.listing');
 	Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
 	Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');

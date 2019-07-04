@@ -2110,9 +2110,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
 
+      $(document).on('click', '.talk-bubble img', function(event) {
+          event.preventDefault();
+          $(this).attr('href', $(this).attr('src'));
+          $(this).ekkoLightbox();
+      });
 
   jQuery(document).ready(function( $ ) {
     $('audio').on("play", function (me) {
@@ -4454,6 +4461,8 @@
           $("#allHolder").toggleClass('chat-window');
           $("#overlay").fadeToggle();
       });
+
+      $(document).on()
   </script>
 
   <style>

@@ -68,7 +68,7 @@
                             <div class="form-group mr-3">
                               @php $brands = \App\Brand::getAll(); @endphp
                               {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
-                              <select class="form-control select-multiple" name="brand[]" multiple>
+                              <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
                                 <optgroup label="Brands">
                                   @foreach ($brands as $key => $name)
                                     <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
@@ -80,7 +80,7 @@
                             <div class="form-group mr-3">
                               @php $colors = new \App\Colors(); @endphp
                               {{-- {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
-                              <select class="form-control select-multiple" name="color[]" multiple>
+                              <select class="form-control select-multiple2" data-placeholder="Select color.." name="color[]" multiple>
                                 <optgroup label="Colors">
                                   @foreach ($colors->all() as $key => $col)
                                     <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
@@ -101,7 +101,7 @@
                           				ON suppliers.id = product_suppliers.supplier_id
                           		'); @endphp
                               {{-- {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
-                              <select class="form-control select-multiple" name="supplier[]" multiple>
+                              <select class="form-control select-multiple2" name="supplier[]" multiple data-placeholder="Select supplier..">
                                 <optgroup label="Suppliers">
                                   @foreach ($suppliers as $key => $item)
                                     <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
@@ -145,6 +145,8 @@
                             @if (isset($customer_id) && $customer_id != null)
                               <input type="hidden" name="customer_id" value="{{ $customer_id }}">
                             @endif
+
+                             <input {{ (isset($is_on_sale) && $is_on_sale) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale"><label for="is_on_sale">Sale</label>
 
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
@@ -261,6 +263,7 @@
 
     $(document).ready(function() {
        $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
     });
 
     $('#filter-date').datetimepicker({

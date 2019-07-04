@@ -17,13 +17,53 @@
 @section('large_content')
   <div class="row">
     <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) <a href="{{ action('ProductController@showSOP') }}?type=ListingApproved" class="pull-right">SOP</a></h2>
-
+      <h2 class="page-heading">Product Listing ({{ $products_count }}) <a target="_new" href="{{ action('ProductController@showSOP') }}?type=Listing" class="pull-right">SOP</a></h2>
+      <div class="m-5">
+        <div class="panel-group">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#collapse1">Messages ({{count($messages)}})</a>
+              </h4>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse">
+              <div class="panel-body">
+                <table class="table table-striped table-bordered">
+                  <tr>
+                    <th>Product</th>
+                    <th>Message</th>
+                  </tr>
+                  @foreach($messages as $message)
+                    <tr>
+                      <td>
+                        <a target="_new" href="{{ action('ProductController@show', $message->product_id) }}">
+                          {{ $message->product_id }}
+                        </a>
+                      </td>
+                      <td>
+                        {{ $message->message }}
+                      </td>
+                    </tr>
+                  @endforeach
+                  <tr>
+                    <td>Approved</td>
+                    <td>Rejected</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $userStatus['approved'] }}</td>
+                    <td>{{ $userStatus['rejected'] }}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="pull-left">
-        <form class="form-inline" action="{{ action('ProductController@approvedListing') }}" method="GET">
-{{--          <div class="form-group mr-3 mb-3">--}}
-{{--            <input type="checkbox" name="cropped" id="cropped" {{ isset($cropped) && $cropped == 'on' ? 'checked' : '' }}> <label for="cropped"><strong>Cropped</strong></label>--}}
-{{--          </div>--}}
+        <form class="form-inline" action="{{ route('products.listing') }}" method="GET">
+          <div class="form-group mr-3 mb-3">
+            <input type="checkbox" name="cropped" id="cropped" {{ isset($cropped) && $cropped == 'on' ? 'checked' : '' }}> <label for="cropped"><strong>Cropped</strong></label>
+          </div>
 
           <div class="form-group mr-3 mb-3">
             <input name="term" type="text" class="form-control"
@@ -96,21 +136,37 @@
               <option value="">Select Type</option>
               <option value="Not Listed" {{ isset($type) && $type == "Not Listed" ? 'selected' : ''  }}>Not Listed</option>
               <option value="Listed" {{ isset($type) && $type == "Listed" ? 'selected' : ''  }}>Listed</option>
-{{--              <option value="Approved" {{ isset($type) && $type == "Approved" ? 'selected' : ''  }}>Approved</option>--}}
-{{--              <option value="Image Cropped" {{ isset($type) && $type == "Image Cropped" ? 'selected' : ''  }}>Image Cropped</option>--}}
+              <option value="Approved" {{ isset($type) && $type == "Approved" ? 'selected' : ''  }}>Approved</option>
+              <option value="Image Cropped" {{ isset($type) && $type == "Image Cropped" ? 'selected' : ''  }}>Image Cropped</option>
             </select>
           </div>
 
-          <div class="form-group mr-3">
-            <select class="form-control" name="user_id" id="user_id">
-              @foreach($users as $user)
-                <option value="{{$user->id}}">{{ $user->name }}</option>
-              @endforeach
-            </select>
-          </div>
+          @if (Auth::user()->hasRole('Admin'))
+            <div class="form-group mr-3">
+              <input type="checkbox" name="users" id="users" {{ $assigned_to_users == 'on' ? 'checked' : '' }}> <label for="users"><strong>Assigned To Users</strong></label>
+            </div>
 
-          <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+            <div class="form-group mr-3">
+              <input type="checkbox" name="left_products" id="left_products" {{ $left_for_users == 'on' ? 'checked' : '' }}> <label for="left_products"><strong>Left For Users</strong></label>
+            </div>
+          @endif
+
+          <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button> &nbsp; <a
+                  href="{{ action('AttributeReplacementController@index') }}">Attribute Auto Edit</a>
         </form>
+      </div>
+
+      <div class="pull-right">
+        {{-- <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#createTaskModal">Add Task</button> --}}
+        @if (Auth::user()->hasRole('Products Lister') && Auth::user()->is_active == 1 && count($products) == 0)
+          <div class="form-group">
+            <form action="{{ route('user.assign.products', Auth::id()) }}" method="POST">
+              @csrf
+
+              <button type="submit" class="btn btn-secondary">Assign Products</button>
+            </form>
+          </div>
+        @endif
       </div>
     </div>
   </div>
@@ -127,151 +183,19 @@
           <tr>
             <th width="10%" style="max-width: 100px;">Thumbnail</th>
             <th width="10%">Name</th>
-            <th width="10%">Description</th>
+            <th width="18%">Description</th>
             <th width="10%">Category</th>
             <th width="2%">Sizes</th>
             <th width="5%">Composition</th>
             <th width="10%">Color</th>
             <th width="5%">Price</th>
             {{-- <th width="5%">Cropper</th> --}}
-            <th width="10%">Action</th>
-            <th width="20%">Remarks</th>
+            <th width="5%">Action</th>
+            <th width="12%">Remarks</th>
           </tr>
+
           @foreach ($products as $key => $product)
-            <tr>
-              <td colspan="10">
-                <div class="row">
-                  <div class="col-md-1">
-                    @php $special_product = \App\Product::find($product->id) @endphp
-                    @if ($special_product->hasMedia(config('constants.media_tags')))
-                      @foreach($special_product->getMedia('gallery') as $media)
-                        <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
-                      @endforeach
-                    @endif
-                  </div>
-                  <div class="col-md-4">
-                    @if ($special_product->hasMedia(config('constants.media_tags')))
-                      <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
-                    @endif
-                  </div>
-                  <div class="col-md-3">
-                    <strong class="same-color">{{ $special_product->brands->name }}</strong>
-                    <p class="same-color">{{ $special_product->name }}</p>
-                    <br>
-                    <p class="same-color" style="font-size: 18px;">
-                      <span style="text-decoration: line-through">Rs. {{ number_format($special_product->price_inr) }}</span> Rs. {{ number_format($special_product->price_special) }}
-                    </p>
-                    <br>
-                    <p>
-                      <strong class="same-color" style="text-decoration: underline">Description</strong>
-                      <br>
-                      <span class="same-color">
-                        {{ $special_product->short_description }}
-                      </span>
-                    </p>
-                    <p>
-                      <strong class="same-color" style="text-decoration: underline">Composition</strong>
-                      <br>
-                      <span class="same-color">
-                        {{ $special_product->composition }}
-                      </span>
-                    </p>
-                    <p>
-                      <strong>Color</strong>: {{ $product->color }}<br>
-                      <strong>Sizes</strong>: {{ $product->size }}<br>
-                      <strong>Dimension</strong>: {{ $product->lmeasurement }} x {{ $product->hmeasurement }} x {{ $product->dmeasurement }}<br>
-                    </p>
-                    <p>
-                      <span class="sololuxury-button">ADD TO BAG</span>
-                      <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
-                    </p>
-                    <p class="same-color">
-                      View All: <strong>{{ $special_product->product_category->title }}</strong>
-                      <br>
-                      View All: <strong>{{ $special_product->brands->name }}</strong>
-                    </p>
-                    <p class="same-color">
-                      <strong>Style ID</strong>: {{ $product->sku }}
-                      <br>
-                      <strong class="text-danger">{{ $product->is_on_sale ? 'On Sale' : '' }}</strong>
-                    </p>
-                  </div>
-                  <div class="col-md-4">
-                    <h2 class="page-heading">
-                      <a target="_new" href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
-                    </h2>
-                    <table class="table table-striped table-bordered">
-                      <tr>
-                        <th>Activity</th>
-                        <th>Date</th>
-                        <th>User Name</th>
-                        <th>Status</th>
-                      </tr>
-                      <tr>
-                        <th>Cropping</th>
-                        <td>{{ $special_product->crop_approved_at ?? 'N/A' }}</td>
-                        <td>{{ $special_product->cropApprover ? $special_product->cropApprover->name : 'N/A' }}</td>
-                        <td>
-                          <select style="width: 90px !important;" data-id="{{$product->id}}" class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" id="reject_cropping_{{$product->id}}">
-                            <option value="0">Select...</option>
-                            <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
-                            <option value="No Images Shown">No Images Shown</option>
-                            <option value="Grid Not Shown">Grid Not Shown</option>
-                            <option value="First Image Not Available">First Image Not Available</option>
-                            <option value="Dimension Not Available">Dimension Not Available</option>
-                            <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>
-                            <option value="Incorrect Category">Incorrect Category</option>
-                            <option value="Only One Image Available">Only One Image Available</option>
-                          </select>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Sequencing</th>
-                        <td>{{ $special_product->crop_ordered_at ?? 'N/A' }}</td>
-                        <td>{{ $special_product->cropOrderer ? $special_product->cropOrderer->name : 'N/A' }}</td>
-                        <td>
-                          <button style="width: 90px" data-button-type="sequence" data-id="{{$product->id}}" class="btn btn-secondary btn-sm reject-sequence">Reject</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>Approval</th>
-                        <td>{{ $special_product->listing_approved_at ?? 'N/A' }}</td>
-                        <td>{{ $special_product->approver ? $special_product->approver->name : 'N/A' }}</td>
-                        <td>
-                          <select style="width: 90px !important;" data-id="{{$product->id}}" class="form-control-sm form-control reject-listing bg-secondary text-light" name="reject_listing" id="reject_listing_{{$product->id}}">
-                            <option value="0">Select Remark</option>
-                            <option value="Category Incorrect">Category Incorrect</option>
-                            <option value="Price Not Incorrect">Price Not Correct</option>
-                            <option value="Price Not Found">Price Not Found</option>
-                            <option value="Color Not Found">Color Not Found</option>
-                            <option value="Category Not Found">Category Not Found</option>
-                            <option value="Description Not Found">Description Not Found</option>
-                            <option value="Details Not Found">Details Not Found</option>
-                            <option value="Composition Not Found">Composition Not Found</option>
-                          </select>
-                        </td>
-                      </tr>
-                    </table>
-                    <p class="text-right mt-5">
-                      <button class="btn btn-xs btn-default edit-product-show" data-id="{{$product->id}}">Toggle Edit</button>
-                      @if ($product->is_approved == 0)
-                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                      @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                      @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
-                      @else
-                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
-                      @endif
-                    </p>
-                    <div>
-                      <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$special_product->approved_by}}" data-id="{{$special_product->approved_by}}">
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr id="product_{{ $product->id }}" class="hidden">
+            <tr id="product_{{ $product->id }}">
               @if (!Auth::user()->hasRole('ImageCropers'))
                 <td style="word-break: break-all; word-wrap: break-word">
                   @if ($product->is_approved == 1)
@@ -280,7 +204,7 @@
 
                   @php $special_product = \App\Product::find($product->id) @endphp
                   @if ($special_product->hasMedia(config('constants.media_tags')))
-                    <a href="{{ route('products.show', $product->id) }}" target="_blank">
+                    <a href="{{ route('products.show', $product->id) }}" target="_new">
                       <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 70px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                     </a>
                   @else
@@ -290,6 +214,16 @@
                   {{--                {{ (new \App\Stage)->getNameById($product->stage) }}--}}
                   <br>
                   SKU: {{ $product->sku }}
+                    <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                    <div>
+                      @if ($special_product->hasMedia(config('constants.media_tags')))
+                        @foreach($special_product->getMedia('gallery') as $media)
+                          <a href="{{ $media->getUrl() }}" target="_new">
+                            <img style="width: 50px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                          </a>
+                        @endforeach
+                      @endif
+                    </div>
                 </td>
                 <td class="table-hover-cell" data-id="{{ $product->id }}">
                   <span class="quick-name">{{ $product->name }}</span>
@@ -304,7 +238,7 @@
                 {{--              </td>--}}
 
                 <td class="read-more-button table-hover-cell">
-                  <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                  <span class="short-description-container">{{ substr($product->short_description, 0, 200) . (strlen($product->short_description) > 200 ? '...' : '') }}</span>
 
                   <span class="long-description-container hidden">
                   <span class="description-container">{{ $product->short_description }}</span>
@@ -357,17 +291,17 @@
                   {{-- <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}"> --}}
                   <span class="lmeasurement-container">
                   <strong>L:</strong>
-                  <input type="number" name="lmeasurement" class="form-control mt-1" placeholder="Length" min="0" max="999" value="{{ $product->lmeasurement }}">
+                  <input type="number" name="lmeasurement" class="form-control mt-1" placeholder="12" min="0" max="999" value="{{ $product->lmeasurement }}">
                 </span>
 
                   <span class="hmeasurement-container">
                   <strong>H:</strong>
-                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="Height" min="0" max="999" value="{{ $product->hmeasurement }}">
+                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="14" min="0" max="999" value="{{ $product->hmeasurement }}">
                 </span>
 
                   <span class="dmeasurement-container">
                   <strong>D:</strong>
-                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="Depth" min="0" max="999" value="{{ $product->dmeasurement }}">
+                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="16" min="0" max="999" value="{{ $product->dmeasurement }}">
                 </span>
 
                   <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product->id }}">Save</button>
@@ -388,6 +322,8 @@
                       <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
                     @endforeach
                   </select>
+                  <br>
+                  {{ $product->color }}
                 </td>
 
                 <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
@@ -415,20 +351,12 @@
                 </td> --}}
 
                 <td>
-                  {{ $product->isUploaded }} {{ $product->isFinal }}
-
                   @if ($product->is_approved == 0)
                     <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                  @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                    <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                  @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                    <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
-                  @else
-                    <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
                   @endif
 
                   @if ($product->product_user_id != null)
-                    {{ \App\User::find($product->product_user_id)->name }}
+                      <br>{{ \App\User::find($product->product_user_id)->name }}
                   @endif
 
                   {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
@@ -447,6 +375,8 @@
                     <option value="Description Not Found">Description Not Found</option>
                     <option value="Details Not Found">Details Not Found</option>
                     <option value="Composition Not Found">Composition Not Found</option>
+                    <option value="No Size Available">No Size Available</option>
+                    <option value="Size Incorrect">Size Incorrect</option>
                     <option value="Other">Other</option>
                   </select>
                   <textarea name="remark-input-{{$product->id}}" id="remark-input-{{$product->id}}" class="form-control remark-input-post" data-id="{{$product->id}}" style="display: none;"></textarea>
@@ -521,38 +451,40 @@
                 </td> --}}
 
                 <td>
-{{--                  {{ $product->isUploaded }} {{ $product->isFinal }}--}}
+                  {{ $product->isUploaded }} {{ $product->isFinal }}
 
-{{--                  @if ($product->is_approved == 0)--}}
-{{--                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>--}}
+                  @if ($product->is_approved == 0)
+                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
 {{--                  @elseif ($product->is_approved == 1 && $product->isUploaded == 0)--}}
 {{--                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>--}}
 {{--                  @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)--}}
 {{--                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>--}}
 {{--                  @else--}}
 {{--                    <button disabled type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>--}}
-{{--                  @endif--}}
+                  @endif
 
-{{--                  @if ($product->product_user_id != null)--}}
-{{--                    {{ \App\User::find($product->product_user_id)->name }}--}}
-{{--                  @endif--}}
+                  @if ($product->product_user_id != null)
+                    {{ \App\User::find($product->product_user_id)->name }}
+                  @endif
                 </td>
 
                 <td>
-{{--                  <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}">Reject--}}
-{{--                  <select class="form-control post-remark" id="post_remark_{{$product->id}}" data-id="{{$product->id}}">--}}
-{{--                    <option value="0">Select Remark</option>--}}
-{{--                    <option value="Category Incorrect">Category Incorrect</option>--}}
-{{--                    <option value="Price Not Incorrect">Price Not Correct</option>--}}
-{{--                    <option value="Price Not Found">Price Not Found</option>--}}
-{{--                    <option value="Color Not Found">Color Not Found</option>--}}
-{{--                    <option value="Category Not Found">Category Not Found</option>--}}
-{{--                    <option value="Description Not Found">Description Not Found</option>--}}
-{{--                    <option value="Details Not Found">Details Not Found</option>--}}
-{{--                    <option value="Composition Not Found">Composition Not Found</option>--}}
-{{--                    <option value="Other">Other</option>--}}
-{{--                  </select>--}}
-{{--                  <textarea name="remark-input-{{$product->id}}" id="remark-input-{{$product->id}}" class="form-control remark-input-post" data-id="{{$product->id}}" style="display: none;"></textarea>--}}
+                  <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}">Reject
+                  <select class="form-control post-remark" id="post_remark_{{$product->id}}" data-id="{{$product->id}}">
+                    <option value="0">Select Remark</option>
+                    <option value="Category Incorrect">Category Incorrect</option>
+                    <option value="Price Not Incorrect">Price Not Correct</option>
+                    <option value="Price Not Found">Price Not Found</option>
+                    <option value="Color Not Found">Color Not Found</option>
+                    <option value="Category Not Found">Category Not Found</option>
+                    <option value="Description Not Found">Description Not Found</option>
+                    <option value="Details Not Found">Details Not Found</option>
+                    <option value="Composition Not Found">Composition Not Found</option>
+                    <option value="No Size Available">No Size Available</option>
+                    <option value="Size Incorrect">Size Incorrect</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <textarea name="remark-input-{{$product->id}}" id="remark-input-{{$product->id}}" class="form-control remark-input-post" data-id="{{$product->id}}" style="display: none;"></textarea>
                 </td>
               @endif
             </tr>
@@ -569,127 +501,77 @@
 @endsection
 
 @section('scripts')
-  <style>
-    .same-color {
-      color: #898989;
-      font-size: 14px;
-    }
-
-    .sololuxury-button {
-      display: inline-block;
-      color: #898989;
-      font-size: 14px;
-      border: 1px solid #898989;
-      background: #FFF;
-      padding: 5px;
-    }
-  </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
-
-    $(document).on('keyup', '.send-message', function(event) {
-      let userId = $(this).data('id');
-      let message = $(this).val();
-      let sku = $(this).data('sku');
+    $(document).on('keyup', '.remark-input-post', function(event) {
+      let pid = $(this).data('id');
       let self = this;
+      let remark = $(this).val();
+
       if (event.which != 13) {
         return;
       }
 
-      $.ajax({
-        url: '{{ action('WhatsAppController@sendMessage', 'vendor') }}',
-        type: 'POST',
-        data: {
-          vendor_id: userId,
-          message: 'SKU - ' + sku + '-' + message,
-          is_vendor_user: 'yes',
-          status: 1
-        },
-        success: function() {
-          $(self).val('');
-          toastr['success']('Message sent successfully', 'Success')
-        }
-      });
-
-    });
-
-    $(document).on('click', '.edit-product-show', function() {
-      let id = $(this).data('id');
-      $('#product_'+id).toggleClass('hidden');
-    });
-
-    $(document).on('click', '.reject-sequence', function(event) {
-      let pid = $(this).data('id');
-
-      $.ajax({
-        url: '/reject-sequence/'+pid,
-        data: {
-          senior: 1
-        },
-        success:function() {
-          toastr['success']('Sequence rejected successfully!', 'Success');
-        },
-        error: function() {
-          toastr['error']('Error rejecting sequence', 'Success');
-        }
-      });
-
-    });
-
-    $(document).on('change', '.reject-cropping', function(event) {
-      let pid = $(this).data('id');
-      let remark = $(this).val();
-
-      if (remark == 0 || remark == '0') {
+      if (remark == '') {
         return;
       }
 
-      let self = this;
-
-      $.ajax({
-        url: '/products/auto-cropped/'+pid+'/reject',
-        data: {
-          remark: remark,
-          _token: "{{csrf_token()}}",
-          senior: 1
-        },
-        type: 'GET',
-        success: function() {
-          toastr['success']('Crop rejected successfully!', 'Success');
-          $(self).removeAttr('disabled');
-        },
-        error: function() {
-          $(self).removeAttr('disabled');
-        },
-        beforeSend: function() {
-          $(self).attr('disabled');
-        }
-      });
-
-    });
-
-    $(document).on('change', '.reject-listing', function(event) {
-      let pid = $(this).data('id');
-      let remark = $(this).val();
-
-      if (remark == 0 || remark == '0') {
-        return;
-      }
-
-      let self = this;
+      let rejected = $("#reject_"+pid).is(':checked') ? 1 : 0;
 
       $.ajax({
         url: '{{action('ProductController@addListingRemarkToProduct')}}',
         data: {
           product_id: pid,
           remark: remark,
-          rejected: 1,
-          senior: 1
+          rejected: rejected
         },
         success: function(response) {
-          toastr['success']('Product rejected successfully!', 'Rejected');
+          if (rejected == 1) {
+            $('#product_'+pid).hide('fast');
+          }
+          $(self).removeAttr('disabled');
+          toastr['success']('Remark updated successfully!');
+          $(self).val('');
+        },
+        beforeSend: function() {
+          $(self).attr('disabled');
+        }, error: function() {
+          $(self).removeAttr('disabled');
+        }
+      });
+
+    });
+
+    $(document).on('change', '.post-remark', function(event) {
+      let pid = $(this).data('id');
+      let remark = $(this).val();
+
+      if (remark == 0 || remark == '0') {
+        return;
+      }
+
+      let self = this;
+
+      if (remark == 'Other') {
+        $('#remark-input-'+pid).show();
+        return;
+      }
+
+      let rejected = $("#reject_"+pid).is(':checked') ? 1 : 0;
+
+      $.ajax({
+        url: '{{action('ProductController@addListingRemarkToProduct')}}',
+        data: {
+          product_id: pid,
+          remark: remark,
+          rejected: rejected
+        },
+        success: function(response) {
+          if (rejected == 1) {
+            $('#product_'+pid).hide('fast');
+          }
           $(self).removeAttr('disabled');
           $(self).val();
         },
@@ -1176,6 +1058,12 @@
           $(element).closest('tr').find('.lmeasurement-container').removeClass('hidden');
           $(element).closest('tr').find('.hmeasurement-container').removeClass('hidden');
           $(element).closest('tr').find('.dmeasurement-container').removeClass('hidden');
+        } else {
+          let availableSizes = $(element).closest('tr').find('input[name="sizes"]').val();
+          if (availableSizes != undefined && availableSizes != '') {
+            availableSizes = availableSizes.split(',');
+            $(element).closest('tr').find('.quick-edit-size').val(availableSizes);
+          }
         }
       }
     }

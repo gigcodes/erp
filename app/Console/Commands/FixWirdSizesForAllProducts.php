@@ -38,10 +38,11 @@ class FixWirdSizesForAllProducts extends Command
      */
     public function handle()
     {
-        Product::where('size', 'LIKE', "%½%")->chunk(1000, function($products) {
+        Product::orderBy('updated_at', 'DESC')->chunk(1000, function($products) {
             foreach ($products as $product) {
                 dump('Updating..');
-                $product->size = str_replace(['½', ' ½'], '.5', $product->size);
+                $product->short_description = str_replace([' ', '/', ';', '-', "\n", '\n', '_', "\\"], ' ', $product->short_description);
+                $product->composition = str_replace([' ', '/', ';', '-', "\n", '\n','_', "\\", 'Made in', 'Made In', 'Italy', 'France'], ' ', $product->composition);
                 $product->save();
             }
         });

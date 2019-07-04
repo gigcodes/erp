@@ -125,7 +125,7 @@
                             @endforeach
                         </td>
                         <td>{{ $product->short_description }}</td>
-                        <td>{{ $product->category }}</td>
+                        <td>{{ $product->product_category ? $product->product_category->title : 'N/A' }}</td>
                         <td>{{ $product->size }}</td>
                         <td>{{ $product->composition }}</td>
                         <td>{{ $product->color }}</td>

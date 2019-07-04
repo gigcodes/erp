@@ -291,17 +291,17 @@
                   {{-- <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}"> --}}
                   <span class="lmeasurement-container">
                   <strong>L:</strong>
-                  <input type="number" name="lmeasurement" class="form-control mt-1" placeholder="12" min="0" max="999" value="{{ $product->lmeasurement }}">
+                  <input type="number" name="lmeasurement" class="form-control mt-1" placeholder="Length" min="0" max="999" value="{{ $product->lmeasurement }}">
                 </span>
 
                   <span class="hmeasurement-container">
                   <strong>H:</strong>
-                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="14" min="0" max="999" value="{{ $product->hmeasurement }}">
+                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="Height" min="0" max="999" value="{{ $product->hmeasurement }}">
                 </span>
 
                   <span class="dmeasurement-container">
                   <strong>D:</strong>
-                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="16" min="0" max="999" value="{{ $product->dmeasurement }}">
+                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="Depth" min="0" max="999" value="{{ $product->dmeasurement }}">
                 </span>
 
                   <button type="button" class="btn-link quick-edit-size-button" data-id="{{ $product->id }}">Save</button>
@@ -605,14 +605,28 @@
 
                     $(this).attr('data-id', product_id);
                     $(this).find('option[value="' + category_id + '"]').prop('selected', true);
+                    $(this).closest('tr').find('.quick-edit-size').select2({
+                      tags: true
+                    });
 
                     updateSizes(this, category_id);
 
-                    for (var i = 0; i < selected_sizes.length; i++) {
-                      console.log(selected_sizes[i]);
-                      // $(this).closest('tr').find('.quick-edit-size option[value="' + selected_sizes[i] + '"]').attr('selected', 'selected');
-                      $(this).closest('tr').find(".quick-edit-size option[value='" + selected_sizes[i] + "']").attr('selected', 'selected');
-                    }
+                    // for (var i = 0; i < selected_sizes.length; i++) {
+                    //   let item = selected_sizes[i];
+                    //
+                    //   if (item) {
+                    //     showMeasurement = false;
+                    //     if ($(this).closest('tr').find('.quick-edit-size').find("option[value='" + item + "']").length) {
+                    //       $(this).closest('tr').find('.quick-edit-size').val(item).trigger('change');
+                    //     } else {
+                    //       // Create a DOM Option and pre-select by default
+                    //       let newOption = new Option(item, item, true, true);
+                    //       // Append it to the select
+                    //       $(this).closest('tr').find('.quick-edit-size').append(newOption).trigger('change');
+                    //     }
+                    //   }
+                    //   // $(this).closest('tr').find(".quick-edit-size option[value='" + selected_sizes[i] + "']").attr('selected', 'selected');
+                    // }
                   });
               }
           });
@@ -620,7 +634,9 @@
 
       $('.dropify').dropify();
       // $(".select-multiple").multiselect();
-      $(".select-multiple").select2();
+      $(".select-multiple").select2({
+        tags: true
+      });
       $("body").tooltip({selector: '[data-toggle=tooltip]'});
     });
 
@@ -986,84 +1002,32 @@
 
       console.log('PARENT ID', categories_array[category_id]);
       if (categories_array[category_id] != 0) {
-
-        Object.keys(id_list).forEach(function(id) {
-          if (id == category_id) {
-            $(element).closest('tr').find('.quick-edit-size').empty();
-
-            $(element).closest('tr').find('.quick-edit-size').append($('<option>', {
-              value: '',
-              text: 'Select Category'
-            }));
-
-            id_list[id].forEach(function(value) {
-              $(element).closest('tr').find('.quick-edit-size').append($('<option>', {
-                value: value,
-                text: value
-              }));
-            });
-
-            found_everything = true;
-            // $(element).closest('tr').find('.quick-edit-size').removeClass('hidden');
-            $(element).closest('tr').find('.lmeasurement-container').addClass('hidden');
-            $(element).closest('tr').find('.hmeasurement-container').addClass('hidden');
-            $(element).closest('tr').find('.dmeasurement-container').addClass('hidden');
+        let hd = $(element).closest('tr').find('input[name="sizes"]').val();
+        hd = hd.split(',');
+        $(element).closest('tr').find('.quick-edit-size').empty();
+        let showMeasurement = true;
+        hd.forEach(function(item) {
+          if (item) {
+            showMeasurement = false;
+            if ($(element).closest('tr').find('.quick-edit-size').find("option[value='" + item + "']").length) {
+              $(element).closest('tr').find('.quick-edit-size').val(item).trigger('change');
+            } else {
+              // Create a DOM Option and pre-select by default
+              let newOption = new Option(item, item, true, true);
+              // Append it to the select
+              $(element).closest('tr').find('.quick-edit-size').append(newOption).trigger('change');
+            }
           }
         });
 
-        if (!found_everything) {
-          Object.keys(category_tree).forEach(function(key) {
-            Object.keys(category_tree[key]).forEach(function(index) {
-              if (index == categories_array[category_id]) {
-                found_id = index;
-
-                return;
-              }
-            });
-          });
-
-          console.log('FOUND ID', found_id);
-
-          if (found_id != 0) {
-            Object.keys(id_list).forEach(function(id) {
-              if (id == found_id) {
-                $(element).closest('tr').find('.quick-edit-size').empty();
-
-                $(element).closest('tr').find('.quick-edit-size').append($('<option>', {
-                  value: '',
-                  text: 'Select Category'
-                }));
-
-                id_list[id].forEach(function(value) {
-                  $(element).closest('tr').find('.quick-edit-size').append($('<option>', {
-                    value: value,
-                    text: value
-                  }));
-                });
-
-                // $(element).closest('tr').find('input[name="other_size"]').addClass('hidden');
-                // $(element).closest('tr').find('.quick-edit-size').removeClass('hidden');
-                $(element).closest('tr').find('.lmeasurement-container').addClass('hidden');
-                $(element).closest('tr').find('.hmeasurement-container').addClass('hidden');
-                $(element).closest('tr').find('.dmeasurement-container').addClass('hidden');
-                found_final = true;
-              }
-            });
-          }
-        }
-
-        if (!found_final) {
-          // $(element).closest('tr').find('input[name="other_size"]').removeClass('hidden');
-          // $(element).closest('tr').find('.quick-edit-size').addClass('hidden');
+        if (showMeasurement) {
           $(element).closest('tr').find('.lmeasurement-container').removeClass('hidden');
           $(element).closest('tr').find('.hmeasurement-container').removeClass('hidden');
           $(element).closest('tr').find('.dmeasurement-container').removeClass('hidden');
         } else {
-          let availableSizes = $(element).closest('tr').find('input[name="sizes"]').val();
-          if (availableSizes != undefined && availableSizes != '') {
-            availableSizes = availableSizes.split(',');
-            $(element).closest('tr').find('.quick-edit-size').val(availableSizes);
-          }
+          $(element).closest('tr').find('.lmeasurement-container').addClass('hidden');
+          $(element).closest('tr').find('.hmeasurement-container').addClass('hidden');
+          $(element).closest('tr').find('.dmeasurement-container').addClass('hidden');
         }
       }
     }

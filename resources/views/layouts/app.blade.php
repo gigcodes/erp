@@ -531,6 +531,9 @@
                                     @can ('product-lister')
                                       <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute Edit Page</a>
                                     @endcan
+                                    @can ('approved-listing')
+                                        <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
+                                    @endcan
 
                                     @can('admin')
                                         <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
@@ -644,6 +647,9 @@
                                 @can ('product-lister')
                                   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('products.listing') }}">Attribute Edit Page</a>
+                                    @can ('approved-listing')
+                                      <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
+                                    @endcan
                                   </div>
                                 @endcan
 

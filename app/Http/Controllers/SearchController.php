@@ -304,6 +304,12 @@ class SearchController extends Controller {
 		                                        ->renderAsDropdown();
 
 		$products = $productQuery->where('stock', '>=', 1)->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+		$data['is_on_sale'] = 0;
+		if ($request->get('is_on_sale') == 'on') {
+		    $data['is_on_sale'] = 1;
+		    $products = $products->where('is_on_sale', 1);
+        }
+
 		$products_count = $products->count();
 		$data['products_count'] = $products_count;
 		$data['products'] = $products->paginate( Setting::get( 'pagination' ) );
