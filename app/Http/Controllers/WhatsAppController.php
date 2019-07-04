@@ -1639,9 +1639,19 @@ class WhatsAppController extends FindByNumberController
       }
 
       if ($request->images) {
+        $image_count = 0;
         foreach (json_decode($request->images) as $image) {
+          if ($image_count == 15) {
+            $image_count = 0;
+
+            $data['message'] = NULL;
+            $chat_message = ChatMessage::create($data);
+          }
+
           $media = Media::find($image);
           $chat_message->attachMedia($media,config('constants.media_tags'));
+
+          $image_count++;
 
           // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
           //   $another_message->attachMedia($media,config('constants.media_tags'));
@@ -2355,13 +2365,22 @@ class WhatsAppController extends FindByNumberController
         }
 
         if ($images = $message->getMedia(config('constants.media_tags'))) {
-          foreach ($images as $image) {
+          $count = 0;
+          foreach ($images as $key => $image) {
             $send = str_replace(' ', '%20', $image->getUrl());
 
             if ($context == 'task' || $context == 'vendor') {
               $this->sendWithThirdApi($phone, $whatsapp_number, NULL, $send);
             } else {
               // $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
+              if ($count < 5) {
+                $count++;
+              } else {
+                sleep(5);
+
+                $count = 0;
+              }
+
               SendImagesWithWhatsapp::dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
             }
             // else if ($whatsapp_number == '919152731483') {
@@ -2379,7 +2398,7 @@ class WhatsAppController extends FindByNumberController
 
         return response()->json([
           'data'  => $data
-        ]);
+        ], 200);
     }
 
   public function sendToAll(Request $request, $validate = true)
