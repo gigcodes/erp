@@ -1967,7 +1967,7 @@
               <th>Created at</th>
               <th>Remark</th>
             </tr>
-            @foreach ($customer->instructions()->where('verified', 1)->latest()->limit(3)->get() as $instruction)
+            @foreach ($customer->instructions()->where('verified', 1)->latest('completed_at')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
@@ -2027,7 +2027,7 @@
                   <div class="table-responsive">
                     <table class="table table-bordered">
                       <tbody>
-                        @foreach ($customer->instructions()->where('verified', 1)->latest()->offset(3)->limit(100)->get() as $key => $instruction)
+                        @foreach ($customer->instructions()->where('verified', 1)->latest('completed_at')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
