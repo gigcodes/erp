@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\MessageQueue;
+use App\Product;
 use App\Task;
 use App\Helpers;
 use App\User;
@@ -18,6 +19,7 @@ use App\Supplier;
 use App\Review;
 use App\PushNotification;
 use App\CronJob;
+use App\UserProduct;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -479,7 +481,20 @@ class MasterControlController extends Controller
               // dd($scraped_count);
       // dd($unread_messages);
 
+        $listingProducts = Product::where('stock', '>=', 1)
+            ->where('is_crop_ordered', 1)
+            ->where('is_order_rejected', 0)
+            ->where('is_approved', 0)
+            ->where('is_listing_rejected', 0)
+            ->where('isUploaded', 0)
+            ->where('isFinal', 0);
+
+        $user_products = UserProduct::pluck('product_id')->toArray();
+
+        $listingProducts = $listingProducts->whereNotIn('id', $user_products)->count();
+
       return view('mastercontrol.index', [
+          'listingProducts' => $listingProducts,
         'message_groups'  => $new_data,
         'tasks'           => $tasks,
         'users_array'     => $users_array,
