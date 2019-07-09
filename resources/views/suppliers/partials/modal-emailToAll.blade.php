@@ -23,6 +23,29 @@
             </select>
           </div>
 
+            <div class="form-group text-right">
+                <a class="add-cc mr-3" href="#">Cc</a>
+                <a class="add-bcc" href="#">Bcc</a>
+            </div>
+
+            <div id="cc-label" class="form-group" style="display:none;">
+                <strong class="mr-3">Cc</strong>
+                <a href="#" class="add-cc">+</a>
+            </div>
+
+            <div id="cc-list" class="form-group">
+
+            </div>
+
+            <div id="bcc-label" class="form-group" style="display:none;">
+                <strong class="mr-3">Bcc</strong>
+                <a href="#" class="add-bcc">+</a>
+            </div>
+
+            <div id="bcc-list" class="form-group">
+
+            </div>
+
           <div class="form-group">
             <input type="checkbox" name="not_received" id="notReceived">
             <label for="notReceived">Send to all who haven't received an email</label>
@@ -34,12 +57,12 @@
           </div>
 
           <div class="form-group">
-            <strong>Subject</strong>
+            <strong>Subject *</strong>
             <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" required>
           </div>
 
           <div class="form-group">
-            <strong>Message</strong>
+            <strong>Message *</strong>
             <textarea name="message" class="form-control" rows="8" cols="80" required>{{ old('message') }}</textarea>
           </div>
 
