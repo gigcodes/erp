@@ -1474,6 +1474,7 @@
             <button type="button" class="btn btn-xs btn-secondary" id="showActionsButton">Show</button>
           </form>
 
+
           <div id="actions-container" class="hidden">
             @if (count($customer->many_reports) > 0)
               <h4>Order Reports</h4>
@@ -1503,9 +1504,33 @@
               No Actions
             @endif
           </div>
+
         </div>
       </div>
     </div>
+      <div id="notes" class="mt-3">
+          <div class="panel-group">
+              <div class="panel panel-default">
+                  <div class="panel-heading">
+                      <h4 class="panel-title">
+                          <a data-toggle="collapse" href="#collapse1">Remarks ({{ is_array($customer->notes) ? count($customer->notes) : 0 }})</a>
+                      </h4>
+                  </div>
+                  <div id="collapse1" class="panel-collapse collapse">
+                      <div class="panel-body" id="note_list">
+                          @if($customer->notes && is_array($customer->notes))
+                              @foreach($customer->notes as $note)
+                                  <li>{{ $note }}</li>
+                              @endforeach
+                          @endif
+                      </div>
+                      <div class="panel-footer">
+                          <input name="add_new_remark" id="add_new_remark" type="text" placeholder="Type new remark..." class="form-control add-new-remark">
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
   </div>
 
   <div class="col-xs-12 col-md-4">
@@ -2114,6 +2139,34 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
+
+      $(document).on('keyup', '.add-new-remark', function(event) {
+          let note = $(this).val();
+          let self = this;
+          if (event.which != 13) {
+              return;
+          }
+          $.ajax({
+              url: "{{ action('CustomerController@addNote', $customer->id) }}",
+              data: {
+                  note: note,
+                  _token: "{{csrf_token()}}"
+              },
+              type: 'post',
+              success: function() {
+                  toastr['success']('Remark added successfully', 'success');
+                  $(self).removeAttr('disabled');
+                  $(self).val('');
+                  $('#note_list').append('<li>'+note+'</li>');
+              },
+              beforeSend: function() {
+                  $(self).attr('disabled', true);
+              },
+              error: function() {
+                  $(self).removeAttr('disabled');
+              }
+          });
+      });
 
       $(document).on('click', '.talk-bubble img', function(event) {
           event.preventDefault();

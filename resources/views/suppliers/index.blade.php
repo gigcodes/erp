@@ -48,21 +48,21 @@
     @include('suppliers.partials.modal-emailToAll')
 
     <div class="mt-3 col-md-12">
-      <table class="table table-bordered">
+      <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th width="5%">ID</th>
-            <th width="15%">Name</th>
-            <th width="15%">Address</th>
+            <th width="10%">Name</th>
+            <th width="10%">Address</th>
               <th>Source</th>
               <th>Designers</th>
             <th width="10%">Social handle</th>
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
-            <th width="10%">Order</th>
+            <th width="20%">Order</th>
             {{-- <th width="20%">Emails</th> --}}
-            <th width="35%">Communication</th>
-            <th width="10%">Action</th>
+            <th width="25%">Communication</th>
+            <th width="15%">Action</th>
           </tr>
         </thead>
 
@@ -165,7 +165,6 @@
                       </div>
 
                   @if ($supplier->message != '')
-                    <br>
                     <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
 
                     <ul class="more-communication-container">
@@ -179,8 +178,8 @@
 
                 {{-- <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
 
-                <button type="button" class="btn btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
-                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></a>
+                <button type="button" class="btn d-inline btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
+                <button type="button" class="btn d-inline btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></a>
 
                 {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>

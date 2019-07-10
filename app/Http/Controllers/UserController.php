@@ -229,6 +229,10 @@ class UserController extends Controller
 
 		$user->assignRole($request->input('roles'));
 
+		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
+		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
+		$user->save();
+
 
 
 		return redirect()->back()
@@ -254,6 +258,30 @@ class UserController extends Controller
 		                 ->with('success','User deleted successfully');
 	}
 
+    public function unassignProducts(Request $request, $id) {
+        $user = User::find($id);
+
+        $userProducts = UserProduct::where('user_id', $user->id)->pluck('product_id')->toArray();
+
+
+        $products = Product::whereIn('id', $userProducts)->where('is_approved', 0)->where('is_listing_rejected', 0)->take($request->get('number') ?? 0)->get();
+
+        foreach ($products as $product) {
+            UserProduct::where('user_id', $user->id)->where('product_id', $product->id)->delete();
+        }
+
+        return redirect()->back()->with('success', 'Product unassigned successfully!');
+
+    }
+
+    public function showAllAssignedProductsForUser($id) {
+	    $userProducts = UserProduct::where('user_id', $id)->with('product')->orderBy('created_at', 'DESC')->get();
+
+	    $user = User::find($id);
+
+	    return view('products.assigned_products_list_by_user', compact('userProducts', 'user'));
+    }
+
 	public function assignProducts(Request $request, $id)
 	{
 		$user = User::find($id);
@@ -268,8 +296,6 @@ class UserController extends Controller
             ->where('isFinal', 0);
 
         $user_products = UserProduct::pluck('product_id')->toArray();
-
-        dd($products->whereNotIn('id', $user_products)->count());
 
         $products = $products->whereNotIn('id', $user_products)
             ->whereIn('category', [5,6,7,9,11,21,22,23,24,25,26,29,34,36,37,52,53,54,55,56,57,58,65,66,67,68,69,70,71,72,73,74,76,78,79,80,81,83,84,85,87,97,98,99,100,105,109,110,111,114,117,118])

@@ -43,7 +43,8 @@ class FixCategoryNameBySupplier extends Command
      */
     public function handle()
     {
-        Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+//        Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+        Product::where('is_approved', 0)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
             echo 'Chunk again=======================================================' . "\n";
             foreach ($products as $product) {
                 $this->classify2($product);
@@ -57,60 +58,94 @@ class FixCategoryNameBySupplier extends Command
         foreach ($records as $record) {
             $originalCategory = $record->title;
             $rec = explode(',', $record->references);
-            $scrapedProduct = $product->scraped_products;
+            $scrapedProducts = $product->many_scraped_products;
 
-            $catt = $scrapedProduct->properties['category'] ?? [];
-            if (is_array($catt)) {
-                $catt = implode('', $catt);
-            }
+            foreach ($scrapedProducts as $scrapedProduct) {
+                $catt = $scrapedProduct->properties['category'] ?? [];
+                if (is_array($catt)) {
+                    $catt = implode('', $catt);
+                }
 
-            foreach ($rec as $kk=>$cat) {
-                $cat = strtoupper($cat);
-
-
-
-//                dump($catt, $scrapedProduct->title, $scrapedProduct->url, 'AGAINST', $cat);
-
-                if (stripos(strtoupper($catt), $cat) !== false
-                    || stripos(strtoupper($scrapedProduct->title ?? ''), $cat) !== false
-                    || stripos(strtoupper($scrapedProduct->url ?? ''), $cat) !== false
-                ) {
-                    $gender = $this->getMaleOrFemale($scrapedProduct->properties);
-
-                    if ($gender === false) {
-                        $gender = $this->getMaleOrFemale($scrapedProduct->title);
-                    }
-
-                    if ($gender === false) {
-                        $gender = $this->getMaleOrFemale($scrapedProduct->url);
-                    }
-
-                    if ($gender === false) {
-                        $this->warn('NOOOOO');
-                        $product->category = 1;
-                        $product->save();
-                        continue;
-                    }
+                foreach ($rec as $kk=>$cat) {
+                    $cat = strtoupper($cat);
 
 
-                    $parentCategory = Category::find($gender);
-                    $childrenCategories = $parentCategory->childs;
+                    if (stripos(strtoupper($catt), $cat) !== false
+                        || stripos(strtoupper($scrapedProduct->title ?? ''), $cat) !== false
+                        || stripos(strtoupper($scrapedProduct->url ?? ''), $cat) !== false
+                    ) {
+                        $gender = $this->getMaleOrFemale($scrapedProduct->properties);
 
-                    foreach ($childrenCategories as $childrenCategory) {
-                        if ($childrenCategory->title == $originalCategory) {
-                            $product->category = $childrenCategory->id;
-                            $this->error('SAVED');
-                            $product->save();
-                            return;
+                        dump($gender, $originalCategory, $cat, $catt);
+
+                        if ($gender === false) {
+                            $gender = $this->getMaleOrFemale($scrapedProduct->title);
                         }
 
-                        $grandChildren = $childrenCategory->childs;
-                        foreach ($grandChildren as $grandChild) {
-                            if ($grandChild->title == $originalCategory) {
-                                $product->category = $grandChild->id;
-                                $product->save();
+                        if ($gender === false) {
+                            $gender = $this->getMaleOrFemale($scrapedProduct->url);
+                        }
+
+                        if ($product->supplier === 'Tory Burch' || $originalCategory == 'Pumps') {
+                            $gender = 2;
+                        }
+
+                        if ($originalCategory == 'Shirts' && $gender == 2) {
+                            $originalCategory = 'Tops';
+                        }
+
+                        if ($originalCategory == 'Clutches' && $gender == 2) {
+                            $originalCategory = 'Handbags';
+                        }
+
+
+                        if ($originalCategory == 'Coats & Jackets' && $gender == 3) {
+                            $originalCategory = 'Coats & Jackets & Suits';
+                        }
+
+                        if ($originalCategory == 'Tops' && $gender == 3) {
+                            $originalCategory = 'T-Shirts';
+                        }
+
+                        if ($originalCategory == 'Skirts') {
+                            $gender = 2;
+                        }
+
+                        if ($originalCategory == 'Shawls And Scarves' && $gender == 3) {
+                            $originalCategory = 'Scarves & Wraps';
+                        }
+
+//                    if ($originalCategory == 'Jumper' && $gender == 2) {
+//                        $originalCategory = 'Others';
+//                    }
+
+                        if ($gender === false) {
+                            $this->warn('NOOOOO' . $product->supplier);
+                            $product->category = 1;
+                            $product->save();
+                            continue;
+                        }
+
+
+                        $parentCategory = Category::find($gender);
+                        $childrenCategories = $parentCategory->childs;
+
+                        foreach ($childrenCategories as $childrenCategory) {
+                            if ($childrenCategory->title == $originalCategory) {
+                                $product->category = $childrenCategory->id;
                                 $this->error('SAVED');
+                                $product->save();
                                 return;
+                            }
+
+                            $grandChildren = $childrenCategory->childs;
+                            foreach ($grandChildren as $grandChild) {
+                                if ($grandChild->title == $originalCategory) {
+                                    $product->category = $grandChild->id;
+                                    $product->save();
+                                    $this->error('SAVED');
+                                    return;
+                                }
                             }
                         }
                     }

@@ -13,6 +13,10 @@ class Customer extends Model
     'name', 'phone', 'city', 'whatsapp_number'
   ];
 
+  protected $casts = [
+      'notes' => 'array'
+  ];
+
   public function leads()
   {
     return $this->hasMany('App\Leads');

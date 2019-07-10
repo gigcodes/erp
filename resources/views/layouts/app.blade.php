@@ -1332,6 +1332,7 @@
                                     <a class="dropdown-item" href="{{ route('graph_user') }}">User Graph</a>
 
                                     <a class="dropdown-item" href="{{ route('benchmark.create') }}">Add benchmark</a>
+                                    <a class="dropdown-item" href="{{ action('ProductController@showListigByUsers') }}">User-Product Assigmnent</a>
 
                                 </div>
 

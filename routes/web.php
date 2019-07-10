@@ -55,11 +55,13 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
 	Route::resource('roles','RoleController');
 	Route::get('users/logins', 'UserController@login')->name('users.login.index');
-	Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');
-	Route::get('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');
+    Route::get('users/{id}/assigned', 'UserController@showAllAssignedProductsForUser');
+    Route::post('users/{id}/unassign/products', 'UserController@unassignProducts');
+    Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');
 	Route::post('users/{id}/activate', 'UserController@activate')->name('user.activate');
 	Route::resource('users','UserController');
 	Route::resource('listing-payments', 'ListingPaymentsController');
+	Route::get('product/listing/users', 'ProductController@showListigByUsers');
 	Route::get('products/listing', 'ProductController@listing')->name('products.listing');
 	Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
 	Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
@@ -87,7 +89,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('products/{id}/archive','ProductController@archive')->name('products.archive');
 	Route::post('products/{id}/restore','ProductController@restore')->name('products.restore');
 	Route::resource('productselection','ProductSelectionController');
-	Route::resource('productattribute','ProductAttributeController');
+    Route::get('productattribute/delSizeQty/{id}','ProductAttributeController@delSizeQty');
+    Route::resource('productattribute','ProductAttributeController');
 	Route::resource('productsearcher','ProductSearcherController');
 	Route::resource('productimagecropper','ProductCropperController');
 	Route::resource('productsupervisor','ProductSupervisorController');
@@ -245,6 +248,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// Customers
 	Route::get('customer/test', 'CustomerController@customerstest');
+	Route::post('customer/add-note/{id}', 'CustomerController@addNote');
 	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::post('customers/{id}/sendAdvanceLink', 'CustomerController@sendAdvanceLink')->name('customer.send.advanceLink');
 	Route::get('customers/{id}/loadMoreMessages', 'CustomerController@loadMoreMessages');
@@ -542,7 +546,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
 	Route::resource('vendor', 'VendorController');
 
-	Route::resource('vendor_category', 'VendorCategoryController');
+    Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
+    Route::resource('vendor_category', 'VendorCategoryController');
 
 	// Suppliers Module
 	// Route::post('supplier/agent/store', 'SupplierController@agentStore')->name('supplier.agent.store');

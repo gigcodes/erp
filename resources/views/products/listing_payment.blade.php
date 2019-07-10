@@ -46,10 +46,10 @@
                 <th>Amount</th>
                 <th colspan="2"></th>
             </tr>
-            @php $lastUser = null; $totalPayments = 0; $totalRemaining = 0; @endphp
+            @php $lastUser = null; $totalPayments = 0; $totalRemaining = 0; $ta = 0; $tr = 0; @endphp
             @foreach($histories as $key=>$history)
                 @if($key==0)
-                    @php $lastUser = $history->user_id; $balance = 0 @endphp
+                    @php $lastUser = $history->user_id; $balance = 0; $car = \App\User::find($history->user_id)->listing_approval_rate; $cjr = \App\User::find($history->user_id)->listing_rejection_rate;  @endphp
                 @endif
                 @if ($lastUser!=$history->user_id)
                         @php $totalRemaining = 0; $totalPayments = 0; @endphp
@@ -57,8 +57,8 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>Appr: {{ $ta }}</td>
+                        <td>Rjct: {{ $tr }}</td>
                             <form method="post" action="{{ action('ListingPaymentsController@store') }}">
                                 <input type="hidden" name="user_id" value="{{ $lastUser }}">
                                 @php $lastUser = $history->user_id; @endphp
@@ -76,28 +76,28 @@
                                 </td>
                             </form>
                     </tr>
-                    @php $balance = 0; @endphp
+                    @php $balance = 0; $ta = 0; $tr = 0;$car = \App\User::find($history->user_id)->listing_approval_rate; $cjr = \App\User::find($history->user_id)->listing_rejection_rate; @endphp
                 @endif
                 <tr>
                     <td>{{ $history->date }}</td>
                     <td>{{ $users[$history->user_id] }}</td>
                     <td>Attribute Approved - {{ $history->attribute_approved }}</td>
-                    <td>0.10</td>
-                    <td>{{ $history->attribute_approved * 0.10 }}</td>
+                    <td>{{ $car }}</td>
+                    <td>{{ $history->attribute_approved * $car }}</td>
                     <td>-</td>
                     <td>-</td>
-                    @php $balance += ($history->attribute_approved * 0.10) @endphp
+                    @php $balance += ($history->attribute_approved * $car); $ta += ($history->attribute_approved * $car) @endphp
                     <td colspan="2">{{ $balance }}</td>
                 </tr>
                 <tr>
                     <td>{{ $history->date }}</td>
                     <td>{{ $users[$history->user_id] }}</td>
                     <td>Attribute Rejected - {{ $history->attribute_rejected }}</td>
-                    <td>0.05</td>
-                    <td>{{ $history->attribute_rejected * 0.05 }}</td>
+                    <td>{{ $cjr }}</td>
+                    <td>{{ $history->attribute_rejected * $cjr }}</td>
                     <td>-</td>
                     <td>-</td>
-                    <td colspan="2">@php $balance += ($history->attribute_rejected * 0.05 ) @endphp {{ $balance }}</td>
+                    <td colspan="2">@php $balance += ($history->attribute_rejected * $cjr); $tr += ($history->attribute_rejected * $cjr) @endphp {{ $balance }}</td>
                 </tr>
                     @php
                     $pays = \App\ListingPayments::where('user_id', $history->user_id)->where('paid_at', $history->date)->get();

@@ -103,6 +103,22 @@
     <div class="card activity-chart my-3">
       <canvas id="leadsChart" style="height: 100px;"></canvas>
     </div>
+    <div class="card activity-chart mt-2 p-5">
+        <div class="progress">
+            @foreach($order_stats as $order_stat)
+                <div data-toggle="title" title="{{$order_stat[0]}}" class="progress-bar" role="progressbar" style="width:{{$order_stat[2]}}%; background-color: {{$order_stat[3]}}">
+                    <a href="?type={{$order_stat[0]}}">{{$order_stat[1]}}</a>
+                </div>
+            @endforeach
+        </div>
+        <div style="font-size: 12px;">
+            @foreach($order_stats as $order_stat)
+                <div style="border-left: 15px solid {{$order_stat[3]}}; display: inline-block;padding: 5px;" class="mt-1">
+                    <a href="?type={{$order_stat[0]}}">{{$order_stat[0]}} ({{$order_stat[1]}})</a>
+                </div>
+            @endforeach
+        </div>
+    </div>
 
     <div class="infinite-scroll">
       <div class="table-responsive mt-3">
@@ -188,24 +204,24 @@
                       @endif
 
                       @php
-                        $first_color = $customer_color == 'rgba(163,103,126,1)' ? 1 : '0.2';
-                        $second_color = $customer_color == 'rgba(63,203,226,1)' ? 1 : '0.2';
-                        $third_color = $customer_color == 'rgba(63,103,126,1)' ? 1 : '0.2';
-                        $fourth_color = $customer_color == 'rgba(94, 80, 226, 1)' ? 1 : '0.2';
-                        $fifth_color = $customer_color == 'rgba(58, 223, 140, 1)' ? 1 : '0.2';
-                        $sixth_color = $customer_color == 'rgba(187, 221, 49, 1)' ? 1 : '0.2';
-                        $seventh_color = $customer_color == 'rgba(207, 207, 211, 1)' ? 1 : '0.2';
+                        $first_color = $customer_color == 'rgba(163,103,126,1)' ? 'active-bullet-status' : '';
+                        $second_color = $customer_color == 'rgba(63,203,226,1)' ? 'active-bullet-status' : '';
+                        $third_color = $customer_color == 'rgba(63,103,126,1)' ? 'active-bullet-status' : '';
+                        $fourth_color = $customer_color == 'rgba(94, 80, 226, 1)' ? 'active-bullet-status' : '';
+                        $fifth_color = $customer_color == 'rgba(58, 223, 140, 1)' ? 'active-bullet-status' : '';
+                        $sixth_color = $customer_color == 'rgba(187, 221, 49, 1)' ? 'active-bullet-status' : '';
+                        $seventh_color = $customer_color == 'rgba(207, 207, 211, 1)' ? 'active-bullet-status' : '';
                       @endphp
 
                       @if ($customer->lead_id != '')
                         <div class="">
-                          <span class="user-status" style="opacity: {{ $seventh_color }}; background-color: rgba(207, 207, 211, 1);"></span>
-                          <span class="user-status change-lead-status" title="Cold Lead" data-id="1" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $first_color }}; cursor:pointer; background-color: rgba(163,103,126,1);"></span>
-                          <span class="user-status change-lead-status" title="Cold / Important Lead" data-id="2" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $second_color }}; cursor:pointer; background-color: rgba(63,203,226,1);"></span>
-                          <span class="user-status change-lead-status" title="Hot Lead" data-id="3" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $third_color }}; cursor:pointer; background-color: rgba(63,103,126,1);"></span>
-                          <span class="user-status change-lead-status" title="Very Hot Lead" data-id="4" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $fourth_color }}; cursor:pointer; background-color: rgba(94, 80, 226, 1);"></span>
-                          <span class="user-status change-lead-status" title="Advance Follow Up" data-id="5" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $fifth_color }}; cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
-                          <span class="user-status change-lead-status" title="High Priority" data-id="6" data-leadid="{{ $customer->lead_id }}" style="opacity: {{ $sixth_color }}; cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
+                          <span class="user-status {{ $seventh_color }}" style="background-color: rgba(207, 207, 211, 1);"></span>
+                          <span class="user-status change-lead-status {{ $first_color }}" data-toggle="tooltip" title="Cold Lead" data-id="1" data-leadid="{{ $customer->lead_id }}" style="cursor:pointer; background-color: rgba(163,103,126,1);"></span>
+                          <span class="user-status change-lead-status {{ $second_color }}" data-toggle="tooltip" title="Cold / Important Lead" data-id="2" data-leadid="{{ $customer->lead_id }}" style="cursor:pointer; background-color: rgba(63,203,226,1);"></span>
+                          <span class="user-status change-lead-status {{ $third_color }}" data-toggle="tooltip" title="Hot Lead" data-id="3" data-leadid="{{ $customer->lead_id }}" style="cursor:pointer; background-color: rgba(63,103,126,1);"></span>
+                          <span class="user-status change-lead-status {{ $fourth_color }}" data-toggle="tooltip" title="Very Hot Lead" data-id="4" data-leadid="{{ $customer->lead_id }}" style="cursor:pointer; background-color: rgba(94, 80, 226, 1);"></span>
+                          <span class="user-status change-lead-status {{ $fifth_color }}" data-toggle="tooltip" title="Advance Follow Up" data-id="5" data-leadid="{{ $customer->lead_id }}" style="cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
+                          <span class="user-status change-lead-status {{ $sixth_color }}" data-toggle="tooltip" title="High Priority" data-id="6" data-leadid="{{ $customer->lead_id }}" style="cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
                         </div>
                       @endif
 
@@ -215,13 +231,15 @@
                                 <?php
                                     $order = $orders[$customer->id][0];
                                 ?>
-                                <span class="order-status change-order-status" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Follow up for advance' ? '1' : '0.2' }}; cursor:pointer; background-color: rgb(163,0,8);"></span>
-                                <span class="order-status change-order-status" title="Advance received" data-id="Advance received" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Advance received' ? '1' : '0.2' }}; cursor:pointer; background-color: rgb(0,193,226);"></span>
-                                <span class="order-status change-order-status" title="Delivered" data-id="Delivered" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Delivered' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(63,103,126,1);"></span>
-                                <span class="order-status change-order-status" title="Cancel" data-id="Cancel" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Cancel' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(94, 80, 226, 1);"></span>
-                                <span class="order-status change-order-status" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Product shiped to Client' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
-                                <span class="order-status change-order-status" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Refund to be processed' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
-                                <span class="order-status change-order-status" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order['id'] }}" style="opacity: {{ $order['order_status'] == 'Refund Credited' ? '1' : '0.2' }}; cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
+                                <div>
+                                    <span class="order-status change-order-status {{ $order['order_status'] == 'Follow up for advance' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order['id'] }}" style="opacity: cursor:pointer; background-color: rgb(163,0,8);"></span>
+                                    <span class="order-status change-order-status {{ $order['order_status'] == 'Advance received' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Advance received" data-id="Advance received" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: rgb(0,193,226);"></span>
+                                    <span class="order-status change-order-status {{ $order['order_status'] == 'Delivered' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Delivered" data-id="Delivered" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: rgba(63,103,126,1);"></span>
+                                    <span class="order-status change-order-status {{ $order['order_status'] == 'Cancel' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Cancel" data-id="Cancel" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: rgba(94, 80, 226, 1);"></span>
+                                    <span class="order-status change-order-status {{ $order['order_status'] == 'Product shiped to Client' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
+                                    <span class="order-status change-order-status {{ $order['order_status'] == 'Refund to be processed' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: rgba(58, 223, 140, 1);"></span>
+                                    <span class="order-status change-order-status {{ $order['order_status'] == 'Refund Credited' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: rgba(187, 221, 49, 1);"></span>
+                                </div>
                             @endif
                         @endif
 
@@ -608,8 +626,8 @@
             },
             success: function() {
                 toastr['success']('Status changed successfully!', 'Success');
-                $(thiss).siblings('.change-order-status').css('opacity', '0.2');
-                $(thiss).css('opacity', '1');
+                $(thiss).siblings('.change-order-status').removeClass('active-bullet-status');
+                $(thiss).addClass('active-bullet-status');
                 if (status == 'Product shiped to Client') {
                     $('#tracking-wrapper-' + id).css({'display' : 'block'});
                 }
@@ -619,6 +637,7 @@
 
     $(document).ready(function() {
 
+        $('[data-toggle="tooltip"]').tooltip();
 
         $(document).on('click', '.expand-row', function() {
             var selection = window.getSelection();
@@ -1406,10 +1425,10 @@
         }).done(function() {
           $(thiss).parent('div').children().each(function (index) {
             console.log(index);
-            $(this).css({'opacity' : '0.2'});
+            $(this).removeClass('active-bullet-status');
           });
 
-          $(thiss).css({'opacity' : '1'});
+          $(thiss).addClass('active-bullet-status');
         }).fail(function(response) {
           console.log(response);
           alert('Could not change lead status');

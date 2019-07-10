@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\ListingHistory;
+use App\Product;
+use App\Services\Listing\Main;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+
+class AutoApproveProductAttribute extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'approve:products';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * @var Main $listing
+     */
+    private $listing;
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct(Main $listing)
+    {
+        parent::__construct();
+        $this->listing = $listing;
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        $products = Product::where('is_approved', 0)
+            ->where('is_listing_rejected', 0)
+            ->where('is_crop_approved', 1)
+            ->where('is_crop_ordered', 1)
+            ->where('composition', '!=', '')
+            ->whereNotNull('composition')
+            ->where(function ($q) {
+                $q->where('size', '!=', '')
+                    ->orWhere(function ($qq) {
+                        $qq->where('lmeasurement', '!=', '')
+                           ->where('hmeasurement', '!=', '')
+                           ->where('dmeasurement', '!=', '');
+                    });
+                ;
+            })
+            ->get();
+
+        foreach ($products as $product) {
+            $status = $this->listing->validate($product);
+            if (!$status) {
+                continue;
+            }
+
+            $listingHistory = new ListingHistory();
+            $listingHistory->user_id = 109;
+            $listingHistory->product_id = $product->id;
+            $listingHistory->action = 'LISTING_APPROVAL';
+            $listingHistory->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved by ERP!'];
+            $listingHistory->save();
+
+            $product->is_approved = 1;
+            $product->approved_by = 109;
+            $product->listing_approved_at = Carbon::now()->toDateTimeString();
+            $product->save();
+
+        }
+    }
+}

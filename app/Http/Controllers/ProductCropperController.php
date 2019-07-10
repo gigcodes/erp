@@ -205,6 +205,7 @@ class ProductCropperController extends Controller
             ->where('is_crop_approved', 0)
             ->where('is_crop_being_verified', 0)
             ->whereDoesntHave('amends')
+            ->orderBy('is_on_sale', 'DESC')
             ->paginate(24);
 
 	    $totalApproved = 0;
@@ -247,6 +248,7 @@ class ProductCropperController extends Controller
             ->where('is_crop_approved', 0)
             ->whereDoesntHave('amends')
             ->where('is_crop_being_verified', 0)
+            ->orderBy('is_on_sale', 'DESC')
             ->first();
 
         $category = $product->category;
@@ -281,6 +283,8 @@ class ProductCropperController extends Controller
             'Backpacks' => 'Backpack.png',
             'Beach' => 'Backpack.png',
             'Travel' => 'Backpack.png',
+            'Travel Bag' => 'Backpack.png',
+            'Travel Bags' => 'Backpack.png',
             'Belt' => 'belt.png',
             'Belts' => 'belt.png',
             'Clothing' => 'Clothing.png',
@@ -447,6 +451,7 @@ class ProductCropperController extends Controller
             ->where('is_crop_approved', 0)
             ->where('is_crop_being_verified', 0)
             ->whereDoesntHave('amends')
+            ->orderBy('is_on_sale', 'DESC')
             ->first();
 
         $this->deleteUncroppedImages($product);
@@ -548,6 +553,8 @@ class ProductCropperController extends Controller
             ->where('is_crop_rejected', 0)
             ->where('is_crop_approved', 0)
             ->where('is_crop_being_verified', 0)
+            ->whereDoesntHave('amends')
+            ->orderBy('is_on_sale', 'DESC')
             ->first();
 
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping rejected!');
@@ -735,8 +742,11 @@ class ProductCropperController extends Controller
     }
 
     public function showCropVerifiedForOrdering() {
-	    $product = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->orderBy('is_order_rejected', 'DESC')->orderBy('updated_at', 'DESC')->first();
+	    $product = Product::where('is_crop_approved', 1)->where('is_being_ordered', 0)->where('is_crop_ordered', 0)->orderBy('is_order_rejected', 'DESC')->orderBy('is_on_sale', 'DESC')->orderBy('updated_at', 'DESC')->firstOrFail();
 	    $total = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->count();
+
+	    $product->is_being_ordered = 1;
+	    $product->save();
 
 	    return view('products.sequence', compact('product', 'total'));
 
@@ -754,9 +764,6 @@ class ProductCropperController extends Controller
 	    $l->user_id = Auth::user()->id;
 	    $l->content = ['action' => 'SKIP_SEQUENCE', 'page' => 'Sequence Approver'];
 	    $l->save();
-
-
-
 
 
 	    if ($request->isXmlHttpRequest()) {

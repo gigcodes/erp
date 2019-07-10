@@ -6,6 +6,7 @@ use App\Category;
 use App\Image;
 use App\Product;
 use App\ProductReference;
+use App\ProductSizes;
 use App\ScrapedProducts;
 use App\Setting;
 use App\Supplier;
@@ -127,10 +128,21 @@ class ProductAttributeController extends Controller
 		$data['description_link'] = $productattribute->description_link;
 		$data['location'] = $productattribute->location;
 		$data['reference'] = ScrapedProducts::where('sku', $productattribute->sku)->first() ? ScrapedProducts::where('sku', $productattribute->sku)->first()->properties : [];
+		$data['scraped'] = $productattribute->scraped_products;
 		$data['locations'] = (new LocationList)->all();
+		$data['prod_size_qty'] = $productattribute->sizes;
 
 		return view('productattribute.edit',$data);
 	}
+
+	public function delSizeQty($id) {
+	    $q = ProductSizes::find($id);
+	    if ($q) {
+	        $q->delete();
+        }
+
+	    return redirect()->back()->with('success', 'Deleted successfullyy!');
+    }
 
 	public function update(Request $request,Guard $auth, Product $productattribute,Stage $stage)
 	{
@@ -240,6 +252,17 @@ class ProductAttributeController extends Controller
 
 		NotificaitonContoller::store('has added attribute', ['Supervisors'], $productattribute->id);
 		ActivityConroller::create($productattribute->id,'attribute','create');
+
+		foreach ($request->get('qty') as $k=>$qty) {
+		    if (!$qty) {
+		        continue;
+            }
+		    $q = new ProductSizes();
+		    $q->product_id = $productattribute->id;
+		    $q->quantity = $qty;
+		    $q->size = $request->get('sizex')[$k];
+		    $q->save();
+        }
 
 		return redirect()->route( 'productimagecropper.index' )
 		                 ->with( 'success', $success_message);

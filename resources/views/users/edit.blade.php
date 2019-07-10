@@ -116,6 +116,20 @@
           </div>
         </div>
 
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Listing Approval Rate:</strong>
+                <input type="text" name="listing_approval_rate" class="form-control" value="{{ $user->listing_approval_rate ?? 0 }}">
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Listing Rejection Rate:</strong>
+                <input type="text" name="listing_rejection_rate" class="form-control" value="{{ $user->listing_rejection_rate ?? 0 }}">
+            </div>
+        </div>
+
         @if ($user->hasRole('Customer Care'))
           <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">

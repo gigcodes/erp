@@ -104,6 +104,10 @@ class Product extends Model
     return $this->belongsToMany('App\Purchase', 'purchase_products', 'product_id', 'purchase_id');
   }
 
+  public function sizes() {
+	    return $this->hasMany(ProductSizes::class);
+  }
+
 	public function orderproducts()
   {
     return $this->hasMany('App\OrderProduct', 'sku', 'sku');

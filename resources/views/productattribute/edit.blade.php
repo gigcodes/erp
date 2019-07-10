@@ -273,6 +273,32 @@
                       @if ($errors->has('location'))
                           <div class="alert alert-danger">{{$errors->first('location')}}</div>
                       @endif
+                          @csrf
+                          <div>
+                              <table class="table table-bordered">
+                                  <tr>
+                                      <th>Qty</th>
+                                      <th>Size</th>
+                                      <th>Del</th>
+                                  </tr>
+                                  @foreach($prod_size_qty as $q)
+                                      <tr>
+                                          <td>{{ $q->quantity }}</td>
+                                          <td>{{ $q->size }}</td>
+                                          <td>
+                                              <a href="{{ action('ProductAttributeController@delSizeQty', $q->id) }}">Delete</a>
+                                          </td>
+                                      </tr>
+                                  @endforeach
+                              </table>
+                          </div>
+                          <div id="sizeQtHolder">
+                              <div>
+                                  <input style="width: 100px;" type="text" name="qty[]" placeholder="Qty">
+                                  <input style="width: 100px;" type="text" name="sizex[]" placeholder="Size">
+                                  <span class="btn btn-xs btn-secondary add-sizeQtHolder">Add</span>
+                              </div>
+                          </div>
                   </div>
                 @endif
 
@@ -347,6 +373,7 @@
                                 @endif
                             </strong></li>
                     @endforeach
+                      <li><a target="_new" href="{{ $scraped ? $scraped->url : '' }}">Link</a></li>
                   </div>
                 </div>
               </div>
@@ -364,6 +391,15 @@
     // $(document).ready(function() {
     //    $(".select-multiple").multiselect();
     // });
+
+    $(document).on('click', '.add-sizeQtHolder', function () {
+        $("#sizeQtHolder").append(
+            '<div>\n' +
+            '                                  <input style="width: 100px;" type="text" name="qty[]" placeholder="Qty">\n' +
+            '                                  <input style="width: 100px" type="text" name="sizex[]" placeholder="Size">\n' +
+            '                              </div>'
+        );
+    });
 
     var category_tree = {!! json_encode($category_tree) !!};
     var categories_array = {!! json_encode($categories_array) !!};

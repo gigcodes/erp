@@ -38,9 +38,9 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
      */
     public function handle()
     {
-        Product::where('composition', '')->orWhereNull('composition')->chunk(1000, function ($products) {
+        Product::where('composition', '')->orWhereNull('composition')->orderBy('id', 'DESC')->chunk(1000, function ($products) {
             foreach ($products as $product) {
-                dump('On -- ' . rand(555,5555));
+                dump('On -- ' . $product->id);
                 $scrapedProducts = $product->many_scraped_products;
                 dump(count($scrapedProducts));
                 if (!count($scrapedProducts)) {
@@ -50,6 +50,13 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                 foreach ($scrapedProducts as $scrapedProduct) {
                     $property = $scrapedProduct->properties;
                     $composition = $property['composition'] ?? '';
+                    if ($composition) {
+                        dump($composition);
+                        $product->composition = $composition;
+                        $product->save();
+                        break;
+                    }
+                    $composition = $property['material_used'] ?? '';
                     if ($composition) {
                         dump($composition);
                         $product->composition = $composition;
@@ -67,5 +74,67 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
 
             }
         });
+
+        Product::where('short_description', '')
+            ->orWhereNull('short_description')
+            ->orderBy('id', 'DESC')
+            ->chunk(1000, function ($products) {
+                foreach ($products as $product) {
+                    dump('On -- ' . $product->id);
+                    $scrapedProducts = $product->many_scraped_products;
+                    dump(count($scrapedProducts));
+                    if (!count($scrapedProducts)) {
+                        continue;
+                    }
+
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        dump('here desc');
+                        $description = $scrapedProduct->descriptionn;
+                        $description = $description ?? '';
+                        if ($description) {
+                            dump($description);
+                            $product->short_description = $description;
+                            $product->save();
+                            break;
+                        }
+                    }
+
+                }
+            });
+
+        Product::where('color', '')
+            ->orWhereNull('color')
+            ->orderBy('id', 'DESC')
+            ->chunk(1000, function ($products) {
+            foreach ($products as $product) {
+                dump('On -- ' . $product->id);
+                $scrapedProducts = $product->many_scraped_products;
+                dump(count($scrapedProducts));
+                if (!count($scrapedProducts)) {
+                    continue;
+                }
+
+                foreach ($scrapedProducts as $scrapedProduct) {
+                    dump('here..color..');
+                    $property = $scrapedProduct->properties;
+                    $color = $property['color'] ?? '';
+                    if ($color && strlen($color) < 16) {
+                        dump($color);
+                        $product->color = $color;
+                        $product->save();
+                        break;
+                    }
+                    $color = $property['colors'] ?? '';
+                    if ($color && strlen($color) < 16) {
+                        dump($color);
+                        $product->color = $color;
+                        $product->save();
+                        break;
+                    }
+                }
+
+            }
+        });
+
     }
 }

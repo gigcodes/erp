@@ -90,12 +90,28 @@ class VendorController extends Controller
 
       $vendor_categories = VendorCategory::all();
 
+      $users = User::all();
+
       return view('vendors.index', [
         'vendors' => $vendors,
         'vendor_categories' => $vendor_categories,
         'term'    => $term,
         'orderby'    => $orderby,
+          'users' => $users
       ]);
+    }
+
+    public function assignUserToCategory(Request $request) {
+        $user = $request->get('user_id');
+        $category = $request->get('category_id');
+
+        $category = VendorCategory::find($category);
+        $category->user_id = $user;
+        $category->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 
     public function product()
