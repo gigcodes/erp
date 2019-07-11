@@ -1174,7 +1174,21 @@ class WhatsAppController extends FindByNumberController
 
         }
 
-        //Check if its a vendor chat and its category then send to that user....
+        if (!$fromMe && strpos($originalMessage, '#ISSUE-') === 0) {
+            $m = new ChatMessage();
+            $message = str_replace('#ISSUE-', '', $originalMessage);
+            $m->issue_id = explode(' ', $message)[0];
+            $m->message = $originalMessage;
+            $m->save();
+        }
+
+        if (!$fromMe && strpos($originalMessage, '#DEVTASK-') === 0) {
+            $m = new ChatMessage();
+            $message = str_replace('#DEVTASK-', '', $originalMessage);
+            $m->developer_task_id = explode(' ', $message)[0];
+            $m->message = $originalMessage;
+            $m->save();
+        }
 
       return response('success');
     }
@@ -1600,7 +1614,7 @@ class WhatsAppController extends FindByNumberController
           $issue = Issue::find($request->get('issue_id'));
           $params['erp_user'] = $issue->user_id;
           $params['approved'] = 1;
-          $params['message'] = '#'.$issue->id.'-'. $issue->subject . '=>' .$request->get('message');
+          $params['message'] = '#ISSUE-'.$issue->id.'-'. $issue->subject . '=>' .$request->get('message');
           $params['status'] = 2;
 
           $number = User::find($issue->user_id)->phone;
@@ -1616,7 +1630,7 @@ class WhatsAppController extends FindByNumberController
           $task = DeveloperTask::find($request->get('developer_task_id'));
           $params['erp_user'] = $task->user_id;
           $params['approved'] = 1;
-          $params['message'] = '#' . $task->id . ' ' . $request->get('message');
+          $params['message'] = '#DEVTASK-' . $task->id . ' ' . $request->get('message');
           $params['status'] = 2;
 
           $number = User::find($task->user_id)->phone;

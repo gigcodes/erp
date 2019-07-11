@@ -33,6 +33,7 @@
                                         <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>
                                         <option value="Incorrect Category">Incorrect Category</option>
                                         <option value="Only One Image Available">Only One Image Available</option>
+                                        <option value="Blurry Image">Blurry Image</option>
                                     </select>
 {{--                                    <input type="text" class="form-control" placeholder="Remark..." name="remark" id="remark">--}}
                                     <button class="btn btn-danger">Reject</button>

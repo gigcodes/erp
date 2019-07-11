@@ -2,6 +2,7 @@
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 
 @section('large_content')
@@ -83,7 +84,7 @@
       <tr class="add-new-issue">
         <form action="{{ route('development.issue.store') }}" method="post" enctype="multipart/form-data">
           @csrf
-          <td colspan="11">
+          <td colspan="12">
             <select class="form-control d-inline select2" name="module" id="module" style="width: 150px !important;">
               <option value="0">Select Module</option>
               @foreach($modules as $module)
@@ -109,6 +110,7 @@
         <th width="10%">Subject</th>
         <th width="15%">Issue</th>
         <th width="5%">Date Created</th>
+        <th width="5%">Est. Completion Time</th>
         <th width="5%">Submitted By</th>
         <th width="5%">Assigned To</th>
         <th width="5%">Correction By</th>
@@ -139,6 +141,17 @@
               @endif
             </td>
             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
+            <td>
+              <div class="form-group">
+                <div class='input-group date estimate-time'>
+                  <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control estimate-time-change" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
+
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+            </td>
             <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
             <td>
               @if($issue->responsibleUser)
@@ -371,12 +384,15 @@
 @endsection
 
 @section('scripts')
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script>
     $(document).ready(function() {
       $('.select2').select2({
         tags: true
+      });
+
+      $('.estimate-time').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm'
       });
     });
   </script>
@@ -508,6 +524,24 @@
         $(this).find('.td-mini-container').toggleClass('hidden');
         $(this).find('.td-full-container').toggleClass('hidden');
       }
+    });
+
+    $(document).on('change', '.estimate-time-change', function() {
+      alert('here');
+      let estimate_time = $(this).val();
+      let issueId = $(this).data('id');
+
+      $.ajax({
+        url: "{{action('DevelopmentController@saveEstimateTime')}}",
+        data: {
+          estimate_time: estimate_time,
+          issue_id: issueId
+        },
+        success: function() {
+          toastr["success"]("Time updated successfully!", "Message")
+        }
+      });
+
     });
   </script>
 @endsection

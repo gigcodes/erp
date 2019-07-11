@@ -1122,8 +1122,9 @@ form.display-inline{
 }
 
 .active-bullet-status {
-    border: 1px solid #FF0000;
+    border: 2px solid #888e00;
     width: 17px !important;
+    margin-bottom: 4px;
     height: 17px !important;
 }
 

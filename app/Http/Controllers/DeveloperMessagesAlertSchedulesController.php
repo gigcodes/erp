@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\DeveloperMessagesAlertSchedules;
 use Illuminate\Http\Request;
-use Auth;
-use Crypt;
-use App\Password;
-use App\Setting;
 
-class PasswordController extends Controller
+class DeveloperMessagesAlertSchedulesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,15 +14,7 @@ class PasswordController extends Controller
      */
     public function index()
     {
-      if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 90 || Auth::id() == 65) {
-        $passwords = Password::latest()->paginate(Setting::get('pagination'));
-
-        return view('passwords.index', [
-          'passwords' => $passwords
-        ]);
-      } else {
-        return redirect()->back();
-      }
+        //
     }
 
     /**
@@ -46,28 +35,25 @@ class PasswordController extends Controller
      */
     public function store(Request $request)
     {
-      $this->validate($request, [
-        'website'   => 'sometimes|nullable|string|max:255',
-        'url'       => 'required|url',
-        'username'  => 'required|min:3|max:255',
-        'password'  => 'required|min:6|max:255'
-      ]);
+        $schedile = DeveloperMessagesAlertSchedules::first();
 
-      $data = $request->except('_token');
-      $data['password'] = Crypt::encrypt($request->password);
+        if (!$schedile) {
+            $schedile = new DeveloperMessagesAlertSchedules();
+        }
 
-      Password::create($data);
+        $schedile->time = $request->get('times');
+        $schedile->save();
 
-      return redirect()->route('password.index')->withSuccess('You have successfully stored password');
+        return redirect()->back()->with('message', 'Alert schedules updated successfully!');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\DeveloperMessagesAlertSchedules  $developerMessagesAlertSchedules
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(DeveloperMessagesAlertSchedules $developerMessagesAlertSchedules)
     {
         //
     }
@@ -75,10 +61,10 @@ class PasswordController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\DeveloperMessagesAlertSchedules  $developerMessagesAlertSchedules
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(DeveloperMessagesAlertSchedules $developerMessagesAlertSchedules)
     {
         //
     }
@@ -87,10 +73,10 @@ class PasswordController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\DeveloperMessagesAlertSchedules  $developerMessagesAlertSchedules
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, DeveloperMessagesAlertSchedules $developerMessagesAlertSchedules)
     {
         //
     }
@@ -98,10 +84,10 @@ class PasswordController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\DeveloperMessagesAlertSchedules  $developerMessagesAlertSchedules
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(DeveloperMessagesAlertSchedules $developerMessagesAlertSchedules)
     {
         //
     }

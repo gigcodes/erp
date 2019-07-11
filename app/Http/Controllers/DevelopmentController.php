@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DeveloperMessagesAlertSchedules;
 use Illuminate\Http\Request;
 use App\DeveloperTask;
 use App\DeveloperModule;
@@ -88,8 +89,14 @@ class DevelopmentController extends Controller
         $module_names[$module->id] = $module->name;
       }
 
+      $times = [];
+      $sch = DeveloperMessagesAlertSchedules::first();
+      if ($sch) {
+          $times = $sch->time;
+      }
       return view('development.index', [
         'tasks' => $tasks,
+        'times' => $times,
         // 'review_tasks' => $review_tasks,
         // 'completed_tasks' => $completed_tasks,
         'users' => $users,
@@ -645,6 +652,16 @@ class DevelopmentController extends Controller
     public function resolveIssue(Request $request) {
         $issue = Issue::find($request->get('issue_id'));
         $issue->is_resolved = $request->get('is_resolved');
+        $issue->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function saveEstimateTime(Request $request) {
+        $issue = Issue::find($request->get('issue_id'));
+        $issue->estimate_time = $request->get('estimate_time');
         $issue->save();
 
         return response()->json([

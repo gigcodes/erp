@@ -53,16 +53,14 @@ class Main
      * @param Product $product
      * @return bool
      */
-    public function validate(Product $product) {
+    public function validate(Product $product): bool
+    {
         $this->product = $product;
-//        return $this->isCompositionCorrect() &&
-//            $this->isNameCorrect() &&
-//            $this->isShortDescriptionCorrect() &&
-//            $this->isShortDescriptionCorrect() &&
-//            $this->isColorCorrect() &&
-//            ($this->areMeasurementsCorrect() || $this->isSizeCorrect());
-        dump($this->isSizeCorrect());
-        return $this->isSizeCorrect();
+        return $this->isCompositionCorrect() &&
+            $this->isNameCorrect() &&
+            $this->isShortDescriptionCorrect() &&
+            $this->isColorCorrect() &&
+            ($this->areMeasurementsCorrect() || $this->isSizeCorrect());
     }
 
     /**

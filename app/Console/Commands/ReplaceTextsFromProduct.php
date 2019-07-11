@@ -50,11 +50,11 @@ class ReplaceTextsFromProduct extends Command
                         dump('changing names...');
                         $product->name = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->name);
                     }
-
-                    if ($replacement->field_identifier == 'composition') {
-                        dump('changing composition...');
-                        $product->composition = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->composition);
-                    }
+//
+//                    if ($replacement->field_identifier == 'composition') {
+//                        dump('changing composition...');
+//                        $product->composition = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->composition);
+//                    }
 
                     if ($replacement->field_identifier == 'short_description') {
                         dump('changing_short_description..');

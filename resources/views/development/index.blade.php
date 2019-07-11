@@ -34,7 +34,7 @@
               <select class="form-control" name="type">
                 <option value="">Select Type</option>
                 <option value="Discussing" {{ "Discussing" == $type ? 'selected' : '' }}>Discussing</option>
-                <option value="Planned" {{ "Planned" == $type ? 'selected' : 107'' }}>Planned</option>
+                <option value="Planned" {{ "Planned" == $type ? 'selected' : '' }}>Planned</option>
                 <option value="In Progress" {{ "In Progress" == $type ? 'selected' : '' }}>In Progress</option>
                 <option value="Done To be Reviewed" {{ "Done To be Reviewed" == $type ? 'selected' : '' }}>Done To be Reviewed</option>
                 <option value="Completed" {{ "Completed" == $type ? 'selected' : '' }}>Completed</option>
@@ -42,7 +42,7 @@
             </div>
 
             <div class="form-group ml-3">
-              <input value="{{$id}}" type="text" name="id" id="id" placeholder="Id, subject..." class="form-control">
+              <input value="" type="text" name="id" id="id" placeholder="Id, subject..." class="form-control">
             </div>
 
             <button type="submit" class="btn btn-secondary ml-3">Submit</button>
@@ -61,6 +61,60 @@
   @include('development.partials.modal-remark')
 
   @include('partials.flash_messages')
+
+{{--  @can('admin')--}}
+{{--    <div class="panel-group">--}}
+{{--      <div class="panel panel-default">--}}
+{{--        <div class="panel-heading">--}}
+{{--          <h4 class="panel-title">--}}
+{{--            <a data-toggle="collapse" href="#collapsex">--}}
+{{--              <strong>Alert Schedules</strong>--}}
+{{--            </a>--}}
+{{--          </h4>--}}
+{{--        </div>--}}
+{{--        <div id="collapsex" class="panel-collapse collapse">--}}
+{{--          <div class="panel-body">--}}
+{{--            <form method="post" action="{{action('DeveloperMessagesAlertSchedulesController@store')}}">--}}
+{{--              @csrf--}}
+{{--              <input type="hidden" name="type" value="developer_task">--}}
+{{--              <div class="form-group">--}}
+{{--                <label for="times">Times</label>--}}
+{{--                <select style="width: 100%" class="form-control select2" name="times[]" multiple="multiple" id="times" data-placeholder="Select times..">--}}
+{{--                  <option {{ in_array('6', $times, false) ? 'selected' : '' }} value="6">6 AM</option>--}}
+{{--                  <option {{ in_array('7', $times, false) ? 'selected' : '' }} value="7">7 AM</option>--}}
+{{--                  <option {{ in_array('8', $times, false) ? 'selected' : '' }} value="8">8 AM</option>--}}
+{{--                  <option {{ in_array('9', $times, false) ? 'selected' : '' }} value="9">9 AM</option>--}}
+{{--                  <option {{ in_array('10', $times, false) ? 'selected' : '' }} value="10">10 AM</option>--}}
+{{--                  <option {{ in_array('11', $times, false) ? 'selected' : '' }} value="11">11 AM</option>--}}
+{{--                  <option {{ in_array('12', $times, false) ? 'selected' : '' }} value="12">12 PM</option>--}}
+{{--                  <option {{ in_array('13', $times, false) ? 'selected' : '' }} value="13">13 PM</option>--}}
+{{--                  <option {{ in_array('14', $times, false) ? 'selected' : '' }} value="14">14 PM</option>--}}
+{{--                  <option {{ in_array('15', $times, false) ? 'selected' : '' }} value="15">15 PM</option>--}}
+{{--                  <option {{ in_array('16', $times, false) ? 'selected' : '' }} value="16">16 PM</option>--}}
+{{--                  <option {{ in_array('17', $times, false) ? 'selected' : '' }} value="17">17 PM</option>--}}
+{{--                  <option {{ in_array('18', $times, false) ? 'selected' : '' }} value="18">18 PM</option>--}}
+{{--                  <option {{ in_array('19', $times, false) ? 'selected' : '' }} value="19">19 PM</option>--}}
+{{--                  <option {{ in_array('20', $times, false) ? 'selected' : '' }} value="20">20 PM</option>--}}
+{{--                  <option {{ in_array('21', $times, false) ? 'selected' : '' }} value="21">21 PM</option>--}}
+{{--                  <option {{ in_array('22', $times, false) ? 'selected' : '' }} value="22">22 PM</option>--}}
+{{--                  <option {{ in_array('23', $times, false) ? 'selected' : '' }} value="23">23 PM</option>--}}
+{{--                  <option {{ in_array('00', $times, false) ? 'selected' : '' }} value="00">12 AM</option>--}}
+{{--                  <option {{ in_array('1', $times, false) ? 'selected' : '' }} value="1">1 AM</option>--}}
+{{--                  <option {{ in_array('2', $times, false) ? 'selected' : '' }} value="2">2 AM</option>--}}
+{{--                  <option {{ in_array('3', $times, false) ? 'selected' : '' }} value="3">3 AM</option>--}}
+{{--                  <option {{ in_array('4', $times, false) ? 'selected' : '' }} value="4">4 AM</option>--}}
+{{--                  <option {{ in_array('5', $times, false) ? 'selected' : '' }} value="5">5 AM</option>--}}
+{{--                </select>--}}
+{{--              </div>--}}
+{{--              <div class="form-group">--}}
+{{--                <button class="btn btn-secondary">Save</button>--}}
+{{--              </div>--}}
+{{--            </form>--}}
+{{--          </div>--}}
+{{--        </div>--}}
+{{--      </div>--}}
+{{--    </div>--}}
+{{--  @endcan--}}
 
   {{-- <div id="exTab2" class="container">
     <ul class="nav nav-tabs">
@@ -200,7 +254,7 @@
                                 @endforeach
                               </div>
                               <div class="panel-footer">
-                                <input style="width: 200px;" type="text" class="form-control send-message" name="message" data-id="{{$module_task->id}}" placeholder="Enter to send..">
+                                <input type="text" class="form-control send-message" name="message" data-id="{{$module_task->id}}" placeholder="Enter to send..">
                               </div>
                             </div>
                           </div>
@@ -921,11 +975,12 @@
 @endsection
 
 @section('scripts')
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
+    $(document).ready(function() {
+      $('.select2').select2();
+    });
     $('#start_time, #end_time, #estimate_time').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'
     });

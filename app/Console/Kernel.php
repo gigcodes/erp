@@ -19,6 +19,7 @@ use App\Console\Commands\FetchEmails;
 use App\Console\Commands\CheckEmailsErrors;
 use App\Console\Commands\SaveProductsImages;
 use App\Console\Commands\MessageScheduler;
+use App\Console\Commands\SendMessageToUserIfTheirTaskIsNotComplete;
 use App\Console\Commands\SendPendingTasksReminders;
 use App\Console\Commands\SendRecurringTasks;
 use App\Console\Commands\CheckMessagesErrors;
@@ -113,7 +114,8 @@ class Kernel extends ConsoleKernel
         SendDailyPlannerReport::class,
         ResetDailyPlanner::class,
 //        SaveProductsImages::class,
-        GrowInstagramAccounts::class
+        GrowInstagramAccounts::class,
+        SendMessageToUserIfTheirTaskIsNotComplete::class
     ];
 
     /**
@@ -124,7 +126,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-      $schedule->call(function() {
+
+
+        $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
+
+
+        $schedule->call(function() {
         $report = CronJobReport::create([
           'signature' => 'update:benchmark',
           'start_time'  => Carbon::now()
@@ -165,7 +172,7 @@ class Kernel extends ConsoleKernel
           $report->update(['end_time' => Carbon:: now()]);
         })->hourly();
 
-        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
+//        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');

@@ -479,9 +479,16 @@ class CustomerController extends Controller
           $assignedWhereClause = " AND id IN (SELECT customer_id FROM user_customers WHERE user_id = $user_id)";
         }
 
+        if (!$orderByClause) {
+            $orderByClause = ' ORDER BY instruction_completed_at DESC';
+        } else {
+            $orderByClause .= ', instruction_completed_at DESC';
+        }
+
+
         $customers = DB::select('
   									SELECT * FROM
-                    (SELECT customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, customers.deleted_at,
+                    (SELECT customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, customers.deleted_at, customers.instruction_completed_at
                     order_id, order_status, order_created, purchase_status,
                     (SELECT mm5.status FROM leads mm5 WHERE mm5.id = lead_id) AS lead_status, lead_id,
                     (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,

@@ -6,6 +6,7 @@ namespace App\Services\Listing;
 
 use App\AttributeReplacement;
 use App\Brand;
+use App\Colors;
 use App\Product;
 use App\Services\Grammar\GrammarBot;
 
@@ -22,9 +23,18 @@ class NameChecker implements CheckerInterface
     public function check($product): bool {
         $data = $product->name;
         $data = $this->improvise($data);
+        $product->name = $data;
+        $product->save();
         $state = $this->grammerBot->validate($data);
 
-        return true;
+        if ($state !== false) {
+            $product->name = $state;
+            $product->save();
+
+            return true;
+        }
+
+        return false;
     }
 
     public function improvise($sentence, $data2 = null): string
@@ -40,7 +50,14 @@ class NameChecker implements CheckerInterface
 
         foreach ($brands as $brand) {
             $sentence = str_replace(strtoupper($brand->name), '', $sentence);
+            $brand->name = str_replace("'", '', $brand->name);
+            $sentence = str_replace(strtoupper($brand->name), '', $sentence);
         }
+
+        $colors = (new Colors)->all();
+
+        $sentence = title_case($sentence);
+        $sentence = str_replace($colors, '', $sentence);
 
         return title_case($sentence);
     }

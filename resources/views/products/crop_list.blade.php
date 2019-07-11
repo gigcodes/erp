@@ -4,7 +4,8 @@
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">
-                Cropped Images ({{$products->total()}}) <a href="{{ action('ProductController@showSOP') }}?type=Crop" class="pull-right">SOP</a>
+                Cropped Images ({{$products->total()}})
+                <a href="{{ asset('Crop_approval_SOP.pdf') }}" class="pull-right">SOP</a>
             </h2>
         </div>
         <div class="col-md-12">

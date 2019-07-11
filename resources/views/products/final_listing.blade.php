@@ -217,6 +217,7 @@
                             <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
                             <option value="No Images Shown">No Images Shown</option>
                             <option value="Grid Not Shown">Grid Not Shown</option>
+                            <option value="Blurry Image">Blurry Image</option>
                             <option value="First Image Not Available">First Image Not Available</option>
                             <option value="Dimension Not Available">Dimension Not Available</option>
                             <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>

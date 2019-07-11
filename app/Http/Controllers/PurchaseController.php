@@ -225,7 +225,7 @@ class PurchaseController extends Controller
         ->get();
   		}
 
-
+        $status_list = implode("','", $request->status);
 
       if ($request->supplier[0] != null) {
         $supplier = $request->supplier[0];

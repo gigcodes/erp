@@ -18,8 +18,8 @@ class ColorChecker implements CheckerInterface
 
     public function check($product): bool {
         $color = title_case($product->color);
-
-        if (in_array($color, $this->availableColors, true)) {
+        dd($this->availableColors);
+        if (in_array($color, $this->availableColors, false)) {
             $product->color = $color;
             $product->save();
             return true;

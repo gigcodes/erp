@@ -14,38 +14,31 @@ class GrammarBot
         $this->request = $client;
     }
 
-    public function validate($text) {
+    public function validate($text)
+    {
+        sleep(1.2);
+        try {
+            $response = $this->request->request('POST', 'https://api.cognitive.microsoft.com/bing/v7.0/SpellCheck', [
+                'form_params' => [
+//                    'mode' => 'Spell',
+                    'text' => $text
+                ],
+                'headers' => [
+                    'Ocp-Apim-Subscription-Key' => 'fdcfc2cb689346a39265829bb50bf39b',
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                ]
+            ]);
+        } catch (\Exception $exception) {
+            return false;
+        }
 
+        $data = json_decode($response->getBody()->getContents(), true);
 
-//        $request = new Http_Request2('https://api.cognitive.microsoft.com/bing/v7.0/spellcheck/');
-//        $url = $request->getUrl();
-//
-//        $headers = array(
-//            // Request headers
-//            'Content-Type' => 'application/x-www-form-urlencoded',
-//            'Ocp-Apim-Subscription-Key' => '{subscription key}',
-//        );
-//
-//        $request->setHeader($headers);
-//
-//        $parameters = array(
-//            // Request parameters
-//            'mode' => '{string}',
-//            'mkt' => '{string}',
-//        );
+        if ($data['flaggedTokens'] === []) {
+            return $text;
+        }
 
+        return false;
 
-        dump($text);
-        $response = $this->request->request('POST', 'https://api.cognitive.microsoft.com/bing/v7.0/spellcheck', [
-            'form_params' => [
-                'mode' => 'Proof',
-                'text' => $text
-            ],
-            'headers' => [
-                'Ocp-Apim-Subscription-Key' => 'API_KEY'
-            ]
-        ]);
-
-        dump($response->getBody()->getContents());
     }
 }

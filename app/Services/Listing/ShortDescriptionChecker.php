@@ -21,12 +21,23 @@ class ShortDescriptionChecker implements CheckerInterface
 
     public function check($product): bool {
         $data = $product->short_description;
+        if (strlen($data) < 60) {
+            return false;
+        }
         $data = $this->improvise($data);
         $product->short_description = $data;
         $product->save();
         $state = $this->grammerBot->validate($data);
 
-        return true;
+        if ($state !== false) {
+            $product->short_description = $state;
+            $product->save();
+
+            return true;
+        }
+
+        return false;
+
     }
 
     public function improvise($sentence, $data2 = null): string
@@ -78,6 +89,7 @@ class ShortDescriptionChecker implements CheckerInterface
             '&para;',
             '\\',
             '/',
+            '-'
         )
         ;
 

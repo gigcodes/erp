@@ -397,6 +397,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
   Route::get('imported/leads/save', 'ColdLeadsController@addLeadToCustomer');
 
 	// Development
+	Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
 	Route::get('development', 'DevelopmentController@index')->name('development.index');
 	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
 	Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
@@ -413,6 +414,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
 	Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
 	Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
+	Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
 	Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
 	Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
 	Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');

@@ -32,7 +32,7 @@ class AutoApproveProductAttribute extends Command
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param Main $listing
      */
     public function __construct(Main $listing)
     {
@@ -47,22 +47,25 @@ class AutoApproveProductAttribute extends Command
      */
     public function handle()
     {
-        $products = Product::where('is_approved', 0)
-            ->where('is_listing_rejected', 0)
-            ->where('is_crop_approved', 1)
-            ->where('is_crop_ordered', 1)
-            ->where('composition', '!=', '')
-            ->whereNotNull('composition')
-            ->where(function ($q) {
-                $q->where('size', '!=', '')
-                    ->orWhere(function ($qq) {
-                        $qq->where('lmeasurement', '!=', '')
-                           ->where('hmeasurement', '!=', '')
-                           ->where('dmeasurement', '!=', '');
-                    });
-                ;
-            })
-            ->get();
+//        $products = Product::where('is_approved', 0)
+//            ->where('is_listing_rejected', 0)
+//            ->where('is_crop_approved', 1)
+//            ->where('is_crop_ordered', 1)
+//            ->where('composition', '!=', '')
+//            ->where('color', '!=', '')
+//            ->whereNotNull('composition')
+//            ->where(function ($q) {
+//                $q->where('size', '!=', '')
+//                    ->orWhere(function ($qq) {
+//                        $qq->where('lmeasurement', '!=', '')
+//                           ->where('hmeasurement', '!=', '')
+//                           ->where('dmeasurement', '!=', '');
+//                    });
+//                ;
+//            })
+//            ->get();
+
+        $products = Product::where('approved_by', 65)->get();
 
         foreach ($products as $product) {
             $status = $this->listing->validate($product);
@@ -70,17 +73,19 @@ class AutoApproveProductAttribute extends Command
                 continue;
             }
 
-            $listingHistory = new ListingHistory();
-            $listingHistory->user_id = 109;
-            $listingHistory->product_id = $product->id;
-            $listingHistory->action = 'LISTING_APPROVAL';
-            $listingHistory->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved by ERP!'];
-            $listingHistory->save();
-
-            $product->is_approved = 1;
-            $product->approved_by = 109;
-            $product->listing_approved_at = Carbon::now()->toDateTimeString();
-            $product->save();
+            dump($product->id);
+//
+//            $listingHistory = new ListingHistory();
+//            $listingHistory->user_id = 109;
+//            $listingHistory->product_id = $product->id;
+//            $listingHistory->action = 'LISTING_APPROVAL';
+//            $listingHistory->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved by ERP!'];
+//            $listingHistory->save();
+//
+//            $product->is_approved = 1;
+//            $product->approved_by = 109;
+//            $product->listing_approved_at = Carbon::now()->toDateTimeString();
+//            $product->save();
 
         }
     }

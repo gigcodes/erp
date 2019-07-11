@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Customer;
 use App\UserActions;
 use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
@@ -377,6 +378,10 @@ class InstructionController extends Controller
       PushNotification::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
 
       $url = route('customer.show', $instruction->customer->id) . '#internal-message-body';
+
+      Customer::where('id', $instruction->customer->id)->update([
+          'instruction_completed_at' => Carbon::now()->toDateTimeString()
+      ]);
 
       return response()->json(['instruction'  => $instruction->instruction, 'time' => "$instruction->completed_at", 'url'  => "$url"]);
     }
