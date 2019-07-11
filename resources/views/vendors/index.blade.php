@@ -38,6 +38,44 @@
 
     @include('partials.flash_messages')
 
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel mt-5 panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-striped">
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Responsible User</th>
+                                </tr>
+                                @foreach($vendor_categories as $cat)
+                                    <tr>
+                                        <td>{{ $cat->title }}</td>
+                                        <td>
+                                            <select class="form-control update-category-user" data-categoryId="{{$cat->id}}" name="user_id" id="user_id_{{$cat->id}}">
+                                                <option value="">None</option>
+                                                @foreach($users as $user)
+                                                    <option value="{{$user->id}}" {{$user->id==$cat->user_id ? 'selected': ''}}>{{ $user->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <div class="table-responsive mt-3">
       <table class="table table-bordered">
         <thead>
@@ -295,6 +333,23 @@
       } else {
         alert('Please enter a message first');
       }
+    });
+
+    $(document).on('change', '.update-category-user', function() {
+        let catId = $(this).attr('data-categoryId');
+        let userId = $(this).val();
+
+        $.ajax({
+            url: '{{ action('VendorController@assignUserToCategory') }}',
+            data: {
+                user_id: userId,
+                category_id: catId
+            },
+            success: function(response) {
+                toastr['success']('User assigned to category completely!')
+            }
+        });
+
     });
   </script>
 @endsection

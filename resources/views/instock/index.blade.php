@@ -34,7 +34,7 @@
           <div class="form-group mr-3">
             @php $brands = \App\Brand::getAll();
             @endphp
-            <select class="form-control select-multiple" name="brand[]" multiple>
+            <select data-placeholder="Select brands"  class="form-control select-multiple2" name="brand[]" multiple>
               <optgroup label="Brands">
                 @foreach ($brands as $id => $name)
                   <option value="{{ $id }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
@@ -46,7 +46,7 @@
           <div class="form-group mr-3">
             @php $colors = new \App\Colors();
             @endphp
-            <select class="form-control select-multiple" name="color[]" multiple>
+            <select data-placeholder="Select color"  class="form-control select-multiple2" name="color[]" multiple>
               <optgroup label="Colors">
                 @foreach ($colors->all() as $id => $name)
                   <option value="{{ $id }}" {{ isset($color) && $color == $id ? 'selected' : '' }}>{{ $name }}</option>
@@ -57,7 +57,7 @@
 
           @if (Auth::user()->hasRole('Admin'))
             <div class="form-group mr-3">
-              <select class="form-control select-multiple" name="location[]" multiple>
+              <select data-placeholder="Select location" class="form-control select-multiple2" name="location[]" multiple>
                 <optgroup label="Locations">
                   @foreach ($locations as $name)
                     <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
@@ -107,6 +107,7 @@
 
     $(document).ready(function() {
        $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
     });
 
     // $('#product-search').autocomplete({

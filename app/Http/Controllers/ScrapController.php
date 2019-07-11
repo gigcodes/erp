@@ -313,7 +313,7 @@ class ScrapController extends Controller
     }
 
     public function getAutoRejectedProducts() {
-        $products = Product::where('is_listing_rejected_automatically', 1)->where('is_scraped', 1)->take(1000)->get();
+        $products = Product::where('is_listing_rejected_automatically', 1)->where('is_scraped', 1)->where('is_farfetched', 0)->take(1000)->get();
 
         foreach ($products as $product) {
 
@@ -336,13 +336,9 @@ class ScrapController extends Controller
         ]);
 
         $product = Product::find($request->get('id'));
-        $product->is_listing_rejected = 0;
-        $product->is_listing_rejected_automatically = 0;
-        $product->is_farfetched = 1;
         $product->was_auto_rejected = 1;
         $product->save();
 
-        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
 
         if (!$product->short_description && $request->get('description')) {
             $product->short_description = $request->get('description');

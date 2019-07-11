@@ -229,6 +229,10 @@ class UserController extends Controller
 
 		$user->assignRole($request->input('roles'));
 
+		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
+		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
+		$user->save();
+
 
 
 		return redirect()->back()
@@ -254,13 +258,36 @@ class UserController extends Controller
 		                 ->with('success','User deleted successfully');
 	}
 
+    public function unassignProducts(Request $request, $id) {
+        $user = User::find($id);
+
+        $userProducts = UserProduct::where('user_id', $user->id)->pluck('product_id')->toArray();
+
+
+        $products = Product::whereIn('id', $userProducts)->where('is_approved', 0)->where('is_listing_rejected', 0)->take($request->get('number') ?? 0)->get();
+
+        foreach ($products as $product) {
+            UserProduct::where('user_id', $user->id)->where('product_id', $product->id)->delete();
+        }
+
+        return redirect()->back()->with('success', 'Product unassigned successfully!');
+
+    }
+
+    public function showAllAssignedProductsForUser($id) {
+	    $userProducts = UserProduct::where('user_id', $id)->with('product')->orderBy('created_at', 'DESC')->get();
+
+	    $user = User::find($id);
+
+	    return view('products.assigned_products_list_by_user', compact('userProducts', 'user'));
+    }
+
 	public function assignProducts(Request $request, $id)
 	{
 		$user = User::find($id);
 		$amount_assigned = 25;
 
-        $products = Product::where('is_scraped', 1)
-            ->where('stock', '>=', 1)
+        $products = Product::where('stock', '>=', 1)
             ->where('is_crop_ordered', 1)
             ->where('is_order_rejected', 0)
             ->where('is_approved', 0)
@@ -286,8 +313,7 @@ class UserController extends Controller
 
         $remaining = $amount_assigned-count($products);
 
-        $products = Product::where('is_scraped', 1)
-            ->where('stock', '>=', 1)
+        $products = Product::where('stock', '>=', 1)
             ->where('is_crop_ordered', 1)
             ->where('is_order_rejected', 0)
             ->where('is_listing_rejected', 0)

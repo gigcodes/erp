@@ -77,6 +77,9 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-md-2">
+                        <input type="date" name="date" id="date" value="{{Request::get('date') ?? date('Y-m-d')}}">
+                    </div>
                     <div class="col-md-1">
                         <button class="btn btn-image"><img src="{{asset('images/search.png')}}" alt="Search"></button>
                     </div>

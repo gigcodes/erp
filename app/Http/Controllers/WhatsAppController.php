@@ -936,6 +936,10 @@ class WhatsAppController extends FindByNumberController
     return response("success", 200);
     }
 
+    public function sendMessageToRespectiveUserIfIsRelatedVendor($data) {
+
+    }
+
     public function webhook(Request $request, GuzzleClient $client)
     {
       $data = $request->json()->all();
@@ -949,6 +953,7 @@ class WhatsAppController extends FindByNumberController
 
   		$from = str_replace('@c.us', '', $data['messages'][0]['author']);
   		$text = $data['messages'][0]['body'];
+  		$originalMessage = $text;
       $supplier = $this->findSupplierByNumber($from);
       $vendor = $this->findVendorByNumber($from);
       $user = $this->findUserByNumber($from);
@@ -1112,7 +1117,16 @@ class WhatsAppController extends FindByNumberController
           $params['vendor_id'] = $vendor->id;
 
           $message = ChatMessage::create($params);
-          // $model_type = 'supplier';
+
+          $category = $vendor->category;
+
+          if ($category && $category->user_id && $params['message']) {
+              $user = User::find($category->user_id);
+              $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-('.$vendor->name.')=> ' . $params['message']);
+          }
+
+
+            // $model_type = 'supplier';
           // $model_id = $supplier->id;
 
           $this->sendRealTime($message, 'vendor_' . $vendor->id, $client);
@@ -1135,7 +1149,34 @@ class WhatsAppController extends FindByNumberController
         }
       // }
 
-      return response('success', 200);
+        $fromMe = $data['messages'][0]['fromMe'] ?? true;
+        $params['message'] = $originalMessage;
+        if (!$fromMe && $params['message'] && strpos($originalMessage, 'V-') === 0) {
+            $msg = $params['message'];
+            $msg = explode(' ', $msg);
+            $vendorData = $msg[0];
+            $vendorId = trim(str_replace('V-', '', $vendorData));
+            $message = str_replace('V-'.$vendorId, '', $params['message']);
+
+            $vendor = Vendor::find($vendorId);
+            if (!$vendor) {
+                return response('success');
+            }
+
+            $params['vendor_id'] = $vendorId;
+            $params['approved'] = 1;
+            $params['message'] = $message;
+            $params['status'] = 2;
+
+            $this->sendWithThirdApi($vendor->phone, null, $params['message']);
+
+            ChatMessage::create($params);
+
+        }
+
+        //Check if its a vendor chat and its category then send to that user....
+
+      return response('success');
     }
 
     public function outgoingProcessed(Request $request)

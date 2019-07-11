@@ -1124,15 +1124,21 @@ form.display-inline{
 
 .order-status {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     background: #eeeeee;
+}
+
+.active-bullet-status {
+    border: 1px solid #FF0000;
+    width: 17px !important;
+    height: 17px !important;
 }
 
 .user-status {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background-color: #eee;
 }

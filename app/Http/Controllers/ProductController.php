@@ -21,6 +21,7 @@ use App\Supplier;
 use App\Stock;
 use App\Colors;
 use App\ReadOnly\LocationList;
+use App\UserProduct;
 use App\UserProductFeedback;
 use Cache;
 use Auth;
@@ -402,6 +403,28 @@ class ProductController extends Controller {
             'selected_categories'	=> $selected_categories,
         ]);
     }
+
+    public function showListigByUsers(Request $request) {
+	    $whereFirst = '';
+	    if ($request->get('date')) {
+	        $whereFirst = ' AND DATE(created_at) = "'.$request->get('date').'"';
+        }
+	    $users = UserProduct::groupBy(['user_id'])
+            ->select(DB::raw('
+            user_id,
+            COUNT(product_id) as total_assigned, 
+            (SELECT COUNT(DISTINCT(listing_histories.product_id)) FROM listing_histories WHERE listing_histories.user_id = user_products.user_id AND action IN ("LISTING_APPROVAL", "LISTING_REJECTED") '.$whereFirst.') as total_acted'));
+
+	    if ($request->get('date')) {
+	        $users = $users->whereRaw('DATE(created_at) = "'.$request->get('date').'"');
+        }
+
+	    $users = $users->with('user')->get();
+	    return view('products.assigned_products', compact('users'));
+
+    }
+
+
 
 	public function listing(Request $request, Stage $stage)
 	{
@@ -786,6 +809,7 @@ class ProductController extends Controller {
 		}
 
 		$data['images'] = $product->getMedia( config( 'constants.media_tags' ) );
+
 
 		$data['categories'] = $product->category ? CategoryController::getCategoryTree( $product->category ) : '';
 
@@ -1383,6 +1407,12 @@ class ProductController extends Controller {
 //	        return '';
 //        }
 
+        if (!$product) {
+            return response()->json([
+                'status' => 'no_product'
+            ]);
+        }
+
 
 	    $imgs = $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
 
@@ -1588,6 +1618,11 @@ class ProductController extends Controller {
 	        $products = $products->where('listing_remark' , 'LIKE', "%$reason%");
         }
 
+        if ($request->get('date') !== '') {
+            $date = $request->get('date');
+            $products = $products->where('listing_rejected_on' , 'LIKE', "%$date%");
+        }
+
 	    if ($request->get('id') != '') {
 	        $id = $request->get('id');
             $products = $products->where('id' , $id)->orWhere('sku', 'LIKE', "%$id%");
@@ -1656,7 +1691,7 @@ class ProductController extends Controller {
 
         $category_array = Category::renderAsArray();
 
-        $products = $products->orderBy('updated_at', 'DESC')->orderBy('listing_rejected_on', 'DESC')->paginate(25);
+        $products = $products->orderBy('listing_rejected_on', 'DESC')->orderBy('updated_at', 'DESC')->paginate(25);
 
 	    return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier', 'request', 'users'));
     }

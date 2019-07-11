@@ -60,14 +60,49 @@ class CustomerController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function __construct() {
-      $this->middleware('permission:customer', ['only' => ['index','show']]);
-    }
+//    public function __construct() {
+//      $this->middleware('permission:customer', ['only' => ['index','show']]);
+//    }
 
     public function index(Request $request)
     {
       $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
       $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
+      $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total' )->whereNotNull('order_status')->groupBy('order_status')->get();
+
+      $finalOrderStats = [];
+      $totalCount = 0;
+      foreach($order_stats as $order_stat) {
+          $totalCount += $order_stat->total;
+      }
+
+      foreach ($order_stats as $key=>$order_stat) {
+          $finalOrderStats[] = array(
+              $order_stat->order_status,
+              $order_stat->total,
+              ($order_stat->total/$totalCount)*100,
+              [
+                  '#CCCCCC',
+                  '#95a5a6',
+                  '#b2b2b2',
+                  '#999999',
+                  '#2c3e50',
+                  '#7f7f7f',
+                  '#666666',
+                  '#4c4c4c',
+                  '#323232',
+                  '#191919',
+                  '#000000',
+                  '#414a4c',
+                  '#353839',
+                  '#232b2b',
+                  '#34495e',
+                  '#7f8c8d',
+              ][$key]
+          );
+      }
+
+      $order_stats = $finalOrderStats;
 
       // dd(';s');
       // $customers = Customer::with('whatsapps')->get();
@@ -109,6 +144,7 @@ class CustomerController extends Controller
       $start_time = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay();
       $end_time = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
 
+
       return view('customers.index', [
         'customers' => $results[0],
         'customers_all' => $customers_all,
@@ -129,6 +165,7 @@ class CustomerController extends Controller
         'start_time' => $start_time,
         'end_time' => $end_time,
         'leads_data' => $results[2],
+          'order_stats' => $order_stats
       ]);
     }
 
@@ -357,7 +394,6 @@ class CustomerController extends Controller
         if($request->input('orderby')) {
           $orderby = 'ASC';
         }
-
         $sortby = 'communication';
 
         $sortBys = [
@@ -393,8 +429,36 @@ class CustomerController extends Controller
           if ($start_time != '' && $end_time != '') {
             $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
           }
-        } else if ($request->type != 'new' && $request->type != 'delivery' && $request->type != 'Refund to be processed' && $request->type != '') {
-          $join = "LEFT";
+        } else if (
+            $request->get('type') === 'Advance received' ||
+            $request->get('type') === 'Cancel' ||
+            $request->get('type') === 'Delivered' ||
+            $request->get('type') === 'Follow up for advance' ||
+            $request->get('type') === 'HIGH PRIORITY' ||
+            $request->get('type') === 'In Transist from Italy' ||
+            $request->get('type') === 'Prepaid' ||
+            $request->get('type') === 'Proceed without Advance' ||
+            $request->get('type') === 'Product Shiped form Italy' ||
+            $request->get('type') === 'Product shiped to Client' ||
+            $request->get('type') === 'Refund Credited' ||
+            $request->get('type') === 'Refund Dispatched' ||
+            $request->get('type') === 'Refund to be processed'
+        )
+        {
+            $join = 'LEFT';
+            $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
+            $messageWhereClause = ' WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9';
+            if ($orderWhereClause) {
+                $orderWhereClause .= ' AND ';
+            } else {
+                $orderWhereClause = ' WHERE ';
+            }
+            $orderWhereClause .= 'orders.order_status = "'.$request->get('type').'"';
+            $filterWhereClause = ' WHERE order_status = "'.$request->get('type').'"';
+
+        }
+        else if ($request->type != 'new' && $request->type != 'delivery' && $request->type != 'Refund to be processed' && $request->type != '') {
+          $join = 'LEFT';
           $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
           $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
 
@@ -512,6 +576,7 @@ class CustomerController extends Controller
 
                 // dd($leads_data);
         $ids_list = [];
+
         // $leads_data = [0, 0, 0, 0, 0, 0, 0];
         foreach ($customers as $customer) {
           if ($customer->id != null) {
@@ -542,7 +607,6 @@ class CustomerController extends Controller
     		$customers = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [
     			'path'	=> LengthAwarePaginator::resolveCurrentPath()
     		]);
-
 
         return [$customers, $ids_list, $leads_data];
     }
@@ -1060,6 +1124,22 @@ class CustomerController extends Controller
         $customer->save();
 
         return redirect()->route('customer.index')->with('success', 'You have successfully added new customer!');
+    }
+
+    public function addNote($id, Request $request) {
+        $customer = Customer::findOrFail($id);
+        $notes = $customer->notes;
+        if (!is_array($notes)) {
+            $notes = [];
+        }
+
+        $notes[] = $request->get('note');
+        $customer->notes = $notes;
+        $customer->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 
     /**

@@ -34,7 +34,7 @@
               <select class="form-control" name="type">
                 <option value="">Select Type</option>
                 <option value="Discussing" {{ "Discussing" == $type ? 'selected' : '' }}>Discussing</option>
-                <option value="Planned" {{ "Planned" == $type ? 'selected' : '' }}>Planned</option>
+                <option value="Planned" {{ "Planned" == $type ? 'selected' : 107'' }}>Planned</option>
                 <option value="In Progress" {{ "In Progress" == $type ? 'selected' : '' }}>In Progress</option>
                 <option value="Done To be Reviewed" {{ "Done To be Reviewed" == $type ? 'selected' : '' }}>Done To be Reviewed</option>
                 <option value="Completed" {{ "Completed" == $type ? 'selected' : '' }}>Completed</option>
@@ -90,7 +90,10 @@
               Module
             </td>
             <td width="10%">
-              Sub-module
+              Subject
+            </td>
+            <td width="10%">
+              Description
             </td>
             <td width="10%">
               Assigned To
@@ -100,9 +103,6 @@
             </td>
             <td width="10%">
               Date Of Completion
-            </td>
-            <td width="10%">
-              Subject
             </td>
             <td width="10%">
               Status
@@ -121,7 +121,7 @@
                   <tr>
                     <td>{{ $module_task->id }}</td>
                     <td>
-                      {{ $module_task->created_at->format('Y-m-d') }}
+                      {{ $module_task->created_at->format('m-d') }}
                     </td>
                     <td>
                       <select class="form-control change-module" data-id="{{$module_task->id}}" name="module_select_{{$module_task->id}}" id="module_task_{{$module_task->id}}">
@@ -130,40 +130,48 @@
                         @endforeach
                       </select>
                     </td>
+                    <td>
+                      {{ $module_task->subject ?? '-' }}
+                    </td>
                     <td class="expand-row">
                       <div class="td-mini-container">
                         {{ strlen($module_task->task) > 20 ? substr($module_task->task, 0, 10).'...' : $module_task->task }}
                       </div>
                       <div class="td-full-container hidden">
                         {{ $module_task->task }}
+                        <br>
+                        @if ($module_task->getMedia(config('constants.media_tags'))->first())
+                          @foreach ($module_task->getMedia(config('constants.media_tags')) as $image)
+                            <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
+                              <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                            </a>
+                          @endforeach
+                        @endif
                       </div>
                     </td>
                     <td>
-{{--                        <select class="form-control" name="assigned_to" style="width: 150px;">--}}
-{{--                          @foreach ($users as $id => $name)--}}
-{{--                            <option value="{{ $id }}" {{ $id == $module_task->user_id ? 'selected' : '' }}>{{ $name }}</option>--}}
-{{--                          @endforeach--}}
-{{--                        </select>--}}
-                      {{ $module_task->user->name }}
+                    {{--                        <select class="form-control" name="assigned_to" style="width: 150px;">--}}
+                    {{--                          @foreach ($users as $id => $name)--}}
+                    {{--                            <option value="{{ $id }}" {{ $id == $module_task->user_id ? 'selected' : '' }}>{{ $name }}</option>--}}
+                    {{--                          @endforeach--}}
+                    {{--                        </select>--}}
+                    {{ $module_task->user->name }}
                     </td>
                     <td style="color: #FF0000;">
-                      @if($module_task->estimate_time)
-                        {{ \Carbon\Carbon::createFromTimeString($module_task->estimate_time)->format('m-d H:i') }}
-                      @else
-                        -
-{{--                        <input data-id="{{$module_task->id}}" class="change-value" data-type="estimate_date" type="date" name="set_estimate_time">--}}
-                      @endif
+                  @if($module_task->estimate_time)
+                      {{ \Carbon\Carbon::createFromTimeString($module_task->estimate_time)->format('m-d H:i') }}
+                    @else
+                      -
+                    {{--                        <input data-id="{{$module_task->id}}" class="change-value" data-type="estimate_date" type="date" name="set_estimate_time">--}}
+                    @endif
                     </td>
                     <td>
-                      @if($module_task->end_time)
-                        {{ \Carbon\Carbon::createFromTimeString($module_task->end_time)->format('m-d H:i') }}
-                      @else
-                        -
-{{--                        <input data-id="{{ $module_task->id }}" class="change-value" data-type="end_date" type="date" name="set_end_time">--}}
-                      @endif
-                    </td>
-                    <td>
-                      {{ $module_task->subject ?? '-' }}
+                  @if($module_task->end_time)
+                      {{ \Carbon\Carbon::createFromTimeString($module_task->end_time)->format('m-d H:i') }}
+                    @else
+                      -
+                    {{--                        <input data-id="{{ $module_task->id }}" class="change-value" data-type="end_date" type="date" name="set_end_time">--}}
+                    @endif
                     </td>
                     <td>
                       <div class="form-group">
@@ -178,17 +186,25 @@
                       </div>
                     </td>
                     <td>
-                      <div class="message-list expand-row">
-                        <div class="td-mini-container">
-                          {{ $module_task->messages()->first() ? $module_task->messages()->first()->message.'...' : ''}}
+                        <div class="panel-group">
+                          <div class="panel panel-default" style="width: 140px;">
+                            <div class="panel-heading">
+                              <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#collapse_{{$module_task->id}}">Messages ({{ count($module_task->messages) }})</a>
+                              </h4>
+                            </div>
+                            <div id="collapse_{{$module_task->id}}" class="panel-collapse collapse">
+                              <div class="panel-body">
+                                @foreach($module_task->messages as $message)
+                                  <li>-{{ $message->message }}</li>
+                                @endforeach
+                              </div>
+                              <div class="panel-footer">
+                                <input style="width: 200px;" type="text" class="form-control send-message" name="message" data-id="{{$module_task->id}}" placeholder="Enter to send..">
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div class="td-full-container hidden">
-                          @foreach($module_task->messages()->get() as $message)
-                            <li>-{{ $message->message }}</li>
-                          @endforeach
-                        </div>
-                      </div>
-                      <input style="width: 200px;" type="text" class="form-control send-message" name="message" data-id="{{$module_task->id}}" placeholder="Enter to send..">
                     </td>
                     <td>
                       @if($module_task->cost)

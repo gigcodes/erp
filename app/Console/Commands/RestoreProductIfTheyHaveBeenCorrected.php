@@ -42,7 +42,7 @@ class RestoreProductIfTheyHaveBeenCorrected extends Command
             ->where('short_description', '!=', '')
             ->where('composition', '!=', '')
             ->where('is_listing_rejected_automatically', 1)
-            ->where('is_listing_rejected', 1)
+//            ->where('is_listing_rejected', 1)
             ->chunk(1000, function($products) {
                 foreach ($products as $product) {
                     $product->is_listing_rejected = 0;

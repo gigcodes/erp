@@ -541,6 +541,7 @@
                                         <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}">Approved Listing</a>
                                         <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Rejected Statistics</a>
+                                        <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payment</a>
                                     @endcan
 
 
@@ -1331,6 +1332,7 @@
                                     <a class="dropdown-item" href="{{ route('graph_user') }}">User Graph</a>
 
                                     <a class="dropdown-item" href="{{ route('benchmark.create') }}">Add benchmark</a>
+                                    <a class="dropdown-item" href="{{ action('ProductController@showListigByUsers') }}">User-Product Assigmnent</a>
 
                                 </div>
 

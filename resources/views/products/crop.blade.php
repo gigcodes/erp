@@ -4,7 +4,8 @@
     <div class="row">
         <div class="col-md-12">
             <h5 class="page-heading">
-                Crop Image Approval <a href="{{ action('ProductController@showSOP') }}?type=Crop" class="pull-right">SOP</a>
+                Crop Image Approval <a href="{{ asset('Crop_approval_SOP.pdf') }}" class="pull-right">SOP</a>
+{{--                Crop Image Approval <a href="{{ action('ProductController@showSOP') }}?type=Crop" class="pull-right">SOP</a>--}}
             </h5>
             <div class="row">
                 <div class="col-md-12">
@@ -13,6 +14,7 @@
                             <td>
                                 <strong>{{ $product->name }}</strong>
                                 <br>{{ $product->sku }}
+                                <br>{{ $product->is_on_sale ? 'ON SALE' : 'NO SALE' }}
                                 <br><a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
                                 <br><strong>{{ $product->product_category->title }}</strong>
                             </td>

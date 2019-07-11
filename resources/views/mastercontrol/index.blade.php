@@ -35,6 +35,18 @@
       </div>
   </div>
 
+  <div class="row">
+      <div class="col-md-12">
+          <div class="col-md-12">
+              @if($listingProducts < 500)
+                  <div class="alert alert-danger">
+                      There are only <strong>{{ $listingProducts }}</strong>products to be assigned for listing.
+                  </div>
+              @endif
+          </div>
+      </div>
+  </div>
+
     @include('partials.flash_messages')
 
     <div id="exTab2" class="container">
