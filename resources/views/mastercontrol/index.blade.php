@@ -81,7 +81,7 @@
                 <div class="pull-left">
                   <a href="{{ route('broadcast.index') }}" target="_blank"><h3>Broadcasts</h3></a>
 
-                  @if ($cron_job->last_status == 'error')
+                  @if (isset($cron_job->last_status) && $cron_job->last_status == 'error')
                     <span class="badge" data-toggle="tooltip" title="Pending messages {{ $pending_messages_count }}">Cron Job Error</span>
                   @endif
                 </div>

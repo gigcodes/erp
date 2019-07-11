@@ -1364,7 +1364,7 @@
                                               <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
                                               <a href="{{ action('InstagramPostsController@index') }}">Manual Instagram Post</a>
                                               <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-{{--                                              <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>--}}
+                                {{-- <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>--}}
                                               <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag Monitoring &<br> Manual Commenting</a>
                                               <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments <br>(Notifications)</a>
                                               <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
@@ -1594,6 +1594,8 @@
                                   <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
                                   <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
                                 @endif
+
+                                <a class="dropdown-item" href="{{ route('resourceimg.index') }}" >Resource Center</a>
 
                                 @can('category-edit')
 

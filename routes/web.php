@@ -125,6 +125,17 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('category/references', 'CategoryController@mapCategory');
 	Route::post('category/references', 'CategoryController@saveReferences');
 	Route::resource('category','CategoryController');
+
+	Route::resource('resourceimg','ResourceImgController');
+	Route::post('add-resource','ResourceImgController@addResource')->name('add.resource');
+	Route::post('add-resourceCat','ResourceImgController@addResourceCat')->name('add.resourceCat');
+	Route::post('edit-resourceCat','ResourceImgController@editResourceCat')->name('edit.resourceCat');
+	Route::post('remove-resourceCat','ResourceImgController@removeResourceCat')->name('remove.resourceCat');
+
+
+	Route::post('delete-resource','ResourceImgController@deleteResource')->name('delete.resource');
+	Route::get('images/resource/{id}','ResourceImgController@imagesResource')->name('images/resource');
+
 	Route::resource('categorymap','CategoryMapController');
 	Route::resource('benchmark','BenchmarkController');
 
