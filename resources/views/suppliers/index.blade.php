@@ -30,6 +30,9 @@
                     <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
                   </select>
                 </div>
+{{--                  <div class="form-group ml-3">--}}
+{{--                      <select name="status" id=""></select>--}}
+{{--                  </div>--}}
 
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
@@ -62,6 +65,7 @@
             <th width="20%">Order</th>
             {{-- <th width="20%">Emails</th> --}}
             <th width="25%">Communication</th>
+            <th>Status</th>
             <th width="15%">Action</th>
           </tr>
         </thead>
@@ -173,6 +177,9 @@
                   @endif
                 @endif
               </td>
+                <td>
+                    {{ $supplier->status ? 'Active' : 'Inactive' }}
+                </td>
               <td>
                 <a href="{{ route('supplier.show', $supplier->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
 

@@ -37,7 +37,7 @@ class SupplierController extends Controller
       }
 
       $suppliers = DB::select('
-									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error,
+									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, 
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -67,7 +67,7 @@ class SupplierController extends Controller
                   address LIKE "%' . $term . '%" OR 
                   social_handle LIKE "%' . $term . '%" OR
                    id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
-                  ORDER BY is_flagged DESC, last_communicated_at DESC;
+                  ORDER BY status DESC, is_flagged DESC, last_communicated_at DESC;
 							');
 
       $suppliers_all = Supplier::where(function ($query) {
@@ -184,7 +184,8 @@ class SupplierController extends Controller
         'email'           => 'sometimes|nullable|email',
         'default_email'   => 'sometimes|nullable|email',
         'social_handle'   => 'sometimes|nullable',
-        'gst'             => 'sometimes|nullable|max:255'
+        'gst'             => 'sometimes|nullable|max:255',
+        'status' => 'required'
       ]);
 
       $data = $request->except('_token');

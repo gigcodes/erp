@@ -112,6 +112,13 @@
               </select>
             </div>
 
+            <div class="form-group">
+              <select class="form-control form-control-sm" name="status" id="status">
+                <option {{ !$supplier->status ? 'selected' : '' }} value="0">Inactive</option>
+                <option {{ $supplier->status ? 'selected' : '' }} value="1">Active</option>
+              </select>
+            </div>
+
             {{-- <div class="form-group">
               <input type="number" id="supplier_whatsapp_number" name="whatsapp_number" class="form-control input-sm" placeholder="Whatsapp Number" value="{{ $supplier->whatsapp_number }}">
             </div> --}}
