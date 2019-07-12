@@ -13,7 +13,14 @@ class ResourceCategories extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('resource_categories', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('parent_id')->default(0);
+            $table->string('title', 299);
+            $table->enum('is_active', ['Y', 'N']);
+            $table->string('created_by', 199);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -23,6 +30,6 @@ class ResourceCategories extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('resource_categories');
     }
 }

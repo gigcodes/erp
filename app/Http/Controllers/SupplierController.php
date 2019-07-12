@@ -227,7 +227,9 @@ class SupplierController extends Controller
     {
       $this->validate($request, [
         'subject' => 'required|min:3|max:255',
-        'message' => 'required'
+        'message' => 'required',
+        'cc.*' => 'nullable|email',
+        'bcc.*' => 'nullable|email'
       ]);
 
       if ($request->suppliers) {
@@ -283,9 +285,25 @@ class SupplierController extends Controller
         }
       }
 
+      $cc = $bcc = [];
+      if ($request->has('cc')) {
+          $cc = array_values(array_filter($request->cc));
+      }
+      if ($request->has('bcc')) {
+          $bcc = array_values(array_filter($request->bcc));
+      }
 
       foreach ($suppliers as $supplier) {
-        Mail::to($supplier->default_email ?? $supplier->email)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        $mail = Mail::to($supplier->default_email ?? $supplier->email);
+
+        if ($cc) {
+            $mail->cc($cc);
+        }
+        if ($bcc) {
+            $mail->bcc($bcc);
+        }
+
+        $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
         $params = [
           'model_id'        => $supplier->id,
@@ -295,8 +313,10 @@ class SupplierController extends Controller
           'to'              => $supplier->default_email ?? $supplier->email,
           'subject'         => $request->subject,
           'message'         => $request->message,
-          'template'				=> 'customer-simple',
-  				'additional_data'	=> json_encode(['attachment' => $file_paths])
+          'template'		=> 'customer-simple',
+          'additional_data'	=> json_encode(['attachment' => $file_paths]),
+          'cc'              => $cc ?: null,
+          'bcc'             => $bcc ?: null,
         ];
 
         Email::create($params);

@@ -1792,12 +1792,11 @@
             $(thiss).closest('.card').find('.email-content .card').html('Loading...');
           }
         }).done(function(response) {
-          $(thiss).closest('.card').find('.email-content .card').html(response.email);
+            $(thiss).closest('.card').find('.email-content .card').html(response.email);
         }).fail(function(response) {
-          $(thiss).closest('.card').find('.email-content .card').html();
-
-          alert('Could not fetch an email');
-          console.log(response);
+            $(thiss).closest('.card').find('.email-content .card').html();
+            alert('Could not fetch an email');
+            console.log(response);
         })
       });
 
@@ -1862,7 +1861,6 @@
           } else {
             $(thiss).html('<img src="/images/unflagged.png" />');
           }
-
         }).fail(function(response) {
           $(thiss).html('<img src="/images/unflagged.png" />');
 
@@ -1871,5 +1869,71 @@
           console.log(response);
         });
       });
+
+     // REPLY
+
+    $(document).on('click', '.email-reply-link', function (e) {
+        e.preventDefault();
+
+        var DELAY = 300;
+        var el = $(this);
+        var parent = el.parent();
+
+        el.fadeOut(function () {
+            parent.find('.cancel-email-reply-link').fadeIn();
+        });
+
+        parent.find('.email-reply-form').show(DELAY);
+    });
+
+    $(document).on('click', '.cancel-email-reply-link', function (e) {
+        e.preventDefault();
+
+        var DELAY = 300;
+        var el = $(this);
+        var parent = el.parent();
+
+        el.fadeOut(function () {
+            parent.find('.email-reply-link').fadeIn();
+        });
+
+        parent.find('.email-reply-form').hide(DELAY);
+    });
+
+    $(document).on('click', '.email-reply-form-submit-button', function (e) {
+        e.preventDefault();
+
+        var el = $(this);
+        var parentEl = el.parent().parent().parent();
+        var form = el.parent().parent();
+        var data = form.serializeArray();
+        var action = form.attr('action');
+
+        $.ajax({
+            type: "POST",
+            url: action,
+            data: data,
+        }).done(function(response) {
+            if (response.success === true) {
+                form.find('.form-group .reply-message-textarea').val('')
+                if (parentEl.find('.cancel-email-reply-link')) {
+                    parentEl.find('.cancel-email-reply-link').click()
+                }
+
+                parentEl.find('.reply-success-messages')
+                    .html(response.message)
+                    .show(300).delay(4000).hide(300);
+            } else {
+                parentEl.find('.reply-error-messages')
+                    .html(response.errors.join('<br>'))
+                    .show(300).delay(4000).hide(300);
+            }
+        }).fail(function(response) {
+            parentEl.find('.reply-error-messages')
+                .html(response.data.messages.join('<br>'))
+                .show(300).delay(4000).hide(300);
+        });
+    });
+
   </script>
 @endsection

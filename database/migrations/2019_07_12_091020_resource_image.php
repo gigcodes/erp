@@ -13,7 +13,17 @@ class ResourceImage extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('resource_images', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('cat_id');
+            $table->text('url');
+            $table->text('description');
+            $table->text('image1');
+            $table->text('image2');
+            $table->enum('is_active', ['Y', 'N']);
+            $table->text('created_by');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -23,6 +33,6 @@ class ResourceImage extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('resource_images');
     }
 }

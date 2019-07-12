@@ -39,8 +39,8 @@
             </div>
 
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Emai</a>
-              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
             </div>
         </div>
     </div>
@@ -185,8 +185,8 @@
 
                 {{-- <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
 
-                <button type="button" class="btn d-inline btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
-                <button type="button" class="btn d-inline btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></a>
+                <button type="button" class="btn btn-image edit-supplier" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
+                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></button>
 
                 {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -216,6 +216,86 @@
          includeSelectAllOption: true
        });
     });
+
+    // cc
+
+    $(document).on('click', '.add-cc', function (e) {
+        e.preventDefault();
+
+        if ($('#cc-label').is(':hidden')) {
+            $('#cc-label').fadeIn();
+        }
+
+        var el = `<div class="row cc-input">
+            <div class="col-md-10">
+                <input type="text" name="cc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+        $('#cc-list').append(el);
+    });
+
+    $(document).on('click', '.cc-delete-button', function (e) {
+        e.preventDefault();
+        var parent = $(this).parent().parent();
+
+        parent.hide(300, function () {
+            parent.remove();
+            var n = 0;
+
+            $('.cc-input').each(function () {
+                n++;
+            });
+
+            if (n == 0) {
+                $('#cc-label').fadeOut();
+            }
+        });
+    });
+
+    // bcc
+
+    $(document).on('click', '.add-bcc', function (e) {
+        e.preventDefault();
+
+        if ($('#bcc-label').is(':hidden')) {
+            $('#bcc-label').fadeIn();
+        }
+
+        var el = `<div class="row bcc-input">
+            <div class="col-md-10">
+                <input type="text" name="bcc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image bcc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+        $('#bcc-list').append(el);
+    });
+
+    $(document).on('click', '.bcc-delete-button', function (e) {
+        e.preventDefault();
+        var parent = $(this).parent().parent();
+
+        parent.hide(300, function () {
+            parent.remove();
+            var n = 0;
+
+            $('.bcc-input').each(function () {
+                n++;
+            });
+
+            if (n == 0) {
+                $('#bcc-label').fadeOut();
+            }
+        });
+    });
+
+    //
 
     $(document).on('click', '.edit-supplier', function() {
       var supplier = $(this).data('supplier');

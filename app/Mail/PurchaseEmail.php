@@ -35,26 +35,18 @@ class PurchaseEmail extends Mailable
      */
     public function build()
     {
-      if (count($this->file_paths) > 0) {
-        $email = $this->from('buying@amourint.com')
-                    // ->bcc('customercare@sololuxury.co.in')
-                    ->subject($this->subject)
-                    ->text('emails.customers.email_plain')->with([
-                      'body_message' => $this->message
-                    ]);
+        $email = $this
+            ->from('buying@amourint.com')
+            ->subject($this->subject)
+            ->text('emails.customers.email_plain', ['body_message' => $this->message]);
 
-        foreach ($this->file_paths as $file_path) {
-          $email->attachFromStorageDisk('files', $file_path);
+        if (count($this->file_paths) > 0) {
+            foreach ($this->file_paths as $file_path) {
+                $email->attachFromStorageDisk('files', $file_path);
+            }
         }
 
         return $email;
-      } else {
-        return $this->from('buying@amourint.com')
-                    // ->bcc('customercare@sololuxury.co.in')
-                    ->subject($this->subject)
-                    ->text('emails.customers.email_plain')->with([
-                      'body_message' => $this->message
-                    ]);
-      }
     }
+    
 }
