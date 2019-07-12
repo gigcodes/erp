@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ForwardEmail;
 use Illuminate\Http\Request;
 use App\Order;
 use App\OrderProduct;
@@ -1724,6 +1725,8 @@ class PurchaseController extends Controller
             $emails_array[$count + $key2]['cc'] = $email->cc;
             $emails_array[$count + $key2]['bcc'] = $email->bcc;
             $emails_array[$count + $key2]['replyInfo'] = "On {$dateCreated} at {$timeCreated}, $userName <{$email->from}> wrote:";
+            $emails_array[$count + $key2]['dateCreated'] = $dateCreated;
+            $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
 
         $emails_array = array_values(array_sort($emails_array, function ($value) {
@@ -2374,4 +2377,27 @@ class PurchaseController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
     }
+
+    public function emailForward(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'to.0' => 'required|email',
+            'to.*' => 'nullable|email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+        }
+
+        $forwardEmail = Email::findOrFail($request->forward_email_id);
+        $forwardTo = array_filter($request->to);
+
+        foreach ($forwardTo as $to) {
+            Mail::to($to)->send(new ForwardEmail($forwardEmail, $request->message));
+        }
+
+        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
+    }
+
+
 }

@@ -67,9 +67,13 @@
         <div class="card-footer">
             <a class="email-reply-link" href="#">Reply</a>
             <a class="cancel-email-reply-link" href="#" style="display: none;">Cancel Reply</a>
+            <a class="email-forward-link ml-3" href="#">Forward</a>
+            <a class="cancel-email-forward-link ml-3" href="#" style="display: none;">Cancel Forward</a>
 
             <div class="alert alert-danger reply-error-messages mt-2" style="display: none;"></div>
             <div class="alert alert-success reply-success-messages mt-2" style="display: none;"></div>
+            <div class="alert alert-danger forward-error-messages mt-2" style="display: none;"></div>
+            <div class="alert alert-success forward-success-messages mt-2" style="display: none;"></div>
 
             <form action="{{ route('purchase.email.reply') }}" class="email-reply-form mt-2" style="display: none;">
                 @csrf
@@ -87,9 +91,46 @@
                 </div>
 
                 <div class="text-right">
-                    <button type="submit" class="btn btn-sm btn-secondary email-reply-form-submit-button">Send</button>
+                    <button type="submit" class="btn btn-sm btn-secondary email-reply-form-submit-button">Reply</button>
                 </div>
             </form>
+
+            <form action="{{ route('purchase.email.forward') }}" class="email-forward-form mt-2" style="display: none;">
+                @csrf
+                <input type="hidden" name="forward_email_id" value="{{ $email['id'] }}">
+
+                <div class="form-group" id="forward-to-emails-list">
+                    <strong>To *</strong>
+
+                    <div class="row mb-3">
+                        <div class="col-md-10">
+                            <input type="text" name="to[]" class="form-control">
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <a href="#" class="add-forward-to btn btn-secondary">+</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <textarea name="message" class="form-control forward-message-textarea" rows="3"></textarea>
+
+                    <div class="message-to-forward">
+                        <div>---------- Forwarded message ---------</div>
+                        <div>From: &lt;{{ $email['from'] }}&gt;</div>
+                        <div>Date: {{ $email['dateCreated'] }} at {{ $email['timeCreated'] }}</div>
+                        <div>Subject: {{ $email['subject'] }}</div>
+                        <div>To: {{ $email['to'] }}</div>
+                        <br>
+                        {!! $email['message'] !!}
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <button type="submit" class="btn btn-sm btn-secondary email-forward-form-submit-button">Forward</button>
+                </div>
+            </form>
+
         </div>
       </div>
     @endforeach
@@ -143,19 +184,23 @@
 </div> --}}
 
 <style type="text/css">
-    .message-to-reply blockquote {
+    .message-to-reply blockquote,
+    .message-to-forward blockquote {
         font-size: 14px;
     }
-    .reply-message-textarea {
+    .reply-message-textarea,
+    .forward-message-textarea {
         border-bottom: none;
         border-bottom-right-radius: 0px;
         border-bottom-left-radius: 0px;
     }
-    .reply-message-textarea:focus {
+    .reply-message-textarea:focus,
+    .forward-message-textarea:focus {
         border-color: #ccc;
         box-shadow: unset;
     }
-    .message-to-reply {
+    .message-to-reply,
+    .message-to-forward {
         background-color: #fff;
         border: 1px solid #ccc;
         border-top: 0;

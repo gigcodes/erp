@@ -1883,6 +1883,8 @@
             parent.find('.cancel-email-reply-link').fadeIn();
         });
 
+        parent.find('.cancel-email-forward-link').click();
+
         parent.find('.email-reply-form').show(DELAY);
     });
 
@@ -1934,6 +1936,98 @@
                 .show(300).delay(4000).hide(300);
         });
     });
+
+    // FORWARD
+
+    $(document).on('click', '.email-forward-link', function (e) {
+        e.preventDefault();
+
+        var DELAY = 300;
+        var el = $(this);
+        var parent = el.parent();
+
+        el.fadeOut(function () {
+            parent.find('.cancel-email-forward-link').fadeIn();
+        });
+
+        parent.find('.cancel-email-reply-link').click();
+
+        parent.find('.email-forward-form').show(DELAY);
+    });
+
+    $(document).on('click', '.cancel-email-forward-link', function (e) {
+        e.preventDefault();
+
+        var DELAY = 300;
+        var el = $(this);
+        var parent = el.parent();
+
+        el.fadeOut(function () {
+            parent.find('.email-forward-link').fadeIn();
+        });
+
+        parent.find('.email-forward-form').hide(DELAY);
+    });
+
+    $(document).on('click', '.email-forward-form-submit-button', function (e) {
+        e.preventDefault();
+
+        var el = $(this);
+        var parentEl = el.parent().parent().parent();
+        var form = el.parent().parent();
+        var data = form.serializeArray();
+        var action = form.attr('action');
+
+        $.ajax({
+            type: "POST",
+            url: action,
+            data: data,
+        }).done(function(response) {
+            if (response.success === true) {
+                form.find('.form-group .forward-message-textarea').val('')
+                if (parentEl.find('.cancel-email-forward-link')) {
+                    parentEl.find('.cancel-email-forward-link').click()
+                }
+
+                parentEl.find('.forward-success-messages')
+                    .html(response.message)
+                    .show(300).delay(4000).hide(300);
+            } else {
+                parentEl.find('.forward-error-messages')
+                    .html(response.errors.join('<br>'))
+                    .show(300).delay(4000).hide(300);
+            }
+        }).fail(function(response) {
+            parentEl.find('.forward-error-messages')
+                .html(response.data.messages.join('<br>'))
+                .show(300).delay(4000).hide(300);
+        });
+    });
+
+    $(document).on('click', '.add-forward-to', function (e) {
+        e.preventDefault();
+
+        var el = ` <div class="row mb-3">
+            <div class="col-md-10">
+                <input type="text" name="to[]" class="form-control">
+            </div>
+            <div class="col-md-2 text-center">
+                <button type="button" class="btn btn-image delete-forward-to"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+        $('#forward-to-emails-list').append(el);
+    });
+
+    $(document).on('click', '.delete-forward-to', function (e) {
+        e.preventDefault();
+        var parent = $(this).parent().parent();
+
+        parent.hide(300, function () {
+            parent.remove();
+        });
+    });
+
 
   </script>
 @endsection

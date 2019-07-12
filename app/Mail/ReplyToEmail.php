@@ -43,9 +43,14 @@ class ReplyToEmail extends Mailable
         $emailToReply = $this->emailToReply;
         $message = $this->message;
 
+        $replyPrefix = 'Re: ';
+        $subject = substr($emailToReply->subject, 0, 4) === $replyPrefix
+            ? $emailToReply->subject
+            : $replyPrefix . $emailToReply->subject;
+
         $this->to($emailToReply->from);
         $this->from($emailToReply->to);
-        $this->subject($emailToReply->subject);
+        $this->subject($subject);
 
         $userName = null;
         if ($emailToReply->model instanceof \App\Supplier) {

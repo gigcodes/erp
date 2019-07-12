@@ -335,6 +335,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
 	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
     Route::post('purchase/email/reply', 'PurchaseController@emailReply')->name('purchase.email.reply');
+    Route::post('purchase/email/forward', 'PurchaseController@emailForward')->name('purchase.email.forward');
 
 	Route::get('download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts');
 
