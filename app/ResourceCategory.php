@@ -37,6 +37,7 @@ class ResourceCategory extends Model{
 
   static public function create($input){
     $resourceimg = new ResourceCategory;
+    $input['parent_id'] = $input['parent_id'] ?? 1;
     $resourceimg->parent_id = ($input['parent_id'] == 1 ?  0 : $input['parent_id']);
     $resourceimg->title = $input['title'];
     $resourceimg->is_active = "Y";

@@ -53,8 +53,34 @@
     <section class="dashboard-counts section-padding">
         <div class="container-fluid">
             <div class="row">
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <th>Uncropped</th>
+{{--                        <th>Crop Approved</th>--}}
+                        <th>Crop Rejected</th>
+                        <th>On Sequencing/Approved</th>
+                        <th>Attribute Approved</th>
+                        <th>Attribute Rejected</th>
+                        <th>Total</th>
+                    </tr>
+                    <tr>
+                        <td>{{ $productStats->uncropped }}</td>
+{{--                        <td>{{ $productStats->crop_approved }}</td>--}}
+                        <td>{{ $productStats->crop_rejected }}</td>
+                        <td>{{ $productStats->left_for_sequencing }}</td>
+                        <td>{{ $productStats->total_approvals }}</td>
+                        <td>{{ $productStats->total_rejections }}</td>
+                        <td>
+                            {{ $productStats->uncropped + $productStats->crop_rejected + $productStats->left_for_sequencing + $productStats->total_approvals + $productStats->total_rejections }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="row">
                 <table class="table table-bordered">
                     <tr>
+                        <th>New Scrapping</th>
+                        <th>Inventory</th>
                         <th>Crop Approval</th>
                         <th>Crop Rejection</th>
                         <th>Crop Sequencing</th>
@@ -62,11 +88,13 @@
                         <th>Attribute Rejected</th>
                     </tr>
                     <tr>
+                        <td>{{ $scrapCount }}</td>
+                        <td>{{ $inventoryCount }}</td>
                         <td>{{ $allActivity->crop_approved }}</td>
                         <td>{{ $allActivity->crop_rejected }}</td>
                         <td>{{ $allActivity->crop_ordered }}</td>
                         <td>{{ $allActivity->attribute_approved }}</td>
-                        <td>{{ $allActivity->attribute_rejected }}</td>
+                        <td>{{ $rejectedListingsCount - $allActivity->attribute_rejected }}</td>
                     </tr>
                 </table>
                 <table class="table table-bordered">

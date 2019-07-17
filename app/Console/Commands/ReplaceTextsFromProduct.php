@@ -42,7 +42,8 @@ class ReplaceTextsFromProduct extends Command
 
         $replacements = AttributeReplacement::all();
 
-        Product::where('is_approved', 0)->orderBy('id', 'DESC')->chunk(1000, function($products) use ($replacements) {
+        Product::where('id',101637)->orderBy('id', 'DESC')->chunk(1000, function($products) use ($replacements) {
+//        Product::where('is_approved', 0)->orderBy('id', 'DESC')->chunk(1000, function($products) use ($replacements) {
 
             foreach ($products as $product)  {
                 foreach ($replacements as $replacement) {

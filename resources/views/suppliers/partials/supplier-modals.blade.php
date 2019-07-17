@@ -142,6 +142,13 @@
               <div class="alert alert-danger">{{$errors->first('gst')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+              <option {{ old('status') == 0 ? 'selected' : '' }} value="0">Inactive</option>
+              <option {{ old('status') == 1 ? 'selected' : '' }} value="1">Active</option>
+            </select>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -42,6 +42,12 @@ class VendorController extends Controller
       if ($request->sortby == 'category') {
         $sortByClause = "category_name $orderby,";
       }
+        $whereArchived = ' `deleted_at` IS NULL ';
+
+      if ($request->get('with_archived') == 'on') {
+          $whereArchived = '  `deleted_at` IS NOT NULL  ';
+      }
+
       // $type = $request->type ?? '';
       // $typeWhereClause = '';
       //
@@ -63,7 +69,7 @@ class VendorController extends Controller
                   ON vendors.id = chat_messages.vendor_id
 
                   LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
-                  ON vendors.category_id = vendor_categories.id
+                  ON vendors.category_id = vendor_categories.id WHERE '. $whereArchived . '
                   )
 
                   AS vendors
@@ -307,13 +313,13 @@ class VendorController extends Controller
     {
       $vendor = Vendor::find($id);
 
-      foreach ($vendor->products as $product) {
-        $product->detachMediaTags(config('constants.media_tags'));
-      }
+//      foreach ($vendor->products as $product) {
+//        $product->detachMediaTags(config('constants.media_tags'));
+//      }
 
-      $vendor->products()->delete();
-      $vendor->chat_messages()->delete();
-      $vendor->agents()->delete();
+//      $vendor->products()->delete();
+//      $vendor->chat_messages()->delete();
+//      $vendor->agents()->delete();
       $vendor->delete();
 
       return redirect()->route('vendor.index')->withSuccess('You have successfully deleted a vendor');

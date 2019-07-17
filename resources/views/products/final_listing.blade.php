@@ -104,6 +104,7 @@
           <div class="form-group mr-3">
             <select class="form-control" name="user_id" id="user_id">
               @foreach($users as $user)
+                <option value="">Select user...</option>
                 <option value="{{$user->id}}">{{ $user->name }}</option>
               @endforeach
             </select>

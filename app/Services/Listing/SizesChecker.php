@@ -19,14 +19,14 @@ class SizesChecker implements CheckerInterface
         if (!$data) {
             return false;
         }
-
-        $data = explode(',', $data);
-
-        foreach ($data as $datum) {
-            if (!in_array($datum, self::$allowedSizes, false)) {
-                return false;
-            }
-        }
+//
+//        $data = explode(',', $data);
+//
+//        foreach ($data as $datum) {
+//            if (!in_array($datum, self::$allowedSizes, false)) {
+//                return false;
+//            }
+//        }
 
         return true;
     }

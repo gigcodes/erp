@@ -485,6 +485,54 @@
                     <option value="Other">Other</option>
                   </select>
                   <textarea name="remark-input-{{$product->id}}" id="remark-input-{{$product->id}}" class="form-control remark-input-post" data-id="{{$product->id}}" style="display: none;"></textarea>
+                  <br>
+                  <hr>
+                  <!-- Trigger the modal with a button -->
+                  <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#modal_{{$product->id}}">References</button>
+
+                  <!-- Modal -->
+                  <div id="modal_{{$product->id}}" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+
+                      <!-- Modal content-->
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h4 class="modal-title">Product Reference</h4>
+                        </div>
+                        <div class="modal-body">
+                          @foreach($special_product->many_scraped_products as $scrapedProduct)
+                            <table class="table table-striped table-bordered">
+                              <tr>
+                                <td>Name</td>
+                                <td>{{ $scrapedProduct->title }}</td>
+                              </tr>
+                              <tr>
+                                <td>Description</td>
+                                <td>{{ $scrapedProduct->description }}</td>
+                              </tr>
+                              <tr>
+                                <td>Product Link</td>
+                                <td>
+                                  <a target="_new" href="{{ $scrapedProduct->url }}">Visit Site</a>
+                                </td>
+                              </tr>
+                              @foreach($product->properties as $key=>$property)
+                                <tr>
+                                  <td>{{ $key }}</td>
+                                  <td>{{ $property }}</td>
+                                </tr>
+                              @endforeach
+                            </table>
+                          @endforeach
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
                 </td>
               @endif
             </tr>

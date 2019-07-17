@@ -1352,83 +1352,93 @@
                                   <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                   <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
                               @else
-                                  <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
-                                  <li class="nav-item dropdown dropdown-submenu">
+                                  @can('social-email')
+                                      <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
+                                  @endcan
+                                  @can('instagram')
+                                      <li class="nav-item dropdown dropdown-submenu">
 
-                                      <a id="instagramMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+                                          <a id="instagramMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
 
-                                          INSTAGRAM<span class="caret"></span>
+                                              INSTAGRAM<span class="caret"></span>
 
-                                      </a>
+                                          </a>
 
-                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="instagramMenu">
-                                          <li class="nav-item dropdown dropdown-submenu">
-                                              <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
-                                              <a href="{{ action('InstagramPostsController@index') }}">Manual Instagram Post</a>
-                                              <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                {{-- <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>--}}
-                                              <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag Monitoring &<br> Manual Commenting</a>
-                                              <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments <br>(Notifications)</a>
-                                              <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
-                                              <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Locations</a>
-                                              <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords for Comments</a>
-                                              <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
-                                              <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">Competitors On Instaram</a>
-                                              <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
-                                              <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comment Statistics</a>
-                                              <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customer's Followers</a>
-                                              <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags used by top customers</a>
-                                          </li>
-                                      </ul>
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="instagramMenu">
+                                              <li class="nav-item dropdown dropdown-submenu">
+                                                  <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
+                                                  <a href="{{ action('InstagramPostsController@index') }}">Manual Instagram Post</a>
+                                                  <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                                  {{-- <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>--}}
+                                                  <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag Monitoring &<br> Manual Commenting</a>
+                                                  <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments <br>(Notifications)</a>
+                                                  <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
+                                                  <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Locations</a>
+                                                  <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords for Comments</a>
+                                                  <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
+                                                  <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">Competitors On Instaram</a>
+                                                  <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
+                                                  <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comment Statistics</a>
+                                                  <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customer's Followers</a>
+                                                  <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags used by top customers</a>
+                                              </li>
+                                          </ul>
 
-                                  </li>
-                                  <li class="nav-item dropdown dropdown-submenu">
+                                      </li>
+                                  @endcan
+                                  @can('facebook')
+                                      <li class="nav-item dropdown dropdown-submenu">
 
-                                      <a id="facebookMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+                                          <a id="facebookMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
 
-                                          Facebook<span class="caret"></span>
+                                              Facebook<span class="caret"></span>
 
-                                      </a>
+                                          </a>
 
-                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="facebookMenu">
-                                          <li class="nav-item dropdown dropdown-submenu">
-                                              <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Create A Post</a>
-                                              <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">Scheduled Posts</a>
-                                          </li>
-                                      </ul>
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="facebookMenu">
+                                              <li class="nav-item dropdown dropdown-submenu">
+                                                  <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Create A Post</a>
+                                                  <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">Scheduled Posts</a>
+                                              </li>
+                                          </ul>
 
-                                  </li>
-                                  <li class="nav-item dropdown dropdown-submenu">
+                                      </li>
+                                  @endcan
+                                  @can('sitejabber')
+                                      <li class="nav-item dropdown dropdown-submenu">
 
-                                      <a id="compAnaMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+                                          <a id="compAnaMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
 
-                                          Sitejabber<span class="caret"></span>
+                                              Sitejabber<span class="caret"></span>
 
-                                      </a>
+                                          </a>
 
 
 
-                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="compAnaMenu">
-                                          <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
-                                          <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">SITEJABBER | Quick Reply</a>
-                                      </ul>
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="compAnaMenu">
+                                              <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
+                                              <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">SITEJABBER | Quick Reply</a>
+                                          </ul>
 
-                                  </li>
-                                  <li class="nav-item dropdown dropdown-submenu">
+                                      </li>
+                                  @endcan
+                                  @can('pinterest')
+                                      <li class="nav-item dropdown dropdown-submenu">
 
-                                      <a id="pinterestMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+                                          <a id="pinterestMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
 
-                                          Pinterest<span class="caret"></span>
+                                              Pinterest<span class="caret"></span>
 
-                                      </a>
+                                          </a>
 
-                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="pinterestMenu">
-                                          <li class="nav-item dropdown dropdown-submenu">
-                                              <a class="dropdown-item" href="{{ action('PinterestAccountAcontroller@index') }}">Accounts</a>
-                                          </li>
-                                      </ul>
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="pinterestMenu">
+                                              <li class="nav-item dropdown dropdown-submenu">
+                                                  <a class="dropdown-item" href="{{ action('PinterestAccountAcontroller@index') }}">Accounts</a>
+                                              </li>
+                                          </ul>
 
-                                  </li>
+                                      </li>
+                                  @endcan
 
                               @endif
                           </ul>
@@ -1601,6 +1611,7 @@
 
                                 @can('category-edit')
 
+                                    <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
                                     <a class="dropdown-item" href="{{route('category')}}">Category</a>
                                     <a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category References</a>
 
@@ -1777,7 +1788,7 @@
 
     </main>
 
-    <div class="col-md-10 col-md-offset-1">
+    <div class="col-md-12">
         @yield('large_content')
     </div>
 

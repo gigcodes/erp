@@ -86,6 +86,7 @@ class ProductListerController extends Controller
 		$sku = $product->sku . $product->color;
 		$categories = CategoryController::getCategoryTreeMagentoIds($product->category);
 
+
 		$brand= $product->brands()->get();
 		array_push($categories,$brand[0]->magento_id);
 
@@ -98,6 +99,10 @@ class ProductListerController extends Controller
 		$reference->sku = $product->sku;
 		$reference->color = $product->color;
 		$reference->save();
+
+		if ($product->is_on_sale) {
+		    $categories[] = 1237;
+        }
 
 		if(!empty($product->size)) {
 

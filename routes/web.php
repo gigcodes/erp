@@ -39,6 +39,7 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
+    Route::resource('color-reference', 'ColorReferenceController');
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
     Route::post('save-sequence/{id}', 'ProductCropperController@saveSequence');
@@ -181,6 +182,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
 	Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
 	Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
+	Route::get('orders/download', 'OrderController@downloadOrderInPdf');
   Route::resource('order','OrderController');
 
 	Route::post('order/status/store','OrderReportController@statusStore')->name('status.store');
@@ -260,9 +262,11 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Customers
 	Route::get('customer/test', 'CustomerController@customerstest');
 	Route::post('customer/add-note/{id}', 'CustomerController@addNote');
+	Route::get('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::post('customers/{id}/sendAdvanceLink', 'CustomerController@sendAdvanceLink')->name('customer.send.advanceLink');
 	Route::get('customers/{id}/loadMoreMessages', 'CustomerController@loadMoreMessages');
+	Route::get('customer/search', 'CustomerController@search');
 	Route::get('customers', 'CustomerController@index')->name('customer.index');
 	Route::get('customers-load', 'CustomerController@load')->name('customer.load');
 	Route::post('customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup')->name('customer.initiate.followup');
@@ -335,7 +339,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('purchase/email/send', 'PurchaseController@emailSend')->name('purchase.email.send');
 	Route::post('purchase/email/resend', 'PurchaseController@emailResend')->name('purchase.email.resend');
     Route::post('purchase/email/reply', 'PurchaseController@emailReply')->name('purchase.email.reply');
-
+    Route::get('pc/test', 'PictureColorsController@index');
 	Route::get('download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts');
 
 	// Master Plan

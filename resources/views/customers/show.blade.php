@@ -176,6 +176,59 @@
         align-items: center;
         flex-wrap: wrap;
       }
+      .balon1, .balon2 {
+
+          margin-top: 5px !important;
+          margin-bottom: 5px !important;
+
+      }
+
+
+      .balon1 a {
+
+          background: #42a5f5;
+          color: #fff !important;
+          border-radius: 20px 20px 3px 20px;
+          display: block;
+          max-width: 75%;
+          padding: 7px 13px 7px 13px;
+
+      }
+
+      .balon1:before {
+
+          content: attr(data-is);
+          position: absolute;
+          right: 15px;
+          bottom: -0.8em;
+          display: block;
+          font-size: .750rem;
+          color: rgba(84, 110, 122,1.0);
+
+      }
+
+      .balon2 a {
+
+          background: #f1f1f1;
+          color: #000 !important;
+          border-radius: 20px 20px 20px 3px;
+          display: block;
+          max-width: 75%;
+          padding: 7px 13px 7px 13px;
+
+      }
+
+      .balon2:before {
+
+          content: attr(data-is);
+          position: absolute;
+          left: 13px;
+          bottom: -0.8em;
+          display: block;
+          font-size: .750rem;
+          color: rgba(84, 110, 122,1.0);
+
+      }
   </style>
 @endsection
 
@@ -188,9 +241,17 @@
 
 <div class="row">
   <div class="col-lg-12 margin-tb">
-    <div class="pull-left">
+    <div>
       <h3>Customer Page</h3>
     </div>
+      @if($searchedMessages)
+          <div>
+              <h5 style="display: block;">You searched: <strong>{{ Request::get('sm') }}</strong></h5>
+              @foreach($searchedMessages as $message)
+                  <p class="p-2 m-2" style="border-left: 4px solid #cccccc; background-color: #f5f5f5">{{ $message->message }}</p>
+              @endforeach
+          </div>
+      @endif
     <div class="pull-right mt-4">
       <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
       <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
@@ -245,6 +306,11 @@
     @if ($customer->instagramThread)
       <li><a href="#igdm" data-toggle="tab">Instagram DM</a></li>
     @endif
+      @if($customer->facebook_id)
+          <li><a class="btn btn-image" href="#facebook" data-toggle="tab">
+                  <img style="width: 16px;" src="{{ asset('images/facebook.png') }}" alt="Facebook">
+              </a></li>
+      @endif
     @if (count($customer->private_views) > 0)
       <li><a href="#private_view_tab" data-toggle="tab" class="btn btn-image"><img src="/images/customer-private-viewing.png" /></a></li>
     @endif
@@ -1325,6 +1391,19 @@
           @include('customers.email')
         </div>
       </div>
+
+        @if($customer->facebook_id)
+            <div class="tab-pane mt-3" id="facebook">
+                @foreach($facebookMessages as $msg)
+                    <div class="p-2 position-relative {{ $msg->is_sent_by_me ? 'balon1' : 'balon2' }}">
+                        <a @click="event.preventDefault()" class="{{ $msg->is_sent_by_me ? 'float-right' : 'float-left' }}">
+                            {{ $msg->message }}
+                        </a>
+                    </div>
+                    <br clear="all">
+                @endforeach
+            </div>
+        @endif
     </div>
   </div>
 
@@ -2175,6 +2254,7 @@
       });
 
   jQuery(document).ready(function( $ ) {
+      $('.select2').select2();
     $('audio').on("play", function (me) {
       $('audio').each(function (i,e) {
         if (e !== me.currentTarget) {
@@ -2344,6 +2424,108 @@
       alert('Please select at least 1 product first');
     }
   });
+      $(document).on('click', '.create-product-lead-dimension', function(e) {
+          e.preventDefault();
+
+          var thiss = $(this);
+
+          if (selected_product_images.length > 0) {
+              var customer_id = {{ $customer->id }};
+              var created_at = moment().format('YYYY-MM-DD HH:mm');
+
+              $.ajax({
+                  type: 'POST',
+                  url: "{{ route('leads.store') }}",
+                  data: {
+                      _token: "{{ csrf_token() }}",
+                      customer_id: customer_id,
+                      rating: 1,
+                      status: 3,
+                      assigned_user: 6,
+                      selected_product: selected_product_images,
+                      type: "product-lead",
+                      created_at: created_at
+                  },
+                  beforeSend: function() {
+                      $(thiss).text('Creating...');
+                  },
+                  success: function(response) {
+                      $.ajax({
+                          type: "POST",
+                          url: "{{ route('leads.send.prices') }}",
+                          data: {
+                              _token: "{{ csrf_token() }}",
+                              customer_id: customer_id,
+                              lead_id: response.lead.id,
+                              selected_product: selected_product_images,
+                              dimension: 'true'
+                          }
+                      }).done(function() {
+                          location.reload();
+                      }).fail(function(response) {
+                          console.log(response);
+                          alert('Could not send product dimension to customer!');
+                      });
+                  }
+              }).fail(function(error) {
+                  console.log(error);
+                  alert('There was an error creating a lead');
+              });
+          } else {
+              alert('Please select at least 1 product first');
+          }
+      });
+      $(document).on('click', '.create-detail_image', function(e) {
+          e.preventDefault();
+
+          var thiss = $(this);
+
+          if (selected_product_images.length > 0) {
+              var customer_id = {{ $customer->id }};
+              var created_at = moment().format('YYYY-MM-DD HH:mm');
+
+              $.ajax({
+                  type: 'POST',
+                  url: "{{ route('leads.store') }}",
+                  data: {
+                      _token: "{{ csrf_token() }}",
+                      customer_id: customer_id,
+                      rating: 1,
+                      status: 3,
+                      assigned_user: 6,
+                      selected_product: selected_product_images,
+                      type: "product-lead",
+                      created_at: created_at
+                  },
+                  beforeSend: function() {
+                      $(thiss).text('Sending...');
+                  },
+                  success: function(response) {
+                      $.ajax({
+                          type: "POST",
+                          url: "{{ route('leads.send.prices') }}",
+                          data: {
+                              _token: "{{ csrf_token() }}",
+                              customer_id: customer_id,
+                              lead_id: response.lead.id,
+                              selected_product: selected_product_images,
+                              detailed: 'true'
+                          }
+                      }).done(function() {
+                          location.reload();
+                      }).fail(function(response) {
+                          console.log(response);
+                          alert('Could not send ALL IMAGES to customer!');
+                      });
+                  }
+              }).fail(function(error) {
+                  console.log(error);
+                  alert('There was an error creating a lead');
+              });
+          } else {
+              alert('Please select at least 1 product first');
+          }
+      });
 
   $(document).on('click', '.create-product-order', function(e) {
     e.preventDefault();
@@ -3143,11 +3325,15 @@
                // var forward = $('<button class="btn btn-xs btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '">Forward >></button>');
 
                if (has_product_image) {
+                 var create_lead_dimension = $('<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension">+ Dimensions</a>');
                  var create_lead = $('<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>');
+                 var create_detail_image = $('<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image">Detailed Images</a>');
                  var create_order = $('<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order">+ Order</a>');
 
                  create_lead.appendTo(meta);
                  create_order.appendTo(meta);
+                 create_lead_dimension.appendTo(meta);
+                 create_detail_image.appendTo(meta);
                }
 
                // forward.appendTo(meta);

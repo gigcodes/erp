@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Imports\CustomerImport;
 use App\Exports\CustomersExport;
@@ -808,6 +809,26 @@ class CustomerController extends Controller
     			'path'	=> LengthAwarePaginator::resolveCurrentPath()
     		]);
 
+
+    		dd( [
+                'customers' => $new_customers,
+                'customers_all' => $customers_all,
+                'customer_ids_list' => json_encode($ids_list),
+                'users_array' => $users_array,
+                'instructions' => $instructions,
+                'term' => $term,
+                'orderby' => $orderby,
+                'type' => $type,
+                'queues_total_count' => $queues_total_count,
+                'queues_sent_count' => $queues_sent_count,
+                'search_suggestions' => $search_suggestions,
+                'reply_categories' => $reply_categories,
+                'orders' => $orders,
+                'api_keys' => $api_keys,
+                'category_suggestion' => $category_suggestion,
+                'brands' => $brands,
+            ]);
+
         return view('customers.index', [
           'customers' => $new_customers,
           'customers_all' => $customers_all,
@@ -826,6 +847,20 @@ class CustomerController extends Controller
           'category_suggestion' => $category_suggestion,
           'brands' => $brands,
         ]);
+    }
+
+    public function search(Request $request) {
+        $keyword = $request->get('keyword');
+        $messages = ChatMessage::where('message', 'LIKE', "%$keyword%")->where('customer_id', '>', 0)->groupBy('customer_id')->with('customer')->select(DB::raw('MAX(id) as message_id, customer_id, message'))->get()->map(function($item) {
+            return [
+                'customer_id' => $item->customer_id,
+                'customer_name' => $item->customer->name,
+                'message_id' => $item->message_id,
+                'message' => $item->message,
+            ];
+        });
+
+        return response()->json($messages);
     }
 
     public function loadMoreMessages(Request $request)
@@ -1106,7 +1141,7 @@ class CustomerController extends Controller
         $this->validate($request, [
             'name'          => 'required|min:3|max:255',
             'email'         => 'required_without_all:phone,instahandler|nullable|email',
-            'phone'         => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers',
+            'phone'         => 'required_without_all:email,instahandler|nullable|numeric|digits:12|unique:customers',
             'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
             'rating'        => 'required|numeric',
             'address'       => 'sometimes|nullable|min:3|max:255',
@@ -1157,7 +1192,7 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        $customer = Customer::with(['call_recordings', 'orders', 'leads'])->where('id', $id)->first();
+        $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
 
         $emails = [];
@@ -1176,6 +1211,12 @@ class CustomerController extends Controller
         $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
     		                                        ->renderAsDropdown();
 
+        $facebookMessages = null;
+        if ($customer->facebook_id) {
+            $facebookMessages = $customer->facebookMessages()->get();
+        }
+
+
         return view('customers.show', [
             'customer'  => $customer,
             'customers'  => $customers,
@@ -1192,15 +1233,22 @@ class CustomerController extends Controller
             'emails'          => $emails,
             'category_suggestion'          => $category_suggestion,
             'suppliers'          => $suppliers,
+            'facebookMessages' => $facebookMessages
         ]);
     }
 
     public function postShow(Request $request, $id)
     {
-        $customer = Customer::with(['call_recordings', 'orders', 'leads'])->where('id', $id)->first();
+        $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
 
-        $customer_ids = json_decode($request->customer_ids);
+        $searchedMessages = null;
+        if ($request->get('sm')) {
+            $searchedMessages = ChatMessage::where('customer_id', $id)->where('message', 'LIKE',  '%'.$request->get('sm').'%')->get();
+        }
+
+
+        $customer_ids = json_decode($request->customer_ids ?? "[0]");
         $key = array_search($id, $customer_ids);
 
         if ($key != 0) {
@@ -1230,6 +1278,12 @@ class CustomerController extends Controller
         $category_suggestion = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple', 'multiple' => 'multiple'])
     		                                        ->renderAsDropdown();
 
+        $facebookMessages = null;
+        if ($customer->facebook_id) {
+            $facebookMessages = $customer->facebookMessages()->get();
+        }
+
+
         return view('customers.show', [
             'customer_ids'         => json_encode($customer_ids),
             'previous_customer_id' => $previous_customer_id,
@@ -1249,6 +1303,8 @@ class CustomerController extends Controller
             'emails'          => $emails,
             'category_suggestion'          => $category_suggestion,
             'suppliers'          => $suppliers,
+            'facebookMessages' => $facebookMessages,
+            'searchedMessages' => $searchedMessages
         ]);
     }
 
@@ -1658,6 +1714,10 @@ class CustomerController extends Controller
       if ($request->brand[0] == null && ($request->category[0] == 1 || $request->category[0] == null) && $request->size[0] == null && $request->supplier[0] == null) {
         $products = (new Product)->newQuery();
       }
+
+      $price = explode(',', $request->get('price'));
+
+      $products = $products->whereBetween('price_special', [$price[0], $price[1]]);
 
       $products = $products->where('is_scraped', 1)->where('category', '!=', 1)->latest()->take($request->number)->get();
 

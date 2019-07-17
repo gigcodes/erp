@@ -210,7 +210,7 @@
 
                 <input type="checkbox" class="select-order-product" name="order_product" value="{{ $order_product->id }}">
 
-                <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
+                <a href="{{ route('customer.post.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
                  - ({{ $order_product->purchase_status }})
 
                  @if (in_array($order_product->order->customer->id, $dups))

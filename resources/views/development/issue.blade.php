@@ -141,15 +141,16 @@
               @endif
             </td>
             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
-            <td>
+            <td data-id="{{ $issue->id }}">
               <div class="form-group">
                 <div class='input-group date estimate-time'>
-                  <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control estimate-time-change" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
+                  <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
 
                   <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
+                    <span class="fa fa-calendar"></span>
                   </span>
                 </div>
+                <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
               </div>
             </td>
             <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
@@ -392,7 +393,7 @@
       });
 
       $('.estimate-time').datetimepicker({
-        format: 'YYYY-MM-DD HH:mm'
+        format: 'Y-MM-DD HH:mm'
       });
     });
   </script>
@@ -526,10 +527,9 @@
       }
     });
 
-    $(document).on('change', '.estimate-time-change', function() {
-      alert('here');
-      let estimate_time = $(this).val();
+    $(document).on('click', '.estimate-time-change', function() {
       let issueId = $(this).data('id');
+      let estimate_time = $("#estimate_completion_"+issueId).val();
 
       $.ajax({
         url: "{{action('DevelopmentController@saveEstimateTime')}}",

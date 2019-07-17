@@ -56,11 +56,20 @@ class Main
     public function validate(Product $product): bool
     {
         $this->product = $product;
-        return $this->isCompositionCorrect() &&
-            $this->isNameCorrect() &&
-            $this->isShortDescriptionCorrect() &&
-            $this->isColorCorrect() &&
-            ($this->areMeasurementsCorrect() || $this->isSizeCorrect());
+        $composition = $this->isCompositionCorrect();
+        $name = $this->isNameCorrect();
+        $shortDescription = $this->isShortDescriptionCorrect();
+//        $color = $this->isColorCorrect();
+        $measurement = $this->areMeasurementsCorrect();
+        $sizes = $this->isSizeCorrect();
+
+        $status = $composition &&
+            $name &&
+            $shortDescription &&
+//            $color &&
+            ($measurement || $sizes);
+
+        return $status;
     }
 
     /**
@@ -68,7 +77,9 @@ class Main
      */
     public function isSizeCorrect(): bool
     {
-        return $this->sizeChecker->check($this->product);
+        $size =  $this->sizeChecker->check($this->product);
+//        dump('SIZE: ' . $size);
+        return $size;
     }
 
     /**
@@ -76,7 +87,9 @@ class Main
      */
     public function isColorCorrect(): bool
     {
-        return $this->colorChecker->check($this->product);
+        $color =  $this->colorChecker->check($this->product);
+//        dump('COLOR: ' . $color);
+        return $color;
     }
 
     /**
@@ -84,7 +97,9 @@ class Main
      */
     public function isCompositionCorrect(): bool
     {
-        return $this->compositionChecker->check($this->product);
+        $composition =  $this->compositionChecker->check($this->product);
+//        dump('COMPOSITION: ' . $composition);
+        return $composition;
     }
 
     /**
@@ -92,7 +107,9 @@ class Main
      */
     public function isShortDescriptionCorrect(): bool
     {
-        return $this->descriptionChecker->check($this->product);
+        $description =  $this->descriptionChecker->check($this->product);
+//        dump('DESCRIPTION: ' . $description);
+        return $description;
     }
 
     /**
@@ -100,7 +117,9 @@ class Main
      */
     public function isNameCorrect(): bool
     {
-        return $this->nameChecker->check($this->product);
+        $name =  $this->nameChecker->check($this->product);
+//        dump('NAME: ' . $name);
+        return $name;
     }
 
     /**
@@ -108,6 +127,8 @@ class Main
      */
     public function areMeasurementsCorrect(): bool
     {
-        return $this->product->lmeasurement && $this->product->hmeasurement && $this->product->dmeasurement;
+        $meas =  $this->product->lmeasurement && $this->product->hmeasurement && $this->product->dmeasurement;
+//        dump('MEAS: ' . $meas);
+        return $meas;
     }
 }

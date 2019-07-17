@@ -21,6 +21,7 @@ class ShortDescriptionChecker implements CheckerInterface
 
     public function check($product): bool {
         $data = $product->short_description;
+//        dump($data);
         if (strlen($data) < 60) {
             return false;
         }
@@ -72,6 +73,7 @@ class ShortDescriptionChecker implements CheckerInterface
             '&lt;',
             '&equals;',
             '&gt;',
+            '&nbsp;',
             '&quest;',
             '&commat;',
             '&lbrack;',
@@ -96,7 +98,21 @@ class ShortDescriptionChecker implements CheckerInterface
         $sentence = strtolower($sentence);
 
         $sentence = str_replace($characters, ' ', $sentence);
+        $sentence = str_replace("&rsquo;", "'", $sentence);
+        $sentence = str_replace("&Eacute;", "E", $sentence);
+        $sentence = str_replace("&eacute;", "e", $sentence);
 
-        return title_case($sentence);
+        return $this->sentenceCase($sentence);
+    }
+
+    private function sentenceCase($string) {
+        $sentences = preg_split('/([.?!]+)/', $string, -1,PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE);
+        $newString = '';
+        foreach ($sentences as $key => $sentence) {
+            $newString .= ($key & 1) == 0?
+                ucfirst(strtolower(trim($sentence))) :
+                $sentence.' ';
+        }
+        return trim($newString);
     }
 }

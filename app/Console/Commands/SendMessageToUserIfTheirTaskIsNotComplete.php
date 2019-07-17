@@ -44,8 +44,10 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
     public function handle()
     {
 
-        $tasks = DeveloperTask::whereRaw(function($query) {
-                $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, NOW()) = 1');
+        $now = Carbon::now()->toDateTimeString();
+
+        $tasks = DeveloperTask::where(function($query) use ($now) {
+                $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "'.$now.'") = 1');
             })
             ->where('status', '!=', 'Done')
             ->where('estimate_time', '!=', '')
@@ -66,8 +68,8 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
 
         }
 
-        $tasks = DeveloperTask::whereRaw(function($query) {
-            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, NOW()) = 0');
+        $tasks = DeveloperTask::where(function($query) use ($now) {
+            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "'.$now.'") = 0');
         })
             ->where('status', '!=', 'Done')
             ->where('estimate_time', '!=', '')
@@ -88,7 +90,7 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
 
         }
 
-        $tasks = DeveloperTask::whereRaw('NOW() > `estimate_time`')
+        $tasks = DeveloperTask::whereRaw('"'.$now.'" > `estimate_time`')
             ->where('status', '!=', 'Done')
             ->where('estimate_time', '!=', '')
             ->whereNotNull('estimate_time')
@@ -110,14 +112,13 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
 
         $this->sendAlertsForIssues();
 
-
     }
 
-    private function sendAlertsForIssues() {
-        $tasks = Issue::whereRaw(function($query) {
-            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, NOW()) = 1');
+    private function sendAlertsForIssues($now) {
+        $tasks = Issue::where(function($query) use ($now) {
+            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "'.$now.'") = 1');
         })
-            ->where('status', '!=', 'Done')
+            ->where('is_resolved', '0')
             ->where('estimate_time', '!=', '')
             ->whereNotNull('estimate_time')
             ->get();
@@ -136,10 +137,10 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
 
         }
 
-        $tasks = Issue::whereRaw(function($query) {
-            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, NOW()) = 0');
+        $tasks = Issue::where(function($query) use ($now) {
+            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "'.$now.'") = 0');
         })
-            ->where('status', '!=', 'Done')
+            ->where('is_resolved', '0')
             ->where('estimate_time', '!=', '')
             ->whereNotNull('estimate_time')
             ->get();
@@ -158,8 +159,8 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
 
         }
 
-        $tasks = Issue::whereRaw('NOW() > `estimate_time`')
-            ->where('status', '!=', 'Done')
+        $tasks = Issue::whereRaw('"'.$now.'" > `estimate_time`')
+            ->where('is_resolved', '0')
             ->where('estimate_time', '!=', '')
             ->whereNotNull('estimate_time')
             ->get();

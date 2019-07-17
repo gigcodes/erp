@@ -19,6 +19,6 @@ class Account extends Model
   {
     $count = $this->hasMany('App\Review')->where('status', 'posted')->count();
 
-    return $count > 0 ? true : false;
+    return $count > 0;
   }
 }

@@ -3,6 +3,108 @@
 @section('title', 'Customer List')
 
 @section('styles')
+    <style>
+        .results {
+            background: #fff;
+            border-radius: 2px;
+            margin: 1rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+            max-width: 250px !important;
+            overflow: auto;
+            /*height: 450px !important;*/
+            max-height: 350px;
+            display: none;
+            position: absolute;
+            z-index: 9;
+        }
+
+        .search .results li { display: block }
+
+        .search .results li:first-child { margin-top: -1px }
+
+        .search .results li:first-child:before, .search .results li:first-child:after {
+            display: block;
+            content: '';
+            width: 0;
+            height: 0;
+            position: absolute;
+            left: 50%;
+            margin-left: -5px;
+            border: 5px outset transparent;
+        }
+
+        .search .results li:first-child:before {
+            border-bottom: 5px solid #c4c7d7;
+            top: -11px;
+        }
+
+        .search .results li:first-child:after {
+            border-bottom: 5px solid #fdfdfd;
+            top: -10px;
+        }
+
+        .search .results li:first-child:hover:before, .search .results li:first-child:hover:after { display: none }
+
+        .search .results li:last-child { margin-bottom: -1px }
+
+        .search .results a {
+            display: block;
+            position: relative;
+            margin: 0 -1px;
+            padding: 6px 40px 6px 10px;
+            color: #808394;
+            font-weight: 500;
+            text-shadow: 0 1px #fff;
+            border: 1px solid transparent;
+            border-radius: 3px;
+        }
+
+        .search .results a span { font-weight: 200 }
+
+        .search .results a:before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            margin-top: -9px;
+            background: url("https://cssdeck.com/uploads/media/items/7/7BNkBjd.png") 0 0 no-repeat;
+        }
+
+        .search .results a:hover {
+            text-decoration: none;
+            color: #fff;
+            text-shadow: 0 -1px rgba(0, 0, 0, 0.3);
+            border-color: #2380dd #2179d5 #1a60aa;
+            background-color: #338cdf;
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #59aaf4), color-stop(100%, #338cdf));
+            background-image: -webkit-linear-gradient(top, #59aaf4, #338cdf);
+            background-image: -moz-linear-gradient(top, #59aaf4, #338cdf);
+            background-image: -ms-linear-gradient(top, #59aaf4, #338cdf);
+            background-image: -o-linear-gradient(top, #59aaf4, #338cdf);
+            background-image: linear-gradient(top, #59aaf4, #338cdf);
+            -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 1px rgba(0, 0, 0, 0.08);
+            -moz-box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 1px rgba(0, 0, 0, 0.08);
+            -ms-box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 1px rgba(0, 0, 0, 0.08);
+            -o-box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 1px rgba(0, 0, 0, 0.08);
+            box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 1px rgba(0, 0, 0, 0.08);
+        }
+
+        :-moz-placeholder {
+            color: #a7aabc;
+            font-weight: 200;
+        }
+
+        ::-webkit-input-placeholder {
+            color: #a7aabc;
+            font-weight: 200;
+        }
+
+        .lt-ie9 .search input { line-height: 26px }
+    </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -61,6 +163,12 @@
 
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
+            </div>
+
+            <div class="col-md-2 search">
+                <input placeholder="Search..." type="text" name="keyword" id="keyword" class="form-control-sm form-control">
+                <ul class="results keyword-results" >
+                </ul>
             </div>
 
             <div class="pull-right mt-4">
@@ -124,7 +232,7 @@
       <div class="table-responsive mt-3">
         <table class="table table-bordered">
             <thead>
-            <th width="15%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=name{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Name</a></th>
+            <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=name{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Name</a></th>
             {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=email{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Email</a></th>
               <th><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=phone{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Phone</a></th>
@@ -139,16 +247,16 @@
             <th>Order Status</th>
             <th>Purchase Status</th>
             <th width="15%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
-            <th width="30%">Send Message</th>
+            <th width="15%">Send Message</th>
             <th>Shortcuts</th>
-            <th width="20%">Action</th>
+            <th width="10%">Action</th>
             </thead>
             <tbody>
             @foreach ($customers as $key => $customer)
                 <tr class="
                 {{ ((!empty($customer->message) && $customer->message_status == 0) || $customer->message_status == 1 || $customer->message_status == 5) ? 'row-highlight' : '' }}
-                {{ (!empty($customer->message) && $customer->message_status == 0) ? 'text-danger' : '' }}
-                {{ ($customer->order_status && ($customer->order_status != 'Cancel' && $customer->order_status != 'Delivered')) ? 'text-success' : '' }}
+{{--                {{ (!empty($customer->message) && $customer->message_status == 0) ? 'text-danger' : '' }}--}}
+{{--                {{ ($customer->order_status && ($customer->order_status != 'Cancel' && $customer->order_status != 'Delivered')) ? 'text-success' : '' }}--}}
                 {{ $customer->order_status ? '' : 'text-primary' }}
                         ">
                     <td>
@@ -174,7 +282,7 @@
                         @csrf
                         <input type="hidden" name="customer_ids" value="{{ $customer_ids_list }}">
 
-                        <button type="submit" class="btn-link">{{ $customer->name }}</button>
+                        <button style="padding: 0" type="submit" class="btn-link">{{ $customer->name }}</button>
                       </form>
 
                       <br>
@@ -182,26 +290,28 @@
                       {{ $customer->phone }}
                       {{-- <a href="{{ route('customer.show', $customer->id) }}?customer_ids={{ $customer_ids_list }}">{{ $customer->name }}</a> --}}
 
-                      <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
+                      <div>
+                          <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
 
-                      @if ($customer->is_blocked == 1)
-                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
-                      @else
-                        <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
-                      @endif
+                          @if ($customer->is_blocked == 1)
+                              <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
+                          @else
+                              <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
+                          @endif
 
 
-                      @if ($customer->is_flagged == 1)
-                        <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
-                      @else
-                        <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
-                      @endif
+                          @if ($customer->is_flagged == 1)
+                              <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
+                          @else
+                              <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
+                          @endif
 
-                      @if ($customer->is_priority == 1)
-                          <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
-                      @else
-                          <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
-                      @endif
+                          @if ($customer->is_priority == 1)
+                              <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
+                          @else
+                              <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+                          @endif
+                      </div>
 
                       @php
                         $first_color = $customer_color == 'rgba(163,103,126,1)' ? 'active-bullet-status' : '';
@@ -282,7 +392,7 @@
                           $remark_message = $instructions[$customer->id][0]['remarks'][0]['remark'];
                         @endphp
                       @endif
-                    <td class="{{ $instructions[$customer->id][0]['completed_at'] ? 'text-success' : 'text-danger' }}">
+                    <td class="{{ $instructions[$customer->id][0]['completed_at'] ? 'text-secondary' : '' }}">
                         @if ($instructions[$customer->id][0]['assigned_to'])
                           {{ array_key_exists($instructions[$customer->id][0]['assigned_to'], $users_array) ? $users_array[$instructions[$customer->id][0]['assigned_to']] : 'No User' }} -
 
@@ -300,33 +410,42 @@
                               </div>
 
                           </div>
-
+                            <br>
                           @if ($instructions[$customer->id][0]['completed_at'])
                               <span style="color: #5e5e5e">{{ Carbon\Carbon::parse($instructions[$customer->id][0]['completed_at'])->format('d-m H:i') }}</span>
+                                @if ($instructions[$customer->id][0]['verified'] == 0)
+                                    <button data-instructionId="{{ $instructions[$customer->id][0]['id'] }}" id="instruction_{{ $instructions[$customer->id][0]['id'] }}" class="btn btn-image btn-xs verify-instruction" data-toggle="tooltip" title="Verify Instruction">
+                                        <img src="{{ asset('images/3.png') }}" alt="Verify">
+                                    </button>
+                                @endif
                           @else
-                            <a href="#" class="btn-link complete-call" data-id="{{ $instructions[$customer->id][0]['id'] }}">Complete</a>
+                            <a href="#" class="btn btn-image complete-call" data-id="{{ $instructions[$customer->id][0]['id'] }}" data-toggle="tooltip" title="Complete Instruction">
+                                <img src="{{ asset('images/1.png') }}" alt="Complete">
+                            </a>
                           @endif
 
                           @if ($instructions[$customer->id][0]['completed_at'])
-                                <strong style="color: #5e5e5e">Completed</strong>
+{{--                                <strong style="color: #5e5e5e">Completed</strong>--}}
                           @else
-                            @if ($instructions[$customer->id][0]['pending'] == 0)
-                              <a href="#" class="btn-link pending-call" data-id="{{ $instructions[$customer->id][0]['id'] }}">Mark as Pending</a>
-                            @else
-                              Pending
-                            @endif
+{{--                            @if ($instructions[$customer->id][0]['pending'] == 0)--}}
+{{--                              <a href="#" class="btn-link pending-call" data-id="{{ $instructions[$customer->id][0]['id'] }}">Mark as Pending</a>--}}
+{{--                            @else--}}
+{{--                              Pending--}}
+{{--                            @endif--}}
                           @endif
                         @endif
 
                         <textarea name="instruction" class="form-control quick-add-instruction-textarea hidden" rows="8" cols="80"></textarea>
                             <input title="Priority" class="hidden quick-priority-check" type="checkbox" name="instruction_priority" data-id="{{ $customer->id }}" id="instruction_priority_{{$customer->id}}">
-                        <button type="button" class="btn-link quick-add-instruction" data-id="{{ $customer->id }}">Add Instruction</button>
+                        <button type="button" class="btn-image btn quick-add-instruction" data-id="{{ $customer->id }}"><img
+                                    src="{{ asset('images/add.png') }}" style="width: 14px !important;" alt="Add Instruction"></button>
                     </td>
                   @else
                     <td>
                       <textarea name="instruction" class="form-control quick-add-instruction-textarea hidden" rows="8" cols="80"></textarea>
                         <input title="Priority" class="hidden quick-priority-check" type="checkbox" name="instruction_priority" data-id="{{ $customer->id }}" id="instruction_priority_{{$customer->id}}">
-                      <button type="button" class="btn-link quick-add-instruction" data-id="{{ $customer->id }}">Add Instruction</button>
+                      <button type="button" class="btn-image btn quick-add-instruction" data-id="{{ $customer->id }}"><img
+                                  src="{{ asset('images/add.png') }}" style="width: 14px !important;" alt="Add Instruction"></button>
                     </td>
                   @endif
                     <td>
@@ -368,7 +487,8 @@
                                     <option value="{{$value}}" {{$value == $orders[$customer->id][0]['order_status'] ? 'selected' : '' }}>{{ $key }}</option>
                                 @endforeach
                             </select>
-                            Has Multiple Orders
+                                <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                                <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                         @endif
                       @else
                         No Orders
@@ -411,7 +531,9 @@
                           <span class="btn btn-image"><img src="/images/flagged.png" /></span>
                         @endif
 
-                        <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $customer->id }}">Load More</button>
+                        <button data-toggle="tooltip" title="Load More..." type="button" class="btn btn-xs btn-image load-more-communication" data-id="{{ $customer->id }}">
+                            <img src="{{ asset('images/loadmore.png') }}" alt="">
+                        </button>
 
                         <ul class="more-communication-container">
 
@@ -607,6 +729,22 @@
       var current_page = page_number[1] - 1;
 
       $('#page-goto option[value="' + page_number[0] + '?page=' + current_page + '"]').attr('selected', 'selected');
+    });
+
+    $(document).on('click', '.verify-instruction', function() {
+        let instructionId = $(this).attr('data-instructionId');
+        let self = this;
+        $.ajax({
+            url: '{{ action('InstructionController@verify') }}',
+            type: 'post',
+            data: {
+                id: instructionId
+            },
+            success: function() {
+                toastr['success']('Instruction verified successfully', 'success');
+                $(self).html('Verified');
+            }
+        });
     });
 
     $(document).on('click', '.change-order-status', function() {
@@ -1408,6 +1546,35 @@
 
 
 
+      });
+
+      $(document).on('keyup', '#keyword', function(e) {
+          let el = $('.keyword-results');
+          el.html('');
+
+          let keyword = $(this).val();
+          if (keyword.length < 4) {
+              $('.keyword-results').fadeOut('fast');
+              return;
+          }
+          $.ajax({
+              url: '{{ action('CustomerController@search') }}',
+              data: {
+                  keyword: keyword
+              },
+              success: function(response) {
+                  let data = response;
+                  el.fadeIn('fast');
+                  el.html('');
+                  data.forEach(function(item) {
+                      $('.keyword-results').append(`<li><a href="/customers/${item.customer_id}/post-show?sm=${keyword}"><strong>${item.customer_name}</strong><br>${item.message}</a></li>`)
+                  });
+              },
+              beforeSend: function() {
+                  el.fadeIn('fast');
+                  el.html('<p class="text-center">Loading messages...</p>');
+              }
+          });
       });
 
       $(document).on('click', '.change-lead-status', function() {

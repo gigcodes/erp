@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('content')
+@section('large_content')
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">Dubbizle Posts</h2>
@@ -21,18 +21,18 @@
 
     <div class="row">
         <div class="col-md-12">
-            <table id="table" class="table table-striped">
+            <table id="table" class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>S.N</th>
                         <th>URL</th>
                         <th>Keywords</th>
-                        <th>Requirement</th>
-                        <th>Body</th>
+                        <th width="10%">Requirement</th>
+                        <th width="20%">Body</th>
                         <th>Phone #</th>
                         <th>Post</th>
-                        <th>Communication</th>
-                        <th>Send Message</th>
+                        <th width="10%">Communication</th>
+                        <th width="30%">Send Message</th>
                         <th>Action</th>
                     </tr>
                 </thead>

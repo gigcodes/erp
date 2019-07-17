@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Category;
 use App\ListingHistory;
 use App\Product;
 use App\Services\Listing\Main;
+use App\Services\Listing\Scrapper;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -28,16 +30,19 @@ class AutoApproveProductAttribute extends Command
      * @var Main $listing
      */
     private $listing;
+    private $scrapper;
 
     /**
      * Create a new command instance.
      *
      * @param Main $listing
+     * @param Scrapper $scrapper
      */
-    public function __construct(Main $listing)
+    public function __construct(Main $listing, Scrapper $scrapper)
     {
         parent::__construct();
         $this->listing = $listing;
+        $this->scrapper = $scrapper;
     }
 
     /**
@@ -47,10 +52,15 @@ class AutoApproveProductAttribute extends Command
      */
     public function handle()
     {
-//        $products = Product::where('is_approved', 0)
-//            ->where('is_listing_rejected', 0)
-//            ->where('is_crop_approved', 1)
-//            ->where('is_crop_ordered', 1)
+        $count = 0;
+//        $cats = (Category::where('parent_id',5)->orWhere('parent_id', 41)->pluck('id')->toArray());
+        $products = Product::where('is_approved', 0)
+//            ->where('is_listing_rejected', 1)
+            ->where('is_crop_approved', 1)
+//            ->whereIn('category', [
+//                $cats
+//            ])
+            ->where('is_crop_ordered', 1)
 //            ->where('composition', '!=', '')
 //            ->where('color', '!=', '')
 //            ->whereNotNull('composition')
@@ -60,32 +70,41 @@ class AutoApproveProductAttribute extends Command
 //                        $qq->where('lmeasurement', '!=', '')
 //                           ->where('hmeasurement', '!=', '')
 //                           ->where('dmeasurement', '!=', '');
-//                    });
+//                    })
 //                ;
 //            })
-//            ->get();
+            ->get();
 
-        $products = Product::where('approved_by', 65)->get();
 
         foreach ($products as $product) {
+
+            $this->scrapper->getFromFarfetch($product);
+
             $status = $this->listing->validate($product);
+
             if (!$status) {
+                $this->error($product->id);
+                $product->is_auto_processing_failed = 1;
+                $product->save();
                 continue;
             }
 
-            dump($product->id);
-//
-//            $listingHistory = new ListingHistory();
-//            $listingHistory->user_id = 109;
-//            $listingHistory->product_id = $product->id;
-//            $listingHistory->action = 'LISTING_APPROVAL';
-//            $listingHistory->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved by ERP!'];
-//            $listingHistory->save();
-//
-//            $product->is_approved = 1;
-//            $product->approved_by = 109;
-//            $product->listing_approved_at = Carbon::now()->toDateTimeString();
-//            $product->save();
+            $count++;
+
+            $this->info('Approved....' . $count);
+
+            $listingHistory = new ListingHistory();
+            $listingHistory->user_id = 109;
+            $listingHistory->product_id = $product->id;
+            $listingHistory->action = 'LISTING_APPROVAL';
+            $listingHistory->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved by ERP!'];
+            $listingHistory->save();
+
+            $product->is_approved = 1;
+            $product->is_listing_rejected = 0;
+            $product->approved_by = 109;
+            $product->listing_approved_at = Carbon::now()->toDateTimeString();
+            $product->save();
 
         }
     }

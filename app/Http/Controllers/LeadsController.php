@@ -31,6 +31,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use GuzzleHttp\Client as GuzzleClient;
 
 use App\CallBusyMessage;
+use App\Http\Controllers\WhatsAppController;
 
 
 class LeadsController extends Controller
@@ -549,41 +550,38 @@ class LeadsController extends Controller
       $lead = Customer::find($request->lead_id);
       $product_names = '';
 
+      $params['customer_id'] = $customer->id;
+
       foreach ($request->selected_product as $product_id) {
         $product = Product::find($product_id);
         $brand_name = $product->brands->name ?? '';
         $special_price = $product->price_special_offer ?? $product->price_special;
 
-        $product_names .= "$brand_name $product->name" . ' - ' . "$special_price; ";
+          if ($request->has('dimension')) {
+              $product_names .= "$brand_name $product->name" . ' (' . "Length: $product->lmeasurement cm, Height: $product->hmeasurement cm & Depth: $product->dmeasurement cm) \n";
+              $params['message'] = 'The products with their respective dimensions are: : ' . $product_names . '.';
+              $chat_message = ChatMessage::create($params);
+          } else if ($request->has('detailed')) {
+              $params['message'] = 'The product images for : : ' . $brand_name . ' ' .$product->name . ' are.';
+              $chat_message = ChatMessage::create($params);
+              $chat_message->attachMedia($product->getMedia(config('constants.media_tags')), config('constants.media_tags'));
+          } else {
+              $product_names = "$brand_name $product->name" . ' - ' . "$special_price";
+              $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
+              $auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
+              $params['message'] = $auto_message;
+              $chat_message = ChatMessage::create($params);
+              $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(),  config('constants.media_tags'));
+
+              app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
+          }
+
       }
 
-      $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
+      if ($request->has('dimension') || $request->has('detailed')) {
+          app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
+      }
 
-			$auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
-
-      $params['customer_id'] = $customer->id;
-      $params['message'] = $auto_message;
-
-      $chat_message = ChatMessage::create($params);
-
-      app('App\Http\Controllers\WhatsAppController')->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
-
-      // try {
-      // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $message, false, $chat_message->id);
-      // } catch {
-      //   // ok
-      // }
-      //
-      // $chat_message->update([
-      //   'approved'  => 1
-      // ]);
-
-      // CommunicationHistory::create([
-      // 	'model_id'		=> $lead->id,
-      // 	'model_type'	=> Leads::class,
-      // 	'type'				=> 'lead-prices',
-      // 	'method'			=> 'whatsapp'
-      // ]);
 
       $histories = CommunicationHistory::where('model_id', $customer->id)->where('model_type', Customer::class)->where('type', 'initiate-followup')->where('is_stopped', 0)->get();
 

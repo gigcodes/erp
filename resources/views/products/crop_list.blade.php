@@ -11,14 +11,17 @@
         <div class="col-md-12">
             <h2>Crop Progress</h2>
             @if(Auth::user()->hasRole('Crop Approval'))
+                <form method="get" action="">
+                    <input type="date" value="{{ Request::get('date') ?? date('Y-m-d') }}" name="date"> <button class="btn btn-secondary">Ok</button>
+                </form>
                 <table class="table table-striped table-bordered">
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td rowspan="4">
+{{--                    <tr>--}}
+{{--                        <td></td>--}}
+{{--                        <td></td>--}}
+{{--                        <td rowspan="4">--}}
 
-                        </td>
-                    </tr>
+{{--                        </td>--}}
+{{--                    </tr>--}}
                     <tr>
                         <td>Approved</td>
                         <td>{{ $totalApproved }}</td>

@@ -1617,7 +1617,14 @@ class WhatsAppController extends FindByNumberController
           $params['message'] = '#ISSUE-'.$issue->id.'-'. $issue->subject . '=>' .$request->get('message');
           $params['status'] = 2;
 
-          $number = User::find($issue->user_id)->phone;
+
+          $number = User::find($issue->user_id);
+
+          if ($number) {
+              return response()->json(['message' => null]);
+          }
+
+          $number = $number->phone;
 
           $this->sendWithThirdApi($number, null, $params['message']);
 

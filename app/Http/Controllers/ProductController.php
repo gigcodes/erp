@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 
 
 use App\Category;
+use App\ColorReference;
+use App\CroppedImageReference;
 use App\ListingHistory;
 use App\Order;
 use App\OrderProduct;
@@ -350,7 +352,7 @@ class ProductController extends Controller {
 											ON products.id = remarks.taskid
 
 											WHERE is_approved = 1 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $whereUserClause . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
-											ORDER BY is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
+											ORDER BY category, is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
 				');
 //        }
 
@@ -671,7 +673,7 @@ class ProductController extends Controller {
 
 											WHERE is_approved = 0 AND is_listing_rejected = 0  AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
 											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
-											ORDER BY is_crop_ordered DESC, remark_created_at DESC, created_at DESC
+											ORDER BY category, is_crop_ordered DESC, remark_created_at DESC, created_at DESC
 				');
 			} else {
 				$new_products = DB::select('
@@ -688,9 +690,8 @@ class ProductController extends Controller {
 												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
 												) AS remarks
 											ON products.id = remarks.taskid
-
 											WHERE is_approved = 0 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
-											ORDER BY is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
+											ORDER BY category, is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
 				');
 			}
 
@@ -888,6 +889,7 @@ class ProductController extends Controller {
 	public function updateColor(Request $request, $id)
 	{
 		$product = Product::find($id);
+		$originalColor = $product->color;
 		$product->color = $request->color;
 		$product->save();
 
@@ -897,8 +899,30 @@ class ProductController extends Controller {
         $lh->content = ['Color updated', $request->get('color')];
         $lh->save();
 
-		return response('success');
-	}
+        if (!$originalColor) {
+            return response('success');
+        }
+
+        $color = (new Colors)->getID($originalColor);
+        if ($color) {
+            return response('success');
+        }
+
+
+        $colorReference = ColorReference::where('original_color', $originalColor)->first();
+        if ($colorReference) {
+            return response('success');
+        }
+
+        $colorReference = new ColorReference();
+        $colorReference->original_color = $originalColor;
+        $colorReference->brand_id = $product->brand;
+        $colorReference->erp_color = $request->get('color');
+        $colorReference->save();
+
+        return response('success');
+
+    }
 
 	public function updateCategory(Request $request, $id)
 	{
@@ -1217,6 +1241,10 @@ class ProductController extends Controller {
 			$products = $products->whereIn('category', $category_children);
 		}
 
+		if ($request->get('is_on_sale') == 'on') {
+		    $products = $products->where('is_on_sale', 1);
+        }
+
 
 		if (Cache::has('filter-color-' . Auth::id())) {
 //			$color = Cache::get('filter-color-' . Auth::id());
@@ -1462,7 +1490,15 @@ class ProductController extends Controller {
             $product->attachMedia($media, 'gallery');
             $product->crop_count = $product->crop_count+1;
             $product->save();
+
+            $imageReference =  new CroppedImageReference();
+            $imageReference->original_media_id = $request->get('media_id');
+            $imageReference->new_media_id = $media->id;
+            $imageReference->original_media_name = $request->get('filename');
+            $imageReference->new_media_name = $media->filename . '.' . $media->extension;
+            $imageReference->save();
         }
+
 
 
         return response()->json([
@@ -1607,7 +1643,7 @@ class ProductController extends Controller {
     }
 
     public function showRejectedListedProducts(Request $request) {
-	    $products = Product::where('listing_remark', '!=', '');
+	    $products = new Product;
 	    $reason = '';
 	    $supplier = [];
 	    $selected_categories = [];
@@ -1622,7 +1658,7 @@ class ProductController extends Controller {
             $products = $products->where('listing_rejected_on' , 'LIKE', "%$date%");
         }
 
-	    if ($request->get('id') != '') {
+	    if ($request->get('id') !== '') {
 	        $id = $request->get('id');
             $products = $products->where('id' , $id)->orWhere('sku', 'LIKE', "%$id%");
         }
@@ -1632,9 +1668,8 @@ class ProductController extends Controller {
         }
 
 	    if ($request->get('type') === 'accepted') {
-	        $products = $products->where('is_listing_rejected', 0);
-        }
-        if ($request->get('type') === 'rejected') {
+	        $products = $products->where('is_listing_rejected', 0)->where('listing_remark', '!=', '');
+        } else {
             $products = $products->where('is_listing_rejected', 1);
         }
 

@@ -14,8 +14,8 @@ class AddCcBccColumnsToEmailsTable extends Migration
     public function up()
     {
         Schema::table('emails', function (Blueprint $table) {
-            $table->json('cc')->nullable();
-            $table->json('bcc')->nullable();
+            $table->longText('cc')->nullable();
+            $table->longText('bcc')->nullable();
         });
     }
 

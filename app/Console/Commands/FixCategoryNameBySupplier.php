@@ -43,8 +43,8 @@ class FixCategoryNameBySupplier extends Command
      */
     public function handle()
     {
-//        Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
-        Product::where('is_approved', 0)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+        Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+//        Product::where('is_approved', 0)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
             echo 'Chunk again=======================================================' . "\n";
             foreach ($products as $product) {
                 $this->classify2($product);

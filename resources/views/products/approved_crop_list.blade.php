@@ -8,9 +8,24 @@
             </h2>
         </div>
         <div class="col-md-12">
+            <form method="get" action="{{ action('ProductCropperController@getApprovedImages') }}">
+                <div class="row">
+                    <div class="col-md-2">
+                        <select class="form-control" name="user_id" id="user_id">
+                            <option value="">Select User...</option>
+                            @foreach($users as $user)
+                                <option {{ $user->id == $user_id ? 'selected' : '' }} value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-secondary">Filter</button>
+                    </div>
+                </div>
+            </form>
             <div class="row">
                 <div class="col-md-12 text-center">
-                    {!! $products->links() !!}
+                    {!! $products->appends(Request::except('page'))->links() !!}
                 </div>
             </div>
             <div class="row">
@@ -21,10 +36,11 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{ $product->title }}</h5>
                                 <p class="card-text">
-                                    {{ $product->sku }}<br>
-                                    {{ $product->supplier }}
+                                    <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->sku }}</a><br>
+                                    {{ $product->supplier }}<br>
+                                    Approver: {{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}
                                 </p>
-{{--                                <a href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-primary">Check Cropping</a>--}}
+                                <a href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-primary">Check Cropping</a>
                             </div>
                         </div>
                     </div>
@@ -32,7 +48,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12 text-center">
-                    {!! $products->links() !!}
+                    {!! $products->appends(Request::except('page'))->links() !!}
                 </div>
             </div>
         </div>

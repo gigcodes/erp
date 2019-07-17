@@ -17,12 +17,40 @@
                                 <br>{{ $product->is_on_sale ? 'ON SALE' : 'NO SALE' }}
                                 <br><a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
                                 <br><strong>{{ $product->product_category->title }}</strong>
+                                <br>
+                                <strong class="text-danger">Update Category If Incorrect:</strong>
+                                <select data-id="{{$product->id}}" class="form-control" id="category" name="category">
+                                    @foreach ($category_array as $data)
+                                        <option value="{{ $data['id'] }}" {{ $data['id']==$product->category ? 'selected' : '' }}>{{ $data['title'] }}</option>
+                                        @if ($data['title'] == 'Men')
+                                            @php
+                                                $color = '#D6EAF8';
+                                            @endphp
+                                        @elseif ($data['title'] == 'Women')
+                                            @php
+                                                $color = '#FADBD8';
+                                            @endphp
+                                        @else
+                                            @php
+                                                $color = '';
+                                            @endphp
+                                        @endif
+
+                                        @foreach ($data['child'] as $children)
+                                            <option style="background-color: {{ $color }};" value="{{ $children['id'] }}" {{ $children['id']==$product->category ? 'selected' : '' }}>&nbsp;&nbsp;{{ $children['title'] }}</option>
+                                            @foreach ($children['child'] as $child)
+                                                <option style="background-color: {{ $color }};" value="{{ $child['id'] }}" {{ $child['id']==$product->category ? 'selected' : '' }}>&nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
+                                            @endforeach
+                                        @endforeach
+                                    @endforeach
+                                </select>
                             </td>
                             <td>
                                 <form action="{{ action('ProductCropperController@rejectCrop', $product->id) }}">
                                     <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-secondary approvebtn">Approve</a>
                                     <br><br>
                                     <select name="remark" id="remark">
+                                        <option value="Quick_reject">QR</option>
                                         <option value="0">Select reason...</option>
                                         <option value="White Image Crop Issue">White Image Crop Issue</option>
                                         <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
@@ -223,6 +251,23 @@
         $(document).ready(function() {
             $('.avoid-approve').change(function() {
                 $('.approvebtn').fadeOut();
+            });
+            $('#category').change(function() {
+                let productId = $(this).data('id');
+                let categoryId = $(this).val();
+
+                $.ajax({
+                    url: '/products/'+productId+'/updateCategory',
+                    data: {
+                        category: categoryId,
+                        _token: "{{csrf_token()}}"
+                    },
+                    type: 'POST',
+                    success: function() {
+                        location.reload();
+                    }
+                })
+
             });
         });
     </script>

@@ -29,16 +29,26 @@ class GrammarBot
                 ]
             ]);
         } catch (\Exception $exception) {
+//            dump($exception);
             return false;
         }
 
         $data = json_decode($response->getBody()->getContents(), true);
 
+//        dump($data);
+
         if ($data['flaggedTokens'] === []) {
+//            dump($text);
             return $text;
         }
 
-        return false;
+        foreach ($data['flaggedTokens'] as $suggestion) {
+            $text = substr_replace($text, $suggestion['suggestions'][0]['suggestion'], $suggestion['offset'], strlen($suggestion['token']));
+        }
+
+//        dump($text);
+
+        return $text;
 
     }
 }

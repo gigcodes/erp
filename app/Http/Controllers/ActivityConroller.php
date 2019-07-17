@@ -102,6 +102,7 @@ class ActivityConroller extends Controller {
             SUM(case when action = "LISTING_REJECTED" then 1 Else 0 End) as attribute_rejected
         ')->whereNotNull('user_id');
 
+        $productStats = DB::table('products')->selectRaw('(SELECT COUNT(*) FROM products p WHERE is_image_processed = 0 AND is_scraped = 1) as uncropped, SUM(is_crop_approved)-SUM(is_crop_ordered) as left_for_sequencing ,SUM(is_approved) as total_approvals, SUM(is_listing_rejected) as total_rejections, SUM(is_crop_approved) AS crop_approved, SUM(is_crop_rejected) as crop_rejected')->first();
 
         if (is_array($request->get('selected_user'))) {
             $activity = $activity->whereIn('user_id', $request->get('selected_user'));
@@ -113,17 +114,39 @@ class ActivityConroller extends Controller {
         $range_start = $request->input( 'range_start' );
         $range_end =  $request->input( 'range_end' );
 
+        $scrapCount = new ScrapedProducts();
+        $inventoryCount = new ScrapedProducts();
+        $rejectedListingsCount = Product::where('is_listing_rejected', 1);
+
         if ($range_start != '' && $range_end != '') {
             $activity = $activity->where(function($query) use ($range_end, $range_start) {
                 $query->whereBetween('created_at', [$range_start. ' 00:00', $range_end . ' 23:59']);
             });
 
+
+
             $allActivity = $allActivity->whereBetween('created_at', [$range_start. ' 00:00', $range_end . ' 23:59']);
+            $scrapCount = $scrapCount->whereBetween('created_at', [$range_start. ' 00:00', $range_end . ' 23:59']);
+            $inventoryCount = $inventoryCount->whereBetween('last_inventory_at', [$range_start. ' 00:00', $range_end . ' 23:59']);
+            $rejectedListingsCount = $rejectedListingsCount->whereBetween('listing_rejected_on', [$range_start. ' 00:00', $range_end . ' 23:59']);
+
+
         }
+
+        if (!$range_start || !$range_end) {
+            $inventoryCount = $inventoryCount->whereRaw('TIMESTAMPDIFF(HOUR, last_inventory_at, NOW())<= 48');
+            $scrapCount = $scrapCount->where('created_at', 'LIKE', "%".date('Y-m-d')."%");
+//            $rejectedListingsCount = $rejectedListingsCount->where('listing_rejected_on', 'LIKE', "%".date('Y-m-d')."%");
+        }
+
+        $scrapCount = $scrapCount->count();
+        $inventoryCount = $inventoryCount->count();
+        $rejectedListingsCount = $rejectedListingsCount->count();
+
         $allActivity = $allActivity->first();
 		$userActions = $activity->groupBy('user_id')->get();
 
-		return view( 'activity.index', compact('userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity'));
+		return view( 'activity.index', compact('userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity', 'scrapCount', 'inventoryCount', 'rejectedListingsCount', 'productStats'));
 	}
 
 	public function showGraph( Request $request ) {

@@ -338,7 +338,8 @@ class ProductInventoryController extends Controller
 			'wsdl_cache' => WSDL_CACHE_NONE,
 		);
 		$proxy = new \SoapClient(config('magentoapi.url'), $options);
-		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+		$sessionId = $proxy->login(config('
+		api.user'), config('magentoapi.password'));
 
 		$sku = $product->sku . $product->color;
 		$result = false;

@@ -56,6 +56,10 @@ class Customer extends Model
 		return $this->hasMany('App\OrderReport', 'customer_id')->latest();
 	}
 
+	public function allMessages() {
+      return $this->hasMany(ChatMessage::class, 'customer_id', 'id');
+    }
+
   public function messages()
 	{
 		return $this->hasMany('App\Message', 'customer_id')->latest()->first();
@@ -138,4 +142,8 @@ class Customer extends Model
 	{
 		return $this->orders()->latest()->first();
 	}
+
+	public function facebookMessages() {
+      return $this->hasMany(FacebookMessages::class);
+    }
 }

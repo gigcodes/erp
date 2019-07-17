@@ -49,6 +49,7 @@
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('order.create') }}">+</a>
+                <a href="{{ action('OrderController@downloadOrderInPdf', Request::all()) }}" class="btn btn-success btn-xs">Download</a>
             </div>
         </div>
     </div>

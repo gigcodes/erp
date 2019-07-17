@@ -105,7 +105,7 @@
                 <td>
                   <ul class="list-unstyled">
                     @foreach ($product['customers'] as $customer)
-                      <li><a href="{{ route('customer.show', $customer->id) }}" target="_blank">{{ $customer->name }}</a></li>
+                      <li><a href="{{ route('customer.post.show', $customer->id) }}" target="_blank">{{ $customer->name }}</a></li>
                     @endforeach
                   </ul>
 
@@ -286,7 +286,7 @@
         //         'single_supplier': "{{ $product['single_supplier'] }}",
         //         'image': '{{ $product['image']}}',
         //         'link': '{{ route('products.show', $product['id']) }}',
-        //         'customer_id': '{{ $product['customer_id'] != 'No Customer' && $product['customer_id'] != 'No Order' ? route('customer.show', $product['customer_id']) : '#noCustomer' }}',
+        //         'customer_id': '{{ $product['customer_id'] != 'No Customer' && $product['customer_id'] != 'No Order' ? route('customer.post.show', $product['customer_id']) : '#noCustomer' }}',
         //         'customer_names': '{{ $product['customer_names'] }}',
         //         'order_price': '{{ $product['order_price'] }}',
         //         'order_date': '{{ $product['order_date'] }}'

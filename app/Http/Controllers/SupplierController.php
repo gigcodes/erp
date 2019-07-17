@@ -32,9 +32,15 @@ class SupplierController extends Controller
       $source = $request->get('source') ?? '';
       $typeWhereClause = '';
 
-      if ($type != '') {
+      if ($type != '' && $type == 'has_error') {
         $typeWhereClause = ' AND has_error = 1';
       }
+      if ($type != '' && $type == 'not_updated') {
+        $typeWhereClause = ' AND is_updated = 0';
+      }
+        if ($type != '' && $type == 'updated') {
+            $typeWhereClause = ' AND is_updated = 1';
+        }
 
       $suppliers = DB::select('
 									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, 
@@ -67,7 +73,7 @@ class SupplierController extends Controller
                   address LIKE "%' . $term . '%" OR 
                   social_handle LIKE "%' . $term . '%" OR
                    id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
-                  ORDER BY status DESC, is_flagged DESC, last_communicated_at DESC;
+                  ORDER BY last_communicated_at DESC, status DESC
 							');
 
       $suppliers_all = Supplier::where(function ($query) {
@@ -191,7 +197,7 @@ class SupplierController extends Controller
       $data = $request->except('_token');
       $data['default_phone'] = $request->default_phone != '' ? $request->default_phone : $request->phone;
       $data['default_email'] = $request->default_email != '' ? $request->default_email : $request->email;
-
+      $data['is_updated'] = 1;
       Supplier::find($id)->update($data);
 
       return redirect()->back()->withSuccess('You have successfully updated a supplier!');
@@ -335,8 +341,8 @@ class SupplierController extends Controller
     {
       $supplier = Supplier::find($id);
 
-      $supplier->agents()->delete();
-      $supplier->whatsapps()->delete();
+//      $supplier->agents()->delete();
+//      $supplier->whatsapps()->delete();
 
       $supplier->delete();
 

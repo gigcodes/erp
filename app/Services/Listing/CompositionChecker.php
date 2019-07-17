@@ -27,10 +27,12 @@ class CompositionChecker implements CheckerInterface
             $extractedData = implode(', ', $extractedData);
             $product->composition = $extractedData;
             $product->save();
+            dump($product->composition);
             return true;
         }
 
         $additionalData = $this->getCompositionFromList($data);
+        dump($additionalData);
         if (0 === count($additionalData))
         {
             return false;
@@ -40,6 +42,8 @@ class CompositionChecker implements CheckerInterface
         $additionalData = implode(', ', $additionalData);
         $product->composition = $additionalData;
         $product->save();
+
+        dump($product->composition);
 
         return true;
     }

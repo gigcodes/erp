@@ -219,7 +219,7 @@ class PurchaseController extends Controller
 
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
         $status = $request->status;
-        $status_list = implode("','", $request->status);
+        $status_list = implode("','", $request->status ?? []);
 
   			$orders = OrderProduct::select('sku')->with('Order')
         ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
@@ -227,7 +227,7 @@ class PurchaseController extends Controller
         ->get();
   		}
 
-        $status_list = implode("','", $request->status);
+        $status_list = implode("','", $request->status ?? []);
 
       if ($request->supplier[0] != null) {
         $supplier = $request->supplier[0];

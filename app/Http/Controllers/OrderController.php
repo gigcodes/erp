@@ -26,6 +26,7 @@ use App\AutoReply;
 use App\CommunicationHistory;
 use Auth;
 use Cache;
+use Dompdf\Adapter\PDFLib;
 use Validator;
 use Storage;
 use Carbon\Carbon;
@@ -61,6 +62,106 @@ class OrderController extends Controller {
 		$this->middleware( 'permission:order-edit', [ 'only' => [ 'edit', 'update' ] ] );
 		$this->middleware( 'permission:order-delete', [ 'only' => ['destroy','deleteOrderProduct'] ] );
 	}
+
+	public function downloadOrderInPdf(Request $request) {
+
+        $term = $request->input('term');
+        $order_status = $request->status ?? [''];
+        $date = $request->date ?? '';
+
+        if($request->input('orderby') == '')
+            $orderby = 'DESC';
+        else
+            $orderby = 'ASC';
+
+        // dd($orderby);
+
+        switch ($request->input('sortby')) {
+            case 'type':
+                $sortby = 'order_type';
+                break;
+            case 'date':
+                $sortby = 'order_date';
+                break;
+            case 'order_handler':
+                $sortby = 'sales_person';
+                break;
+            case 'client_name':
+                $sortby = 'client_name';
+                break;
+            case 'status':
+                $sortby = 'order_status';
+                break;
+            case 'advance':
+                $sortby = 'advance_detail';
+                break;
+            case 'balance':
+                $sortby = 'balance_amount';
+                break;
+            case 'action':
+                $sortby = 'action';
+                break;
+            case 'due':
+                $sortby = 'due';
+                break;
+            case 'communication':
+                $sortby = 'communication';
+                break;
+            default :
+                $sortby = 'order_date';
+        }
+
+        $orders = (new Order())->newQuery()->with('customer');
+
+
+
+        if(empty($term))
+            $orders = $orders;
+        else{
+
+            $orders = $orders->whereHas('customer', function($query) use ($term) {
+                return $query->where('name', 'LIKE', "%$term%");
+            })
+                ->orWhere('order_id','like','%'.$term.'%')
+                ->orWhere('order_type',$term)
+                ->orWhere('sales_person',Helpers::getUserIdByName($term))
+                ->orWhere('received_by',Helpers::getUserIdByName($term))
+                ->orWhere('client_name','like','%'.$term.'%')
+                ->orWhere('city','like','%'.$term.'%')
+                ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
+        }
+
+        if ($order_status[0] != '') {
+            $orders = $orders->whereIn('order_status', $order_status);
+        }
+
+        if ($date != '') {
+            $orders = $orders->where('order_date', $date);
+        }
+
+
+
+        $users  = Helpers::getUserArray( User::all() );
+        $order_status_list = (new OrderStatus)->all();
+
+        if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
+            $orders = $orders->orderBy('is_priority', 'DESC')->orderBy($sortby, $orderby);
+        } else {
+            $orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
+        }
+
+        $orders_array = $orders->paginate(500);
+
+
+
+
+        $html = view( 'orders.index_pdf', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date' ) );
+        $pdf = new Dompdf();
+        $pdf->loadHtml($html);
+        $pdf->render();
+        $pdf->stream('orders.pdf');
+
+    }
 
 	/**
 	 * Display a listing of the resource.
@@ -154,7 +255,8 @@ class OrderController extends Controller {
 			$orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
 		}
 
-		$orders_array = $orders->paginate(Setting::get('pagination'));
+		$orders_array = $orders->paginate(500);
+//		$orders_array = $orders->paginate(Setting::get('pagination'));
 
 		// if ($sortby == 'communication') {
 		// 	if ($orderby == 'asc') {
@@ -1513,7 +1615,7 @@ class OrderController extends Controller {
 		$soap->printRequest = false;
 		$soap->formatXML = true;
 
-		$actionHeader = new \SoapHeader('http://www.w3.org/2005/08/addressing','Action','http://tempuri.org/IWayBillGeneration/GenerateWayBill',true);
+		$actionHeader = new \SoapHeader('http://www.w3.org/5005/08/addressing','Action','http://tempuri.org/IWayBillGeneration/GenerateWayBill',true);
 
 		$soap->__setSoapHeaders($actionHeader);
 
@@ -1579,7 +1681,7 @@ class OrderController extends Controller {
 						array(
 							'CustomerAddress1' => '807, Hubtown Viva, Western Express Highway, Shankarwadi, Andheri East',
 							'CustomerAddress2' => 'Mumbai',
-							'CustomerCode' => '382200',
+							'CustomerCode' => '382500',
 							'CustomerMobile' => '022-62363488',
 							'CustomerName' => 'Solo Luxury',
 							'CustomerPincode' => '400060',

@@ -167,7 +167,7 @@
 
 				if (phone.length != 0) {
 					if (/^[91]{2}/.test(phone) != true) {
-						$('input[name="phone"]').val('91' + phone);
+						$('input[name="phone"]').val('' + phone);
 					}
 				}
 

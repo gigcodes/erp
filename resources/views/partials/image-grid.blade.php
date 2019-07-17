@@ -118,6 +118,9 @@
                             <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}" id="attach_all_model_id">
                             <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
 
+                            <input type="checkbox" class="is_on_sale" id="is_on_sale" name="is_on_sale"><label
+                            for="is_on_sale">Sale Products</label>
+
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                         {{-- </div>
                     </div> --}}

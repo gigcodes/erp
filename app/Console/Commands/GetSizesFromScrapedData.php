@@ -42,7 +42,7 @@ class GetSizesFromScrapedData extends Command
             $q->where('size', '')
                 ->orWhereNull('size')
             ;
-        })->where('is_approved', 0)->chunk(1000, function ($products) {
+        })->where('is_approved', 0)->where('is_crop_ordered', '1')->chunk(1000, function ($products) {
             foreach ($products as $product) {
                 dump($product->id);
                 $scrapedProducts = $product->many_scraped_products;

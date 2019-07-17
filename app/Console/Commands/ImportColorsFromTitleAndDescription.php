@@ -42,7 +42,8 @@ class ImportColorsFromTitleAndDescription extends Command
     public function handle()
     {
         $this->colors = (new Colors)->all();
-        Product::where('is_approved', 0)->chunk(1000, function($products) {
+        unset($this->colors['Red']);
+        Product::where('is_approved', 0)->where('color', '')->orderBy('id', 'DESC')->chunk(1000, function($products) {
             foreach ($products as $product) {
                 $scrapedProducts = $product->many_scraped_products;
 
@@ -50,22 +51,23 @@ class ImportColorsFromTitleAndDescription extends Command
                     $property = $scrapedProduct->properties;
 
                     $color = $property['color'] ?? '';
-                    $color = trim(str_replace(['-', '_'], '', $color));
+                    $color = $this->getColorsFromText($color);
                     $color = title_case($color);
 
                     if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false ) {
-                        dump($color);
+                        dump($color . '--ing...');
                         $product->color = $color;
                         $product->save();
                         break;
                     }
 
                     $color = $property['colors'] ?? '';
-                    $color = trim(str_replace(['-', '_'], '', $color));
+                    $color = $this->getColorsFromText($color);
                     $color = title_case($color);
 
                     if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false ) {
-                        dump($color);
+                        dump($color . '--ing...');
+
                         $product->color = $color;
                         $product->save();
                         break;
@@ -76,7 +78,7 @@ class ImportColorsFromTitleAndDescription extends Command
                     $color = title_case($color);
 
                     if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false ) {
-                        dump($color);
+                        dump($color . '--ing...');
                         $product->color = $color;
                         $product->save();
                         break;
@@ -87,7 +89,7 @@ class ImportColorsFromTitleAndDescription extends Command
                     $color = title_case($color);
 
                     if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false ) {
-                        dump($color);
+                        dump($color . '--ing...');
                         $product->color = $color;
                         $product->save();
                         break;
@@ -101,6 +103,10 @@ class ImportColorsFromTitleAndDescription extends Command
     private function getColorsFromText($text) {
         $availableColors = [];
         $text = strtolower($text);
+
+        if (strpos($text, 'multi') !== false) {
+            return 'Multi';
+        }
         foreach ($this->colors as $color) {
             if (!in_array($color, $availableColors, false) && (stripos($text, strtolower($color)) !== false)) {
                 $availableColors[] = $color;

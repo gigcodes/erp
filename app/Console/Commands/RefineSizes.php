@@ -42,10 +42,10 @@ class RefineSizes extends Command
      */
     public function handle()
     {
-        Product::where('size', '!=', '')->whereNotNull('size')->chunk(1000, function($products) {
+        Product::where('size', '!=', '')->where('is_crop_ordered', 1)->whereNotNull('size')->where('is_approved', '0')->chunk(1000, function($products) {
             foreach ($products as $product) {
-//                $this->enricher->basicRefining($product);
-//                sleep(0.2);
+                $this->enricher->basicRefining($product);
+                sleep(0.2);
                 $this->enricher->refineSizeToPintFive($product);
                 sleep(0.2);
                 $this->enricher->refineSizeForIt($product);

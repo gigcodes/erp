@@ -26,6 +26,11 @@
               </select>
             </div> --}}
 
+              <div class="form-group">
+                  <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                  <label for="with_archived">Archived</label>
+              </div>
+
             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
           </form>
         </div>

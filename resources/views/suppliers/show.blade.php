@@ -177,6 +177,13 @@
             </div>
 
             <div class="form-group">
+              <select name="status" id="status" class="form-control form-control-sm">
+                <option {{ $supplier->status ? '' : 'selected' }} value="0">Inactive</option>
+                <option {{ $supplier->status ? 'selected' : '' }} value="1">Active</option>
+              </select>
+            </div>
+
+            <div class="form-group">
               <button type="button" id="updateSupplierButton" class="btn btn-xs btn-secondary">Save</button>
             </div>
           </div>
@@ -1660,6 +1667,7 @@
         var social_handle = $('#supplier_social_handle').val();
         var website = $('#supplier_website').val();
         var gst = $('#supplier_gst').val();
+        var status = $('#status').val();
 
         $.ajax({
           type: "POST",
@@ -1678,6 +1686,7 @@
             social_handle: social_handle,
             website: website,
             gst: gst,
+            status: status
           },
           beforeSend: function() {
             $(thiss).text('Saving...');
