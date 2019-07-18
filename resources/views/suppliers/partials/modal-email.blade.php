@@ -29,6 +29,29 @@
           </div>
 
           <div class="form-group">
+            <a class="add-cc mr-3" href="#">Cc</a>
+            <a class="add-bcc" href="#">Bcc</a>
+          </div>
+
+          <div id="cc-label" class="form-group" style="display:none;">
+            <strong class="mr-3">Cc</strong>
+            <a href="#" class="add-cc">+</a>
+          </div>
+
+          <div id="cc-list" class="form-group">
+
+          </div>
+
+          <div id="bcc-label" class="form-group" style="display:none;">
+            <strong class="mr-3">Bcc</strong>
+            <a href="#" class="add-bcc">+</a>
+          </div>
+
+          <div id="bcc-list" class="form-group">
+
+          </div>
+
+          <div class="form-group">
             <strong>Subject</strong>
             <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" required>
           </div>
