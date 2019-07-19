@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Dompdf\Dompdf;
+use App\Mail\ForwardEmail;
 use Illuminate\Http\Request;
 use App\Order;
 use App\OrderProduct;
@@ -1747,6 +1748,8 @@ class PurchaseController extends Controller
             $emails_array[$count + $key2]['cc'] = $email->cc;
             $emails_array[$count + $key2]['bcc'] = $email->bcc;
             $emails_array[$count + $key2]['replyInfo'] = "On {$dateCreated} at {$timeCreated}, $userName <{$email->from}> wrote:";
+            $emails_array[$count + $key2]['dateCreated'] = $dateCreated;
+            $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
 
         $emails_array = array_values(array_sort($emails_array, function ($value) {
@@ -2220,27 +2223,14 @@ class PurchaseController extends Controller
       $this->validate($request, [
         'subject' => 'required|min:3|max:255',
         'message' => 'required',
-        'email.*' => 'required|email'
+        'email.*' => 'required|email',
+        'cc.*' => 'nullable|email',
+        'bcc.*' => 'nullable|email'
       ]);
 
       $supplier = Supplier::find($request->supplier_id);
 
       if ($supplier->default_email != '' || $supplier->email != '') {
-        // Backup your default mailer
-        // $backup = Mail::getSwiftMailer();
-        //
-        // // Setup your gmail mailer
-        // $transport = new \Swift_SmtpTransport('c45729.sgvps.net', 465, 'ssl');
-        // $transport->setUsername('buying@amourint.com');
-        // $transport->setPassword('Cust123!@#');
-        // // Any other mailer configuration stuff needed...
-        //
-        // $gmail = new \Swift_Mailer($transport);
-        //
-        // // Set the mailer as gmail
-        // Mail::setSwiftMailer($gmail);
-        // Send your message
-
         $file_paths = [];
 
         if ($request->hasFile('file')) {
@@ -2253,29 +2243,34 @@ class PurchaseController extends Controller
           }
         }
 
-        if (count($request->email) == 1) {
-          Mail::to($request->email[0])->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
-        } else if (count($request->email) > 1) {
-          $to_email = '';
-          $cc_emails = [];
+        $cc = $bcc = [];
+        $emails = $request->email;
 
-          foreach ($request->email as $key => $email) {
-            if ($key == 0) {
-              $to_email = $email;
-            } else {
-              $cc_emails[] = $email;
-            }
-          }
-
-          Mail::to($to_email)->cc($cc_emails)->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
-        } else {
-          return redirect()->back()->withErrors('Please select an email');
+        if ($request->has('cc')) {
+            $cc = array_values(array_filter($request->cc));
+        }
+        if ($request->has('bcc')) {
+            $bcc = array_values(array_filter($request->bcc));
         }
 
-        // Restore your original mailer
+        if (is_array($emails) && ! empty($emails)) {
+            $to = array_shift($emails);
+            $cc = array_merge($emails, $cc);
 
+            $mail = Mail::to($to);
 
-        // Mail::setSwiftMailer($backup);
+            if ($cc) {
+                $mail->cc($cc);
+            }
+            if ($bcc) {
+                $mail->bcc($bcc);
+            }
+            
+            $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        }
+        else {
+            return redirect()->back()->withErrors('Please select an email');
+        }
 
         $params = [
           'model_id'        => $supplier->id,
@@ -2285,8 +2280,10 @@ class PurchaseController extends Controller
           'seen'            => 1,
           'subject'         => $request->subject,
           'message'         => $request->message,
-          'template'				=> 'customer-simple',
-					'additional_data'	=> json_encode(['attachment' => $file_paths])
+          'template'		=> 'customer-simple',
+          'additional_data'	=> json_encode(['attachment' => $file_paths]),
+          'cc'              => $cc ?: null,
+          'bcc'             => $bcc ?: null
         ];
 
         Email::create($params);
@@ -2397,4 +2394,27 @@ class PurchaseController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
     }
+
+    public function emailForward(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'to.0' => 'required|email',
+            'to.*' => 'nullable|email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+        }
+
+        $forwardEmail = Email::findOrFail($request->forward_email_id);
+        $forwardTo = array_filter($request->to);
+
+        foreach ($forwardTo as $to) {
+            Mail::to($to)->send(new ForwardEmail($forwardEmail, $request->message));
+        }
+
+        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
+    }
+
+
 }
