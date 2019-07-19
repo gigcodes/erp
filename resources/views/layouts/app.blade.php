@@ -534,9 +534,11 @@
                                     @can ('approved-listing')
                                         <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
                                     @endcan
+                                    @can ('rejected-listing')
+                                        <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
+                                    @endcan
 
                                     @can('admin')
-                                        <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statics</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}">Approved Listing</a>
                                         <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
@@ -827,9 +829,16 @@
 
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
-                                        <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper
+{{--                                        <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">ImageCropper--}}
+
+{{--                                            Grid</a>--}}
+                                        <a class="dropdown-item" href="{{ action('ProductCropperController@getApprovedImages') }}">Approved Crop
 
                                             Grid</a>
+                                        <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected
+
+                                            Grid</a>
+
 
                                     </div>
 

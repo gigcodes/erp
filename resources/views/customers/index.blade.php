@@ -311,6 +311,11 @@
                           @else
                               <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
                           @endif
+
+                          <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $customer->id }}" data-frequency="{{ $customer->frequency }}" data-reminder_message="{{ $customer->reminder_message }}">
+                              <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
+                          </button>
+
                       </div>
 
                       @php
@@ -689,6 +694,51 @@
     {!! $customers->appends(Request::except('page'))->links() !!}
   </div>
 
+    <div id="reminderModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set/Edit Reminder</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="frequency">Frequency (in Minutes)</label>
+                        <select class="form-control" name="frequency" id="frequency">
+                            <option value="0">Disabled</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                            <option value="55">55</option>
+                            <option value="60">60</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reminder_message">Reminder Message</label>
+                        <textarea name="reminder_message" id="reminder_message" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary save-reminder">Save</button>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
@@ -704,6 +754,38 @@
 
     var cached_suggestions = localStorage['message_suggestions'];
     var suggestions = [];
+
+    var customerIdToRemind = null;
+
+    $(document).on('click', '.set-reminder', function() {
+        let customerId = $(this).data('id');
+        let frequency = $(this).data('frequency');
+        let message = $(this).data('reminder_message');
+
+        $('#frequency').val(frequency);
+        $('#reminder_message').val(message);
+        customerIdToRemind = customerId;
+
+    });
+
+    $(document).on('click', '.save-reminder', function() {
+        let frequency = $('#frequency').val();
+        let message = $('#reminder_message').val();
+
+        $.ajax({
+            url: "{{action('CustomerController@updateReminder')}}",
+            type: 'POST',
+            success: function() {
+                toastr['success']('Reminder updated successfully!');
+            },
+            data: {
+                customer_id: customerIdToRemind,
+                frequency: frequency,
+                message: message,
+                _token: "{{ csrf_token() }}"
+            }
+        });
+    });
 
     $(window).scroll(function() {
       // var top = $(window).scrollTop();

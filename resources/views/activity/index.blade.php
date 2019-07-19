@@ -56,7 +56,7 @@
                 <table class="table table-striped table-bordered">
                     <tr>
                         <th>Uncropped</th>
-{{--                        <th>Crop Approved</th>--}}
+                        <th>Crop Approval</th>
                         <th>Crop Rejected</th>
                         <th>On Sequencing/Approved</th>
                         <th>Attribute Approved</th>
@@ -65,13 +65,13 @@
                     </tr>
                     <tr>
                         <td>{{ $productStats->uncropped }}</td>
-{{--                        <td>{{ $productStats->crop_approved }}</td>--}}
+                        <td>{{ $productStats->crop_approval }}</td>
                         <td>{{ $productStats->crop_rejected }}</td>
                         <td>{{ $productStats->left_for_sequencing }}</td>
                         <td>{{ $productStats->total_approvals }}</td>
                         <td>{{ $productStats->total_rejections }}</td>
                         <td>
-                            {{ $productStats->uncropped + $productStats->crop_rejected + $productStats->left_for_sequencing + $productStats->total_approvals + $productStats->total_rejections }}
+                            {{ $productStats->crop_approval + $productStats->uncropped + $productStats->crop_rejected + $productStats->left_for_sequencing + $productStats->total_approvals + $productStats->total_rejections }}
                         </td>
                     </tr>
                 </table>

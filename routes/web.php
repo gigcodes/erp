@@ -17,6 +17,8 @@
 
 Auth::routes();
 
+Route::get('crop-references', 'CroppedImageReferenceController@index');
+
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 
 
@@ -261,6 +263,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
 	// Customers
 	Route::get('customer/test', 'CustomerController@customerstest');
+	Route::post('customer/reminder', 'CustomerController@updateReminder');
 	Route::post('customer/add-note/{id}', 'CustomerController@addNote');
 	Route::get('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
@@ -345,6 +348,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	// Master Plan
 	Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');
 	Route::resource('mastercontrol', 'MasterControlController');
+
 
 	// Cash Vouchers
 	Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');

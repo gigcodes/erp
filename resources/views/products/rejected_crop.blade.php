@@ -52,7 +52,8 @@
                                 <fieldset id="actions" label="Choose Action">
                                     <input type="radio" name="action" id="approved" value="approved"><label for="approved"> &nbsp;Approve Crop</label><br>
                                     <input type="radio" name="action" id="uncropped" value="uncropped"><label for="uncropped"> &nbsp;Mark as Not cropped</label><br>
-                                    <input type="radio" name="action" id="manual" value="manual"><label for="manual"> &nbsp;Move to Manual Cropping</label>
+                                    <input type="radio" name="action" id="manual" value="manual"><label for="manual"> &nbsp;Move to Manual Cropping</label><br>
+                                    <input type="radio" name="action" id="unreject" value="unreject"><label for="unreject"> &nbsp;Move to Approval</label>
                                 </fieldset>
                                 <button class="btn btn-secondary">Update Changes</button>
                             </div>

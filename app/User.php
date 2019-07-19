@@ -96,4 +96,10 @@ class User extends Authenticatable
         return $this->hasMany(ListingHistory::class)->where('action', 'CROP_SEQUENCED');
 
     }
+
+
+    public function instagramAutoComments() {
+	    return $this->hasManyThrough(AutoCommentHistory::class, 'users_auto_comment_histories', 'user_id', 'auto_comment_history_id', 'id');
+    }
+
 }

@@ -22,14 +22,12 @@ class NameChecker implements CheckerInterface
 
     public function check($product): bool {
         $data = $product->name;
-        dump($data);
         $data = $this->improvise($data);
         $product->name = $data;
         $product->save();
         $state = $this->grammerBot->validate($data);
 
 
-        echo "======= $state ========";
         if ($state === false) {
             return false;
         }
@@ -37,7 +35,6 @@ class NameChecker implements CheckerInterface
         $product->name = $state;
         $product->save();
 
-        dump("-----------------------------------");
         return true;
     }
 

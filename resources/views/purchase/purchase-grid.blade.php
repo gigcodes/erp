@@ -50,6 +50,8 @@
                 </select>
             </div>
 
+            <input type="checkbox" name="in_pdf" id="in_pdf"> <label for="in_pdf">Download PDF</label>
+
             <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
         </form>
       </div>

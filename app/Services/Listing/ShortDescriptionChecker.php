@@ -102,6 +102,18 @@ class ShortDescriptionChecker implements CheckerInterface
         $sentence = str_replace("&Eacute;", "E", $sentence);
         $sentence = str_replace("&eacute;", "e", $sentence);
 
+
+        $thingsToRemove = ['Made In', 'Italy', 'Portugal', 'London', 'Madein'];
+
+        foreach ($thingsToRemove as $rem) {
+            $sentence = str_replace([strtoupper($rem), strtolower($rem), $rem], '', $sentence);
+        }
+
+        $sentence = preg_replace('/(\d+)% (\w+)/', '', $sentence);
+        $sentence = preg_replace('/(\d+)%(\w+)/', '', $sentence);
+        $sentence = preg_replace('/(\d+)(\w+)/', '', $sentence);
+
+
         return $this->sentenceCase($sentence);
     }
 

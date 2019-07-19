@@ -29,7 +29,7 @@ class GrammarBot
                 ]
             ]);
         } catch (\Exception $exception) {
-//            dump($exception);
+            dump($exception);
             return false;
         }
 

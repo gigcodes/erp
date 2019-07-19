@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use App\Order;
 use App\OrderProduct;
@@ -445,6 +446,7 @@ class PurchaseController extends Controller
         $new_products[$count]['single_supplier'] = $single_supplier;
         $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
         $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+        $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
         $new_products[$count]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
         $new_products[$count]['customers'] = $customers;
         $new_products[$count]['customer_names'] = '';
@@ -469,6 +471,27 @@ class PurchaseController extends Controller
       $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
         'path'  => LengthAwarePaginator::resolveCurrentPath()
       ]);
+
+
+      if ($request->get('in_pdf') === 'on') {
+          $html = view('purchase.purchase-grid-pdf')->with([
+              'products'      => $new_products,
+              'order_status'  => $order_status,
+              'supplier_list' => $supplier_list,
+              'suppliers_array' => $suppliers_array,
+              'term'          => $term,
+              'status'        => $status,
+              'supplier'      => $supplier,
+              'brand'         => $brand,
+              'page'          => $page
+          ]);
+
+          $pdf = new Dompdf();
+          $pdf->loadHtml($html);
+          $pdf->render();
+          $pdf->stream('orders.pdf');
+          return;
+      }
 
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,

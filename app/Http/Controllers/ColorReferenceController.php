@@ -17,7 +17,7 @@ class ColorReferenceController extends Controller
      */
     public function index()
     {
-        $colors = ColorNamesReference::whereNull('erp_name')->get();
+        $colors = ColorNamesReference::get();
         return view('color_references.index', compact('colors'));
     }
 

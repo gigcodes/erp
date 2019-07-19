@@ -134,7 +134,8 @@ class ProductController extends Controller {
         $typeWhereClause = '';
         $termWhereClause = '';
         $croppedWhereClause = '';
-        $stockWhereClause = ' AND stock >= 1';
+        $stockWhereClause = ' ';
+//        $stockWhereClause = ' AND stock >= 1';
 
         $userWhereClause = '';
 
@@ -336,7 +337,7 @@ class ProductController extends Controller {
 //											ORDER BY is_crop_ordered DESC, remark_created_at DESC, created_at DESC
 //				');
 //        } else {
-            $new_products = DB::select('
+         $new_products = DB::select('
 											SELECT *, user_products.user_id as product_user_id,
 											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
 											FROM products
@@ -352,7 +353,7 @@ class ProductController extends Controller {
 											ON products.id = remarks.taskid
 
 											WHERE is_approved = 1 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $whereUserClause . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
-											ORDER BY category, is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
+											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
 				');
 //        }
 
@@ -671,9 +672,9 @@ class ProductController extends Controller {
 												) AS remarks
 											ON products.id = remarks.taskid
 
-											WHERE is_approved = 0 AND is_listing_rejected = 0  AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+											WHERE is_approved = 0 AND is_listing_rejected = 0 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $stockWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
 											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
-											ORDER BY category, is_crop_ordered DESC, remark_created_at DESC, created_at DESC
+											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, created_at DESC
 				');
 			} else {
 				$new_products = DB::select('
@@ -691,7 +692,7 @@ class ProductController extends Controller {
 												) AS remarks
 											ON products.id = remarks.taskid
 											WHERE is_approved = 0 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
-											ORDER BY category, is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
+											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
 				');
 			}
 

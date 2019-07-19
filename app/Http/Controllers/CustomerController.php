@@ -489,7 +489,7 @@ class CustomerController extends Controller
 
         $customers = DB::select('
   									SELECT * FROM
-                    (SELECT customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, customers.deleted_at, customers.instruction_completed_at
+                    (SELECT customers.id, customers.frequency, customers.reminder_message, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, customers.deleted_at, customers.instruction_completed_at
                     order_id, order_status, order_created, purchase_status,
                     (SELECT mm5.status FROM leads mm5 WHERE mm5.id = lead_id) AS lead_status, lead_id,
                     (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
@@ -1488,6 +1488,17 @@ class CustomerController extends Controller
         ]);
     }
 
+    public function updateReminder(Request $request) {
+        $customer = Customer::find($request->get('customer_id'));
+        $customer->frequency = $request->get('frequency');
+        $customer->reminder_message = $request->get('message');
+        $customer->save();
+
+        return response()->json([
+            'success'
+        ]);
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -1502,7 +1513,7 @@ class CustomerController extends Controller
         $this->validate($request, [
             'name'          => 'required|min:3|max:255',
             'email'         => 'required_without_all:phone,instahandler|nullable|email',
-            'phone'         => 'required_without_all:email,instahandler|nullable|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $id,
+            'phone'         => 'required_without_all:email,instahandler|nullable|unique:customers,phone,' . $id,
             'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
             'rating'        => 'required|numeric',
             'address'       => 'sometimes|nullable|min:3|max:255',

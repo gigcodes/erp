@@ -73,12 +73,15 @@ class AutoApproveProductAttribute extends Command
 //                    })
 //                ;
 //            })
+                ->inRandomOrder()
             ->get();
 
 
         foreach ($products as $product) {
 
             $this->scrapper->getFromFarfetch($product);
+
+            dump('Farfetched...');
 
             $status = $this->listing->validate($product);
 

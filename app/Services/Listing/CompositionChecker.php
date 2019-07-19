@@ -19,6 +19,8 @@ class CompositionChecker implements CheckerInterface
 
     public function check($product): bool {
         $data = $product->composition;
+
+        dump('Real composition: ' . $data);
         $hasExtracted = preg_match_all('/(\d+)% (\w+)/', $data, $extractedData);
 
         if ($hasExtracted) {
@@ -57,6 +59,8 @@ class CompositionChecker implements CheckerInterface
                 $correctedData[] = $rd;
             }
         }
+
+        dump('corrected composition :' , $correctedData);
 
         return $correctedData;
     }

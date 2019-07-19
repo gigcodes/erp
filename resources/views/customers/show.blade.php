@@ -244,7 +244,7 @@
     <div>
       <h3>Customer Page</h3>
     </div>
-      @if($searchedMessages)
+      @if(isset($searchedMessages) && $searchedMessages)
           <div>
               <h5 style="display: block;">You searched: <strong>{{ Request::get('sm') }}</strong></h5>
               @foreach($searchedMessages as $message)

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\CroppedImageReference;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class CroppedImageReferenceController extends Controller
+class UsersAutoCommentHistoriesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,9 +14,11 @@ class CroppedImageReferenceController extends Controller
      */
     public function index()
     {
-        $products = CroppedImageReference::with(['media', 'newMedia'])->paginate(50);
+        $user = Auth::user();
 
-        return view('image_references.index', compact('products'));
+        if () {
+
+        }
     }
 
     /**
@@ -43,10 +45,10 @@ class CroppedImageReferenceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\CroppedImageReference  $croppedImageReference
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(CroppedImageReference $croppedImageReference)
+    public function show($id)
     {
         //
     }
@@ -54,10 +56,10 @@ class CroppedImageReferenceController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\CroppedImageReference  $croppedImageReference
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(CroppedImageReference $croppedImageReference)
+    public function edit($id)
     {
         //
     }
@@ -66,10 +68,10 @@ class CroppedImageReferenceController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\CroppedImageReference  $croppedImageReference
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, CroppedImageReference $croppedImageReference)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -77,10 +79,10 @@ class CroppedImageReferenceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\CroppedImageReference  $croppedImageReference
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(CroppedImageReference $croppedImageReference)
+    public function destroy($id)
     {
         //
     }

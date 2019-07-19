@@ -19,12 +19,12 @@ class ProductsImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            $brand = trim($row['brand']);
+            $brand = trim($row['Brand']);
+            $gender = $row['Gender'];
             $originalSku = $row['sku'];
-            $size = $row['size'];
-            $category = $row['category'];
-            $gender = $row['gender'];
-            $unit_price = $row['unit_price'];
+            $color = $row['Color'];
+            $category = 'Woman, Sunglasses';
+            $unit_price = 0;
 
 
             if ($brand == "TOD'S") {
@@ -57,9 +57,10 @@ class ProductsImport implements ToCollection, WithHeadingRow
             $scrapedProduct->brand_id = $brand->id;
             $properties = [
                 'category' => $category,
-                'sizes' => $size,
+//                'sizes' => $size,
                 'gender' => $gender,
                 'price' => $unit_price,
+                'color' => $color
             ];
             $sku = str_replace([' ', '-', '/', "\\", '_'], '', $originalSku);
             $scrapedProduct->sku = $sku;

@@ -10,4 +10,8 @@ class CroppedImageReference extends Model
     public function media() {
         return $this->hasOne(Media::class, 'id', 'original_media_id');
     }
+
+    public function newMedia() {
+        return $this->hasOne(Media::class, 'id', 'new_media_id');
+    }
 }

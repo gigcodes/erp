@@ -50,7 +50,6 @@
                                     <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-secondary approvebtn">Approve</a>
                                     <br><br>
                                     <select name="remark" id="remark">
-                                        <option value="Quick_reject">QR</option>
                                         <option value="0">Select reason...</option>
                                         <option value="White Image Crop Issue">White Image Crop Issue</option>
                                         <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
@@ -95,12 +94,17 @@
                 <form action="{{ action('ProductCropperController@ammendCrop', $product->id) }}" method="post">
                     @csrf
                     @foreach($product->media()->get() as $image)
-                        <?php
-//                        [$height, $width] = getimagesize($image->getUrl())
-                        ?>
+
                         @if (stripos($image->filename, 'cropped') !== false)
                             <div style="display: inline-block; border: 1px solid #ccc" class="mt-5">
                                 <div style="width: 80%; margin: 5px auto;">
+                                    @if(\App\CroppedImageReference::where('new_media_id', $image->id)->first())
+                                        <span class="label label-success" style="font-size: 12px;">Has Reference</span>
+                                    @else
+                                        <span class="label label-danger" style="font-size: 12px;">NO REFERENCE</span>
+                                    @endif
+                                        <br>
+                                        <br>
                                     <input type="hidden" name="url[{{$image->filename}}]" value="{!! $image->getUrl() !!}">
                                     <input type="hidden" name="mediaIds[{{$image->filename}}]" value="{!! $image->id !!}">
                                     <div class="form-group">

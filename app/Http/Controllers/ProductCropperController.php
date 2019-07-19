@@ -411,6 +411,9 @@ class ProductCropperController extends Controller
 	            $rec = new CropAmends();
                 //update mediaId
                 $cropRefrence = CroppedImageReference::where('new_media_id', $mediaIds[$key])->first();
+                if (!$cropRefrence) {
+                    continue;
+                }
                 $rec->file_url = $cropRefrence->media->getUrl();
                 $rec->settings = ['size' => $size, 'padding' => $padding[$key] ?? 96, 'media_id' => $cropRefrence->original_media_id];
 	            $rec->product_id = $id;
@@ -628,6 +631,10 @@ class ProductCropperController extends Controller
             });
         }
 
+        if ($request->get('user_id')) {
+            $products = $products->where('crop_rejected_by', $request->get('user_id'));
+        }
+
 
         $suppliers = DB::select('
 				SELECT id, supplier
@@ -644,6 +651,8 @@ class ProductCropperController extends Controller
             $supplier = $request->get('supplier');
             $products = $products->whereIn('id', DB::table('product_suppliers')->whereIn('supplier_id', $supplier)->pluck('product_id'));
         }
+
+        $users = User::all();
 
         if ($request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
@@ -681,7 +690,7 @@ class ProductCropperController extends Controller
 
         $products = $products->orderBy('updated_at', 'DESC')->paginate(24);
 
-        return view('products.rejected_crop_list', compact('products', 'suppliers', 'supplier', 'reason', 'selected_categories', 'category_array'));
+        return view('products.rejected_crop_list', compact('products', 'suppliers', 'supplier', 'reason', 'selected_categories', 'category_array', 'users'));
     }
 
     public function cropIssuesPage() {
@@ -759,6 +768,10 @@ class ProductCropperController extends Controller
             $product->is_crop_rejected = 0;
             $product->save();
             $action = 'SENT_FOR_MANUAL_CROPPING';
+        } else if ($request->get('unreject')) {
+            $product->is_crop_rejected = 0;
+            $product->save();
+            $action = 'RESENT_FOR_APPROVAL';
         }
 
         $l = new ListingHistory();

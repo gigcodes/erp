@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">
-                Rejected Cropped Images
+                Rejected Cropped Images ({{ $products->total() }})
             </h2>
         </div>
         <div class="col-md-12">
@@ -19,6 +19,14 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <input value="{{$reason}}" type="text" name="reason" id="reason" placeholder="Reason..." class="form-control">
+                            </div>
+                            <div class="col-md-2">
+                                <select name="user_id" id="user_id" class="form-control">
+                                    <option value="">Select user...</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="col-md-2">
                                 <select class="form-control" name="category[]">

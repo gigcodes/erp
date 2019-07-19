@@ -44,10 +44,12 @@ class FixCategoryNameBySupplier extends Command
     public function handle()
     {
         Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
-//        Product::where('is_approved', 0)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+//        Product::where('is_crop_rejected', 1)->where('crop_remark', 'LIKE', '%category%')->orderBy('id', 'DESC')->chunk(1000, function ($products) {
             echo 'Chunk again=======================================================' . "\n";
             foreach ($products as $product) {
                 $this->classify2($product);
+//                $product->is_crop_rejected = 0;
+//                $product->save();
             }
         });
 
@@ -76,7 +78,11 @@ class FixCategoryNameBySupplier extends Command
                     ) {
                         $gender = $this->getMaleOrFemale($scrapedProduct->properties);
 
-                        dump($gender, $originalCategory, $cat, $catt);
+
+//                        echo $scrapedProduct->title;
+//                        dd(stripos(strtoupper($catt), $cat) !== false
+//                            ,stripos(strtoupper($scrapedProduct->title ?? ''), $cat) !== false
+//                            , stripos(strtoupper($scrapedProduct->url ?? ''), $cat) !== false);
 
                         if ($gender === false) {
                             $gender = $this->getMaleOrFemale($scrapedProduct->title);
@@ -98,7 +104,6 @@ class FixCategoryNameBySupplier extends Command
                             $originalCategory = 'Handbags';
                         }
 
-
                         if ($originalCategory == 'Coats & Jackets' && $gender == 3) {
                             $originalCategory = 'Coats & Jackets & Suits';
                         }
@@ -113,6 +118,10 @@ class FixCategoryNameBySupplier extends Command
 
                         if ($originalCategory == 'Shawls And Scarves' && $gender == 3) {
                             $originalCategory = 'Scarves & Wraps';
+                        }
+
+                        if ($originalCategory == 'Belts' && (stripos($catt, 'bag') !== false || stripos($product->title, 'bag') !== false || stripos($product->url, 'bag') !== false) ) {
+                            $originalCategory = 'Belt Bag';
                         }
 
 //                    if ($originalCategory == 'Jumper' && $gender == 2) {

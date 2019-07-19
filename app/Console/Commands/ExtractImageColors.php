@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\ColorNamesReference;
+use App\Colors;
 use App\PictureColors;
 use App\Product;
 use Illuminate\Console\Command;
@@ -47,19 +48,24 @@ class ExtractImageColors extends Command
     {
 
         $ourColors = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
+        $availableColors = (new Colors())->all();
 
-        Product::where('is_approved', 1)->chunk(1000, function($products) use ($ourColors) {
+        Product::where('is_approved', 1)->chunk(1000, function($products) use ($ourColors, $availableColors) {
             foreach ($products as $product) {
+
+                if (isset($availableColors[$product->color])) {
+                    dump('skipped');
+                    continue;
+                }
+
                 $imageUrl = $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getAbsolutePath() : '';
                 if (!$imageUrl) {
                     continue;
                 }
 
-
-
                 $palette = Palette::fromFilename($imageUrl);
                 $extractor = new ColorExtractor($palette);
-                $colors = $extractor->extract(1);
+                $colors = $extractor->extract();
                 $color = $colors[0];
 
                 $hex =  Color::fromIntToHex($color);
@@ -68,12 +74,10 @@ class ExtractImageColors extends Command
 
                 $erpColor = $ourColors[$color];
 
-                $pictureColor = new PictureColors();
-                $pictureColor->image_url = $product->getMedia('gallery')->first()->getUrl();
-                $pictureColor->color = $erpColor;
-                $pictureColor->picked_color = $hex;
-                $pictureColor->save();
-                dump($erpColor);
+                $product->color = $erpColor;
+                $product->save();
+
+                dump('Saved');
 
             }
         });
