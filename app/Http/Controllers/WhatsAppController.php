@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DeveloperTask;
 use App\Issue;
+use App\Lawyer;
 use Illuminate\Support\Facades\URL;
 use Twilio\Jwt\ClientToken;
 use Twilio\Twiml;
@@ -1517,6 +1518,7 @@ class WhatsAppController extends FindByNumberController
         'erp_user'        => 'sometimes|nullable|numeric',
         'status'          => 'required|numeric',
         'assigned_to'     => 'sometimes|nullable',
+        'lawyer_id'     => 'sometimes|nullable|numeric',
       ]);
 
       $data = $request->except( '_token');
@@ -1647,6 +1649,9 @@ class WhatsAppController extends FindByNumberController
           $chat_message = ChatMessage::create($params);
 
           return response()->json(['message' => $chat_message]);
+      }else if($context == 'lawyer'){
+          $data['lawyer_id'] = $request->lawyer_id;
+          $module_id = $request->lawyer_id;
       }
 
       if ($context != 'task') {
@@ -1746,7 +1751,6 @@ class WhatsAppController extends FindByNumberController
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
-
         $this->approveMessage($context, $myRequest);
       }
 
@@ -2125,6 +2129,9 @@ class WhatsAppController extends FindByNumberController
       } else if ($request->dubbizleId) {
         $column = 'dubbizle_id';
         $value = $request->dubbizleId;
+      }else if ($request->lawyerId) {
+        $column = 'lawyer_id';
+        $value = $request->lawyerId;
       } else {
         $column = 'customer_id';
         $value = $request->customerId;
@@ -2407,12 +2414,16 @@ class WhatsAppController extends FindByNumberController
           $dubbizle = Dubbizle::find($message->dubbizle_id);
           $phone = $dubbizle->phone_number;
           $whatsapp_number = '971545889192';
+        } else if ($context == 'lawyer') {
+            $lawyer = Lawyer::find($message->lawyer_id);
+            $phone = $lawyer->default_phone;
+            $whatsapp_number = $lawyer->whatsapp_number;
         }
 
         $data = '';
         if ($message->message != '') {
 
-          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle') {
+          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
              if ($whatsapp_number == '919152731483') {

@@ -750,3 +750,9 @@ Route::get('competitor-page/hide/{id}', 'CompetitorPageController@hideLead');
 Route::get('competitor-page/approve/{id}', 'CompetitorPageController@approveLead');
 Route::resource('competitor-page', 'CompetitorPageController');
 Route::resource('target-location', 'TargetLocationController');
+
+//Legal Module
+Route::middleware('auth')->group(function () {
+    Route::post('lawyer-speciality', ['uses'=>'LawyerController@storeSpeciality','as'=>'lawyer.speciality.store']);
+    Route::resource('lawyer', 'LawyerController');
+});
