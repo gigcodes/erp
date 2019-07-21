@@ -43,13 +43,11 @@ class FixCategoryNameBySupplier extends Command
      */
     public function handle()
     {
-        Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
-//        Product::where('is_crop_rejected', 1)->where('crop_remark', 'LIKE', '%category%')->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+//        Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+        Product::where('id', 143121)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
             echo 'Chunk again=======================================================' . "\n";
             foreach ($products as $product) {
                 $this->classify2($product);
-//                $product->is_crop_rejected = 0;
-//                $product->save();
             }
         });
 
@@ -71,18 +69,14 @@ class FixCategoryNameBySupplier extends Command
                 foreach ($rec as $kk=>$cat) {
                     $cat = strtoupper($cat);
 
+                    dump($catt, $cat, $scrapedProduct->title, $scrapedProduct->url);
+                    dump('=================================================');
 
                     if (stripos(strtoupper($catt), $cat) !== false
                         || stripos(strtoupper($scrapedProduct->title ?? ''), $cat) !== false
                         || stripos(strtoupper($scrapedProduct->url ?? ''), $cat) !== false
                     ) {
                         $gender = $this->getMaleOrFemale($scrapedProduct->properties);
-
-
-//                        echo $scrapedProduct->title;
-//                        dd(stripos(strtoupper($catt), $cat) !== false
-//                            ,stripos(strtoupper($scrapedProduct->title ?? ''), $cat) !== false
-//                            , stripos(strtoupper($scrapedProduct->url ?? ''), $cat) !== false);
 
                         if ($gender === false) {
                             $gender = $this->getMaleOrFemale($scrapedProduct->title);
@@ -138,6 +132,7 @@ class FixCategoryNameBySupplier extends Command
 
                         $parentCategory = Category::find($gender);
                         $childrenCategories = $parentCategory->childs;
+
 
                         foreach ($childrenCategories as $childrenCategory) {
                             if ($childrenCategory->title == $originalCategory) {

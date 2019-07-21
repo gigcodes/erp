@@ -33,7 +33,7 @@
             <a class="add-bcc" href="#">Bcc</a>
           </div>
 
-          <div id="cc-label" class="form-group" style="display:none;">
+          <div id="cc-label" class="form-group" style="display:block;">
             <strong class="mr-3">Cc</strong>
             <a href="#" class="add-cc">+</a>
           </div>
@@ -42,7 +42,7 @@
 
           </div>
 
-          <div id="bcc-label" class="form-group" style="display:none;">
+          <div id="bcc-label" class="form-group" style="display:block;">
             <strong class="mr-3">Bcc</strong>
             <a href="#" class="add-bcc">+</a>
           </div>

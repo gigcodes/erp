@@ -262,9 +262,12 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
 
 	// Customers
+    Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
 	Route::get('customer/test', 'CustomerController@customerstest');
 	Route::post('customer/reminder', 'CustomerController@updateReminder');
+	Route::post('supplier/reminder', 'SupplierController@updateReminder');
 	Route::post('customer/add-note/{id}', 'CustomerController@addNote');
+	Route::post('supplier/add-note/{id}', 'SupplierController@addNote');
 	Route::get('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::post('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
 	Route::post('customers/{id}/sendAdvanceLink', 'CustomerController@sendAdvanceLink')->name('customer.send.advanceLink');
@@ -626,6 +629,7 @@ Route::post('whatsapp/updateAndCreate/', 'WhatsAppController@updateAndCreate');
 Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->name('whatsapp.forward');
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
+Route::get('message/resend', 'WhatsAppController@resendMessage2');
 
 
 /*
@@ -659,6 +663,10 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
+    Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
+    Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');
+    Route::get('auto-comment-history/send-posts', 'UsersAutoCommentHistoriesController@sendMessagesToWhatsappToScrap');
+    Route::get('auto-comment-history/verify', 'UsersAutoCommentHistoriesController@verifyComment');
     Route::post('store', 'InstagramController@store');
     Route::get('{id}/edit', 'InstagramController@edit');
     Route::put('update/{id}', 'InstagramController@update');

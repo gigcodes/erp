@@ -2,17 +2,19 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
+use ColorThief\ColorThief;
+use Grafika\Gd\Image;
+use Grafika\Grafika;
 use Illuminate\Console\Command;
 
-class UploadProductsToMagento extends Command
+class GraphicaImageCropper extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'magento:upload-products';
+    protected $signature = 'crop:using-graphica';
 
     /**
      * The console command description.
@@ -38,11 +40,10 @@ class UploadProductsToMagento extends Command
      */
     public function handle()
     {
-        for ($i=0;$i<=1000;$i++) {
-            $product = Product::where('is_approved', 1)->where('isListed', 0)->inRandomOrder()->first();
-            $result = app('App\Http\Controllers\ProductListerController')->magentoSoapApiUpload($product, 1);
-            dump('Uploading....');
-            dump($result);
-        }
+
+        $domC = ColorThief::getColor(__DIR__ . '/image.jpg');
+        dd($domC);
     }
+
+
 }

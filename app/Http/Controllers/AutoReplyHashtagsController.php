@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
+use App\InstagramAutoComments;
 use App\Services\Instagram\Hashtags;
 use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
@@ -140,6 +141,33 @@ class AutoReplyHashtagsController extends Controller
             $h->auto_reply_hashtag_id = 1;
             $h->country = strlen($request->get('country')) > 4 ? $request->get('country') : '';
             $h->status = 1;
+            $h->save();
+
+            $caption = $h->caption;
+            $caption = str_replace(['#', '@', '!', '-'. '/'],  ' ', $caption);
+            $caption = explode(' ', $caption);
+
+
+            $comment = InstagramAutoComments::where(function($query) use($caption) {
+                foreach ($caption as $i => $cap) {
+                    if (strlen($cap) > 3) {
+                        $cap = trim($cap);
+                        if ($i===0) {
+                            $query = $query->where('options', 'LIKE', "%$cap%");
+                            continue;
+                        }
+                        $query = $query->orWhere('options', 'LIKE', "%$cap%");
+                    }
+                }
+            });
+
+            $comment = $comment->inRandomOrder()->first();
+
+            if (!$comment) {
+                $comment = InstagramAutoComments::where('options', null)->orWhere('options', '[]')->inRandomOrder()->first();
+            }
+
+            $h->comment = $comment->comment;
             $h->save();
 
         }

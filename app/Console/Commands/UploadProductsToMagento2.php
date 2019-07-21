@@ -5,14 +5,14 @@ namespace App\Console\Commands;
 use App\Product;
 use Illuminate\Console\Command;
 
-class UploadProductsToMagento extends Command
+class UploadProductsToMagento2 extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'magento:upload-products';
+    protected $signature = 'magento:upload-products2';
 
     /**
      * The console command description.

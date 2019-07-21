@@ -110,7 +110,7 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
 
         }
 
-        $this->sendAlertsForIssues();
+        $this->sendAlertsForIssues($now);
 
     }
 
@@ -175,6 +175,7 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
                 'issue_id' => $task->id,
                 'status' => 2
             ]);
+
             app(WhatsAppController::class)->sendMessage($myRequest, 'issue');
 
         }

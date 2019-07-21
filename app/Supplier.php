@@ -10,6 +10,10 @@ class Supplier extends Model
 
     use SoftDeletes;
 
+    protected $casts = [
+        'notes' => 'array'
+    ];
+
   protected $fillable = [
     'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status'
   ];

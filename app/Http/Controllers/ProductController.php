@@ -44,7 +44,8 @@ class ProductController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	function __construct() {
-		$this->middleware( 'permission:product-list', [ 'only' => [ 'show' ] ] );
+//		$this->middleware( 'permission:product-list', [ 'only' => [ 'show' ]]);
+//		$this->middleware('permission:product-lister', ['only' => ['listing']]);
 		$this->middleware('permission:product-lister', ['only' => ['listing']]);
 //		$this->middleware('permission:product-create', ['only' => ['create','store']]);
 //		$this->middleware('permission:product-edit', ['only' => ['edit','update']]);
@@ -1428,7 +1429,17 @@ class ProductController extends Controller {
             ->where('is_being_cropped', 0)
             ->where('is_scraped', 1)
             ->where('is_without_image', 0)
+            ->where('is_crop_skipped', 0)
             ->where('category', '>', 3)
+            ->where(function($q) {
+                $q->where('size', '!=', '')
+                    ->orWhere(function ($qq) {
+                        $qq->where('lmeasurement', '!=', '')
+                           ->where('hmeasurement', '!=', '')
+                           ->where('dmeasurement', '!=', '');
+                    })
+                ;
+            })
             ->first();
 
 //	    if ($product) {
@@ -1480,14 +1491,11 @@ class ProductController extends Controller {
         $product = Product::findOrFail($request->get('product_id'));
 
 
-        $product->is_image_processed = 1;
-        $product->stage = 5;
-        $product->save();
 
 
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-            $media = MediaUploader::fromSource($image)->upload();
+            $media = MediaUploader::fromSource($image)->useFilename('CROPPED_' . time() . '_' . rand(555,455545))->upload();
             $product->attachMedia($media, 'gallery');
             $product->crop_count = $product->crop_count+1;
             $product->save();
@@ -1498,6 +1506,14 @@ class ProductController extends Controller {
             $imageReference->original_media_name = $request->get('filename');
             $imageReference->new_media_name = $media->filename . '.' . $media->extension;
             $imageReference->save();
+
+            $product->is_image_processed = 1;
+            $product->stage = 5;
+            $product->save();
+
+        } else {
+            $product->is_crop_skipped = 1;
+            $product->save();
         }
 
 

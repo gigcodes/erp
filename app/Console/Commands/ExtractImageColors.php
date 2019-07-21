@@ -6,6 +6,7 @@ use App\ColorNamesReference;
 use App\Colors;
 use App\PictureColors;
 use App\Product;
+use ColorThief\ColorThief;
 use Illuminate\Console\Command;
 use League\ColorExtractor\Color;
 use League\ColorExtractor\ColorExtractor;
@@ -50,34 +51,50 @@ class ExtractImageColors extends Command
         $ourColors = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
         $availableColors = (new Colors())->all();
 
-        Product::where('is_approved', 1)->chunk(1000, function($products) use ($ourColors, $availableColors) {
+        Product::where('is_approved', 1)->where('id', '183946')->chunk(1000, function($products) use ($ourColors, $availableColors) {
             foreach ($products as $product) {
 
-                if (isset($availableColors[$product->color])) {
-                    dump('skipped');
-                    continue;
-                }
+//                if (isset($availableColors[$product->color])) {
+//                    dump('skipped');
+//                    continue;
+//                }
 
-                $imageUrl = $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getAbsolutePath() : '';
+                $imageUrl = $product->getMedia('gallery')->first();
+
                 if (!$imageUrl) {
                     continue;
                 }
 
-                $palette = Palette::fromFilename($imageUrl);
-                $extractor = new ColorExtractor($palette);
-                $colors = $extractor->extract();
-                $color = $colors[0];
+                $image = $product->getMedia('gallery')->first();
 
-                $hex =  Color::fromIntToHex($color);
+                $imageUrl = $image->getUrl();
+
+                try {
+                    $rgb = ColorThief::getColor($imageUrl);
+                } catch (\Exception $exception) {
+                    continue;
+                }
+
+                $rgbColor = [
+                    'r' => $rgb[0],
+                    'g' => $rgb[1],
+                    'b' => $rgb[2],
+                ];
+
+
+                $hex =  Color::fromIntToHex(Color::fromRgbToInt($rgbColor));
+                dump($hex);
                 $nameThatColor = new NameThatColor();
                 $color = $nameThatColor->name($hex)['name'];
+                $color = $ourColors[$color];
 
-                $erpColor = $ourColors[$color];
+                dump($color);
 
-                $product->color = $erpColor;
+
+                $product->color = $color;
                 $product->save();
 
-                dump('Saved');
+                dump('Saved: ' . $color);
 
             }
         });

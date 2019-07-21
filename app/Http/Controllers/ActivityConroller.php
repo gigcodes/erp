@@ -102,12 +102,19 @@ class ActivityConroller extends Controller {
             SUM(case when action = "LISTING_REJECTED" then 1 Else 0 End) as attribute_rejected
         ')->whereNotNull('user_id');
 
+        $ca = Product::where('is_image_processed', 1)
+            ->where('is_crop_rejected', 0)
+            ->where('is_crop_approved', 0)
+            ->where('is_crop_being_verified', 0)
+            ->whereDoesntHave('amends')->count();
+
         $productStats = DB::table('products')->selectRaw('(SELECT COUNT(*) FROM products p WHERE is_image_processed = 0 AND is_scraped = 1) as uncropped, 
         (SELECT COUNT(*) FROM products WHERE is_crop_approved = 1 AND is_crop_ordered = 0) as left_for_sequencing ,
         SUM(is_approved) as total_approvals, 
         SUM(is_listing_rejected) as total_rejections, 
         SUM(is_crop_rejected) as crop_rejected, 
-        (SELECT COUNT(*) FROM products WHERE is_image_processed = 1 AND is_crop_approved = 0 AND is_crop_rejected = 0) AS crop_approval')->first();
+        SUM(isListed) as total_listed,
+        '.$ca.' AS crop_approval')->first();
 
         if (is_array($request->get('selected_user'))) {
             $activity = $activity->whereIn('user_id', $request->get('selected_user'));

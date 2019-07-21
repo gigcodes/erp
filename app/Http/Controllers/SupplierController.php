@@ -18,6 +18,18 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class SupplierController extends Controller
 {
+
+    public function updateReminder(Request $request) {
+        $supplier = Supplier::find($request->get('supplier_id'));
+        $supplier->frequency = $request->get('frequency');
+        $supplier->reminder_message = $request->get('message');
+        $supplier->save();
+
+        return response()->json([
+            'success'
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -43,7 +55,7 @@ class SupplierController extends Controller
         }
 
       $suppliers = DB::select('
-									SELECT suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, 
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, 
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -347,5 +359,21 @@ class SupplierController extends Controller
       $supplier->delete();
 
       return redirect()->route('supplier.index')->withSuccess('You have successfully deleted a supplier');
+    }
+
+    public function addNote($id, Request $request) {
+        $supplier = Supplier::findOrFail($id);
+        $notes = $supplier->notes;
+        if (!is_array($notes)) {
+            $notes = [];
+        }
+
+        $notes[] = $request->get('note');
+        $supplier->notes = $notes;
+        $supplier->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 }

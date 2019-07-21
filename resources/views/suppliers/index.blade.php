@@ -85,6 +85,10 @@
                   <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
                 @endif
 
+                  <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
+                      <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
+                  </button>
+
                 <br>
                 <span class="text-muted">
                   {{ $supplier->phone }}
@@ -209,16 +213,94 @@
     @include('suppliers.partials.supplier-modals')
     {{-- @include('suppliers.partials.agent-modals') --}}
 
+
+    <div id="reminderModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set/Edit Reminder</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="frequency">Frequency (in Minutes)</label>
+                        <select class="form-control" name="frequency" id="frequency">
+                            <option value="0">Disabled</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                            <option value="55">55</option>
+                            <option value="60">60</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reminder_message">Reminder Message</label>
+                        <textarea name="reminder_message" id="reminder_message" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary save-reminder">Save</button>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
-    $(document).ready(function() {
-       $(".select-multiple").multiselect({
-         buttonWidth: '100%',
-         includeSelectAllOption: true
-       });
+
+      var supplierToRemind = null;
+        $(document).ready(function() {
+           $(".select-multiple").multiselect({
+             buttonWidth: '100%',
+             includeSelectAllOption: true
+           });
+        });
+
+    $(document).on('click', '.set-reminder', function() {
+        let supplierId = $(this).data('id');
+        let frequency = $(this).data('frequency');
+        let message = $(this).data('reminder_message');
+
+        $('#frequency').val(frequency);
+        $('#reminder_message').val(message);
+        supplierToRemind = supplierId;
+
+    });
+
+    $(document).on('click', '.save-reminder', function() {
+        let frequency = $('#frequency').val();
+        let message = $('#reminder_message').val();
+
+        $.ajax({
+            url: "{{action('SupplierController@updateReminder')}}",
+            type: 'POST',
+            success: function() {
+                toastr['success']('Reminder updated successfully!');
+            },
+            data: {
+                supplier_id: supplierToRemind,
+                frequency: frequency,
+                message: message,
+                _token: "{{ csrf_token() }}"
+            }
+        });
     });
 
     // cc

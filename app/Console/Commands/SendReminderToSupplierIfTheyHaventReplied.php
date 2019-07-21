@@ -9,14 +9,14 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class SendReminderToCustomerIfTheyHaventReplied extends Command
+class SendReminderToSupplierIfTheyHaventReplied extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'reminder:send-to-customers';
+    protected $signature = 'reminder:send-to-supplier';
 
     /**
      * The console command description.
@@ -45,10 +45,10 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
         $now = Carbon::now()->toDateTimeString();
 
         $messagesIds = DB::table('chat_messages')
-            ->selectRaw('MAX(id) as id, customer_id')
-            ->groupBy('customer_id')
+            ->selectRaw('MAX(id) as id, supplier_id')
+            ->groupBy('supplier_id')
             ->whereNotNull('message')
-            ->where('customer_id', '>', '0')
+            ->where('supplier_id', '>', '0')
             ->where(function($query) {
                 $query->whereNotIn('status', [7,8,9]);
             })
@@ -57,12 +57,12 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
 
 
         foreach ($messagesIds as $messagesId) {
-            $customer = Customer::find($messagesId->customer_id);
-            if (!$customer) {
+            $supplier = Customer::find($messagesId->supplier_id);
+            if (!$supplier) {
                 continue;
             }
 
-            $frequency = $customer->frequency;
+            $frequency = $supplier->frequency;
             if (!($frequency >= 5)) {
                 continue;
             }
@@ -80,9 +80,9 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
 
             dump('saving...');
 
-            $templateMessage = $customer->reminder_message;
+            $templateMessage = $supplier->reminder_message;
 
-            $data['customer_id'] = $customer->id;
+            $data['supplier_id'] = $supplier->id;
             $data['message'] = $templateMessage;
             $data['approved'] = 0;
             $data['user_id'] = 6;

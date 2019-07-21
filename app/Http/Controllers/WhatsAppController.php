@@ -1618,15 +1618,17 @@ class WhatsAppController extends FindByNumberController
           $params['status'] = 2;
 
 
+
           $number = User::find($issue->user_id);
 
-          if ($number) {
+          if (!$number) {
               return response()->json(['message' => null]);
           }
 
           $number = $number->phone;
 
           $this->sendWithThirdApi($number, null, $params['message']);
+
 
           $chat_message = ChatMessage::create($params);
 
@@ -2322,12 +2324,11 @@ class WhatsAppController extends FindByNumberController
 
             $additional_message = ChatMessage::create($params);
 
-            // if ($customer->whatsapp_number == '919152731483') {
-
-//              $data = $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
-            // } else {
+//             if ($customer->whatsapp_number == '919152731483') {
+//              $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
+//             } else {
                $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, TRUE, $additional_message->id);
-            // }
+//             }
 
             sleep(5);
           }
@@ -2415,20 +2416,20 @@ class WhatsAppController extends FindByNumberController
           if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
-             if ($whatsapp_number == '919152731483') {
-              $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
-             } else {
+//             if ($whatsapp_number == '919152731483') {
+//              $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
+//             } else {
                $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
-             }
+//             }
           }
         }
 
         if ($message->media_url != '') {
 
           // if ($whatsapp_number == '919152731483') {
-            $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $message->media_url, $message->id);
+//            $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $message->media_url, $message->id);
           // } else {
-          //   $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
+             $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
           // }
         }
 
@@ -2449,11 +2450,11 @@ class WhatsAppController extends FindByNumberController
                 $count = 0;
               }
 
-              if ($whatsapp_number == '919152731483') {
-                SendImagesWithWhatsapp::dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
-              } else {
+//              if ($whatsapp_number == '919152731483') {
+//                SendImagesWithWhatsapp::dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
+//              } else {
                   $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
-              }
+//              }
 
 
             }
@@ -2659,6 +2660,17 @@ class WhatsAppController extends FindByNumberController
     }
 
     return redirect()->route('broadcast.images')->with('success', 'Messages are being sent in the background!');
+  }
+
+  public function resendMessage2(Request $request) {
+        $messageId = $request->get('message_id');
+        $message = ChatMessage::find($messageId);
+
+      $requestData = new Request();
+      $requestData->setMethod('POST');
+      $requestData->request->add(['customer_id' => $message->customer_id, 'message' => $message->message, 'status' => 1]);
+
+      return $this->sendMessage($requestData, 'customer');
   }
 
   public function stopAll() {

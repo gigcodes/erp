@@ -61,6 +61,7 @@
                         <th>On Sequencing/Approved</th>
                         <th>Attribute Approved</th>
                         <th>Attribute Rejected</th>
+                        <th>Megento Listed</th>
                         <th>Total</th>
                     </tr>
                     <tr>
@@ -70,6 +71,9 @@
                         <td>{{ $productStats->left_for_sequencing }}</td>
                         <td>{{ $productStats->total_approvals }}</td>
                         <td>{{ $productStats->total_rejections }}</td>
+                        <td>
+                            {{ $productStats->total_listed }}
+                        </td>
                         <td>
                             {{ $productStats->crop_approval + $productStats->uncropped + $productStats->crop_rejected + $productStats->left_for_sequencing + $productStats->total_approvals + $productStats->total_rejections }}
                         </td>

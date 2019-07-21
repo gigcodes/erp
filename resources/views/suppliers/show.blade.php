@@ -365,8 +365,33 @@
           </div>
         </div>
 
+
+
       </form>
 
+    </div>
+    <div id="notes" class="mt-3">
+      <div class="panel-group">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#collapse1">Remarks ({{ is_array($supplier->notes) ? count($supplier->notes) : 0 }})</a>
+            </h4>
+          </div>
+          <div id="collapse1" class="panel-collapse collapse">
+            <div class="panel-body" id="note_list">
+              @if($supplier->notes && is_array($supplier->notes))
+                @foreach($supplier->notes as $note)
+                  <li>{{ $note }}</li>
+                @endforeach
+              @endif
+            </div>
+            <div class="panel-footer">
+              <input name="add_new_remark" id="add_new_remark" type="text" placeholder="Type new remark..." class="form-control add-new-remark">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -532,6 +557,34 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
 
   <script type="text/javascript">
+
+    $(document).on('keyup', '.add-new-remark', function(event) {
+      let note = $(this).val();
+      let self = this;
+      if (event.which != 13) {
+        return;
+      }
+      $.ajax({
+        url: "{{ action('SupplierController@addNote', $supplier->id) }}",
+        data: {
+          note: note,
+          _token: "{{csrf_token()}}"
+        },
+        type: 'post',
+        success: function() {
+          toastr['success']('Remark added successfully', 'success');
+          $(self).removeAttr('disabled');
+          $(self).val('');
+          $('#note_list').append('<li>'+note+'</li>');
+        },
+        beforeSend: function() {
+          $(self).attr('disabled', true);
+        },
+        error: function() {
+          $(self).removeAttr('disabled');
+        }
+      });
+    });
 
     $('#date, #report-completion-datetime').datetimepicker({
       format: 'YYYY-MM-DD HH:mm'

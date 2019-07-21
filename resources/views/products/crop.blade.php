@@ -49,8 +49,9 @@
                                 <form action="{{ action('ProductCropperController@rejectCrop', $product->id) }}">
                                     <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-secondary approvebtn">Approve</a>
                                     <br><br>
-                                    <select name="remark" id="remark">
-                                        <option value="0">Select reason...</option>
+                                    <label for="remark" class="text-danger">Select <strong>CORRECT</strong> Reason (MUST SELECT, otherwise you wont be PAID!!)</label>
+                                    <select name="remark" id="remark" required>
+                                        <option value="">Select reason...</option>
                                         <option value="White Image Crop Issue">White Image Crop Issue</option>
                                         <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
                                         <option value="No Images Shown">No Images Shown</option>
@@ -61,6 +62,7 @@
                                         <option value="Incorrect Category">Incorrect Category</option>
                                         <option value="Only One Image Available">Only One Image Available</option>
                                         <option value="Blurry Image">Blurry Image</option>
+                                        <option value="No Reference">No Reference</option>
                                     </select>
 {{--                                    <input type="text" class="form-control" placeholder="Remark..." name="remark" id="remark">--}}
                                     <button class="btn btn-danger">Reject</button>

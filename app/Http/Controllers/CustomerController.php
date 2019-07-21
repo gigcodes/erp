@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Dompdf\Dompdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Imports\CustomerImport;
@@ -1235,6 +1236,17 @@ class CustomerController extends Controller
             'suppliers'          => $suppliers,
             'facebookMessages' => $facebookMessages
         ]);
+    }
+
+    public function exportCommunication($id) {
+        $messages = ChatMessage::where('customer_id', $id)->get();
+
+        $html =  view('customers.chat_export', compact('messages'));
+
+        $pdf = new Dompdf();
+        $pdf->loadHtml($html);
+        $pdf->render();
+        $pdf->stream('orders.pdf');
     }
 
     public function postShow(Request $request, $id)

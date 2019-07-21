@@ -225,7 +225,7 @@
                       </div> --}}
 
                       <div class="form-group">
-                        @if (strlen($contact_detail) != 12 || preg_match('/^[91]{2}/', $contact_detail) == false)
+                        @if (strlen($contact_detail) < 12)
                           <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
                         @endif
                           <strong>Contact Detail:</strong>
@@ -2068,11 +2068,11 @@
 
   var phone = $('input[name="contact_detail"]').val();
 
-  if (phone.length != 0) {
-    if (/^[91]{2}/.test(phone) != true) {
-      $('input[name="contact_detail"]').val('91' + phone);
-    }
-  }
+  // if (phone.length != 0) {
+  //   if (/^[91]{2}/.test(phone) != true) {
+  //     $('input[name="contact_detail"]').val('91' + phone);
+  //   }
+  // }
 
   $(this).closest('form').submit();
   });

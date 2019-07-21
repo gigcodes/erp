@@ -257,6 +257,7 @@
       <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
       <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
       <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button>
+        <a class="btn btn-secondary btn-xs" href="{{ action('CustomerController@exportCommunication', $customer->id) }}">Export Chat</a>
     </div>
   </div>
 </div>
@@ -1931,7 +1932,7 @@
               <th>Created at</th>
               <th>Remark</th>
             </tr>
-            @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'ASC')->limit(3)->get() as $instruction)
+            @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
                     <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
@@ -1999,7 +2000,7 @@
                   <div class="table-responsive">
                     <table class="table table-bordered">
                       <tbody>
-                        @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'ASC')->offset(3)->limit(100)->get() as $key => $instruction)
+                        @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
                               <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
@@ -3128,9 +3129,7 @@
                var edit_field = $('<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>');
                var p = $("<p class='collapsible-message'></p>");
 
-               var forward = $('<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button>');
-
-
+               var forward = $('<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>');
 
                if (message.status == 0 || message.status == 5 || message.status == 6) {
                  var meta = $("<em>Customer " + moment(message.created_at).format('DD-MM H:mm') + " </em>");
@@ -4701,7 +4700,20 @@
           $("#overlay").fadeToggle();
       });
 
-      $(document).on()
+      $(document).on('click', '.resend-message-js', function() {
+          let messageId = $(this).attr('data-id');
+          $.ajax({
+              url: "{{ action('WhatsAppController@resendMessage2') }}",
+              data: {
+                    message_id: messageId
+              },
+              success: function() {
+                    toastr['success']('Message resent successfully!')
+              }
+          });
+      });
+
+      // $(document).on()
   </script>
 
   <style>
@@ -4709,8 +4721,8 @@
           display: block;
           position: fixed;
           top: 50px;
-          left: 600px;
-          width: 500px;
+          left: 450px;
+          width: 700px;
           /*height: 700px;*/
           background: aliceblue;
           border: 5px solid #ccc;

@@ -444,6 +444,9 @@
                             <input title="Priority" class="hidden quick-priority-check" type="checkbox" name="instruction_priority" data-id="{{ $customer->id }}" id="instruction_priority_{{$customer->id}}">
                         <button type="button" class="btn-image btn quick-add-instruction" data-id="{{ $customer->id }}"><img
                                     src="{{ asset('images/add.png') }}" style="width: 14px !important;" alt="Add Instruction"></button>
+                        <span style="color: #333; font-size: 12px;">
+                             {{ print_r($instructions[$customer->id][0]['remarks'] ? $instructions[$customer->id][0]['remarks'][array_key_first($instructions[$customer->id][0]['remarks'])]['remark'] : 'No remark') }}
+                        </span>
                     </td>
                   @else
                     <td>

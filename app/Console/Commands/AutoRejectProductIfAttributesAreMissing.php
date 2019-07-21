@@ -40,15 +40,15 @@ class AutoRejectProductIfAttributesAreMissing extends Command
     public function handle()
     {
         Product::where('is_farfetched', 0)
-            ->where('is_listing_rejected_automatically', 0)
-            ->where('is_listing_rejected', 0)
-            ->where('was_auto_rejected', 0)
-            ->where('is_approved', 0)
+//            ->where('is_listing_rejected_automatically', 0)
+//            ->where('is_listing_rejected', 0)
+//            ->where('was_auto_rejected', 0)
+//            ->where('is_approved', 0)
             ->where(function($query) {
-                $query = $query->where('short_description', '')
-                ->orWhere('composition', '')
-                ->orWhere('size', '')
-                ->orWhere('price', 0);
+                $query = $query->where('short_description', '');
+//                ->orWhere('composition', '');
+//                ->orWhere('size', '')
+//                ->orWhere('price', 0);
                 })->chunk(1000, function($products) {
                     foreach ($products as $product) {
                         dump('Rejected...');

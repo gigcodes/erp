@@ -104,6 +104,8 @@ class ProductListerController extends Controller
 		    $categories[] = 1237;
         }
 
+		$meta = 'Shop '. $product->brands->name .' '. $product->color . ' .. '.$product->composition .' ... '. $product->product_category->title .' Largest collection of luxury products in the world from Solo luxury at special prices ';
+
 		if(!empty($product->size)) {
 
 			$associated_skus = [];
@@ -120,7 +122,7 @@ class ProductListerController extends Controller
 				$productData = array(
 					'categories'            => $categories,
 					'name'                  => $product->name,
-					'description'           => '<p></p>',
+					'description'           => $meta,
 					'short_description'     => $product->short_description,
 					'website_ids'           => array(1),
 					// Id or code of website

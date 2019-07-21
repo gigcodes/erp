@@ -12,7 +12,7 @@
     <table class="table table-bordered" width="100%" border="1" style="border-collapse: collapse;">
         <thead>
             <tr>
-                <th width="10%">#</th>
+{{--                <th width="10%">#</th>--}}
                 <th width="10%">Product</th>
                 <th width="10%">SKU</th>
                 <th width="10%">Customers</th>
@@ -27,9 +27,9 @@
         <tbody>
         @foreach ($products as $product)
             <tr>
-                <td>
-                    <input type="checkbox" class="select-product" name="products[]" value="{{ $product['id'] }}" data-supplier="{{ $product['single_supplier'] }}" />
-                </td>
+{{--                <td>--}}
+{{--                    <input type="checkbox" class="select-product" name="products[]" value="{{ $product['id'] }}" data-supplier="{{ $product['single_supplier'] }}" />--}}
+{{--                </td>--}}
                 <td>
                     <a href="{{ route('products.show', $product['id']) }}" target="_blank"><img src="{{ $product['abs_img_url'] }}" class="img-responsive" style="width: 100px !important" alt=""></a>
                 </td>

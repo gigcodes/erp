@@ -72,6 +72,10 @@
             </div>
           @endif
 
+          <div class="form-group">
+            <input type="checkbox" id="in_pdf" name="in_pdf"> <label for="in_pdf">Export PDF</label>
+          </div>
+
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
         </form>
 
@@ -135,21 +139,21 @@
       });
     }
 
-    $('#searchForm').on('submit', function(e) {
-      e.preventDefault();
+    {{--$('#searchForm').on('submit', function(e) {--}}
+    {{--  e.preventDefault();--}}
 
-      var url = "{{ route('productinventory.instock') }}";
-      var formData = $('#searchForm').serialize();
+    {{--  var url = "{{ route('productinventory.instock') }}";--}}
+    {{--  var formData = $('#searchForm').serialize();--}}
 
-      $.ajax({
-        url: url,
-        data: formData
-      }).done(function(data) {
-        $('#productGrid').html(data.html);
-      }).fail(function() {
-        alert('Error searching for products');
-      });
-    });
+    {{--  $.ajax({--}}
+    {{--    url: url,--}}
+    {{--    data: formData--}}
+    {{--  }).done(function(data) {--}}
+    {{--    $('#productGrid').html(data.html);--}}
+    {{--  }).fail(function() {--}}
+    {{--    alert('Error searching for products');--}}
+    {{--  });--}}
+    {{--});--}}
 
     $(document).on('click', '.select-product', function(e) {
       e.preventDefault();

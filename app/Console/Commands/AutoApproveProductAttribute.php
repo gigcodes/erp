@@ -55,7 +55,7 @@ class AutoApproveProductAttribute extends Command
         $count = 0;
 //        $cats = (Category::where('parent_id',5)->orWhere('parent_id', 41)->pluck('id')->toArray());
         $products = Product::where('is_approved', 0)
-//            ->where('is_listing_rejected', 1)
+            ->where('is_listing_rejected', 1)
             ->where('is_crop_approved', 1)
 //            ->whereIn('category', [
 //                $cats

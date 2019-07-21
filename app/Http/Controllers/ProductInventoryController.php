@@ -9,6 +9,9 @@ use App\Brand;
 use App\Category;
 use App\Helpers;
 use App\ReadOnly\LocationList;
+use Dompdf\Css\Style;
+use Dompdf\Css\Stylesheet;
+use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryImport;
@@ -326,6 +329,16 @@ class ProductInventoryController extends Controller
 			$html = view('instock.product-items', $data)->render();
 			return response()->json(['html' => $html]);
 		}
+
+        if ($request->get('in_pdf') === 'on') {
+            $html = view( 'instock.instock_pdf', $data );
+
+            $pdf = new Dompdf();
+            $pdf->loadHtml($html);
+            $pdf->render();
+            $pdf->stream('instock.pdf');
+            return;
+        }
 
 		return view( 'instock.index', $data );
 	}

@@ -137,7 +137,7 @@ class ResourceImgController extends Controller{
 		$ResourceImage = new ResourceImage();
 		$allresources = $ResourceImage->find($id);
 	    $title="";
-	    if(count($allresources) > 0){
+	    if($allresources){
 	    	$categories = ResourceCategory::where('id','=',$allresources->cat_id)->get()->first();
 	    	$parent_id = $categories->parent_id;
 	    	$id = $categories->id;
