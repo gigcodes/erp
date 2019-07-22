@@ -16,7 +16,7 @@ class LawyerController extends Controller
 
     public function __construct()
     {
-//        $this->middleware('permission:vendor-all');
+        $this->middleware('permission:lawyer-all');
     }
 
     public function index(Lawyer $lawyer, Request $request)
