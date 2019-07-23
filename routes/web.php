@@ -755,4 +755,8 @@ Route::resource('target-location', 'TargetLocationController');
 Route::middleware('auth')->group(function () {
     Route::post('lawyer-speciality', ['uses'=>'LawyerController@storeSpeciality','as'=>'lawyer.speciality.store']);
     Route::resource('lawyer', 'LawyerController');
+    Route::resource('case', 'CaseController');
+    Route::get('case-costs/{case}', ['uses'=>'CaseController@getCosts','as'=>'case.cost']);
+    Route::post('case-costs', ['uses'=>'CaseController@costStore','as'=>'case.cost.post']);
+    Route::put('case-costs/update/{case_cost}', ['uses'=>'CaseController@costUpdate','as'=>'case.cost.update']);
 });

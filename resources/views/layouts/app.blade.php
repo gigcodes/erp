@@ -1602,9 +1602,15 @@
                             </a>
 
 
-                            @can('lawyer-list')
+                            @can('lawyer-all')
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
+                                </div>
+                            @endcan
+
+                            @can('case-all')
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
                                 </div>
                             @endcan
 

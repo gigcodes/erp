@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DeveloperTask;
 use App\Issue;
 use App\Lawyer;
+use App\LegalCase;
 use Illuminate\Support\Facades\URL;
 use Twilio\Jwt\ClientToken;
 use Twilio\Twiml;
@@ -1519,6 +1520,7 @@ class WhatsAppController extends FindByNumberController
         'status'          => 'required|numeric',
         'assigned_to'     => 'sometimes|nullable',
         'lawyer_id'     => 'sometimes|nullable|numeric',
+        'case_id'     => 'sometimes|nullable|numeric',
       ]);
 
       $data = $request->except( '_token');
@@ -1652,6 +1654,10 @@ class WhatsAppController extends FindByNumberController
       }else if($context == 'lawyer'){
           $data['lawyer_id'] = $request->lawyer_id;
           $module_id = $request->lawyer_id;
+      }else if($context == 'case'){
+          $data['case_id'] = $request->case_id;
+          $data['lawyer_id'] = $request->lawyer_id;
+          $module_id = $request->case_id;
       }
 
       if ($context != 'task') {
@@ -2132,13 +2138,23 @@ class WhatsAppController extends FindByNumberController
       }else if ($request->lawyerId) {
         $column = 'lawyer_id';
         $value = $request->lawyerId;
+      }else if ($request->caseId) {
+        $column = 'case_id';
+        $value = $request->caseId;
       } else {
         $column = 'customer_id';
         $value = $request->customerId;
       }
 
+      $select_fields = ['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'resent', 'created_at', 'media_url', 'message'];
+        if($request->caseId){
+            array_push($select_fields, 'lawyer_id');
+        }
+      $messages = ChatMessage::select($select_fields)->where($column, $value)->where('status', '!=', 7);
 
-      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'resent', 'created_at', 'media_url', 'message'])->where($column, $value)->where('status', '!=', 7);
+        if($request->caseId){
+            $messages = $messages->with('lawyer:id,name');
+        }
 
       if (Setting::get('show_automated_messages') == 0) {
         $messages = $messages->where('status', '!=', 9);
@@ -2181,6 +2197,9 @@ class WhatsAppController extends FindByNumberController
           'resent'    => $message->resent,
           'error_status'    => $message->error_status
         ];
+        if($request->caseId){
+            $messageParams['lawyer'] = optional($message->lawyer)->name;
+        }
 
         if ($message->media_url) {
           $messageParams['media_url'] = $message->media_url;
@@ -2418,12 +2437,21 @@ class WhatsAppController extends FindByNumberController
             $lawyer = Lawyer::find($message->lawyer_id);
             $phone = $lawyer->default_phone;
             $whatsapp_number = $lawyer->whatsapp_number;
+        } else if ($context == 'case') {
+            $case = LegalCase::find($message->case_id);
+            $lawyer = $case->lawyer;
+            if($lawyer){
+                $phone = $lawyer->default_phone;
+            }else{
+                $phone = '';
+            }
+            $whatsapp_number = $case->whatsapp_number;
         }
 
         $data = '';
         if ($message->message != '') {
 
-          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer') {
+          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
              if ($whatsapp_number == '919152731483') {

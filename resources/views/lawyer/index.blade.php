@@ -146,6 +146,11 @@
 
 @section('scripts')
     <script>
+        @if(request()->has('create'))
+        $(document).ready(function(){
+            $('#lawyerFormModal').modal();
+        })
+        @endif
         $('#lawyerFormModal').on('show.bs.modal', function (event) {
             var modal = $(this)
             var button = $(event.relatedTarget)
