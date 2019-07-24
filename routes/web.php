@@ -750,3 +750,15 @@ Route::get('competitor-page/hide/{id}', 'CompetitorPageController@hideLead');
 Route::get('competitor-page/approve/{id}', 'CompetitorPageController@approveLead');
 Route::resource('competitor-page', 'CompetitorPageController');
 Route::resource('target-location', 'TargetLocationController');
+
+
+/*
+ * @date 7/24/2019
+ * @author Ashan GHimire
+ * Routes for SEO Analytics
+ */
+
+Route::prefix('/seo')->name('seo.')->group(function(){
+    Route::get('/analytics', 'SEOAnalyticsController@show')->name('analytics');
+    Route::post('/delete/{id}', 'SEOAnalyticsController@delete')->name('delete_entry');
+});
