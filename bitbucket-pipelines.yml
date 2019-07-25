@@ -6,4 +6,4 @@ pipelines:
         caches:
           - composer
         script:
-          - git ftp push --user rishabh@amourint.com --passwd R1shabh@123 http://77.104.185.154
+          - git ftp push --user rishabh@amourint.com --passwd R1shabh@123 ftp://77.104.185.154
