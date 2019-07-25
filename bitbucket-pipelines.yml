@@ -8,4 +8,4 @@ pipelines:
         script:
           - apt-get update
           - apt-get -qq install git-ftp
-          - git ftp push --user rishabh@amourint.com --passwd R1shabh@123 ftp://77.104.185.154
+          - git ftp push --user rishabh@amourint.com --passwd R1shabh@123 ftp://77.104.185.154/public_html/www/erp.amourint.com/sololuxury_app
