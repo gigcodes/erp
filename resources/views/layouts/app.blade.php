@@ -1603,25 +1603,27 @@
                           </li>
                         @endcan
 
-                        <li class="nav-item dropdown">
+                        @can('admin')
+                            <li class="nav-item dropdown">
 
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
 
-                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 
-                                Legal Module <span class="caret"></span>
+                                    Legal Module <span class="caret"></span>
 
-                            </a>
+                                </a>
 
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                @can('lawyer-all')
-                                <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
-                                @endcan
-                                @can('case-all')
-                                <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
-                                @endcan
-                            </div>
-                        </li>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    @can('lawyer-all')
+                                        <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
+                                    @endcan
+                                    @can('case-all')
+                                        <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
+                                    @endcan
+                                </div>
+                            </li>
+                        @endcan
 
                         <li class="nav-item dropdown">
 
