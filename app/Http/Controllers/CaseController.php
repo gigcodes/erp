@@ -120,6 +120,7 @@ class CaseController extends Controller
         return response($payment);
     }
 
+
     public function costUpdate(CaseCost $case_cost, Request $request)
     {
         $this->validate($request, [
