@@ -759,3 +759,13 @@ Route::get('competitor-page/hide/{id}', 'CompetitorPageController@hideLead');
 Route::get('competitor-page/approve/{id}', 'CompetitorPageController@approveLead');
 Route::resource('competitor-page', 'CompetitorPageController');
 Route::resource('target-location', 'TargetLocationController');
+
+//Legal Module
+Route::middleware('auth')->group(function () {
+    Route::post('lawyer-speciality', ['uses'=>'LawyerController@storeSpeciality','as'=>'lawyer.speciality.store']);
+    Route::resource('lawyer', 'LawyerController');
+    Route::resource('case', 'CaseController');
+    Route::get('case-costs/{case}', ['uses'=>'CaseController@getCosts','as'=>'case.cost']);
+    Route::post('case-costs', ['uses'=>'CaseController@costStore','as'=>'case.cost.post']);
+    Route::put('case-costs/update/{case_cost}', ['uses'=>'CaseController@costUpdate','as'=>'case.cost.update']);
+});

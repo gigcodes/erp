@@ -1609,6 +1609,26 @@
 
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 
+                                Legal Module <span class="caret"></span>
+
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                @can('lawyer-all')
+                                <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
+                                @endcan
+                                @can('case-all')
+                                <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
+                                @endcan
+                            </div>
+                        </li>
+
+                        <li class="nav-item dropdown">
+
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
                                 {{ Auth::user()->name }} <span class="caret"></span>
 
                             </a>
