@@ -6,4 +6,6 @@ pipelines:
         caches:
           - composer
         script:
+          - apt-get update
+          - apt-get -qq install git-ftp
           - git ftp push --user rishabh@amourint.com --passwd R1shabh@123 ftp://77.104.185.154
