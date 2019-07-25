@@ -1375,22 +1375,33 @@
 
                                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="instagramMenu">
                                               <li class="nav-item dropdown dropdown-submenu">
-                                                  <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
-                                                  <a href="{{ action('InstagramPostsController@index') }}">Manual Instagram Post</a>
-                                                  <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                                  {{-- <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>--}}
-                                                  <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag Monitoring &<br> Manual Commenting</a>
-                                                  <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments <br>(Notifications)</a>
-                                                  <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
-                                                  <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Locations</a>
-                                                  <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords for Comments</a>
-                                                  <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
-                                                  <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">Competitors On Instaram</a>
-                                                  <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
-                                                  <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comment Statistics</a>
-                                                  <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
-                                                  <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customer's Followers</a>
-                                                  <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags used by top customers</a>
+
+
+                                                  @can('admin')
+                                                      <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
+                                                      <a href="{{ action('InstagramPostsController@index') }}">Manual Instagram Post</a>
+                                                      <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                                      {{-- <a class="dropdown-item" href="{{ action('HashtagController@index') }}">Targeted Hashtags</a>--}}
+                                                      <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag Monitoring &<br> Manual Commenting</a>
+                                                      <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments <br>(Notifications)</a>
+                                                      <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
+                                                      <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Locations</a>
+                                                      <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords for Comments</a>
+                                                      <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
+                                                      <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">Competitors On Instaram</a>
+                                                      <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
+                                                      <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comment Statistics</a>
+                                                      <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
+                                                      <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customer's Followers</a>
+                                                      <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags used by top customers</a>
+
+                                                  @endcan
+
+
+                                                  @can('instagram-manual-comment')
+                                                      <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
+                                                      <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                                  @endcan
                                               </li>
                                           </ul>
 
@@ -1617,7 +1628,9 @@
                                   <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
                                 @endif
 
-                                <a class="dropdown-item" href="{{ route('resourceimg.index') }}" >Resource Center</a>
+                                @can('admin')
+                                    <a class="dropdown-item" href="{{ route('resourceimg.index') }}" >Resource Center</a>
+                                @endcan
 
                                 @can('category-edit')
 

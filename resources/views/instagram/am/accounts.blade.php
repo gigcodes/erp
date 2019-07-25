@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Instagram Accounts ({{$total}})</h2>
+            <h2 class="page-heading">Instagram Accounts ({{$total}}) <a class="float-right" href="https://docs.google.com/document/d/1MvfWliWVVF6bRHpTd2IvG6JfC7HnV7n0tntAvPoVVkw/edit?usp=sharing">SOP</a></h2>
         </div>
     </div>
     <div class="row">

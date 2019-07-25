@@ -83,14 +83,13 @@ class ProductController extends Controller {
 			->with('i', (request()->input('page', 1) - 1) * 10);
 	}
 
-	public function approvedListing(Request $request) {
+
+    public function approvedListing(Request $request) {
         $colors = (new Colors)->all();
         $categories = Category::all();
         $category_tree = [];
         $categories_array = [];
         $brands = Brand::getAll();
-        // $suppliers = Supplier::whereHas('products')->get();
-        // dd($suppliers);
 
         $suppliers = DB::select('
 				SELECT id, supplier
@@ -101,8 +100,6 @@ class ProductController extends Controller {
 					) as product_suppliers
 				ON suppliers.id = product_suppliers.supplier_id
 		');
-
-        // dd($suppliers);
 
         foreach (Category::all() as $category) {
             if ($category->parent_id != 0) {
@@ -117,8 +114,7 @@ class ProductController extends Controller {
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        // $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
-        // 																			 ->renderAsDropdown();
+        $newProducts = Product::where('is_approved', 1)->where('is_crop_approved', 1)->where('is_crop_ordered', 1);
 
         $term = $request->input('term');
         $brand = '';
@@ -128,42 +124,13 @@ class ProductController extends Controller {
         $type = '';
         $assigned_to_users = '';
 
-        $brandWhereClause = '';
-        $colorWhereClause = '';
-        $categoryWhereClause = '';
-        $supplierWhereClause = '';
-        $typeWhereClause = '';
-        $termWhereClause = '';
-        $croppedWhereClause = '';
-        $stockWhereClause = ' ';
-//        $stockWhereClause = ' AND stock >= 1';
-
-        $userWhereClause = '';
-
-        // if (Auth::user()->hasRole('Products Lister')) {
-        // 	$products = Auth::user()->products();
-        // } else {
-        // 	$products = (new Product)->newQuery();
-        // }
-
-
-
         if ($request->brand[0] != null) {
-            // $products = $products->whereIn('brand', $request->brand);
-            $brands_list = implode(',', $request->brand);
-
-            $brand = $request->brand[0];
-            $brandWhereClause = " AND brand IN ($brands_list)";
+            $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
         }
 
         if ($request->color[0] != null) {
-            // $products = $products->whereIn('color', $request->color);
-            $colors_list = implode(',', $request->color);
-
-            $color = $request->color[0];
-            $colorWhereClause = " AND color IN ($colors_list)";
+            $newProducts = $newProducts->whereIn('color', $request->get('color'));
         }
-        //
         if ($request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
 
@@ -191,200 +158,45 @@ class ProductController extends Controller {
                 }
             }
 
-            // $products = $products->whereIn('category', $category_children);
-            $category_list = implode(',', $category_children);
-
+            $newProducts = $newProducts->whereIn('category', $category_children);
             $category = $request->category[0];
-            $categoryWhereClause = " AND category IN ($category_list)";
         }
-        //
-        if ($request->supplier[0] != null) {
-            $suppliers_list = implode(',', $request->supplier);
-
-            // $products = $products->with('Suppliers')
-            // ->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
-
-            $supplier = $request->supplier;
-            $supplierWhereClause = " AND products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))";
-        }
-        //
         if ($request->type != '') {
             if ($request->type == 'Not Listed') {
-                // $products = $products->newQuery()->where('isFinal', 0)->where('isUploaded', 0);
-                $typeWhereClause = ' AND isFinal = 0 AND isUploaded = 0';
+                $newProducts = $newProducts->where('isFinal', 0)->where('isUploaded', 0);
             } else if ($request->type == 'Listed') {
-                // $products = $products->where('isUploaded', 1);
-                $typeWhereClause = ' AND isUploaded = 1';
+                $newProducts = $newProducts->where('isUploaded', 1);
             } else if ($request->type == 'Approved') {
-                // $products = $products->where('is_approved', 1)->whereNull('last_imagecropper');
-                $typeWhereClause = ' AND is_approved = 1 AND last_imagecropper IS NULL';
+                $newProducts = $newProducts->where('is_approved', 1);
             } else if ($request->type == 'Image Cropped') {
-                // $products = $products->where('is_approved', 1)->whereNotNull('last_imagecropper');
-                $typeWhereClause = ' AND is_approved = 1 AND last_imagecropper IS NOT NULL';
+                $newProducts = $newProducts->where('is_image_processed', 1);
             }
 
-            $type = $request->type;
+            $type = $request->get('type');
         }
         //
         if (trim($term) != '') {
-            // $products = $products
-            // ->orWhere( 'sku', 'LIKE', "%$term%" )
-            // ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
-            // ;
-
-            $termWhereClause = ' AND (sku LIKE "%' . $term . '%" OR id LIKE "%' . $term . '%")';
-
-            // if ($term == - 1) {
-            // 	$products = $products->orWhere( 'isApproved', - 1 );
-            // }
-
-            // if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
-            // 	$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
-            // 	$products = $products->orWhere( 'brand', 'LIKE', "%$brand_id%" );
-            // }
-            //
-            // if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
-            // 	$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
-            // 	$products = $products->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
-            // }
-            //
-            // if (!empty( $stage->getIDCaseInsensitive( $term ) ) ) {
-            // 	$products = $products->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
-            // }
-        }
-        //  else {
-        // 	if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
-        // 		$products = $products;
-        // 	}
-        // }
-
-
-
-        // $products = $products->where('is_scraped', 1)->where('stock', '>=', 1);
-        $cropped = $request->cropped == "on" ? "on" : '';
-        if ($request->get('cropped') == 'on') {
-            // $products = $products->where('is_image_processed', 1);
-            $croppedWhereClause = ' AND is_crop_approved = 1';
+            $newProducts = $newProducts->where(function($query) use ($term) {
+                $query->where('id', 'LIKE', "%$term%")->orWhere('sku', 'LIKE', "%$term%");
+            });
         }
 
-        if ($request->users == 'on') {
-            $users_products = User::role('Products Lister')->pluck('id');
-            // dd($users_products);
-            $users = [];
-            foreach ($users_products as $user) {
-                $users[] = $user;
-            }
-            $users_list = implode(',', $users);
 
-            $userWhereClause = " AND products.id IN (SELECT product_id FROM user_products WHERE user_id IN ($users_list))";
-            $stockWhereClause = '';
-            $assigned_to_users = 'on';
-        }
-
-        $left_for_users = '';
-        if ($request->left_products == 'on') {
-            // $users_products = User::role('Products Lister')->pluck('id');
-            //
-            // $users_list = implode(',', $users_products);
-
-            $userWhereClause = " AND products.id NOT IN (SELECT product_id FROM user_products)";
-            $stockWhereClause = " AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 AND is_image_processed = 1 AND isUploaded = 0 AND isFinal = 0";
-            $left_for_users = 'on';
-        }
-
-        // if (Auth::user()->hasRole('Products Lister')) {
-        // 	// dd('as');
-        // 	$products_count = Auth::user()->products;
-        // 	$products = Auth::user()->products()->get()->toArray();
-
-        // $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        // $perPage = Setting::get('pagination');
-        // $currentItems = array_slice($products, $perPage * ($currentPage - 1), $perPage);
-        //
-        // $products = new LengthAwarePaginator($currentItems, count($products), $perPage, $currentPage, [
-        //   'path'  => LengthAwarePaginator::resolveCurrentPath()
-        // ]);
-
-        // dd($products);
-        // } else {
-        // $products_count = $products->take(5000)->get();
-        // $products = $products->take(5000)->orderBy('is_image_processed', 'DESC')->orderBy('created_at', 'DESC')->get()->toArray();
-        $whereUserClause = '';
         if ($request->get('user_id') > 0) {
-            $whereUserClause = ' AND approved_by = ' . $request->get('user_id');
+            $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
         }
 
-
-//        if (Auth::user()->hasRole('Products Lister')) {
-//
-//
-//            $new_products = DB::select('
-//											SELECT *, user_products.user_id as product_user_id,
-//											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
-//											FROM products
-//
-//											LEFT JOIN (
-//												SELECT user_id, product_id FROM user_products
-//												) as user_products
-//											ON products.id = user_products.product_id
-//
-//											LEFT JOIN (
-//												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
-//												) AS remarks
-//											ON products.id = remarks.taskid
-//
-//											WHERE is_approved = 1 AND is_listing_rejected = 0  AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $whereUserClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
-//											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
-//											ORDER BY is_crop_ordered DESC, remark_created_at DESC, created_at DESC
-//				');
-//        } else {
-         $new_products = DB::select('
-											SELECT *, user_products.user_id as product_user_id,
-											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
-											FROM products
-
-											LEFT JOIN (
-												SELECT user_id, product_id FROM user_products
-												) as user_products
-											ON products.id = user_products.product_id
-
-											LEFT JOIN (
-												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
-												) AS remarks
-											ON products.id = remarks.taskid
-
-											WHERE is_approved = 1 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $whereUserClause . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
-											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
-				');
-//        }
-
-        // dd($new_products);
-        $products_count = count($new_products);
-        //
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
-        $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
-
-        $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
-            'path'  => LengthAwarePaginator::resolveCurrentPath()
-        ]);
-        // }
-        // dd($products);
 
         $selected_categories = $request->category ? $request->category : [1];
-        // $category_search = Category::attr(['name' => 'category[]','class' => 'form-control'])
-        //                                         ->selected($selected_categories)
-        //                                         ->renderAsDropdown();
-
         $category_array = Category::renderAsArray();
-
         $users = User::all();
 
-        // dd($category_array);
+        $newProducts = $newProducts->with(['media', 'brands'])->paginate(50);
+
 
         return view('products.final_listing', [
-            'products'					=> $new_products,
-            'products_count'		=> $products_count,
+            'products'					=> $newProducts,
+            'products_count'		=> $newProducts->total(),
             'colors'						=> $colors,
             'brands'						=> $brands,
             'suppliers'					=> $suppliers,
@@ -401,8 +213,8 @@ class ProductController extends Controller {
             'type'	=> $type,
             'users' => $users,
             'assigned_to_users'	=> $assigned_to_users,
-            'cropped'	=> $cropped,
-            'left_for_users'	=> $left_for_users,
+//            'cropped'	=> $cropped,
+//            'left_for_users'	=> $left_for_users,
             'category_array'	=> $category_array,
             'selected_categories'	=> $selected_categories,
         ]);

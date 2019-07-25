@@ -21,9 +21,6 @@
 
       <div class="pull-left">
         <form class="form-inline" action="{{ action('ProductController@approvedListing') }}" method="GET">
-{{--          <div class="form-group mr-3 mb-3">--}}
-{{--            <input type="checkbox" name="cropped" id="cropped" {{ isset($cropped) && $cropped == 'on' ? 'checked' : '' }}> <label for="cropped"><strong>Cropped</strong></label>--}}
-{{--          </div>--}}
 
           <div class="form-group mr-3 mb-3">
             <input name="term" type="text" class="form-control"
@@ -143,9 +140,9 @@
               <td colspan="10">
                 <div class="row">
                   <div class="col-md-1">
-                    @php $special_product = \App\Product::find($product->id) @endphp
-                    @if ($special_product->hasMedia(config('constants.media_tags')))
-                      @foreach($special_product->getMedia('gallery') as $media)
+                    @php $product = \App\Product::find($product->id) @endphp
+                    @if ($product->hasMedia(config('constants.media_tags')))
+                      @foreach($product->getMedia('gallery') as $media)
                         @if(stripos($media->filename, 'crop') !== false)
                           <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                         @endif
@@ -153,30 +150,30 @@
                     @endif
                   </div>
                   <div class="col-md-4">
-                    @if ($special_product->hasMedia(config('constants.media_tags')))
-                      <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                    @if ($product->hasMedia(config('constants.media_tags')))
+                      <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                     @endif
                   </div>
                   <div class="col-md-3">
-                    <strong class="same-color">{{ $special_product->brands->name }}</strong>
-                    <p class="same-color">{{ $special_product->name }}</p>
+                    <strong class="same-color">{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
+                    <p class="same-color">{{ $product->name }}</p>
                     <br>
                     <p class="same-color" style="font-size: 18px;">
-                      <span style="text-decoration: line-through">Rs. {{ number_format($special_product->price_inr) }}</span> Rs. {{ number_format($special_product->price_special) }}
+                      <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_special) }}
                     </p>
                     <br>
                     <p>
                       <strong class="same-color" style="text-decoration: underline">Description</strong>
                       <br>
                       <span class="same-color">
-                        {{ $special_product->short_description }}
+                        {{ $product->short_description }}
                       </span>
                     </p>
                     <p>
                       <strong class="same-color" style="text-decoration: underline">Composition</strong>
                       <br>
                       <span class="same-color">
-                        {{ $special_product->composition }}
+                        {{ $product->composition }}
                       </span>
                     </p>
                     <p>
@@ -189,9 +186,9 @@
                       <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
                     </p>
                     <p class="same-color">
-                      View All: <strong>{{ $special_product->product_category->title }}</strong>
+                      View All: <strong>{{ $product->product_category->title }}</strong>
                       <br>
-                      View All: <strong>{{ $special_product->brands->name }}</strong>
+                      View All: <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
                     </p>
                     <p class="same-color">
                       <strong>Style ID</strong>: {{ $product->sku }}
@@ -212,8 +209,8 @@
                       </tr>
                       <tr>
                         <th>Cropping</th>
-                        <td>{{ $special_product->crop_approved_at ?? 'N/A' }}</td>
-                        <td>{{ $special_product->cropApprover ? $special_product->cropApprover->name : 'N/A' }}</td>
+                        <td>{{ $product->crop_approved_at ?? 'N/A' }}</td>
+                        <td>{{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}</td>
                         <td>
                           <select style="width: 90px !important;" data-id="{{$product->id}}" class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" id="reject_cropping_{{$product->id}}">
                             <option value="0">Select...</option>
@@ -231,16 +228,16 @@
                       </tr>
                       <tr>
                         <th>Sequencing</th>
-                        <td>{{ $special_product->crop_ordered_at ?? 'N/A' }}</td>
-                        <td>{{ $special_product->cropOrderer ? $special_product->cropOrderer->name : 'N/A' }}</td>
+                        <td>{{ $product->crop_ordered_at ?? 'N/A' }}</td>
+                        <td>{{ $product->cropOrderer ? $product->cropOrderer->name : 'N/A' }}</td>
                         <td>
                           <button style="width: 90px" data-button-type="sequence" data-id="{{$product->id}}" class="btn btn-secondary btn-sm reject-sequence">Reject</button>
                         </td>
                       </tr>
                       <tr>
                         <th>Approval</th>
-                        <td>{{ $special_product->listing_approved_at ?? 'N/A' }}</td>
-                        <td>{{ $special_product->approver ? $special_product->approver->name : 'N/A' }}</td>
+                        <td>{{ $product->listing_approved_at ?? 'N/A' }}</td>
+                        <td>{{ $product->approver ? $product->approver->name : 'N/A' }}</td>
                         <td>
                           <select style="width: 90px !important;" data-id="{{$product->id}}" class="form-control-sm form-control reject-listing bg-secondary text-light" name="reject_listing" id="reject_listing_{{$product->id}}">
                             <option value="0">Select Remark</option>
@@ -269,7 +266,7 @@
                       @endif
                     </p>
                     <div>
-                      <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$special_product->approved_by}}" data-id="{{$special_product->approved_by}}">
+                      <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$product->approved_by}}" data-id="{{$product->approved_by}}">
                     </div>
                   </div>
                 </div>
@@ -282,10 +279,10 @@
                     <img src="/images/1.png" alt="">
                   @endif
 
-                  @php $special_product = \App\Product::find($product->id) @endphp
-                  @if ($special_product->hasMedia(config('constants.media_tags')))
+                  @php $product = \App\Product::find($product->id) @endphp
+                  @if ($product->hasMedia(config('constants.media_tags')))
                     <a href="{{ route('products.show', $product->id) }}" target="_blank">
-                      <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 70px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                      <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 70px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                     </a>
                   @else
                     <img src="" class="quick-image-container img-responive" style="width: 70px;" alt="">
@@ -403,7 +400,7 @@
                 </td>
 
                 {{-- <td>
-                  @if ($special_product->hasMedia(config('constants.media_tags')))
+                  @if ($product->hasMedia(config('constants.media_tags')))
                     <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
                   @endif
 
@@ -462,10 +459,10 @@
                     <img src="/images/1.png" alt="">
                   @endif
 
-                  @php $special_product = \App\Product::find($product->id) @endphp
-                  @if ($special_product->hasMedia(config('constants.media_tags')))
+                  @php $product = \App\Product::find($product->id) @endphp
+                  @if ($product->hasMedia(config('constants.media_tags')))
                     <a href="{{ route('products.show', $product['id']) }}" target="_blank">
-                      <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product['id'] }}">
+                      <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product['id'] }}">
                     </a>
                   @else
                     <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">
@@ -515,7 +512,7 @@
                 </td>
 
                 {{-- <td>
-                  @if ($special_product->hasMedia(config('constants.media_tags')))
+                  @if ($product->hasMedia(config('constants.media_tags')))
                     <a href="{{ route('products.quick.download', $product->id) }}" class="btn btn-xs btn-secondary mb-1 quick-download">Download</a>
                   @endif
 

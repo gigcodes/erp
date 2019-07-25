@@ -425,7 +425,7 @@ class CustomerController extends Controller
           $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
           $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
           $filterWhereClause = " WHERE message_status = $type";
-          $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
+          $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10";
           // $messageWhereClause = " WHERE chat_messages.status = $type";
 
           if ($start_time != '' && $end_time != '') {
@@ -1239,7 +1239,7 @@ class CustomerController extends Controller
     }
 
     public function exportCommunication($id) {
-        $messages = ChatMessage::where('customer_id', $id)->get();
+        $messages = ChatMessage::where('customer_id', $id)->orderBy('created_at', 'DESC')->get();
 
         $html =  view('customers.chat_export', compact('messages'));
 

@@ -19,6 +19,7 @@ use App\Console\Commands\FetchEmails;
 use App\Console\Commands\CheckEmailsErrors;
 use App\Console\Commands\SaveProductsImages;
 use App\Console\Commands\MessageScheduler;
+use App\Console\Commands\SendAutoReplyToCustomers;
 use App\Console\Commands\SendMessageToUserIfTheirTaskIsNotComplete;
 use App\Console\Commands\SendPendingTasksReminders;
 use App\Console\Commands\SendRecurringTasks;
@@ -123,7 +124,8 @@ class Kernel extends ConsoleKernel
         SendReminderToCustomerIfTheyHaventReplied::class,
         UploadProductsToMagento::class,
         UploadProductsToMagento2::class,
-        UploadProductsToMagento3::class
+        UploadProductsToMagento3::class,
+        SendAutoReplyToCustomers::class
     ];
 
     /**
@@ -136,11 +138,13 @@ class Kernel extends ConsoleKernel
     {
 
 
+        $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();
+
         $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customers')->everyMinute()->timezone('Asia/Kolkata');
-        $schedule->command('magento:upload-products')->everyMinute()->withoutOverlapping();
-        $schedule->command('magento:upload-products2')->everyMinute()->withoutOverlapping();
-        $schedule->command('magento:upload-products3')->everyMinute()->withoutOverlapping();
+//        $schedule->command('magento:upload-products')->everyMinute()->withoutOverlapping();
+//        $schedule->command('magento:upload-products2')->everyMinute()->withoutOverlapping();
+//        $schedule->command('magento:upload-products3')->everyMinute()->withoutOverlapping();
 
 
         $schedule->call(function() {

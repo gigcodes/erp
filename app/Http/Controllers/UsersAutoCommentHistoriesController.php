@@ -26,7 +26,7 @@ class UsersAutoCommentHistoriesController extends Controller
     {
         $autoCommentHistories = new AutoCommentHistory();
         $user = Auth::user();
-        if ($user->hasRole('Admin')) {
+        if (!$user->hasRole('Admin')) {
             $autoCommentHistories = $autoCommentHistories->whereIn('id', DB::table('users_auto_comment_histories')
                 ->where('user_id', $user->id)
                 ->pluck('auto_comment_history_id')
@@ -49,6 +49,7 @@ class UsersAutoCommentHistoriesController extends Controller
             ->whereNotIn('id', DB::table('users_auto_comment_histories')->pluck('auto_comment_history_id')->toArray())
             ->take(25)
             ->get();
+
         $productsAttached = 0;
 
         foreach ($autoCommentHistory as $ach) {
@@ -96,6 +97,8 @@ class UsersAutoCommentHistoriesController extends Controller
     public function verifyComment(Request $request) {
         $autoCommentHistory = AutoCommentHistory::find($request->get('id'));
         $autoCommentHistory->account_id = $request->get('account_id');
+        $autoCommentHistory->status = 1;
+        $autoCommentHistory->save();
         $commentPosted = $autoCommentHistory->comment;
 
         $instagram = new Instagram();

@@ -76,33 +76,82 @@
         </div>
 
         <div class="col-md-12">
+            <form action="{{ action('AutoCommentHistoryController@index') }}" method="get">
+                <div class="row">
+                    <div class="col-md-2">
+                        <select class="form-control-sm form-control" name="verified" id="verified">
+                            <option value="">Select verification..</option>
+                            <option value="1">Verified</option>
+                            <option value="2">Not Verified</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control-sm form-control" name="posted" id="posted">
+                            <option value="">Select status..</option>
+                            <option value="1">Posted</option>
+                            <option value="2">Not Verified</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control-sm form-control" name="assigned" id="assigned">
+                            <option value="">Select assignment..</option>
+                            <option value="1">Assigned</option>
+                            <option value="2">Not Assigned</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="user_id" id="user_id">
+                            <option value="">Select User...</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-secondary">Go</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-12">
             <br>
             <br>
             <table id="table" class="table-striped table table-bordered">
                 <tr>
                     <th>SN</th>
                     <th>#tag</th>
-                    <th>Gender</th>
-                    <th>Country</th>
                     <th>Post</th>
                     <th>Commenter</th>
-                    <th>Comment</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Verified</th>
                     <th>Created At</th>
+                    <th>Actions</th>
+                    <th>Comment</th>
                 </tr>
                 @foreach($comments as $key=>$comment)
                     <tr>
                         <th>{{$key}}</th>
                         <td>#{{ $comment->hashtag->text }}</td>
-                        <td>{{$comment->gender}}</td>
-                        <td>{{$comment->country ?? 'N/A'}}</td>
                         <td>
-                            {{ $comment->caption }}
-                            <br>
+{{--                            {{ $comment->caption }}--}}
+{{--                            <br>--}}
                             <a target="_new" href="https://instagram.com/p/{{$comment->post_code}}">Visit post</a>
                         </td>
                         <td>{{$comment->account->last_name ?? 'N/A'}}</td>
-                        <td>{{$comment->comment ?? 'N/A'}}</td>
+                        <td>{{ $comment->user()->first() ? $comment->user()->first()->name : 'Unassigned' }}</td>
+                        <td>{{ $comment->status ? 'Posted' : 'Not Posted' }}</td>
+                        <td>{{ $comment->is_verified ? 'Verified' : 'Not Verified' }}</td>
                         <td>{{$comment->created_at->format('Y-m-d')}}</td>
+                        <th>
+                            @if(!$comment->is_verified)
+                                <button class="btn btn-xs btn-secondary mark-verified" data-commentId="{{$comment->id}}">Mark Verified</button>
+                            @else
+                                <span class="label label-success">Verified</span>
+                            @endif
+                        </th>
+                        <td>{{$comment->comment ?? 'N/A'}}</td>
                     </tr>
                 @endforeach
             </table>
@@ -133,6 +182,17 @@
         @endforeach
     </script>
     <script>
+        $(document).on('click', '.mark-verified', function() {
+            let id = $(this).attr('data-commentId');
+            let self = this;
+            $.ajax({
+                'url' : "/instagram/auto-comment-report"+'/'+id+'/edit',
+                success: function() {
+                    $(self).html('Verified');
+                    toastr['success']('Verified successfully!');
+                }
+            });
+        });
         // new Chart(document.getElementById("pie"), {
         //     type: 'pie',
         //     data: {

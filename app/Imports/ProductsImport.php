@@ -21,9 +21,10 @@ class ProductsImport implements ToCollection, WithHeadingRow
         foreach ($rows as $row) {
             $brand = trim($row['Brand']);
             $gender = $row['Gender'];
-            $originalSku = $row['sku'];
+            $originalSku = explode(' ', $row['Description'])[0];
             $color = $row['Color'];
-            $category = 'Woman, Sunglasses';
+            $category = $gender . ', Sunglass';
+            $composition = $row['composition'] . ', ' . $row['composition2'];
             $unit_price = 0;
 
 
@@ -60,6 +61,7 @@ class ProductsImport implements ToCollection, WithHeadingRow
 //                'sizes' => $size,
                 'gender' => $gender,
                 'price' => $unit_price,
+                'material_used' => $composition,
                 'color' => $color
             ];
             $sku = str_replace([' ', '-', '/', "\\", '_'], '', $originalSku);

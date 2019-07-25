@@ -273,7 +273,7 @@ class ProductCropperController extends Controller
             ->where('id', '!=', $id)
             ->where('is_crop_rejected', 0)
             ->where('is_crop_approved', 0)
-            ->whereDoesntHave('amends')
+            ->whereRaw('id NOT IN (SELECT product_id FROM crop_amends)')
             ->where('is_crop_being_verified', 0)
             ->orderBy('is_on_sale', 'DESC')
             ->first();

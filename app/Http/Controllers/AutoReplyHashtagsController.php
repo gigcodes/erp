@@ -140,7 +140,7 @@ class AutoReplyHashtagsController extends Controller
             $h->gender = $request->get('gender_'.$media);
             $h->auto_reply_hashtag_id = 1;
             $h->country = strlen($request->get('country')) > 4 ? $request->get('country') : '';
-            $h->status = 1;
+            $h->status = 0;
             $h->save();
 
             $caption = $h->caption;

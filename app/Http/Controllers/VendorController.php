@@ -27,6 +27,17 @@ class VendorController extends Controller
       $this->middleware('permission:vendor-all');
     }
 
+    public function updateReminder(Request $request) {
+        $vendor = Vendor::find($request->get('vendor_id'));
+        $vendor->frequency = $request->get('frequency');
+        $vendor->reminder_message = $request->get('message');
+        $vendor->save();
+
+        return response()->json([
+            'success'
+        ]);
+    }
+
     public function index(Request $request)
     {
       // $vendors = Vendor::with('agents')->latest()->paginate(Setting::get('pagination'));
@@ -61,7 +72,7 @@ class VendorController extends Controller
                   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
-                  FROM (SELECT vendors.id, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
+                  FROM (SELECT vendors.id, vendors.frequency, vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
                   category_name,
                   chat_messages.message_id FROM vendors
 

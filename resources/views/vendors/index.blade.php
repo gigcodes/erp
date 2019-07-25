@@ -1,4 +1,4 @@
-@extends('layouts.app')
+ @extends('layouts.app')
 
 @section('title', 'Vendor Info')
 
@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
 
-@section('content')
+@section('large_content')
 
     <div class="row">
       <div class="col-lg-12 margin-tb">
@@ -36,7 +36,7 @@
         </div>
         <div class="pull-right">
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</a>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
         </div>
       </div>
     </div>
@@ -174,6 +174,9 @@
                 <div class="d-flex">
                   <a href="{{ route('vendor.show', $vendor->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
 
+                    <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $vendor->id }}" data-frequency="{{ $vendor->frequency ?? '0' }}" data-reminder_message="{{ $vendor->reminder_message }}">
+                        <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
+                    </button>
 
                   <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="/images/edit.png" /></button>
                   <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $vendor->id }}"><img src="/images/remark.png" /></a>
@@ -197,10 +200,88 @@
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
 
+    <div id="reminderModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set/Edit Reminder</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="frequency">Frequency (in Minutes)</label>
+                        <select class="form-control" name="frequency" id="frequency">
+                            <option value="0">Disabled</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                            <option value="55">55</option>
+                            <option value="60">60</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reminder_message">Reminder Message</label>
+                        <textarea name="reminder_message" id="reminder_message" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary save-reminder">Save</button>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
   <script type="text/javascript">
+
+      var vendorToRemind = null;
+
+      $(document).on('click', '.set-reminder', function() {
+          let vendorId = $(this).data('id');
+          let frequency = $(this).data('frequency');
+          let message = $(this).data('reminder_message');
+
+          $('#frequency').val(frequency);
+          $('#reminder_message').val(message);
+          vendorToRemind = vendorId;
+
+      });
+
+      $(document).on('click', '.save-reminder', function() {
+          let frequency = $('#frequency').val();
+          let message = $('#reminder_message').val();
+
+          $.ajax({
+              url: "{{action('VendorController@updateReminder')}}",
+              type: 'POST',
+              success: function() {
+                  toastr['success']('Reminder updated successfully!');
+              },
+              data: {
+                  vendor_id: vendorToRemind,
+                  frequency: frequency,
+                  message: message,
+                  _token: "{{ csrf_token() }}"
+              }
+          });
+      });
+
     $(document).on('click', '.edit-vendor', function() {
       var vendor = $(this).data('vendor');
       var url = "{{ url('vendor') }}/" + vendor.id;

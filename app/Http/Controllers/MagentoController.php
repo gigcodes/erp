@@ -97,6 +97,7 @@ class MagentoController extends Controller {
 			'connection_timeout' => 120,
 			'wsdl_cache'         => WSDL_CACHE_NONE,
 		);
+		$size = '';
 		$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
 		$sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
 		$lastid    = Setting::get( 'lastid' );
@@ -288,9 +289,9 @@ class MagentoController extends Controller {
 				$whatsapp_number = $order->customer->whatsapp_number != '' ? $order->customer->whatsapp_number : NULL;
 
 				// if ($whatsapp_number == '919152731483') {
-					app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+//					app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
 				// } else {
-				// 	app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+				 	app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
 				// }
 
 				$params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-followup')->first()->reply;
@@ -298,9 +299,9 @@ class MagentoController extends Controller {
 				$chat_message = ChatMessage::create($params);
 
 				// if ($whatsapp_number == '919152731483') {
-					app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+//					app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
 				// } else {
-				// 	app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+				 	app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
 				// }
 
 				CommunicationHistory::create([
@@ -324,9 +325,9 @@ class MagentoController extends Controller {
 			$whatsapp_number = $order->customer->whatsapp_number != '' ? $order->customer->whatsapp_number : NULL;
 
 			// if ($whatsapp_number == '919152731483') {
-				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+//				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
 			// } else {
-			// 	app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			 	app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
 			// }
 
 			CommunicationHistory::create([
@@ -352,9 +353,9 @@ class MagentoController extends Controller {
 			$whatsapp_number = $order->customer->whatsapp_number != '' ? $order->customer->whatsapp_number : NULL;
 
 			// if ($whatsapp_number == '919152731483') {
-				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
+//				app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($order->customer->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
 			// } else {
-			// 	app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
+			 	app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], FALSE, $chat_message->id);
 			// }
 		}
 

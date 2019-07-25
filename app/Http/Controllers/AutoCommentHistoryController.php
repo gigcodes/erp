@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
 use App\TargetLocation;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,17 +16,41 @@ class AutoCommentHistoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $comments = AutoCommentHistory::orderBy('created_at', 'DESC')->paginate(50);
+        $comments = AutoCommentHistory::orderBy('created_at', 'DESC');
         $hashtags = AutoReplyHashtags::all();
         $countries = TargetLocation::all();
+
+        if ($request->get('verified')) {
+            $comments = $comments->where('is_verified', $request->get('verified') == 1 ? 1 : 0);
+        }
+
+        if ($request->get('posted')) {
+            $comments = $comments->where('status', $request->get('posted') == 1 ? 1 : 0);
+        }
+        if ($request->get('assigned') == 1) {
+            $comments = $comments->whereHas('user');
+        }
+        if ($request->get('assigned') == 2) {
+            $comments = $comments->whereDoesntHave('user');
+        }
+
+        if ($request->get('user_id') > 0) {
+            $comments = $comments->whereIn('id', DB::table('users_auto_comment_histories')->where('user_id', $request->get(user_id))->pluck('auto_comment_history_id')->toArray());
+        }
+
+        $comments = $comments->paginate(50);
+
+        //verified, posted, assigned
 
         $statsByCountry = DB::table('auto_comment_histories')->selectRaw('country, COUNT("*") AS total')->groupBy(['country'])->get();
         $statsByHashtag = DB::table('auto_comment_histories')->selectRaw('target, COUNT("*") AS total')->groupBy(['target'])->get();
 
+        $users = User::all();
 
-        return view('instagram.auto_comments.report', compact('comments', 'hashtags', 'countries', 'statsByCountry', 'statsByHashtag'));
+
+        return view('instagram.auto_comments.report', compact('comments', 'hashtags', 'countries', 'statsByCountry', 'statsByHashtag', 'request', 'users'));
     }
 
     /**
@@ -66,9 +91,15 @@ class AutoCommentHistoryController extends Controller
      * @param  \App\AutoCommentHistory  $autoCommentHistory
      * @return \Illuminate\Http\Response
      */
-    public function edit(AutoCommentHistory $autoCommentHistory)
+    public function edit($id)
     {
-        //
+        $comment = AutoCommentHistory::find($id);
+        $comment->is_verified = 1;
+        $comment->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 
     /**

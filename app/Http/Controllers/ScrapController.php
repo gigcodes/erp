@@ -331,7 +331,7 @@ class ScrapController extends Controller
     }
 
     public function getFromNewSupplier() {
-        $products = Product::where('supplier', 'LE LUNETIER MILANO')->get();
+        $products = Product::where('supplier', 'LE LUNETIER MILANO')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
         foreach ($products as $product) {
 
             $productsToPush[] = [
@@ -821,7 +821,13 @@ class ScrapController extends Controller
         if ($scrapedProduct) {
             echo "Scraped product found \n";
             $properties = $scrapedProduct->properties;
+//            $scrapedProduct->price = $request->get('price');
             $properties['category'] = $request->get('category');
+            $properties['description'] = $request->get('description');
+            $properties['material_used'] = $request->get('material_used');
+            $properties['color'] = $request->get('color');
+            $properties['dimension'] = $request->get('dimension');
+            $properties['made_in'] = $request->get('country');
             $scrapedProduct->properties = $properties;
             $scrapedProduct->save();
         }
@@ -843,7 +849,7 @@ class ScrapController extends Controller
         }
 
 
-        $product->detachMediaTags('gallery');
+//        $product->detachMediaTags('gallery');
 
         // Attach other information like description, etc..
 

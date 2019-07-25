@@ -4,18 +4,19 @@ namespace App\Console\Commands;
 
 use App\ChatMessage;
 use App\Supplier;
+use App\Vendor;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class SendReminderToSupplierIfTheyHaventReplied extends Command
+class SendReminderToVendorIfTheyHaventReplied extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'reminder:send-to-supplier';
+    protected $signature = 'reminder:send-to-vendor';
 
     /**
      * The console command description.
@@ -44,10 +45,10 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
         $now = Carbon::now()->toDateTimeString();
 
         $messagesIds = DB::table('chat_messages')
-            ->selectRaw('MAX(id) as id, supplier_id')
-            ->groupBy('supplier_id')
+            ->selectRaw('MAX(id) as id, vendor_id')
+            ->groupBy('vendor_id')
             ->whereNotNull('message')
-            ->where('supplier_id', '>', '0')
+            ->where('vendor_id', '>', '0')
             ->where(function($query) {
                 $query->whereNotIn('status', [7,8,9]);
             })
@@ -56,12 +57,12 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
 
 
         foreach ($messagesIds as $messagesId) {
-            $supplier = Supplier::find($messagesId->supplier_id);
-            if (!$supplier) {
+            $vendor = Vendor::find($messagesId->vendor_id);
+            if (!$vendor) {
                 continue;
             }
 
-            $frequency = $supplier->frequency;
+            $frequency = $vendor->frequency;
             if (!($frequency >= 5)) {
                 continue;
             }
@@ -79,9 +80,9 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
 
             dump('saving...');
 
-            $templateMessage = $supplier->reminder_message;
+            $templateMessage = $vendor->reminder_message;
 
-            $data['supplier_id'] = $supplier->id;
+            $data['vendor_id'] = $vendor->id;
             $data['message'] = $templateMessage;
             $data['approved'] = 0;
             $data['user_id'] = 6;
