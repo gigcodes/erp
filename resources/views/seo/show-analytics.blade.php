@@ -28,6 +28,22 @@
         <div class="panel panel-default">
 
             <div class="panel-body p-0">
+                <form action="{{ route('seo.analytics.filter') }}" method="POST">
+                    <div class="row p-3">
+                        {{ csrf_field() }}
+                        <div class="col-md-3">
+                            <label for="start_date">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ isset($start_date) ? $start_date : null }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="end_date">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ isset($end_date) ? $end_date : null }}">
+                        </div>
+                        <button class="btn btn-light" id="submit">
+                            <span class="fa fa-filter"></span> Filter Results
+                        </button>
+                    </div>
+                </form>
                 <table class="table border-top">
                     <thead>
                         <th>Date</th>

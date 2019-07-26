@@ -20,7 +20,8 @@ class SEOAnalyticsController extends Controller
 
     public function show(){
         $latestEntry = SEOAnalytics::orderBy('created_at','DESC')->first();
-        if(!$latestEntry || Carbon::today()->diff(Carbon::parse($latestEntry->created_at))->days > 0){
+
+        if(empty($latestEntry) || Carbon::now()->diff(Carbon::parse($latestEntry->created_at))->days > 0){
                 $data = (object) Mozscape::getSiteDetails($this->url);
                 $latestEntry = new SEOAnalytics();
                 $latestEntry->domain_authority = $data->domain_authority;
@@ -32,7 +33,7 @@ class SEOAnalyticsController extends Controller
 
         return view('seo.show-analytics', [
             'today' => $latestEntry,
-            'data' => SEOAnalytics::paginate(20)
+            'data' => SEOAnalytics::orderBy('created_at','DESC')->paginate(20)
         ]);
     }
 
@@ -44,5 +45,24 @@ class SEOAnalyticsController extends Controller
             $entry->delete();
             return response()->json(['message' => 'The entry has been removed!'],200);
         }
+    }
+
+    public function filter(Request $request){
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        $latestEntry = SEOAnalytics::orderBy('created_at','DESC')->first();
+        if($start_date && $end_date){
+            $start_date = Carbon::parse($start_date)->format('Y-m-d h:m:s');
+            $end_date = Carbon::parse($end_date)->format('Y-m-d h:m:s');
+            $data = SEOAnalytics::whereBetween('created_at', [$start_date, $end_date])->paginate(20);
+        }else{
+            $data = SEOAnalytics::orderBy('created_at', 'DESC')->paginate(20);
+        }
+        return view('seo.show-analytics', [
+            'today' => $latestEntry,
+            'data' => $data,
+            'start_date' => Carbon::parse($start_date)->format('d-m-Y'),
+            'end_date' => Carbon::parse($end_date)->format('d-m-Y')
+        ]);
     }
 }
