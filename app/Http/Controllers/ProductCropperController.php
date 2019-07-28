@@ -574,6 +574,7 @@ class ProductCropperController extends Controller
         $product->crop_rejected_at = Carbon::now()->toDateTimeString();
         $product->save();
 
+
         $e = new ListingHistory();
         $e->user_id = Auth::user()->id;
         $e->product_id = $product->id;
@@ -599,7 +600,6 @@ class ProductCropperController extends Controller
         }
 
         $secondProduct = Product::where('is_image_processed', 1)
-            ->where('stage', '=', $stage->get('ImageCropper'))
             ->where('id', '!=', $id)
             ->where('is_crop_rejected', 0)
             ->where('is_crop_approved', 0)
@@ -607,6 +607,10 @@ class ProductCropperController extends Controller
             ->whereDoesntHave('amends')
             ->orderBy('is_on_sale', 'DESC')
             ->first();
+
+        if (!$secondProduct) {
+            return redirect()->action('ProductCropperController@getListOfImagesToBeVerified');
+        }
 
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping rejected!');
     }

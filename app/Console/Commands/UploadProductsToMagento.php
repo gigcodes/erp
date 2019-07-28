@@ -40,7 +40,7 @@ class UploadProductsToMagento extends Command
     {
         for ($i=0;$i<=1000;$i++) {
             $product = Product::where('is_approved', 1)->where('isListed', 0)->inRandomOrder()->first();
-            $result = app('App\Http\Controllers\ProductListerController')->magentoSoapApiUpload($product, 1);
+            $result = app('App\Http\Controllers\ProductListerController')->magentoSoapApiUpload($product);
             dump('Uploading....');
             dump($result);
         }

@@ -46,7 +46,7 @@ class UpdateGnbPrice extends Command
       // $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
       // $products = ScrapedProducts::where('updated_at', '>', '2019-06-05 00:00')->get();
       // $products = ScrapedProducts::where('sku', '182400abs000058025pi')->get();
-      $products = ScrapedProducts::where('website', 'griffo210')->get();
+      $products = ScrapedProducts::where('website', 'DoubleF')->get();
 
       // dd(count($products));
       foreach ($products as $key => $product) {

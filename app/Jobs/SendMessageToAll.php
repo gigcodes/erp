@@ -16,6 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Http\Controllers\WhatsAppController;
 
 class SendMessageToAll implements ShouldQueue
 {
@@ -106,7 +107,8 @@ class SendMessageToAll implements ShouldQueue
 //              app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, $message, NULL, $chat_message->id);
             // } else {
             //   dump('sending message with 06');
-               app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
+//               app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
+               app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $send_number, $message, false, $chat_message->id);
             // }
           } catch (\Exception $e) {
 
@@ -126,7 +128,8 @@ class SendMessageToAll implements ShouldQueue
 //                  app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
                 // } else {
                 //   dump('sending linked images with 06');
-                   app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+//                   app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+                   app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $send_number, NULL,  str_replace(' ', '%20', $image['url']), $chat_message->id);
                 // }
               } catch (\Exception $e) {
 
@@ -144,7 +147,8 @@ class SendMessageToAll implements ShouldQueue
 //                      app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $brod_image->getUrl()), $chat_message->id);
                     // } else {
                     //   dump('sending images with 06');
-                       app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
+//                       app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
+                       app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $brod_image->getUrl()), $chat_message->id);
                     // }
                   } catch (\Exception $e) {
 
@@ -171,7 +175,8 @@ class SendMessageToAll implements ShouldQueue
 //                app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
               // } else {
               //   dump('sending simple images with 06');
-                 app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+//                 app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
+                 app(WhatsAppController::class)->sendWithWhatsApp($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
               // }
             } catch (\Exception $e) {
 

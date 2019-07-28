@@ -1508,59 +1508,59 @@
                           @if(Auth::user()->email != 'facebooktest@test.com')
                              <li class="nav-item dropdown">
 
-                                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
 
-                                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 
-                                                Social <span class="caret"></span>
+                                    Social <span class="caret"></span>
 
-                                            </a>
+                                </a>
 
 
 
-                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
-                                                @can('social-create')
-                                                    <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
-                                                @endcan
+                                    @can('social-create')
+                                        <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
+                                    @endcan
 
-                                                <a class="dropdown-item" href="{{ route('image.grid.approved') }}">Approved Images</a>
-                                                <a class="dropdown-item" href="{{ route('image.grid.final.approval') }}">Final Approval</a>
+                                    <a class="dropdown-item" href="{{ route('image.grid.approved') }}">Approved Images</a>
+                                    <a class="dropdown-item" href="{{ route('image.grid.final.approval') }}">Final Approval</a>
 
-                                                @can('review-view')
-                                                    <a class="dropdown-item" href="{{ route('review.index') }}">Reviews</a>
-                                                    <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
-                                                @endcan
+                                    @can('review-view')
+                                        <a class="dropdown-item" href="{{ route('review.index') }}">Reviews</a>
+                                        <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
+                                    @endcan
 
-                                                <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts
+                                    <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts
 
-                                                </a>
+                                    </a>
 
-                                                <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page
+                                    <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page
 
-                                                </a>
+                                    </a>
 
-                                                <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
+                                    <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
 
-                                                </a>
+                                    </a>
 
-                                                <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports
+                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports
 
-                                                    <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
+                                        <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
 
-                                                    </a>
+                                        </a>
 
-                                                    <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset
+                                        <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset
 
-                                                    </a>
+                                        </a>
 
-                                                    <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad
+                                        <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad
 
-                                                    </a>
+                                        </a>
 
-                                                    <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
-                                            </div>
-                                        </li>
+                                        <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
+                                </div>
+                            </li>
                           @endif
                         @endcan
 
@@ -1583,6 +1583,28 @@
                         </li>
                             @endif
 
+                                @can('admin')
+                                    <li class="nav-item dropdown">
+
+                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                            Legal Module <span class="caret"></span>
+
+                                        </a>
+
+                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            @can('lawyer-all')
+                                                <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
+                                            @endcan
+                                            @can('case-all')
+                                                <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
+                                            @endcan
+                                        </div>
+                                    </li>
+                                @endcan
+
                         @can('admin')
                           <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
@@ -1601,28 +1623,6 @@
                               <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
                             </div>
                           </li>
-                        @endcan
-
-                        @can('admin')
-                            <li class="nav-item dropdown">
-
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-
-                                    Legal Module <span class="caret"></span>
-
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    @can('lawyer-all')
-                                        <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
-                                    @endcan
-                                    @can('case-all')
-                                        <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
-                                    @endcan
-                                </div>
-                            </li>
                         @endcan
 
                         <li class="nav-item dropdown">

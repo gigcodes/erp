@@ -34,55 +34,39 @@ class DevelopmentController extends Controller
       $user = $request->user ?? Auth::id();
       $start = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->startOfWeek();
       $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
-      $tab = $request->tab ?? NULL;
-      $type = $request->type ?? '';
       $id = null;
 
-      $tasks = DeveloperTask::where('user_id', $user)->where('module', 0);
-//      $tasks = DeveloperTask::where('user_id', $user);
+      $progressTasks = DeveloperTask::where('user_id', $user);
+      $plannedTasks = DeveloperTask::where('user_id', $user);
+      $completedTasks = DeveloperTask::where('user_id', $user);
 
       if ($request->range_start != '') {
-        $tasks = $tasks->whereBetween('created_at', [$start, $end]);
+        $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
+        $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
+        $completedTasks = $completedTasks->whereBetween('created_at', [$start, $end]);
       }
 
-      if ($request->get('id') != '') {
-          $tasks = $tasks->where(function($query) use ($request) {
+      if ($request->get('id')) {
+          $progressTasks = $progressTasks->where(function($query) use ($request) {
               $id = $request->get('id');
-              $query = $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+              $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+          });
+          $plannedTasks = $plannedTasks->where(function($query) use ($request) {
+              $id = $request->get('id');
+              $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+          });
+          $completedTasks = $completedTasks->where(function($query) use ($request) {
+              $id = $request->get('id');
+              $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
           });
       }
 
-      if ($type != '') {
-        if ($type == 'Planned' || $type == 'In Progress' || $type == 'Discussing') {
-          $tasks = $tasks->where('status', $type);
-        }
-
-        if ($type == 'Done To be Reviewed') {
-          $tasks = $tasks->where('status', 'Done')->where('completed', 0);
-        }
-
-        if ($type == 'Completed') {
-          $tasks = $tasks->where('status', 'Completed')->where('completed', 0);
-        }
-      }
-
-      // $review_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->where('completed', 0)->orderBy('priority')->get()->groupBy('module_id');
-      // $completed_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->where('completed', 1)->whereBetween('start_time', [$start, $end])->orderBy('priority')->get()->groupBy('module_id');
-
-      // dd($tasks);
-//      $tasks = $tasks->orderBy('priority')->with(['user', 'messages'])->get();
-      $tasks = $tasks->orderBy('priority')->with(['user', 'messages'])->get()->groupBy(['module_id', 'status']);
-      $total_tasks = DeveloperTask::where('user_id', $user)->where('module', 0)->where('status', 'Done')->get();
-
-      $all_time_cost = 0;
-      foreach ($total_tasks as $task) {
-        $all_time_cost += $task->cost;
-      }
+      $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
+      $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
+      $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
 
       $modules = DeveloperModule::all();
       $users = Helpers::getUserArray(User::role('Developer')->get());
-//      $comments = DeveloperComment::where('send_to', $user)->latest()->get();
-//      $amounts = DeveloperCost::where('user_id', $user)->orderBy('paid_date')->get();
       $module_names = [];
 
       foreach ($modules as $module) {
@@ -90,29 +74,45 @@ class DevelopmentController extends Controller
       }
 
       $times = [];
-      $sch = DeveloperMessagesAlertSchedules::first();
-      if ($sch) {
-          $times = $sch->time;
-      }
       return view('development.index', [
-        'tasks' => $tasks,
         'times' => $times,
-        // 'review_tasks' => $review_tasks,
-        // 'completed_tasks' => $completed_tasks,
         'users' => $users,
         'modules' => $modules,
         'user'  => $user,
-        'type'  => $type,
         'start'  => $start,
         'end'  => $end,
         'module_names'  => $module_names,
-//        'comments'  => $comments,
-//        'amounts'  => $amounts,
-        'all_time_cost' => $all_time_cost,
-        'tab' => $tab,
-          'id' => $id
+        'completedTasks' => $completedTasks,
+        'plannedTasks' => $plannedTasks,
+        'progressTasks' => $progressTasks
       ]);
     }
+
+    public function moveTaskToProgress(Request $request) {
+         $task = DeveloperTask::find($request->get('task_id'));
+         $time = $request->get('estimate_time');
+         $task->status = 'In Progress';
+         $task->estimate_time = $time;
+         $task->start_time = Carbon::now()->toDateTimeString();
+         $task->save();
+
+         return response()->json([
+             'status' => 'success'
+         ]);
+    }
+
+    public function completeTask(Request $request) {
+        $task = DeveloperTask::find($request->get('task_id'));
+        $task->status = 'Done';
+        $task->end_time = Carbon::now()->toDateTimeString();
+        $task->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+
 
     public function issueIndex(Request $request)
     {
@@ -143,8 +143,8 @@ class DevelopmentController extends Controller
         return view('development.issue', [
         'issues'  => $issues,
         'users'   => $users,
-          'modules' => $modules,
-          'request' => $request
+        'modules' => $modules,
+        'request' => $request
       ]);
     }
 
