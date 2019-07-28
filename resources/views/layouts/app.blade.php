@@ -1025,6 +1025,7 @@
                                       <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                       <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
                                       <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
+                                      <a class="dropdown-item" href="{{ action('KeywordInstructionController@index') }}">Keyword-Instructions</a>
                                       <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
                                       <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
                                       <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>

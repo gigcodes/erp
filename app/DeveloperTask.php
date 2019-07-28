@@ -30,7 +30,7 @@ class DeveloperTask extends Model
   }
 
   public function messages() {
-      return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->take(5);
+      return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id');
   }
 
   public function developerModule() {

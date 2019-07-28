@@ -46,6 +46,75 @@
   @include('partials.flash_messages')
 
 
+  <div id="moveToProgressModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Move To Progress</h4>
+        </div>
+        <div class="modal-body">
+          <p>
+            Please enter the estimated completion time so that we can alert you when the time is about to end or is expired.
+          </p>
+          <div class="form-group">
+            <input type="date" name="progress_date" id="progress_date" placeholder="Enter Date..." class="form-control">
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <label for="progress_hour">Hour</label>
+              <select class="form-control" name="progress_hour" id="progress_hour">
+                <option value="13">1 PM</option>
+                <option value="14">2 PM</option>
+                <option value="15">3 PM</option>
+                <option value="16">4 PM</option>
+                <option value="17">5 PM</option>
+                <option value="18">6 PM</option>
+                <option value="19">7 PM</option>
+                <option value="20">8 PM</option>
+                <option value="21">9 PM</option>
+                <option value="22">10 PM</option>
+                <option value="23">11 PM</option>
+                <option value="00">12 AM</option>
+                <option value="01">1 AM</option>
+                <option value="02">2 AM</option>
+                <option value="03">3 AM</option>
+                <option value="04">4 AM</option>
+                <option value="05">5 AM</option>
+                <option value="06">6 AM</option>
+                <option value="07">7 AM</option>
+                <option value="08">8 AM</option>
+                <option value="09">9 AM</option>
+                <option value="10">10 AM</option>
+                <option value="11">11 AM</option>
+                <option value="12">12 PM</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="progress_minute">Minutes</label>
+              <select class="form-control" name="progress_munite" id="progress_minute">
+                <option value="00">00</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+                <option value="59">59</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-secondary btn-sm move-to-progress">Move To Progress</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <div class="row">
     <div class="col-md-12 mt-2">
       <ul class="nav nav-tabs">
@@ -179,15 +248,16 @@
           <table class="table table-striped table-lg">
             <tr>
               <th>Task ID</th>
-              <th>Asignee</th>
+              <th>Assignee</th>
               <th>Module</th>
               <th>Subject</th>
               <th>Task Description</th>
+              <th>Communication</th>
               <th>Actions</th>
             </tr>
 
           @foreach($plannedTasks as $task)
-            <tr>
+            <tr id="tr_{{$task->id}}">
               <td>{{ $task->id }}</td>
               <td>{{ $task->user ? $task->user->name : 'Unassigned' }}</td>
               <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
@@ -203,7 +273,28 @@
                 </div>
               </td>
               <td>
-                <button class="btn btn-secondary btn-xs move-progress" data-id="{{ $task->id }}" >Move To Progress</button>
+                <div class="panel-group">
+                  <div class="panel panel-default" style="width: 140px;">
+                    <div class="panel-heading">
+                      <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse_{{$task->id}}">Messages ({{ count($task->messages) }})</a>
+                      </h4>
+                    </div>
+                    <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        @foreach($task->messages as $message)
+                          <li>-{{ $message->message }}</li>
+                        @endforeach
+                      </div>
+                      <div class="panel-footer">
+                        <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button data-toggle="modal" data-target="#moveToProgressModal" class="btn btn-secondary btn-xs move-progress-init" data-id="{{ $task->id }}" >Move To Progress</button>
               </td>
             </tr>
           @endforeach
@@ -213,15 +304,19 @@
           <table class="table table-striped table-lg">
             <tr>
               <th>Task ID</th>
+              <th>Assignee</th>
               <th>Module</th>
               <th>Subject</th>
               <th>Task Description</th>
+              <th>Communication</th>
+              <th>Estd Completion</th>
               <th>Actions</th>
             </tr>
 
             @foreach($progressTasks as $task)
-              <tr>
+              <tr id="tr_{{$task->id}}">
                 <td>{{ $task->id }}</td>
+                <td>{{ $task->user ? $task->user->name : 'Unassigned' }}</td>
                 <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
                 <td>{{ $task->subject ?? 'N/A' }}</td>
                 <td>
@@ -235,7 +330,30 @@
                   </div>
                 </td>
                 <td>
-                  <button class="btn btn-secondary btn-xs move-progress" data-id="{{ $task->id }}" >Mark Complete</button>
+                  <div class="panel-group">
+                    <div class="panel panel-default" style="width: 140px;">
+                      <div class="panel-heading">
+                        <h4 class="panel-title">
+                          <a data-toggle="collapse" href="#collapse_{{$task->id}}">Messages ({{ count($task->messages) }})</a>
+                        </h4>
+                      </div>
+                      <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                          @foreach($task->messages as $message)
+                            <li>-{{ $message->message }}</li>
+                          @endforeach
+                        </div>
+                        <div class="panel-footer">
+                          <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ $task->estimate_time }}</td>
+                <td>
+                  <button class="btn btn-secondary btn-xs complete-task" data-id="{{ $task->id }}" >Mark Complete</button>
+                  <button class="btn btn-secondary btn-xs relist-task" data-id="{{ $task->id }}" >Re-list Task</button>
                 </td>
               </tr>
             @endforeach
@@ -245,15 +363,18 @@
           <table class="table table-striped table-lg">
             <tr>
               <th>Task ID</th>
+              <td>Assignee</td>
               <th>Module</th>
               <th>Subject</th>
               <th>Task Description</th>
+              <th>Communication</th>
               <th>Actions</th>
             </tr>
 
             @foreach($completedTasks as $task)
-              <tr>
+              <tr id="tr_{{$task->id}}">
                 <td>{{ $task->id }}</td>
+                <td>{{ $task->user ? $task->user->name : 'Unassigned' }}</td>
                 <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
                 <td>{{ $task->subject ?? 'N/A' }}</td>
                 <td>
@@ -267,7 +388,28 @@
                   </div>
                 </td>
                 <td>
-                  <button class="btn btn-secondary btn-xs move-progress" data-id="{{ $task->id }}" >Move To Progress</button>
+                  <div class="panel-group">
+                    <div class="panel panel-default" style="width: 140px;">
+                      <div class="panel-heading">
+                        <h4 class="panel-title">
+                          <a data-toggle="collapse" href="#collapse_{{$task->id}}">Messages ({{ count($task->messages) }})</a>
+                        </h4>
+                      </div>
+                      <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                          @foreach($task->messages as $message)
+                            <li>-{{ $message->message }}</li>
+                          @endforeach
+                        </div>
+                        <div class="panel-footer">
+                          <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <button class="btn btn-secondary btn-xs relist-task" data-id="{{ $task->id }}" >Re-list Task</button>
                 </td>
               </tr>
             @endforeach
@@ -329,16 +471,71 @@
       format: 'YYYY-MM-DD'
     });
 
+    var taskIdToProgress = null;
+
+    $(document).on('click', '.move-progress-init', function() {
+      taskIdToProgress = $(this).attr('data-id');
+    });
+
+    $(document).on('click', '.complete-task', function() {
+      let taskId = $(this).attr('data-id');
+      $.ajax({
+        url: '{{ action('DevelopmentController@completeTask') }}',
+        data: {
+          task_id: taskId,
+          _token: "{{csrf_token()}}"
+        },
+        type: 'post',
+        success: function() {
+          toastr['success']('Task marked as complete!', 'success');
+          $('#tr_'+taskId).slideUp('slow');
+        }
+      });
+    });
+
+    $(document).on('click', '.relist-task', function() {
+      let taskId = $(this).attr('data-id');
+      $.ajax({
+        url: '{{ action('DevelopmentController@relistTask') }}',
+        data: {
+          task_id: taskId,
+          _token: "{{csrf_token()}}"
+        },
+        type: 'post',
+        success: function() {
+          toastr['success']('Task relisted successfully!', 'success');
+          $('#tr_'+taskId).slideUp('slow');
+        }
+      });
+    });
+
+    $(document).on('click', '.move-to-progress', function() {
+      let date = $("#progress_date").val();
+      let hour = $('#progress_hour').val();
+      let minutes = $('#progress_minute').val();
+      let self = this;
+      $.ajax({
+        url: '{{ action('DevelopmentController@moveTaskToProgress') }}',
+        type: 'post',
+        data: {
+          _token: "{{csrf_token()}}",
+          date: date,
+          hour: hour,
+          minutes: minutes,
+          task_id: taskIdToProgress
+        },
+        success: function(response) {
+          toastr['success']('Task moved to progress!', 'Success!');
+          $('#tr_'+taskIdToProgress).slideUp('slow');
+          // $(self).click();
+        }
+      });
+    });
+
     $(document).on('click', '.move-progress', function() {
       let taskId = $(this).attr('data-id');
       developerTaskToAlter = taskId;
     });
-
-    $(document).on('click', 'move-to-progress', function() {
-      let estdTime = $('#estd_complete_time').val();
-
-    });
-
 
     $(document).on('click', '.edit-task-button', function() {
       var task = $(this).data('task');

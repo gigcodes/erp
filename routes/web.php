@@ -422,6 +422,11 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
   Route::get('imported/leads/save', 'ColdLeadsController@addLeadToCustomer');
 
 	// Development
+
+    Route::post('development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress');
+    Route::post('development/task/complete-task', 'DevelopmentController@completeTask');
+    Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
+
 	Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
 	Route::get('development', 'DevelopmentController@index')->name('development.index');
 	Route::post('development/create', 'DevelopmentController@store')->name('development.store');
@@ -771,6 +776,7 @@ Route::middleware('auth')->group(function () {
 
 });
 
+Route::middleware('auth')->resource('keyword-instruction', 'KeywordInstructionController')->except(['create']);
 
 Route::prefix('/seo')->name('seo.')->group(function(){
     Route::get('/analytics', 'SEOAnalyticsController@show')->name('analytics');

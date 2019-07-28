@@ -40,7 +40,7 @@ class DevelopmentController extends Controller
       $plannedTasks = DeveloperTask::where('user_id', $user);
       $completedTasks = DeveloperTask::where('user_id', $user);
 
-      if ($request->range_start != '') {
+      if ($request->get('range_start') != '') {
         $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
         $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
         $completedTasks = $completedTasks->whereBetween('created_at', [$start, $end]);
@@ -89,14 +89,16 @@ class DevelopmentController extends Controller
     }
 
     public function moveTaskToProgress(Request $request) {
-         $task = DeveloperTask::find($request->get('task_id'));
-         $time = $request->get('estimate_time');
-         $task->status = 'In Progress';
-         $task->estimate_time = $time;
-         $task->start_time = Carbon::now()->toDateTimeString();
-         $task->save();
+        $task = DeveloperTask::find($request->get('task_id'));
+        $date = $request->get('date');
+        $task->status = 'In Progress';
+        $hour = $request->get('hour') ?? '00';
+        $minutes = $request->get('mimutes') ?? '00';
+        $task->estimate_time = $date . ' ' . "$hour:$minutes:00 ";
+        $task->start_time = Carbon::now()->toDateTimeString();
+        $task->save();
 
-         return response()->json([
+        return response()->json([
              'status' => 'success'
          ]);
     }
@@ -112,7 +114,18 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function relistTask(Request $request) {
+        $task = DeveloperTask::find($request->get('task_id'));
+        $task->status = 'Planned';
+        $task->end_time = null;
+        $task->start_time = null;
+        $task->estimate_time = null;
+        $task->save();
 
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
 
     public function issueIndex(Request $request)
     {
