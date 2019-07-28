@@ -768,4 +768,13 @@ Route::middleware('auth')->group(function () {
     Route::get('case-costs/{case}', ['uses'=>'CaseController@getCosts','as'=>'case.cost']);
     Route::post('case-costs', ['uses'=>'CaseController@costStore','as'=>'case.cost.post']);
     Route::put('case-costs/update/{case_cost}', ['uses'=>'CaseController@costUpdate','as'=>'case.cost.update']);
+
+});
+
+
+Route::prefix('/seo')->name('seo.')->group(function(){
+    Route::get('/analytics', 'SEOAnalyticsController@show')->name('analytics');
+    Route::get('/analytics/filter', 'SEOAnalyticsController@filter')->name('analytics.filter');
+    Route::post('/analytics/filter', 'SEOAnalyticsController@filter')->name('analytics.filter');
+    Route::post('/analytics/delete/{id}', 'SEOAnalyticsController@delete')->name('delete_entry');
 });

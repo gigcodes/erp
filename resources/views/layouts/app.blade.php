@@ -1357,6 +1357,9 @@
                           </a>
 
                           <ul style="width: 200px; height: 500px !important;"  class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
+                              @can('seo')
+                                  <a class="dropdown-item" href="{{ action('SEOAnalyticsController@show') }}">SEO</a>
+                              @endcan
                             @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com')
                                   <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                   <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
