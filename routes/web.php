@@ -760,3 +760,19 @@ Route::middleware('auth')->group(function () {
     Route::post('case-costs', ['uses'=>'CaseController@costStore','as'=>'case.cost.post']);
     Route::put('case-costs/update/{case_cost}', ['uses'=>'CaseController@costUpdate','as'=>'case.cost.update']);
 });
+
+//Blogger Module
+Route::middleware('auth')->group(function () {
+
+    Route::get('blogger-email', ['uses'=>'BloggerEmailTemplateController@index','as'=>'blogger.email.template']);
+    Route::put('blogger-email/{bloggerEmailTemplate}', ['uses'=>'BloggerEmailTemplateController@update','as'=>'blogger.email.template.update']);
+    Route::resource('blogger', 'BloggerController');
+
+    Route::post('blogger-contact', ['uses' => 'ContactBloggerController@store','as'=>'blogger.contact.store']);
+    Route::put('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@update','as'=>'blogger.contact.update']);
+    Route::delete('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@destroy','as'=>'contact.blogger.destroy']);
+
+
+    Route::post('blogger-product-image', ['uses'=>'BloggerProductController@uploadImages','as'=>'blogger.image.upload']);
+    Route::resource('blogger-product', 'BloggerProductController');
+});

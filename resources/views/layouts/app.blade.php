@@ -1610,6 +1610,23 @@
                                 @endcan
                             </div>
                         </li>
+                                @can('lawyer-all')
+                        <li class="nav-item dropdown">
+
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                Blogger <span class="caret"></span>
+
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a href="{{route('blogger.index')}}" role="button" class="dropdown-item">Blogger List</a>
+                                    <a href="{{route('blogger.email.template')}}" role="button" class="dropdown-item">Email</a>
+                            </div>
+                        </li>
+                        @endcan
 
                         <li class="nav-item dropdown">
 
