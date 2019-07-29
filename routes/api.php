@@ -40,3 +40,5 @@ Route::post('products/auto-rejected', 'ScrapController@saveAutoRejectedProducts'
 
 Route::get('products/new-supplier', 'ScrapController@getFromNewSupplier');
 Route::post('products/new-supplier', 'ScrapController@saveFromNewSupplier');
+
+Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDetails');
