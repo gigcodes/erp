@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Old extends Model
 {
+
+    protected $table = 'old';
     protected $primaryKey = 'serial_no';
    /**
      * Fillables for the database

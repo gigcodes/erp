@@ -718,6 +718,9 @@
 
 
 
+
+
+
                             @can('lister-list')
 
                                 <li class="nav-item dropdown">
@@ -1620,6 +1623,12 @@
                               @can('voucher')
                                 <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
                               @endcan
+                                @can('old')
+                                      <a class="dropdown-item" href="{{ action('OldController@index') }}">Old</a>
+                                @endcan
+                                  @can('incoming')
+                                      <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old-Incoming</a>
+                                  @endcan
 
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
