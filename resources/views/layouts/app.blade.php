@@ -1626,7 +1626,7 @@
                                 @can('old')
                                       <a class="dropdown-item" href="{{ action('OldController@index') }}">Old</a>
                                 @endcan
-                                  @can('incoming')
+                                  @can('old-incoming')
                                       <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old-Incoming</a>
                                   @endcan
 
