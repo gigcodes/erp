@@ -8,6 +8,7 @@ use App\Lawyer;
 use App\LegalCase;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Bugsnag\PsrLogger\BugsnagLogger;
+use Dompdf\Dompdf;
 use Illuminate\Support\Facades\URL;
 use Plank\Mediable\MediaUploaderFacade;
 use Twilio\Jwt\ClientToken;
@@ -1949,24 +1950,36 @@ class WhatsAppController extends FindByNumberController
       }
 
       if ($request->images) {
-        $image_count = 0;
-        foreach (json_decode($request->images) as $image) {
-          if ($image_count == 15) {
-            $image_count = 0;
+        $imagesDecoded = json_decode($request->images);
+        if (count($imagesDecoded) >= 10) {
 
-            $data['message'] = NULL;
-            $chat_message = ChatMessage::create($data);
-          }
+            $temp_chat_message = ChatMessage::create($data);
+            foreach ($imagesDecoded as $image) {
+                $media = Media::find($image);
+                $temp_chat_message->attachMedia($media,config('constants.media_tags'));
+            }
 
-          $media = Media::find($image);
-          $chat_message->attachMedia($media,config('constants.media_tags'));
 
-          $image_count++;
-
-          // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
-          //   $another_message->attachMedia($media,config('constants.media_tags'));
-          // }
+            $fn = '';
+            if ($context == 'customer') {
+                $fn = '_product';
+            }
+            $medias = Media::whereIn('id', $imagesDecoded)->get();
+            $pdfView = view('pdf_views.images' . $fn, compact('medias'));
+            $pdf = new Dompdf();
+            $pdf->loadHtml($pdfView);
+            $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
+            $pdf->render();
+            File::put($fileName, $pdf->output());
+            $media = MediaUploader::fromSource($fileName)->upload();
+            $chat_message->attachMedia($media, 'gallery');
+        } else {
+            foreach ($imagesDecoded as $image) {
+                $media = Media::find($image);
+                $chat_message->attachMedia($media,config('constants.media_tags'));
+            }
         }
+
       }
 
       if ($request->screenshot_path != '') {
@@ -3314,7 +3327,6 @@ class WhatsAppController extends FindByNumberController
 
   public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
 	{
-
     // $configs = \Config::get("wassenger.api_keys");
     $encodedNumber = '+' . $number;
     $encodedText = $message;
@@ -3349,6 +3361,7 @@ class WhatsAppController extends FindByNumberController
       $link = 'sendFile';
     }
 
+
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
@@ -3368,6 +3381,7 @@ class WhatsAppController extends FindByNumberController
 
     $response = curl_exec($curl);
     $err = curl_error($curl);
+
     // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
     curl_close($curl);

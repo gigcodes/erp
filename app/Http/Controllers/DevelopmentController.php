@@ -36,9 +36,15 @@ class DevelopmentController extends Controller
       $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
       $id = null;
 
-      $progressTasks = DeveloperTask::where('user_id', $user);
-      $plannedTasks = DeveloperTask::where('user_id', $user);
-      $completedTasks = DeveloperTask::where('user_id', $user);
+      $progressTasks = new DeveloperTask();
+      $plannedTasks = new DeveloperTask();
+      $completedTasks = new DeveloperTask();
+
+      if (!Auth::user()->hasRole('Admin')) {
+          $progressTasks = DeveloperTask::where('user_id', $user);
+          $plannedTasks = DeveloperTask::where('user_id', $user);
+          $completedTasks = DeveloperTask::where('user_id', $user);
+      }
 
       if ($request->get('range_start') != '') {
         $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);

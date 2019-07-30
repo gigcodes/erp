@@ -506,6 +506,13 @@
                       @if (array_key_exists($customer->id, $orders))
                         @if ($customer->purchase_status != null)
                           {{ $customer->purchase_status }}
+                            @foreach($orders[$customer->id][0]['order_product'] as $orderStat)
+                                @if($orderStat['product'])
+                                    <li>
+                                        <a target="_new" href="{{ action('ProductController@show', $orderStat['product']['id'])  }}">{{ $orderStat['product']['id'] }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
                         @else
                           No Purchase
                         @endif

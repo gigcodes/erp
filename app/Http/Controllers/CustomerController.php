@@ -69,7 +69,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
       $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
-      $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
+      $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->with('order_product.product')->get()->groupBy('customer_id')->toArray();
       $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total' )->whereNotNull('order_status')->groupBy('order_status')->get();
 
       $finalOrderStats = [];
