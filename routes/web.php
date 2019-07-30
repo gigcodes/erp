@@ -784,3 +784,18 @@ Route::prefix('/seo')->name('seo.')->group(function(){
     Route::post('/analytics/filter', 'SEOAnalyticsController@filter')->name('analytics.filter');
     Route::post('/analytics/delete/{id}', 'SEOAnalyticsController@delete')->name('delete_entry');
 });
+
+Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
+Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
+
+Route::get('old-incomings', 'OldIncomingController@index')->name('oldIncomings');
+Route::get('old-incomings', 'OldIncomingController@index')->name('filteredOldIncomings');
+Route::post('store/old-incomings', 'OldIncomingController@store')->name('storeOldIncomings');
+Route::get('edit/old-incomings/{id}', 'OldIncomingController@edit')->name('editOldIncomings');
+Route::post('update/old-incomings/{id}', 'OldIncomingController@update')->name('updateOldIncomings');
+
+Route::get('old', 'OldController@Index')->name('old');
+Route::get('old', 'OldController@Index')->name('filteredOld');
+Route::post('store/old', 'OldController@store')->name('storeOld');
+Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
+Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
