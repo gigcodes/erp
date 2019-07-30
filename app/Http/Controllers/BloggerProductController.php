@@ -10,6 +10,7 @@ use App\Http\Requests\CreateBloggerProductRequest;
 use App\ReplyCategory;
 use App\User;
 use Illuminate\Http\Request;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class BloggerProductController extends Controller
 {
@@ -53,12 +54,29 @@ class BloggerProductController extends Controller
         return view('blogger.show', $this->data);
     }
 
-    public function uploadImages(Request $request)
+    public function uploadImages(BloggerProduct $bloggerProduct, Request $request)
     {
         $this->validate($request, [
-            'image' => 'image'
+            'images.*' => 'image'
         ]);
-        dd($request->file('image'));
 
+        $uploaded_images = [];
+        if ($request->hasFile('images')) {
+            try{
+                foreach ($request->file('images') as $image) {
+                    $media = MediaUploader::fromSource($image)->toDirectory('blogger-images')->upload();
+                    array_push($uploaded_images, $media);
+                    $bloggerProduct->attachMedia($media,config('constants.media_tags'));
+                }
+            }catch (\Exception $exception){
+                return response($exception->getMessage(), $exception->getCode());
+            }
+        }
+        return response($uploaded_images, 200);
+    }
+
+    public function getImages(BloggerProduct $bloggerProduct)
+    {
+        return response($bloggerProduct->getMedia(config('constants.media_tags')), 200);
     }
 }

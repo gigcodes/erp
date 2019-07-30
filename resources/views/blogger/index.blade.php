@@ -148,7 +148,7 @@
                                             </td>
                                             <td>
                                                 <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal"
-                                                        data-target="#bloggerImageModal" data-id="{{ $blogger_product->id }}" data-blogger-product-images="{{$blogger_product->images}}"><i class="fa fa-plus"></i></button>
+                                                        data-target="#bloggerImageModal" data-blogger-product-id="{{ $blogger_product->id }}" data-blogger-product-images="{{$blogger_product->images}}"><i class="fa fa-plus"></i></button>
                                             </td>
                                             <td>
                                                 <div class="d-flex">
@@ -357,7 +357,7 @@
     @include('blogger.partials.contact-blogger-update-modals')
     @include('blogger.partials.blogger-form-modals')
     @include('blogger.partials.blogger-product-form-modals')
-    {{--@include('blogger.partials.blogger-image-modals')--}}
+    @include('blogger.partials.blogger-image-modals')
     @include('partials.modals.remarks')
 @endsection
 
@@ -470,21 +470,61 @@
             var button = $(event.relatedTarget)
             var blogger_images = button.data('blogger-product-images')
             var blogger_product_id = button.data('blogger-product-id')
-            var url = "{{ url('blogger-images') }}/" + blogger_product_id;
+            //upload image url
+            var url = "{{ url('blogger-product-image') }}/" + blogger_product_id;
             modal.find('form').attr('action', url);
 
-            var html = '';
-            var images = Json.parse(blogger_images)
-            $.each(images, function (index, value) {
-                html += " <div class='col-lg-3 col-md-3'>  " +
-                    "<img src=''/>"+
-                    "</div>";
+            //render images
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ url('blogger-product-get-image') }}/" + blogger_product_id,
+                type: "GET",
+            }).done(response => {
+                var html = '';
+                $.each(response, function (index, value) {
+                    html += " <div class='col-lg-4 col-md-4'>  " +
+                        "<img src='/uploads/"+value.directory+"/"+value.filename+"."+value.extension+"' width='100%' class='img img-responsive img-thumbnail'/>"+
+                        "</div>";
 
-            })
-            $(".blogger_images").html(html);
+                })
+                $(".blogger_images").html(html);
+            }).fail(function (response) {
+                console.log(response);
+                alert('Could not fetch images');
+            });
+        })
+        //post images
+        $('#bloggerImageModal form').on('submit',function(e){
+            e.preventDefault();
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: $(this).attr('action'),
+                type: "POST",
+                data:  new FormData(this),
+                contentType: false,
+                cache: false,
+                processData:false,
+            }).done(response => {
+                //work on response
+                $.each(response, function(index,value){
+                    var html = '';
+                    $.each(response, function (index, value) {
+                        html += " <div class='col-lg-4 col-md-4'>  " +
+                            "<img src='/uploads/"+value.directory+"/"+value.filename+"."+value.extension+"' width='100%' class='img img-responsive img-thumbnail'/>"+
+                            "</div>";
 
-
-
+                    })
+                    $(".blogger_images").append(html);
+                })
+                this.reset();
+            }).fail(function (response) {
+                console.log(response);
+                alert('Could not store images');
+            });
         })
 
         $(document).on('click', '.expand-row', function () {
