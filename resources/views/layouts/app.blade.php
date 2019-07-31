@@ -1652,7 +1652,9 @@
                             </a>
                            
                             <ul class="dropdown-menu">
-                              <li><a href="{{ route('hubstaff.users') }}">All Users</a></li>
+                              <li><a href="{{ route('users.api') }}">Users</a></li>
+                              <!-- <li><a href="{{ route('hubstaff.users') }}">Organizations</a></li>
+                              <li><a href="{{ route('hubstaff.users') }}">user Reports</a></li> -->
                             </ul>
                         </div>
                         <!-- Hubstaff -->

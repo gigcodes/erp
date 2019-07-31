@@ -829,4 +829,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
 
 //Hubstaff Module
 
-Route::get('get-hubstaff-users', 'Hubstaff\HubstaffController@allUsers')->name('hubstaff.users');
+Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
+	// Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
+	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
+	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
+});
+
+
