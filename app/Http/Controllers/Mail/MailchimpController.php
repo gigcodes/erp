@@ -16,7 +16,7 @@ class MailchimpController extends Controller
     public function __construct(\Mailchimp $mailchimp)
     {
         $this->mailchimp = $mailchimp;
-        $this->list = getenv('LIST_ID');
+        $this->listId = getenv('LIST_ID');
     }
 
 
