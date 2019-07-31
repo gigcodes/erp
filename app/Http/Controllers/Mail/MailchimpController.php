@@ -11,12 +11,12 @@ use App\Customer;
 class MailchimpController extends Controller
 {
     public $mailchimp;
-    public $listId = '5c65d1c4bd';
+    public $listId;
 
     public function __construct(\Mailchimp $mailchimp)
     {
         $this->mailchimp = $mailchimp;
-        // $this->list = getenv('MAILCHIMP_APIKEY');
+        $this->list = getenv('LIST_ID');
     }
 
 

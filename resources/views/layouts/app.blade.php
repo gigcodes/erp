@@ -1642,7 +1642,7 @@
                         <!-- mailchimp -->
 
                         <!-- Hubstaff -->
-                       <!--  <div class="dropdown">
+                        <div class="dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button"
 
                                data-toggle="dropdown" >
@@ -1654,7 +1654,7 @@
                             <ul class="dropdown-menu">
                               <li><a href="{{ route('hubstaff.users') }}">All Users</a></li>
                             </ul>
-                        </div> -->
+                        </div>
                         <!-- Hubstaff -->
 
                         <li class="nav-item dropdown">
