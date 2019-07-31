@@ -817,3 +817,16 @@ Route::middleware('auth')->group(function () {
     Route::get('blogger-product-get-image/{blogger_product}', ['uses'=>'BloggerProductController@getImages','as'=>'blogger.image']);
     Route::resource('blogger-product', 'BloggerProductController');
 });
+
+
+// Mailchimp Module
+Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
+	Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
+	Route::post('subscribe',['as'=>'subscribe','uses'=>'MailchimpController@subscribe']);
+	Route::post('sendCompaign',['as'=>'sendCompaign','uses'=>'MailchimpController@sendCompaign']);
+	Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
+});
+
+//Hubstaff Module
+
+Route::get('get-hubstaff-users', 'Hubstaff\HubstaffController@allUsers')->name('hubstaff.users');
