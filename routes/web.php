@@ -813,6 +813,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@destroy','as'=>'contact.blogger.destroy']);
 
 
-    Route::post('blogger-product-image', ['uses'=>'BloggerProductController@uploadImages','as'=>'blogger.image.upload']);
+    Route::post('blogger-product-image/{blogger_product}', ['uses'=>'BloggerProductController@uploadImages','as'=>'blogger.image.upload']);
+    Route::get('blogger-product-get-image/{blogger_product}', ['uses'=>'BloggerProductController@getImages','as'=>'blogger.image']);
     Route::resource('blogger-product', 'BloggerProductController');
 });
