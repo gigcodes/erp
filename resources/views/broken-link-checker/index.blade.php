@@ -48,9 +48,30 @@
           </tr>
         </thead>
         <tbody>
-            @foreach ($details as $detail)
+            @foreach ($details as $key => $detail)
                 <tr>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->domains, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->domains, 10, '<a href="javascript:void(0)">...</a>'))); @endphp
+                      @if (strlen(strip_tags($detail->domains)) > 10)
+                        <div>
+                            <div class="panel-group">
+                              <div class="panel panel-default">
+                                <div class="panel-heading">
+                                  <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">Read More</a>
+                                  </h4>
+                                </div>
+                                <div id="collapse_domain-{{$key}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                                  <div class="panel-body">
+                                    <div class="messageList" id="message_list_310">
+                                        {{$detail->domains}}     
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        @endif
+                    </td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->id, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->link, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->link_type, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
@@ -59,7 +80,28 @@
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->rating, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->serp_id, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->snippet, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->title, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->title, 50, '<a href="javascript:void(0)">...</a>'))); @endphp
+                      @if (strlen(strip_tags($detail->title)) > 50)
+                        <div>
+                            <div class="panel-group">
+                              <div class="panel panel-default">
+                                <div class="panel-heading">
+                                  <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse_title-{{$key}}" class="collapsed" aria-expanded="false">Read More</a>
+                                  </h4>
+                                </div>
+                                <div id="collapse_title-{{$key}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                                  <div class="panel-body">
+                                    <div class="messageList" id="message_list_310">
+                                        {{$detail->title}}     
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        @endif
+                    </td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->visible_link, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                 </tr>    
             @endforeach

@@ -799,3 +799,6 @@ Route::get('old', 'OldController@Index')->name('filteredOld');
 Route::post('store/old', 'OldController@store')->name('storeOld');
 Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
 Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
+
+Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
+Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
