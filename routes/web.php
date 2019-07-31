@@ -773,7 +773,6 @@ Route::middleware('auth')->group(function () {
     Route::get('case-costs/{case}', ['uses'=>'CaseController@getCosts','as'=>'case.cost']);
     Route::post('case-costs', ['uses'=>'CaseController@costStore','as'=>'case.cost.post']);
     Route::put('case-costs/update/{case_cost}', ['uses'=>'CaseController@costUpdate','as'=>'case.cost.update']);
-
 });
 
 Route::middleware('auth')->resource('keyword-instruction', 'KeywordInstructionController')->except(['create']);
@@ -800,4 +799,20 @@ Route::middleware('auth')->group(function() {
     Route::post('store/old', 'OldController@store')->name('storeOld');
     Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
     Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
+});
+
+//Blogger Module
+Route::middleware('auth')->group(function () {
+
+    Route::get('blogger-email', ['uses'=>'BloggerEmailTemplateController@index','as'=>'blogger.email.template']);
+    Route::put('blogger-email/{bloggerEmailTemplate}', ['uses'=>'BloggerEmailTemplateController@update','as'=>'blogger.email.template.update']);
+    Route::resource('blogger', 'BloggerController');
+
+    Route::post('blogger-contact', ['uses' => 'ContactBloggerController@store','as'=>'blogger.contact.store']);
+    Route::put('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@update','as'=>'blogger.contact.update']);
+    Route::delete('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@destroy','as'=>'contact.blogger.destroy']);
+
+
+    Route::post('blogger-product-image', ['uses'=>'BloggerProductController@uploadImages','as'=>'blogger.image.upload']);
+    Route::resource('blogger-product', 'BloggerProductController');
 });

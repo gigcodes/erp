@@ -1239,7 +1239,6 @@ class ProductController extends Controller {
 
 	    $product = Product::where('is_image_processed', 0)
             ->where('is_being_cropped', 0)
-            ->where('is_scraped', 1)
             ->where('is_without_image', 0)
             ->where('is_crop_skipped', 0)
             ->where('category', '>', 3)
@@ -1556,7 +1555,9 @@ class ProductController extends Controller {
 
         $products = $products->orderBy('listing_rejected_on', 'DESC')->orderBy('updated_at', 'DESC')->paginate(25);
 
-	    return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier', 'request', 'users'));
+        $rejectedListingSummary = DB::table('products')->selectRaw('DISTINCT(listing_remark) as remark, COUNT(listing_remark) as issue_count')->where('is_listing_rejected',1)->groupBy('listing_remark')->orderBy('issue_count', 'DESC')->get();
+
+        return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier', 'request', 'users', 'rejectedListingSummary'));
     }
 
     public function updateProductListingStats(Request $request) {

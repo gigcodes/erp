@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Blogger;
 use App\DeveloperTask;
 use App\Issue;
 use App\Lawyer;
@@ -1751,6 +1752,7 @@ class WhatsAppController extends FindByNumberController
         'assigned_to'     => 'sometimes|nullable',
         'lawyer_id'     => 'sometimes|nullable|numeric',
         'case_id'     => 'sometimes|nullable|numeric',
+        'blogger_id'     => 'sometimes|nullable|numeric',
       ]);
 
       $data = $request->except( '_token');
@@ -1890,6 +1892,9 @@ class WhatsAppController extends FindByNumberController
           $data['case_id'] = $request->case_id;
           $data['lawyer_id'] = $request->lawyer_id;
           $module_id = $request->case_id;
+      }else if($context == 'blogger'){
+          $data['blogger_id'] = $request->blogger_id;
+          $module_id = $request->blogger_id;
       }
 
       if ($context != 'task') {
@@ -2385,6 +2390,9 @@ class WhatsAppController extends FindByNumberController
       }else if ($request->caseId) {
         $column = 'case_id';
         $value = $request->caseId;
+      }else if ($request->bloggerId) {
+          $column = 'blogger_id';
+          $value = $request->bloggerId;
       } else {
         $column = 'customer_id';
         $value = $request->customerId;
@@ -2694,12 +2702,16 @@ class WhatsAppController extends FindByNumberController
                 $phone = '';
             }
             $whatsapp_number = $case->whatsapp_number;
+        } else if ($context == 'blogger') {
+            $blogger = Blogger::find($message->blogger_id);
+            $phone = $blogger->default_phone;
+            $whatsapp_number = $blogger->whatsapp_number;
         }
 
         $data = '';
         if ($message->message != '') {
 
-          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case') {
+          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
 //             if ($whatsapp_number == '919152731483') {

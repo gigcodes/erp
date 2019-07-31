@@ -88,6 +88,35 @@
         </div>
     </div>
     <div class="row">
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">ALl Rejection Issues</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-striped table-bordered">
+                                <tr>
+                                    <th>Issue</th>
+                                    <th>Total Count</th>
+                                </tr>
+                                @foreach($rejectedListingSummary as $issue)
+                                    <tr>
+                                        <td>{{ $issue->remark }}</td>
+                                        <td>{{ $issue->issue_count }}</td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-12 text-center">
             {!! $products->appends($request->except('page'))->links() !!}
         </div>
