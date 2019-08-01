@@ -6,6 +6,7 @@ use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
 use App\Console\Commands\EnrichWiseProducts;
 use App\Console\Commands\FixCategoryNameBySupplier;
+use App\Console\Commands\FlagCustomersIfTheyHaveAComplaint;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
@@ -127,7 +128,8 @@ class Kernel extends ConsoleKernel
         UploadProductsToMagento2::class,
         UploadProductsToMagento3::class,
         SendAutoReplyToCustomers::class,
-        FixCategoryNameBySupplier::class
+        FixCategoryNameBySupplier::class,
+        FlagCustomersIfTheyHaveAComplaint::class
     ];
 
     /**
@@ -138,6 +140,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        //Flag customer if they have a complaint
+        $schedule->command('flag:customers-with-complaints')->daily();
 
         //This command sends the reply on products if they request...
         $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();

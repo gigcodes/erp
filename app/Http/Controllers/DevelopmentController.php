@@ -157,7 +157,7 @@ class DevelopmentController extends Controller
 
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
-        $issues = $issues->orderBy('created_at', 'DESC')->with('communications')->get();
+        $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications')->get();
 
         return view('development.issue', [
         'issues'  => $issues,

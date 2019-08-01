@@ -191,9 +191,12 @@ class ScrapController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+  		$cropCountPerMinute = Product::whereRaw('cropped_at >= date_sub(now(),interval 1.2 minute)')->count();
+
       return view('scrap.activity', [
         'data'  => $data,
-        'link_entries'  => $link_entries
+        'link_entries'  => $link_entries,
+          'croppingRate' => $cropCountPerMinute
       ]);
     }
 

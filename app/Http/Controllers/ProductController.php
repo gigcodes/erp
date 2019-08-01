@@ -1320,6 +1320,7 @@ class ProductController extends Controller {
 
             $product->is_image_processed = 1;
             $product->stage = 5;
+            $product->cropped_at = Carbon::now()->toDateTimeString();
             $product->save();
 
         } else {
