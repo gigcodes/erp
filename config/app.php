@@ -171,7 +171,6 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
-
     ],
 
     /*

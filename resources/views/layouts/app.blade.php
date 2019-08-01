@@ -33,6 +33,13 @@
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
     </script>
+    <script>
+        jQuery('.readmore').readmore({ 
+            speed: 75, 
+            moreLink: '<a href="#">Read more</a>'
+            lessLink: '<a href="#">Read less</a>',
+         });
+    </script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}

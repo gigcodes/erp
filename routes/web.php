@@ -802,3 +802,6 @@ Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
 
 Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
 Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
+
+Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
+
