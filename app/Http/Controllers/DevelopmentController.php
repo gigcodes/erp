@@ -133,6 +133,16 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function updateAssignee(Request $request) {
+         $task = DeveloperTask::find($request->get('task_id'));
+         $task->user_id = $request->get('user_id');
+         $task->save();
+
+         return response()->json([
+             'success'
+         ]);
+    }
+
     public function issueIndex(Request $request)
     {
         $issues = new Issue;

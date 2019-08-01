@@ -425,6 +425,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
     Route::post('development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress');
     Route::post('development/task/complete-task', 'DevelopmentController@completeTask');
+    Route::post('development/task/assign-task', 'DevelopmentController@updateAssignee');
     Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
 
 	Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
@@ -785,8 +786,8 @@ Route::prefix('/seo')->name('seo.')->group(function(){
 });
 
 Route::middleware('auth')->group(function() {
-    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
-    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
+//    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
+//    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
 
     Route::get('old-incomings', 'OldIncomingController@index')->name('oldIncomings');
     Route::get('old-incomings', 'OldIncomingController@index')->name('filteredOldIncomings');
@@ -794,8 +795,8 @@ Route::middleware('auth')->group(function() {
     Route::get('edit/old-incomings/{id}', 'OldIncomingController@edit')->name('editOldIncomings');
     Route::post('update/old-incomings/{id}', 'OldIncomingController@update')->name('updateOldIncomings');
 
-    Route::get('old', 'OldController@Index')->name('old');
-    Route::get('old', 'OldController@Index')->name('filteredOld');
+    Route::get('old', 'OldController@index')->name('old');
+    Route::get('old', 'OldController@index')->name('filteredOld');
     Route::post('store/old', 'OldController@store')->name('storeOld');
     Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
     Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
@@ -834,7 +835,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
 //Hubstaff Module
 
 Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
-	// Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
+	 Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
 	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
 	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
 });

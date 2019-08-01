@@ -277,7 +277,7 @@
 
 
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <li class="collapse navbar-collapse" id="navbarSupportedContent">
 
                 <!-- Left Side Of Navbar -->
 
@@ -1343,6 +1343,10 @@
                                     <a class="dropdown-item" href="{{ route('benchmark.create') }}">Add benchmark</a>
                                     <a class="dropdown-item" href="{{ action('ProductController@showListigByUsers') }}">User-Product Assigmnent</a>
 
+                                    @can('hubstaff')
+                                         <a class="dropdown-item" href="{{ route('users.api') }}">Hubstaff Users</a>
+                                    @endcan
+
                                 </div>
 
                             </li>
@@ -1363,6 +1367,24 @@
                               @else
                                   @can('social-email')
                                       <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
+                                  @endcan
+                                  @can('mailchimp')
+                                      <li class="nav-item dropdown dropdown-submenu">
+
+                                          <a id="mailchimpMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
+                                              Mailchimp<span class="caret"></span>
+
+                                          </a>
+
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="instagramMenu">
+                                              <li class="nav-item dropdown dropdown-submenu">
+                                                  <a class="dropdown-item" href="{{ route('manage.mailchimp') }}">Manage MailChimp</a>
+                                                  <a class="dropdown-item" href="{{ route('make.active.subscriber') }}">Pull customers as Subscribers</a>
+
+                                              </li>
+                                          </ul>
+                                      </li>
                                   @endcan
                                   @can('instagram')
                                       <li class="nav-item dropdown dropdown-submenu">
@@ -1595,12 +1617,38 @@
                                 <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
                               @endcan
 
+                                  @can('old')
+                                      <a class="dropdown-item" href="{{ action('OldController@index') }}">Old</a>
+                                  @endcan
+                                  @can('old-incoming')
+                                      <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old-Incoming</a>
+                                  @endcan
+
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
                             </div>
                           </li>
+                        @endcan
+
+
+                        @can('blogger')
+                            <li class="nav-item dropdown">
+
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    Blogger <span class="caret"></span>
+
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a href="{{route('blogger.index')}}" role="button" class="dropdown-item">Blogger List</a>
+                                    <a href="{{route('blogger.email.template')}}" role="button" class="dropdown-item">Email</a>
+                                </div>
+                            </li>
                         @endcan
 
                         @can('admin')
@@ -1625,40 +1673,6 @@
                             </li>
                         @endcan
 
-                        <!-- mailchimp -->
-                        <div class="dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-
-                               data-toggle="dropdown" >
-
-                                <span class="caret"></span>MailChimp
-
-                            </a>
-                           
-                            <ul class="dropdown-menu">
-                              <li><a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a></li>
-                              <li><a href="{{ route('make.active.subscriber') }}">Pull customers as Subscribers</a></li>
-                            </ul>
-                        </div>
-                        <!-- mailchimp -->
-
-                        <!-- Hubstaff -->
-                        <div class="dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-
-                               data-toggle="dropdown" >
-
-                                <span class="caret"></span>Hubstaff
-
-                            </a>
-                           
-                            <ul class="dropdown-menu">
-                              <li><a href="{{ route('users.api') }}">Users</a></li>
-                              <!-- <li><a href="{{ route('hubstaff.users') }}">Organizations</a></li>
-                              <li><a href="{{ route('hubstaff.users') }}">user Reports</a></li> -->
-                            </ul>
-                        </div>
-                        <!-- Hubstaff -->
 
                         <li class="nav-item dropdown">
 

@@ -44,6 +44,8 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
     public function handle()
     {
 
+        return;
+
         $now = Carbon::now()->toDateTimeString();
 
         $tasks = DeveloperTask::where(function($query) use ($now) {
