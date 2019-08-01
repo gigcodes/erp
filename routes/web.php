@@ -820,3 +820,21 @@ Route::middleware('auth')->group(function () {
     Route::get('blogger-product-get-image/{blogger_product}', ['uses'=>'BloggerProductController@getImages','as'=>'blogger.image']);
     Route::resource('blogger-product', 'BloggerProductController');
 });
+
+
+
+// Mailchimp Module
+Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
+	Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
+	Route::post('subscribe',['as'=>'subscribe','uses'=>'MailchimpController@subscribe']);
+	Route::post('sendCompaign',['as'=>'sendCompaign','uses'=>'MailchimpController@sendCompaign']);
+	Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
+});
+
+//Hubstaff Module
+
+Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
+	// Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
+	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
+	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
+});
