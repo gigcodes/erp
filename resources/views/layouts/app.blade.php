@@ -26,6 +26,7 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="{{asset('js/readmore.js')}}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <script>
         let Laravel = {};
@@ -1916,6 +1917,7 @@
           var y = String.fromCharCode(x);
           collectedData[0].data += y;
       });
+      
 
       // $(document).click(function() {
       //     if (collectedData[0].data.length > 10) {

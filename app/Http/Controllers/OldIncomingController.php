@@ -8,6 +8,7 @@ use Session;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use View;
+use App\Issue;
 
 class OldIncomingController extends Controller
 {
@@ -39,6 +40,7 @@ class OldIncomingController extends Controller
      */
     public function index()
     {
+        $issues = new Issue;
         if (!empty($_GET['sr_no'])) {
             $sr_no = $_GET['sr_no'];
             $old_incomings = $this->oldincoming::where('serial_no', $sr_no)->paginate(10)->setPath('');
@@ -58,8 +60,9 @@ class OldIncomingController extends Controller
         } else {
             $old_incomings = $this->oldincoming->paginate(10);
         }
+        $issues = $issues->orderBy('created_at', 'DESC')->with('communications')->get();
         $status = $this->oldincoming->getStatus();
-        return view('old-incomings.index', compact('status', 'old_incomings'));
+        return view('old-incomings.index', compact('status', 'old_incomings', 'issues'));
     }
 
     /**
@@ -80,19 +83,6 @@ class OldIncomingController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate(
-            $request, [
-                'name' => 'required',
-                'description' => 'required',
-                'amount' => 'required',
-                'commitment' => 'required',
-                'communication' => 'required',
-                'status' => 'required',
-                'email' => 'required',
-                'number' => 'required',
-                'address' => 'required',
-            ]
-        );
         $this->oldincoming->saveRecord($request);
         Session::flash('success', 'Record Created');
         return Redirect::back();
@@ -131,19 +121,6 @@ class OldIncomingController extends Controller
      */
     public function update(Request $request, $serial_no)
     {
-        $this->validate(
-            $request, [
-                'name' => 'required',
-                'description' => 'required',
-                'amount' => 'required',
-                'commitment' => 'required',
-                'communication' => 'required',
-                'status' => 'required',
-                'email' => 'required',
-                'number' => 'required',
-                'address' => 'required',
-            ]
-        );
         $this->oldincoming->updateRecord($request, $serial_no);
         Session::flash('success', 'Record Updated');
         return redirect('old-incomings');

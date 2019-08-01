@@ -794,11 +794,14 @@ Route::middleware('auth')->group(function() {
     Route::get('edit/old-incomings/{id}', 'OldIncomingController@edit')->name('editOldIncomings');
     Route::post('update/old-incomings/{id}', 'OldIncomingController@update')->name('updateOldIncomings');
 
-    Route::get('old', 'OldController@index')->name('old');
-    Route::get('old', 'OldController@index')->name('filteredOld');
+    Route::get('old', 'OldController@Index')->name('old');
+    Route::get('old', 'OldController@Index')->name('filteredOld');
     Route::post('store/old', 'OldController@store')->name('storeOld');
     Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
     Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
+
+    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
+    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
 });
 
 //Blogger Module
