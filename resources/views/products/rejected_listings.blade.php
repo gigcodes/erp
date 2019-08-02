@@ -185,6 +185,9 @@
                             <p>{{ $product->listing_remark }}</p>
                             <p><strong>Rejected By</strong></p>
                             <p>{{ $product->rejector ? $product->rejector->name : 'N/A' }}</p>
+                            @if ( count($product->log_scraper_vs_ai) > 0 )
+                                <a class="btn btn-secondary btn-sm text-light" href="/log-scraper-vs-ai/{{ $product->id }}" target="_blank">AI result</a>
+                            @endif
                         </td>
                         <td colspan="4">
                             <p><strong>Final Action</strong></p>

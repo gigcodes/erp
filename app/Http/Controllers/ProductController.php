@@ -1554,7 +1554,7 @@ class ProductController extends Controller {
 
         $category_array = Category::renderAsArray();
 
-        $products = $products->orderBy('listing_rejected_on', 'DESC')->orderBy('updated_at', 'DESC')->paginate(25);
+        $products = $products->with('log_scraper_vs_ai')->orderBy('listing_rejected_on', 'DESC')->orderBy('updated_at', 'DESC')->paginate(25);
 
         $rejectedListingSummary = DB::table('products')->selectRaw('DISTINCT(listing_remark) as remark, COUNT(listing_remark) as issue_count')->where('is_listing_rejected',1)->groupBy('listing_remark')->orderBy('issue_count', 'DESC')->get();
 
