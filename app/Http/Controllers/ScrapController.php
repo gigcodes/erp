@@ -334,7 +334,7 @@ class ScrapController extends Controller
     }
 
     public function getFromNewSupplier() {
-        $products = Product::where('supplier', 'LE LUNETIER MILANO')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
+        $products = Product::where('supplier', 'Ines')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
         foreach ($products as $product) {
 
             $productsToPush[] = [
@@ -824,7 +824,7 @@ class ScrapController extends Controller
         if ($scrapedProduct) {
             echo "Scraped product found \n";
             $properties = $scrapedProduct->properties;
-//            $scrapedProduct->price = $request->get('price');
+            $scrapedProduct->price = $request->get('price');
             $properties['category'] = $request->get('category');
             $properties['description'] = $request->get('description');
             $properties['material_used'] = $request->get('material_used');

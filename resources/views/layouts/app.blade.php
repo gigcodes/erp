@@ -1447,6 +1447,24 @@
 
                                       </li>
                                   @endcan
+                                  @can('seo')
+                                      <li class="nav-item dropdown dropdown-submenu">
+
+                                          <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
+                                              SEO<span class="caret"></span>
+
+                                          </a>
+
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
+                                              <li class="nav-item dropdown dropdown-submenu">
+                                                  <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
+                                                  <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
+                                              </li>
+                                          </ul>
+
+                                      </li>
+                                  @endcan
                                   @can('sitejabber')
                                       <li class="nav-item dropdown dropdown-submenu">
 
@@ -1613,16 +1631,12 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                              @can('voucher')
-                                <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
+                              @can('old')
+                                  <a class="dropdown-item" href="{{ action('OldController@index') }}">Old</a>
                               @endcan
-
-                                  @can('old')
-                                      <a class="dropdown-item" href="{{ action('OldController@index') }}">Old</a>
-                                  @endcan
-                                  @can('old-incoming')
-                                      <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old-Incoming</a>
-                                  @endcan
+                              @can('old-incoming')
+                                  <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old-Incoming</a>
+                              @endcan
 
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
@@ -1687,6 +1701,10 @@
 
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                @can('voucher')
+                                    <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
+                                @endcan
 
                                 @can('setting-list')
 

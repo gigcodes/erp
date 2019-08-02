@@ -787,7 +787,7 @@ Route::prefix('/seo')->name('seo.')->group(function(){
 
 Route::middleware('auth')->group(function() {
 //    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
-//    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
+    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
 
     Route::get('old-incomings', 'OldIncomingController@index')->name('oldIncomings');
     Route::get('old-incomings', 'OldIncomingController@index')->name('filteredOldIncomings');
@@ -801,8 +801,8 @@ Route::middleware('auth')->group(function() {
     Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
     Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
 
-    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
+//    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
 });
 
 //Blogger Module
