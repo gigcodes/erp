@@ -91,7 +91,7 @@ class MailchimpController extends Controller
 	 	$subscribedAlready = [];
 	 	$errorMailchimp = [];
 
-    	Customer::where('email', '!=', null)->chunk(100, function ($customers) {
+    	Customer::where('email', '!=', null)->chunk(100, function ($customers) use ($successfulSubscriptions, $subscribedAlready, $errorMailchimp) {
 		  
 		  foreach ($customers as $customer) {
 			

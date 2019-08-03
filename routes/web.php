@@ -41,6 +41,7 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
+    Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::resource('color-reference', 'ColorReferenceController');
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
@@ -801,6 +802,8 @@ Route::middleware('auth')->group(function() {
     Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
     Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
 
+    Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
+
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
 //    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
 });
@@ -833,9 +836,9 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
 });
 
 //Hubstaff Module
-
 Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
 	Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
 	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
 	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
 });
+

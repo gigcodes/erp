@@ -1335,6 +1335,13 @@ class ProductController extends Controller {
         ]);
     }
 
+    public function rejectedListingStatistics() {
+	    $products = DB::table('products')->where('is_listing_rejected', 1)->groupBy(['listing_remark', 'supplier'])->selectRaw('COUNT(*) as total_count, supplier, listing_remark')->orderBy('total_count', 'DESC')->get();
+
+
+	    return view('products.rejected_stats', compact('products'));
+    }
+
     public function addListingRemarkToProduct(Request $request) {
 	    $productId = $request->get('product_id');
 	    $remark = $request->get('remark');

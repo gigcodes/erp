@@ -33,6 +33,13 @@
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
     </script>
+    <script>
+        jQuery('.readmore').readmore({ 
+            speed: 75, 
+            moreLink: '<a href="#">Read more</a>'
+            lessLink: '<a href="#">Read less</a>',
+         });
+    </script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}
@@ -1460,6 +1467,7 @@
                                               <li class="nav-item dropdown dropdown-submenu">
                                                   <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
                                                   <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
+                                                  <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
                                               </li>
                                           </ul>
 
@@ -1777,10 +1785,7 @@
                                 </form>
 
                             </div>
-
                         </li>
-
-
 
                         @endguest
 
@@ -1795,7 +1800,7 @@
     @if (Auth::check())
 
         @can('admin')
-            <div class="float-container developer-float">
+            <div class="float-container developer-float hidden-xs">
                 @php
                     $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
                     $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
@@ -1821,7 +1826,7 @@
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
             </div>
 
-            <div class="float-container instruction-float">
+            <div class="float-container instruction-float hidden-xs">
                 @php
                     $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
                     $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
@@ -1847,7 +1852,7 @@
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
             </div>
 
-            <div class="float-container">
+            <div class="float-container hidden-xs">
                 @php
                     $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
                     $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();

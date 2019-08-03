@@ -46,9 +46,15 @@
                                 </select>
                             </td>
                             <td>
+                                @if($product->crop_rejected_by != null)
+                                    <br>INPORTANT :: <strong class="text-danger">Previous Rejection Reason: {{ $product->crop_remark }}</strong>
+                                @endif
                                 <form action="{{ action('ProductCropperController@rejectCrop', $product->id) }}">
-                                    <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}" type="button" class="btn btn-secondary approvebtn">Approve</a>
+                                    <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}{{'?'.$q}}" type="button" class="btn btn-secondary approvebtn">Approve</a>
                                     <br><br>
+                                    @if($q=='rejected=yes')
+                                        <input type="hidden" name="rejected" value="yes">
+                                    @endif
                                     <label for="remark" class="text-danger">Select <strong>CORRECT</strong> Reason (MUST SELECT, otherwise you wont be PAID!!)</label>
                                     <select name="remark" id="remark" required>
                                         <option value="">Select reason...</option>
