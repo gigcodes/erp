@@ -15,10 +15,10 @@
         </li>
         {{-- <li class="nav-item">
             <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Most Visted Pages</a>
-        </li>
+        </li>--}}
         <li class="nav-item">
             <a class="nav-link" id="pills-total-tab" data-toggle="pill" href="#pills-total" role="tab" aria-controls="pills-total" aria-selected="false">Total Visitors & Page Views</a>
-        </li> --}}
+        </li>
     </ul>
     <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade active in" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
@@ -34,7 +34,7 @@
                         @foreach ($top_referers as $key => $referer)
                             <tr>
                                 <td>{{$referer['url']}}</td>
-                                <td>{{$referer['pageViews']}}</td>
+                                <td class="text-center">{{$referer['pageViews']}}</td>
                             </tr>    
                         @endforeach
                     </tbody>
@@ -53,8 +53,8 @@
                     <tbody>
                         @foreach ($user_types as $key => $user)
                             <tr>
-                                <td>{{$user['type']}}</td>
-                                <td>{{$user['sessions']}}</td>
+                                <td class="text-center">{{$user['type']}}</td>
+                                <td class="text-center">{{$user['sessions']}}</td>
                             </tr>    
                         @endforeach
                     </tbody>
@@ -83,7 +83,7 @@
                 </table>
             </div>
         </div> --}}
-        {{-- <div class="tab-pane fade" id="pills-total" role="tabpanel" aria-labelledby="pills-total-tab">
+        <div class="tab-pane fade" id="pills-total" role="tabpanel" aria-labelledby="pills-total-tab">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
@@ -94,16 +94,16 @@
                     </tr>
                     </thead>
                     <tbody>
-                        @foreach ($total_visited_pages as $key => $total)
+                        @foreach ($total_visitors_page_views as $key => $total)
                             <tr>
-                                <td>{{$total['date']}}</td>
-                                <td>{{$total['visitors']}}</td>
-                                <td>{{$total['pageViews']}}</td>
+                                <td class="text-center">{{\Carbon\Carbon::Parse($total['date'])->format('D M, Y')}}</td>
+                                <td class="text-center">{{$total['visitors']}}</td>
+                                <td class="text-center">{{$total['pageViews']}}</td>
                             </tr>    
                         @endforeach
                     </tbody>
                 </table>
             </div>
-        </div> --}}
+        </div>
     </div>
 @endsection

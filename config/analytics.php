@@ -29,5 +29,6 @@ return [
      */
     'cache' => [
         'store' => 'file',
+        'lifetime' => 30,
     ],
 ];
