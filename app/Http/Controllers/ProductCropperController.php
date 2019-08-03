@@ -317,6 +317,7 @@ class ProductCropperController extends Controller
 	    $imagesForGrid = [
 	        'Shoes' => 'shoes_grid.png',
             'Backpacks' => 'Backpack.png',
+            'Bags' => 'Backpack.png',
             'Beach' => 'Backpack.png',
             'Travel' => 'Backpack.png',
             'Travel Bag' => 'Backpack.png',
