@@ -13,12 +13,12 @@
         <li class="nav-item">
             <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">User Types</a>
         </li>
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Most Visted Pages</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="pills-total-tab" data-toggle="pill" href="#pills-total" role="tab" aria-controls="pills-total" aria-selected="false">Total Visitors & Page Views</a>
-        </li>
+        </li> --}}
     </ul>
     <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade active in" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
@@ -61,7 +61,7 @@
                 </table>
             </div>
         </div>
-        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+        {{-- <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
@@ -82,7 +82,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> --}}
         {{-- <div class="tab-pane fade" id="pills-total" role="tabpanel" aria-labelledby="pills-total-tab">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
