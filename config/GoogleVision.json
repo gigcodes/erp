@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "product-listing-248509",
+  "private_key_id": "4880f66e343d8b9a3b11eabf5c2da906f26d9972",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDeYRf4Hd9Dl+ix\nuOy/VrB0SjVwbGoXbiq6bhTEaHAX/NgPXv96qTx1i2hfQqdN2KGzrrgh9t97jaBh\nEeXstMXlFXUzrj4CIKjiiHrVvv5p5CoE5SbvVRlZLsbTxwVXtovjJkN+GCKYPCzT\nG2bhewNkUGG+UbtnW+x2CjQGeT0fG/tRVhw0MR/F9DnowepGnYss9FcoA7tgq5tC\nJ3C2Ic48mz3qT7g7wBy0oAe1kiPOrVqbSjnF2SNTMEWvE1NlB2nXjI0SMhpcz0Mk\nfykBX6uDLyTowHlUZAN7Mt6qNvhMXz4z01rN4J1onzDftnh0vEQHNUqCwcrwOL1S\nC/6VjqvhAgMBAAECggEABV34GNhx+Nrw4k/wexNY0rQvLS6JKpXJn0Zwju9XN/19\nwpR2J5n/ugWoah7o/DsGl1BP3G49nWENFDWtGCcCZROdGJ9PmuAaWl4NUqUDhXdM\nvDGyhHWIHS3gzaf+qwveXUABUlDrXhOq+Gj/jRDps3NBEimNY46hbsWDFR5KR1K7\nU8s+XPblIs+c1ms7vicHsTxGoCQ9c62Dx+EZVRsmwZFKbAUfot4lJ82+XcZnEBqr\nrsIrxBmuL8Gerf62UF7dFAddX87LnksC0tI6exNQtwGzVR3H0zoSVF4Pxy63tU4z\n/JpqXt+yY7uQNRO4B1FEgfVfSMCHhhe9PwSTefj0QQKBgQDx2EF09mlMPADFlys9\nrCF66vwjSLS/MxJjTKwG/VfzkHKYGjwy/Y0zH4T9NBFq2ODTt3/Yb77XZP6eVbv4\npJtAYJK4bpUJjq2V+8U7t+0zVJ5WRqS8VJ4ao4bBv0EvOlptYKkqxwafmcaFiHkE\nE/+danPVvklNWgeQw9qCk+giIQKBgQDrZSv+rp+i1FDeMDSvCiBmqZarpNy8Fsh9\nhpWQGPW81ilENoJkbKO1HbznOtZfPnY4Swnlo70Dz8HWGtbjIbSksJ5fAzVpxHxS\nzwC3qRpLqWXL5XHThnqN9XR77J1c1HhCC2NIv3hb1/0E6/8cQVSn1H8uFwyMUMBo\nB2Gj+bDRwQKBgEoZaHTdywWAnPvthWIwC1IODZMCA99RVqD2LP83QGtwJqxT3X4C\nEfFIBwdNnMiQCtLTtmgqVN7KIvmAa0eTp73h2RKJT0DOZoE90wCpKhRAKQNmQbMy\nef7Pe8qBPwepaWt54lso/+6GvzzKw8lsFzW0GCm1U+BPZWIFoD3B864BAoGBAI5V\n4sBhPs3qq+tuIq0k5mqtaRno2kAxVpHwa0dykETbCqDghP/MYUEG9k6rWSzGTB3F\n4folhAll+sNH/1/f5acf1OOGwSlvUe2QldJ4Qho2GAOufaF10207WnAEpzKWlxD4\nadR3UoPWmnv7Z4riRhold7Ga5k+CFJXSwMuyE6UBAoGAatmeL6kITWrkEiio6D1z\nYaYHQIrB8ChblDER32fZZN6W9DoKPNwP3GQKeidipnbAKYsM75SquqMjGw4Fk+Mf\nPEg7B/dwwr6R39ZmZA6QgypRhK2w282LqnyscNByXpVzI3I3uXuStQfqSiIDNNB2\nicbdkHH6JUsnTz3EVnbyxBk=\n-----END PRIVATE KEY-----\n",
+  "client_email": "erp-account@product-listing-248509.iam.gserviceaccount.com",
+  "client_id": "107813494199445817290",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/erp-account%40product-listing-248509.iam.gserviceaccount.com"
+}

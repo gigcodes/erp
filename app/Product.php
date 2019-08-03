@@ -37,6 +37,10 @@ class Product extends Model
 		return $this->belongsTo('App\Category', 'category');
 	}
 
+	public function log_scraper_vs_ai() {
+	    return $this->hasMany('App\LogScraperVsAi');
+    }
+
 	public function getCommunicationAttribute()
 	{
 		return $this->messages();

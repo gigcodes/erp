@@ -721,6 +721,11 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('schedule/{scheduleId}/attach', 'InstagramController@attachMedia');
 });
 
+// logScraperVsAiController
+Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
+    Route::get('/{id}', 'logScraperVsAiController@index');
+});
+
 /*
  * @date 1/17/2019
  * @author Rishabh Aryal
