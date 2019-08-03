@@ -15,7 +15,7 @@ class HubstaffController extends Controller
 
 	public function userDetails(Request $request){
 
-		$this->appToken = $request->app_token;
+		$this->appToken = getenv('HUBSTAFF_APP_KEY');
 		$this->authToken = $request->auth_token;
 		$this->email = $request->email;
 		$this->password = $request->password;

@@ -7,11 +7,12 @@ use App\Http\Controllers\Controller;
 use Auth;
 use Config;
 use App\Customer;
+use GuzzleHttp\Client;
 
 class MailchimpController extends Controller
 {
     public $mailchimp;
-    public $listId;
+    public $list;
 
     public function __construct(\Mailchimp $mailchimp)
     {
@@ -85,46 +86,69 @@ class MailchimpController extends Controller
         }
     }
 
-    public function makeActiveSubscriber(){
+  //   public function makeActiveSubscriber(){
 
-	 	$successfulSubscriptions = [];
-	 	$subscribedAlready = [];
-	 	$errorMailchimp = [];
+	 // 	$successfulSubscriptions = [];
 
-    	Customer::where('email', '!=', null)->chunk(100, function ($customers) {
+ 	// 	$subscribedAlready = [];
+
+  //   	Customer::where('email', '!=', null)->chunk(100, function ($customers) {
 		  
-		  foreach ($customers as $customer) {
-			
-			try {
-	            
-	            $this->mailchimp
-	            ->lists
-	            ->subscribe(
-	                $this->listId,
-	                ['email' => $customer->email]
-	            );
+		//   // 	$client = new \GuzzleHttp\Client();
 
-	            $successfulSubscriptions = $customer->email;
+		//   	foreach ($customers as $customer) {
 
-		        } catch (\Mailchimp_List_AlreadySubscribed $e) {
-		        	
-		        	$subscribedAlready[] = $customer->email;
-		        
-		        } catch (\Mailchimp_Error $e) {
-		        	
-		        	$errorMailchimp[] = $customer->email;
-		           
-		        }
+		//   // 		try {
+    
+		// 	 //    $response = $client->request('POST', 
+		// 	 //    'https://us3.api.mailchimp.com/3.0/'. 'lists/' . env('LIST_ID') . '/members',
+		// 	 //    [
+		// 	 //        'auth'  => ['app', env('MAILCHIMP_APIKEY')],
+		// 	 //        'json' => [
+		// 	 //            'email_address' => $customer->email,
+		// 	 //            'email_type'    => 'html',
+		// 	 //            'status'        => 'subscribed',
+		// 	 //        ],
+		// 	 //        'exceptions' => false
+		// 	 //    ]);
+		// 	 //    } catch (ClientException $e) {
+		// 	 //    	return $e . 'Something went wrong please try again';
+		// 	 //    }
 
-		  	}
+		// 		// $code = $response->getStatusCode();
+			    
+		// 	 //    // $result = json_decode($response->getBody());
 
-		  	return response()->json([
-				'message' => 'success',
-				'Successful Subscription emails' => $successfulSubscriptions,
-				'Already Subscribed emails' => $subscribedAlready,
-				'Mailchimp errors for Invalid email' => $errorMailchimp
-			]);
+		// 	 //    // dd($code, $result);
 
-		});	
-    }
+		// 	 //    if($code == 200){
+		// 	 //    	$successfulSubscriptions[] = $customer->email;
+		// 	 //    }
+
+		// 	 //    if($code == 400){
+		// 	 //    	$subscribedAlready[] = $customer->email;
+		// 	 //    }
+		// 		$successfulSubscriptions[] = $customer->email;
+
+
+		//   	}	
+
+		// dd($successfulSubscriptions);
+
+		// });	
+
+
+
+
+		// $countSuccess = count($successfulSubscriptions);
+	 //  	$countSuccessAlready = count($subscribedAlready);
+
+		// return response()->json([
+		// 	'message' => 'success',
+		// 	'Total successful subscriptions' => $countSuccess,
+		// 	'Successful Subscription emails' => $successfulSubscriptions,
+		// 	'Total Already Subscribed' => $countSuccessAlready,
+		// 	'Already Subscribed emails' => $subscribedAlready
+		// ]);
+  //   }
 }
