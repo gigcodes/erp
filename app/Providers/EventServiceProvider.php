@@ -24,6 +24,14 @@ class EventServiceProvider extends ServiceProvider
         'Illuminate\Auth\Events\Logout' => [
 	        'App\Listeners\LogSuccessfulLogoutListener',
         ],
+
+        'App\Events\OrderCreated' => [
+	        'App\Listeners\CreateOrderCashFlow',
+        ],
+
+        'App\Events\OrderUpdated' => [
+	        'App\Listeners\UpdateOrderCashFlow',
+        ],
     ];
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
+use App\Events\OrderUpdated;
 use App\Helpers;
 use App\Order;
 use App\OrderProduct;
@@ -1052,7 +1053,7 @@ class OrderController extends Controller {
 					'method'			=> 'whatsapp'
 				]);
 			}
-
+            event(new OrderUpdated($order));
 			$order->delete();
 
 			if ($request->type != 'customer') {
@@ -1061,7 +1062,7 @@ class OrderController extends Controller {
 				return back()->with('success', 'Order was updated and archived successfully!');
 			}
 		}
-
+        event(new OrderUpdated($order));
 		return back()->with( 'message', 'Order updated successfully' );
 	}
 
