@@ -50,16 +50,13 @@
         <tbody>
             @foreach ($details as $key => $detail)
                 <tr>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->domains, 10, '<a href="javascript:void(0)">...</a>'))); @endphp
+                    <td data-id="{{ $detail->id }}>
+                      <span class="quick-domain"><a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->domains, 10, '...'))); @endphp</a></span>
+                      <input name="domain_name" type="text" class="form-control quick-edit-domain-input hidden" placeholder="Domain Name" value="{{ $detail->domains }}"/>
+                      <button type="button" class="btn-link quick-edit-domain" data-id="{{ $detail->id }}">Edit</button>
                       @if (strlen(strip_tags($detail->domains)) > 10)
                         <div>
                             <div class="panel-group">
-                              <div class="panel panel-default">
-                                <div class="panel-heading">
-                                  <h4 class="panel-title">
-                                    <a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">Read More</a>
-                                  </h4>
-                                </div>
                                 <div id="collapse_domain-{{$key}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
                                   <div class="panel-body">
                                     <div class="messageList" id="message_list_310">
@@ -67,10 +64,9 @@
                                     </div>
                                   </div>
                                 </div>
-                              </div>
                             </div>
                           </div>
-                        @endif
+                      @endif
                     </td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->id, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->link, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
@@ -80,16 +76,14 @@
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->rating, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->serp_id, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                     <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->snippet, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->title, 50, '<a href="javascript:void(0)">...</a>'))); @endphp
+                    <td data-id="{{ $detail->id }}>
+                    <span class="quick-title"><a data-toggle="collapse" href="#collapse_title-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->title, 50, '...'))); @endphp</a></span>
+                    <textarea name="title" class="form-control quick-edit-title-input hidden" placeholder="TItle" rows="8" cols="80">{{ $detail->title }}</textarea>
+                    {{-- <input name="title" type="text" class="form-control quick-edit-title-input hidden" placeholder="TItle" value="{{ $detail->title }}"/> --}}
+                    <button type="button" class="btn-link quick-edit-title" data-id="{{ $detail->id }}">Edit</button>
                       @if (strlen(strip_tags($detail->title)) > 50)
                         <div>
                             <div class="panel-group">
-                              <div class="panel panel-default">
-                                <div class="panel-heading">
-                                  <h4 class="panel-title">
-                                    <a data-toggle="collapse" href="#collapse_title-{{$key}}" class="collapsed" aria-expanded="false">Read More</a>
-                                  </h4>
-                                </div>
                                 <div id="collapse_title-{{$key}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
                                   <div class="panel-body">
                                     <div class="messageList" id="message_list_310">
@@ -97,7 +91,6 @@
                                     </div>
                                   </div>
                                 </div>
-                              </div>
                             </div>
                           </div>
                         @endif
@@ -113,4 +106,74 @@
           </div>
       </div>
     </div>
+@endsection
+@section('scripts')
+<script type="text/javascript">
+  $(document).on('click', '.quick-edit-domain', function() {
+      var id = $(this).data('id');
+
+      $(this).closest('td').find('.quick-domain').addClass('hidden');
+      $(this).closest('td').find('.quick-edit-domain-input').removeClass('hidden');
+      $(this).closest('td').find('.quick-edit-domain-input').focus();
+
+      $(this).closest('td').find('.quick-edit-domain-input').keypress(function(e) {
+        var key = e.which;
+        var thiss = $(this);
+
+        if (key == 13) {
+          e.preventDefault();
+          var name = thiss.val();
+
+          $.ajax({
+            type: 'POST',
+            url: "{{ url('back-link') }}/" + id + '/updateDomain',
+            data: {
+              _token: "{{ csrf_token() }}",
+              domain_name: name,
+            }
+          }).done(function() {
+            $(thiss).addClass('hidden');
+            $(thiss).siblings('.quick-domain').text(name);
+            $(thiss).siblings('.quick-domain').removeClass('hidden');
+            alert('Domain Name Updated');
+          }).fail(function(response) {
+            alert('Could not update domain name');
+          });
+        }
+      });
+    });
+  $(document).on('click', '.quick-edit-title', function() {
+      var id = $(this).data('id');
+
+      $(this).closest('td').find('.quick-title').addClass('hidden');
+      $(this).closest('td').find('.quick-edit-title-input').removeClass('hidden');
+      $(this).closest('td').find('.quick-edit-title-input').focus();
+
+      $(this).closest('td').find('.quick-edit-title-input').keypress(function(e) {
+        var key = e.which;
+        var thiss = $(this);
+
+        if (key == 13) {
+          e.preventDefault();
+          var name = thiss.val();
+
+          $.ajax({
+            type: 'POST',
+            url: "{{ url('back-link') }}/" + id + '/updateTitle',
+            data: {
+              _token: "{{ csrf_token() }}",
+              title: name,
+            }
+          }).done(function() {
+            $(thiss).addClass('hidden');
+            $(thiss).siblings('.quick-title').text(name);
+            $(thiss).siblings('.quick-title').removeClass('hidden');
+            alert('Title Updated');
+          }).fail(function(response) {
+            alert('Could not update name');
+          });
+        }
+      });
+    });
+</script>
 @endsection

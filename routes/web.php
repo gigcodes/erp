@@ -804,4 +804,15 @@ Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetai
 Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
 
 Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
+Route::get('display/analytics-data', 'AnalyticsController@showData')->name('filteredAnalyticsResults');
+
+// Broken Links
+Route::post('back-link/{id}/updateDomain', 'BrokenLinkCheckerController@updateDomain');
+Route::post('back-link/{id}/updateTitle', 'BrokenLinkCheckerController@updateTitle');
+
+//Back Linking
+Route::post('back-linking/{id}/updateTitle', 'BackLinkController@updateTitle');
+Route::post('back-linking/{id}/updateDesc', 'BackLinkController@updateDesc');
+Route::post('back-linking/{id}/updateURL', 'BackLinkController@updateURL');
+
 

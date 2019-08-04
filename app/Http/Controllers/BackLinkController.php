@@ -53,7 +53,52 @@ class BackLinkController extends Controller
         // } else {
         //     abort('File Not Found');
         // }
-        
+    }
 
+    /**
+     * Update title
+     * 
+     * @return json response
+     */
+    public function updateTitle(Request $request) {
+        $back_linking = BackLinking::findOrFail($request['id']);
+        $back_linking->title = $request['title'];
+        $back_linking->save();
+        return response()->json([
+            'type' => 'success',
+            'message' => 'Title Updated'
+        ]);
+    }
+
+    /**
+     * Updated Title
+     * Function for display
+     * 
+     * @return json response
+     */
+    public function updateDesc(Request $request) {
+        $back_linking = BackLinking::findOrFail($request['id']);
+        $back_linking->description = $request['desc'];
+        $back_linking->save();
+        return response()->json([
+            'type' => 'success',
+            'message' => 'Title Updated'
+        ]);
+    }
+
+    /**
+     * Updated Title
+     * Function for display
+     * 
+     * @return json response
+     */
+    public function updateURL(Request $request) {
+        $back_linking = BackLinking::findOrFail($request['id']);
+        $back_linking->url = $request['url'];
+        $back_linking->save();
+        return response()->json([
+            'type' => 'success',
+            'message' => 'Title Updated'
+        ]);
     }
 }
