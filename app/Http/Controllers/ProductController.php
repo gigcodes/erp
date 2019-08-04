@@ -1242,15 +1242,15 @@ class ProductController extends Controller {
             ->where('is_without_image', 0)
             ->where('is_crop_skipped', 0)
             ->where('category', '>', 3)
-            ->where(function($q) {
-                $q->where('size', '!=', '')
-                    ->orWhere(function ($qq) {
-                        $qq->where('lmeasurement', '!=', '')
-                           ->where('hmeasurement', '!=', '')
-                           ->where('dmeasurement', '!=', '');
-                    })
-                ;
-            })
+//            ->where(function($q) {
+//                $q->where('size', '!=', '')
+//                    ->orWhere(function ($qq) {
+//                        $qq->where('lmeasurement', '!=', '')
+//                           ->where('hmeasurement', '!=', '')
+//                           ->where('dmeasurement', '!=', '');
+//                    })
+//                ;
+//            })
             ->first();
 
 //	    if ($product) {
