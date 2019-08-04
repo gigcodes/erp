@@ -12,15 +12,15 @@ namespace App;
 class Stage extends ReadOnlyBase {
 
 	protected $data =[
-		'Selection' => '10',
-		'Searcher' => '10',
-		'Attribute' => '10',
-		'Supervisor' => '10',
-		'ImageCropper' => '10',
-		'Lister' => '10',
-		'Approver' => '10',
-		'Inventory' => '10',
-		'Sale' => '10'
+		'Selection' => '1',
+		'Searcher' => '1',
+		'Attribute' => '11',
+		'Supervisor' => '1',
+		'ImageCropper' => '1',
+		'Lister' => '1',
+		'Approver' => '1',
+		'Inventory' => '1',
+		'Sale' => '1'
 	];
 
 	
