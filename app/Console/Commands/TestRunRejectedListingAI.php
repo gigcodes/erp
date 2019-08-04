@@ -43,10 +43,21 @@ class TestRunRejectedListingAI extends Command
     public function handle()
     {
         // Get rejected listings
-        $products = Product::with( 'product_category' )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->limit( 100 )->get();
+        $products = Product::with( 'product_category' )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->get( [ 'id' ] );
 
         // Loop over products
         foreach ( $products as $product ) {
+            // Check if the product already exists
+            $logScraperVsAi = LogScraperVsAi::where( [ 'product_id' => $product->id ] )->first();
+
+            // Continue if the product is already scraped
+            if ( $logScraperVsAi !== NULL ) {
+                continue;
+            }
+
+            // Get full product
+            $product = Product::with( 'product_category' )->where( 'id', $product->id )->first();
+
             // Get array product images
             $arrMedia = $product->getMedia( 'gallery' );
 
