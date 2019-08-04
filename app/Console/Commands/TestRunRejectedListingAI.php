@@ -43,7 +43,7 @@ class TestRunRejectedListingAI extends Command
     public function handle()
     {
         // Get rejected listings
-        $products = Product::with( 'product_category' )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->get();
+        $products = Product::with( 'product_category' )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->limit( 100 )->get();
 
         // Loop over products
         foreach ( $products as $product ) {
