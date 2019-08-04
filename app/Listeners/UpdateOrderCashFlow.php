@@ -49,6 +49,7 @@ class UpdateOrderCashFlow
                     'status' => 1,
                     'order_status' => 'prepaid',
                     'updated_by' => $user_id,
+                    'user_id' => $user_id,
                     'description' => 'Order Received with full pre payment',
                 ]);
             }
@@ -70,6 +71,7 @@ class UpdateOrderCashFlow
                     'status' => 1,
                     'order_status' => 'advance received',
                     'updated_by' => $user_id,
+                    'user_id' => $user_id,
                     'description' => 'Advance Received',
                 ])->save();
             }
@@ -83,6 +85,7 @@ class UpdateOrderCashFlow
                 'type' => 'received',
                 'currency' => '',
                 'status' => 0,
+                'user_id' => $user_id,
                 'updated_by' => $user_id,
             ])->save();
         } elseif ($order->order_status == 'Delivered') {
@@ -97,6 +100,7 @@ class UpdateOrderCashFlow
                 'currency' => '',
                 'status' => 1,
                 'updated_by' => $user_id,
+                'user_id' => $user_id,
                 'order_status' => 'delivered',
             ])->save();
         } else {
@@ -110,6 +114,7 @@ class UpdateOrderCashFlow
                 'type' => 'received',
                 'currency' => '',
                 'status' => 0,
+                'user_id' => $user_id,
                 'updated_by' => $user_id,
             ])->save();
         }

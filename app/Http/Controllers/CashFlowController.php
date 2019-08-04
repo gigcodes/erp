@@ -151,10 +151,4 @@ class CashFlowController extends Controller
 
       return redirect()->route('cashflow.index')->withSuccess('You have successfully deleted a record!');
     }
-
-    public function placeorder()
-    {
-        Order::create([]);
-
-    }
 }

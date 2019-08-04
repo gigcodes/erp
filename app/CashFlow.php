@@ -22,6 +22,6 @@ class CashFlow extends Model
 
     public function cashFlowAble()
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
   }
 }
