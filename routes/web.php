@@ -41,6 +41,7 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
+    Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::resource('color-reference', 'ColorReferenceController');
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
@@ -425,6 +426,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
     Route::post('development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress');
     Route::post('development/task/complete-task', 'DevelopmentController@completeTask');
+    Route::post('development/task/assign-task', 'DevelopmentController@updateAssignee');
     Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
 
 	Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
@@ -719,6 +721,11 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('schedule/{scheduleId}/attach', 'InstagramController@attachMedia');
 });
 
+// logScraperVsAiController
+Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
+    Route::get('/{id}', 'logScraperVsAiController@index');
+});
+
 /*
  * @date 1/17/2019
  * @author Rishabh Aryal
@@ -785,7 +792,7 @@ Route::prefix('/seo')->name('seo.')->group(function(){
 });
 
 Route::middleware('auth')->group(function() {
-    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
+//    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
     Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
 
     Route::get('old-incomings', 'OldIncomingController@index')->name('oldIncomings');
@@ -799,6 +806,11 @@ Route::middleware('auth')->group(function() {
     Route::post('store/old', 'OldController@store')->name('storeOld');
     Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
     Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
+
+    Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
+
+    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
+//    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
 });
 
 //Blogger Module
@@ -828,10 +840,12 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
 });
 
 //Hubstaff Module
-Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){	
+Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
+	Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
 	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
 	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
 });
+
 
 // // Twitter Module
 // Route::group(['middleware'=>'auth', 'namespace'=> 'Twitter'], function(){

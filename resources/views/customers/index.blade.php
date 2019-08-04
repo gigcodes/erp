@@ -553,9 +553,13 @@
                         <ul class="more-communication-container">
 
                         </ul>
-                      {{-- @else
-                        {{ $remark_message }}
-                      @endif --}}
+
+                        @if(isset($complaints[$customer->id]))
+                            <p style="cursor: pointer;" class="show-complaint" data-complaint="{{ $complaints[$customer->id] }}">
+                                <strong>Complaint: </strong> {{ substr($complaints[$customer->id], 0, 10 ) }}
+                            </p>
+                        @endif
+
                     </td>
                     <td>
                       <div class="d-inline form-inline">
@@ -764,6 +768,11 @@
 
     var cached_suggestions = localStorage['message_suggestions'];
     var suggestions = [];
+
+    $(document).on('click', '.show-complaint', function() {
+        let data = $(this).attr('data-complaint')
+        alert(data);
+    });
 
     var customerIdToRemind = null;
 

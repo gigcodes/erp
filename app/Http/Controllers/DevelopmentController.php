@@ -133,6 +133,16 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function updateAssignee(Request $request) {
+         $task = DeveloperTask::find($request->get('task_id'));
+         $task->user_id = $request->get('user_id');
+         $task->save();
+
+         return response()->json([
+             'success'
+         ]);
+    }
+
     public function issueIndex(Request $request)
     {
         $issues = new Issue;
@@ -157,7 +167,7 @@ class DevelopmentController extends Controller
 
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
-        $issues = $issues->orderBy('created_at', 'DESC')->with('communications')->get();
+        $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications')->get();
 
         return view('development.issue', [
         'issues'  => $issues,

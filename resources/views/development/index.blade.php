@@ -259,7 +259,20 @@
           @foreach($plannedTasks as $task)
             <tr id="tr_{{$task->id}}">
               <td>{{ $task->id }}</td>
-              <td>{{ $task->user ? $task->user->name : 'Unassigned' }}</td>
+              <td>
+                @if(Auth::user()->hasRole('Admin'))
+                  @php
+                  $userId = $task->user_id;
+                  @endphp
+                  <select data-id="{{$task->id}}" class="form-control change-assignee" name="user_{{$task->id}}" id="user_{{$task->id}}">
+                    @foreach($users as $id=>$name)
+                      <option {{ $id==$userId ? 'selected' : '' }} value="{{ $id }}">{{ $name }}</option>
+                    @endforeach
+                  </select>
+                @else
+                  {{ $task->user ? $task->user->name : 'Unassigned' }}
+                @endif
+              </td>
               <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
               <td>{{ $task->subject ?? 'N/A' }}</td>
               <td>
@@ -316,7 +329,20 @@
             @foreach($progressTasks as $task)
               <tr id="tr_{{$task->id}}">
                 <td>{{ $task->id }}</td>
-                <td>{{ $task->user ? $task->user->name : 'Unassigned' }}</td>
+                <td>
+                  @if(Auth::user()->hasRole('Admin'))
+                    @php
+                      $userId = $task->user_id;
+                    @endphp
+                    <select data-id="{{$task->id}}" class="form-control change-assignee" name="user_{{$task->id}}" id="user_{{$task->id}}">
+                      @foreach($users as $id=>$name)
+                        <option {{ $id==$userId ? 'selected' : '' }} value="{{ $id }}">{{ $name }}</option>
+                      @endforeach
+                    </select>
+                  @else
+                    {{ $task->user ? $task->user->name : 'Unassigned' }}
+                  @endif
+                </td>
                 <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
                 <td>{{ $task->subject ?? 'N/A' }}</td>
                 <td>
@@ -374,7 +400,20 @@
             @foreach($completedTasks as $task)
               <tr id="tr_{{$task->id}}">
                 <td>{{ $task->id }}</td>
-                <td>{{ $task->user ? $task->user->name : 'Unassigned' }}</td>
+                <td>
+                  @if(Auth::user()->hasRole('Admin'))
+                    @php
+                      $userId = $task->user_id;
+                    @endphp
+                    <select data-id="{{$task->id}}" class="form-control change-assignee" name="user_{{$task->id}}" id="user_{{$task->id}}">
+                      @foreach($users as $id=>$name)
+                        <option {{ $id==$userId ? 'selected' : '' }} value="{{ $id }}">{{ $name }}</option>
+                      @endforeach
+                    </select>
+                  @else
+                    {{ $task->user ? $task->user->name : 'Unassigned' }}
+                  @endif
+                </td>
                 <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
                 <td>{{ $task->subject ?? 'N/A' }}</td>
                 <td>
@@ -475,6 +514,25 @@
 
     $(document).on('click', '.move-progress-init', function() {
       taskIdToProgress = $(this).attr('data-id');
+    });
+
+    $(document).on('change', '.change-assignee', function() {
+      let taskId = $(this).attr('data-id');
+      let user_id = $(this).val();
+
+      $.ajax({
+        url: "{{ action('DevelopmentController@updateAssignee') }}",
+        type: 'POST',
+        data: {
+          task_id: taskId,
+          _token: "{{csrf_token()}}",
+          user_id: user_id
+        },
+        success: function() {
+          toastr['success']('Assigned user successfully!')
+        }
+      });
+
     });
 
     $(document).on('click', '.complete-task', function() {

@@ -30,7 +30,7 @@ class ProductInventoryController extends Controller
 
 		$products = Product::latest()
 											->where('stock', '>=', 1)
-		                   ->where('stage','>=',$stage->get('Approver') )
+//		                   ->where('stage','>=',$stage->get('Approver') )
 		                   ->whereNull('dnf')
 											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
 

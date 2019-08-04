@@ -108,6 +108,7 @@
         <th width="1%">ID</th>
         <th width="5%">Module</th>
         <th width="10%">Subject</th>
+        <th width="5%">Priority</th>
         <th width="15%">Issue</th>
         <th width="5%">Date Created</th>
         <th width="5%">Est. Completion Time</th>
@@ -123,6 +124,7 @@
             <td>{{ $issue->id }}</td>
             <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
             <td>{{ $issue->subject ?? 'N/A' }}</td>
+            <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
             <td class="expand-row">
               <div class="td-mini-container">
                 {{ strlen($issue->issue) > 20 ? substr($issue->issue, 0, 20).'...' : $issue->issue }}

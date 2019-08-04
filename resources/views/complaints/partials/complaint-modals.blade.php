@@ -42,8 +42,8 @@
           </div>
 
           <div class="form-group">
-            <strong>Platform:</strong>
-            <select class="form-control" name="platform">
+            <label for="platform">Platform:</label>
+            <select required class="form-control" name="platform" id="platform">
               <option value="">Select a Platform</option>
               <option value="instagram" {{ 'instagram' == old('platform') ? 'selected' : '' }}>Instagram</option>
               <option value="facebook" {{ 'facebook' == old('platform') ? 'selected' : '' }}>Facebook</option>
@@ -82,7 +82,7 @@
           <div class="form-group">
             <strong>Link</strong>
 
-            <input type="text" name="link" class="form-control" value="{{ old('link') }}">
+            <input type="text" name="link" class="form-control" value="{{ old('link') }}" required>
 
             @if ($errors->has('link'))
               <div class="alert alert-danger">{{$errors->first('link')}}</div>

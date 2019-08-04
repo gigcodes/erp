@@ -8,6 +8,7 @@ use Session;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use View;
+use App\Issue;
 
 class OldController extends Controller
 {
@@ -80,19 +81,6 @@ class OldController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate(
-            $request, [
-                'name' => 'required',
-                'description' => 'required',
-                'amount' => 'required',
-                'commitment' => 'required',
-                'communication' => 'required',
-                'status' => 'required',
-                'email' => 'required',
-                'number' => 'required',
-                'address' => 'required',
-            ]
-        );
         $this->old->saveRecord($request);
         Session::flash('success', 'Record Created');
         return Redirect::back();
@@ -131,19 +119,6 @@ class OldController extends Controller
      */
     public function update(Request $request, $serial_no)
     {
-        $this->validate(
-            $request, [
-                'name' => 'required',
-                'description' => 'required',
-                'amount' => 'required',
-                'commitment' => 'required',
-                'communication' => 'required',
-                'status' => 'required',
-                'email' => 'required',
-                'number' => 'required',
-                'address' => 'required',
-            ]
-        );
         $this->old->updateRecord($request, $serial_no);
         Session::flash('success', 'Record Updated');
         return redirect('old');

@@ -13,13 +13,13 @@ class Stage extends ReadOnlyBase {
 
 	protected $data =[
 		'Selection' => '1',
-		'Searcher' => '2',
-		'Attribute' => '3',
-		'Supervisor' => '4',
-		'ImageCropper' => '5',
-		'Lister' => '6',
-		'Approver' => '7',
-		'Inventory' => '8',
+		'Searcher' => '1',
+		'Attribute' => '1',
+		'Supervisor' => '1',
+		'ImageCropper' => '1',
+		'Lister' => '1',
+		'Approver' => '1',
+		'Inventory' => '1',
 		'Sale' => '1'
 	];
 

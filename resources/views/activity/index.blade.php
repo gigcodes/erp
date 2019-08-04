@@ -81,6 +81,11 @@
                 </table>
             </div>
             <div class="row">
+                <div class="col-md-12">
+                    <strong>Crop Rate: </strong> {{ $cropCountPerMinute }} Per Minute
+                </div>
+            </div>
+            <div class="row">
                 <table class="table table-bordered">
                     <tr>
                         <th>New Scrapping</th>

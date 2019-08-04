@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 
+
 class BrokenLinkCheckerController extends Controller
 {
     /**
@@ -40,6 +41,7 @@ class BrokenLinkCheckerController extends Controller
      */
     public function displayBrokenLinkDetails() 
     {
+       
         if (!empty($_GET['domain'])) {
             $domain = $_GET['domain'];
             $details = BackLinkChecker::where('domains', $domain)->paginate(100)->setPath('');

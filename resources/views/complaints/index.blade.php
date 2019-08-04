@@ -5,7 +5,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 @endsection
 
-@section('content')
+@section('large_content')
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -74,20 +74,26 @@
         <tbody>
           @foreach ($complaints as $complaint)
             <tr>
-              <td>{{ \Carbon\Carbon::parse($complaint->date)->format('d-m') }}</td>
+              <td>{{ \Carbon\Carbon::parse($complaint->date)->format('Y-m-d') }}</td>
               <td>
                 @if ($complaint->customer)
                   <a href="{{ route('customer.show', $complaint->customer->id) }}" target="_blank">{{ $complaint->customer->name }}</a>
                 @endif
               </td>
               <td>{{ ucwords($complaint->platform) }}</td>
-              <td>{{ ucwords($complaint->where) }}</td>
+              <td>{{ ucwords($complaint->where ?? 'N/A') }}</td>
               <td>
                 {{ ucwords($complaint->name) }}
                 <span class="text-muted">{{ ucwords($complaint->username) }}</span>
               </td>
-              <td>
-                {{ $complaint->complaint }}
+              <td class="expand-row">
+                  <span class="td-mini-container">
+                    {{ strlen($complaint->complaint) > 7 ? substr($complaint->complaint, 0, 20). '...' : $complaint->complaint }}
+                  </span>
+
+                  <span class="td-full-container hidden">
+                    {{ $complaint->complaint }}
+                  </span>
 
                 @if ($complaint->threads)
                   <ul class="mx-0 px-4">
@@ -155,12 +161,26 @@
                 </ul>
               </td>
               <td>
-                <a href="{{ $complaint->link }}" target="_blank">{{ $complaint->link }}</a>
+                <a href="{{ $complaint->link }}" target="_blank">Visit Link</a>
               </td>
               <td>
-                <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $complaint->id }}">Add</a>
-                <span> | </span>
-                <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $complaint->id }}">View</a>
+                  <div class="panel panel-default">
+                      <div class="panel-heading">
+                          <h4 class="panel-title">
+                              <a data-toggle="collapse" href="#collapse_{{$complaint->id}}">Remarks ({{ count($complaint->remarks) }})</a>
+                          </h4>
+                      </div>
+                      <div id="collapse_{{$complaint->id}}" class="panel-collapse collapse">
+                          <div class="panel-body">
+                              <input type="text" class="form-control save-remark" id="enter_remark_{{$complaint->id}}" data-id="{{$complaint->id}}" placeholder="Type here...">
+                          </div>
+                          <div class="panel-footer" id="remarks_holder_{{$complaint->id}}">
+                              @foreach($complaint->remarks as $rem)
+                                  <li>{{ $rem->remark }}</li>
+                              @endforeach
+                          </div>
+                      </div>
+                  </div>
               </td>
               <td>
                 <button type="button" class="btn btn-image edit-complaint" data-toggle="modal" data-target="#complaintEditModal" data-complaint="{{ $complaint }}" data-threads="{{ $complaint->threads }}"><img src="/images/edit.png" /></button>
@@ -178,7 +198,7 @@
     {!! $complaints->appends(Request::except('complaints-page'))->links() !!}
 
     @include('complaints.partials.complaint-modals')
-    @include('complaints.partials.remark-modals')
+{{--    @include('complaints.partials.remark-modals')--}}
 
 @endsection
 
@@ -251,6 +271,14 @@
       });
     });
 
+    $(document).on('click', '.expand-row', function() {
+        let selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+
     function fillEditComplaint(thiss) {
       var complaint = $(thiss).data('complaint');
       var threads = $(thiss).data('threads');
@@ -290,9 +318,13 @@
       $('#add-remark input[name="id"]').val(id);
     });
 
-    $('#addRemarkButton').on('click', function() {
-      var id = $('#add-remark input[name="id"]').val();
-      var remark = $('#add-remark textarea[name="remark"]').val();
+    $('.save-remark').on('keyup', function(event) {
+        if (event.which !== 13) {
+            return;
+        }
+        let id = $(this).attr('data-id');
+        let remark = $(this).val();
+        let self = this;
 
       $.ajax({
           type: 'POST',
@@ -304,12 +336,17 @@
             id:id,
             remark:remark,
             module_type: 'complaint'
-          },
+          }, beforeSend: function() {
+              $(self).attr('disabled', true);
+          }
       }).done(response => {
-          alert('Remark Added Success!')
-          window.location.reload();
+          toastr['success']('Remark Added Success!', 'success');
+          $(self).removeAttr('disabled');
+          $('#remarks_holder_'+id).prepend(`<li>`+remark+`</li>`);
+          $(self).val('');
       }).fail(function(response) {
         console.log(response);
+        $(self).removeAttr('disabled');
       });
     });
 

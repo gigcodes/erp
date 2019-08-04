@@ -99,6 +99,10 @@ class SendAutoReplyToCustomers extends Command
                 continue;
             }
 
+            if (!$this->isMessageAskingForProducts($message->message)) {
+                continue;
+            }
+
             $products = new Product();
 
             if ($extractedBrands !== []) {
@@ -151,7 +155,8 @@ class SendAutoReplyToCustomers extends Command
 
     }
 
-    private function extractBrands() {
+    private function extractBrands(): array
+    {
         $message = $this->activeMessage;
         $brands = Brand::whereNull('deleted_at')->get();
         $brandsFound= [];
@@ -167,7 +172,8 @@ class SendAutoReplyToCustomers extends Command
 
     }
 
-    private function extractCompositions() {
+    private function extractCompositions(): array
+    {
         $compositions = Compositions::all();
         $message = $this->activeMessage;
 
@@ -200,12 +206,6 @@ class SendAutoReplyToCustomers extends Command
         $extractedCats = [];
         $femaleCategory = Category::find(2);
         foreach ($femaleCategory->childs as $femaleCategoryChild) {
-            if ($this->extractCategoryIdWithReferences($femaleCategoryChild)) {
-                $extractedCats[] = $femaleCategoryChild->id;
-                foreach ($femaleCategoryChild->childs as $subSubCategory) {
-                    $extractedCats[] = $subSubCategory->id;
-                }
-            }
             foreach ($femaleCategoryChild->childs as $subSubCategory) {
                 if ($this->extractCategoryIdWithReferences($subSubCategory)) {
                     $extractedCats[] = $subSubCategory->id;
@@ -222,12 +222,6 @@ class SendAutoReplyToCustomers extends Command
         $extractedCats = [];
         $femaleCategory = Category::find(3);
         foreach ($femaleCategory->childs as $femaleCategoryChild) {
-            if ($this->extractCategoryIdWithReferences($femaleCategoryChild)) {
-                $extractedCats[] = $femaleCategoryChild->id;
-                foreach ($femaleCategoryChild->childs as $subSubCategory) {
-                    $extractedCats[] = $subSubCategory->id;
-                }
-            }
             foreach ($femaleCategoryChild->childs as $subSubCategory) {
                 if ($this->extractCategoryIdWithReferences($subSubCategory)) {
                     $extractedCats[] = $subSubCategory->id;
@@ -244,6 +238,28 @@ class SendAutoReplyToCustomers extends Command
         $name = strlen($category->title) > 3 ? substr($category->title, 0, -1) : $category->title;
         $message = $this->activeMessage;
         return stripos(strtoupper($message), strtoupper($name)) !== false;
+    }
+
+    private function isMessageAskingForProducts($message): bool
+    {
+        $possibleText = [
+            'WHERE IS',
+            'WHEN WILL YOU',
+            'AM I GETTING',
+            'WHEN ARE YOU',
+            'REFUND',
+            'ORDERED',
+            'GONNA',
+            'GOING TO',
+        ];
+
+        foreach ($possibleText as $item) {
+            if (stripos($message, $item) !== false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }

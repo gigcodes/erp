@@ -158,7 +158,10 @@ class ActivityConroller extends Controller {
         $allActivity = $allActivity->first();
 		$userActions = $activity->groupBy('user_id')->get();
 
-		return view( 'activity.index', compact('userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity', 'scrapCount', 'inventoryCount', 'rejectedListingsCount', 'productStats'));
+        $cropCountPerMinute = Product::whereRaw('TIMESTAMPDIFF(MINUTE, cropped_at, NOW()) IN (0,1)')->count();
+
+
+        return view( 'activity.index', compact('userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity', 'scrapCount', 'inventoryCount', 'rejectedListingsCount', 'productStats', 'cropCountPerMinute'));
 	}
 
 	public function showGraph( Request $request ) {

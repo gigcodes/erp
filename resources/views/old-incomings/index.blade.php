@@ -46,9 +46,51 @@
 					<tr>
 					<th scope="row">{{$incoming->serial_no}}</th>
 					<td><a href="{{route('editOldIncomings', ['serial_no' => $incoming->serial_no])}}">{{$incoming->name}}</a></td>
-					<td>{{$incoming->description}}</td>
+                    <td>@php echo htmlspecialchars_decode(stripslashes(str_limit($incoming->description, 50, '<a href="javascript:void(0)">...</a>'))); @endphp
+                        @if (strlen(strip_tags($incoming->description)) > 50)
+                         <div>
+                            <div class="panel-group">
+                              <div class="panel panel-default">
+                                <div class="panel-heading">
+                                  <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse_desc{{$key}}" class="collapsed" aria-expanded="false">Read More</a>
+                                  </h4>
+                                </div>
+                                <div id="collapse_desc{{$key}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                                  <div class="panel-body">
+                                    <div class="messageList" id="message_list_310">
+                                        {{$incoming->description}}     
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        @endif
+                    </td>
 					<td>{{$incoming->amount}}</td>
-					<td>{{$incoming->commitment}}</td>
+					<td>@php echo htmlspecialchars_decode(stripslashes(str_limit($incoming->commitment, 50, '<a href="javascript:void(0)">...</a>'))); @endphp
+                        @if (strlen(strip_tags($incoming->commitment)) > 50)
+                         <div>
+                            <div class="panel-group">
+                              <div class="panel panel-default">
+                                <div class="panel-heading">
+                                  <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse_commit{{$key}}" class="collapsed" aria-expanded="false">Read More</a>
+                                  </h4>
+                                </div>
+                                <div id="collapse_commit{{$key}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                                  <div class="panel-body">
+                                    <div class="messageList" id="message_list_310">
+                                        {{$incoming->commitment}}     
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        @endif
+                    </td>
 					<td>{{$incoming->communication}}</td>
 					<td>{{$incoming->status}}</td>
 					</tr>

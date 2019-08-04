@@ -57,7 +57,9 @@
                     @if($product)
                         <div style="padding: 10px; text-align: justify">
                             <p><strong>{{ $product->name }}</strong></p>
-                            <p style="color: #1a60aa"><strong>{{ $product->brands->name }}</strong></p>
+                            @if($product->brands)
+                                <p style="color: #1a60aa"><strong>{{ $product->brands->name }}</strong></p>
+                            @endif
                             <p><strong>Code: </strong> {{ $product->sku }}</p>
                             @if($product->lmeasurement)
                                 <p><strong>Dimension: </strong> {{ $product->lmeasurement }} x {{ $product->heasurement }} x {{ $product->dmeasurement }}</p>
