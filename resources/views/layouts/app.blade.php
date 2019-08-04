@@ -1636,13 +1636,13 @@
                            
                             <ul class="dropdown-menu">
                               <li><a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a></li>
-                              <li><a href="{{ route('make.active.subscriber') }}">Pull customers as Subscribers</a></li>
+                              <!-- <li><a href="{{ route('make.active.subscriber') }}">Pull customers as Subscribers</a></li> -->
                             </ul>
                         </div>
                         <!-- mailchimp -->
 
                         <!-- Hubstaff -->
-                        <div class="dropdown">
+                        <!-- <div class="dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button"
 
                                data-toggle="dropdown" >
@@ -1655,7 +1655,7 @@
                               <li><a href="{{ route('users.api') }}">Users</a></li>
                               
                             </ul>
-                        </div>
+                        </div> -->
                         <!-- Hubstaff -->
 
                         <li class="nav-item dropdown">
