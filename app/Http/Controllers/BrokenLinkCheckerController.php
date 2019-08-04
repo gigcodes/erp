@@ -99,7 +99,37 @@ class BrokenLinkCheckerController extends Controller
         // } else {
         //     abort('File Not Found');
         // }
-        
+    }
 
+    /**
+     * Get Broken Links Details
+     * Function for display
+     * 
+     * @return json response
+     */
+    public function updateDomain(Request $request) {
+        $checker = BackLinkChecker::findOrFail($request['id']);
+        $checker->domains = $request['domain_name'];
+        $checker->save();
+        return response()->json([
+            'type' => 'success',
+            'message' => 'Domain Updated'
+        ]);
+    }
+
+    /**
+     * Updated Title
+     * Function for display
+     * 
+     * @return json response
+     */
+    public function updateTitle(Request $request) {
+        $checker = BackLinkChecker::findOrFail($request['id']);
+        $checker->title = $request['title'];
+        $checker->save();
+        return response()->json([
+            'type' => 'success',
+            'message' => 'Title Updated'
+        ]);
     }
 }
