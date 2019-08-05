@@ -33,7 +33,7 @@
                         {{ session('alert') }}
                     </div>
                 @endif
-                <form method="post" target="_top">
+                <form method="post" action="{{ action('\App\Http\Controllers\logScraperVsAiController@index', $item->product_id) }}" target="_top">
                     @csrf
                     {!! $openerField !!}
                     <div class="flex-row">
