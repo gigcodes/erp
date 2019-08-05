@@ -186,7 +186,25 @@
                             <p><strong>Rejected By</strong></p>
                             <p>{{ $product->rejector ? $product->rejector->name : 'N/A' }}</p>
                             @if ( count($product->log_scraper_vs_ai) > 0 )
-                                <a class="btn btn-secondary btn-sm text-light" href="/log-scraper-vs-ai/{{ $product->id }}" target="_blank">AI result</a>
+                                <button class="btn btn-secondary btn-sm text-light" data-toggle="modal" id="linkAiModal{{ $product->id }}" data-target="#aiModal{{ $product->id }}">AI result</button>
+                                <div class="modal fade" id="aiModal{{ $product->id }}" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">{{ $product->name }}</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <iframe id="aiModalLoad{{ $product->id }}" frameborder="0" border="0" width="100%" height="800"></iframe>
+                                            </div>
+                                        </div>
+                                    </div><
+                                </div>
+                                <script>
+                                    $('#linkAiModal{{ $product->id }}').click(function() {
+                                        $('#aiModalLoad{{ $product->id }}').attr('src','/log-scraper-vs-ai/{{ $product->id }}');
+                                    });
+                                </script>
                             @endif
                         </td>
                         <td colspan="4">

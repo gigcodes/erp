@@ -724,6 +724,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 // logScraperVsAiController
 Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
     Route::get('/{id}', 'logScraperVsAiController@index');
+    Route::post('/{id}', 'logScraperVsAiController@index');
 });
 
 /*
