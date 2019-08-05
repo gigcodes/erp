@@ -40,6 +40,14 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\RefundDispatched' => [
 	        'App\Listeners\UpdateRefundCashFlow',
         ],
+
+        'App\Events\CaseBilled' => [
+	        'App\Listeners\CreateCaseCashFlow',
+        ],
+
+        'App\Events\CaseBillPaid' => [
+	        'App\Listeners\UpdateCaseCashFlow',
+        ],
     ];
 
     /**
