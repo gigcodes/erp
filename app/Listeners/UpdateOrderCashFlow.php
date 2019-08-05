@@ -103,6 +103,8 @@ class UpdateOrderCashFlow
                 'user_id' => $user_id,
                 'order_status' => 'delivered',
             ])->save();
+        } elseif($order->order_status == 'Refund to be processed' || $order->order_status == 'Refund Dispatched' || $order->order_status == 'Refund Credited' ) {
+            
         } else {
             $pending_cash_flow = $order->cashFlows()->firstOrCreate([
                 'order_status' => 'pending',

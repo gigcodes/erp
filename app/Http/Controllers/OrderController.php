@@ -993,18 +993,6 @@ class OrderController extends Controller {
 		}
 
 		if ($order->order_status == 'Refund to be processed') {
-			$refund = Refund::where('order_id', $order->id)->first();
-
-			if (!$refund) {
-				Refund::create([
-					'customer_id'			=> $order->customer->id,
-					'order_id'				=> $order->id,
-					'type'						=> 'Cash',
-					'date_of_request'	=> Carbon::now(),
-					'date_of_issue' 	=> Carbon::now()->addDays(10)
-				]);
-			}
-
 			if ($order->payment_mode == 'paytm') {
 				if ($order->customer) {
 					$all_amount = 0;
@@ -1024,6 +1012,18 @@ class OrderController extends Controller {
 					$order->customer->save();
 				}
 			}
+            $refund = Refund::where('order_id', $order->id)->first();
+
+            if (!$refund) {
+                Refund::create([
+                    'customer_id'			=> $order->customer->id,
+                    'order_id'				=> $order->id,
+                    'type'						=> 'Cash',
+                    'date_of_request'	=> Carbon::now(),
+                    'date_of_issue' 	=> Carbon::now()->addDays(10)
+                ]);
+            }
+
 		}
 
 		if ($order->order_status == 'Delivered') {
