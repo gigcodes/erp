@@ -44,7 +44,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-1">
-                                    <input type="radio" name="category" value="{{ $resultAi->category }}" <?php echo empty( $resultAi->gender ) && empty( $genderScraper ) ? 'checked' : ''; ?>>
+                                    <input type="radio" name="category" value="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, $genderScraper ) }}" <?php echo empty( $resultAi->gender ) && empty( $genderScraper ) ? 'checked' : ''; ?>>
                                 </div>
                                 <div class="col-sm-10">
                                     <label> {{ ucwords(strtolower($resultAi->category)) }} (AI)</label>
@@ -53,7 +53,7 @@
                             @foreach( $keywords as $keyword=>$count)
                                 <div class="row">
                                     <div class="col-sm-1">
-                                        <input type="radio" name="category" value="{{ $keyword }}">
+                                        <input type="radio" name="category" value="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $keyword, $resultAi->gender, $genderScraper ) }}">
                                     </div>
                                     <div class="col-sm-10">
                                         <label>{{ ucwords(strtolower($keyword)) }}</label>
@@ -128,7 +128,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
-                            <input type="submit" class="btn btn-primary" style='margin: 15px;' value="Submit">
+                            <input type="submit" class="btn btn-primary" style='margin: 15px;' value="Submit and edit attributes">
                         </div>
                     </div>
                 </form>
