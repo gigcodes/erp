@@ -14,17 +14,18 @@ class logScraperVsAiController extends Controller
         // Set empty alert
         $alert = '';
 
+        // Load product
+        $product = Product::find( $request->id );
+
         // Check for submit
         if ( !empty( $request->id ) && !empty( $request->category ) && !empty( $request->color ) ) {
-            // Load product
-            $product = Product::find( $request->id );
-
             // Product not found
             if ( $product === NULL ) {
                 return redirect()->back()->with( 'alert', 'Product not found' );
             }
 
             // Update product
+            // TODO
 
             // Redirect to rejected listing
             return redirect()->action('ProductController@showRejectedListedProducts');
@@ -40,7 +41,10 @@ class logScraperVsAiController extends Controller
         // Get keywords by result
         $keywords = LogScraperVsAi::getAiKeywordsFromResults( $results );
 
+        // Get gender by scraper category
+        $genderScraper = \App\LogScraperVsAi::getGenderByCategoryId((int) $product->category);
+
         // Return view
-        return view( 'log-scraper-vs-ai.index', compact( 'results', 'keywords' ) );
+        return view( 'log-scraper-vs-ai.index', compact( 'results', 'keywords', 'genderScraper' ) );
     }
 }

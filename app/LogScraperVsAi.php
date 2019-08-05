@@ -49,41 +49,43 @@ class LogScraperVsAi extends Model
 
                 // Store Object
                 if ( substr( $row, 0, 7 ) == 'Object:' ) {
-                    $arrKeywords = self::_addKeyword( $arrKeywords, substr( $row, 8, strpos($row, ',') -8 ) );
+                    $arrKeywords = self::_addKeyword( $arrKeywords, substr( $row, 8, strpos( $row, ',' ) - 8 ) );
                 }
 
                 // Store Entity
                 if ( substr( $row, 0, 7 ) == 'Entity:' ) {
-                    $arrKeywords = self::_addKeyword( $arrKeywords, substr( $row, 8, strpos($row, ',') -8 ) );
+                    $arrKeywords = self::_addKeyword( $arrKeywords, substr( $row, 8, strpos( $row, ',' ) - 8 ) );
                 }
             }
         }
 
         // Reverse sort arrey by value
-        arsort($arrKeywords);
+        arsort( $arrKeywords );
 
         // Filter for categories
-        $arrCategories = self::_filterCategories($arrKeywords);
+        $arrCategories = self::_filterCategories( $arrKeywords );
 
         // Return array with keywords
         return $arrCategories;
     }
 
-    private static function _addKeyword($arrKeywords, $keyword) {
+    private static function _addKeyword( $arrKeywords, $keyword )
+    {
         // Check if key (keyword) exists
-        if ( key_exists($keyword, $arrKeywords) ) {
+        if ( key_exists( $keyword, $arrKeywords ) ) {
             // Add 1 to the keyword
-            $arrKeywords[$keyword]++;
+            $arrKeywords[ $keyword ]++;
         } else {
             // Add the keyword with value 1
-            $arrKeywords[$keyword] = 1;
+            $arrKeywords[ $keyword ] = 1;
         }
 
         // Return array
         return $arrKeywords;
     }
 
-    public static function _filterCategories($arrKeywords) {
+    public static function _filterCategories( $arrKeywords )
+    {
         // Set empty array for categories
         $arrCategories = [];
 
@@ -92,7 +94,7 @@ class LogScraperVsAi extends Model
             // Skip empty keywords
             if ( !empty( $keyword ) ) {
                 // Check database for result
-                $dbResult = Category::where( 'title', $keyword )->orWhere('references', 'like', '%' . $keyword . '%')->first();
+                $dbResult = Category::where( 'title', $keyword )->orWhere( 'references', 'like', '%' . $keyword . '%' )->first();
 
                 // Result? Add the keyword
                 if ( $dbResult !== NULL ) {
@@ -105,7 +107,112 @@ class LogScraperVsAi extends Model
         return $arrCategories;
     }
 
-    public static function getCategoryByKeyword($keyword) {
-        //
+    public static function getCategoryIdByKeyword( $keyword, $gender, $genderScraper )
+    {
+        // Set gender
+        if ( empty($gender) ) {
+            $gender = $genderScraper;
+        }
+
+        // Check database for result
+        $dbResult = Category::where( 'title', $keyword )->get();
+
+        // No result? Try where like
+        if ( $dbResult->count() == 0 ) {
+            $dbResult = Category::where( 'references', 'like', '%' . $keyword . '%' )->get();
+        }
+
+        // Still no result
+        if ( $dbResult === NULL ) {
+            return 0;
+        }
+
+        // Just one result
+        if ( $dbResult->count() == 1 ) {
+            return $dbResult->first()->id;
+        }
+
+        // Checking the result by gender only works if the gender is set
+        if ( empty( $gender ) ) {
+            return 0;
+        }
+
+        // Check results
+        foreach ( $dbResult as $result ) {
+            // Get parent Id
+            $parentId = $result->parent_id;
+
+            // Return 0 for a top category
+            if ( $parentId == 0 ) {
+                return $result->id;
+            }
+
+            // Return correct result by gender
+            if ( $parentId == 2 && strtolower( $gender ) == 'women' ) {
+                return $result->id;
+            }
+
+            // Return correct result by gender
+            if ( $parentId == 3 && strtolower( $gender ) == 'men' ) {
+                return $result->id;
+            }
+
+            // Other
+            if ( $parentId > 0 ) {
+                // Store category ID
+                $categoryId = $result->id;
+
+                // Get parent
+                $dbParentResult = Category::find( $result->parent_id );
+
+                // No result
+                if ( $dbParentResult->count() == 0 ) {
+                    return 0;
+                }
+
+                // Return correct result for women
+                if ( $dbParentResult->parent_id == 2 && strtolower( $gender ) == 'women' ) {
+                    return $categoryId;
+                }
+
+                // Return correct result for men
+                if ( $dbParentResult->parent_id == 3 && strtolower( $gender ) == 'men' ) {
+                    return $categoryId;
+                }
+            }
+        }
+    }
+
+    public static function getGenderByCategoryId($categoryId) {
+        // Set parent ID to high value
+        $parentId = $categoryId;
+
+        // Loop until parent ID is 0
+        while ( $parentId > 0 ) {
+            // Get category
+            $category = Category::find($parentId);
+
+            // Break if null
+            if ( $category->count() == 0 ) {
+                break;
+            }
+
+            // Set new parent ID
+            $parentId = $category->parent_id;
+            $categoryId = $category->id;
+        }
+
+        // Return women
+        if ( $categoryId == 2 ) {
+            return 'women';
+        }
+
+        // Return men
+        if ( $categoryId == 3 ) {
+            return 'men';
+        }
+
+        // Still here?
+        return 0;
     }
 }

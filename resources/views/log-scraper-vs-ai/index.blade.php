@@ -44,7 +44,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-1">
-                                    <input type="radio" name="category" value="{{ $resultAi->category }}" checked>
+                                    <input type="radio" name="category" value="{{ $resultAi->category }}" <?php echo empty( $resultAi->gender ) && empty( $genderScraper ) ? 'checked' : ''; ?>>
                                 </div>
                                 <div class="col-sm-10">
                                     <label> {{ ucwords(strtolower($resultAi->category)) }} (AI)</label>
@@ -62,19 +62,20 @@
                             @endforeach
                             <div class="row">
                                 <div class="col-sm-1">
-                                    <input type="radio" name="category" value="dropdown">
+                                    <input type="radio" name="category" value="dropdown" <?php echo empty( $resultAi->gender ) && empty( $genderScraper ) ? '' : 'checked'; ?>>
                                 </div>
                                 <div class="sm-col-11">
                                     <?php
+                                    // Set category
+                                    $categoryDropDown = \App\Category::attr( [ 'name' => 'category_dropdown', 'class' => 'form-control', 'id' => 'product-category', 'style' => 'max-width: 50%;' ] )
+                                        ->selected( \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, $genderScraper ) )
+                                        ->renderAsDropdown();
+
                                     $category = $resultAi->category;
                                     $categories = \App\Category::select( [ 'id', 'title' ] )->orderBy( 'title', 'asc' )->get();
+
+                                    echo $categoryDropDown;
                                     ?>
-                                    <select name="category_dropdown" class="form-control" style="max-width: 50%;">
-                                        <option value="">Select a category</option>
-                                        @foreach ( $categories as $category )
-                                            <option value="{{ $category->id }}" <?php echo $category->title == $resultAi->category ? ' selected' : '' ?>>{{ ucwords(strtolower($category->title)) }}</option>
-                                        @endforeach
-                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -101,7 +102,7 @@
                                 @if ( !empty($resultAi->color) )
                                     <div class="col-sm-1">
                                         <div class="input-group">
-                                            <input type="radio" name="color" value="{{ $resultAi->color }}" checked>
+                                            <input type="radio" name="color" value="{{ $resultAi->color }}">
                                         </div>
                                     </div>
                                     <div class="sm-col-11">
@@ -113,7 +114,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-1">
-                                    <input type="radio" name="color" value="dropdown">
+                                    <input type="radio" name="color" value="dropdown" checked>
                                 </div>
                                 <div class="sm-col-11">
                                     <?php
