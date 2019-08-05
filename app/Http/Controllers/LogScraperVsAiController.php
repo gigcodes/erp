@@ -25,10 +25,12 @@ class logScraperVsAiController extends Controller
             }
 
             // Update product
-            // TODO
+            $product->category = $request->category == 'dropdown' ? (int) $request->category_dropdown : $request->category;
+            $product->color = $request->color == 'dropdown' ? ucwords( strtolower( $request->color_dropdown ) ) : ucwords( strtolower( $request->color ) );
+            $product->save();
 
             // Redirect to rejected listing
-            return redirect()->action('ProductController@showRejectedListedProducts');
+            return redirect()->action( 'ProductAttributeController@edit', [ 'id' => $product->id ] );
         } elseif ( !empty( $request->id ) && !empty( $request->category ) && empty( $request->color ) ) {
             return redirect()->back()->with( 'alert', 'Color not set' );
         } elseif ( !empty( $request->id ) && empty( $request->category ) && !empty( $request->color ) ) {
@@ -42,7 +44,7 @@ class logScraperVsAiController extends Controller
         $keywords = LogScraperVsAi::getAiKeywordsFromResults( $results );
 
         // Get gender by scraper category
-        $genderScraper = \App\LogScraperVsAi::getGenderByCategoryId((int) $product->category);
+        $genderScraper = \App\LogScraperVsAi::getGenderByCategoryId( (int) $product->category );
 
         // Return view
         return view( 'log-scraper-vs-ai.index', compact( 'results', 'keywords', 'genderScraper' ) );
