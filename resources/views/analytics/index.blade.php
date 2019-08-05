@@ -5,6 +5,18 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Analytics Data</h2>
         </div>
+        <form action="{{route('filteredAnalyticsResults')}}" method="get" class="form-inline">
+            <div class="form-group">
+                <div class="col-md-4 col-lg-6 col-xl-6">
+                    <input name="date" type="date" class="form-control" value="{{request()->date ?? ''}}">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-4 col-lg-6 col-xl-6">
+                    <button class="btn btn-default">Filter</button>
+                </div>
+            </div>
+        </form>
     </div>
     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
         <li class="nav-item">
@@ -31,7 +43,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                        @foreach ($top_referers as $key => $referer)
+                        @foreach (unserialize($top_referers_ser[0]) as $key => $referer)
                             <tr>
                                 <td>{{$referer['url']}}</td>
                                 <td class="text-center">{{$referer['pageViews']}}</td>
@@ -51,7 +63,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                        @foreach ($user_types as $key => $user)
+                        @foreach (unserialize($user_types_ser[0]) as $key => $user)
                             <tr>
                                 <td class="text-center">{{$user['type']}}</td>
                                 <td class="text-center">{{$user['sessions']}}</td>
@@ -94,7 +106,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                        @foreach ($total_visitors_page_views as $key => $total)
+                        @foreach ($total_views as $key => $total)
                             <tr>
                                 <td class="text-center">{{\Carbon\Carbon::Parse($total['date'])->format('D M, Y')}}</td>
                                 <td class="text-center">{{$total['visitors']}}</td>

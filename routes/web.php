@@ -846,4 +846,16 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
 	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
 	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
 });
+Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
+Route::get('display/analytics-data', 'AnalyticsController@showData')->name('filteredAnalyticsResults');
+
+// Broken Links
+Route::post('back-link/{id}/updateDomain', 'BrokenLinkCheckerController@updateDomain');
+Route::post('back-link/{id}/updateTitle', 'BrokenLinkCheckerController@updateTitle');
+
+//Back Linking
+Route::post('back-linking/{id}/updateTitle', 'BackLinkController@updateTitle');
+Route::post('back-linking/{id}/updateDesc', 'BackLinkController@updateDesc');
+Route::post('back-linking/{id}/updateURL', 'BackLinkController@updateURL');
+
 
