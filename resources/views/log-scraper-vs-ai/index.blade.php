@@ -21,6 +21,12 @@
             @if ( !isset($i) )
                 @php
                     $i = 1;
+
+                    if ( isset($_GET['opener'])) {
+                        $openerField = "<input type='hidden' name='opener' value='" . $_GET['opener'] . "' />\n";
+                    } else {
+                        $openerField = '';
+                    }
                 @endphp
                 @if (session('alert'))
                     <div class="alert alert-danger">
@@ -29,6 +35,7 @@
                 @endif
                 <form method="post" target="_top">
                     @csrf
+                    {!! $openerField !!}
                     <div class="flex-row">
                         <div class="col-sm-6">
                             <h3>Category</h3>
