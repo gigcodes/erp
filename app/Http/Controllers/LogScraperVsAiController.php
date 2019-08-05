@@ -21,7 +21,11 @@ class logScraperVsAiController extends Controller
         if ( !empty( $request->id ) && !empty( $request->category ) && !empty( $request->color ) ) {
             // Product not found
             if ( $product === NULL ) {
-                return redirect()->back()->with( 'alert', 'Product not found' );
+                if ( !empty( $request->opener ) ) {
+                    return redirect( urldecode( $request->opener ) )->with( 'alert', 'Product not found' );
+                } else {
+                    return redirect()->back()->with( 'alert', 'Product not found' );
+                }
             }
 
             // Update product
@@ -29,12 +33,24 @@ class logScraperVsAiController extends Controller
             $product->color = $request->color == 'dropdown' ? ucwords( strtolower( $request->color_dropdown ) ) : ucwords( strtolower( $request->color ) );
             $product->save();
 
-            // Redirect to rejected listing
-            return redirect()->action( 'ProductAttributeController@edit', [ 'id' => $product->id ] );
+            // Redirect back to opener page
+            if ( !empty( $request->opener ) ) {
+                return redirect( urldecode( $request->opener ) );
+            } else {
+                return redirect()->back();
+            }
         } elseif ( !empty( $request->id ) && !empty( $request->category ) && empty( $request->color ) ) {
-            return redirect()->back()->with( 'alert', 'Color not set' );
+            if ( !empty( $request->opener ) ) {
+                return redirect( urldecode( $request->opener ) )->with( 'alert', 'Color not set' );
+            } else {
+                return redirect()->back()->with( 'alert', 'Color not set' );
+            }
         } elseif ( !empty( $request->id ) && empty( $request->category ) && !empty( $request->color ) ) {
-            return redirect()->back()->with( 'alert', 'Category not set' );
+            if ( !empty( $request->opener ) ) {
+                return redirect( urldecode( $request->opener ) )->with( 'alert', 'Category not set' );
+            } else {
+                return redirect()->back()->with( 'alert', 'Category not set' );
+            }
         }
 
         // Get results
