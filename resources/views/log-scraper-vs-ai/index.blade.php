@@ -35,6 +35,7 @@
                 @endif
                 <form method="post" action="{{ action('\App\Http\Controllers\logScraperVsAiController@index', $item->product_id) }}" target="_top">
                     @csrf
+                    {{ method_field('POST')}}
                     {!! $openerField !!}
                     <div class="flex-row">
                         <div class="col-sm-6">
