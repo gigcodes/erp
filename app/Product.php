@@ -28,9 +28,10 @@ class Product extends Model
     protected $communication = '';
     protected $image_url = '';
 
-    public function bulkAddByJson($arrBulkJson=[]) {
+    public function bulkAddByJson( $arrBulkJson = [] )
+    {
         // Check array
-        if ( !is_array($arrBulkJson) || count($arrBulkJson) == 0 ) {
+        if ( !is_array( $arrBulkJson ) || count( $arrBulkJson ) == 0 ) {
             // return false
             return false;
         }
@@ -42,23 +43,25 @@ class Product extends Model
         foreach ( $arrBulkJson as $json ) {
             // Check for required values
             if (
-                !empty($json->title) &&
-                !empty($json->sku) &&
-                !empty($json->brand_id) &&
-                !empty($json->category)
+                !empty( $json->title ) &&
+                !empty( $json->sku ) &&
+                !empty( $json->brand_id ) &&
+                !empty( $json->category )
             ) {
                 // Try to retrieve existing product from database
-                $product = self::where('sku', $json->sku )->first();
+                $product = self::where( 'sku', $json->sku )->first();
 
                 // Product exists
                 if ( $product != NULL ) {
                     // Update Price and Stock
-                    $product->price = $json->srp;
+                    if ( $json->price > $product->price ) {
+                        $product->price = $json->price;
+                    }
                     $product->stock = $json->stock;
                     $product->save();
                 } else {
                     // Create new scraped product if product doesn't exist
-                    $scrapedProduct = ScrapedProducts::where('sku', $json->sku)->first();
+                    $scrapedProduct = ScrapedProducts::where( 'sku', $json->sku )->first();
 
                     // No result? Create
                     if ( $scrapedProduct == NULL ) {
