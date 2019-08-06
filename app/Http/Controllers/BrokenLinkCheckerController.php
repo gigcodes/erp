@@ -40,8 +40,7 @@ class BrokenLinkCheckerController extends Controller
      * @return json response
      */
     public function displayBrokenLinkDetails() 
-    {
-       
+    {   
         if (!empty($_GET['domain'])) {
             $domain = $_GET['domain'];
             $details = BackLinkChecker::where('domains', $domain)->paginate(100)->setPath('');

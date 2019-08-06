@@ -858,4 +858,7 @@ Route::post('back-linking/{id}/updateTitle', 'BackLinkController@updateTitle');
 Route::post('back-linking/{id}/updateDesc', 'BackLinkController@updateDesc');
 Route::post('back-linking/{id}/updateURL', 'BackLinkController@updateURL');
 
+//SE Ranking Links
+Route::get('se-ranking/sites', 'SERankingController@getSites')->name('sitesInfo');
+
 
