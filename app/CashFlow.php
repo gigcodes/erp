@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CashFlow extends Model
 {
   protected $fillable = [
-    'user_id', 'cash_flow_category_id', 'description', 'date', 'amount', 'type','expected','actual','currency','status','order_status'
+    'user_id', 'cash_flow_category_id', 'description', 'date', 'amount', 'type','expected','actual','currency','status','order_status','updated_by'
   ];
 
   public function user()

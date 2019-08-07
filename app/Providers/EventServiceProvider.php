@@ -48,6 +48,10 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\CaseBillPaid' => [
 	        'App\Listeners\UpdateCaseCashFlow',
         ],
+
+        'App\Events\ProformaConfirmed' => [
+	        'App\Listeners\CreatePurchaseCashFlow',
+        ],
     ];
 
     /**
