@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Plank\Mediable\Mediable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\ScrapedProducts;
+use App\SupplierInventory;
 
 class Product extends Model
 {
@@ -48,43 +49,47 @@ class Product extends Model
                 !empty( $json->brand_id ) &&
                 !empty( $json->category )
             ) {
-                // Try to retrieve existing product from database
-                $product = self::where( 'sku', $json->sku )->first();
+                // Create new scraped product if product doesn't exist
+                $scrapedProduct = ScrapedProducts::where( 'sku', $json->sku )->first();
 
-                // Product exists
-                if ( $product != NULL ) {
-                    // Update Price and Stock
-                    if ( $json->price > $product->price ) {
-                        $product->price = $json->price;
+                // No result? Create
+                if ( $scrapedProduct == NULL ) {
+                    // Add new scraped product
+                    $scrapedProduct = new ScrapedProducts();
+                    $scrapedProduct->website = $json->website;
+                    $scrapedProduct->sku = $json->sku;
+                    $scrapedProduct->has_sku = $json->has_sku;
+                    $scrapedProduct->brand_id = $json->brand_id;
+                    $scrapedProduct->title = $json->title;
+                    $scrapedProduct->description = $json->description;
+                    $scrapedProduct->images = $json->images;
+                    $scrapedProduct->price = $json->price;
+                    $scrapedProduct->properties = $json;
+                    $scrapedProduct->url = $json->url;
+                    $scrapedProduct->is_property_updated = $json->is_property_updated;
+                    $scrapedProduct->is_price_updated = $json->is_price_updated;
+                    $scrapedProduct->is_enriched = $json->is_enriched;
+                    $scrapedProduct->can_be_deleted = $json->can_be_deleted;
+                    if ( $scrapedProduct->save() ) {
+                        $count++;
                     }
-                    $product->stock = $json->stock;
-                    $product->save();
-                } else {
-                    // Create new scraped product if product doesn't exist
-                    $scrapedProduct = ScrapedProducts::where( 'sku', $json->sku )->first();
 
-                    // No result? Create
-                    if ( $scrapedProduct == NULL ) {
-                        $scrapedProduct = new ScrapedProducts();
-                        $scrapedProduct->website = $json->website;
-                        $scrapedProduct->sku = $json->sku;
-                        $scrapedProduct->has_sku = $json->has_sku;
-                        $scrapedProduct->brand_id = $json->brand_id;
-                        $scrapedProduct->title = $json->title;
-                        $scrapedProduct->description = $json->description;
-                        $scrapedProduct->images = $json->images;
-                        $scrapedProduct->price = $json->price;
-                        $scrapedProduct->properties = $json;
-                        $scrapedProduct->url = $json->url;
-                        $scrapedProduct->is_property_updated = $json->is_property_updated;
-                        $scrapedProduct->is_price_updated = $json->is_price_updated;
-                        $scrapedProduct->is_enriched = $json->is_enriched;
-                        $scrapedProduct->can_be_deleted = $json->can_be_deleted;
-                        if ( $scrapedProduct->save() ) {
-                            $count++;
+                    // Try to retrieve existing product from database
+                    $product = self::where( 'sku', $json->sku )->first();
+
+                    // Product exists
+                    if ( $product != NULL ) {
+                        // Update Price and Stock
+                        if ( $json->price > $product->price ) {
+                            $product->price = $json->price;
                         }
+                        $product->stock = $product->stock + $json->stock;
+                        $product->save();
                     }
                 }
+
+                // Update supplier inventory
+                SupplierInventory::firstOrCreate( [ 'supplier' => $json->website, 'sku' => $json->sku, 'inventory' => $json->stock ] );
             }
         }
 
