@@ -59,6 +59,10 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\VendorPaymentCreated' => [
 	        'App\Listeners\VendorPaymentCashFlow',
         ],
+
+        'App\Events\CaseReceivableCreated' => [
+	        'App\Listeners\CreateCaseReceivableCashFlow',
+        ],
     ];
 
     /**

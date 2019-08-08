@@ -779,6 +779,10 @@ Route::resource('target-location', 'TargetLocationController');
 Route::middleware('auth')->group(function () {
     Route::post('lawyer-speciality', ['uses'=>'LawyerController@storeSpeciality','as'=>'lawyer.speciality.store']);
     Route::resource('lawyer', 'LawyerController');
+    Route::get('case/{case}/receivable', 'CaseReceivableController@index')->name('case.receivable');
+    Route::post('case/{case}/receivable', 'CaseReceivableController@store')->name('case.receivable.store');
+    Route::put('case/{case}/receivable/{case_receivable}', 'CaseReceivableController@update')->name('case.receivable.update');
+    Route::delete('case/{case}/receivable/{case_receivable}', 'CaseReceivableController@destroy')->name('case.receivable.destroy');
     Route::resource('case', 'CaseController');
     Route::get('case-costs/{case}', ['uses'=>'CaseController@getCosts','as'=>'case.cost']);
     Route::post('case-costs', ['uses'=>'CaseController@costStore','as'=>'case.cost.post']);
