@@ -841,9 +841,62 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
 
 //Hubstaff Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
-	Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
-	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
-	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
+
+	Route::get('v1/auth', 'HubstaffController@authenticationPage')->name('get.token');
+
+	Route::post('user-details-token', 'HubstaffController@getToken')->name('user.token');
+
+	Route::get('get-users', 'HubstaffController@gettingUsersPage')->name('get.users');
+
+	Route::post('v1/users', 'HubstaffController@userDetails')->name('get.users.api');
+
+	Route::get('get-user-from-id', 'HubstaffController@showFormUserById')->name('get.user-fromid');
+
+	Route::post('get-user-from-id', 'HubstaffController@getUserById')->name('post.user-fromid');
+
+	Route::get('v1/users/projects', 'HubstaffController@getProjectPage')->name('get.user-project-page');
+
+	Route::post('v1/users/projects', 'HubstaffController@getProjects')->name('post.user-project-page');
+
+	// ------------Projects---------------
+
+	Route::get('get-projects', 'HubstaffController@getUserProject')->name('user.project');
+	Route::post('get-projects', 'HubstaffController@postUserProject')->name('post.user-project');
+
+	// --------------Tasks---------------
+
+	Route::get('get-project-tasks', 'HubstaffController@getProjectTask')->name('project.task');
+	Route::post('get-project-taks', 'HubstaffController@postProjectTask')->name('post.project-task');
+
+
+	Route::get('v1/tasks', 'HubstaffController@getTaskFromId')->name('get-project.task-from-id');
+
+	Route::post('v1/tasks', 'HubstaffController@postTaskFromId')->name('post-project.task-from-id');
+
+	// --------------Organizaitons--------------
+	Route::get('v1/organizations', 'HubstaffController@index')->name('organizations');
+	Route::post('v1/organizations', 'HubstaffController@getOrganization')->name('post.organizations');
+
+
+	// -------v2 preview verion post requests----------
+	Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
+	Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
+
+
+	Route::get('v1/organization/members', 'HubstaffController@organizationMemberPage')->name('organization.members');
+	Route::post('v1/organization/members', 'HubstaffController@showMembers')->name('post.organization-member');
+
+	// --------------Screenshots--------------
+
+	Route::get('v1/screenshots', 'HubstaffController@getScreenshotPage')->name('get.screenshots');
+
+	Route::post('v1/screenshots', 'HubstaffController@postScreenshots')->name('post.screenshot');
+
+	// -------------payments----------------
+
+	Route::get('v1/team_payments', 'HubstaffController@getTeamPaymentPage')->name('team.payments');
+	Route::post('v1/team_payments', 'HubstaffController@getPaymentDetail')->name('post.payment-page');
+
 });
 
 

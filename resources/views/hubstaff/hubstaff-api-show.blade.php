@@ -20,25 +20,19 @@
 	<div class="row">
 		<div class="col-md-5">
 			<div class="well">
-         {!! Form::open(array('route' => 'post.user.api')) !!}
+         {!! Form::open(['route' => 'user.token']) !!}
           <div>
-          	<h3 class="text-center">Authorization Credentials</h3>
-              <div class="form-group">
-                 <input class="form-control" name="app_token" id="email" type="text" placeholder="Your App Token" required>
-              </div>
+          	<h3 class="text-center">Obtain Auth Token to work with Hubstaff API</h3>
              <div class="form-group">
-               <input class="form-control" name="auth_token" id="email" type="text" placeholder="Your Auth Token" required>
+                <input class="form-control" name="email" id="email" type="email" placeholder="Your Hubstaff Email" required>
              </div>
              <div class="form-group">
-                <input class="form-control" name="email" id="email" type="email" placeholder="Your Email" required>
-             </div>
-             <div class="form-group">
-               <input class="form-control" name="email" id="email" type="password" placeholder="Your password" required>
+               <input class="form-control" name="password" id="password" type="password" placeholder="Your password" required>
              </div>
             
              <br/>
              <div class="text-center">
-             	<button class="btn btn-info btn-lg" type="submit">Get User Details</button>
+             	<button class="btn btn-info btn-lg" type="submit">Get Token</button>
              </div>
           </div>
          {!! Form::close() !!}
