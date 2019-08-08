@@ -10,7 +10,7 @@
 
     <div class="row">
       <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Vendor Payments</h2>
+        <h2 class="page-heading">Payment History - <a href="{{route('vendor.show',$vendor->id)}}" title="Vendor Details">{{ $vendor->name }} ({{ optional($vendor->category)->title }})</a></h2>
         <div class="pull-left">
           <form class="form-inline" action="{{ route('vendor.index') }}" method="GET">
             <div class="form-group">
@@ -237,7 +237,6 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-secondary">Add</button>
                     </div>
             </div>
 
@@ -269,7 +268,6 @@
           modal.find('.modal-body').html(html);
       })
 
-      //TODO make this work
       $('#paymentFormModal').on('show.bs.modal', function (event) {
           var modal = $(this)
           var button = $(event.relatedTarget)
@@ -300,50 +298,5 @@
               modal.find('input[name="_method"]').remove()
           }
       })
-
-    $(document).on('click', '.edit-vendor', function() {
-      var vendor = $(this).data('vendor');
-      var url = "{{ url('vendor') }}/" + vendor.id;
-
-      $('#vendorEditModal form').attr('action', url);
-      $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
-      $('#vendor_name').val(vendor.name);
-      $('#vendor_address').val(vendor.address);
-      $('#vendor_phone').val(vendor.phone);
-      $('#vendor_email').val(vendor.email);
-      $('#vendor_social_handle').val(vendor.social_handle);
-      $('#vendor_website').val(vendor.website);
-      $('#vendor_login').val(vendor.login);
-      $('#vendor_password').val(vendor.password);
-      $('#vendor_gst').val(vendor.gst);
-      $('#vendor_account_name').val(vendor.account_name);
-      $('#vendor_account_iban').val(vendor.account_iban);
-      $('#vendor_account_swift').val(vendor.account_swift);
-    });
-
-    $(document).on('click', '.create-agent', function() {
-      var id = $(this).data('id');
-
-      $('#agent_vendor_id').val(id);
-    });
-
-    $(document).on('click', '.edit-agent-button', function() {
-      var agent = $(this).data('agent');
-      var url = "{{ url('agent') }}/" + agent.id;
-
-      $('#editAgentModal form').attr('action', url);
-      $('#agent_name').val(agent.name);
-      $('#agent_address').val(agent.address);
-      $('#agent_phone').val(agent.phone);
-      $('#agent_email').val(agent.email);
-    });
-
-    $(document).on('click', '.expand-row', function() {
-      var selection = window.getSelection();
-      if (selection.toString().length === 0) {
-        $(this).find('.td-mini-container').toggleClass('hidden');
-        $(this).find('.td-full-container').toggleClass('hidden');
-      }
-    });
   </script>
 @endsection
