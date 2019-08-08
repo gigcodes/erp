@@ -344,9 +344,18 @@
                             </div>
 
                         </li> --}}
-
-
-
+                        @can('crm')
+                        <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="{{ route('task.index') }}">Task</a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
+                                    <a class="dropdown-item" href="{{ route('dailyplanner.index') }}">Daily Planner</a>
+                                    <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
+                                </li>
+                            </ul>
+                        </li>
+                        @endcan
                         @can('admin')
                            {{-- Product Menu Started --}}
                             <li class="nav-item dropdown">
@@ -365,6 +374,9 @@
                                                     Grid</a></li>
                                                     @can('selection-create')
                                                         <li><a href="{{ route('productselection.create') }}">Add New</a></li>
+                                                    @endcan
+                                                    @can('crm')
+                                                    <li><a href="{{ action('ScrapController@excel_import') }}">Import Excel Document Type 1</a></li>
                                                     @endcan
                                                 </ul>
                                             </li>
@@ -906,7 +918,7 @@
                                             </ul>
                                         </li>
                                         @can('crm')
-                                        <li class="dropdown-submenu">
+                                        <li>
                                             <a class="dropdown-item" href="{{ route('refund.index') }}">Refunds</a>
                                         </li>
                                         @endcan
@@ -965,21 +977,7 @@
                             </ul>
                         </li>
                         {{-- CRM menu ended --}}
-                        {{-- @can('purchase')
-                            <li class="dropdown-submenu">
-                                <a class="test" tabindex="-1" href="#">Purchase <span class="caret"></span></a>
-                                <li class="nav-item dropdown">
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('purchase.calendar') }}">Purchase Calendar</a>
-                                        <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
-                                        <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Canc\Ref Grid</a>
-                                        <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
-                                        <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
-                                    </div>
-                                </li>
-                            </li>
-                        @endcan --}}
-
+                     
                         @can ('vendor-all')
                           <li class="nav-item dropdown">
 
@@ -1164,7 +1162,6 @@
                                                 <li><a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">Competitors On Instaram</a></li>
                                                 <li><a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a></li>
                                                 <li><a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comment Statistics</a></li>
-                                                <li><a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a></li>
                                                 <li><a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customer's Followers</a></li>
                                                 <li><a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags used by top customers</a></li>
                                             @endcan
@@ -1182,10 +1179,46 @@
                                           </a>
                                          <ul class="dropdown-menu multi-level" aria-labelledby="facebookMenu">
                                             <li><a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Create A Post</a></li>
-                                            <li><a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">Scheduled Posts</a></li> 
-                                            <li><a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups </a></li> 
-                                            <li><a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brands Fan Page</a></li> 
-                                            <li><a class="dropdown-item" href="#">Ads</a></li> 
+                                            <li><a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">Scheduled Posts</a></li>
+                                            <li class="dropdown-submenu">
+                                                <a href="#" role="button" data-toggle="dropdown" >
+                                                    Facebook<span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-right">
+                                                    <li><a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Posts</a></li>
+                                                </ul>
+                                            </li>
+                                            <li class="dropdown-submenu">
+                                                <a href="#" role="button" data-toggle="dropdown" >
+                                                    Facebook Groups<span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-right">
+                                                        <li><a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups </a></li> 
+                                                </ul>
+                                            </li>
+                                            <li class="dropdown-submenu">
+                                                <a href="#" role="button" data-toggle="dropdown" >
+                                                        Facebook Brands Fan Page<span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-right">
+                                                    <li><a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brands Fan Page</a></li> 
+                                                </ul>
+                                            </li>
+                                            <li class="dropdown-submenu">
+                                                <a href="#" role="button" data-toggle="dropdown" >
+                                                    Adds<span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-right">
+                                                    <li><a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a></li> 
+                                                    <li><a class="dropdown-item" href="{{route('social.post.page')}}">Post on Page</a></li> 
+                                                    <li><a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a></li> 
+                                                    <li><a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a></li> 
+                                                    <li><a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign</a></li>
+                                                    <li><a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a></li>
+                                                    <li><a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a></li>
+                                                    <li><a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a></li>
+                                                </ul>
+                                            </li>
                                           </ul>
                                         </li>
                                     @endcan
@@ -1235,7 +1268,10 @@
                                         <a class="dropdown-item" href="#">Bloggers</a>
                                         <ul class="dropdown-menu multi-level">
                                             <li>
-                                                <a class="dropdown-item" href="">Bloggers</a>
+                                                <a class="dropdown-item" href="">Blogger</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="">Email</a>
                                             </li>
                                         </ul>    
                                     </li>
@@ -1265,60 +1301,6 @@
                                 </div>
                              </li>
                           @endcan --}}
-
-
-                        @can('social-view')
-                          @if(Auth::user()->email != 'facebooktest@test.com')
-                             <li class="nav-item dropdown">
-
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-
-                                    Social <span class="caret"></span>
-
-                                </a>
-
-
-
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-
-                                    @can('review-view')
-                                        <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
-                                    @endcan
-
-                                    <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts
-
-                                    </a>
-
-                                    <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page
-
-                                    </a>
-
-                                    <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
-
-                                    </a>
-
-                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports
-
-                                        <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
-
-                                        </a>
-
-                                        <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset
-
-                                        </a>
-
-                                        <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad
-
-                                        </a>
-
-                                        <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
-                                </div>
-                            </li>
-                          @endif
-                        @endcan
-
                             @if(Auth::user()->email != 'facebooktest@test.com')
                                 <li class="nav-item dropdown">
 
@@ -1370,6 +1352,15 @@
                                             @can('case-all')
                                                 <li><a class="dropdown-item" href="{{route('case.index')}}">Cases</a><li>
                                             @endcan
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown-submenu">
+                                        <a tabindex="-1" href="#" >
+                                            Old Issues <span class="caret"></span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#">Old Outgoing</a></li>
+                                            <li><a class="dropdown-item" href="#">Old Incoming</a><li>
                                         </ul>
                                     </li>
                                 </ul>

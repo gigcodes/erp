@@ -785,7 +785,7 @@ Route::prefix('/seo')->name('seo.')->group(function(){
     Route::post('/analytics/delete/{id}', 'SEOAnalyticsController@delete')->name('delete_entry');
 });
 
-Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
+Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('brokenLinks');
 Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
 
 Route::get('old-incomings', 'OldIncomingController@index')->name('oldIncomings');
@@ -800,7 +800,7 @@ Route::post('store/old', 'OldController@store')->name('storeOld');
 Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
 Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
 
-Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
+Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinks');
 Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
 
 Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
