@@ -210,9 +210,10 @@ class Helpers {
     public static function currencies()
     {
         return [
-            1=>'INR',
-            'EURO',
-            'AED'
+            1=>'USD',
+            'EUR',
+            'AED',
+            'INR'
         ];
 	}
 

@@ -31,7 +31,9 @@ class UpdateCaseCashFlow
         $user_id = auth()->id();
         $cash_flow = $case->cashFlows()->where('order_status','bill_id:'.$bill->id)->first();
         if(!$cash_flow){
-            $cash_flow = $case->cashFlows()->create();
+            $cash_flow = $case->cashFlows()->create([
+                'user_id' => $user_id,
+            ]);
         }
         $cash_flow->fill([
             'date' => $bill->paid_date ?: $bill->billed_date,
@@ -41,7 +43,6 @@ class UpdateCaseCashFlow
             'currency' => '',
             'status' => ($bill->paid_date && $bill->amount_paid) ? 1 : 0,
             'order_status' => 'bill_id:'.$bill->id,//to know which of the payment's record while updating later
-            'user_id' => $user_id,
             'updated_by' => $user_id,
             'description' => 'Case Cost Billed and Paid',
         ])->save();

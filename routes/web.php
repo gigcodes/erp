@@ -577,6 +577,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
 	Route::put('vendor/product/{id}', 'VendorController@productUpdate')->name('vendor.product.update');
 	Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
+	Route::get('vendor/{vendor}/payments', 'VendorPaymentController@index')->name('vendor.payments');
+	Route::post('vendor/{vendor}/payments', 'VendorPaymentController@store')->name('vendor.payments.store');
+	Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
+	Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
 	Route::resource('vendor', 'VendorController');
 
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');

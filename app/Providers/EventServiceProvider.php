@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\VendorPaymentCleared;
+use App\Events\VendorPaymentCreated;
+use App\Listeners\VendorPaymentCashFlow;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -51,6 +54,10 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\ProformaConfirmed' => [
 	        'App\Listeners\CreatePurchaseCashFlow',
+        ],
+
+        'App\Events\VendorPaymentCreated' => [
+	        'App\Listeners\VendorPaymentCashFlow',
         ],
     ];
 
