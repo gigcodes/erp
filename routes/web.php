@@ -791,10 +791,8 @@ Route::prefix('/seo')->name('seo.')->group(function(){
     Route::post('/analytics/delete/{id}', 'SEOAnalyticsController@delete')->name('delete_entry');
 });
 
-<<<<<<< HEAD
 Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('brokenLinks');
 Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
-=======
 Route::middleware('auth')->group(function() {
 //    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
     Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
@@ -823,23 +821,19 @@ Route::middleware('auth')->group(function () {
     Route::get('blogger-email', ['uses'=>'BloggerEmailTemplateController@index','as'=>'blogger.email.template']);
     Route::put('blogger-email/{bloggerEmailTemplate}', ['uses'=>'BloggerEmailTemplateController@update','as'=>'blogger.email.template.update']);
     Route::resource('blogger', 'BloggerController');
->>>>>>> afac8858fa9cbcd7fc27e00197e11a8ef2cd371e
 
     Route::post('blogger-contact', ['uses' => 'ContactBloggerController@store','as'=>'blogger.contact.store']);
     Route::put('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@update','as'=>'blogger.contact.update']);
     Route::delete('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@destroy','as'=>'contact.blogger.destroy']);
 
 
-<<<<<<< HEAD
 Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinks');
 Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
-=======
     Route::post('blogger-product-image/{blogger_product}', ['uses'=>'BloggerProductController@uploadImages','as'=>'blogger.image.upload']);
     Route::get('blogger-product-get-image/{blogger_product}', ['uses'=>'BloggerProductController@getImages','as'=>'blogger.image']);
     Route::resource('blogger-product', 'BloggerProductController');
 });
 
->>>>>>> afac8858fa9cbcd7fc27e00197e11a8ef2cd371e
 
 
 // Mailchimp Module
