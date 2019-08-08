@@ -108,6 +108,7 @@
         <th width="1%">ID</th>
         <th width="5%">Module</th>
         <th width="10%">Subject</th>
+        <th width="5%">Priority</th>
         <th width="15%">Issue</th>
         <th width="5%">Date Created</th>
         <th width="5%">Est. Completion Time</th>
@@ -116,7 +117,6 @@
         <th width="5%">Correction By</th>
         <th width="5%">Resolved</th>
         <th width="5%">Cost</th>
-        <th width="25%">Communication</th>
       </tr>
       @foreach ($issues as $key => $issue)
         @can('admin')
@@ -124,6 +124,7 @@
             <td>{{ $issue->id }}</td>
             <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
             <td>{{ $issue->subject ?? 'N/A' }}</td>
+            <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
             <td class="expand-row">
               <div class="td-mini-container">
                 {{ strlen($issue->issue) > 20 ? substr($issue->issue, 0, 20).'...' : $issue->issue }}
@@ -139,6 +140,31 @@
                   </a>
                 @endforeach
               @endif
+
+              <div>
+                <div class="panel-group">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse_{{$issue->id}}">Messages({{count($issue->communications)}})</a>
+                      </h4>
+                    </div>
+                    <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        <div class="messageList" id="message_list_{{$issue->id}}">
+                          @foreach($issue->communications as $message)
+                            <li>{{ $message->message }}</li>
+                          @endforeach
+                        </div>
+                      </div>
+                      <div class="panel-footer">
+                        <input type="text" class="form-control send-message" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </td>
             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
             <td data-id="{{ $issue->id }}">
@@ -195,31 +221,6 @@
                 <input type="text" name="cost" id="cost_{{$issue->id}}" placeholder="Amount..." class="form-control save-cost" data-id="{{$issue->id}}">
               @endif
             </td>
-            <td>
-              <div>
-                <div class="panel-group">
-                  <div class="panel panel-default">
-                    <div class="panel-heading">
-                      <h4 class="panel-title">
-                        <a data-toggle="collapse" href="#collapse_{{$issue->id}}">Messages({{count($issue->communications)}})</a>
-                      </h4>
-                    </div>
-                    <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
-                      <div class="panel-body">
-                        <div class="messageList" id="message_list_{{$issue->id}}">
-                          @foreach($issue->communications as $message)
-                            <li>{{ $message->message }}</li>
-                          @endforeach
-                        </div>
-                      </div>
-                      <div class="panel-footer">
-                        <input type="text" class="form-control send-message" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </td>
           </tr>
         @elsecan
           @if($issue->submitted_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
@@ -235,6 +236,29 @@
                     </a>
                   @endforeach
                 @endif
+                <div>
+                  <div class="panel-group">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        <h4 class="panel-title">
+                          <a data-toggle="collapse" href="#collapse_{{$issue->id}}">Messages({{count($issue->communications)}})</a>
+                        </h4>
+                      </div>
+                      <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                          <div class="messageList" id="message_list_{{$issue->id}}">
+                            @foreach($issue->communications as $message)
+                              <li>{{ $message->message }}</li>
+                            @endforeach
+                          </div>
+                        </div>
+                        <div class="panel-footer">
+                          <input type="text" class="form-control send-message" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </td>
               <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
               <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
@@ -280,16 +304,6 @@
                 @else
                   <input type="text" name="cost" id="cost_{{$issue->id}}" placeholder="Amount..." class="form-control save-cost" data-id="{{$issue->id}}">
                 @endif
-              </td>
-              <td>
-                <div class="messageLis" style="max-height: 50px; overflow: auto" data-id="{{$issue->id}}" id="message_list_{{$issue->id}}">
-                  @foreach($issue->communications()->take(4)->get() as $message)
-                    <li>{{ $message->message }}</li>
-                  @endforeach
-                </div>
-                <div class="d-inline">
-                  <input type="text" class="form-control send-message" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}">
-                </div>
               </td>
             </tr>
           @endif

@@ -1239,19 +1239,18 @@ class ProductController extends Controller {
 
 	    $product = Product::where('is_image_processed', 0)
             ->where('is_being_cropped', 0)
-            ->where('is_scraped', 1)
             ->where('is_without_image', 0)
             ->where('is_crop_skipped', 0)
             ->where('category', '>', 3)
-            ->where(function($q) {
-                $q->where('size', '!=', '')
-                    ->orWhere(function ($qq) {
-                        $qq->where('lmeasurement', '!=', '')
-                           ->where('hmeasurement', '!=', '')
-                           ->where('dmeasurement', '!=', '');
-                    })
-                ;
-            })
+//            ->where(function($q) {
+//                $q->where('size', '!=', '')
+//                    ->orWhere(function ($qq) {
+//                        $qq->where('lmeasurement', '!=', '')
+//                           ->where('hmeasurement', '!=', '')
+//                           ->where('dmeasurement', '!=', '');
+//                    })
+//                ;
+//            })
             ->first();
 
 //	    if ($product) {
@@ -1321,6 +1320,7 @@ class ProductController extends Controller {
 
             $product->is_image_processed = 1;
             $product->stage = 5;
+            $product->cropped_at = Carbon::now()->toDateTimeString();
             $product->save();
 
         } else {
@@ -1333,6 +1333,13 @@ class ProductController extends Controller {
         return response()->json([
 	        'status' => 'success'
         ]);
+    }
+
+    public function rejectedListingStatistics() {
+	    $products = DB::table('products')->where('is_listing_rejected', 1)->groupBy(['listing_remark', 'supplier'])->selectRaw('COUNT(*) as total_count, supplier, listing_remark')->orderBy('total_count', 'DESC')->get();
+
+
+	    return view('products.rejected_stats', compact('products'));
     }
 
     public function addListingRemarkToProduct(Request $request) {
@@ -1554,9 +1561,11 @@ class ProductController extends Controller {
 
         $category_array = Category::renderAsArray();
 
-        $products = $products->orderBy('listing_rejected_on', 'DESC')->orderBy('updated_at', 'DESC')->paginate(25);
+        $products = $products->with('log_scraper_vs_ai')->orderBy('listing_rejected_on', 'DESC')->orderBy('updated_at', 'DESC')->paginate(25);
 
-	    return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier', 'request', 'users'));
+        $rejectedListingSummary = DB::table('products')->selectRaw('DISTINCT(listing_remark) as remark, COUNT(listing_remark) as issue_count')->where('is_listing_rejected',1)->groupBy('listing_remark')->orderBy('issue_count', 'DESC')->get();
+
+        return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier', 'request', 'users', 'rejectedListingSummary'));
     }
 
     public function updateProductListingStats(Request $request) {

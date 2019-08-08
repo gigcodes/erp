@@ -255,15 +255,15 @@ class SearchController extends Controller {
 				$productQuery = $productQuery->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
 			}
 
-			if ( ! empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+//			if ( ! empty( $stage->getIDCaseInsensitive( $term ) ) ) {
+//
+//				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+//			}
 
-				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
-			}
-
-			if ( ! ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
-
-				$productQuery = $productQuery->where( 'stage', '>=', $stage->get( $roletype ) );
-			}
+//			if ( ! ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
+//
+//				$productQuery = $productQuery->where( 'stage', '>=', $stage->get( $roletype ) );
+//			}
 
 			if ($roletype != 'Selection' && $roletype != 'Searcher') {
 

@@ -39,8 +39,16 @@
                         <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'original']) }}">Download Original</a>
                     </td>
                     <td>
-                        <strong>Dimension: {{round($product->lmeasurement*0.393701)}} X {{round($product->hmeasurement*0.393701)}} X {{round($product->dmeasurement*0.393701)}}</strong>
-                    </td>
+                        <strong>Dimenson: {{$product->lmeasurement }} X {{ $product->hmeasurement }} X {{ $product->dmeasurement }}</strong>
+                        <?php
+                        try {
+                        ?>
+                        <br><strong>Dimension: {{round($product->lmeasurement*0.393701)}} X {{round($product->hmeasurement*0.393701)}} X {{round($product->dmeasurement*0.393701)}}</strong>
+                        <?php
+                        } catch (Exception $exception) {
+
+                        }
+                        ?>
                     <td>
                         <form method="post" action="{{ action('ProductCropperController@approveRejectedCropped', $product->id) }}" enctype="multipart/form-data">
                             @csrf

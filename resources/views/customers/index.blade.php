@@ -506,6 +506,13 @@
                       @if (array_key_exists($customer->id, $orders))
                         @if ($customer->purchase_status != null)
                           {{ $customer->purchase_status }}
+                            @foreach($orders[$customer->id][0]['order_product'] as $orderStat)
+                                @if($orderStat['product'])
+                                    <li>
+                                        <a target="_new" href="{{ action('ProductController@show', $orderStat['product']['id'])  }}">{{ $orderStat['product']['id'] }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
                         @else
                           No Purchase
                         @endif
@@ -546,9 +553,13 @@
                         <ul class="more-communication-container">
 
                         </ul>
-                      {{-- @else
-                        {{ $remark_message }}
-                      @endif --}}
+
+                        @if(isset($complaints[$customer->id]))
+                            <p style="cursor: pointer;" class="show-complaint" data-complaint="{{ $complaints[$customer->id] }}">
+                                <strong>Complaint: </strong> {{ substr($complaints[$customer->id], 0, 10 ) }}
+                            </p>
+                        @endif
+
                     </td>
                     <td>
                       <div class="d-inline form-inline">
@@ -757,6 +768,11 @@
 
     var cached_suggestions = localStorage['message_suggestions'];
     var suggestions = [];
+
+    $(document).on('click', '.show-complaint', function() {
+        let data = $(this).attr('data-complaint')
+        alert(data);
+    });
 
     var customerIdToRemind = null;
 

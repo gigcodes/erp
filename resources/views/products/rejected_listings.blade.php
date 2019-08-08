@@ -88,6 +88,35 @@
         </div>
     </div>
     <div class="row">
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">ALl Rejection Issues</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-striped table-bordered">
+                                <tr>
+                                    <th>Issue</th>
+                                    <th>Total Count</th>
+                                </tr>
+                                @foreach($rejectedListingSummary as $issue)
+                                    <tr>
+                                        <td>{{ $issue->remark }}</td>
+                                        <td>{{ $issue->issue_count }}</td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-12 text-center">
             {!! $products->appends($request->except('page'))->links() !!}
         </div>
@@ -156,6 +185,27 @@
                             <p>{{ $product->listing_remark }}</p>
                             <p><strong>Rejected By</strong></p>
                             <p>{{ $product->rejector ? $product->rejector->name : 'N/A' }}</p>
+                            @if ( count($product->log_scraper_vs_ai) > 0 )
+                                <button class="btn btn-secondary btn-sm text-light" data-toggle="modal" id="linkAiModal{{ $product->id }}" data-target="#aiModal{{ $product->id }}">AI result</button>
+                                <div class="modal fade" id="aiModal{{ $product->id }}" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">{{ $product->name }}</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <iframe id="aiModalLoad{{ $product->id }}" frameborder="0" border="0" width="100%" height="800"></iframe>
+                                            </div>
+                                        </div>
+                                    </div><
+                                </div>
+                                <script>
+                                    $('#linkAiModal{{ $product->id }}').click(function() {
+                                        $('#aiModalLoad{{ $product->id }}').attr('src','/log-scraper-vs-ai/{{ $product->id }}');
+                                    });
+                                </script>
+                            @endif
                         </td>
                         <td colspan="4">
                             <p><strong>Final Action</strong></p>

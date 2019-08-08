@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Http\Controllers\WhatsAppController;
 use App\MessageQueue;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -47,13 +48,17 @@ class SendMessageToSelected implements ShouldQueue
         $message = $this->content['message'];
 
         // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, $this->whatsapp_number, $message, false);
-        app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->number, $this->whatsapp_number, $message);
+//        app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->number, $this->whatsapp_number, $message);
+        app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsapp_number, $message, false);
+
       }
 
       if (isset($this->content['image'])) {
         foreach ($this->content['image'] as $image) {
           // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, $this->whatsapp_number, str_replace(' ', '%20', $image['url']), false);
-          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->number, $this->whatsapp_number, NULL, str_replace(' ', '%20', $image['url']));
+//          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->number, $this->whatsapp_number, NULL, str_replace(' ', '%20', $image['url']));
+            app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsapp_number, NULL, str_replace(' ', '%20', $image['url']));
+
         }
       }
 

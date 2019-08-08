@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Blogger;
 use App\DeveloperTask;
 use App\Issue;
 use App\Lawyer;
 use App\LegalCase;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Bugsnag\PsrLogger\BugsnagLogger;
+use Dompdf\Dompdf;
 use Illuminate\Support\Facades\URL;
 use Plank\Mediable\MediaUploaderFacade;
 use Twilio\Jwt\ClientToken;
@@ -1750,6 +1752,7 @@ class WhatsAppController extends FindByNumberController
         'assigned_to'     => 'sometimes|nullable',
         'lawyer_id'     => 'sometimes|nullable|numeric',
         'case_id'     => 'sometimes|nullable|numeric',
+        'blogger_id'     => 'sometimes|nullable|numeric',
       ]);
 
       $data = $request->except( '_token');
@@ -1889,6 +1892,9 @@ class WhatsAppController extends FindByNumberController
           $data['case_id'] = $request->case_id;
           $data['lawyer_id'] = $request->lawyer_id;
           $module_id = $request->case_id;
+      }else if($context == 'blogger'){
+          $data['blogger_id'] = $request->blogger_id;
+          $module_id = $request->blogger_id;
       }
 
       if ($context != 'task') {
@@ -1949,24 +1955,36 @@ class WhatsAppController extends FindByNumberController
       }
 
       if ($request->images) {
-        $image_count = 0;
-        foreach (json_decode($request->images) as $image) {
-          if ($image_count == 15) {
-            $image_count = 0;
+        $imagesDecoded = json_decode($request->images);
+        if (count($imagesDecoded) >= 10) {
 
-            $data['message'] = NULL;
-            $chat_message = ChatMessage::create($data);
-          }
+            $temp_chat_message = ChatMessage::create($data);
+            foreach ($imagesDecoded as $image) {
+                $media = Media::find($image);
+                $temp_chat_message->attachMedia($media,config('constants.media_tags'));
+            }
 
-          $media = Media::find($image);
-          $chat_message->attachMedia($media,config('constants.media_tags'));
 
-          $image_count++;
-
-          // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
-          //   $another_message->attachMedia($media,config('constants.media_tags'));
-          // }
+            $fn = '';
+            if ($context == 'customer') {
+                $fn = '_product';
+            }
+            $medias = Media::whereIn('id', $imagesDecoded)->get();
+            $pdfView = view('pdf_views.images' . $fn, compact('medias'));
+            $pdf = new Dompdf();
+            $pdf->loadHtml($pdfView);
+            $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
+            $pdf->render();
+            File::put($fileName, $pdf->output());
+            $media = MediaUploader::fromSource($fileName)->upload();
+            $chat_message->attachMedia($media, 'gallery');
+        } else {
+            foreach ($imagesDecoded as $image) {
+                $media = Media::find($image);
+                $chat_message->attachMedia($media,config('constants.media_tags'));
+            }
         }
+
       }
 
       if ($request->screenshot_path != '') {
@@ -2372,6 +2390,9 @@ class WhatsAppController extends FindByNumberController
       }else if ($request->caseId) {
         $column = 'case_id';
         $value = $request->caseId;
+      }else if ($request->bloggerId) {
+          $column = 'blogger_id';
+          $value = $request->bloggerId;
       } else {
         $column = 'customer_id';
         $value = $request->customerId;
@@ -2681,12 +2702,16 @@ class WhatsAppController extends FindByNumberController
                 $phone = '';
             }
             $whatsapp_number = $case->whatsapp_number;
+        } else if ($context == 'blogger') {
+            $blogger = Blogger::find($message->blogger_id);
+            $phone = $blogger->default_phone;
+            $whatsapp_number = $blogger->whatsapp_number;
         }
 
         $data = '';
         if ($message->message != '') {
 
-          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case') {
+          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger') {
             $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
           } else {
 //             if ($whatsapp_number == '919152731483') {
@@ -3314,7 +3339,6 @@ class WhatsAppController extends FindByNumberController
 
   public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
 	{
-
     // $configs = \Config::get("wassenger.api_keys");
     $encodedNumber = '+' . $number;
     $encodedText = $message;
@@ -3349,6 +3373,7 @@ class WhatsAppController extends FindByNumberController
       $link = 'sendFile';
     }
 
+
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
@@ -3356,7 +3381,7 @@ class WhatsAppController extends FindByNumberController
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => "",
       CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 30,
+      CURLOPT_TIMEOUT => 300,
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => "POST",
       CURLOPT_POSTFIELDS => json_encode($array),
@@ -3368,6 +3393,7 @@ class WhatsAppController extends FindByNumberController
 
     $response = curl_exec($curl);
     $err = curl_error($curl);
+
     // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
     curl_close($curl);

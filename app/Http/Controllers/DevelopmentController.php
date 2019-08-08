@@ -36,9 +36,15 @@ class DevelopmentController extends Controller
       $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
       $id = null;
 
-      $progressTasks = DeveloperTask::where('user_id', $user);
-      $plannedTasks = DeveloperTask::where('user_id', $user);
-      $completedTasks = DeveloperTask::where('user_id', $user);
+      $progressTasks = new DeveloperTask();
+      $plannedTasks = new DeveloperTask();
+      $completedTasks = new DeveloperTask();
+
+      if (!Auth::user()->hasRole('Admin')) {
+          $progressTasks = DeveloperTask::where('user_id', $user);
+          $plannedTasks = DeveloperTask::where('user_id', $user);
+          $completedTasks = DeveloperTask::where('user_id', $user);
+      }
 
       if ($request->get('range_start') != '') {
         $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
@@ -127,6 +133,16 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function updateAssignee(Request $request) {
+         $task = DeveloperTask::find($request->get('task_id'));
+         $task->user_id = $request->get('user_id');
+         $task->save();
+
+         return response()->json([
+             'success'
+         ]);
+    }
+
     public function issueIndex(Request $request)
     {
         $issues = new Issue;
@@ -151,7 +167,7 @@ class DevelopmentController extends Controller
 
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
-        $issues = $issues->orderBy('created_at', 'DESC')->with('communications')->get();
+        $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications')->get();
 
         return view('development.issue', [
         'issues'  => $issues,

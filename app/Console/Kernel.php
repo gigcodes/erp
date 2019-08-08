@@ -5,6 +5,8 @@ namespace App\Console;
 use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
 use App\Console\Commands\EnrichWiseProducts;
+use App\Console\Commands\FixCategoryNameBySupplier;
+use App\Console\Commands\FlagCustomersIfTheyHaveAComplaint;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
@@ -125,7 +127,9 @@ class Kernel extends ConsoleKernel
         UploadProductsToMagento::class,
         UploadProductsToMagento2::class,
         UploadProductsToMagento3::class,
-        SendAutoReplyToCustomers::class
+        SendAutoReplyToCustomers::class,
+        FixCategoryNameBySupplier::class,
+        FlagCustomersIfTheyHaveAComplaint::class
     ];
 
     /**
@@ -136,9 +140,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        //Flag customer if they have a complaint
+        $schedule->command('flag:customers-with-complaints')->daily();
 
-
+        //This command sends the reply on products if they request...
         $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();
+
+        //assign the category to products, runs twice daily...
+        $schedule->command('category:fix-by-supplier')->twiceDaily();
 
         $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customers')->everyMinute()->timezone('Asia/Kolkata');
@@ -184,6 +193,7 @@ class Kernel extends ConsoleKernel
           ]);
 
           MagentoController::get_magento_orders();
+          //fetched magento orders...
 
           $report->update(['end_time' => Carbon:: now()]);
         })->hourly();
@@ -234,74 +244,6 @@ class Kernel extends ConsoleKernel
 
 
         $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
-
-//        $schedule->command('gebnegozionline:get-products-list')
-//            ->hourly()
-//            ->withoutOverlapping()
-//        ;
-//
-//        $schedule->command('gebnegozionline:get-products-detail')
-//            ->everyThirtyMinutes()
-//            ->withoutOverlapping()
-//        ;
-
-//        $schedule->command('gnb:update-price-via-dusk')
-//            ->hourly()
-//            ->withoutOverlapping()
-//        ;
-
-        // $schedule->command('enrich:wiseboutique')
-        //     ->daily()
-        //     ->withoutOverlapping()
-        // ;
-
-//        $schedule->command('wiseboutique:get-product-details')
-//            ->hourly()
-//            ->withoutOverlapping()
-//        ;
-//
-//        $schedule->command('scrap:doublef-list')
-//            ->hourly()
-//            ->withoutOverlapping()
-//        ;
-
-//        $schedule->command('doublef:get-product-details')
-//            ->hourly()
-//            ->withoutOverlapping()
-//        ;
-//
-//        $schedule->command('scrap:wiseboutique-list')
-//            ->hourly()
-//            ->withoutOverlapping()
-//        ;
-
-//        $schedule->command('scrap:tory-list')
-//            ->hourly()
-//            ->withoutOverlapping()
-//        ;
-//
-//        $schedule->command('tory:get-product-details')
-//            ->hourly()
-//            ->withoutOverlapping()
-//        ;
-
-//        $schedule->command('image:create-schedule')->dailyAt(14);
-//        $schedule->command('image:create-schedule')->dailyAt(17);
-//        $schedule->command('image:create-schedule')->dailyAt(20);
-        // $schedule->command('inventory:refresh-stock')->dailyAt(12);
-        // $schedule->command('gnb:get-sku')->hourly();
-        // $schedule->command('create:scraped-products')->everyMinute();
-//        $schedule->command('gnb:get-sku')->everyMinute();
-
-        // $schedule->command('sync:instagram-messages')
-        //     ->hourly();
-
-
-
-        // Code related to refine the products, category and other field...
-        //sizes, category, fix dashes and other characters, attribute replacement...
-
-
 
     }
 

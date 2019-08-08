@@ -41,6 +41,7 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
+    Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::resource('color-reference', 'ColorReferenceController');
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
@@ -425,6 +426,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
     Route::post('development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress');
     Route::post('development/task/complete-task', 'DevelopmentController@completeTask');
+    Route::post('development/task/assign-task', 'DevelopmentController@updateAssignee');
     Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
 
 	Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
@@ -719,6 +721,11 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('schedule/{scheduleId}/attach', 'InstagramController@attachMedia');
 });
 
+// logScraperVsAiController
+Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
+    Route::match(['get', 'post'], '/{id}', 'logScraperVsAiController@index');
+});
+
 /*
  * @date 1/17/2019
  * @author Rishabh Aryal
@@ -773,7 +780,6 @@ Route::middleware('auth')->group(function () {
     Route::get('case-costs/{case}', ['uses'=>'CaseController@getCosts','as'=>'case.cost']);
     Route::post('case-costs', ['uses'=>'CaseController@costStore','as'=>'case.cost.post']);
     Route::put('case-costs/update/{case_cost}', ['uses'=>'CaseController@costUpdate','as'=>'case.cost.update']);
-
 });
 
 Route::middleware('auth')->resource('keyword-instruction', 'KeywordInstructionController')->except(['create']);
@@ -785,24 +791,71 @@ Route::prefix('/seo')->name('seo.')->group(function(){
     Route::post('/analytics/delete/{id}', 'SEOAnalyticsController@delete')->name('delete_entry');
 });
 
+<<<<<<< HEAD
 Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('brokenLinks');
 Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
+=======
+Route::middleware('auth')->group(function() {
+//    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
+    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
 
-Route::get('old-incomings', 'OldIncomingController@index')->name('oldIncomings');
-Route::get('old-incomings', 'OldIncomingController@index')->name('filteredOldIncomings');
-Route::post('store/old-incomings', 'OldIncomingController@store')->name('storeOldIncomings');
-Route::get('edit/old-incomings/{id}', 'OldIncomingController@edit')->name('editOldIncomings');
-Route::post('update/old-incomings/{id}', 'OldIncomingController@update')->name('updateOldIncomings');
+    Route::get('old-incomings', 'OldIncomingController@index')->name('oldIncomings');
+    Route::get('old-incomings', 'OldIncomingController@index')->name('filteredOldIncomings');
+    Route::post('store/old-incomings', 'OldIncomingController@store')->name('storeOldIncomings');
+    Route::get('edit/old-incomings/{id}', 'OldIncomingController@edit')->name('editOldIncomings');
+    Route::post('update/old-incomings/{id}', 'OldIncomingController@update')->name('updateOldIncomings');
 
-Route::get('old', 'OldController@Index')->name('old');
-Route::get('old', 'OldController@Index')->name('filteredOld');
-Route::post('store/old', 'OldController@store')->name('storeOld');
-Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
-Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
+    Route::get('old', 'OldController@index')->name('old');
+    Route::get('old', 'OldController@index')->name('filteredOld');
+    Route::post('store/old', 'OldController@store')->name('storeOld');
+    Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
+    Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
 
+    Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
+
+    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
+//    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
+});
+
+//Blogger Module
+Route::middleware('auth')->group(function () {
+
+    Route::get('blogger-email', ['uses'=>'BloggerEmailTemplateController@index','as'=>'blogger.email.template']);
+    Route::put('blogger-email/{bloggerEmailTemplate}', ['uses'=>'BloggerEmailTemplateController@update','as'=>'blogger.email.template.update']);
+    Route::resource('blogger', 'BloggerController');
+>>>>>>> afac8858fa9cbcd7fc27e00197e11a8ef2cd371e
+
+    Route::post('blogger-contact', ['uses' => 'ContactBloggerController@store','as'=>'blogger.contact.store']);
+    Route::put('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@update','as'=>'blogger.contact.update']);
+    Route::delete('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@destroy','as'=>'contact.blogger.destroy']);
+
+
+<<<<<<< HEAD
 Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinks');
 Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
+=======
+    Route::post('blogger-product-image/{blogger_product}', ['uses'=>'BloggerProductController@uploadImages','as'=>'blogger.image.upload']);
+    Route::get('blogger-product-get-image/{blogger_product}', ['uses'=>'BloggerProductController@getImages','as'=>'blogger.image']);
+    Route::resource('blogger-product', 'BloggerProductController');
+});
 
+>>>>>>> afac8858fa9cbcd7fc27e00197e11a8ef2cd371e
+
+
+// Mailchimp Module
+Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
+	Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
+	Route::post('subscribe',['as'=>'subscribe','uses'=>'MailchimpController@subscribe']);
+	Route::post('sendCompaign',['as'=>'sendCompaign','uses'=>'MailchimpController@sendCompaign']);
+	Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
+});
+
+//Hubstaff Module
+Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
+	Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
+	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
+	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
+});
 Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 Route::get('display/analytics-data', 'AnalyticsController@showData')->name('filteredAnalyticsResults');
 

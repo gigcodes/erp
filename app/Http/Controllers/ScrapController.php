@@ -191,9 +191,12 @@ class ScrapController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
+  		$cropCountPerMinute = Product::whereRaw('cropped_at >= date_sub(now(),interval 1.2 minute)')->count();
+
       return view('scrap.activity', [
         'data'  => $data,
-        'link_entries'  => $link_entries
+        'link_entries'  => $link_entries,
+          'croppingRate' => $cropCountPerMinute
       ]);
     }
 
@@ -331,7 +334,7 @@ class ScrapController extends Controller
     }
 
     public function getFromNewSupplier() {
-        $products = Product::where('supplier', 'LE LUNETIER MILANO')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
+        $products = Product::where('supplier', 'Ines')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
         foreach ($products as $product) {
 
             $productsToPush[] = [
@@ -821,7 +824,9 @@ class ScrapController extends Controller
         if ($scrapedProduct) {
             echo "Scraped product found \n";
             $properties = $scrapedProduct->properties;
-//            $scrapedProduct->price = $request->get('price');
+            if (!$scrapedProduct->price) {
+                $scrapedProduct->price = $request->get('price');
+            }
             $properties['category'] = $request->get('category');
             $properties['description'] = $request->get('description');
             $properties['material_used'] = $request->get('material_used');

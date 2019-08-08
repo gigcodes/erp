@@ -176,8 +176,11 @@ class SendMessageToAll implements ShouldQueue
               // } else {
               //   dump('sending simple images with 06');
 //                 app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
-                 app(WhatsAppController::class)->sendWithWhatsApp($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
-              // }
+//                 app(WhatsAppController::class)->sendWithWhatsApp($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
+                 app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
+
+
+                // }
             } catch (\Exception $e) {
 
             }

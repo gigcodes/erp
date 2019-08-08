@@ -49,4 +49,80 @@ class Category extends Model
 
 	}
 
+    public static function getCategoryIdByKeyword( $keyword, $gender, $genderAlternative )
+    {
+        // Set gender
+        if ( empty($gender) ) {
+            $gender = $genderAlternative;
+        }
+
+        // Check database for result
+        $dbResult = self::where( 'title', $keyword )->get();
+
+        // No result? Try where like
+        if ( $dbResult->count() == 0 ) {
+            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->get();
+        }
+
+        // Still no result
+        if ( $dbResult === NULL ) {
+            return 0;
+        }
+
+        // Just one result
+        if ( $dbResult->count() == 1 ) {
+            return $dbResult->first()->id;
+        }
+
+        // Checking the result by gender only works if the gender is set
+        if ( empty( $gender ) ) {
+            return 0;
+        }
+
+        // Check results
+        foreach ( $dbResult as $result ) {
+            // Get parent Id
+            $parentId = $result->parent_id;
+
+            // Return 0 for a top category
+            if ( $parentId == 0 ) {
+                return $result->id;
+            }
+
+            // Return correct result by gender
+            if ( $parentId == 2 && strtolower( $gender ) == 'women' ) {
+                return $result->id;
+            }
+
+            // Return correct result by gender
+            if ( $parentId == 3 && strtolower( $gender ) == 'men' ) {
+                return $result->id;
+            }
+
+            // Other
+            if ( $parentId > 0 ) {
+                // Store category ID
+                $categoryId = $result->id;
+
+                // Get parent
+                $dbParentResult = Category::find( $result->parent_id );
+
+                // No result
+                if ( $dbParentResult->count() == 0 ) {
+                    return 0;
+                }
+
+                // Return correct result for women
+                if ( $dbParentResult->parent_id == 2 && strtolower( $gender ) == 'women' ) {
+                    return $categoryId;
+                }
+
+                // Return correct result for men
+                if ( $dbParentResult->parent_id == 3 && strtolower( $gender ) == 'men' ) {
+                    return $categoryId;
+                }
+            }
+        }
+    }
+
 }
