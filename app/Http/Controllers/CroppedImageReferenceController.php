@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\CroppedImageReference;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class CroppedImageReferenceController extends Controller
@@ -14,7 +15,7 @@ class CroppedImageReferenceController extends Controller
      */
     public function index()
     {
-        $products = CroppedImageReference::with(['media', 'newMedia'])->orderBy('id', 'desc')->paginate(50);
+        $products = CroppedImageReference::with(['media', 'newMedia'])->orderBy('id', 'desc')->select(['id', DB::raw('CONVERT_TZ(created_at, "-06:00", "+04:00") as created_at') ])->paginate(50);
 
         return view('image_references.index', compact('products'));
     }

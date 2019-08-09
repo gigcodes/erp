@@ -84,7 +84,7 @@
                         </td>
                         <td>
                             <p>
-                                Cropped at: {{ date('d-m-Y H:i:s', strtotime($product->created_at)) }}
+                                Cropped at: {{ date('d-m-Y H:i:s', strtotime($product->created_at)) }} (Gulf Standard Time)
                             </p>
                             <img src="{{ $product->newMedia ? $product->newMedia->getUrl() : '' }}" alt="" style="width: 100%;">
                         </td>
