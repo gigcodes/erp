@@ -14,7 +14,7 @@ class CroppedImageReferenceController extends Controller
      */
     public function index()
     {
-        $products = CroppedImageReference::with(['media', 'newMedia'])->paginate(50);
+        $products = CroppedImageReference::with(['media', 'newMedia'])->orderBy('id', 'desc')->paginate(50);
 
         return view('image_references.index', compact('products'));
     }
