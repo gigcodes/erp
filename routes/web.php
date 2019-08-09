@@ -823,6 +823,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('blogger-email', ['uses'=>'BloggerEmailTemplateController@index','as'=>'blogger.email.template']);
     Route::put('blogger-email/{bloggerEmailTemplate}', ['uses'=>'BloggerEmailTemplateController@update','as'=>'blogger.email.template.update']);
+
+    Route::get('blogger/{blogger}/payments', 'BloggerPaymentController@index')->name('blogger.payments');
+    Route::post('blogger/{blogger}/payments', 'BloggerPaymentController@store')->name('blogger.payments.store');
+    Route::put('blogger/{blogger}/payments/{blogger_payment}', 'BloggerPaymentController@update')->name('blogger.payments.update');
+    Route::delete('blogger/{blogger}/payments/{blogger_payment}', 'BloggerPaymentController@destroy')->name('blogger.payments.destroy');
+
     Route::resource('blogger', 'BloggerController');
 
     Route::post('blogger-contact', ['uses' => 'ContactBloggerController@store','as'=>'blogger.contact.store']);
