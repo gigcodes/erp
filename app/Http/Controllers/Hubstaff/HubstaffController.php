@@ -76,12 +76,15 @@ class HubstaffController extends Controller
             'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -112,12 +115,15 @@ class HubstaffController extends Controller
         	'id' => $request->id
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -149,12 +155,15 @@ class HubstaffController extends Controller
         	'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -186,12 +195,15 @@ class HubstaffController extends Controller
         	'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -223,12 +235,15 @@ class HubstaffController extends Controller
         	'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -257,12 +272,15 @@ class HubstaffController extends Controller
         	'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -295,12 +313,15 @@ class HubstaffController extends Controller
         	'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -329,12 +350,15 @@ class HubstaffController extends Controller
         	'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -363,12 +387,15 @@ class HubstaffController extends Controller
         	'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
 
@@ -402,15 +429,17 @@ class HubstaffController extends Controller
         	'offset' => $request->offset
         ));
 
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
+        if($curl->http_status_code == 401){
+            $curl = $curl;
+            return view('hubstaff.error-page', compact('curl'));
         }
 
-        else {
+        if ($curl->error) {
+            $curl = $curl;
+           return view('hubstaff.error-page', compact('curl'));
+        }else {
             $response = json_decode($curl->response);
         }
-
         $curl->close();
 
         $results = $response;

@@ -723,7 +723,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
 // logScraperVsAiController
 Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
-    Route::get('/{id}', 'logScraperVsAiController@index');
+    Route::match(['get', 'post'], '/{id}', 'logScraperVsAiController@index');
 });
 
 /*
@@ -897,7 +897,28 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
 	Route::get('v1/team_payments', 'HubstaffController@getTeamPaymentPage')->name('team.payments');
 	Route::post('v1/team_payments', 'HubstaffController@getPaymentDetail')->name('post.payment-page');
 
+
+	// ------------Attendance---------------
+	Route::get('v2/organizations/attendance-shifts', 'AttendanceController@index')->name('attendance.shifts');
+
+	Route::post('v2/organizations/attendance-shifts', 'AttendanceController@show')->name('attendance.shifts-post');
+
 });
+Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
+Route::get('display/analytics-data', 'AnalyticsController@showData')->name('filteredAnalyticsResults');
+
+// Broken Links
+Route::post('back-link/{id}/updateDomain', 'BrokenLinkCheckerController@updateDomain');
+Route::post('back-link/{id}/updateTitle', 'BrokenLinkCheckerController@updateTitle');
+
+//Back Linking
+Route::post('back-linking/{id}/updateTitle', 'BackLinkController@updateTitle');
+Route::post('back-linking/{id}/updateDesc', 'BackLinkController@updateDesc');
+Route::post('back-linking/{id}/updateURL', 'BackLinkController@updateURL');
+
+//SE Ranking Links
+Route::get('se-ranking/sites', 'SERankingController@getSites')->name('sitesInfo');
+
 
 
 // // Twitter Module

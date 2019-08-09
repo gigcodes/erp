@@ -176,10 +176,21 @@
                 </div>
 
                 <div class="form-group">
-                    <strong> Color :</strong>
+                    <input type="radio" name="color_selection" value="color_manual"> &nbsp; <strong> Color (manual) :</strong>
                     <?php
                     $colors = new \App\Colors();
-                    echo Form::select('color',$colors->all(), ( old('color') ? old('color') : $color ), ['placeholder' => 'Select a color','class' => 'form-control']);?>
+                    echo Form::select( 'color_manual', $colors->all(), ( old( 'color' ) ? old( 'color' ) : $color ), [ 'placeholder' => 'Select a color', 'class' => 'form-control' ] );?>
+                    {{--<input type="text" class="form-control" name="color" placeholder="Color" value="{{ old('color') ? old('color') : $color }}"/>--}}
+                    @if ($errors->has('color'))
+                        <div class="alert alert-danger">{{$errors->first('color')}}</div>
+                    @endif
+                </div>
+
+                <div class="form-group">
+                    <input type="radio" name="color_selection" value="color_ai"> &nbsp; <strong> Color (AI) :</strong>
+                    <?php
+                    $colors = new \App\Colors();
+                    echo Form::select('color_ai',$colors->all(), '', ['placeholder' => 'Select a color','class' => 'form-control']);?>
                     {{--<input type="text" class="form-control" name="color" placeholder="Color" value="{{ old('color') ? old('color') : $color }}"/>--}}
                     @if ($errors->has('color'))
                         <div class="alert alert-danger">{{$errors->first('color')}}</div>

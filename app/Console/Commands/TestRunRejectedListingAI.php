@@ -43,7 +43,7 @@ class TestRunRejectedListingAI extends Command
     public function handle()
     {
         // Get rejected listings
-        $products = Product::with( 'product_category' )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->get( [ 'id' ] );
+        $products = Product::with( 'product_category' )->where( 'is_listing_rejected', 1 )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->get( [ 'id' ] );
 
         // Loop over products
         foreach ( $products as $product ) {
@@ -57,6 +57,9 @@ class TestRunRejectedListingAI extends Command
 
             // Get full product
             $product = Product::with( 'product_category' )->where( 'id', $product->id )->first();
+
+            // Output something to the command line to know we are still running
+            echo "Start Vision for product " . $product->id . "\n";
 
             // Get array product images
             $arrMedia = $product->getMedia( 'gallery' );
@@ -88,6 +91,10 @@ class TestRunRejectedListingAI extends Command
             $logScraperVsAi->result_scraper = json_encode( $resultScraper );
             $logScraperVsAi->result_ai = json_encode( $resultAI );
             $logScraperVsAi->save();
+
+            // Remove 'is_listing_rejected' from product
+            $product->is_listing_rejected = 0;
+            $product->save();
         }
     }
 }

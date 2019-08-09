@@ -13,7 +13,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">{{ $roletype }} x
+                <h2 class="page-heading">{{ $roletype }}
                   @if (isset($products_count))
                     ({{ $products_count }})
                   @endif
