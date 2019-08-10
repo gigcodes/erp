@@ -841,7 +841,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('blogger-product', 'BloggerProductController');
 });
 
-
+//Monetary Account Module
+Route::middleware('auth')->group(function () {
+    Route::resource('monetary-account', 'MonetaryAccountController');
+});
 
 // Mailchimp Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
