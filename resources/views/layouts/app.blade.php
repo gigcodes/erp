@@ -1289,9 +1289,9 @@
                                                 <li>
                                                     <a class="dropdown-item" href="{{route('brokenLinks')}}">Brokenlink</a>
                                                 </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="">Articles</a>
-                                                </li>
+                                                {{-- <li>
+                                                    <a class="dropdown-item" href="javascript:void(0)">Articles</a>
+                                                </li> --}}
                                             </ul>    
                                         </li>
                                     </li>
