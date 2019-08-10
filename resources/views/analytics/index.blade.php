@@ -25,9 +25,9 @@
         <li class="nav-item">
             <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">User Types</a>
         </li>
-        {{-- <li class="nav-item">
-            <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Most Visted Pages</a>
-        </li>--}}
+        <li class="nav-item">
+            <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Visitors</a>
+        </li>
         <li class="nav-item">
             <a class="nav-link" id="pills-total-tab" data-toggle="pill" href="#pills-total" role="tab" aria-controls="pills-total" aria-selected="false">Total Visitors & Page Views</a>
         </li>
@@ -73,28 +73,30 @@
                 </table>
             </div>
         </div>
-        {{-- <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
                     <tr>
+                        <th rowspan="2" class="text-center">Date</th>
                         <th rowspan="2" class="text-center">Page Title</th>
                         <th rowspan="2" class="text-center">Page URL</th>
                         <th rowspan="2" class="text-center">Page Views</th>
                     </tr>
                     </thead>
                     <tbody>
-                        @foreach ($most_visited_pages as $key => $page)
+                        @foreach ($visitors_ser as $key => $page)
                             <tr>
-                                <td>{{$page['type']}}</td>
-                                <td>{{$page['url']}}</td>
+                                <td>{{Carbon\Carbon::parse($page['date'])->format('D M, Y')}}</td>
+                                <td>{{$page['pageTitle']}}</td>
+                                <td>{{$page['visitors']}}</td>
                                 <td>{{$page['pageViews']}}</td>
                             </tr>    
                         @endforeach
                     </tbody>
                 </table>
             </div>
-        </div> --}}
+        </div>
         <div class="tab-pane fade" id="pills-total" role="tabpanel" aria-labelledby="pills-total-tab">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">

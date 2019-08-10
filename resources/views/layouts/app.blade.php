@@ -1277,7 +1277,23 @@
                                     </li>
                                     @can('seo')
                                     <li>
-                                        <a class="dropdown-item" href="{{ action('SEOAnalyticsController@show') }}">SEO</a> 
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="dropdown-item" href="#">SEO</a>
+                                            <ul class="dropdown-menu multi-level">
+                                                <li>
+                                                <a class="dropdown-item" href="{{route('showAnalytics')}}">Analytics</a>
+                                                </li>
+                                                <li>
+                                                <a class="dropdown-item" href="{{route('backLinks')}}">Backlinking</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="{{route('brokenLinks')}}">Brokenlink</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="">Articles</a>
+                                                </li>
+                                            </ul>    
+                                        </li>
                                     </li>
                                     @endcan
                                 @endif
