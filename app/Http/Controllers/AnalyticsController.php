@@ -16,8 +16,8 @@ class AnalyticsController extends Controller
      */
     public function showData(Request $request){
          $top_referers = Analytics::fetchTopReferrers(Period::days(4), 20);
-         $user_types = Analytics::fetchUserTypes(Period::days(7));
-         $total_visitors_page_views = Analytics::fetchTotalVisitorsAndPageViews(Period::days(7));
+         $user_types = Analytics::fetchUserTypes(Period::days(4));
+         $total_visitors_page_views = Analytics::fetchTotalVisitorsAndPageViews(Period::days(4));
          DB::table('google_analytics')->where('key', '=', 'top_referers')->delete();
          DB::table('google_analytics')->insert(
             [
