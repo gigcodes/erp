@@ -37,6 +37,10 @@
         "pragmarx/tracker": "^3.3",
         "pusher/pusher-http-laravel": "^4.2",
         "pusher/pusher-php-server": "v3.0.1",
+        "seo2websites/erp-excel-importer": "dev-master",
+        "seo2websites/erp-pinterest": "dev-master",
+        "seo2websites/google-vision": "dev-master",
+        "seo2websites/price-comparison-scrapper": "dev-master",
         "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
         "spatie/laravel-analytics": "3.6.0",
@@ -77,6 +81,24 @@
             ]
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/erp-pinterest"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/erp-excel-importer"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/google-vision"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/price-comparison-scrapper"
+        }
+    ],
     "scripts": {
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
