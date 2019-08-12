@@ -16,38 +16,66 @@ class HubstaffController extends Controller
 	public $password;
 
 	public function __construct(Request $request){
-		$this->appToken = getenv('HUBSTAFF_APP_KEY');
+		
+        $this->appToken = getenv('HUBSTAFF_APP_KEY');
+
 	}
+
+    public function checkAuthTokenPresent(){
+        
+        if(auth()->user()->auth_token_hubstaff){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
 
 	public function getToken(Request $request){
 
-		$token = new Token();	
+		$token = new Token();
 
 		$this->email = $request->email;
 
 		$this->password = $request->password;
 
-		$this->authToken = $token->getAuthToken($this->appToken, $this->email, $this->password);
+        if($this->checkAuthTokenPresent()){
+            
+            $authTokenDb = auth()->user()->auth_token_hubstaff;
+            
+            $hubstaff = Hubstaff::getInstance();
 
-		$authToken = $this->authToken;
+            $hubstaff->authenticate($this->appToken, $this->email, $this->password, $authTokenDb );
 
-		if($this->authToken){
+            $authToken = auth()->user()->auth_token_hubstaff;
 
-			$hubstaff = Hubstaff::getInstance();
+        }else{
 
-			$hubstaff->authenticate($this->appToken, $this->email, $this->password, $this->authToken);
-	
-			$users = $hubstaff->getRepository('user')->getAllUsers();
+            $this->authToken = $token->getAuthToken($this->appToken, $this->email, $this->password);
+            
+            $hubstaff = Hubstaff::getInstance();
 
-			session()->flash('message', 'Authentication Successful');	
+            $hubstaff->authenticate($this->appToken, $this->email, $this->password, $this->authToken);
 
-			return view('hubstaff.show-auth-token', compact('users', 'authToken'));
+            auth()->user()->update([
+                'auth_token_hubstaff' => $this->authToken
+            ]);
 
-		}else{
+            $authToken = $this->authToken;
 
-			return 'Credentials do not match!';
+        }
 
-		}
+		$users = $hubstaff->getRepository('user')->getAllUsers();
+
+		session()->flash('message', 'Authentication Successful');	
+
+		return view('hubstaff.show-auth-token', compact('users', 'authToken'));
+
+		// }else{
+
+		// 	return 'Credentials do not match!';
+
+		// }
 
 	}
 
@@ -68,7 +96,12 @@ class HubstaffController extends Controller
 	 	$request_headers = [];
 
         $curl->setHeader("Auth-Token", $request->auth_token);
-        $curl->setHeader("App-Token", $this->appToken);
+
+        if($this->checkAuthTokenPresent()){
+            $curl->setHeader("App-Token", auth()->user()->auth_token_hubstaff);
+        }else{
+            $curl->setHeader("App-Token", $this->appToken);
+        }
 
         $curl->get($url, array(
             'authorization_memberships' => $request->authorization_memberships,

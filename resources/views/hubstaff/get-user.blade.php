@@ -24,7 +24,7 @@
           <div>
           	<h3 class="text-center">Obtain Auth Token to work with Hubstaff API</h3>
              <div class="form-group">
-                <input class="form-control" name="auth_token" id="auth_token" type="text" placeholder="Your Auth Token" required>
+                <input class="form-control" name="auth_token" id="auth_token" type="text" placeholder="Your Auth Token" value="@if(auth()->user()->auth_token_hubstaff) {{ auth()->user()->auth_token_hubstaff }} @endif" required>
              </div>
              <div class="form-group">
               <select name="organization_memberships" class="form-control">
