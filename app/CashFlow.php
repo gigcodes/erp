@@ -24,4 +24,9 @@ class CashFlow extends Model
     {
         return $this->morphTo()->withTrashed();
   }
+
+    public function getModelNameAttribute()
+    {
+        
+  }
 }

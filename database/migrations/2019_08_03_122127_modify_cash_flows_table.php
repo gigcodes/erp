@@ -23,6 +23,7 @@ class ModifyCashFlowsTable extends Migration
             $table->integer('updated_by')->unsigned()->nullable();
             $table->foreign('updated_by')->references('id')->on('users');
             $table->tinyInteger('currency')->default(1);
+            $table->date('date')->change();
 
             $table->index('status');
             $table->index('order_status');
