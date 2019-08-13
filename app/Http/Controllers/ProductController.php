@@ -223,6 +223,143 @@ class ProductController extends Controller
         ] );
     }
 
+    public function approvedMagento( Request $request )
+    {
+        $colors = ( new Colors )->all();
+        $categories = Category::all();
+        $category_tree = [];
+        $categories_array = [];
+        $brands = Brand::getAll();
+
+        $suppliers = DB::select( '
+				SELECT id, supplier
+				FROM suppliers
+
+				INNER JOIN (
+					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+					) as product_suppliers
+				ON suppliers.id = product_suppliers.supplier_id
+		' );
+
+        foreach ( Category::all() as $category ) {
+            if ( $category->parent_id != 0 ) {
+                $parent = $category->parent;
+                if ( $parent->parent_id != 0 ) {
+                    $category_tree[ $parent->parent_id ][ $parent->id ][ $category->id ];
+                } else {
+                    $category_tree[ $parent->id ][ $category->id ] = $category->id;
+                }
+            }
+
+            $categories_array[ $category->id ] = $category->parent_id;
+        }
+
+        $newProducts = Product::where( 'isUploaded', 1 )->orderBy('listing_approved_at', 'DESC');
+
+        $term = $request->input( 'term' );
+        $brand = '';
+        $category = '';
+        $color = '';
+        $supplier = [];
+        $type = '';
+        $assigned_to_users = '';
+
+        if ( $request->brand[ 0 ] != null ) {
+            $newProducts = $newProducts->whereIn( 'brand', $request->get( 'brand' ) );
+        }
+
+        if ( $request->color[ 0 ] != null ) {
+            $newProducts = $newProducts->whereIn( 'color', $request->get( 'color' ) );
+        }
+        if ( $request->category[ 0 ] != null && $request->category[ 0 ] != 1 ) {
+            $category_children = [];
+
+            foreach ( $request->category as $category ) {
+                $is_parent = Category::isParent( $category );
+
+                if ( $is_parent ) {
+                    $childs = Category::find( $category )->childs()->get();
+
+                    foreach ( $childs as $child ) {
+                        $is_parent = Category::isParent( $child->id );
+
+                        if ( $is_parent ) {
+                            $children = Category::find( $child->id )->childs()->get();
+
+                            foreach ( $children as $chili ) {
+                                array_push( $category_children, $chili->id );
+                            }
+                        } else {
+                            array_push( $category_children, $child->id );
+                        }
+                    }
+                } else {
+                    array_push( $category_children, $category );
+                }
+            }
+
+            $newProducts = $newProducts->whereIn( 'category', $category_children );
+            $category = $request->category[ 0 ];
+        }
+        if ( $request->type != '' ) {
+            if ( $request->type == 'Not Listed' ) {
+                $newProducts = $newProducts->where( 'isFinal', 0 )->where( 'isUploaded', 0 );
+            } else if ( $request->type == 'Listed' ) {
+                $newProducts = $newProducts->where( 'isUploaded', 1 );
+            } else if ( $request->type == 'Approved' ) {
+                $newProducts = $newProducts->where( 'is_approved', 1 );
+            } else if ( $request->type == 'Image Cropped' ) {
+                $newProducts = $newProducts->where( 'is_image_processed', 1 );
+            }
+
+            $type = $request->get( 'type' );
+        }
+        //
+        if ( trim( $term ) != '' ) {
+            $newProducts = $newProducts->where( function ( $query ) use ( $term ) {
+                $query->where( 'id', 'LIKE', "%$term%" )->orWhere( 'sku', 'LIKE', "%$term%" );
+            } );
+        }
+
+
+        if ( $request->get( 'user_id' ) > 0 ) {
+            $newProducts = $newProducts->where( 'approved_by', $request->get( 'user_id' ) );
+        }
+
+
+        $selected_categories = $request->category ? $request->category : [ 1 ];
+        $category_array = Category::renderAsArray();
+        $users = User::all();
+
+        $newProducts = $newProducts->with( [ 'media', 'brands' ] )->paginate( 50 );
+
+
+        return view( 'products.in_magento', [
+            'products' => $newProducts,
+            'products_count' => $newProducts->total(),
+            'colors' => $colors,
+            'brands' => $brands,
+            'suppliers' => $suppliers,
+            'categories' => $categories,
+            'category_tree' => $category_tree,
+            'categories_array' => $categories_array,
+            // 'category_selection'	=> $category_selection,
+            // 'category_search'	=> $category_search,
+            'term' => $term,
+            'brand' => $brand,
+            'category' => $category,
+            'color' => $color,
+            'supplier' => $supplier,
+            'type' => $type,
+            'users' => $users,
+            'assigned_to_users' => $assigned_to_users,
+//            'cropped'	=> $cropped,
+//            'left_for_users'	=> $left_for_users,
+            'category_array' => $category_array,
+            'selected_categories' => $selected_categories,
+        ] );
+    }
+
     public function showListigByUsers( Request $request )
     {
         $whereFirst = '';
