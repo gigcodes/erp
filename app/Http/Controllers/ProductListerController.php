@@ -89,6 +89,7 @@ class ProductListerController extends Controller
 
         // Just update for now
         $product->isFinal = 1;
+        $product->isUploaded = 1;
         $product->isListed = -5;
         $product->save();
 
