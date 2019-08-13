@@ -180,7 +180,7 @@ class DevelopmentController extends Controller
         $users = Helpers::getUserArray( User::all() );
 
         // Hide resolved
-        if ( $request->hide_resolved == 1 || !isset( $_REQUEST[ 'hide_resolved' ] ) ) {
+        if ( (int) $request->show_resolved !== 1  ) {
             $issues = $issues->where( 'is_resolved', 0 );
         }
 
