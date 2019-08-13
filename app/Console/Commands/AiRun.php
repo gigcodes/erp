@@ -70,6 +70,11 @@ class AiRun extends Command
                 $arrImages[] = 'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
             }
 
+            // Skip to the next one if there are no images
+            if ( count($arrImages) == 0 ) {
+                continue;
+            }
+
             // Set json with original data
             $resultScraper = [
                 'category' => $product->product_category->title,
