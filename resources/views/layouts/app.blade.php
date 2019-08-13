@@ -1625,10 +1625,6 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                              @can('voucher')
-                                <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
-                              @endcan
-
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
@@ -1650,6 +1646,10 @@
 
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                @can('voucher')
+                                    <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
+                                @endcan
 
                                 @can('setting-list')
 
