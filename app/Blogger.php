@@ -16,4 +16,14 @@ class Blogger extends Model
     {
         return $this->hasMany(ChatMessage::class,'blogger_id');
     }
+
+    public function payments()
+    {
+        return $this->hasMany(BloggerPayment::class);
+    }
+
+    public function cashFlows()
+    {
+        return $this->morphMany(CashFlow::class, 'cash_flow_able');
+    }
 }

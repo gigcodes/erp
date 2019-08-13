@@ -40,5 +40,4 @@ return [
         'client_secret' => 'LHNwbMFPZ71DvcBo5IRSYXnBYwFtNBWUbrTS6HBbtZOrucdJln',
         'redirect' => 'http://localhost/sololux-erp/auth/twitter/callback',
     ],
-
 ];

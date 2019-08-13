@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\CaseCost;
+use App\Events\CaseBilled;
+use App\Events\CaseBillPaid;
 use App\Helpers;
 use App\Http\Requests\CreateCaseRequest;
 use App\Lawyer;
@@ -113,6 +115,9 @@ class CaseController extends Controller
         ]);
         try {
             $payment = CaseCost::create($request->all());
+            $case = LegalCase::find($request->case_id);
+            if($case)
+                event (new CaseBilled($case, $payment));
         } catch (\Exception $exception) {
             return response($exception->getMessage());
         }
@@ -131,6 +136,7 @@ class CaseController extends Controller
             $case_cost->paid_date = $request->get('paid_date');
             $case_cost->amount_paid = $request->get('amount_paid');
             $case_cost->save();
+            event (new CaseBillPaid($case_cost->case, $case_cost));
         } catch (\Exception $exception) {
             return response($exception->getMessage());
         }

@@ -35,6 +35,7 @@
             </div>
             <div class="pull-right mt-4">
                 <a class="btn btn-xs btn-secondary" href="{{ route('case.index') }}">Back</a>
+                <a href="{{route('case.receivable', $case->id)}}" class="btn btn-xs btn-secondary" title="Case Receivables" target="_blank">Receivables</a>
                 {{-- <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
                 <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
                 <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button> --}}

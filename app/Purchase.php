@@ -87,4 +87,9 @@ class Purchase extends Model
 
 		return $count > 0 ? TRUE : FALSE;
 	}
+
+    public function cashFlows()
+    {
+        return $this->morphMany(CashFlow::class, 'cash_flow_able');
+    }
 }

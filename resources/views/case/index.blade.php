@@ -130,6 +130,7 @@
                             <button type="button" class="btn btn-image edit-case" data-toggle="modal"
                                     data-target="#caseFormModal" data-case="{{ json_encode($case) }}"><img
                                         src="/images/edit.png"/></button>
+                            <a href="{{route('case.receivable', $case->id)}}" class="btn btn-sm" title="Case Receivables" target="_blank"><i class="fa fa-money"></i> </a>
                             {!! Form::open(['method' => 'DELETE','route' => ['case.destroy', $case->id],'style'=>'display:inline']) !!}
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}

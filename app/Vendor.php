@@ -33,4 +33,14 @@ class Vendor extends Model
   {
     return $this->belongsTo('App\VendorCategory');
   }
+
+    public function payments()
+    {
+        return $this->hasMany(VendorPayment::class);
+    }
+
+    public function cashFlows()
+    {
+        return $this->morphMany(CashFlow::class, 'cash_flow_able');
+    }
 }

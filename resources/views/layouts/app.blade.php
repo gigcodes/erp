@@ -16,11 +16,7 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-
-
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
-
-
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
@@ -28,6 +24,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+
+    @yield('link-css')
     <script>
         let Laravel = {};
         Laravel.csrfToken = "{{csrf_token()}}";
@@ -1446,8 +1444,6 @@
 
                                           </a>
 
-
-
                                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="compAnaMenu">
                                               <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
                                               <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">SITEJABBER | Quick Reply</a>
@@ -1510,8 +1506,6 @@
                                     <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                     <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubbizle</a>
                                 </div>
-
-
                             </li>
                           @endcan
 
@@ -1575,47 +1569,27 @@
                             </li>
                           @endif
                         @endcan
+                        @can('admin')
+                            <li class="nav-item dropdown">
 
-                            @if(Auth::user()->email != 'facebooktest@test.com')
-                                <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
 
-                              <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                  Development<span class="caret"></span>
-                              </a>
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 
+                                    Legal Module <span class="caret"></span>
+
+                                </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    @can('developer-tasks')
-                                        <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
-                                        <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
+                                    @can('lawyer-all')
+                                        <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
                                     @endcan
-                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                    @can('case-all')
+                                        <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
+                                    @endcan
                                 </div>
-                        </li>
-                            @endif
-
-                                @can('admin')
-                                    <li class="nav-item dropdown">
-
-                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-
-                                            Legal Module <span class="caret"></span>
-
-                                        </a>
-
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            @can('lawyer-all')
-                                                <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
-                                            @endcan
-                                            @can('case-all')
-                                                <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
-                                            @endcan
-                                        </div>
-                                    </li>
-                                @endcan
+                            </li>
+                        @endcan
 
                         @can('admin')
                           <li class="nav-item dropdown">
@@ -1625,6 +1599,18 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                              @can('voucher')
+                                <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
+                              @endcan
+
+                                  @can('old')
+                                      <a class="dropdown-item" href="{{ action('OldController@index') }}">Old</a>
+                                  @endcan
+                                  @can('old-incoming')
+                                      <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old-Incoming</a>
+                                  @endcan
+
+                              <a class="dropdown-item" href="{{ route('monetary-account.index') }}">Add Capital</a>
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
@@ -1632,6 +1618,106 @@
                             </div>
                           </li>
                         @endcan
+
+                        @can('blogger')
+                            <li class="nav-item dropdown">
+
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    Blogger <span class="caret"></span>
+
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a href="{{route('blogger.index')}}" role="button" class="dropdown-item">Blogger List</a>
+                                    <a href="{{route('blogger.email.template')}}" role="button" class="dropdown-item">Email</a>
+                                </div>
+                            </li>
+                        @endcan
+
+                        @can('admin')
+                            <li class="nav-item dropdown">
+
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    Legal Module <span class="caret"></span>
+
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    @can('lawyer-all')
+                                        <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
+                                    @endcan
+                                    @can('case-all')
+                                        <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
+                                    @endcan
+                                </div>
+                            </li>
+                        @endcan
+
+                        <!-- mailchimp -->
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+
+                               data-toggle="dropdown" >
+
+                                <span class="caret"></span>MailChimp
+
+                            </a>
+                           
+                            <ul class="dropdown-menu">
+                              <li><a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a></li>
+                              <!-- <li><a href="{{ route('make.active.subscriber') }}">Pull customers as Subscribers</a></li> -->
+                            </ul>
+                        </div>
+                        <!-- mailchimp -->
+
+                        <!-- Hubstaff -->
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+
+                               data-toggle="dropdown" >
+
+                                <span class="caret"></span>Hubstaff
+
+                            </a>
+                           
+                            <ul class="dropdown-menu">
+                              <li><a href="{{ route('get.token') }}">Create Token</a></li>
+                              <li><a href="{{ route('get.users') }}">Get Users</a></li>
+                              <li><a href="{{ route('get.user-fromid') }}">Get Users by id</a></li>
+                              <li><a href="{{ route('get.user-project-page') }}">Get User Projects</a></li>
+
+                              <!-- ---------projects---------- -->
+
+                              <li><a href="{{ route('user.project') }}">Get Projects</a></li>
+
+                              <!-- -------Tasks-------------- -->
+                                <li><a href="{{ route('project.task') }}">Get Tasks from Projects</a></li>
+                                <li><a href="{{ route('get-project.task-from-id') }}">Get Tasks from id</a></li>
+
+                                <!-- ---------Organizations-------------- -->
+
+                                <li><a href="{{ route('organizations') }}">Get Organizations</a></li>
+
+                                <li><a href="{{ route('organization.members') }}">Get Organization members</a></li>
+
+                                <!-- ------End of Organizations-------- -->
+
+                                <!-- ----------Screenshots------------ -->
+                                <li><a href="{{ route('get.screenshots') }}">Get screenshots</a></li>
+
+                                <!-- ---------Payments------------ -->
+                                <li><a href="{{ route('team.payments') }}">Get Team Payments</a></li>
+
+                                <li><a href="{{ route('attendance.shifts') }}">Attendance Shifts</a></li>
+                            </ul>
+                        </div>
+                        <!-- Hubstaff -->
 
                         <li class="nav-item dropdown">
 
@@ -1642,8 +1728,6 @@
                                 {{ Auth::user()->name }} <span class="caret"></span>
 
                             </a>
-
-
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 

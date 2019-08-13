@@ -578,6 +578,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
 	Route::put('vendor/product/{id}', 'VendorController@productUpdate')->name('vendor.product.update');
 	Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
+	Route::get('vendor/{vendor}/payments', 'VendorPaymentController@index')->name('vendor.payments');
+	Route::post('vendor/{vendor}/payments', 'VendorPaymentController@store')->name('vendor.payments.store');
+	Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
+	Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
 	Route::resource('vendor', 'VendorController');
 
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
@@ -776,6 +780,10 @@ Route::resource('target-location', 'TargetLocationController');
 Route::middleware('auth')->group(function () {
     Route::post('lawyer-speciality', ['uses'=>'LawyerController@storeSpeciality','as'=>'lawyer.speciality.store']);
     Route::resource('lawyer', 'LawyerController');
+    Route::get('case/{case}/receivable', 'CaseReceivableController@index')->name('case.receivable');
+    Route::post('case/{case}/receivable', 'CaseReceivableController@store')->name('case.receivable.store');
+    Route::put('case/{case}/receivable/{case_receivable}', 'CaseReceivableController@update')->name('case.receivable.update');
+    Route::delete('case/{case}/receivable/{case_receivable}', 'CaseReceivableController@destroy')->name('case.receivable.destroy');
     Route::resource('case', 'CaseController');
     Route::get('case-costs/{case}', ['uses'=>'CaseController@getCosts','as'=>'case.cost']);
     Route::post('case-costs', ['uses'=>'CaseController@costStore','as'=>'case.cost.post']);
@@ -818,6 +826,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('blogger-email', ['uses'=>'BloggerEmailTemplateController@index','as'=>'blogger.email.template']);
     Route::put('blogger-email/{bloggerEmailTemplate}', ['uses'=>'BloggerEmailTemplateController@update','as'=>'blogger.email.template.update']);
+
+    Route::get('blogger/{blogger}/payments', 'BloggerPaymentController@index')->name('blogger.payments');
+    Route::post('blogger/{blogger}/payments', 'BloggerPaymentController@store')->name('blogger.payments.store');
+    Route::put('blogger/{blogger}/payments/{blogger_payment}', 'BloggerPaymentController@update')->name('blogger.payments.update');
+    Route::delete('blogger/{blogger}/payments/{blogger_payment}', 'BloggerPaymentController@destroy')->name('blogger.payments.destroy');
+
     Route::resource('blogger', 'BloggerController');
 
     Route::post('blogger-contact', ['uses' => 'ContactBloggerController@store','as'=>'blogger.contact.store']);
@@ -831,6 +845,10 @@ Route::middleware('auth')->group(function () {
 });
 
 
+//Monetary Account Module
+Route::middleware('auth')->group(function () {
+    Route::resource('monetary-account', 'MonetaryAccountController');
+});
 
 // Mailchimp Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
@@ -842,9 +860,68 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
 
 //Hubstaff Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
-	Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
-	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
-	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
+
+	Route::get('v1/auth', 'HubstaffController@authenticationPage')->name('get.token');
+
+	Route::post('user-details-token', 'HubstaffController@getToken')->name('user.token');
+
+	Route::get('get-users', 'HubstaffController@gettingUsersPage')->name('get.users');
+
+	Route::post('v1/users', 'HubstaffController@userDetails')->name('get.users.api');
+
+	Route::get('get-user-from-id', 'HubstaffController@showFormUserById')->name('get.user-fromid');
+
+	Route::post('get-user-from-id', 'HubstaffController@getUserById')->name('post.user-fromid');
+
+	Route::get('v1/users/projects', 'HubstaffController@getProjectPage')->name('get.user-project-page');
+
+	Route::post('v1/users/projects', 'HubstaffController@getProjects')->name('post.user-project-page');
+
+	// ------------Projects---------------
+
+	Route::get('get-projects', 'HubstaffController@getUserProject')->name('user.project');
+	Route::post('get-projects', 'HubstaffController@postUserProject')->name('post.user-project');
+
+	// --------------Tasks---------------
+
+	Route::get('get-project-tasks', 'HubstaffController@getProjectTask')->name('project.task');
+	Route::post('get-project-taks', 'HubstaffController@postProjectTask')->name('post.project-task');
+
+
+	Route::get('v1/tasks', 'HubstaffController@getTaskFromId')->name('get-project.task-from-id');
+
+	Route::post('v1/tasks', 'HubstaffController@postTaskFromId')->name('post-project.task-from-id');
+
+	// --------------Organizaitons--------------
+	Route::get('v1/organizations', 'HubstaffController@index')->name('organizations');
+	Route::post('v1/organizations', 'HubstaffController@getOrganization')->name('post.organizations');
+
+
+	// -------v2 preview verion post requests----------
+	Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
+	Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
+
+
+	Route::get('v1/organization/members', 'HubstaffController@organizationMemberPage')->name('organization.members');
+	Route::post('v1/organization/members', 'HubstaffController@showMembers')->name('post.organization-member');
+
+	// --------------Screenshots--------------
+
+	Route::get('v1/screenshots', 'HubstaffController@getScreenshotPage')->name('get.screenshots');
+
+	Route::post('v1/screenshots', 'HubstaffController@postScreenshots')->name('post.screenshot');
+
+	// -------------payments----------------
+
+	Route::get('v1/team_payments', 'HubstaffController@getTeamPaymentPage')->name('team.payments');
+	Route::post('v1/team_payments', 'HubstaffController@getPaymentDetail')->name('post.payment-page');
+
+
+	// ------------Attendance---------------
+	Route::get('v2/organizations/attendance-shifts', 'AttendanceController@index')->name('attendance.shifts');
+
+	Route::post('v2/organizations/attendance-shifts', 'AttendanceController@show')->name('attendance.shifts-post');
+
 });
 Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 Route::get('display/analytics-data', 'AnalyticsController@showData')->name('filteredAnalyticsResults');
@@ -860,5 +937,3 @@ Route::post('back-linking/{id}/updateURL', 'BackLinkController@updateURL');
 
 //SE Ranking Links
 Route::get('se-ranking/sites', 'SERankingController@getSites')->name('sitesInfo');
-
-
