@@ -1013,6 +1013,18 @@ class ProductController extends Controller
         ] );
     }
 
+    public function unlistMagento( Request $request, $id )
+    {
+        $product = Product::find( $id );
+
+        $result = app( 'App\Http\Controllers\ProductApproverController' )->magentoSoapUnlistProduct( $product );
+
+        return response()->json( [
+            'result' => $result,
+            'status' => 'unlisted'
+        ] );
+    }
+
     public function approveMagento( Request $request, $id )
     {
         $product = Product::find( $id );
