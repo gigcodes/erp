@@ -39,7 +39,7 @@ class DeleteKidsProductsFromProducts extends Command
      */
     public function handle()
     {
-        Product::where('name', 'LIKE', '%kids%')->orWhere('short_description', 'LIKE', '%kids%')->orWhere('name', 'LIKE', '%Little%')->orWhere('short_description', 'LIKE', '%little%')->chunk(1000, function($products) {
+        Product::where('name', 'LIKE', '%kids%')->orWhere('short_description', 'LIKE', '%kids%')->orWhere('name', 'LIKE', '%Little boy%')->orWhere('short_description', 'LIKE', '%little boy%')->orWhere('name', 'LIKE', '%Little girl%')->orWhere('short_description', 'LIKE', '%little girl%')->chunk(1000, function($products) {
             foreach ($products as $product) {
                 DB::table('log_scraper_vs_ai')->where('product_id', $product->id)->delete();
                 DB::table('product_suppliers')->where('product_id', $product->id)->delete();
