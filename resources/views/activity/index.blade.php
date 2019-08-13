@@ -143,7 +143,7 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <strong>Crop Rate: </strong> {{ $cropCountPerMinute }} Per Minute
+                    <strong>Crop Rate: </strong> {{ $cropCountPerMinute }} Per Minute (average of the last 24 hours)
                 </div>
             </div>
             <div class="row">
