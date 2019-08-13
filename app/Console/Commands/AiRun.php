@@ -2,28 +2,26 @@
 
 namespace App\Console\Commands;
 
-use App\Category;
 use Illuminate\Console\Command;
-
 use App\LogScraperVsAi;
 use App\Product;
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
-class TestRunRejectedListingAI extends Command
+class AiRun extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'testrun:RejectedListingAI';
+    protected $signature = 'ai:run';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Do a test run with AI APIs on rejected product listings';
+    protected $description = 'Do a run with AI APIs on product listings';
 
     /**
      * Create a new command instance.
@@ -43,7 +41,7 @@ class TestRunRejectedListingAI extends Command
     public function handle()
     {
         // Get rejected listings
-        $products = Product::with( 'product_category' )->where( 'is_listing_rejected', 1 )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->get( [ 'id' ] );
+        $products = Product::with( 'product_category' )->leftJoin( 'log_scraper_vs_ai', 'products.id', '=', 'log_scraper_vs_ai.product_id' )->where( 'ai_name', NULL )->orderBy( 'products.updated_at', 'DESC' )->limit( 250 )->get( [ 'products.id' ] );
 
         // Loop over products
         foreach ( $products as $product ) {
