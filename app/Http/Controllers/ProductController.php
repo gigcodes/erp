@@ -479,11 +479,7 @@ class ProductController extends Controller {
 												SELECT user_id, product_id FROM user_products
 												) as user_products
 											ON products.id = user_products.product_id
-											
-											LEFT JOIN
-											    log_scraper_vs_ai
-                                            ON
-                                                products.id=log_scraper_vs_ai.product_id
+										  
 
 											LEFT JOIN (
 												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
@@ -504,11 +500,6 @@ class ProductController extends Controller {
 												SELECT user_id, product_id FROM user_products
 												) as user_products
 											ON products.id = user_products.product_id
-
-											LEFT JOIN
-											    log_scraper_vs_ai
-                                            ON
-                                                products.id=log_scraper_vs_ai.product_id
 
 											LEFT JOIN (
 												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
