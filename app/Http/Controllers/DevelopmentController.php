@@ -180,9 +180,9 @@ class DevelopmentController extends Controller
         $users = Helpers::getUserArray( User::all() );
 
         // Hide resolved
-//        if ( $request->hide_resolved == 1 || !isset( $_REQUEST[ 'hide_resolved' ] ) ) {
-//            $issues = $issues->where( 'is_resolved', 0 );
-//        }
+        if ( $request->hide_resolved == 1 || !isset( $_REQUEST[ 'hide_resolved' ] ) ) {
+            $issues = $issues->where( 'is_resolved', 0 );
+        }
 
         // Sort
         if ( $request->order == 'create' ) {
