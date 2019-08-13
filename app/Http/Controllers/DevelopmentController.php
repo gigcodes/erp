@@ -35,7 +35,7 @@ class DevelopmentController extends Controller
       $start = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->startOfWeek();
       $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
       $id = null;
-
+dd($user);
       $progressTasks = new DeveloperTask();
       $plannedTasks = new DeveloperTask();
       $completedTasks = new DeveloperTask();
