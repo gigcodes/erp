@@ -117,7 +117,7 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 );
+        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->orderBy('listing_approved_at', 'DESC');
 
         $term = $request->input( 'term' );
         $brand = '';
