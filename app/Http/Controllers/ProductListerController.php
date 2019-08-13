@@ -8,301 +8,366 @@ use App\ProductReference;
 use App\Setting;
 use App\Stage;
 use App\Category;
+use App\LogMagento;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class ProductListerController extends Controller
 {
-	public function __construct() {
+    public function __construct()
+    {
 
-		$this->middleware('permission:lister-list',['only' => ['index']]);
-		$this->middleware('permission:lister-edit',['only' => ['edit','isUploaded']]);
-	}
+        $this->middleware( 'permission:lister-list', [ 'only' => [ 'index' ] ] );
+        $this->middleware( 'permission:lister-edit', [ 'only' => [ 'edit', 'isUploaded' ] ] );
+    }
 
 
-	public function index(Stage $stage){
+    public function index( Stage $stage )
+    {
 
-		$products = Product::latest()
-											->where('stock', '>=', 1)
-											 ->where('stage','>=',$stage->get('ImageCropper'))
-		                   ->whereNull('dnf')
-											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
-		                   ->paginate(Setting::get('pagination'));
+        $products = Product::latest()
+            ->where( 'stock', '>=', 1 )
+            ->where( 'stage', '>=', $stage->get( 'ImageCropper' ) )
+            ->whereNull( 'dnf' )
+            ->select( [ 'id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at' ] )
+            ->paginate( Setting::get( 'pagination' ) );
 
-		$roletype = 'Lister';
+        $roletype = 'Lister';
 
-		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
-		                                        ->selected(1)
-		                                        ->renderAsDropdown();
+        $category_selection = Category::attr( [ 'name' => 'category[]', 'class' => 'form-control select-multiple' ] )
+            ->selected( 1 )
+            ->renderAsDropdown();
 
-		return view('partials.grid',compact('products','roletype', 'category_selection'))
-			->with('i', (request()->input('page', 1) - 1) * 10);
+        return view( 'partials.grid', compact( 'products', 'roletype', 'category_selection' ) )
+            ->with( 'i', ( request()->input( 'page', 1 ) - 1 ) * 10 );
 
-	}
+    }
 
-	public function edit(Product $productlister){
+    public function edit( Product $productlister )
+    {
 
-		return redirect( route('products.show',$productlister->id) );
-	}
+        return redirect( route( 'products.show', $productlister->id ) );
+    }
 
-	public function isUploaded(Product $product,Stage $stage){
+    public function isUploaded( Product $product, Stage $stage )
+    {
 
-		if( $product->isUploaded  == 1)
-			return back()->with('error','Product already upload.');
+        if ( $product->isUploaded == 1 )
+            return back()->with( 'error', 'Product already upload.' );
 
-		$result = $this->magentoSoapApiUpload($product);
+        $result = $this->magentoSoapApiUpload( $product );
 
-		if($result){
+        if ( $result ) {
 
-			$product->isUploaded = 1;
-			$product->stage = $stage->get('Lister');
-			$product->is_uploaded_date = Carbon::now();
-			$product->save();
+            $product->isUploaded = 1;
+            $product->stage = $stage->get( 'Lister' );
+            $product->is_uploaded_date = Carbon::now();
+            $product->save();
 
-			NotificaitonContoller::store('has Uploaded',['Approvers'],$product->id);
-			ActivityConroller::create($product->id,'lister','create');
+            NotificaitonContoller::store( 'has Uploaded', [ 'Approvers' ], $product->id );
+            ActivityConroller::create( $product->id, 'lister', 'create' );
 
-			return back()->with('success','Product has been Uploaded');
+            return back()->with( 'success', 'Product has been Uploaded' );
 
-		}
+        }
 
-		return back()->with('error','Error Occured while uploading');
+        return back()->with( 'error', 'Error Occured while uploading' );
 
-	}
+    }
 
-	public function magentoSoapApiUpload($product, $status = 2){
-
-		$options = array(
-			'trace' => true,
-			'connection_timeout' => 120,
-			'wsdl_cache' => WSDL_CACHE_NONE,
-		);
-		$proxy = new \SoapClient(config('magentoapi.url'), $options);
-		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+    public function magentoSoapApiUpload( $product, $status = 2 )
+    {
+        $options = array(
+            'trace' => true,
+            'connection_timeout' => 120,
+            'wsdl_cache' => WSDL_CACHE_NONE,
+        );
+        $proxy = new \SoapClient( config( 'magentoapi.url' ), $options );
+        $sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
 
 //		$attributeSets = $proxy->catalogProductAttributeSetList($sessionId);
 //		$attributeSet = current($attributeSets);
 
-		$sku = $product->sku . $product->color;
-		$categories = CategoryController::getCategoryTreeMagentoIds($product->category);
+        $sku = $product->sku . $product->color;
+        $categories = CategoryController::getCategoryTreeMagentoIds( $product->category );
 
 
-		$brand= $product->brands()->get();
-		array_push($categories,$brand[0]->magento_id);
+        $brand = $product->brands()->get();
+        array_push( $categories, $brand[ 0 ]->magento_id );
 
-		if ($product->references) {
-			$product->references()->delete();
-		}
-
-		$reference = new ProductReference;
-		$reference->product_id = $product->id;
-		$reference->sku = $product->sku;
-		$reference->color = $product->color;
-		$reference->save();
-
-		if ($product->is_on_sale) {
-		    $categories[] = 1237;
+        if ( $product->references ) {
+            $product->references()->delete();
         }
 
-		$meta = 'Shop '. $product->brands->name .' '. $product->color . ' .. '.$product->composition .' ... '. $product->product_category->title .' Largest collection of luxury products in the world from Solo luxury at special prices ';
+        $reference = new ProductReference;
+        $reference->product_id = $product->id;
+        $reference->sku = $product->sku;
+        $reference->color = $product->color;
+        $reference->save();
 
-		if(!empty($product->size)) {
+        if ( $product->is_on_sale ) {
+            $categories[] = 1237;
+        }
 
-			$associated_skus = [];
-			$sizes_array = explode(',', $product->size);
+        $meta = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices ';
 
-			foreach ( $sizes_array as $size ) {
-				$reference = new ProductReference;
-				$reference->product_id = $product->id;
-				$reference->sku = $product->sku;
-				$reference->color = $product->color;
-				$reference->size = $size;
-				$reference->save();
+        if ( !empty( $product->size ) ) {
 
-				$productData = array(
-					'categories'            => $categories,
-					'name'                  => $product->name,
-					'description'           => $meta,
-					'short_description'     => $product->short_description,
-					'website_ids'           => array(1),
-					// Id or code of website
-					'status'                => $status,
-					// 1 = Enabled, 2 = Disabled
-					'visibility'            => 1,
-					// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-					'tax_class_id'          => 2,
-					// Default VAT
-					'weight'                => 0,
-					'stock_data' => array(
-						'use_config_manage_stock' => 1,
-						'manage_stock' => 1,
-						'qty'					=> 1,
-						'is_in_stock'	=> 1,
-					),
-					'price'                 => $product->price_inr,
-					// Same price than configurable product, no price change
-					'special_price'         => $product->price_special,
-					'additional_attributes' => array(
-						'single_data' => array(
-							array( 'key' => 'composition', 'value' => $product->composition, ),
-							array( 'key' => 'color', 'value' => $product->color, ),
-							array( 'key' => 'sizes', 'value' => $size, ),
-							array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-							array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-						),
-					),
-				);
-				// Creation of product simple
-				try {
-					$result            = $proxy->catalogProductCreate( $sessionId, 'simple', 14, $sku . '-' . $size, $productData );
-					$associated_skus[] = $sku . '-' . $size;
-				} catch (\Exception $e) {
-					if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
-						$product->isUploaded = 1;
+            $associated_skus = [];
+            $sizes_array = explode( ',', $product->size );
 
-						$product->save();
-					}
-				}
-			}
+            foreach ( $sizes_array as $size ) {
+                $reference = new ProductReference;
+                $reference->product_id = $product->id;
+                $reference->sku = $product->sku;
+                $reference->color = $product->color;
+                $reference->size = $size;
+                $reference->save();
 
-			/**
-			 * Configurable product
-			 */
-			$productData = array(
-				'categories'              => $categories,
-				'name'                    => $product->name,
-				'description'             => '<p></p>',
-				'short_description'       => $product->short_description,
-				'website_ids'             => array(1),
-				// Id or code of website
-				'status'                  => $status,
-				// 1 = Enabled, 2 = Disabled
-				'visibility'              => 4,
-				// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-				'tax_class_id'            => 2,
-				// Default VAT
-				'weight'                  => 0,
-				'stock_data' => array(
-					'use_config_manage_stock' => 1,
-					'manage_stock' => 1,
-					'qty'					=> 1,
-					'is_in_stock'	=> 1,
-				),
-				'price'                   => $product->price_inr,
-				// Same price than configurable product, no price change
-				'special_price'           => $product->price_special,
-				'associated_skus'         => $associated_skus,
-				// Simple products to associate
-				'configurable_attributes' => array( 155 ),
-				'additional_attributes'   => array(
-					'single_data' => array(
-						array( 'key' => 'composition', 'value' => $product->composition, ),
-						array( 'key' => 'color', 'value' => $product->color, ),
-						array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-						array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-					),
-				),
-			);
+                $productData = array(
+                    'categories' => $categories,
+                    'name' => $product->name,
+                    'description' => $meta,
+                    'short_description' => $product->short_description,
+                    'website_ids' => array( 1 ),
+                    // Id or code of website
+                    'status' => $status,
+                    // 1 = Enabled, 2 = Disabled
+                    'visibility' => 1,
+                    // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+                    'tax_class_id' => 2,
+                    // Default VAT
+                    'weight' => 0,
+                    'stock_data' => array(
+                        'use_config_manage_stock' => 1,
+                        'manage_stock' => 1,
+                        'qty' => 1,
+                        'is_in_stock' => 1,
+                    ),
+                    'price' => $product->price_inr,
+                    // Same price than configurable product, no price change
+                    'special_price' => $product->price_special,
+                    'additional_attributes' => array(
+                        'single_data' => array(
+                            array( 'key' => 'composition', 'value' => $product->composition, ),
+                            array( 'key' => 'color', 'value' => $product->color, ),
+                            array( 'key' => 'sizes', 'value' => $size, ),
+                            array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+                            array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+                        ),
+                    ),
+                );
+                // Creation of product simple
+                try {
+                    $result = $proxy->catalogProductCreate( $sessionId, 'simple', 14, $sku . '-' . $size, $productData );
+                    $associated_skus[] = $sku . '-' . $size;
 
-			// Creation of configurable product
-			try {
-				$result = $proxy->catalogProductCreate( $sessionId, 'configurable', 14, $sku, $productData );
-			} catch (\Exception $e) {
-				if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
-					$product->isUploaded = 1;
+                    // Log
+                    $logMagento = new LogMagento();
+                    $logMagento->date_time = Carbon::now();
+                    $logMagento->url = 'catalogProductCreate';
+                    $productData = array_merge( [ 'simple', 14, $sku . '-' . $size ], $productData );
+                    $logMagento->request = serialize( $productData );
+                    $logMagento->response = $result;
+                    $logMagento->save();
+                } catch ( \Exception $e ) {
+                    // Log
+                    $logMagento = new LogMagento();
+                    $logMagento->date_time = Carbon::now();
+                    $logMagento->url = 'catalogProductCreate';
+                    $productData = array_merge( [ 'simple', 14, $sku . '-' . $size ], $productData );
+                    $logMagento->request = serialize( $productData );
+                    $logMagento->response = $e->getMessage();
+                    $logMagento->save();
 
-					$product->save();
-				}
-			}
-		}
-		else{
+                    if ( $e->getMessage() == 'The value of attribute "SKU" must be unique' ) {
+                        $product->isUploaded = 1;
 
-			$measurement = 'L-'.$product->lmeasurement.',H-'.$product->hmeasurement.',D-'.$product->dmeasurement;
+                        $product->save();
+                    }
+                }
+            }
 
-			$productData = array(
-				'categories'            => $categories,
-				'name'                  => $product->name,
-				'description'           => '<p></p>',
-				'short_description'     => $product->short_description,
-				'website_ids'           => array(1),
-				// Id or code of website
-				'status'                => $status,
-				// 1 = Enabled, 2 = Disabled
-				'visibility'            => 4,
-				// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-				'tax_class_id'          => 2,
-				// Default VAT
-				'weight'                => 0,
-				'stock_data' => array(
-					'use_config_manage_stock' => 1,
-					'manage_stock' => 1,
-					'qty'					=> 1,
-					'is_in_stock'	=> 1,
-				),
-				'price'                 => $product->price_inr,
-				// Same price than configurable product, no price change
-				'special_price'         => $product->price_special,
-				'additional_attributes' => array(
-					'single_data' => array(
-						array( 'key' => 'composition', 'value' => $product->composition, ),
-						array( 'key' => 'color', 'value' => $product->color, ),
-						array( 'key' => 'measurement', 'value' => $measurement, ),
-						array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-						array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-					),
-				),
-			);
-			// Creation of product simple
-			try {
-				$result  = $proxy->catalogProductCreate( $sessionId, 'simple', 4, $sku, $productData );
-			} catch (\Exception $e) {
-				if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
-					$product->isUploaded = 1;
+            /**
+             * Configurable product
+             */
+            $productData = array(
+                'categories' => $categories,
+                'name' => $product->name,
+                'description' => '<p></p>',
+                'short_description' => $product->short_description,
+                'website_ids' => array( 1 ),
+                // Id or code of website
+                'status' => $status,
+                // 1 = Enabled, 2 = Disabled
+                'visibility' => 4,
+                // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+                'tax_class_id' => 2,
+                // Default VAT
+                'weight' => 0,
+                'stock_data' => array(
+                    'use_config_manage_stock' => 1,
+                    'manage_stock' => 1,
+                    'qty' => 1,
+                    'is_in_stock' => 1,
+                ),
+                'price' => $product->price_inr,
+                // Same price than configurable product, no price change
+                'special_price' => $product->price_special,
+                'associated_skus' => $associated_skus,
+                // Simple products to associate
+                'configurable_attributes' => array( 155 ),
+                'additional_attributes' => array(
+                    'single_data' => array(
+                        array( 'key' => 'composition', 'value' => $product->composition, ),
+                        array( 'key' => 'color', 'value' => $product->color, ),
+                        array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+                        array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+                    ),
+                ),
+            );
 
-					$product->save();
-				}
-			}
-		}
+            // Creation of configurable product
+            try {
+                $result = $proxy->catalogProductCreate( $sessionId, 'configurable', 14, $sku, $productData );
+                // Log
+                $logMagento = new LogMagento();
+                $logMagento->date_time = Carbon::now();
+                $logMagento->url = 'catalogProductCreate';
+                $productData = array_merge( [ 'configurable', 14, $sku ], $productData );
+                $logMagento->request = serialize( $productData );
+                $logMagento->response = $result;
+                $logMagento->save();
+            } catch ( \Exception $e ) {
+                // Log
+                $logMagento = new LogMagento();
+                $logMagento->date_time = Carbon::now();
+                $logMagento->url = 'catalogProductCreate';
+                $productData = array_merge( [ 'configurable', 14, $sku ], $productData );
+                $logMagento->request = serialize( $productData );
+                $logMagento->response = $e->getMessage();
+                $logMagento->save();
+                if ( $e->getMessage() == 'The value of attribute "SKU" must be unique' ) {
+                    $product->isUploaded = 1;
 
-		if (isset($result)) {
-			$images = $product->getMedia(config('constants.media_tags'));
+                    $product->save();
+                }
+            }
+        } else {
 
-			$i = 0;
-			$productId = $result;
+            $measurement = 'L-' . $product->lmeasurement . ',H-' . $product->hmeasurement . ',D-' . $product->dmeasurement;
 
-			foreach ($images as $image){
+            $productData = array(
+                'categories' => $categories,
+                'name' => $product->name,
+                'description' => '<p></p>',
+                'short_description' => $product->short_description,
+                'website_ids' => array( 1 ),
+                // Id or code of website
+                'status' => $status,
+                // 1 = Enabled, 2 = Disabled
+                'visibility' => 4,
+                // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+                'tax_class_id' => 2,
+                // Default VAT
+                'weight' => 0,
+                'stock_data' => array(
+                    'use_config_manage_stock' => 1,
+                    'manage_stock' => 1,
+                    'qty' => 1,
+                    'is_in_stock' => 1,
+                ),
+                'price' => $product->price_inr,
+                // Same price than configurable product, no price change
+                'special_price' => $product->price_special,
+                'additional_attributes' => array(
+                    'single_data' => array(
+                        array( 'key' => 'composition', 'value' => $product->composition, ),
+                        array( 'key' => 'color', 'value' => $product->color, ),
+                        array( 'key' => 'measurement', 'value' => $measurement, ),
+                        array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+                        array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+                    ),
+                ),
+            );
+            // Creation of product simple
+            try {
+                $result = $proxy->catalogProductCreate( $sessionId, 'simple', 4, $sku, $productData );
 
-				$image->getUrl();
+                // Log
+                $logMagento = new LogMagento();
+                $logMagento->date_time = Carbon::now();
+                $logMagento->url = 'catalogProductCreate';
+                $productData = array_merge( [ 'simple', 14, $sku ], $productData );
+                $logMagento->request = serialize( $productData );
+                $logMagento->response = $result;
+                $logMagento->save();
+            } catch ( \Exception $e ) {
+                // Log
+                $logMagento = new LogMagento();
+                $logMagento->date_time = Carbon::now();
+                $logMagento->url = 'catalogProductCreate';
+                $productData = array_merge( [ 'configurable', 14, $sku ], $productData );
+                $logMagento->request = serialize( $productData );
+                $logMagento->response = $e->getMessage();
+                $logMagento->save();
 
-				$file = array(
-					'name' => $image->getBasenameAttribute(),
-					'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
-					'mime' => mime_content_type($image->getAbsolutePath())
-				);
+                if ( $e->getMessage() == 'The value of attribute "SKU" must be unique' ) {
+                    $product->isUploaded = 1;
 
-				$types = $i ? array('') : array('size_guide','image','small_image','thumbnail');
-				$types = $i == 1 ? array('hover_image') : $types;
+                    $product->save();
+                }
+            }
+        }
 
-				$result = $proxy->catalogProductAttributeMediaCreate(
-					$sessionId,
-					$productId,
-					array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
-				);
-			}
+        if ( isset( $result ) ) {
+            $images = $product->getMedia( config( 'constants.media_tags' ) );
 
-			$product->is_uploaded_date = Carbon::now();
+            $i = 0;
+            $productId = $result;
 
-			if ($status == 1) {
-				$product->isFinal = 1;
-				$product->isListed = 1;
-			}
+            foreach ( $images as $image ) {
 
-			$product->save();
-		} else {
-			$result = false;
-		}
+                $image->getUrl();
 
-		return $result;
-	}
+                $file = array(
+                    'name' => $image->getBasenameAttribute(),
+                    'content' => base64_encode( file_get_contents( $image->getAbsolutePath() ) ),
+                    'mime' => mime_content_type( $image->getAbsolutePath() )
+                );
+
+                $types = $i ? array( '' ) : array( 'size_guide', 'image', 'small_image', 'thumbnail' );
+                $types = $i == 1 ? array( 'hover_image' ) : $types;
+
+                $result = $proxy->catalogProductAttributeMediaCreate(
+                    $sessionId,
+                    $productId,
+                    array( 'file' => $file, 'label' => $image->getBasenameAttribute(), 'position' => ++$i, 'types' => $types, 'exclude' => 0 )
+                );
+
+                // Log
+                $logMagento = new LogMagento();
+                $logMagento->date_time = Carbon::now();
+                $logMagento->url = 'catalogProductAttributeMediaCreate';
+                $productData = [ $productId, 14, $file ];
+                $logMagento->request = serialize( $productData );
+                $logMagento->response = $result;
+                $logMagento->save();
+            }
+
+            $product->is_uploaded_date = Carbon::now();
+
+            if ( $status == 1 ) {
+                $product->isFinal = 1;
+                $product->isListed = 1;
+            }
+
+            $product->save();
+        } else {
+            $result = false;
+        }
+
+        return $result;
+    }
 
 }
