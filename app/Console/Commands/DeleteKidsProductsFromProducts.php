@@ -39,7 +39,7 @@ class DeleteKidsProductsFromProducts extends Command
      */
     public function handle()
     {
-        Product::where('name', 'LIKE', '%kids%')->orWhere('short_description', 'LIKE', '%kids%')->chunk(1000, function($products) {
+        Product::where('name', 'LIKE', '%kids%')->orWhere('short_description', 'LIKE', '%kids%')->orWhere('name', 'LIKE', '%Little%')->orWhere('short_description', 'LIKE', '%little%')->chunk(1000, function($products) {
             foreach ($products as $product) {
                 DB::table('log_scraper_vs_ai')->where('product_id', $product->id)->delete();
                 DB::table('product_suppliers')->where('product_id', $product->id)->delete();
@@ -48,6 +48,7 @@ class DeleteKidsProductsFromProducts extends Command
                 DB::table('user_products')->where('product_id', $product->id)->delete();
                 DB::table('suggestion_products')->where('product_id', $product->id)->delete();
                 $product->forceDelete();
+                dump('deleted');
             }
         });
     }
