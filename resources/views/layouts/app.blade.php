@@ -1444,8 +1444,6 @@
 
                                           </a>
 
-
-
                                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="compAnaMenu">
                                               <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
                                               <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">SITEJABBER | Quick Reply</a>
@@ -1508,8 +1506,6 @@
                                     <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                     <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubbizle</a>
                                 </div>
-
-
                             </li>
                           @endcan
 
@@ -1573,47 +1569,27 @@
                             </li>
                           @endif
                         @endcan
+                        @can('admin')
+                            <li class="nav-item dropdown">
 
-                            @if(Auth::user()->email != 'facebooktest@test.com')
-                                <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
 
-                              <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                  Development<span class="caret"></span>
-                              </a>
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 
+                                    Legal Module <span class="caret"></span>
+
+                                </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    @can('developer-tasks')
-                                        <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
-                                        <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
+                                    @can('lawyer-all')
+                                        <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
                                     @endcan
-                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                    @can('case-all')
+                                        <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
+                                    @endcan
                                 </div>
-                        </li>
-                            @endif
-
-                                @can('admin')
-                                    <li class="nav-item dropdown">
-
-                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-
-                                            Legal Module <span class="caret"></span>
-
-                                        </a>
-
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            @can('lawyer-all')
-                                                <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
-                                            @endcan
-                                            @can('case-all')
-                                                <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
-                                            @endcan
-                                        </div>
-                                    </li>
-                                @endcan
+                            </li>
+                        @endcan
 
                         @can('admin')
                           <li class="nav-item dropdown">
@@ -1623,6 +1599,18 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                              @can('voucher')
+                                <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
+                              @endcan
+
+                                  @can('old')
+                                      <a class="dropdown-item" href="{{ action('OldController@index') }}">Old</a>
+                                  @endcan
+                                  @can('old-incoming')
+                                      <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old-Incoming</a>
+                                  @endcan
+
+                              <a class="dropdown-item" href="{{ route('monetary-account.index') }}">Add Capital</a>
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>

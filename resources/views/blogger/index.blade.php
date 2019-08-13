@@ -269,6 +269,7 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex">
+                                                    <a href="{{route('blogger.payments', $blogger->id)}}" class="btn btn-sm" title="Blogger Payments" target="_blank"><i class="fa fa-money"></i> </a>
                                                     <button type="button" class="btn btn-image edit-blogger"
                                                             data-toggle="modal"
                                                             data-target="#createBloggerModal"

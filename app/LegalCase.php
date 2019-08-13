@@ -26,4 +26,14 @@ class LegalCase extends Model
     {
         return $this->hasMany(CaseCost::class,'case_id');
     }
+
+    public function cashFlows()
+    {
+        return $this->morphMany(CashFlow::class, 'cash_flow_able');
+    }
+
+    public function receivables()
+    {
+        return $this->hasMany(CaseReceivable::class,'case_id');
+    }
 }

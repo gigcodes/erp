@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CashFlow extends Model
 {
   protected $fillable = [
-    'user_id', 'cash_flow_category_id', 'description', 'date', 'amount', 'type'
+    'user_id', 'cash_flow_category_id', 'description', 'date', 'amount', 'type','expected','actual','currency','status','order_status','updated_by'
   ];
 
   public function user()
@@ -18,5 +18,15 @@ class CashFlow extends Model
   public function files()
   {
     return $this->hasMany('App\File', 'model_id')->where('model_type', 'App\CashFlow');
+  }
+
+    public function cashFlowAble()
+    {
+        return $this->morphTo()->withTrashed();
+  }
+
+    public function getModelNameAttribute()
+    {
+        
   }
 }

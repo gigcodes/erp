@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
+use App\Events\OrderUpdated;
 use App\Helpers;
 use App\Order;
 use App\OrderProduct;
@@ -992,18 +993,6 @@ class OrderController extends Controller {
 		}
 
 		if ($order->order_status == 'Refund to be processed') {
-			$refund = Refund::where('order_id', $order->id)->first();
-
-			if (!$refund) {
-				Refund::create([
-					'customer_id'			=> $order->customer->id,
-					'order_id'				=> $order->id,
-					'type'						=> 'Cash',
-					'date_of_request'	=> Carbon::now(),
-					'date_of_issue' 	=> Carbon::now()->addDays(10)
-				]);
-			}
-
 			if ($order->payment_mode == 'paytm') {
 				if ($order->customer) {
 					$all_amount = 0;
@@ -1023,6 +1012,18 @@ class OrderController extends Controller {
 					$order->customer->save();
 				}
 			}
+            $refund = Refund::where('order_id', $order->id)->first();
+
+            if (!$refund) {
+                Refund::create([
+                    'customer_id'			=> $order->customer->id,
+                    'order_id'				=> $order->id,
+                    'type'						=> 'Cash',
+                    'date_of_request'	=> Carbon::now(),
+                    'date_of_issue' 	=> Carbon::now()->addDays(10)
+                ]);
+            }
+
 		}
 
 		if ($order->order_status == 'Delivered') {
@@ -1052,7 +1053,7 @@ class OrderController extends Controller {
 					'method'			=> 'whatsapp'
 				]);
 			}
-
+            event(new OrderUpdated($order));
 			$order->delete();
 
 			if ($request->type != 'customer') {
@@ -1061,7 +1062,7 @@ class OrderController extends Controller {
 				return back()->with('success', 'Order was updated and archived successfully!');
 			}
 		}
-
+        event(new OrderUpdated($order));
 		return back()->with( 'message', 'Order updated successfully' );
 	}
 
