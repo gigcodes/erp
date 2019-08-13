@@ -77,6 +77,13 @@ class ProductListerController extends Controller
 
     public function magentoSoapApiUpload( $product, $status = 2 )
     {
+        // Just update for now
+        $product->isFinal = 1;
+        $product->isListed = -5;
+        $product->save();
+
+        return 'ok';
+
         $options = array(
             'trace' => true,
             'connection_timeout' => 120,
