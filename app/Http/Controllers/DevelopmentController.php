@@ -179,6 +179,11 @@ class DevelopmentController extends Controller
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray( User::all() );
 
+        // Hide resolved
+        if ( $request->hide_resolved == 1 ) {
+            $issues = $issues->where('is_resolved', 0);
+        }
+
         // Sort
         if ( $request->order == 'create' ) {
             $issues = $issues->orderBy( 'created_at', 'DESC' )->with( 'communications' )->get();

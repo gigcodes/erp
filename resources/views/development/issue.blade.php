@@ -75,6 +75,11 @@
                         </select>
                     </div>
                     <div class="col-md-2">
+                        @if ( !isset($_REQUEST['hide_resolved']) || $_REQUEST['hide_resolved'] == 1 )
+                            <input type="checkbox" name="hide_resolved" value="1" checked> Hide resolved
+                        @else
+                            <input type="checkbox" name="hide_resolved" value="1"> Hide resolved
+                        @endif
                         <button class="btn btn-image">
                             <img src="{{ asset('images/search.png') }}" alt="Search">
                         </button>
