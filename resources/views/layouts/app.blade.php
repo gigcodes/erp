@@ -1543,19 +1543,13 @@
                                         <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                     @endcan
 
-                                    <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts
+                                    <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
 
-                                    </a>
+                                    <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
 
-                                    <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page
+                                    <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
 
-                                    </a>
-
-                                    <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
-
-                                    </a>
-
-                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports
+                                        <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
 
                                         <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
 
@@ -1569,7 +1563,8 @@
 
                                         </a>
 
-                                        <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
+                                        <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules
+                                        </a>
                                 </div>
                             </li>
                           @endif
