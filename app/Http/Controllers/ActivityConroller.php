@@ -97,10 +97,10 @@ class ActivityConroller extends Controller
         $aiActivity = [];
 
         // Get total row count for products
-        $products = Product::all();
-        $aiActivity[ 'total' ] = $products->count();
-        $products = Product::whereBetween( 'created_at', [ $range_start . ' 00:00', $range_end . ' 23:59' ] )->get();
-        $aiActivity[ 'total_range' ] = $products->count();
+//        $products = Product::all();
+        $aiActivity[ 'total' ] = 0;
+//        $products = Product::whereBetween( 'created_at', [ $range_start . ' 00:00', $range_end . ' 23:59' ] )->get();
+        $aiActivity[ 'total_range' ] = 0;
 
         // Get ai activity
         $logScraperVsAi = LogScraperVsAi::selectRaw( 'DISTINCT(product_id) AS product_id' )->get();
