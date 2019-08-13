@@ -69,6 +69,12 @@
                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control">
                     </div>
                     <div class="col-md-2">
+                        <select name="order" id="order_query" class="form-control">
+                            <option value="">Order by priority</option>
+                            <option value="create">Order by date</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <button class="btn btn-image">
                             <img src="{{ asset('images/search.png') }}" alt="Search">
                         </button>
@@ -159,10 +165,9 @@
                             <div class="form-group">
                                 <div class='input-group date estimate-time'>
                                     <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
-
                                     <span class="input-group-addon">
-                    <span class="fa fa-calendar"></span>
-                  </span>
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
                                 </div>
                                 <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
                             </div>
@@ -181,16 +186,16 @@
                             @endif
                         </td>
                         <td>
-                            @if($issue->assignedUser)
-                                {{ $issue->assignedUser->name }}
-                            @else
-                                <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
-                                    <option value="">Select...</option>
-                                    @foreach($users as $id=>$name)
+                            <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
+                                <option value="">Select...</option>
+                                @foreach($users as $id=>$name)
+                                    @if( isset($issue->assignedUser->id) && (int) $issue->assignedUser->id == $id )
+                                        <option value="{{$id}}" selected>{{ $name }}</option>
+                                    @else
                                         <option value="{{$id}}">{{ $name }}</option>
-                                    @endforeach
-                                </select>
-                            @endif
+                                    @endif
+                                @endforeach
+                            </select>
                         </td>
                         <td>
                             @if($issue->is_resolved)

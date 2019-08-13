@@ -158,14 +158,14 @@ class DevelopmentController extends Controller
     {
         $issues = new Issue;
 
-        if ( $request->get( 'submitted_by' ) > 0 ) {
+        if ( (int) $request->get( 'submitted_by' ) > 0 ) {
             $issues = $issues->where( 'submitted_by', $request->get( 'submitted_by' ) );
         }
-        if ( $request->get( 'responsible_user' ) > 0 ) {
+        if ( (int) $request->get( 'responsible_user' ) > 0 ) {
             $issues = $issues->where( 'responsible_user_id', $request->get( 'responsible_user' ) );
         }
 
-        if ( $request->get( 'corrected_by' ) > 0 ) {
+        if ( (int) $request->get( 'corrected_by' ) > 0 ) {
             $issues = $issues->where( 'user_id', $request->get( 'corrected_by' ) );
         }
 
@@ -178,7 +178,13 @@ class DevelopmentController extends Controller
 
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray( User::all() );
-        $issues = $issues->orderBy( 'priority', 'ASC' )->orderBy( 'created_at', 'DESC' )->with( 'communications' )->get();
+
+        // Sort
+        if ( $request->order == 'create' ) {
+            $issues = $issues->orderBy( 'created_at', 'DESC' )->with( 'communications' )->get();
+        } else {
+            $issues = $issues->orderBy( 'priority', 'ASC' )->orderBy( 'created_at', 'DESC' )->with( 'communications' )->get();
+        }
 
         return view( 'development.issue', [
             'issues' => $issues,
