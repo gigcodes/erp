@@ -5,7 +5,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 
 
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
@@ -19,13 +19,13 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <strong>User</strong>
-									<?php
-									echo Form::select( 'selected_user', $users, $selected_user , [
-										'class'       => 'form-control',
-										'multiple' => 'multiple',
-										'id' => 'userList',
-										'name' => 'selected_user[]'
-									] );?>
+                                    <?php
+                                    echo Form::select( 'selected_user', $users, $selected_user, [
+                                        'class' => 'form-control',
+                                        'multiple' => 'multiple',
+                                        'id' => 'userList',
+                                        'name' => 'selected_user[]'
+                                    ] );?>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -53,6 +53,7 @@
     <section class="dashboard-counts section-padding">
         <div class="container-fluid">
             <div class="row">
+                <strong>Product stats totals</strong>
                 <table class="table table-striped table-bordered">
                     <tr>
                         <th>Uncropped</th>
@@ -80,6 +81,66 @@
                     </tr>
                 </table>
             </div>
+            @if ( isset($_GET['range_start']) )
+                <div class="row">
+                    <strong>Product stats by date range</strong>
+                    <table class="table table-striped table-bordered">
+                        <tr>
+                            <th>Uncropped</th>
+                            <th>Crop Approval</th>
+                            <th>Crop Rejected</th>
+                            <th>On Sequencing/Approved</th>
+                            <th>Attribute Approved</th>
+                            <th>Attribute Rejected</th>
+                            <th>Megento Listed</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr>
+                            <td>{{ $productStatsDateRange->uncropped }}</td>
+                            <td>{{ $productStatsDateRange->crop_approval }}</td>
+                            <td>{{ $productStatsDateRange->crop_rejected }}</td>
+                            <td>{{ $productStatsDateRange->left_for_sequencing }}</td>
+                            <td>{{ $productStatsDateRange->total_approvals }}</td>
+                            <td>{{ $productStatsDateRange->total_rejections }}</td>
+                            <td>
+                                {{ $productStatsDateRange->total_listed }}
+                            </td>
+                            <td>
+                                {{ $productStatsDateRange->crop_approval + $productStatsDateRange->uncropped + $productStatsDateRange->crop_rejected + $productStatsDateRange->left_for_sequencing + $productStatsDateRange->total_approvals + $productStatsDateRange->total_rejections }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            @endif
+
+            <div class="row">
+
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <th colspan="2"><strong>AI Activity (Totals)</strong></th>
+                        @if ( isset($_GET['range_start']) )
+                            <th colspan="2"><strong>AI Activity (By Date Range)</strong></th>
+                        @endif
+                    </tr>
+                    <tr>
+                        <th>Total Products</th>
+                        <th>Run by AI</th>
+                        @if ( isset($_GET['range_start']) )
+                            <th>New Products</th>
+                            <th>Run by AI</th>
+                        @endif
+                    </tr>
+                    <tr>
+                        <td>{{ $aiActivity['total'] }}</td>
+                        <td>{{ $aiActivity['ai'] }}</td>
+                        @if ( isset($_GET['range_start']) )
+                            <td>{{ $aiActivity['total_range'] }}</td>
+                            <td>{{ $aiActivity['ai_range'] }}</td>
+                        @endif
+                    </tr>
+                </table>
+            </div>
+
             <div class="row">
                 <div class="col-md-12">
                     <strong>Crop Rate: </strong> {{ $cropCountPerMinute }} Per Minute
@@ -130,46 +191,46 @@
         </div>
     </section>
 
-   {{-- <section class="dashboard-counts section-padding">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    --}}{{--<div class="col-xl-6 col-md-6">--}}{{--
-                    <div class="row">
-                        <div class="card activity-chart">
-                            <div class="card-header d-flex align-items-center">
-                                <h4>Activity Chart</h4>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="ActivityChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    --}}{{--</div>--}}{{--
-                </div>
-            </div>
-        </div>
-    </section>--}}
+    {{-- <section class="dashboard-counts section-padding">
+         <div class="container-fluid">
+             <div class="row">
+                 <div class="col-lg-12">
+                     --}}{{--<div class="col-xl-6 col-md-6">--}}{{--
+                     <div class="row">
+                         <div class="card activity-chart">
+                             <div class="card-header d-flex align-items-center">
+                                 <h4>Activity Chart</h4>
+                             </div>
+                             <div class="card-body">
+                                 <canvas id="ActivityChart"></canvas>
+                             </div>
+                         </div>
+                     </div>
+                     --}}{{--</div>--}}{{--
+                 </div>
+             </div>
+         </div>
+     </section>--}}
 
 
     <script>
 
         jQuery('#userList').select2(
             {
-                placeholder : 'Select a User'
+                placeholder: 'Select a User'
             }
         );
     </script>
 
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
 
             let r_s = jQuery('input[name="range_start"]').val();
             let r_e = jQuery('input[name="range_end"]').val()
 
-            let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
-            let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+            let start = r_s ? moment(r_s, 'YYYY-MM-DD') : moment().subtract(6, 'days');
+            let end = r_e ? moment(r_e, 'YYYY-MM-DD') : moment();
 
             // jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
             // jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
@@ -196,7 +257,7 @@
 
         });
 
-        $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+        $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
 
             jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
             jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));

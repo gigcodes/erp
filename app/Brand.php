@@ -11,33 +11,68 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Brand extends Model {
+class Brand extends Model
+{
 
-	use SoftDeletes;
+    use SoftDeletes;
 
-	protected $fillable = ['name','euro_to_inr','deduction_percentage','magento_id'];
-	protected $dates = ['deleted_at'];
+    protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id' ];
+    protected $dates = [ 'deleted_at' ];
 
-	public static function getAll(){
+    public static function getAll()
+    {
+        // Get all Brands
+        $brands = self::all();
 
-		$brands  = self::all();
+        // Create empty array to store brands
+        $brandsArray = [];
 
-		$brandsArray = [];
+        // Loop over brands
+        foreach ( $brands as $brand ) {
+            $brandsArray[ $brand->id ] = $brand->name;
+        }
 
-		foreach ($brands as $brand)
-			$brandsArray[$brand->id] = $brand->name;
+        // Sort array
+        asort( $brandsArray );
 
-		asort($brandsArray);
-
-		return $brandsArray;
-	}
-
-	public function scrapedProducts() {
-	    return $this->hasMany(ScrapedProducts::class, 'brand_id', 'id');
+        // Return brands array
+        return $brandsArray;
     }
 
-    public function products() {
-        return $this->hasMany(Product::class, 'brand', 'id');
+    public static function getFormattedBrandName( $brandName = '' )
+    {
+        // Check for a brand name that matches
+        switch ( $brandName ) {
+            case 'ALEXANDER McQUEEN':
+                $brandName = 'ALEXANDER Mc QUEEN';
+                break;
+            case 'TODS':
+                $brandName = 'TOD-S';
+                break;
+            case 'Yves Saint Laurent':
+                $brandName = 'saint-laurent';
+                break;
+            case 'DOLCE & GABBANA':
+                $brandName = 'dolce-gabbana';
+                break;
+        }
+
+        // Standard replaces
+        $brandName = str_replace( ' &amp; ', ' ', $brandName );
+        $brandName = str_replace( '&amp;', '', $brandName );
+
+        // Return brand name
+        return $brandName;
+    }
+
+    public function scrapedProducts()
+    {
+        return $this->hasMany( ScrapedProducts::class, 'brand_id', 'id' );
+    }
+
+    public function products()
+    {
+        return $this->hasMany( Product::class, 'brand', 'id' );
     }
 
 }
