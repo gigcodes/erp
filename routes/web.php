@@ -831,7 +831,6 @@ Route::middleware('auth')->group(function () {
 });
 
 
-
 // Mailchimp Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
 	Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
@@ -842,9 +841,68 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function(){
 
 //Hubstaff Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function(){
-	Route::get('get-hubstaff-users', 'HubstaffController@allUsers')->name('hubstaff.users');
-	Route::get('users/v1/api', 'HubstaffController@getUserPage')->name('users.api');
-	Route::post('users-v1/api', 'HubstaffController@userDetails')->name('post.user.api');
+
+	Route::get('v1/auth', 'HubstaffController@authenticationPage')->name('get.token');
+
+	Route::post('user-details-token', 'HubstaffController@getToken')->name('user.token');
+
+	Route::get('get-users', 'HubstaffController@gettingUsersPage')->name('get.users');
+
+	Route::post('v1/users', 'HubstaffController@userDetails')->name('get.users.api');
+
+	Route::get('get-user-from-id', 'HubstaffController@showFormUserById')->name('get.user-fromid');
+
+	Route::post('get-user-from-id', 'HubstaffController@getUserById')->name('post.user-fromid');
+
+	Route::get('v1/users/projects', 'HubstaffController@getProjectPage')->name('get.user-project-page');
+
+	Route::post('v1/users/projects', 'HubstaffController@getProjects')->name('post.user-project-page');
+
+	// ------------Projects---------------
+
+	Route::get('get-projects', 'HubstaffController@getUserProject')->name('user.project');
+	Route::post('get-projects', 'HubstaffController@postUserProject')->name('post.user-project');
+
+	// --------------Tasks---------------
+
+	Route::get('get-project-tasks', 'HubstaffController@getProjectTask')->name('project.task');
+	Route::post('get-project-taks', 'HubstaffController@postProjectTask')->name('post.project-task');
+
+
+	Route::get('v1/tasks', 'HubstaffController@getTaskFromId')->name('get-project.task-from-id');
+
+	Route::post('v1/tasks', 'HubstaffController@postTaskFromId')->name('post-project.task-from-id');
+
+	// --------------Organizaitons--------------
+	Route::get('v1/organizations', 'HubstaffController@index')->name('organizations');
+	Route::post('v1/organizations', 'HubstaffController@getOrganization')->name('post.organizations');
+
+
+	// -------v2 preview verion post requests----------
+	Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
+	Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
+
+
+	Route::get('v1/organization/members', 'HubstaffController@organizationMemberPage')->name('organization.members');
+	Route::post('v1/organization/members', 'HubstaffController@showMembers')->name('post.organization-member');
+
+	// --------------Screenshots--------------
+
+	Route::get('v1/screenshots', 'HubstaffController@getScreenshotPage')->name('get.screenshots');
+
+	Route::post('v1/screenshots', 'HubstaffController@postScreenshots')->name('post.screenshot');
+
+	// -------------payments----------------
+
+	Route::get('v1/team_payments', 'HubstaffController@getTeamPaymentPage')->name('team.payments');
+	Route::post('v1/team_payments', 'HubstaffController@getPaymentDetail')->name('post.payment-page');
+
+
+	// ------------Attendance---------------
+	Route::get('v2/organizations/attendance-shifts', 'AttendanceController@index')->name('attendance.shifts');
+
+	Route::post('v2/organizations/attendance-shifts', 'AttendanceController@show')->name('attendance.shifts-post');
+
 });
 Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 Route::get('display/analytics-data', 'AnalyticsController@showData')->name('filteredAnalyticsResults');
@@ -862,3 +920,97 @@ Route::post('back-linking/{id}/updateURL', 'BackLinkController@updateURL');
 Route::get('se-ranking/sites', 'SERankingController@getSites')->name('sitesInfo');
 
 
+
+// // Twitter Module
+// Route::group(['middleware'=>'auth', 'namespace'=> 'Twitter'], function(){
+// 	Route::get('twitterUserTimeLine', 'TwitterController@twitterUserTimeLine');
+// 	Route::post('tweet', ['as'=>'post.tweet','uses'=>'TwitterController@tweet']);
+// });
+
+// Route::get('twitter/login', ['as' => 'twitter.login', function(){
+
+// 	$credentials = Twitter::getCredentials([
+//     	'include_email' => 'true',
+// 	]);
+
+// 	// your SIGN IN WITH TWITTER  button should point to this route
+// 	$sign_in_twitter = true;
+// 	$force_login = false;
+
+// 	// Make sure we make this request w/o tokens, overwrite the default values in case of login.
+// 	$data = Twitter::reconfig(['token' => '', 'secret' => '']);
+	
+// 	$token = Twitter::getRequestToken(route('twitter.callback'));
+// 	dd($token);
+
+// 	if (isset($token['oauth_token_secret']))
+// 	{
+// 		$url = Twitter::getAuthorizeURL($token, $sign_in_twitter, $force_login);
+
+// 		Session::put('oauth_state', 'start');
+// 		Session::put('oauth_request_token', $token['oauth_token']);
+// 		Session::put('oauth_request_token_secret', $token['oauth_token_secret']);
+
+// 		return Redirect::to($url);
+// 	}
+
+// 	return Redirect::route('twitter.error');
+// }]);
+
+// Route::get('twitter/callback', ['as' => 'twitter.callback', function() {
+// 	dd('here');
+// 	// You should set this route on your Twitter Application settings as the callback
+// 	// https://apps.twitter.com/app/YOUR-APP-ID/settings
+// 	if (Session::has('oauth_request_token'))
+// 	{
+// 		$request_token = [
+// 			'token'  => Session::get('oauth_request_token'),
+// 			'secret' => Session::get('oauth_request_token_secret'),
+// 		];
+
+// 		dd($request_token);
+// 		Twitter::reconfig($request_token);
+
+// 		$oauth_verifier = false;
+
+// 		if (Input::has('oauth_verifier'))
+// 		{
+// 			$oauth_verifier = Input::get('oauth_verifier');
+// 			// getAccessToken() will reset the token for you
+// 			$token = Twitter::getAccessToken($oauth_verifier);
+// 		}
+
+// 		if (!isset($token['oauth_token_secret']))
+// 		{
+// 			return Redirect::route('twitter.error')->with('flash_error', 'We could not log you in on Twitter.');
+// 		}
+
+// 		$credentials = Twitter::getCredentials();
+
+// 		if (is_object($credentials) && !isset($credentials->error))
+// 		{
+// 			// $credentials contains the Twitter user object with all the info about the user.
+// 			// Add here your own user logic, store profiles, create new users on your tables...you name it!
+// 			// Typically you'll want to store at least, user id, name and access tokens
+// 			// if you want to be able to call the API on behalf of your users.
+
+// 			// This is also the moment to log in your users if you're using Laravel's Auth class
+// 			// Auth::login($user) should do the trick.
+
+// 			Session::put('access_token', $token);
+
+// 			return Redirect::to('/')->with('flash_notice', 'Congrats! You\'ve successfully signed in!');
+// 		}
+
+// 		return Redirect::route('twitter.error')->with('flash_error', 'Crab! Something went wrong while signing you up!');
+// 	}
+// }]);
+
+// Route::get('twitter/error', ['as' => 'twitter.error', function(){
+// 	// Something went wrong, add your own error handling here
+// }]);
+
+// Route::get('twitter/logout', ['as' => 'twitter.logout', function(){
+// 	Session::forget('access_token');
+// 	return Redirect::to('/')->with('flash_notice', 'You\'ve successfully logged out!');
+// }]);

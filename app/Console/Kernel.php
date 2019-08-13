@@ -58,6 +58,7 @@ use App\Console\Commands\ResetDailyPlanner;
 //use App\Console\Commands\SaveProductsImages;
 
 use App\Console\Commands\UpdateMagentoProductStatus;
+use App\Console\Commands\ImportCustomersEmail;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -129,7 +130,9 @@ class Kernel extends ConsoleKernel
         UploadProductsToMagento3::class,
         SendAutoReplyToCustomers::class,
         FixCategoryNameBySupplier::class,
+        ImportCustomersEmail::class,
         FlagCustomersIfTheyHaveAComplaint::class
+
     ];
 
     /**
