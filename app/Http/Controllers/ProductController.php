@@ -479,6 +479,11 @@ class ProductController extends Controller {
 												SELECT user_id, product_id FROM user_products
 												) as user_products
 											ON products.id = user_products.product_id
+											
+											LEFT JOIN
+											    log_scraper_vs_ai
+                                            ON
+                                                products.id=log_scraper_vs_ai.product_id
 
 											LEFT JOIN (
 												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
@@ -500,16 +505,21 @@ class ProductController extends Controller {
 												) as user_products
 											ON products.id = user_products.product_id
 
+											LEFT JOIN
+											    log_scraper_vs_ai
+                                            ON
+                                                products.id=log_scraper_vs_ai.product_id
+
 											LEFT JOIN (
 												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
 												) AS remarks
 											ON products.id = remarks.taskid
 											WHERE is_approved = 0 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
-											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, updated_at DESC
+											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, products.updated_at DESC
 				');
 			}
 
-			// dd($new_products);
+			dd($new_products);
 			$products_count = count($new_products);
 			//
 			$currentPage = LengthAwarePaginator::resolveCurrentPage();
