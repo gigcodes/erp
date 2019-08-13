@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
+use App\ListingHistory;
 use App\Product;
 use App\ProductReference;
 use App\Setting;
 use App\Stage;
 use App\Category;
 use App\LogMagento;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -77,6 +79,14 @@ class ProductListerController extends Controller
 
     public function magentoSoapApiUpload( $product, $status = 2 )
     {
+        // Log activity
+        $e = new ListingHistory();
+        $e->user_id = Auth::user()->id;
+        $e->product_id = $product->id;
+        $e->content = ['action' => 'MAGENTO_LISTED', 'page' => 'Approved Listing Page'];
+        $e->action = 'MAGENTO_LISTED';
+        $e->save();
+
         // Just update for now
         $product->isFinal = 1;
         $product->isListed = -5;
