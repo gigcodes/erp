@@ -658,6 +658,7 @@
                                     <a class="dropdown-item" href="{{ route('products.listing') }}">Attribute Edit Page</a>
                                     @can ('approved-listing')
                                       <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
+                                      <a class="dropdown-item" href="{{ action('ProductController@approvedMagento') }}?cropped=on">Listed items</a>
                                     @endcan
                                   </div>
                                 @endcan
