@@ -519,7 +519,7 @@ class ProductController extends Controller {
 				');
 			}
 
-			dd($new_products);
+//			dd($new_products);
 			$products_count = count($new_products);
 			//
 			$currentPage = LengthAwarePaginator::resolveCurrentPage();
