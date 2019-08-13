@@ -537,8 +537,9 @@
                                     @can ('product-lister')
                                       <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute Edit Page</a>
                                     @endcan
-                                    @can ('approved-listing')
+                                    @canany(['approved-listing', 'admin'])
                                         <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
+                                        <a class="dropdown-item" href="{{ action('ProductController@approvedMagento') }}?cropped=on">Listed items</a>
                                     @endcan
                                     @can ('rejected-listing')
                                         <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
@@ -546,7 +547,6 @@
 
                                     @can('admin')
                                         <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statics</a>
-                                        <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}">Approved Listing</a>
                                         <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Rejected Statistics</a>
                                         <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payment</a>
@@ -658,6 +658,7 @@
                                     <a class="dropdown-item" href="{{ route('products.listing') }}">Attribute Edit Page</a>
                                     @can ('approved-listing')
                                       <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
+                                      <a class="dropdown-item" href="{{ action('ProductController@approvedMagento') }}?cropped=on">Listed items</a>
                                     @endcan
                                   </div>
                                 @endcan
