@@ -504,6 +504,9 @@
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@showCropVerifiedForOrdering') }}">Crop-Sequencer
                                             </a>
 
+                                            <a class="dropdown-item" href="{{ action('Products/ManualCroppingController@index') }}">Manual Cropping Grid
+                                            </a>
+
                                         </ul>
 
                                     </li>

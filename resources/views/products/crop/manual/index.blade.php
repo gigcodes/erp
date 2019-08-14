@@ -29,7 +29,7 @@
                                 <td>{{ $product->name }}</td>
                                 <td>{{ $product->short_description }}</td>
                                 <td>
-                                    <img src="{{ $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getUrl() : '' }}" alt="Image">
+                                    <img width="100" src="{{ $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getUrl() : '' }}" alt="Image">
                                 </td>
                                 <td>
                                     <a href="{{ action('Products\ManualCroppingController@show', $product->id) }}">Manual Crop</a>
