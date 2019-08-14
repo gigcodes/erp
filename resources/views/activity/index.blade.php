@@ -160,7 +160,11 @@
                     <tr>
                         <td>{{ $scrapCount }}</td>
                         <td>{{ $inventoryCount }}</td>
-                        <td>{{ $allActivity->crop_approved }}</td>
+                        @if ( $allActivity->crop_approval_denied > 0 )
+                            <td>{{ $allActivity->crop_approved }} - {{ $allActivity->crop_approval_denied }} = {{ $allActivity->crop_approved - $allActivity->crop_approval_denied }}</td>
+                        @else
+                            <td>{{ $allActivity->crop_approved }}</td>
+                        @endif
                         <td>{{ $allActivity->crop_rejected }}</td>
                         <td>{{ $allActivity->crop_ordered }}</td>
                         <td>{{ $allActivity->attribute_approved }}</td>
@@ -180,7 +184,11 @@
                     @foreach ($userActions as $key => $user)
                         <tr>
                             <td>{{ $users[$user->user_id] }}</td>
-                            <td>{{ $user->crop_approved }}</td>
+                            @if ( $user->crop_approval_denied > 0 )
+                                <td>{{ $user->crop_approved }} - {{ $user->crop_approval_denied }} = {{ $user->crop_approved - $user->crop_approval_denied }}</td>
+                            @else
+                                <td>{{ $user->crop_approved }}</td>
+                            @endif
                             <td>{{ $user->crop_rejected }}</td>
                             <td>{{ $user->crop_ordered }}</td>
                             <td>{{ $user->attribute_approved }}</td>
