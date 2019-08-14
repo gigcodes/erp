@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
+use App\MagentoSoapHelper;
 use Illuminate\Console\Command;
+use App\Jobs\PushToMagento;
 
 class UploadProductsToMagento extends Command
 {
@@ -38,11 +39,22 @@ class UploadProductsToMagento extends Command
      */
     public function handle()
     {
-        for ($i=0;$i<=1000;$i++) {
-            $product = Product::where('is_approved', 1)->where('isListed', 0)->inRandomOrder()->first();
-            $result = app('App\Http\Controllers\ProductListerController')->magentoSoapApiUpload($product);
-            dump('Uploading....');
-            dump($result);
+        // Connect
+        $magentoSoapHelper = new MagentoSoapHelper();
+
+        // Get product
+        $products = \App\Product::where( 'isListed', -5 )->get();
+
+        // Loop over products
+        if ( $products !== NULL ) {
+            foreach ( $products as $product ) {
+                // Dispatch
+                PushToMagento::dispatch($product);
+
+                // Update
+                $product->isListed = 1;
+                $product->save();
+            }
         }
     }
 }

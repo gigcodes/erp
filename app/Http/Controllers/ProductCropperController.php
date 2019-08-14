@@ -568,7 +568,13 @@ class ProductCropperController extends Controller
     }
 
     public function rejectCrop($id,Stage $stage, Request $request) {
+	    // Get product
         $product = Product::findOrFail($id);
+
+        // Get last image cropper
+        $lastImageCropper = $product->crop_approved_by;
+
+        // Update product to status rejected
         $product->is_crop_rejected = 1;
         $product->crop_remark = $request->get('remark');
         $product->crop_rejected_by = Auth::user()->id;
@@ -579,7 +585,17 @@ class ProductCropperController extends Controller
         $product->crop_rejected_at = Carbon::now()->toDateTimeString();
         $product->save();
 
+        // Log crop approval denied
+        if ( (int) $lastImageCropper > 0 ) {
+            $e = new ListingHistory();
+            $e->user_id = $lastImageCropper;
+            $e->product_id = $product->id;
+            $e->content = [ 'action' => 'CROP_APPROVAL_DENIED', 'page' => 'Approved Listing Page' ];
+            $e->action = 'CROP_APPROVAL_DENIED';
+            $e->save();
+        }
 
+        // Log crop rejected
         $e = new ListingHistory();
         $e->user_id = Auth::user()->id;
         $e->product_id = $product->id;

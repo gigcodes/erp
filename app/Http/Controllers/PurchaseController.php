@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ProformaConfirmed;
 use Dompdf\Dompdf;
 use App\Mail\ForwardEmail;
 use Illuminate\Http\Request;
@@ -1576,17 +1577,16 @@ class PurchaseController extends Controller
     {
       $purchase = Purchase::find($id);
       $matched = 0;
-
+      $total_amount = 0;
       foreach ($request->proformas as $data) {
         $product = Product::find($data[0]);
-        $discounted_price = round(($product->price - ($product->price * $product->percentage / 100)) / 1.22);
-        $proforma = $data[1];
-
-        if (($proforma - $discounted_price) < 10) {
+          $discounted_price = round(($product->price - ($product->price * $product->percentage / 100)) / 1.22);
+          $proforma = $data[1];
+          $total_amount+=$proforma;
+          if (($proforma - $discounted_price) < 10) {
           $matched++;
         }
       }
-
       if ($matched == count($request->proformas)) {
         $purchase->proforma_confirmed = 1;
         $purchase->proforma_id = $request->proforma_id;
@@ -1594,6 +1594,7 @@ class PurchaseController extends Controller
 
         $purchase->status = 'Price Confirmed - Payment in Process';
         $purchase->save();
+        event (new ProformaConfirmed($purchase, $total_amount));
       }
 
       return response()->json([

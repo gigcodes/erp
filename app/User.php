@@ -23,7 +23,7 @@ class User extends Authenticatable
 	 * @var array
 	 */
 	protected $fillable = [
-		'name', 'email', 'phone', 'password', 'responsible_user', 'agent_role', 'whatsapp_number', 'amount_assigned'
+		'name', 'email', 'phone', 'password', 'responsible_user', 'agent_role', 'whatsapp_number', 'amount_assigned', 'auth_token_hubstaff'
 	];
 
     public function getIsAdminAttribute()
@@ -70,6 +70,11 @@ class User extends Authenticatable
 	{
 		return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id')->where('is_approved', 1);
 	}
+
+	public function manualCropProducts() {
+        return $this->belongsToMany(Product::class, 'user_manual_crop', 'user_id', 'product_id');
+
+    }
 
 	public function customers()
 	{

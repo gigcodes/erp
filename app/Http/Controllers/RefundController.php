@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Events\RefundDispatched;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Refund;
@@ -137,6 +138,8 @@ class RefundController extends Controller
 			$data['awb'] = '';
 		} else {
 			$order->order_status = 'Refund Dispatched';
+            $refund = Refund::find($id);
+			event(new RefundDispatched($refund));
 		}
 
 		if ($request->credited) {

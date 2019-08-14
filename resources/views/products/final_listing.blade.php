@@ -186,7 +186,7 @@
                       <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
                     </p>
                     <p class="same-color">
-                      View All: <strong>{{ $product->product_category->title }}</strong>
+                      View All: <strong>{{ isset($product->product_category->title) ? $product->product_category->title  : '' }}</strong>
                       <br>
                       View All: <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
                     </p>
