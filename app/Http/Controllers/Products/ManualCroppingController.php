@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Products;
 
 use App\Product;
+use App\ScrapedProducts;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,7 @@ class ManualCroppingController extends Controller
         $currentUser = Auth::user();
 
         $reservedProductIds = DB::table('user_manual_crop')->pluck('product_id')->toArray();
-        $products = Product::whereNotIn('id', $reservedProductIds)->where('manual_crop', 1)->where('is_approved', 0)->take(25)->get();
+        $products = Product::whereNotIn('id', $reservedProductIds)->where('manual_crop', 1)->where('is_crop-approved', 0)->take(25)->get();
 
         if ($products->count() === 0) {
             return redirect()->back()->with('message', 'There are no products to be assigned!');
@@ -76,7 +77,9 @@ class ManualCroppingController extends Controller
             return redirect()->action('Products\ManualCroppingController@index')->with('message', 'The product you were trying to open does not exist anymore.');
         }
 
-        return view('products.crop.manual.show', compact('product'));
+        $references = ScrapedProducts::where('sku', $product->sku)->pluck('url', 'website');
+
+        return view('products.crop.manual.show', compact('product','references'));
 
     }
 

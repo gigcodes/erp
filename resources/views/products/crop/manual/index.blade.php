@@ -32,7 +32,7 @@
                                     <img width="100" src="{{ $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getUrl() : '' }}" alt="Image">
                                 </td>
                                 <td>
-                                    <a href="{{ action('Products\ManualCroppingController@show', $product->id) }}">Manual Crop</a>
+                                    <a class="btn btn-xs btn-secondary" href="{{ action('Products\ManualCroppingController@show', $product->id) }}">Manual Crop</a>
                                 </td>
                             </tr>
                         @endforeach
