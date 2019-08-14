@@ -9,50 +9,53 @@ use Nestable\NestableTrait;
 class Category extends Model
 {
 
-	use NestableTrait;
+    use NestableTrait;
 
-	protected $parent = 'parent_id';
+    protected $parent = 'parent_id';
 
-    public $fillable = ['title','parent_id','magento_id','show_all_id'];
+    public $fillable = [ 'title', 'parent_id', 'magento_id', 'show_all_id' ];
 
-	/**
-	 * Get the index name for the model.
-	 *
-	 * @return string
-	 */
-	public function childs() {
-		return $this->hasMany(__CLASS__,'parent_id','id') ;
-	}
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function childs()
+    {
+        return $this->hasMany( __CLASS__, 'parent_id', 'id' );
+    }
 
-	public function parent()
-	{
-		return $this->hasOne('App\Category', 'id', 'parent_id');
-	}
+    public function parent()
+    {
+        return $this->hasOne( 'App\Category', 'id', 'parent_id' );
+    }
 
-	public static function isParent($id){
+    public static function isParent( $id )
+    {
 
-		$child_count = DB::table('categories as c')
-		                    ->where('parent_id',$id)
-							->count();
+        $child_count = DB::table( 'categories as c' )
+            ->where( 'parent_id', $id )
+            ->count();
 
-		return $child_count ? true : false;
-	}
+        return $child_count ? true : false;
+    }
 
 
-	public static function hasProducts($id) {
+    public static function hasProducts( $id )
+    {
 
-		$products_count = DB::table('products as p')
-		                 ->where('category',$id)
-		                 ->count();
+        $products_count = DB::table( 'products as p' )
+            ->where( 'category', $id )
+            ->count();
 
-		return $products_count ? true : false;
+        return $products_count ? true : false;
 
-	}
+    }
 
     public static function getCategoryIdByKeyword( $keyword, $gender, $genderAlternative )
     {
         // Set gender
-        if ( empty($gender) ) {
+        if ( empty( $gender ) ) {
             $gender = $genderAlternative;
         }
 
@@ -123,6 +126,47 @@ class Category extends Model
                 }
             }
         }
+    }
+
+    public static function getCategoryTreeMagento( $id )
+    {
+        // Load new category model
+        $category = new Category();
+
+        // Create category instance
+        $categoryInstance = $category->find( $id );
+
+        // Set empty category tree for holding categories
+        $categoryTree = [];
+
+        // Continue only if category is not null
+        if ( $categoryInstance !== NULL ) {
+
+            // Load initial category
+            $categoryTree[] = $categoryInstance->magento_id;
+
+            // Set parent ID
+            $parentId = $categoryInstance->parent_id;
+
+            // Loop until we found the top category
+            while ( $parentId != 0 ) {
+                // find next category
+                $categoryInstance = $category->find( $parentId );
+
+                // Add category to tree
+                $categoryTree[] = $categoryInstance->magento_id;
+
+                // Add additional category to tree
+                if ( !empty( $categoryInstance->show_all_id ) )
+                    $categoryTree[] = $categoryInstance->show_all_id;
+
+                // Set new parent ID
+                $parentId = $categoryInstance->parent_id;
+            }
+        }
+
+        // Return reverse array
+        return array_reverse( $categoryTree );
     }
 
 }

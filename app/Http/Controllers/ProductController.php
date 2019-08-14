@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\ColorReference;
 use App\CroppedImageReference;
+use App\Jobs\PushToMagento;
 use App\ListingHistory;
 use App\Order;
 use App\OrderProduct;
@@ -1002,14 +1003,24 @@ class ProductController extends Controller
 
     public function listMagento( Request $request, $id )
     {
+        // Get product by ID
         $product = Product::find( $id );
-        // ActivityConroller::create($product->id,'productlister','create');
 
-        $result = app( 'App\Http\Controllers\ProductListerController' )->magentoSoapApiUpload( $product, 1 );
+        // If we have a product, push it to Magento
+        if ( $product !== NULL ) {
+            PushToMagento::dispatch($product);
 
+            // Return response
+            return response()->json( [
+                'result' => 'queuedForDispatch',
+                'status' => 'listed'
+            ] );
+        }
+
+        // Return error response by default
         return response()->json( [
-            'result' => $result,
-            'status' => 'listed'
+            'result' => 'productNotFound',
+            'status' => 'error'
         ] );
     }
 

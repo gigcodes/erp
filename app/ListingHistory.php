@@ -10,7 +10,19 @@ class ListingHistory extends Model
         'content' => 'array'
     ];
 
-    public function user() {
-        return $this->belongsTo(User::class);
+    public static function createNewListing( $userId = NULL, $productId = NULL, $content = [], $action = NULL )
+    {
+        // Create new activity for listing history
+        $listingHistory = new ListingHistory();
+        $listingHistory->user_id = $userId;
+        $listingHistory->product_id = $productId;
+        $listingHistory->content = $content;
+        $listingHistory->action = $action;
+        return $listingHistory->save();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo( User::class );
     }
 }
