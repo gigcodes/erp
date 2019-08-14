@@ -31,7 +31,7 @@
                         <strong>References:</strong>
                         <p>Note: If images are not available, please download images from one of these sites and then crop and save it.</p>
                         @foreach($references as $website=>$reference)
-                            <li>{{$website }}: {{ $reference }}</li>
+                            <li>{{$website }}: <a href="{{ $reference }}">Visit Site</a></li>
                         @endforeach
                     </td>
                     <td>
