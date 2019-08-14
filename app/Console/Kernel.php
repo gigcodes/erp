@@ -36,8 +36,6 @@ use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\UploadProductsToMagento;
-use App\Console\Commands\UploadProductsToMagento2;
-use App\Console\Commands\UploadProductsToMagento3;
 use App\Console\Commands\WiseboutiqueProductDetailScraper;
 use App\Console\Commands\WiseBoutiqueScraper;
 use App\Console\Commands\UpdateGnbPrice;
@@ -126,8 +124,6 @@ class Kernel extends ConsoleKernel
         SendMessageToUserIfTheirTaskIsNotComplete::class,
         SendReminderToCustomerIfTheyHaventReplied::class,
         UploadProductsToMagento::class,
-        UploadProductsToMagento2::class,
-        UploadProductsToMagento3::class,
         SendAutoReplyToCustomers::class,
         FixCategoryNameBySupplier::class,
         ImportCustomersEmail::class,
@@ -154,9 +150,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->command( 'message:send-to-users-who-exceeded-limit' )->everyThirtyMinutes()->timezone( 'Asia/Kolkata' );
         $schedule->command( 'reminder:send-to-customers' )->everyMinute()->timezone( 'Asia/Kolkata' );
-//        $schedule->command('magento:upload-products')->everyMinute()->withoutOverlapping();
-//        $schedule->command('magento:upload-products2')->everyMinute()->withoutOverlapping();
-//        $schedule->command('magento:upload-products3')->everyMinute()->withoutOverlapping();
 
 
         $schedule->call( function () {
