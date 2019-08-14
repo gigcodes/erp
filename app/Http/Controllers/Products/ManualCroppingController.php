@@ -19,7 +19,7 @@ class ManualCroppingController extends Controller
     {
         $products = Product::where('is_crop_rejected', 1)
             ->where('manual_crop', 1)
-            ->where('is_approved', 0)
+            ->where('is_crop_approved', 0)
             ->whereIn('id', DB::table('user_manual_crop')->where('user_id', Auth::id())->pluck('product_id')->toArray())
             ->get();
 
