@@ -62,7 +62,7 @@
                         <th>On Sequencing/Approved</th>
                         <th>Attribute Approved</th>
                         <th>Attribute Rejected</th>
-                        <th>Megento Listed</th>
+                        <th>Magento Listed</th>
                         <th>Total</th>
                     </tr>
                     <tr>
@@ -92,7 +92,7 @@
                             <th>On Sequencing/Approved</th>
                             <th>Attribute Approved</th>
                             <th>Attribute Rejected</th>
-                            <th>Megento Listed</th>
+                            <th>Magento Listed</th>
                             <th>Total</th>
                         </tr>
                         <tr>

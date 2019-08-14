@@ -340,9 +340,9 @@ class MagentoSoapHelper
 
                     // Log info
                     Log::info( "Image for product " . $product->id . " with name " . $file[ 'name' ] . " successfully pushed to Magento" );
-                } catch ( Exception $e ) {
+                } catch ( \SoapFault $e ) {
                     // Log alert
-                    Log::alert( "Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento" );
+                    Log::alert( "Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento with message: " . $e->getMessage() );
                 }
             }
         }

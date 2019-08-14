@@ -474,9 +474,7 @@
 
 
 
-                                    <li class="nav-item dropdown dropdown-submenu"
-
-                                        data-count="{{ \App\Http\Controllers\ProductCropperController::rejectedProductCountByUser() }}">
+                                    <li class="nav-item dropdown dropdown-submenu">
 
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
 
@@ -1365,8 +1363,25 @@
                           </a>
 
                           <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
+                              <li>
                             @can('seo')
-                              <a class="dropdown-item" href="{{ action('SEOAnalyticsController@show') }}">SEO</a>
+                                  <li class="nav-item dropdown dropdown-submenu">
+
+                                      <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
+                                          SEO<span class="caret"></span>
+
+                                      </a>
+
+                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                              <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
+                                              <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
+                                              <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
+                                          </li>
+                                      </ul>
+
+                                  </li>
                             @endcan
                             @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com')
                                   <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>

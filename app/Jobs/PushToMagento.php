@@ -35,6 +35,9 @@ class PushToMagento implements ShouldQueue
      */
     public function handle()
     {
+        // Set time limit
+        set_time_limit(0);
+
         // Load product
         $product = $this->_product;
 
