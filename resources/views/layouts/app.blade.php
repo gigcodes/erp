@@ -32,8 +32,8 @@
         window.Laravel = Laravel;
     </script>
     <script>
-        jQuery('.readmore').readmore({ 
-            speed: 75, 
+        jQuery('.readmore').readmore({
+            speed: 75,
             moreLink: '<a href="#">Read more</a>'
             lessLink: '<a href="#">Read less</a>',
          });
@@ -1821,7 +1821,7 @@
     @if (Auth::check())
 
         @can('admin')
-            <div class="float-container developer-float">
+            <div class="float-container developer-float hidden-sm">
                 @php
                     $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
                     $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
@@ -1847,7 +1847,7 @@
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
             </div>
 
-            <div class="float-container instruction-float">
+            <div class="float-container instruction-float hidden-sm">
                 @php
                     $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
                     $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
@@ -1873,7 +1873,7 @@
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
             </div>
 
-            <div class="float-container">
+            <div class="float-container hidden-sm">
                 @php
                     $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
                     $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
@@ -1977,7 +1977,7 @@
           var y = String.fromCharCode(x);
           collectedData[0].data += y;
       });
-      
+
 
       // $(document).click(function() {
       //     if (collectedData[0].data.length > 10) {
