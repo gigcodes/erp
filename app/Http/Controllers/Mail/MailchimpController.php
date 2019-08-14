@@ -7,11 +7,12 @@ use App\Http\Controllers\Controller;
 use Auth;
 use Config;
 use App\Customer;
+use GuzzleHttp\Client;
 
 class MailchimpController extends Controller
 {
     public $mailchimp;
-    public $listId;
+    public $list;
 
     public function __construct(\Mailchimp $mailchimp)
     {
@@ -85,46 +86,4 @@ class MailchimpController extends Controller
         }
     }
 
-    public function makeActiveSubscriber(){
-
-	 	$successfulSubscriptions = [];
-	 	$subscribedAlready = [];
-	 	$errorMailchimp = [];
-
-    	Customer::where('email', '!=', null)->chunk(100, function ($customers) use ($successfulSubscriptions, $subscribedAlready, $errorMailchimp) {
-		  
-		  foreach ($customers as $customer) {
-			
-			try {
-	            
-	            $this->mailchimp
-	            ->lists
-	            ->subscribe(
-	                $this->listId,
-	                ['email' => $customer->email]
-	            );
-
-	            $successfulSubscriptions = $customer->email;
-
-		        } catch (\Mailchimp_List_AlreadySubscribed $e) {
-		        	
-		        	$subscribedAlready[] = $customer->email;
-		        
-		        } catch (\Mailchimp_Error $e) {
-		        	
-		        	$errorMailchimp[] = $customer->email;
-		           
-		        }
-
-		  	}
-
-		  	return response()->json([
-				'message' => 'success',
-				'Successful Subscription emails' => $successfulSubscriptions,
-				'Already Subscribed emails' => $subscribedAlready,
-				'Mailchimp errors for Invalid email' => $errorMailchimp
-			]);
-
-		});	
-    }
 }

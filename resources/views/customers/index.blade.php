@@ -117,7 +117,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Customers List ({{ count(json_decode($customer_ids_list)) }})</h2>
-            <div class="pull-left">
+            <div class="container">
               <form action="/customers/" method="GET" class="form-inline">
                 <input name="term" type="text" class="form-control"
                        value="{{ isset($term) ? $term : '' }}"
@@ -199,7 +199,7 @@
   	$query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
   	?>
 
-    <div class="form-group position-fixed" style="top: 50px; left: 20px;">
+    <div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
       Goto :
       <select onchange="location.href = this.value;" class="form-control" id="page-goto">
         @for($i = 1 ; $i <= $customers->lastPage() ; $i++ )

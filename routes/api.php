@@ -42,3 +42,6 @@ Route::get('products/new-supplier', 'ScrapController@getFromNewSupplier');
 Route::post('products/new-supplier', 'ScrapController@saveFromNewSupplier');
 
 Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDetails');
+
+Route::get('products/enhance', 'Products\ProductEnhancementController@index');
+Route::post('products/enhance', 'Products\ProductEnhancementController@store');

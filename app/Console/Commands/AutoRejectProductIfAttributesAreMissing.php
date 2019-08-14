@@ -39,31 +39,28 @@ class AutoRejectProductIfAttributesAreMissing extends Command
      */
     public function handle()
     {
-        Product::where('is_farfetched', 0)
-//            ->where('is_listing_rejected_automatically', 0)
-//            ->where('is_listing_rejected', 0)
-//            ->where('was_auto_rejected', 0)
-//            ->where('is_approved', 0)
-            ->where(function($query) {
-                $query = $query->where('short_description', '');
-//                ->orWhere('composition', '');
-//                ->orWhere('size', '')
-//                ->orWhere('price', 0);
-                })->chunk(1000, function($products) {
-                    foreach ($products as $product) {
-                        dump('Rejected...');
-                        $product->is_listing_rejected = 1;
-                        $product->is_listing_rejected_automatically = 1;
-                        $product->save();
+        // Get all products with missing details
+        $products = Product::where( [ [ 'is_farfetched', 0 ], [ 'is_listing_rejected', 0 ], [ 'is_listing_rejected_automatically', 0 ] ] )->where( function ( $query ) {
+            $query->where( 'name', '=', '' )
+                ->orWhere( 'short_description', '=', '' )
+                ->orWhere( 'composition', '=', '' )
+                ->orWhere( 'size', '=', '' );
+        } )->get();
 
-                        $l = new ListingHistory();
-                        $l->user_id = null;
-                        $l->product_id = $product->id;
-                        $l->action = 'AUTO_REJECTED_ATTRIBUTE_MISSING';
-                        $l->content = ['action' => 'AUTO_REJECTED_ATTRIBUTE_MISSING'];
-                        $l->save();
-                    }
-            });
+        // Loop over products
+        foreach ( $products as $product ) {
+            // Set to auto rejected
+            $product->is_listing_rejected = 1;
+            $product->is_listing_rejected_automatically = 1;
+            $product->save();
 
+            // Update listing history
+            $listingHistory = new ListingHistory();
+            $listingHistory->user_id = NULL;
+            $listingHistory->product_id = $product->id;
+            $listingHistory->action = 'AUTO_REJECTED_ATTRIBUTE_MISSING';
+            $listingHistory->content = [ 'action' => 'AUTO_REJECTED_ATTRIBUTE_MISSING' ];
+            $listingHistory->save();
+        }
     }
 }

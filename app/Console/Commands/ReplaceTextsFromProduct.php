@@ -42,7 +42,7 @@ class ReplaceTextsFromProduct extends Command
 
         $replacements = AttributeReplacement::all();
 
-        Product::where('id',101637)->orderBy('id', 'DESC')->chunk(1000, function($products) use ($replacements) {
+        Product::orderBy('id', 'DESC')->chunk(1000, function($products) use ($replacements) {
 //        Product::where('is_approved', 0)->orderBy('id', 'DESC')->chunk(1000, function($products) use ($replacements) {
 
             foreach ($products as $product)  {
@@ -51,11 +51,11 @@ class ReplaceTextsFromProduct extends Command
                         dump('changing names...');
                         $product->name = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->name);
                     }
-//
-//                    if ($replacement->field_identifier == 'composition') {
-//                        dump('changing composition...');
-//                        $product->composition = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->composition);
-//                    }
+
+                   if ($replacement->field_identifier == 'composition') {
+                       dump('changing composition...');
+                       $product->composition = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->composition);
+                   }
 
                     if ($replacement->field_identifier == 'short_description') {
                         dump('changing_short_description..');

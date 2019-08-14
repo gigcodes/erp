@@ -72,12 +72,12 @@
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th>User</th>
+                <th>Module</th>
                 <th>Date</th>
                 <th>Description</th>
-                <th>Amount</th>
+                <th>Expected</th>
+                <th>Actual</th>
                 <th>Type</th>
-                <th>Category</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -85,8 +85,8 @@
             <tbody>
               @foreach ($cash_flows as $cash_flow)
                 <tr>
-                  <td>{{ $cash_flow->user->name }}</td>
-                  <td>{{ \Carbon\Carbon::parse($cash_flow->date)->format('d-m H:i') }}</td>
+                  <td><a href="{{ route('order.show',$cash_flow->cash_flow_able_id) }}" title="View {{ class_basename($cash_flow->cashFlowAble) }} Detail" target="_blank">{{ optional($cash_flow->cashFlowAble)->order_id }}</a><br>{{ class_basename($cash_flow->cashFlowAble) }}</td>
+                  <td class="small">{{ date('Y-d-m', strtotime($cash_flow->date)) }}</td>
                   <td>
                     {{ $cash_flow->description }}
                     @if ($cash_flow->files)
@@ -97,9 +97,9 @@
                       </ul>
                     @endif
                   </td>
-                  <td>{{ $cash_flow->amount }}</td>
+                  <td>{{ $cash_flow->expected }}</td>
+                  <td>{{ $cash_flow->actual }}</td>
                   <td>{{ ucwords($cash_flow->type) }}</td>
-                  <td>{{ $categories[$cash_flow->type][$cash_flow->cash_flow_category_id] }}</td>
                   <td>
                     {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -167,9 +167,9 @@
                     {{ $order->balance_amount - $purchase_price }}
                   </td>
                   <td>
-                    {{-- {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
+                     {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                    {!! Form::close() !!} --}}
+                    {!! Form::close() !!}
                   </td>
                 </tr>
               @endforeach
@@ -205,9 +205,9 @@
                     </ul>
                   </td>
                   <td>
-                    {{-- {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
+                     {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                    {!! Form::close() !!} --}}
+                    {!! Form::close() !!}
                   </td>
                 </tr>
               @endforeach
@@ -243,9 +243,9 @@
                   <td>{{ $voucher->paid }}</td>
                   <td>{{ ($voucher->amount - $voucher->paid) * -1 }}</td>
                   <td>
-                    {{-- {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
+                     {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                    {!! Form::close() !!} --}}
+                    {!! Form::close() !!}
                   </td>
                 </tr>
               @endforeach

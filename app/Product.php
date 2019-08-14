@@ -5,9 +5,11 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Validator;
 use Plank\Mediable\Mediable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\ScrapedProducts;
+use App\ScrapActivity;
 use App\SupplierInventory;
 
 class Product extends Model
@@ -29,72 +31,304 @@ class Product extends Model
     protected $communication = '';
     protected $image_url = '';
 
-    public function bulkAddByJson( $arrBulkJson = [] )
+    public static function createProductByJson( $json )
     {
-        // Check array
-        if ( !is_array( $arrBulkJson ) || count( $arrBulkJson ) == 0 ) {
-            // return false
-            return false;
-        }
+        // Check for required values
+        if (
+            !empty( $json->title ) &&
+            !empty( $json->sku ) &&
+            !empty( $json->brand_id ) &&
+            !empty( $json->properties['category'] )
+        ) {
+            // Check for unique product
+            $data[ 'sku' ] = (string) str_replace( ' ', '', $json->sku );
+            $validator = Validator::make( $data, [
+                'sku' => 'unique:products,sku'
+            ] );
 
-        // Set count to 0
-        $count = 0;
+            // Get formatted prices
+            $formattedPrices = self::_getPriceArray( $json );
 
-        // Loop over array
-        foreach ( $arrBulkJson as $json ) {
-            // Check for required values
-            if (
-                !empty( $json->title ) &&
-                !empty( $json->sku ) &&
-                !empty( $json->brand_id ) &&
-                !empty( $json->category )
-            ) {
-                // Create new scraped product if product doesn't exist
-                $scrapedProduct = ScrapedProducts::where( 'sku', $json->sku )->first();
+            // If validator fails we have an existing product
+            if ( $validator->fails() ) {
+                // Get the product from the database
+                $product = Product::where( 'sku', $data[ 'sku' ] )->first();
 
-                // No result? Create
-                if ( $scrapedProduct == NULL ) {
-                    // Add new scraped product
-                    $scrapedProduct = new ScrapedProducts();
-                    $scrapedProduct->website = $json->website;
-                    $scrapedProduct->sku = $json->sku;
-                    $scrapedProduct->has_sku = $json->has_sku;
-                    $scrapedProduct->brand_id = $json->brand_id;
-                    $scrapedProduct->title = $json->title;
-                    $scrapedProduct->description = $json->description;
-                    $scrapedProduct->images = $json->images;
-                    $scrapedProduct->price = $json->price;
-                    $scrapedProduct->properties = $json;
-                    $scrapedProduct->url = $json->url;
-                    $scrapedProduct->is_property_updated = $json->is_property_updated;
-                    $scrapedProduct->is_price_updated = $json->is_price_updated;
-                    $scrapedProduct->is_enriched = $json->is_enriched;
-                    $scrapedProduct->can_be_deleted = $json->can_be_deleted;
-                    if ( $scrapedProduct->save() ) {
-                        $count++;
+                // Return false if no product is found
+                if ( !$product ) {
+                    return false;
+                }
+
+                // Update the name and description if the product is not approved and not rejected
+                if ( !$product->is_approved && !$product->is_listing_rejected ) {
+                    $product->name = $json->title;
+                    $product->short_description = $json->description;
+                }
+
+                // Update color, composition and material used if the product is not approved
+                if ( !$product->is_approved ) {
+                    // Set color
+                    if ( isset( $json->properties[ 'color' ] ) ) {
+                        $product->color = trim( $json->properties[ 'color' ] ?? '' );
                     }
 
-                    // Try to retrieve existing product from database
-                    $product = self::where( 'sku', $json->sku )->first();
+                    // Set composition
+                    if ( isset( $json->properties[ 'composition' ] ) ) {
+                        $product->composition = trim( $image->properties[ 'composition' ] ?? '' );
+                    }
 
-                    // Product exists
-                    if ( $product != NULL ) {
-                        // Update Price and Stock
-                        if ( $json->price > $product->price ) {
-                            $product->price = $json->price;
-                        }
-                        $product->stock = $product->stock + $json->stock;
-                        $product->save();
+                    // Set material used
+                    if ( isset( $image->properties[ 'material_used' ] ) ) {
+                        $product->composition = trim( $image->properties[ 'material_used' ] ?? '' );
                     }
                 }
 
-                // Update supplier inventory
-                SupplierInventory::firstOrCreate( [ 'supplier' => $json->website, 'sku' => $json->sku, 'inventory' => $json->stock ] );
+                // Add sizes to the product
+                if ( is_array( $json->properties[ 'size' ] ) && count( $json->properties[ 'size' ] ) >= 1 ) {
+                    $product->size = implode( ',', $json->properties[ 'size' ] ?? [] );
+                }
+
+                // Set product values
+                $product->lmeasurement = isset( $json->properties[ 'lmeasurement' ] ) && $json->properties[ 'lmeasurement' ] > 0 ? $json->properties[ 'lmeasurement' ] : null;
+                $product->hmeasurement = isset( $json->properties[ 'hmeasurement' ] ) && $json->properties[ 'hmeasurement' ] > 0 ? $json->properties[ 'hmeasurement' ] : null;
+                $product->dmeasurement = isset( $json->properties[ 'dmeasurement' ] ) && $json->properties[ 'dmeasurement' ] > 0 ? $json->properties[ 'dmeasurement' ] : null;
+                $product->price = $formattedPrices[ 'price' ];
+                $product->price_inr = $formattedPrices[ 'price_inr' ];
+                $product->price_special = $formattedPrices[ 'price_special' ];
+                $product->is_scraped = 1;
+                $product->save();
+
+                // Set on sale
+                if ( $json->is_sale ) {
+                    $product->is_on_sale = 1;
+                    $product->save();
+                }
+
+                // Check for valid supplier and store details linked to supplier
+                if ( $dbSupplier = Supplier::where( 'supplier', $json->website )->first() ) {
+                    if ( $product ) {
+                        $product->suppliers()->syncWithoutDetaching( [ $dbSupplier->id => [
+                            'title' => $json->title,
+                            'description' => $json->description,
+                            'supplier_link' => $json->url,
+                            'stock' => $json->stock,
+                            'price' => $formattedPrices[ 'price' ],
+                            'price_discounted' => $formattedPrices[ 'price_discounted' ],
+                            'size' => $json->properties[ 'size' ],
+                            'color' => $json->properties[ 'color' ],
+                            'composition' => $json->properties[ 'composition' ],
+                            'sku' => $json->original_sku
+                        ] ] );
+                    }
+                }
+
+                // Set duplicate count to 0
+                $duplicateCount = 0;
+
+                // Set empty array to hold supplier prices
+                $supplierPrices = [];
+
+                // Loop over each supplier
+                foreach ( $product->suppliers_info as $info ) {
+                    if ( $info->price != '' ) {
+                        $supplierPrices[] = $info->price;
+                    }
+                }
+
+                // Loop over supplierPrices to find duplicates
+                foreach ( array_count_values( $supplierPrices ) as $price => $count ) {
+                    $duplicateCount++;
+                }
+
+                if ( $duplicateCount > 1 ) {
+                    // Different price
+                    $product->is_price_different = 1;
+                } else {
+                    // Same price
+                    $product->is_price_different = 0;
+                }
+
+                // Add 1 to stock - TODO: We can calculate the real stock across all suppliers
+                $product->stock += 1;
+                $product->save();
+
+                // Set parameters for scrap activity
+                $params = [
+                    'website' => $json->website,
+                    'scraped_product_id' => $product->id,
+                    'status' => 1
+                ];
+
+                // Log scrap activity
+                ScrapActivity::create( $params );
+
+                // Return
+                return true;
+            } else {
+                // Create new product
+                $product = new Product;
+
+                // Return false if product could not be created
+                if ( $product == NULL ) {
+                    return false;
+                }
+
+                // Set product values
+                $product->sku = str_replace(' ', '', $json->sku);
+                $product->brand = $json->brand_id;
+                $product->supplier = $json->website;
+                $product->name = $json->title;
+                $product->short_description = $json->description;
+                $product->supplier_link = $json->url;
+                $product->stage = 3;
+                $product->is_scraped = 1;
+                $product->stock = 1;
+                $product->is_without_image = 1;
+                $product->is_on_sale = $json->is_sale ? 1 : 0;
+                $product->composition = $json->properties['composition'];
+                $product->color = $json->properties['color'];
+                $product->size = $json->properties['size'];
+                $product->lmeasurement = isset( $json->properties[ 'lmeasurement' ] ) && $json->properties[ 'lmeasurement' ] > 0 ? $json->properties[ 'lmeasurement' ] : null;
+                $product->hmeasurement = isset( $json->properties[ 'hmeasurement' ] ) && $json->properties[ 'hmeasurement' ] > 0 ? $json->properties[ 'hmeasurement' ] : null;
+                $product->dmeasurement = isset( $json->properties[ 'dmeasurement' ] ) && $json->properties[ 'dmeasurement' ] > 0 ? $json->properties[ 'dmeasurement' ] : null;
+                $product->measurement_size_type = $json->properties['measurement_size_type'];
+                $product->made_in = $json->properties['made_in'];
+                $product->category = $json->properties['category'];
+                $product->price = $formattedPrices['price'];
+                $product->price_inr = $formattedPrices['price_inr'];
+                $product->price_special = $formattedPrices['price_special'];
+
+                // Try to save the product
+                try {
+                    $product->save();
+                } catch (\Exception $exception) {
+                    return false;
+                }
+
+                // Check for valid supplier and store details linked to supplier
+                if ( $dbSupplier = Supplier::where( 'supplier', $json->website )->first() ) {
+                    if ( $product ) {
+                        $product->suppliers()->syncWithoutDetaching( [ $dbSupplier->id => [
+                            'title' => $json->title,
+                            'description' => $json->description,
+                            'supplier_link' => $json->url,
+                            'stock' => $json->stock,
+                            'price' => $formattedPrices[ 'price' ],
+                            'price_discounted' => $formattedPrices[ 'price_discounted' ],
+                            'size' => $json->properties[ 'size' ],
+                            'color' => $json->properties[ 'color' ],
+                            'composition' => $json->properties[ 'composition' ],
+                            'sku' => $json->original_sku
+                        ] ] );
+                    }
+                }
             }
         }
 
-        // Return count
-        return $count;
+        // Return false by default
+        return false;
+    }
+
+    private static function _getPriceArray( $json )
+    {
+        // Get brand object by brand ID
+        $brand = Brand::find( $json->brand_id );
+
+        if ( strpos( $json->price, ',' ) !== false ) {
+            if ( strpos( $json->price, '.' ) !== false ) {
+                if ( strpos( $json->price, ',' ) < strpos( $json->price, '.' ) ) {
+                    $finalPrice = str_replace( ',', '', $json->price );
+                } else {
+                    $finalPrice = str_replace( ',', '|', $json->price );
+                    $finalPrice = str_replace( '.', ',', $finalPrice );
+                    $finalPrice = str_replace( '|', '.', $finalPrice );
+                    $finalPrice = str_replace( ',', '', $finalPrice );
+                }
+            } else {
+                $finalPrice = str_replace( ',', '.', $json->price );
+            }
+        } else {
+            $finalPrice = $json->price;
+        }
+
+        // Get numbers and trim final price
+        $finalPrice = trim( preg_replace( '/[^0-9\.]/i', '', $finalPrice ) );
+
+        //
+        if ( strpos( $finalPrice, '.' ) !== false ) {
+            // Explode price
+            $exploded = explode( '.', $finalPrice );
+
+            // Check if there are numbers after the dot
+            if ( strlen( $exploded[ 1 ] ) > 2 ) {
+                if ( count( $exploded ) > 2 ) {
+                    $sliced = array_slice( $exploded, 0, 2 );
+                } else {
+                    $sliced = $exploded;
+                }
+
+                // Convert price to the lowest minor unit
+                $finalPrice = implode( '', $sliced );
+            }
+        }
+
+        // Set price to rounded finalPrice
+        $price = round( $finalPrice );
+
+        // Check if the euro to rupee rate is set
+        if ( !empty( $brand->euro_to_inr ) ) {
+            $priceInr = $brand->euro_to_inr * $price;
+        } else {
+            $priceInr = Setting::get( 'euro_to_inr' ) * $price;
+        }
+
+        // Build price in INR and special price
+        $priceInr = round( $priceInr, -3 );
+        $priceSpecial = $priceInr - ( $priceInr * $brand->deduction_percentage ) / 100;
+        $priceSpecial = round( $priceSpecial, -3 );
+
+        // Make discounted price in the correct format
+        if ( strpos( $json->discounted_price, ',' ) !== false ) {
+            if ( strpos( $json->discounted_price, '.' ) !== false ) {
+                if ( strpos( $json->discounted_price, ',' ) < strpos( $json->discounted_price, '.' ) ) {
+                    $finalDiscountedPrice = str_replace( ',', '', $json->discounted_price );
+                } else {
+                    $finalDiscountedPrice = str_replace( ',', '|', $json->discounted_price );
+                    $finalDiscountedPrice = str_replace( '.', ',', $finalDiscountedPrice );
+                    $finalDiscountedPrice = str_replace( '|', '.', $finalDiscountedPrice );
+                    $finalDiscountedPrice = str_replace( ',', '', $finalDiscountedPrice );
+                }
+            } else {
+                $finalDiscountedPrice = str_replace( ',', '.', $json->discounted_price );
+            }
+        } else {
+            $finalDiscountedPrice = $json->discounted_price;
+        }
+
+        // Convert the price to the lowest minor unit
+        $finalDiscountedPrice = trim( preg_replace( '/[^0-9\.]/i', '', $finalDiscountedPrice ) );
+
+        if ( strpos( $finalDiscountedPrice, '.' ) !== false ) {
+            $exploded = explode( '.', $finalDiscountedPrice );
+
+            if ( strlen( $exploded[ 1 ] ) > 2 ) {
+                if ( count( $exploded ) > 2 ) {
+                    $sliced = array_slice( $exploded, 0, 2 );
+                } else {
+                    $sliced = $exploded;
+                }
+
+                $finalDiscountedPrice = implode( '', $sliced );
+            }
+        }
+
+        // Return array with prices.
+        return [
+            'price' => $price,
+            'price_discounted' => round( $finalDiscountedPrice ),
+            'price_inr' => $priceInr,
+            'price_special' => $priceSpecial
+        ];
     }
 
     public function messages()
@@ -121,9 +355,6 @@ class Product extends Model
     {
         return $this->getMedia( config( 'constants.media_tags' ) )->first() ? $this->getMedia( config( 'constants.media_tags' ) )->first()->getUrl() : '';
     }
-
-//	protected static $logName = 'Product';
-//	protected static $logAttributes = ['sku'];
 
     public function notifications()
     {
