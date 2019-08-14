@@ -333,9 +333,16 @@ class ScrapController extends Controller
 
     }
 
-    public function getFromNewSupplier() {
-        $products = Product::where('supplier', 'Ines')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
-        foreach ($products as $product) {
+    /**
+     * This function is called by another server
+     * It fetches the next product that needs to be scraped on Farfetch
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFromNewSupplier()
+    {
+        //$products = Product::where('supplier', 'Ines')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
+        $products = Product::where( 'isApproved', 0 )->where( 'is_farfetched', 0 )->where('is_crop_approved', 1)->orderBy( 'id', 'DESC' )->get();
+        foreach ( $products as $product ) {
 
             $productsToPush[] = [
                 'id' => $product->id,
@@ -346,10 +353,15 @@ class ScrapController extends Controller
             ];
         }
 
-        return response()->json($productsToPush);
-
+        return response()->json( $productsToPush );
     }
 
+    /**
+     * This function is called by another server
+     * It receives the scraped information from Farfetch and updates the database
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function saveAutoRejectedProducts(Request $request) {
         $this->validate($request, [
             'id' => 'required'
