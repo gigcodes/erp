@@ -40,6 +40,11 @@ Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 	//Route::resource('/chat','ChatController@getmessages');
 	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
+	Route::prefix('product')->middleware('auth')->group(static function() {
+	    Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
+	    Route::resource('manual-crop', 'Products\ManualCroppingController');
+    });
+
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::resource('color-reference', 'ColorReferenceController');
