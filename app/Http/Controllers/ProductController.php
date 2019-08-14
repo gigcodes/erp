@@ -37,6 +37,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 
 class ProductController extends Controller
 {
@@ -226,6 +227,9 @@ class ProductController extends Controller
 
     public function approvedMagento( Request $request )
     {
+        // Get queue count
+        $queueSize = Queue::size('listMagento');
+
         $colors = ( new Colors )->all();
         $categories = Category::all();
         $category_tree = [];
@@ -358,6 +362,7 @@ class ProductController extends Controller
 //            'left_for_users'	=> $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
+            'queueSize' => $queueSize
         ] );
     }
 
@@ -1008,7 +1013,7 @@ class ProductController extends Controller
 
         // If we have a product, push it to Magento
         if ( $product !== NULL ) {
-            PushToMagento::dispatch($product);
+            PushToMagento::dispatch($product)->onQueue('listMagento');
 
             // Return response
             return response()->json( [

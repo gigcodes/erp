@@ -17,7 +17,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Approved Products in Magento ({{ $products_count }})</h2>
+            <h2 class="page-heading">Approved Products in Magento ({{ $products_count }} of which {{ $queueSize }} are still in queue)</h2>
 
             <div class="pull-left">
                 <form class="form-inline" action="{{ action('ProductController@approvedMagento') }}" method="GET">
