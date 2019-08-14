@@ -37,7 +37,9 @@
                     <td>
                         <strong>Dimension: {{$product->lmeasurement }} X {{ $product->hmeasurement }} X {{ $product->dmeasurement }}</strong>
                     <td>
-                        <form action="{{ action('Products\ManualCroppingController@update', $product->id) }}">
+                        <form method="post" enctype="multipart/form-data" action="{{ action('Products\ManualCroppingController@update', $product->id) }}">
+                            @csrf
+                            @method('PUT')
                             <div class="form-group">
                                 <label for="images">Cropped Images</label>
                                 <input type="file" multiple accept="image/*" name="images[]" id="images">

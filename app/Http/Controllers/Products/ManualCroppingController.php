@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Products;
 
+use App\ListingHistory;
 use App\Product;
 use App\ScrapedProducts;
+use Carbon\Carbon;
+use File;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ManualCroppingController extends Controller
 {
@@ -20,6 +24,7 @@ class ManualCroppingController extends Controller
     {
         $products = Product::where('manual_crop', 1)
             ->where('is_crop_approved', 0)
+            ->where('is_manual_cropped', 0)
             ->whereIn('id', DB::table('user_manual_crop')->where('user_id', Auth::id())->pluck('product_id')->toArray())
             ->get();
 
@@ -30,7 +35,12 @@ class ManualCroppingController extends Controller
         $currentUser = Auth::user();
 
         $reservedProductIds = DB::table('user_manual_crop')->pluck('product_id')->toArray();
-        $products = Product::whereNotIn('id', $reservedProductIds)->where('manual_crop', 1)->where('is_crop-approved', 0)->take(25)->get();
+        $products = Product::whereNotIn('id', $reservedProductIds)
+            ->where('manual_crop', 1)
+            ->where('is_crop-approved', 0)
+            ->where('is_manual_cropped', 0)
+            ->take(25)
+            ->get();
 
         if ($products->count() === 0) {
             return redirect()->back()->with('message', 'There are no products to be assigned!');
@@ -103,7 +113,73 @@ class ManualCroppingController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'images' => 'required'
+        ]);
+
+        $product = Product::find($id);
+        $files = $request->allFiles();
+
+	    if ($files !== []) {
+            $this->deleteCroppedImages($product);
+            foreach ($files['images'] as $file) {
+                $media = MediaUploader::fromSource($file)->useFilename(uniqid('cropped_', true))->upload();
+                $product->attachMedia($media, 'gallery');
+            }
+        }
+
+	    $product->is_crop_rejected = 0;
+	    $product->cropped_at = Carbon::now()->toDateTimeString();
+	    $product->manual_cropped_at = Carbon::now()->toDateTimeString();
+	    $product->is_image_processed = 1;
+	    $product->is_manual_cropped = 1;
+	    $product->manual_crop = 1;
+	    $product->manual_cropped_by = Auth::id();
+	    $product->save();
+
+        $e = new ListingHistory();
+        $e->user_id = Auth::user()->id;
+        $e->product_id = $product->id;
+        $e->content = ['action' => 'MANUAL_CROPPED', 'page' => 'Manual Crop Page'];
+        $e->action = 'MANUAL_CROPPED';
+        $e->save();
+
+        $product = Product::where('manual_crop', 1)
+            ->where('is_crop_approved', 0)
+            ->where('is_manual_cropped', 0)
+            ->whereIn('id', DB::table('user_manual_crop')->where('user_id', Auth::id())->pluck('product_id')->toArray())
+            ->first();
+
+        if (!$product) {
+            return redirect()->action('Products\ManualCroppingController@index')->with('message', 'There are no assigned products available for cropping anymore.');
+        }
+
+        return redirect()->action('Products\ManualCroppingController@show', $product->id)->with('message', 'The previous product has been sent for approval!');
+
+    }
+
+    private function deleteCroppedImages($product) {
+        if ($product->hasMedia(config('constants.media_tags'))) {
+            foreach ($product->getMedia(config('constants.media_tags')) as $key=>$image) {
+                if (stripos(strtoupper($image->filename), 'CROPPED') !== false) {
+                    $image_path = $image->getAbsolutePath();
+
+                    if (File::exists($image_path)) {
+                        try {
+                            File::delete($image_path);
+                        } catch (\Exception $exception) {
+
+                        }
+                    }
+
+                    $image->delete();
+                }
+            }
+
+            $product->is_image_processed = 1;
+            $product->save();
+
+        }
     }
 
     /**
