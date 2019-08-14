@@ -201,7 +201,7 @@
 
     <div class="form-group position-fixed" style="top: 50px; left: 20px;">
       Goto :
-      <select onchange="location.href = this.value;" class="form-control" id="page-goto">
+      <select onchange="location.href = this.value;" class="form-control hidden-xs hidden-sm" id="page-goto">
         @for($i = 1 ; $i <= $customers->lastPage() ; $i++ )
           <option value="{{ $query.$i }}" {{ ($i == $customers->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
         @endfor
