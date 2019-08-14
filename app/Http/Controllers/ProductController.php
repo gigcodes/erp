@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\ColorReference;
 use App\CroppedImageReference;
+use App\Jobs\PushToMagento;
 use App\ListingHistory;
 use App\Order;
 use App\OrderProduct;
@@ -36,6 +37,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 
 class ProductController extends Controller
 {
@@ -225,6 +227,9 @@ class ProductController extends Controller
 
     public function approvedMagento( Request $request )
     {
+        // Get queue count
+        $queueSize = Queue::size('listMagento');
+
         $colors = ( new Colors )->all();
         $categories = Category::all();
         $category_tree = [];
@@ -357,6 +362,7 @@ class ProductController extends Controller
 //            'left_for_users'	=> $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
+            'queueSize' => $queueSize
         ] );
     }
 
@@ -1002,14 +1008,41 @@ class ProductController extends Controller
 
     public function listMagento( Request $request, $id )
     {
+        // Get product by ID
         $product = Product::find( $id );
-        // ActivityConroller::create($product->id,'productlister','create');
 
-        $result = app( 'App\Http\Controllers\ProductListerController' )->magentoSoapApiUpload( $product, 1 );
+        // If we have a product, push it to Magento
+        if ( $product !== NULL ) {
+            // Dispatch the job to the queue
+            PushToMagento::dispatch($product)->onQueue('listMagento');
+
+            // Update the product so it doesn't show up in final listing
+            $product->isUploaded = 1;
+            $product->save();
+
+            // Return response
+            return response()->json( [
+                'result' => 'queuedForDispatch',
+                'status' => 'listed'
+            ] );
+        }
+
+        // Return error response by default
+        return response()->json( [
+            'result' => 'productNotFound',
+            'status' => 'error'
+        ] );
+    }
+
+    public function unlistMagento( Request $request, $id )
+    {
+        $product = Product::find( $id );
+
+        $result = app( 'App\Http\Controllers\ProductApproverController' )->magentoSoapUnlistProduct( $product );
 
         return response()->json( [
             'result' => $result,
-            'status' => 'listed'
+            'status' => 'unlisted'
         ] );
     }
 

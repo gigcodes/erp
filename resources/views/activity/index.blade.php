@@ -175,6 +175,7 @@
                         <th>Crop Sequencing</th>
                         <th>Attribute Approval</th>
                         <th>Attribute Rejection</th>
+                        <th>Magento Listed</th>
                     </tr>
                     @foreach ($userActions as $key => $user)
                         <tr>
@@ -184,6 +185,7 @@
                             <td>{{ $user->crop_ordered }}</td>
                             <td>{{ $user->attribute_approved }}</td>
                             <td>{{ $user->attribute_rejected }}</td>
+                            <td>{{ $user->magento_listed }}</td>
                         </tr>
                     @endforeach
                 </table>

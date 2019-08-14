@@ -117,7 +117,8 @@ class ActivityConroller extends Controller
             SUM(case when action = "CROP_REJECTED"  then 1 Else 0 End) as crop_rejected,
             SUM(case when action = "CROP_SEQUENCED" then 1 Else 0 End) as crop_ordered,
             SUM(case when action = "LISTING_APPROVAL" then 1 Else 0 End) as attribute_approved,
-            SUM(case when action = "LISTING_REJECTED" then 1 Else 0 End) as attribute_rejected
+            SUM(case when action = "LISTING_REJECTED" then 1 Else 0 End) as attribute_rejected,
+            SUM(case when action = "MAGENTO_LISTED" then 1 Else 0 End) as magento_listed
 	    ' );
 
         $activity = DB::table( 'listing_histories' )->selectRaw( '
@@ -126,7 +127,8 @@ class ActivityConroller extends Controller
             SUM(case when action = "CROP_REJECTED"  then 1 Else 0 End) as crop_rejected,
             SUM(case when action = "CROP_SEQUENCED" then 1 Else 0 End) as crop_ordered,
             SUM(case when action = "LISTING_APPROVAL" then 1 Else 0 End) as attribute_approved,
-            SUM(case when action = "LISTING_REJECTED" then 1 Else 0 End) as attribute_rejected
+            SUM(case when action = "LISTING_REJECTED" then 1 Else 0 End) as attribute_rejected,
+            SUM(case when action = "MAGENTO_LISTED" then 1 Else 0 End) as magento_listed
         ' )->whereNotNull( 'user_id' );
 
         $ca = Product::where( 'is_image_processed', 1 )
