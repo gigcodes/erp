@@ -1367,7 +1367,7 @@
 
                           <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
                               <li>
-                            @can('seo')
+                            {{-- @can('seo') --}}
                                   <li class="nav-item dropdown dropdown-submenu">
 
                                       <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
@@ -1385,7 +1385,7 @@
                                       </ul>
 
                                   </li>
-                            @endcan
+                            {{-- @endcan --}}
                             @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com')
                                   <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                   <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
