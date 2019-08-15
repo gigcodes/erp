@@ -57,7 +57,7 @@
                     <tbody>
                         @foreach ($data as $key => $items)
                         @php
-                            $new_items = App\Http\Controllers\AnalyticsController::customPaginator(request(), $items, 100);
+                            $new_items = App\Helpers::customPaginator(request(), $items, 100);
                         @endphp
                             @foreach ($new_items as $key => $new_item)
                                 <tr>

@@ -7,15 +7,18 @@ use Illuminate\Http\Request;
 class SERankingController extends Controller
 {
     private $apiKey; 
-
+    /**
+     * Set the API Key for SERankingController Class
+     */
     public function __construct()
     {
         $this->apiKey = '66122f8ad1adb1c075c75aba3bd503a4a559fc7f';
     }
 
-    public function getSites() {
-        // $url = 'https://api4.seranking.com/sites';
-        $url = 'https://api4.seranking.com/research/overview?domain=seranking.com';
+    /**
+     * Get Results
+     */
+    public function getResults($url) {
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
@@ -24,23 +27,98 @@ class SERankingController extends Controller
                     "Authorization: Token $this->apiKey",
                     "Content-Type: application/json; charset=utf-8"
                 ],
-                // 'content' => json_encode([
-                // // 'url' => 'https://api4.seranking.com/sites',
-                // 'title' => 'my test project'
-                // ])
             ]
         ]);
         $httpStatus = null;
-        $result = file_get_contents($url, 0, $context);
+        $results = file_get_contents('https://api4.seranking.com/'.$url, 0, $context);
         if (isset($http_response_header)) {
             preg_match('`HTTP/[0-9\.]+\s+([0-9]+)`', $http_response_header[0], $matches);
             $httpStatus = $matches[1];
         }
-        if (!$result) {
+        if (!$results) {
             echo "Request failed!";
         } else {
-            $result = json_decode($result);
+            $results = json_decode($results);
         }
-        dd($result);
+        return $results;
+    }
+
+    /**
+     * Get Sites
+     */
+    public function getSites() {
+        // $site_id = 1083512;
+        $sites = $this->getResults('sites');
+        return View(
+            'se-ranking.sites',
+            compact('sites')
+        );
+    }
+
+    /**
+     * Get KeyWords
+     */
+    public function getKeyWords() {
+        $site_id = 1083512;
+        $keywords = $this->getResults('sites/'.$site_id.'/keywords');
+        return View(
+            'se-ranking.keywords',
+            compact('keywords')
+        );
+    }
+
+    /**
+     * Get Competitors
+     */
+    public function getCompetitors($id = '') {
+        $site_id = 1083512;
+        $keywords_pos_data = array();
+        $competitors = $this->getResults('competitors/site/'.$site_id);
+        if (!empty($id)) {
+            $keywords_pos_data = $this->getResults('competitors/'.$id.'/positions');
+            return View(
+                'se-ranking.comp-key-pos',
+                compact('competitors', 'keywords_pos_data')
+            );
+        }
+        return View(
+            'se-ranking.competitors',
+            compact('competitors', 'keywords_pos_data')
+        );
+    }
+
+    /**
+     * Get Analytics
+     */
+    public function getAnalytics() {
+        $site_id = 1083512;
+        $analytics = $this->getResults('analytics/'.$site_id.'/potential');
+        return View(
+            'se-ranking.analytics',
+            compact('analytics')
+        );
+    }
+
+    /**
+     * Get BackLinks
+     */
+    public function getBacklinks() {
+        $site_id = 1083512;
+        $backlinks = $this->getResults('backlinks/'.$site_id.'/stat');
+        return View(
+            'se-ranking.backlinks',
+            compact('backlinks')
+        );
+    }
+
+    /**
+     * Get Research Data
+     */
+    public function getResearchData() {
+        $r_data = $this->getResults('research/overview?domain=sololuxury.co.in');
+        return View(
+            'se-ranking.research-data',
+            compact('r_data')
+        );
     }
 }

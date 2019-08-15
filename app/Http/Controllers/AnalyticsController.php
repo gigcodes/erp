@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use DB;
 use function Opis\Closure\unserialize;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class AnalyticsController extends Controller
 {
@@ -129,23 +128,4 @@ class AnalyticsController extends Controller
    //       return View('analytics.index', compact('top_referers_ser', 'user_types_ser', 'total_views', 'visitors_ser'));
    //  }
 
-    /**
-     * Custom paginator
-     *
-     * @param mixed $request        $request        attributes
-     * @param array $values         $values         array values to be paginated
-     * @param mixed $posts_per_page $posts_per_page posts to show per page
-     *
-     * @return $items
-     */
-    public static function customPaginator($request, $values = array(), $posts_per_page = '10')
-    {
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $itemCollection = collect($values);
-        $perPage = intval($posts_per_page);
-        $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
-        $items = new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
-        $items->setPath($request->url());
-        return $items;
-    }
 }

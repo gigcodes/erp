@@ -10472,3 +10472,8 @@ a.text-dark:focus {
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
+.haslayout{
+  width:100%;
+  float:left;
+}
+.btn-active{border-color: #e9ecef #e9ecef #dee2e6;}
