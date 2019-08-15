@@ -15,7 +15,7 @@ class CustomerCategoryController extends Controller
      */
     public function index()
     {
-        $categories = CustomerCategory::paginate(25);
+        $categories = CustomerCategory::all();
 
         return view('customers.category_messages.category.index', compact('categories'));
     }
@@ -39,7 +39,7 @@ class CustomerCategoryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|unique:customer_categories'
+            'name' => 'required|unique:customer_categories,name'
         ]);
 
         $category = new CustomerCategory();
@@ -95,14 +95,14 @@ class CustomerCategoryController extends Controller
         }
 
         $this->validate($request, [
-            'name' => 'required|unique:customer_categories,name,'.$id
+            'name' => 'required|unique:customer_categories,id,'.$id
         ]);
 
         $category->name = $request->get('name');
         $category->message = $request->get('message');
         $category->save();
 
-        return redirect()->back()->with('message', 'Category added successfully!');
+        return redirect()->back()->with('message', 'Category updated successfully!');
 
 
     }
