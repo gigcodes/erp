@@ -194,6 +194,8 @@ class Kernel extends ConsoleKernel
             $report->update( [ 'end_time' => Carbon:: now() ] );
         } )->hourly();
 
+        $schedule->command('product:replace-text')->everyFiveMinutes();
+
 //        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
         $schedule->command( 'send:hourly-reports' )->dailyAt( '12:00' )->timezone( 'Asia/Kolkata' );
         $schedule->command( 'send:hourly-reports' )->dailyAt( '15:30' )->timezone( 'Asia/Kolkata' );
