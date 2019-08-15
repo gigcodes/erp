@@ -102,7 +102,10 @@
                 @endforeach
             </table>
         @else
-
+            <div class="alert alert-info">
+                <h3>No Keywords!</h3>
+                <p>There are no keywords saved yet. Please save it using the form above!</p>
+            </div>
         @endif
     </div>
 
