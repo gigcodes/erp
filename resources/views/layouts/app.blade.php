@@ -22,6 +22,7 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="{{asset('js/readmore.js')}}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 
     @yield('link-css')
@@ -349,24 +350,17 @@
                             </div>
 
                         </li> --}}
-                        @can('crm')
-                        <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="{{ route('task.index') }}">Task</a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
-                                    <a class="dropdown-item" href="{{ route('dailyplanner.index') }}">Daily Planner</a>
-                                    <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
-                                </li>
-                            </ul>
-                        </li>
-                        @endcan
+
+
+
                         @can('admin')
-                           {{-- Product Menu Started --}}
+
                             <li class="nav-item dropdown">
                                 @if(Auth::user()->email != 'facebooktest@test.com')
-                                    <a class="nav-link dropdown-toggle"  data-toggle="dropdown">Product
-                                    <span class="caret"></span></a>
+
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+
+                                   aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                                 @endif
 
                                 <ul class="dropdown-menu multi-level">
@@ -538,6 +532,7 @@
                                                 Grid</a>
 
                                         </ul>
+
                                     </li>
 
                                     @can ('product-lister')
@@ -547,10 +542,8 @@
                                         <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@approvedMagento') }}?cropped=on">Listed items</a>
                                     @endcan
-                                    @can ('crm')
-                                        <li>
-                                            <a href="{{ route('supplier.index') }}">Suppliers List</a>
-                                        </li>
+                                    @can ('rejected-listing')
+                                        <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
                                     @endcan
 
                                     @can('admin')
@@ -559,9 +552,83 @@
                                         <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Rejected Statistics</a>
                                         <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payment</a>
                                     @endcan
+
+
+
+                                    <li class="nav-item dropdown dropdown-submenu">
+
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+
+                                           aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                            Approver<span class="caret"></span>
+
+                                        </a>
+
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                            <a class="dropdown-item" href="{{ route('productapprover.index') }}">Approver
+
+                                                Grid</a>
+
+                                        </ul>
+
+                                    </li>
+
+                                    <li class="nav-item dropdown dropdown-submenu">
+
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+
+                                           aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                            In Stock<span class="caret"></span>
+
+                                        </a>
+
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                          <a class="dropdown-item" href="{{ route('productinventory.instock') }}">In stock</a>
+
+                                        </ul>
+
+                                    </li>
+
+
+
+                                    <li class="nav-item dropdown dropdown-submenu">
+
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+
+                                           aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                            Inventory<span class="caret"></span>
+
+                                        </a>
+
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                            <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory
+
+                                                Grid</a>
+
+                                            <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+
+
+
+                                        </ul>
+
+                                    </li>
+
+                                    <li class="nav-item">
+
+                                        <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+
+                                    </li>
+
                                 </ul>
+
                             </li>
-                            {{-- Product menu Ended --}}
+
                         @else
 
                             <li class="nav-item dropdown">
@@ -916,116 +983,154 @@
 
                         @endcan
 
-                        {{-- CRM menu started --}}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle"  data-toggle="dropdown">CRM
-                            <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li class="dropdown-submenu">
-                                    <a class="test" tabindex="-1" href="#">Customers <span class="caret"></span></a>
-                                    <ul class="dropdown-menu">
-                                        @can('customer')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
-                                        </li>
-                                        @endcan
-                                        @can('crm')
-                                        <li class="dropdown-submenu">
-                                            <a id="coldLeadsMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
-                                                Cold Leads<span class="caret"></span>
-                                            </a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="coldLeadsMenu">
-                                                <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}?via=hashtags">Via Hashtags</a>
-                                                <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold Leads</a>
-                                            </ul>
-                                        </li>
-                                        <li class="dropdown-submenu">
-                                            <a id="coldLeadsMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
-                                                Instructions<span class="caret"></span>
-                                            </a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="coldLeadsMenu">
-                                                <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
-                                                <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
-                                            </ul>
-                                        </li>
-                                        @endcan
-                                        <li class="dropdown-submenu">
-                                            <a id="coldLeadsMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
-                                                Leeds<span class="caret"></span>
-                                            </a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="coldLeadsMenu">
-                                                @can('crm')
-                                                    <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
-                                                @endcan
-                                                @can('lead-create')
-                                                    <a class="dropdown-item" href="{{ route('leads.create') }}">Add New</a>
-                                                @endcan
-                                                @can('crm')
-                                                    <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image Grid</a>
-                                                @endcan
-                                            </ul>
-                                        </li>
-                                        @can('crm')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('refund.index') }}">Refunds</a>
-                                        </li>
-                                        @endcan
-                                        @can('order-view')
-                                            <li class="dropdown-submenu">
-                                                <a class="dropdown-item" href="#">Orders</a>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="coldLeadsMenu">
-                                                    <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
-                                                    @can('order-create')
-                                                        <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
-                                                    @endcan
-                                                    <a class="dropdown-item" href="{{ route('order.products') }}">Order Product
-                                                    List</a>
-                                                </ul>
-                                            </li>
-                                        @endcan
-                                        @can('review-view')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
-                                        </li>
-                                        @endcan
-                                        @can('crm')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('order.missed-calls') }}">Missed calls
-                                            List</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('order.calls-history') }}">Calls History</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
-                                        </li>
-                                        @endcan
-                                        @can ('private-viewing')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a> 
-                                        </li>
-                                        @endcan
-                                        @can ('delivery-approval')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('deliveryapproval.index') }}">Delivery Approvals</a>
-                                        </li> 
-                                        @endcan
-                                    </ul>
-                                    @can('crm')
-                                    <li class="dropdown-submenu">
-                                        <a class="dropdown-item" href="#">Broadcast</a>
+
+
+
+
+                            <li class="nav-item dropdown">
+
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    CRM<span class="caret"></span>
+
+                                </a>
+
+
+
+                                <ul class="dropdown-menu multi-level" aria-labelledby="navbarDropdown">
+                                  @can('crm')
+                                    <li class="nav-item dropdown dropdown-submenu">
+
+                                        <a id="coldLeadsMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
+                                            Cold Leads<span class="caret"></span>
+
+                                        </a>
+
+
+
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="coldLeadsMenu">
-                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
-                                            <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>                                                
-                                            <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
+
+                                            <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}?via=hashtags">Via Hashtags</a>
+                                            <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold Leads</a>
+
                                         </ul>
+
                                     </li>
+                                  @endcan
+
+                                    @can('customer')
+                                      <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
                                     @endcan
-                                <li>
-                            </ul>
-                        </li>
-                        {{-- CRM menu ended --}}
-                     
+
+                                    @can('crm')
+                                      <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
+                                      <a class="dropdown-item" href="{{ route('dailyplanner.index') }}">Daily Planner</a>
+                                      <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}">Cold Leads</a>
+                                      <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                      <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
+                                      <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calendar</a>
+                                      <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
+                                      <a class="dropdown-item" href="{{ action('KeywordInstructionController@index') }}">Keyword-Instructions</a>
+                                      <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
+                                      <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
+                                      <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
+                                    @endcan
+
+                                    @can('lead-create')
+
+                                        <a class="dropdown-item" href="{{ route('leads.create') }}">Add New</a>
+
+                                    @endcan
+
+                                    @can('crm')
+                                      <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image Grid</a>
+
+                                      {{--<a class="dropdown-item" href="{{ route('task.index') }}">Task</a>--}}
+
+                                      {{--<a class="dropdown-item" href="{{ route('task.create') }}">Add Task</a>--}}
+
+                                      <a class="dropdown-item" href="{{ route('refund.index') }}">Refunds</a>
+                                    @endcan
+
+                                    @can('order-view')
+
+                                        <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
+
+                                        @can('order-create')
+
+                                            <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
+
+                                        @endcan
+
+                                        <a class="dropdown-item" href="{{ route('order.products') }}">Order Product
+
+                                            List</a>
+
+                                    @endcan
+
+                                    @can('crm')
+                                    <a class="dropdown-item" href="{{ route('order.missed-calls') }}">Missed calls
+
+                                        List</a>
+
+                                      <a class="dropdown-item" href="{{ route('order.calls-history') }}">Calls History</a>
+
+                                      <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
+                                    @endcan
+
+                                      @can ('private-viewing')
+                                        <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
+                                      @endcan
+
+                                      @can ('delivery-approval')
+                                        <a class="dropdown-item" href="{{ route('deliveryapproval.index') }}">Delivery Approvals</a>
+                                      @endcan
+
+
+
+                                    {{-- <a class="dropdown-item" href="{{ route('task.index') }}">Tasks</a> --}}
+
+                                </ul>
+
+
+
+                            </li>
+
+
+
+                        @can('purchase')
+
+                            <li class="nav-item dropdown">
+
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    Purchase<span class="caret"></span>
+
+                                </a>
+
+
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                    <a class="dropdown-item" href="{{ route('purchase.index') }}">Purchases</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.calendar') }}">Purchase Calendar</a>
+
+                                    <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Canc\Ref Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
+
+                                </div>
+
+                            </li>
+
+                        @endcan
+
                         @can ('vendor-all')
                           <li class="nav-item dropdown">
 
@@ -1042,6 +1147,26 @@
                               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                   <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
                                   <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
+                              </div>
+
+                          </li>
+                        @endcan
+
+                        @can ('crm')
+                          <li class="nav-item dropdown">
+
+                              <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                  Supplier<span class="caret"></span>
+
+                              </a>
+
+
+
+                              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                  <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
                               </div>
 
                           </li>
@@ -1114,75 +1239,135 @@
                                     Users<span class="caret"></span>
 
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown-submenu">
-                                        <a class="test" tabindex="-1" href="#">User Management <span class="caret"></span></a>
-                                        <ul class="dropdown-menu multi-level">
-                                            <li><a class="dropdown-item" href="{{ route('users.index') }}">List Users</a></li>
-                                            @can('user-create')
-                                              {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
-                                                <li><a class="dropdown-item" href="{{ route('users.create') }}">Add New</a></li>
-                                              {{-- </li> --}}
-                                            @endcan
-                                            <li><a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a></li>
-                                            @can('role-list')
-                                              <li class="nav-item dropdown dropdown-submenu">
-                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
-        
-                                                    aria-haspopup="true" aria-expanded="false" v-pre>
-        
-                                                    Roles<span class="caret"></span>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-        
-                                                    <a class="dropdown-item" href="{{ route('roles.index') }}">List Roles</a>
-        
-                                                    @can('role-create')
-        
-                                                        <a class="dropdown-item" href="{{ route('roles.create') }}">Add New</a>
-        
-                                                    @endcan
-        
-                                                </ul>
-                                              </li>
-                                            @endcan
-                                        </ul>
-                                    </li>
-                                    @can('view-activity')
 
-                                    <li class="dropdown-submenu">
-                                        <a class="test" tabindex="-1" href="#">Activity <span class="caret"></span></a>
 
-                                        <ul class="dropdown-menu multi-level">
+                                <ul class="dropdown-menu multi-level">
 
-                                            <li><a class="dropdown-item" href="{{ route('activity') }}">View</a></li>
+                                    {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
+                                {{-- <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"> --}}
 
-                                            <li><a class="dropdown-item" href="{{ route('graph') }}">View Graph</a></li>
+                                      <a class="dropdown-item" href="{{ route('users.index') }}">List Users</a>
+                                    {{-- </li> --}}
 
-                                            <li><a class="dropdown-item" href="{{ route('graph_user') }}">User Graph</a></li>
-
-                                            <li><a class="dropdown-item" href="{{ route('benchmark.create') }}">Add benchmark</a></li>
-                                            <li><a class="dropdown-item" href="{{ action('ProductController@showListigByUsers') }}">User-Product Assigmnent</a></li>
-
-                                        </ul>
-
-                                    </li>
+                                    @can('user-create')
+                                      {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
+                                        <a class="dropdown-item" href="{{ route('users.create') }}">Add New</a>
+                                      {{-- </li> --}}
                                     @endcan
+
+                                    {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
+                                      <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
+                                    {{-- </li> --}}
+
+                                    @can('role-list')
+                                      <li class="nav-item dropdown dropdown-submenu">
+                                        {{-- <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"> --}}
+
+                                          {{-- <li class="nav-item dropdown dropdown-submenu"> --}}
+
+                                              <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
+
+                                                 aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                                  Roles<span class="caret"></span>
+                                              </a>
+
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                            <a class="dropdown-item" href="{{ route('roles.index') }}">List Roles</a>
+
+                                            @can('role-create')
+
+                                                <a class="dropdown-item" href="{{ route('roles.create') }}">Add New</a>
+
+                                            @endcan
+
+                                        </ul>
+                                      </li>
+
+                                    @endcan
+
                                 </ul>
+
+                            </li>
+
+                        @endcan
+
+
+
+                        <!--@can('role-list')
+
+                            <li class="nav-item dropdown">
+
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    Roles<span class="caret"></span>
+
+                                </a>
+
+
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                    <a class="dropdown-item" href="{{ route('roles.index') }}">List Roles</a>
+
+                                    @can('role-create')
+
+                                        <a class="dropdown-item" href="{{ route('roles.create') }}">Add New</a>
+
+                                    @endcan
+
+                                </div>
+
+                            </li>
+
+                        @endcan-->
+
+
+
+
+
+                        @can('view-activity')
+
+                            <li class="nav-item dropdown">
+
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    Activity<span class="caret"></span>
+
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+                                    <a class="dropdown-item" href="{{ route('activity') }}">View</a>
+
+                                    <a class="dropdown-item" href="{{ route('graph') }}">View Graph</a>
+
+                                    <a class="dropdown-item" href="{{ route('graph_user') }}">User Graph</a>
+
+                                    <a class="dropdown-item" href="{{ route('benchmark.create') }}">Add benchmark</a>
+                                    <a class="dropdown-item" href="{{ action('ProductController@showListigByUsers') }}">User-Product Assigmnent</a>
+
+                                </div>
+
                             </li>
 
                         @endcan
 
                         @can('social-create')
                         <li class="nav-item dropdown">
-                            <a id="instagramMenu" class="nav-link dropdown-toggle" href="#" role="button"
+                          <a id="instagramMenu" class="nav-link dropdown-toggle" href="#" role="button"
                              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                               Platforms <span class="caret"></span>
                           </a>
 
                           <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
                               <li>
-                            @can('seo')
+                            {{-- @can('seo') --}}
                                   <li class="nav-item dropdown dropdown-submenu">
 
                                       <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
@@ -1200,7 +1385,7 @@
                                       </ul>
 
                                   </li>
-                            @endcan
+                            {{-- @endcan --}}
                             @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com')
                                   <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                   <a href="{{ action('PreAccountController@index') }}" class="dropdown-item">E-Mail Accounts</a>
@@ -1255,138 +1440,80 @@
                                       <li class="nav-item dropdown dropdown-submenu">
 
                                           <a id="facebookMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
                                               Facebook<span class="caret"></span>
+
                                           </a>
-                                         <ul class="dropdown-menu multi-level" aria-labelledby="facebookMenu">
-                                            <li><a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Create A Post</a></li>
-                                            <li><a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">Scheduled Posts</a></li>
-                                            <li class="dropdown-submenu">
-                                                <a href="#" role="button" data-toggle="dropdown" >
-                                                    Facebook<span class="caret"></span>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-right">
-                                                    <li><a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Posts</a></li>
-                                                </ul>
-                                            </li>
-                                            <li class="dropdown-submenu">
-                                                <a href="#" role="button" data-toggle="dropdown" >
-                                                    Facebook Groups<span class="caret"></span>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-right">
-                                                        <li><a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups </a></li> 
-                                                </ul>
-                                            </li>
-                                            <li class="dropdown-submenu">
-                                                <a href="#" role="button" data-toggle="dropdown" >
-                                                        Facebook Brands Fan Page<span class="caret"></span>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-right">
-                                                    <li><a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brands Fan Page</a></li> 
-                                                </ul>
-                                            </li>
-                                            <li class="dropdown-submenu">
-                                                <a href="#" role="button" data-toggle="dropdown" >
-                                                    Adds<span class="caret"></span>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-right">
-                                                    <li><a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a></li> 
-                                                    <li><a class="dropdown-item" href="{{route('social.post.page')}}">Post on Page</a></li> 
-                                                    <li><a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a></li> 
-                                                    <li><a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a></li> 
-                                                    <li><a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign</a></li>
-                                                    <li><a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a></li>
-                                                    <li><a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a></li>
-                                                    <li><a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a></li>
-                                                </ul>
-                                            </li>
+
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="facebookMenu">
+                                              <li class="nav-item dropdown dropdown-submenu">
+                                                  <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Create A Post</a>
+                                                  <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">Scheduled Posts</a>
+                                              </li>
                                           </ul>
-                                        </li>
-                                    @endcan
-                                    @can('sitejabber')
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="compAnaMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
-                                                Sitejabber<span class="caret"></span>
-                                            </a>
-                                            <ul class="dropdown-menu multi-level" aria-labelledby="compAnaMenu">
-                                                <li><a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">Account</a></li>
-                                                <li><a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">Quick Reply</a></li>
-                                            </ul>
-                                        </li>
-                                    @endcan
-                                    @can('pinterest')
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="pinterestMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
+                                      </li>
+                                  @endcan
+                                  @can('sitejabber')
+                                      <li class="nav-item dropdown dropdown-submenu">
+
+                                          <a id="compAnaMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
+                                              Sitejabber<span class="caret"></span>
+
+                                          </a>
+
+
+
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="compAnaMenu">
+                                              <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">SITEJABBER | Account</a>
+                                              <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">SITEJABBER | Quick Reply</a>
+                                          </ul>
+
+                                      </li>
+                                  @endcan
+                                  @can('pinterest')
+                                      <li class="nav-item dropdown dropdown-submenu">
+
+                                          <a id="pinterestMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
                                               Pinterest<span class="caret"></span>
-                                            </a>
-                                            <ul class="dropdown-menu multi-level" aria-labelledby="pinterestMenu">
-                                                <li>
+
+                                          </a>
+
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="pinterestMenu">
+                                              <li class="nav-item dropdown dropdown-submenu">
                                                   <a class="dropdown-item" href="{{ action('PinterestAccountAcontroller@index') }}">Accounts</a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    @endcan
-                                    <li class="nav-item dropdown dropdown-submenu">
-                                        <a href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
-                                            Images<span class="caret"></span>
-                                        </a>
-                                        <ul class="dropdown-menu multi-level">
-                                            @can('social-create')
-                                            <li>
-                                                <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
-                                            </li>
-                                            @endcan
-                                            <li><a class="dropdown-item" href="{{ route('image.grid.approved') }}">Final Images</a></li>
-                                            <li><a class="dropdown-item" href="{{ route('image.grid.final.approval') }}">Final Approval</a></li>
-                                        </ul>
-                                    </li>
-                                    @can('review-view')
-                                    <li >
-                                        <a class="dropdown-item" href="{{ route('review.index') }}">Reviews</a>
-                                    </li>
-                                    @endcan
-                                    <li class="nav-item dropdown dropdown-submenu">
-                                        <a class="dropdown-item" href="#">Bloggers</a>
-                                        <ul class="dropdown-menu multi-level">
-                                            <li>
-                                                <a class="dropdown-item" href="">Blogger</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="">Email</a>
-                                            </li>
-                                        </ul>    
-                                    </li>
-                                    @can('seo')
-                                    <li>
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a class="dropdown-item" href="#">SEO</a>
-                                            <ul class="dropdown-menu multi-level">
-                                                <li>
-                                                <a class="dropdown-item" href="{{route('showAnalytics')}}">Analytics</a>
-                                                </li>
-                                                <li>
-                                                <a class="dropdown-item" href="{{route('backLinks')}}">Backlinking</a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="{{route('brokenLinks')}}">Brokenlink</a>
-                                                </li>
-                                                {{-- <li>
-                                                    <a class="dropdown-item" href="javascript:void(0)">Articles</a>
-                                                </li> --}}
-                                            </ul>    
-                                        </li>
-                                    </li>
-                                    @endcan
-                                @endif
-                            </ul>
+                                              </li>
+                                          </ul>
+
+                                      </li>
+                                  @endcan
+
+                              @endif
+                          </ul>
                         </li>
-                        @endcan
-                      {{-- @can ('crm')
+                      @endcan
+                      @can ('crm')
                             <li class="nav-item dropdown">
+
+                                <a id="scrapMenu" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                    Scrap <span class="caret"></span>
+
+                                </a>
+
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="scrapMenu">
+                                    <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
+                                    <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sales Item</a>
+                                    <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
+                                    <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Posts</a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups </a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brands Fan </a>
-                                    <a class="dropdown-item" href="{{ action('\seo2websites\ErpExcelImporter\ErpExcelImporterController@index') }}">Import Excel file</a>
+                                    {{-- <a class="dropdown-item" href="{{ action('\seo2websites\ErpExcelImporter\ErpExcelImporterController@index') }}">Import Excel file</a> --}}
                                     <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap Activity</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scraped</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
@@ -1397,6 +1524,8 @@
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'lidiashopping') }}">Lidia Shopping</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'cuccuini') }}">Cuccuini</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProducts', 'Divo') }}">Divo</a>
+                                    <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
+                                    <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubbizle</a>
                                 </div>
 
 
@@ -1622,55 +1751,67 @@
 
                                 @can('setting-list')
 
-                                    <li><a class="dropdown-item" href="{{route('settings.index')}}">Settings</a></li>
+                                    <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
 
                                 @endcan
 
                                 @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
-                                  <li><a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a></li>
-                                  <li><a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a></li>
+                                  <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
+                                  <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
                                 @endif
 
                                 @can('admin')
-                                    <li><a class="dropdown-item" href="{{ route('resourceimg.index') }}" >Resource Center</a></li>
+                                    <a class="dropdown-item" href="{{ route('resourceimg.index') }}" >Resource Center</a>
                                 @endcan
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item" href="#" >Product</a>
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        @can('product-delete')
-                                            <li><a class="dropdown-item" href="{{route('products.index')}}">Product</a></li>
-                                        @endcan
-                                        @can('category-edit')
-                                        <li><a class="dropdown-item" href="{{route('category')}}">Category</a></li>
-                                        <li><a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category References</a></li>
-                                        @endcan
-                                        @can('brand-edit')
-                                        <li><a class="dropdown-item" href="{{route('brand.index')}}">Brands</a></li>
-                                        @endcan
-                                        @can('category-edit')
-                                        <li><a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a></li>
-                                        @endcan
-                                    </ul>
-                                </li>
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item" href="#" >Customer</a>
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        @can('admin')
-                                            <li><a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a></li>
-                                        @endcan
-                                        @can('reply-edit')
-                                            <li><a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a></li>
-                                        @endcan
-                                        @can ('crm')
-                                          <li><a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Replies</a></li>
-                                        @endcan
-                                    </ul>
-                                </li>
+
+                                @can('category-edit')
+
+                                    <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
+                                    <a class="dropdown-item" href="{{route('category')}}">Category</a>
+                                    <a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category References</a>
+
+                                @endcan
+
+                                @can('brand-edit')
+
+                                    <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+
+                                @endcan
+
+                                @can('product-delete')
+
+                                    <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
+
+                                @endcan
+
+                                @can('admin')
+
+                                    <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
+
+                                @endcan
+
+                                @can('reply-edit')
+
+                                    <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
+
+                                @endcan
+
+                                @can ('crm')
+                                  <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Replies</a>
+                                @endcan
+
                                 <a class="dropdown-item" href="{{ route('logout') }}"
+
                                    onclick="event.preventDefault();
-                                    document.getElementById('logout-form').submit();">
+
+                                                     document.getElementById('logout-form').submit();">
+
                                     {{ __('Logout') }}
+
                                 </a>
+
+
+
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST"
 
                                       style="display: none;">
@@ -1678,8 +1819,13 @@
                                     @csrf
 
                                 </form>
-                            </ul>
+
+                            </div>
+
                         </li>
+
+
+
                         @endguest
 
                 </ul>
