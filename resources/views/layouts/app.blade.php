@@ -1023,6 +1023,25 @@
 
                                     @can('customer')
                                       <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
+                                      <li class="nav-item dropdown dropdown-submenu">
+
+                                          <a id="categoryMessageMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
+
+                                              Bulk Customer Replies<span class="caret"></span>
+
+                                          </a>
+
+
+
+                                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="categoryMessageMenu">
+
+                                              <a class="dropdown-item" href="">Bulk Messages</a>
+                                              <a class="dropdown-item" href="{{ action('CustomerCategoryController@index') }}">Categories</a>
+                                              <a class="dropdown-item" href="{{ action('KeywordToCategoryController@index') }}">Keywords</a>
+
+                                          </ul>
+
+                                      </li>
                                     @endcan
 
                                     @can('crm')
