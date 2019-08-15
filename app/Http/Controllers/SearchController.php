@@ -108,27 +108,30 @@ class SearchController extends Controller {
 		}
 
 
+        if ( $request->price_min != null ) {
+            if ( $request->brand[ 0 ] != null || $request->color[ 0 ] != null || ( $request->category[ 0 ] != null && $request->category[ 0 ] != 1 ) ) {
+                $productQuery = $productQuery->where( 'price_special', '>=', $request->price_min );
+            } else {
+                $productQuery = ( new Product() )->newQuery()
+                    ->latest()->where( 'price_special', '>=', $request->price_min );
+            }
+            Cache::put( 'filter-price-min-' . Auth::id(), $request->price_min, 120 );
+        } else {
+            Cache::forget( 'filter-price-min-' . Auth::id() );
+        }
 
-		if ($request->price != null) {
-			$exploded = explode(',', $request->price);
-			$min = $exploded[0];
-			$max = $exploded[1];
+        if ( $request->price_max != null ) {
+            if ( $request->brand[ 0 ] != null || $request->color[ 0 ] != null || ( $request->category[ 0 ] != null && $request->category[ 0 ] != 1 ) ) {
+                $productQuery = $productQuery->where( 'price_special', '<=', $request->price_max );
+            } else {
+                $productQuery = ( new Product() )->newQuery()
+                    ->latest()->where( 'price_special', '<=', $request->price_max );
+            }
+            Cache::put( 'filter-price-max-' . Auth::id(), $request->price_max, 120 );
+        } else {
+            Cache::forget( 'filter-price-max-' . Auth::id() );
+        }
 
-			if ($min != '0' || $max != '400000') {
-				if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
-					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
-				} else {
-					$productQuery = ( new Product() )->newQuery()
-					                                 ->latest()->whereBetween('price_special', [$min, $max]);
-				}
-			}
-
-			$data['price'][0] = $min;
-			$data['price'][1] = $max;
-			Cache::put('filter-price-' . Auth::id(), $request->price, 120);
-		} else {
-			Cache::forget('filter-price-' . Auth::id());
-		}
 // dd($productQuery->get());
 		if ($request->supplier[0] != null) {
 			$suppliers_list = implode(',', $request->supplier);

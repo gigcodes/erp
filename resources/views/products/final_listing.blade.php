@@ -263,6 +263,38 @@
                                                     </select>
                                                 </td>
                                             </tr>
+                                            @php
+                                                // Set opener URL
+                                                $openerUrl = urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] .  $_SERVER['REQUEST_URI']);
+                                            @endphp
+                                            @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                                                <tr>
+                                                    <th>AI</th>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>
+                                                        <button style="width: 90px" class="btn btn-secondary btn-sm" data-toggle="modal" id="linkAiModal{{ $product->id }}" data-target="#aiModal{{ $product->id }}">AI result</button>
+                                                        <div class="modal fade" id="aiModal{{ $product->id }}" tabindex="-1" role="dialog">
+                                                            <div class="modal-dialog modal-dialog modal-lg" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h4 class="modal-title">{{ $product->name }}</h4>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <iframe id="aiModalLoad{{ $product->id }}" frameborder="0" border="0" width="100%" height="800"></iframe>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <script>
+                                                            $('#linkAiModal{{ $product->id }}').click(function () {
+                                                                $('#aiModalLoad{{ $product->id }}').attr('src', '/log-scraper-vs-ai/{{ $product->id }}?opener={{ $openerUrl }}');
+                                                            });
+                                                        </script>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         </table>
                                         <p class="text-right mt-5">
                                             <button class="btn btn-xs btn-default edit-product-show" data-id="{{$product->id}}">Toggle Edit</button>

@@ -196,8 +196,7 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with( [ 'media', 'brands' ] )->paginate( 50 );
-
+        $newProducts = $newProducts->with( [ 'media', 'brands', 'log_scraper_vs_ai' ] )->paginate( 50 );
 
         return view( 'products.final_listing', [
             'products' => $newProducts,
