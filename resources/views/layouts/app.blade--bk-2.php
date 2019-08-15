@@ -16,27 +16,21 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+
+
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
+
+
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="{{asset('js/readmore.js')}}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-
-    @yield('link-css')
     <script>
         let Laravel = {};
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
-    </script>
-    <script>
-        jQuery('.readmore').readmore({
-            speed: 75,
-            moreLink: '<a href="#">Read more</a>'
-            lessLink: '<a href="#">Read less</a>',
-         });
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
@@ -474,7 +468,9 @@
 
 
 
-                                    <li class="nav-item dropdown dropdown-submenu">
+                                    <li class="nav-item dropdown dropdown-submenu"
+
+                                        data-count="{{ \App\Http\Controllers\ProductCropperController::rejectedProductCountByUser() }}">
 
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
 
@@ -502,9 +498,6 @@
 
                                                 Grid</a>
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@showCropVerifiedForOrdering') }}">Crop-Sequencer
-                                            </a>
-
-                                            <a class="dropdown-item" href="{{ action('Products\ManualCroppingController@index') }}">Manual Cropping Grid
                                             </a>
 
                                         </ul>
@@ -538,9 +531,8 @@
                                     @can ('product-lister')
                                       <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute Edit Page</a>
                                     @endcan
-                                    @canany(['approved-listing', 'admin'])
+                                    @can ('approved-listing')
                                         <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
-                                        <a class="dropdown-item" href="{{ action('ProductController@approvedMagento') }}?cropped=on">Listed items</a>
                                     @endcan
                                     @can ('rejected-listing')
                                         <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
@@ -548,6 +540,7 @@
 
                                     @can('admin')
                                         <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statics</a>
+                                        <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}">Approved Listing</a>
                                         <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Rejected Statistics</a>
                                         <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payment</a>
@@ -659,7 +652,6 @@
                                     <a class="dropdown-item" href="{{ route('products.listing') }}">Attribute Edit Page</a>
                                     @can ('approved-listing')
                                       <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved Listing</a>
-                                      <a class="dropdown-item" href="{{ action('ProductController@approvedMagento') }}?cropped=on">Listed items</a>
                                     @endcan
                                   </div>
                                 @endcan
@@ -1366,25 +1358,8 @@
                           </a>
 
                           <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="instagramMenu">
-                              <li>
                             @can('seo')
-                                  <li class="nav-item dropdown dropdown-submenu">
-
-                                      <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
-
-                                          SEO<span class="caret"></span>
-
-                                      </a>
-
-                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
-                                          <li class="nav-item dropdown dropdown-submenu">
-                                              <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
-                                              <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
-                                              <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
-                                          </li>
-                                      </ul>
-
-                                  </li>
+                              <a class="dropdown-item" href="{{ action('SEOAnalyticsController@show') }}">SEO</a>
                             @endcan
                             @if(Auth::check() && Auth::user()->email == 'facebooktest@test.com')
                                   <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
@@ -1513,7 +1488,7 @@
                                     <a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Posts</a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups </a>
                                     <a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brands Fan </a>
-                                    {{-- <a class="dropdown-item" href="{{ action('\seo2websites\ErpExcelImporter\ErpExcelImporterController@index') }}">Import Excel file</a> --}}
+                                    <a class="dropdown-item" href="{{ action('ScrapController@excel_import') }}">Import Excel Document Type 1</a>
                                     <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap Activity</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scraped</a>
                                     <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
@@ -1561,13 +1536,19 @@
                                         <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                     @endcan
 
-                                    <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
+                                    <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts
 
-                                    <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
+                                    </a>
 
-                                    <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
+                                    <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page
 
-                                        <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
+                                    </a>
+
+                                    <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports
+
+                                    </a>
+
+                                    <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports
 
                                         <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign
 
@@ -1581,29 +1562,52 @@
 
                                         </a>
 
-                                        <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules
-                                        </a>
+                                        <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
                                 </div>
                             </li>
                           @endif
                         @endcan
 
-                        <li class="nav-item dropdown">
+                            @if(Auth::user()->email != 'facebooktest@test.com')
+                                <li class="nav-item dropdown">
 
-                          <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                              Development<span class="caret"></span>
-                          </a>
+                              <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                  Development<span class="caret"></span>
+                              </a>
 
 
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                @can('developer-tasks')
-                                    <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
-                                    <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
-                                @endcan
-                                <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                            </div>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    @can('developer-tasks')
+                                        <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                        <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
+                                    @endcan
+                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                </div>
                         </li>
+                            @endif
+
+                                @can('admin')
+                                    <li class="nav-item dropdown">
+
+                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+
+                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+
+                                            Legal Module <span class="caret"></span>
+
+                                        </a>
+
+                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            @can('lawyer-all')
+                                                <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
+                                            @endcan
+                                            @can('case-all')
+                                                <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
+                                            @endcan
+                                        </div>
+                                    </li>
+                                @endcan
 
                         @can('admin')
                           <li class="nav-item dropdown">
@@ -1617,14 +1621,6 @@
                                 <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
                               @endcan
 
-                                  @can('old')
-                                      <a class="dropdown-item" href="{{ action('OldController@index') }}">Old</a>
-                                  @endcan
-                                  @can('old-incoming')
-                                      <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old-Incoming</a>
-                                  @endcan
-
-                              <a class="dropdown-item" href="{{ route('monetary-account.index') }}">Add Capital</a>
                               <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
                               <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
@@ -1632,106 +1628,6 @@
                             </div>
                           </li>
                         @endcan
-
-                        @can('blogger')
-                            <li class="nav-item dropdown">
-
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-
-                                    Blogger <span class="caret"></span>
-
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a href="{{route('blogger.index')}}" role="button" class="dropdown-item">Blogger List</a>
-                                    <a href="{{route('blogger.email.template')}}" role="button" class="dropdown-item">Email</a>
-                                </div>
-                            </li>
-                        @endcan
-
-                        @can('admin')
-                            <li class="nav-item dropdown">
-
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-
-                                    Legal Module <span class="caret"></span>
-
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    @can('lawyer-all')
-                                        <a class="dropdown-item" href="{{route('lawyer.index')}}">Lawyer List</a>
-                                    @endcan
-                                    @can('case-all')
-                                        <a class="dropdown-item" href="{{route('case.index')}}">Case List</a>
-                                    @endcan
-                                </div>
-                            </li>
-                        @endcan
-
-                        <!-- mailchimp -->
-                        <div class="dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-
-                               data-toggle="dropdown" >
-
-                                <span class="caret"></span>MailChimp
-
-                            </a>
-
-                            <ul class="dropdown-menu">
-                              <li><a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a></li>
-                              <!-- <li><a href="{{ route('make.active.subscriber') }}">Pull customers as Subscribers</a></li> -->
-                            </ul>
-                        </div>
-                        <!-- mailchimp -->
-
-                        <!-- Hubstaff -->
-                        <div class="dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-
-                               data-toggle="dropdown" >
-
-                                <span class="caret"></span>Hubstaff
-
-                            </a>
-
-                            <ul class="dropdown-menu">
-                              <li><a href="{{ route('get.token') }}">Create Token</a></li>
-                              <li><a href="{{ route('get.users') }}">Get Users</a></li>
-                              <li><a href="{{ route('get.user-fromid') }}">Get Users by id</a></li>
-                              <li><a href="{{ route('get.user-project-page') }}">Get User Projects</a></li>
-
-                              <!-- ---------projects---------- -->
-
-                              <li><a href="{{ route('user.project') }}">Get Projects</a></li>
-
-                              <!-- -------Tasks-------------- -->
-                                <li><a href="{{ route('project.task') }}">Get Tasks from Projects</a></li>
-                                <li><a href="{{ route('get-project.task-from-id') }}">Get Tasks from id</a></li>
-
-                                <!-- ---------Organizations-------------- -->
-
-                                <li><a href="{{ route('organizations') }}">Get Organizations</a></li>
-
-                                <li><a href="{{ route('organization.members') }}">Get Organization members</a></li>
-
-                                <!-- ------End of Organizations-------- -->
-
-                                <!-- ----------Screenshots------------ -->
-                                <li><a href="{{ route('get.screenshots') }}">Get screenshots</a></li>
-
-                                <!-- ---------Payments------------ -->
-                                <li><a href="{{ route('team.payments') }}">Get Team Payments</a></li>
-
-                                <li><a href="{{ route('attendance.shifts') }}">Attendance Shifts</a></li>
-                            </ul>
-                        </div>
-                        <!-- Hubstaff -->
 
                         <li class="nav-item dropdown">
 
@@ -1743,11 +1639,9 @@
 
                             </a>
 
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
-                                @can('voucher')
-                                    <a class="dropdown-item" href="{{ route('voucher.index') }}">Convenience Vouchers</a>
-                                @endcan
+
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
                                 @can('setting-list')
 
@@ -1839,7 +1733,7 @@
     @if (Auth::check())
 
         @can('admin')
-            <div class="float-container developer-float hidden-xs hidden-sm">
+            <div class="float-container developer-float">
                 @php
                     $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
                     $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
@@ -1865,7 +1759,7 @@
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
             </div>
 
-            <div class="float-container instruction-float hidden-xs hidden-sm">
+            <div class="float-container instruction-float">
                 @php
                     $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
                     $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
@@ -1891,7 +1785,7 @@
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
             </div>
 
-            <div class="float-container hidden-xs hidden-sm">
+            <div class="float-container">
                 @php
                     $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
                     $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
@@ -1995,7 +1889,6 @@
           var y = String.fromCharCode(x);
           collectedData[0].data += y;
       });
-
 
       // $(document).click(function() {
       //     if (collectedData[0].data.length > 10) {
