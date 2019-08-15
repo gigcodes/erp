@@ -806,6 +806,8 @@ Route::prefix('/seo')->name('seo.')->group(function(){
     Route::post('/analytics/delete/{id}', 'SEOAnalyticsController@delete')->name('delete_entry');
 });
 
+Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('brokenLinks');
+Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
 Route::middleware('auth')->group(function() {
 //    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
     Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails')->name('filteredResults');
@@ -846,6 +848,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@destroy','as'=>'contact.blogger.destroy']);
 
 
+Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinks');
+Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
     Route::post('blogger-product-image/{blogger_product}', ['uses'=>'BloggerProductController@uploadImages','as'=>'blogger.image.upload']);
     Route::get('blogger-product-get-image/{blogger_product}', ['uses'=>'BloggerProductController@getImages','as'=>'blogger.image']);
     Route::resource('blogger-product', 'BloggerProductController');

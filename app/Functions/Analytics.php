@@ -1,0 +1,138 @@
+<?php
+
+// Load the Google API PHP Client Library.
+require_once __DIR__.'/../../vendor/autoload.php';
+
+$analytics = initializeAnalytics();
+$response = getReport($analytics, $request);
+$data = printResults($response);
+
+
+/**
+ * Initializes an Analytics Reporting API V4 service object.
+ *
+ * @return An authorized Analytics Reporting API V4 service object.
+ */
+function initializeAnalytics()
+{
+
+  // Use the developers console and download your service account
+  // credentials in JSON format. Place them in this directory or
+  // change the key file location if necessary.
+  $KEY_FILE_LOCATION = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
+
+
+  // Create and configure a new client object.
+  $client = new Google_Client();
+  // $client->setApplicationName("Hello Analytics Reporting");
+  $client->setAuthConfig($KEY_FILE_LOCATION);
+  $client->setScopes(['https://www.googleapis.com/auth/analytics.readonly']);
+  $analytics = new Google_Service_AnalyticsReporting($client);
+
+  return $analytics;
+}
+
+
+/**
+ * Queries the Analytics Reporting API V4.
+ *
+ * @param service An authorized Analytics Reporting API V4 service object.
+ * @return The Analytics Reporting API V4 response.
+ */
+function getReport($analytics, $request) {
+	// Replace with your view ID, for example XXXX.
+	$VIEW_ID = env('ANALYTICS_VIEW_ID');
+  	// Create the DateRange object.
+	$dateRange = new Google_Service_AnalyticsReporting_DateRange();
+	$dateRange->setStartDate(!empty($request) && !empty($request['start_date']) ? $request['start_date'] : "1DaysAgo");
+	$dateRange->setEndDate(!empty($request) && !empty($request['end_date']) ? $request['end_date'] : "Today");
+
+  	// Create the Metric objects.
+	$sessions = new Google_Service_AnalyticsReporting_Metric();
+	$sessions->setExpression("ga:sessions");
+	$sessions->setAlias("sessions");
+	$pageviews = new Google_Service_AnalyticsReporting_Metric();
+	$pageviews->setExpression("ga:pageviews");
+	$pageviews->setAlias("pageviews");
+	$bounceRate = new Google_Service_AnalyticsReporting_Metric();
+	$bounceRate->setExpression("ga:bounceRate");
+	$bounceRate->setAlias("bounceRate");
+	$avgSessionDuration = new Google_Service_AnalyticsReporting_Metric();
+	$avgSessionDuration->setExpression("ga:avgSessionDuration");
+	$avgSessionDuration->setAlias("avgSessionDuration");
+	$timeOnPage = new Google_Service_AnalyticsReporting_Metric();
+	$timeOnPage->setExpression("ga:timeOnPage");
+	$timeOnPage->setAlias("timeOnPage");
+
+
+	// Create the Dimensions object.
+	// $browser = new Google_Service_AnalyticsReporting_Dimension();
+	// $browser->setName("ga:browser");
+	$operatingSystem = new Google_Service_AnalyticsReporting_Dimension();
+	$operatingSystem->setName("ga:operatingSystem");
+	$user = new Google_Service_AnalyticsReporting_Dimension();
+	$user->setName("ga:userType");
+	$minute = new Google_Service_AnalyticsReporting_Dimension();
+	$minute->setName("ga:minute");
+	$pagePath = new Google_Service_AnalyticsReporting_Dimension();
+	$pagePath->setName("ga:pagePath");
+	$country = new Google_Service_AnalyticsReporting_Dimension();
+	$country->setName("ga:country");
+	$city = new Google_Service_AnalyticsReporting_Dimension();
+	$city->setName("ga:city");
+	$socialNetwork = new Google_Service_AnalyticsReporting_Dimension();
+	$socialNetwork->setName("ga:socialNetwork");
+	$date = new Google_Service_AnalyticsReporting_Dimension();
+	$date->setName("ga:date");
+	$mobileDeviceInfo = new Google_Service_AnalyticsReporting_Dimension();
+	$mobileDeviceInfo->setName("ga:mobileDeviceInfo");
+	
+
+
+
+
+
+	// Create the ReportRequest object.
+	$request = new Google_Service_AnalyticsReporting_ReportRequest();
+	$request->setViewId($VIEW_ID);
+	$request->setDateRanges($dateRange);
+	$request->setDimensions(array($operatingSystem, $user, $minute, $pagePath, $country, $city, $socialNetwork, $date, $mobileDeviceInfo));
+	$request->setMetrics(array($sessions, $pageviews, $bounceRate, $avgSessionDuration, $timeOnPage));
+
+
+	$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
+	$body->setReportRequests( array( $request) );
+	return $analytics->reports->batchGet( $body );
+}
+
+
+/**
+ * Parses and prints the Analytics Reporting API V4 response.
+ *
+ * @param An Analytics Reporting API V4 response.
+ */
+function printResults($reports) {
+  for ( $reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++ ) {
+    $report = $reports[ $reportIndex ];
+	$rows = $report->getData()->getRows();
+	foreach ($rows as $key => $value ){
+		$data['data'][$key]['operatingSystem'] = $value['dimensions']['0'];
+		$data['data'][$key]['user_type'] = $value['dimensions']['1'];
+		$data['data'][$key]['time'] = $value['dimensions']['2'];
+		$data['data'][$key]['page_path'] = $value['dimensions']['3'];
+		$data['data'][$key]['country'] = $value['dimensions']['4'];
+		$data['data'][$key]['city'] = $value['dimensions']['5'];
+		$data['data'][$key]['social_network'] = $value['dimensions']['6'];
+		$data['data'][$key]['date'] = $value['dimensions']['7'];
+		$data['data'][$key]['device_info'] = $value['dimensions']['8'];
+		foreach ($value['metrics'] as $m_key => $m_value ){
+			$data['data'][$key]['sessions'] = $m_value['values'][0];
+			$data['data'][$key]['pageviews'] = $m_value['values'][1];
+			$data['data'][$key]['bounceRate'] = $m_value['values'][2];
+			$data['data'][$key]['avgSessionDuration'] = $m_value['values'][3];
+			$data['data'][$key]['timeOnPage'] = $m_value['values'][4];
+		}
+	}
+	return $data;
+  }
+}
