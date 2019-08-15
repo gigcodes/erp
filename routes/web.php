@@ -79,6 +79,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 	Route::get('product/listing/users', 'ProductController@showListigByUsers');
 	Route::get('products/listing', 'ProductController@listing')->name('products.listing');
 	Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
+	Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
 	Route::get('products/listing/magento', 'ProductController@approvedMagento')->name('products.listing.magento');
 	Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
 	Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
