@@ -41,7 +41,7 @@ class AiRun extends Command
     public function handle()
     {
         // Get rejected listings
-        $products = Product::with( 'product_category' )->leftJoin( 'log_scraper_vs_ai', 'products.id', '=', 'log_scraper_vs_ai.product_id' )->where( 'ai_name', NULL )->orderBy( 'products.updated_at', 'DESC' )->limit( 250 )->get( [ 'products.id' ] );
+        $products = Product::with( 'product_category' )->leftJoin( 'log_scraper_vs_ai', 'products.id', '=', 'log_scraper_vs_ai.product_id' )->where( 'ai_name', NULL )->orderBy( 'products.created_at', 'DESC' )->limit( 250 )->get( [ 'products.id' ] );
 
         // Loop over products
         foreach ( $products as $product ) {
