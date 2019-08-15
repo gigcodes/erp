@@ -330,7 +330,7 @@ class ProductController extends Controller
         // HIDE ALREADY CONFIRMED CROP
         $newProducts = $newProducts->leftJoin( 'product_status', function ( $join ) {
             $join->on( 'products.id', '=', 'product_status.product_id' )->where( 'product_status.name', 'CROP_APPROVAL_CONFIRMATION');
-        } )->whereNull('product_status.value');
+        } )->whereNull('product_status.value')->where('is_crop_rejected', 0);
 
         $selected_categories = $request->category ? $request->category : [ 1 ];
         $category_array = Category::renderAsArray();

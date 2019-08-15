@@ -725,7 +725,7 @@
                 type: 'GET',
                 success: function () {
                     toastr['success']('Crop rejected successfully!', 'Success');
-                    $(self).removeAttr('disabled');
+                    $('#product' + pid).hide();
                 },
                 error: function () {
                     $(self).removeAttr('disabled');
