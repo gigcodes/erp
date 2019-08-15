@@ -115,6 +115,7 @@ class ActivityConroller extends Controller
         $allActivity = DB::table( 'listing_histories' )->selectRaw( '
 	        SUM(case when action = "CROP_APPROVAL" then 1 Else 0 End) as crop_approved,
 	        SUM(case when action = "CROP_APPROVAL_DENIED" then 1 Else 0 End) as crop_approval_denied,
+	        SUM(case when action = "CROP_APPROVAL_CONFIRMATION" then 1 Else 0 End) as crop_approval_confirmation,
             SUM(case when action = "CROP_REJECTED"  then 1 Else 0 End) as crop_rejected,
             SUM(case when action = "CROP_SEQUENCED" then 1 Else 0 End) as crop_ordered,
             SUM(case when action = "LISTING_APPROVAL" then 1 Else 0 End) as attribute_approved,
@@ -126,6 +127,7 @@ class ActivityConroller extends Controller
             user_id,
             SUM(case when action = "CROP_APPROVAL" then 1 Else 0 End) as crop_approved,
             SUM(case when action = "CROP_APPROVAL_DENIED" then 1 Else 0 End) as crop_approval_denied,
+            SUM(case when action = "CROP_APPROVAL_CONFIRMATION" then 1 Else 0 End) as crop_approval_confirmation,
             SUM(case when action = "CROP_REJECTED"  then 1 Else 0 End) as crop_rejected,
             SUM(case when action = "CROP_SEQUENCED" then 1 Else 0 End) as crop_ordered,
             SUM(case when action = "LISTING_APPROVAL" then 1 Else 0 End) as attribute_approved,

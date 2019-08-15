@@ -661,7 +661,7 @@
                 type: 'GET',
                 success: function () {
                     toastr['success']('Crop approval successfully confirmed!', 'Success');
-                    $(self).hide().slow();
+                    $('#approve_cropping_' + pid).hide();
                 },
                 error: function () {
                     $(self).removeAttr('disabled');

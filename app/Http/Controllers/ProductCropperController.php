@@ -587,12 +587,7 @@ class ProductCropperController extends Controller
         $product = Product::findOrFail( $id );
 
         // Insert crop approval confirmation
-        $e = new ListingHistory();
-        $e->user_id = Auth::id();
-        $e->product_id = $product->id;
-        $e->content = [ 'action' => 'CROP_APPROVAL_CONFIRMATION', 'page' => 'Approved Listing Page' ];
-        $e->action = 'CROP_APPROVAL_CONFIRMATION';
-        $listingHistoryId = $e->save();
+        ListingHistory::createNewListing( Auth::id(), $product->id, "[ 'action' => 'CROP_APPROVAL_CONFIRMATION', 'page' => 'Approved Listing Page' ]", 'CROP_APPROVAL_CONFIRMATION' );
 
         // Add new status
         ProductStatus::updateStatus( $product->id, 'CROP_APPROVAL_CONFIRMATION', 1 );

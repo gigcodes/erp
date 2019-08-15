@@ -153,6 +153,7 @@
                         <th>Inventory</th>
                         <th>Crop Approval</th>
                         <th>Crop Rejection</th>
+                        <th>Crop Confirmation</th>
                         <th>Crop Sequencing</th>
                         <th>Attribute Approval</th>
                         <th>Attribute Rejected</th>
@@ -166,6 +167,7 @@
                             <td>{{ $allActivity->crop_approved }}</td>
                         @endif
                         <td>{{ $allActivity->crop_rejected }}</td>
+                        <td>{{ $allActivity->crop_approval_confirmation }}</td>
                         <td>{{ $allActivity->crop_ordered }}</td>
                         <td>{{ $allActivity->attribute_approved }}</td>
                         <td>{{ $rejectedListingsCount - $allActivity->attribute_rejected }}</td>
@@ -176,6 +178,7 @@
                         <th>Name</th>
                         <th>Crop Approval</th>
                         <th>Crop Rejection</th>
+                        <th>Crop Confirmation</th>
                         <th>Crop Sequencing</th>
                         <th>Attribute Approval</th>
                         <th>Attribute Rejection</th>
@@ -190,6 +193,7 @@
                                 <td>{{ $user->crop_approved }}</td>
                             @endif
                             <td>{{ $user->crop_rejected }}</td>
+                            <td>{{ $user->crop_approval_confirmation }}</td>
                             <td>{{ $user->crop_ordered }}</td>
                             <td>{{ $user->attribute_approved }}</td>
                             <td>{{ $user->attribute_rejected }}</td>
