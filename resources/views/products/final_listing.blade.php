@@ -213,13 +213,13 @@
                                                 <td>
                                                     {{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}
                                                     @php
-                                                        $cropApprovalConfirmation = \App\ProductStatus::where('product_id', $product->id)->first();
+                                                        $cropApprovalConfirmation = \App\ProductStatus::where('product_id', $product->id)->where('name', 'CROP_APPROVAL_CONFIRMATION')->first();
                                                     @endphp
                                                     @if ( $cropApprovalConfirmation == NULL )
-                                                    <br/>
-                                                    <button id="approve_cropping_{{ $product->id }}" data-id="{{$product->id}}" class="btn btn-default btn-small crop-approval-confirmation">
-                                                        <nobr>Confirm Crop</nobr>
-                                                    </button>
+                                                        <br/>
+                                                        <button id="approve_cropping_{{ $product->id }}" data-id="{{$product->id}}" class="btn btn-default btn-small crop-approval-confirmation">
+                                                            <nobr>Confirm Crop</nobr>
+                                                        </button>
                                                     @endif
                                                 </td>
                                                 <td>
