@@ -9,6 +9,7 @@
 namespace App;
 
 use App\ReadOnly\PushNotificationStatus;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,7 @@ use App\Status;
 use App\Product;
 use App\Message;
 use App\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 
 class Helpers {
@@ -216,5 +218,25 @@ class Helpers {
             'INR'
         ];
 	}
+
+	/**
+     * Custom paginator
+     *
+     * @param mixed $request        $request        attributes
+     * @param array $values         $values         array values to be paginated
+     * @param mixed $posts_per_page $posts_per_page posts to show per page
+     *
+     * @return $items
+     */
+    public static function customPaginator($request, $values = array(), $posts_per_page = '10')
+    {
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $itemCollection = collect($values);
+        $perPage = intval($posts_per_page);
+        $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
+        $items = new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
+        $items->setPath($request->url());
+        return $items;
+    }
 
 }
