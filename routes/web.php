@@ -31,19 +31,24 @@ Route::get('sop', 'ProductController@showSOP');
 
 Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 
-	Route::get('/message', 'MessageController@index')->name('message');
-	Route::post('/message', 'MessageController@store')->name('message.store');
-	Route::post('/message/{message}', 'MessageController@update')->name('message.update');
-	Route::post('/message/{id}/removeImage', 'MessageController@removeImage')->name('message.removeImage');
-	Route::get('/chat/getnew', 'ChatController@checkfornew')->name('checkfornew');
-	Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew');
-	//Route::resource('/chat','ChatController@getmessages');
-	Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
+Route::get('/message', 'MessageController@index')->name('message');
+Route::post('/message', 'MessageController@store')->name('message.store');
+Route::post('/message/{message}', 'MessageController@update')->name('message.update');
+Route::post('/message/{id}/removeImage', 'MessageController@removeImage')->name('message.removeImage');
+Route::get('/chat/getnew', 'ChatController@checkfornew')->name('checkfornew');
+Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew');
+//Route::resource('/chat','ChatController@getmessages');
+Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 
-	Route::prefix('product')->middleware('auth')->group(static function() {
-	    Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
-	    Route::resource('manual-crop', 'Products\ManualCroppingController');
-    });
+Route::prefix('product')->middleware('auth')->group(static function() {
+    Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
+    Route::resource('manual-crop', 'Products\ManualCroppingController');
+});
+
+Route::prefix('category-messages')->group(function() {
+    Route::resource('keyword', 'KeywordToCategoryController');
+    Route::resource('category', 'CustomerCategoryController');
+});
 
 Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
