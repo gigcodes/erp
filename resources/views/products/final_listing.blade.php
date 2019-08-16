@@ -170,17 +170,17 @@
                                               </span>
                                             <br/>
                                         @php
-                                            $descriptions = \App\ScrapedProducts::select('description')->where('sku', $product->sku)->get();
+                                            $descriptions = \App\ScrapedProducts::select('description','website')->where('sku', $product->sku)->get();
                                         @endphp
                                         @if ( $descriptions->count() > 0 )
                                             @foreach ( $descriptions as $description )
-                                                @if ( $description != $product->description )
+                                                @if ( $description->description != $product->short_description )
                                                 <hr/>
                                                 <span class="same-color">
                                                     {{ $description->description }}
                                                     </span>
                                                 <p>
-                                                    <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", $description->description) }}">Use this description</button>
+                                                    <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", $description->description) }}">Use this description ({{ $description->website }})</button>
                                                 </p>
                                                 @endif
                                             @endforeach
