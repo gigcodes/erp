@@ -119,7 +119,7 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderBy('listing_approved_at', 'DESC');
+        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderBy( 'listing_approved_at', 'DESC' );
 
         $term = $request->input( 'term' );
         $brand = '';
@@ -255,7 +255,7 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderBy('listing_approved_at', 'DESC');
+        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderBy( 'listing_approved_at', 'DESC' );
 
         $term = $request->input( 'term' );
         $brand = '';
@@ -329,14 +329,14 @@ class ProductController extends Controller
 
         // HIDE ALREADY CONFIRMED CROP
         $newProducts = $newProducts->leftJoin( 'product_status', function ( $join ) {
-            $join->on( 'products.id', '=', 'product_status.product_id' )->where( 'product_status.name', 'CROP_APPROVAL_CONFIRMATION');
-        } )->whereNull('product_status.value')->where('is_crop_rejected', 0);
+            $join->on( 'products.id', '=', 'product_status.product_id' )->where( 'product_status.name', 'CROP_APPROVAL_CONFIRMATION' );
+        } )->whereNull( 'product_status.value' )->where( 'is_crop_rejected', 0 );
 
         $selected_categories = $request->category ? $request->category : [ 1 ];
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->select(['products.*', 'product_status.name', 'product_status.value'])->with( [ 'media', 'brands', 'log_scraper_vs_ai' ] )->paginate( 50 );
+        $newProducts = $newProducts->select( [ 'products.*', 'product_status.name', 'product_status.value' ] )->with( [ 'media', 'brands', 'log_scraper_vs_ai' ] )->paginate( 50 );
 
         return view( 'products.final_crop_confirmation', [
             'products' => $newProducts,
@@ -367,7 +367,7 @@ class ProductController extends Controller
     public function approvedMagento( Request $request )
     {
         // Get queue count
-        $queueSize = Queue::size('listMagento');
+        $queueSize = Queue::size( 'listMagento' );
 
         $colors = ( new Colors )->all();
         $categories = Category::all();
@@ -398,7 +398,7 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where( 'isUploaded', 1 )->orderBy('listing_approved_at', 'DESC');
+        $newProducts = Product::where( 'isUploaded', 1 )->orderBy( 'listing_approved_at', 'DESC' );
 
         $term = $request->input( 'term' );
         $brand = '';
@@ -1153,7 +1153,7 @@ class ProductController extends Controller
         // If we have a product, push it to Magento
         if ( $product !== NULL ) {
             // Dispatch the job to the queue
-            PushToMagento::dispatch($product)->onQueue('listMagento');
+            PushToMagento::dispatch( $product )->onQueue( 'listMagento' );
 
             // Update the product so it doesn't show up in final listing
             $product->isUploaded = 1;
@@ -1884,7 +1884,7 @@ class ProductController extends Controller
 
         $category_array = Category::renderAsArray();
 
-        $products = $products->with( 'log_scraper_vs_ai' )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->paginate( 25 );
+        $products = $products->with( 'log_scraper_vs_ai' )->where( 'is_listing_rejected', 1 )->orderBy( 'listing_rejected_on', 'DESC' )->orderBy( 'updated_at', 'DESC' )->paginate( 25 );
 
         $rejectedListingSummary = DB::table( 'products' )->selectRaw( 'DISTINCT(listing_remark) as remark, COUNT(listing_remark) as issue_count' )->where( 'is_listing_rejected', 1 )->groupBy( 'listing_remark' )->orderBy( 'issue_count', 'DESC' )->get();
 
