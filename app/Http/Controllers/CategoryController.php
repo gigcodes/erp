@@ -123,6 +123,11 @@ class CategoryController extends Controller
 		return array_reverse($categoryTree);
 	}
 
+    public static function brandMinMaxPricing()
+    {
+        return view( 'category.minmaxpricing' );
+    }
+
 	public static function getCategoryTreeMagentoIds($id){
 
 		$category = new Category();
