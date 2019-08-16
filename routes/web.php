@@ -960,4 +960,5 @@ Route::get('se-ranking/competitors', 'SERankingController@getCompetitors')->name
 Route::get('se-ranking/analytics', 'SERankingController@getAnalytics')->name('getAnalytics');
 Route::get('se-ranking/backlinks', 'SERankingController@getBacklinks')->name('getBacklinks');
 Route::get('se-ranking/research-data', 'SERankingController@getResearchData')->name('getResearchData');
+Route::get('se-ranking/audit', 'SERankingController@getSiteAudit')->name('getSiteAudit');
 Route::get('se-ranking/competitors/keyword-positions/{id}', 'SERankingController@getCompetitors')->name('getCompetitorsKeywordPos');

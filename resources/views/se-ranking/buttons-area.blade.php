@@ -5,4 +5,5 @@
     <a href="{{route('getAnalytics')}}" class="btn btn-secondary {{\Request::route()->getName() === 'getAnalytics' ? 'active' : ''}}">SEO Potential</a>
     <a href="{{route('getBacklinks')}}" class="btn btn-secondary {{\Request::route()->getName() === 'getBacklinks' ? 'active' : ''}}">Backlinks</a>
     <a href="{{route('getResearchData')}}" class="btn btn-secondary {{\Request::route()->getName() === 'getResearchData' ? 'active' : ''}}">Domain Overview (SEO/PPC Research Data)</a>
+    <a href="{{route('getSiteAudit')}}" class="btn btn-secondary {{\Request::route()->getName() === 'getSiteAudit' ? 'active' : ''}}">Audit Report</a>
 </div>
