@@ -119,7 +119,10 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderBy( 'listing_approved_at', 'DESC' );
+        // Prioritize suppliers
+        $orderByPritority = "CASE WHEN supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+
+        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderByRaw( $orderByPritority )->orderBy( 'listing_approved_at', 'DESC' );
 
         $term = $request->input( 'term' );
         $brand = '';
@@ -196,7 +199,7 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with( [ 'media', 'brands', 'log_scraper_vs_ai' ] )->paginate( 50 );
+        $newProducts = $newProducts->with( [ 'media', 'brands', 'log_scraper_vs_ai' ] )->paginate( 20 );
 
         return view( 'products.final_listing', [
             'products' => $newProducts,
@@ -255,7 +258,10 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderBy( 'listing_approved_at', 'DESC' );
+        // Prioritize suppliers
+        $orderByPritority = "CASE WHEN supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+
+        $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderByRaw($orderByPritority)->orderBy( 'listing_approved_at', 'DESC' );
 
         $term = $request->input( 'term' );
         $brand = '';
@@ -336,7 +342,7 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->select( [ 'products.*', 'product_status.name', 'product_status.value' ] )->with( [ 'media', 'brands', 'log_scraper_vs_ai' ] )->paginate( 50 );
+        $newProducts = $newProducts->select( [ 'products.*', 'product_status.name', 'product_status.value' ] )->with( [ 'media', 'brands', 'log_scraper_vs_ai' ] )->limit( 50 );
 
         return view( 'products.final_crop_confirmation', [
             'products' => $newProducts,
