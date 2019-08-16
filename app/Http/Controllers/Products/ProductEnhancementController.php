@@ -33,7 +33,7 @@ class ProductEnhancementController extends Controller
         $product = Product::find($request->get('id'));
         $files = $request->allFiles();
 
-        return [$request->all(), $files];
+        dd($request->all(), $files);
 
         if ($files !== []) {
             $product->detachMedia(config('constants.media_tags'));
