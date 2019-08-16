@@ -35,7 +35,7 @@ class ProductEnhancementController extends Controller
         $files = $request->allFiles();
 
         if ($files !== []) {
-
+            $this->deleteCroppedImages($product);
             foreach ($files['images'] as $file) {
                 $media = MediaUploader::fromSource($file)->useFilename(uniqid('cropped_', true))->upload();
                 $product->attachMedia($media, 'gallery');
@@ -63,7 +63,11 @@ class ProductEnhancementController extends Controller
 
                     }
                 }
-                $image->delete();
+                try {
+                    $image->forceDelete();
+                } catch (\Exception $exception) {
+//                    echo $exception->getMessage();
+                }
             }
         }
     }
