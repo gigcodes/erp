@@ -26,7 +26,7 @@ class ChangeModelIdColumnInKeywordToCategoriesTable extends Migration
     public function down()
     {
         Schema::table('keyword_to_categories', function (Blueprint $table) {
-            $table->integer('model_id');
+            $table->integer('model_id')->change();
         });
     }
 }

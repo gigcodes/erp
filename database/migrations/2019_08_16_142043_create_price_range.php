@@ -16,7 +16,7 @@ class CreatePriceRange extends Migration
         Schema::create( 'brand_category_price_range', function ( Blueprint $table ) {
             $table->increments( 'id' );
             $table->integer( 'category_id' );
-            $table->integer( 'brand_id' );
+            $table->string( 'brand_segment', 2 );
             $table->integer( 'min_price' );
             $table->integer( 'max_price' );
             $table->timestamps();
