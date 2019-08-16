@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Brand;
+use App\BrandCategoryPriceRange;
 use App\ListingHistory;
 use App\Product;
 use Illuminate\Console\Command;
@@ -48,19 +50,91 @@ class AutoRejectProductIfAttributesAreMissing extends Command
         } )->get();
 
         // Loop over products
-        foreach ( $products as $product ) {
-            // Set to auto rejected
-            $product->is_listing_rejected = 1;
-            $product->is_listing_rejected_automatically = 1;
-            $product->save();
+        if ( $products->count() > 0 ) {
+            foreach ( $products as $product ) {
+                // Set to auto rejected
+                $product->is_listing_rejected = 1;
+                $product->is_listing_rejected_automatically = 1;
+                $product->save();
 
-            // Update listing history
-            $listingHistory = new ListingHistory();
-            $listingHistory->user_id = NULL;
-            $listingHistory->product_id = $product->id;
-            $listingHistory->action = 'AUTO_REJECTED_ATTRIBUTE_MISSING';
-            $listingHistory->content = [ 'action' => 'AUTO_REJECTED_ATTRIBUTE_MISSING' ];
-            $listingHistory->save();
+                // Update listing history
+                $listingHistory = new ListingHistory();
+                $listingHistory->user_id = NULL;
+                $listingHistory->product_id = $product->id;
+                $listingHistory->action = 'AUTO_REJECTED_ATTRIBUTE_MISSING';
+                $listingHistory->content = [ 'action' => 'AUTO_REJECTED_ATTRIBUTE_MISSING' ];
+                $listingHistory->save();
+            }
+        }
+
+        // Auto reject by price
+        $brands = Brand::where( 'brand_segment', '!=', '' )->get();
+
+        // Build array with brands
+        $arrBrands = [];
+        foreach ( $brands as $brand ) {
+            $arrBrands[] = $brand->id;
+        }
+
+        // Build array with brand segments
+        $arrBrandSegments = [];
+        foreach ( $brands as $brand ) {
+            $arrBrandSegments[ $brand->id ] = $brand->brand_segment;
+        }
+
+        // Get all brand category pricing ranges
+        $brandCategoryPriceRange = BrandCategoryPriceRange::all();
+
+        // Build array with brand segments and categories
+        $arrBrandCategoryPriceRange = [];
+        foreach ( $brandCategoryPriceRange as $item ) {
+            if ( $item->min_price > 0 ) {
+                $arrBrandCategoryPriceRange[ $item->brand_segment ][ $item->category_id ][ 'min' ] = $item->min_price;
+            }
+
+            if ( $item->max_price > 0 ) {
+                $arrBrandCategoryPriceRange[ $item->brand_segment ][ $item->category_id ][ 'max' ] = $item->max_price;
+            }
+        }
+
+        // Get all products with brands
+        $products = Product::whereIn( 'brand', $arrBrands )->get();
+
+        // Loop over products
+        foreach ( $products as $product ) {
+            if ( isset( $product->brand ) && isset( $arrBrandSegments[ $product->brand ] ) && isset( $arrBrandCategoryPriceRange[ $arrBrandSegments[ $product->brand ] ] ) && isset( $arrBrandCategoryPriceRange[ $arrBrandSegments[ $product->brand ] ][$product->category] ) ) {
+                // Minimum price
+                if ( $product->price < $arrBrandCategoryPriceRange[ $arrBrandSegments[ $product->brand ] ][$product->category]['min'] ) {
+                    // Set to auto rejected
+                    $product->is_listing_rejected = 1;
+                    $product->is_listing_rejected_automatically = 1;
+                    $product->save();
+
+                    // Update listing history
+                    $listingHistory = new ListingHistory();
+                    $listingHistory->user_id = NULL;
+                    $listingHistory->product_id = $product->id;
+                    $listingHistory->action = 'AUTO_REJECTED_MINIMUM_PRICE';
+                    $listingHistory->content = [ 'action' => 'AUTO_REJECTED_MINIMUM_PRICE', 'price' => $product->price, 'minimum_price' => $arrBrandCategoryPriceRange[ $arrBrandSegments[ $product->brand ] ][$product->category]['min'] ];
+                    $listingHistory->save();
+                }
+
+                // Maximum price
+                if ( $product->price > $arrBrandCategoryPriceRange[ $arrBrandSegments[ $product->brand ] ][$product->category]['max'] ) {
+                    // Set to auto rejected
+                    $product->is_listing_rejected = 1;
+                    $product->is_listing_rejected_automatically = 1;
+                    $product->save();
+
+                    // Update listing history
+                    $listingHistory = new ListingHistory();
+                    $listingHistory->user_id = NULL;
+                    $listingHistory->product_id = $product->id;
+                    $listingHistory->action = 'AUTO_REJECTED_MAXIMUM_PRICE';
+                    $listingHistory->content = [ 'action' => 'AUTO_REJECTED_MAXIMUM_PRICE', 'price' => $product->price, 'maximum_price' => $arrBrandCategoryPriceRange[ $arrBrandSegments[ $product->brand ] ][$product->category]['max'] ];
+                    $listingHistory->save();
+                }
+            }
         }
     }
 }
