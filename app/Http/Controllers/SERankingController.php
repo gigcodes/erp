@@ -61,9 +61,10 @@ class SERankingController extends Controller
     public function getKeyWords() {
         $site_id = 1083512;
         $keywords = $this->getResults('sites/'.$site_id.'/keywords');
+        $keyword_stats = $this->getResults('sites/'.$site_id.'/positions');
         return View(
             'se-ranking.keywords',
-            compact('keywords')
+            compact('keywords', 'keyword_stats')
         );
     }
 
@@ -119,6 +120,18 @@ class SERankingController extends Controller
         return View(
             'se-ranking.research-data',
             compact('r_data')
+        );
+    }
+
+    /**
+     * Get Site Audit
+     */
+    public function getSiteAudit() {
+        $site_id = 1083512;
+        $audit = $this->getResults('audit/'.$site_id.'/report');
+        return View(
+            'se-ranking.audit',
+            compact('audit')
         );
     }
 }

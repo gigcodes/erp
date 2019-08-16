@@ -3399,7 +3399,9 @@ class WhatsAppController extends FindByNumberController
     curl_close($curl);
 
     if ($err) {
-      throw new \Exception("cURL Error #:" . $err);
+        // DON'T THROW EXCEPTION
+        //throw new \Exception("cURL Error #:" . $err);
+        return false;
     } else {
       $result = json_decode($response, true);
       // throw new \Exception("Something was wrong with message: " . $response);

@@ -338,10 +338,14 @@ class ScrapController extends Controller
      * It fetches the next product that needs to be scraped on Farfetch
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getFromNewSupplier()
+    public function getFromNewSupplier(Request $request)
     {
         //$products = Product::where('supplier', 'Ines')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
-        $products = Product::where( 'isApproved', 0 )->where( 'is_farfetched', 0 )->where('is_crop_approved', 1)->orderBy( 'id', 'DESC' )->get();
+        if ( (int) $request->limit > 0 ) {
+            $products = Product::where( 'isApproved', 0 )->where( 'is_farfetched', 0 )->where( 'is_crop_approved', 1 )->orderBy( 'id', 'DESC' )->limit( $request->limit )->get();
+        } else {
+            $products = Product::where( 'isApproved', 0 )->where( 'is_farfetched', 0 )->where( 'is_crop_approved', 1 )->orderBy( 'id', 'DESC' )->get();
+        }
         foreach ( $products as $product ) {
 
             $productsToPush[] = [
