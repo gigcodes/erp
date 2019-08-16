@@ -11,7 +11,14 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 class ProductEnhancementController extends Controller
 {
     public function index() {
-        $product = Product::where('is_enhanced', 0)->where('is_crop_ordered', 1)->orderBy('is_approved', 'DESC')->first();
+
+        $orderByPritority = "CASE WHEN supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+
+        $product = Product::where('is_enhanced', 0)
+            ->where('is_crop_ordered', 1)
+            ->orderByRaw($orderByPritority)
+            ->orderBy('is_approved', 'DESC')
+            ->first();
         $productImages = $imgs = $product->media()->get();
         $productUrls = [];
 
