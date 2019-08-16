@@ -2,28 +2,23 @@
 
 @section('content')
     @php
-        // Get all categories
-        $categories = \App\Category::orderBy('parent_id', 'asc')->all();
-
-        // Get all brands
-        $brands = \App\Brand::all();
+        // Get all data
+        $results = \Illuminate\Support\Facades\DB::select('SELECT categories.title, brands.name, MIN(price*1) AS minimumPrice, MAX(price*1) AS maximumPrice FROM products JOIN categories ON products.category=categories.id JOIN brands ON products.brand=brands.id GROUP BY products.category, products.brand ORDER BY brands.name, categories.title');
     @endphp
-    <table class="table table-hover-cell">
+    <table class="table table-striped">
         <tr>
-            <th>Category</th>
             <th>Brand</th>
+            <th>Category</th>
             <th>Minimum Price</th>
             <th>Maximum Price</th>
         </tr>
-        @foreach ( $categories as $category )
-            @foreach ( $brands as $brand )
-                <tr>
-                    <td>{{ $category->title }}</td>
-                    <td>{{ $brand->name }}</td>
-                    <td>{{ \App\Product::where('category', $category->id)->where('brand', $brand->id)->min('price') }}</td>
-                    <td>{{ \App\Product::where('category', $category->id)->where('brand', $brand->id)->max('price') }}</td>
-                </tr>
-            @endforeach
+        @foreach ( $results as $result )
+            <tr>
+                <td>{{ $result->name }}</td>
+                <td>{{ $result->title }}</td>
+                <td>{{ $result->minimumPrice }}</td>
+                <td>{{ $result->maximumPrice }}</td>
+            </tr>
         @endforeach
     </table>
 @endsection
