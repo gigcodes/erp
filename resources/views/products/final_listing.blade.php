@@ -174,6 +174,7 @@
                                         @endphp
                                         @if ( $descriptions->count() > 0 )
                                             @foreach ( $descriptions as $description )
+                                                @if ( $description != $product->description )
                                                 <hr/>
                                                 <span class="same-color">
                                                     {{ $description->description }}
@@ -181,8 +182,9 @@
                                                 <p>
                                                     <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", $description->description) }}">Use this description</button>
                                                 </p>
-                                                @endforeach
                                                 @endif
+                                            @endforeach
+                                        @endif
                                                 </p>
                                                 <p>
                                                     <strong class="same-color" style="text-decoration: underline">Composition</strong>
