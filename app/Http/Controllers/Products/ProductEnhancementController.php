@@ -33,11 +33,9 @@ class ProductEnhancementController extends Controller
         $product = Product::find($request->get('id'));
         $files = $request->allFiles();
 
-        dd($request->all(), $files);
-
         if ($files !== []) {
             $product->detachMedia(config('constants.media_tags'));
-            foreach ($files as $file) {
+            foreach ($files['images'] as $file) {
                 $media = MediaUploader::fromSource($file)->useFilename(uniqid('cropped_', true))->upload();
                 $product->attachMedia($media, 'gallery');
             }
