@@ -625,6 +625,14 @@
 
                                     </li>
 
+                                    @can('admin')
+                                    <li class="nav-item">
+
+                                        <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Price Range</a>
+
+                                    </li>
+                                    @endcan
+
                                 </ul>
 
                             </li>

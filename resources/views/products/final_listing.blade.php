@@ -136,7 +136,7 @@
                         <th width="20%">Remarks</th>
                     </tr>
                     @foreach ($products as $key => $product)
-                        <tr>
+                        <tr id="product{{ $product->id }}">
                             <td colspan="10">
                                 <div class="row">
                                     <div class="col-md-1">
@@ -165,36 +165,51 @@
                                         <p>
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br>
-                                            <span class="same-color">
-                        {{ $product->short_description }}
-                      </span>
-                                        </p>
-                                        <p>
-                                            <strong class="same-color" style="text-decoration: underline">Composition</strong>
-                                            <br>
-                                            <span class="same-color">
+                                            <span id="description{{ $product->id }}" class="same-color">
+                                                {{ $product->short_description }}
+                                              </span>
+                                            <br/>
+                                        @php
+                                            $descriptions = \App\ScrapedProducts::select('description')->where('sku', $product->sku)->get();
+                                        @endphp
+                                        @if ( $descriptions->count() > 0 )
+                                            @foreach ( $descriptions as $description )
+                                                <hr/>
+                                                <span class="same-color">
+                                                    {{ $description->description }}
+                                                    </span>
+                                                <p>
+                                                    <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", $description->description) }}">Use this description</button>
+                                                </p>
+                                                @endforeach
+                                                @endif
+                                                </p>
+                                                <p>
+                                                    <strong class="same-color" style="text-decoration: underline">Composition</strong>
+                                                    <br>
+                                                    <span class="same-color">
                         {{ $product->composition }}
                       </span>
-                                        </p>
-                                        <p>
-                                            <strong>Color</strong>: {{ $product->color }}<br>
-                                            <strong>Sizes</strong>: {{ $product->size }}<br>
-                                            <strong>Dimension</strong>: {{ $product->lmeasurement }} x {{ $product->hmeasurement }} x {{ $product->dmeasurement }}<br>
-                                        </p>
-                                        <p>
-                                            <span class="sololuxury-button">ADD TO BAG</span>
-                                            <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
-                                        </p>
-                                        <p class="same-color">
-                                            View All: <strong>{{ isset($product->product_category->title) ? $product->product_category->title  : '' }}</strong>
-                                            <br>
-                                            View All: <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
-                                        </p>
-                                        <p class="same-color">
-                                            <strong>Style ID</strong>: {{ $product->sku }}
-                                            <br>
-                                            <strong class="text-danger">{{ $product->is_on_sale ? 'On Sale' : '' }}</strong>
-                                        </p>
+                                                </p>
+                                                <p>
+                                                    <strong>Color</strong>: {{ $product->color }}<br>
+                                                    <strong>Sizes</strong>: {{ $product->size }}<br>
+                                                    <strong>Dimension</strong>: {{ $product->lmeasurement }} x {{ $product->hmeasurement }} x {{ $product->dmeasurement }}<br>
+                                                </p>
+                                                <p>
+                                                    <span class="sololuxury-button">ADD TO BAG</span>
+                                                    <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
+                                                </p>
+                                                <p class="same-color">
+                                                    View All: <strong>{{ isset($product->product_category->title) ? $product->product_category->title  : '' }}</strong>
+                                                    <br>
+                                                    View All: <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
+                                                </p>
+                                                <p class="same-color">
+                                                    <strong>Style ID</strong>: {{ $product->sku }}
+                                                    <br>
+                                                    <strong class="text-danger">{{ $product->is_on_sale ? 'On Sale' : '' }}</strong>
+                                                </p>
                                     </div>
                                     <div class="col-md-4">
                                         <h2 class="page-heading">
@@ -521,7 +536,6 @@
 
                                 <td class="read-more-button">
                                     <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
-
                                     <span class="long-description-container hidden">
                   <span class="description-container">{{ $product->short_description }}</span>
                 </span>
@@ -603,7 +617,13 @@
                     @endforeach
                 </table>
 
-                {!! $products->appends(Request::except('page'))->links() !!}
+                <div class="text-center mb-5">
+                    <button id="upload-all" class="btn btn-danger btn-lg">UPLOAD ALL</button>
+                </div>
+
+                <p class="mb-5">
+                    &nbsp;
+                </p>
             </div>
 
         </div>
@@ -632,6 +652,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">
+
+        var productIds = [
+            @foreach ( $products as $product )
+            {{ $product->id }},
+            @endforeach
+        ];
+
+        function removeIdFromArray(id) {
+            for (var i = 0; i < productIds.length; i++) {
+                if (productIds[i] === id) {
+                    productIds.splice(i, 1);
+                    $('#product' + id).hide();
+                }
+            }
+
+            console.log(productIds);
+        }
 
         $(document).on('keyup', '.send-message', function (event) {
             let userId = $(this).data('id');
@@ -674,6 +711,7 @@
                 },
                 success: function () {
                     toastr['success']('Sequence rejected successfully!', 'Success');
+                    removeIdFromArray(pid);
                 },
                 error: function () {
                     toastr['error']('Error rejecting sequence', 'Success');
@@ -725,6 +763,7 @@
                 type: 'GET',
                 success: function () {
                     toastr['success']('Crop rejected successfully!', 'Success');
+                    removeIdFromArray(pid);
                     $(self).removeAttr('disabled');
                 },
                 error: function () {
@@ -759,6 +798,7 @@
                     toastr['success']('Product rejected successfully!', 'Rejected');
                     $(self).removeAttr('disabled');
                     $(self).val();
+                    removeIdFromArray(pid);
                 },
                 beforeSend: function () {
                     $(self).attr('disabled');
@@ -1246,6 +1286,49 @@
                 }
             }
         }
+
+        $(document).on('click', '.use-description', function () {
+            var id = $(this).data('id');
+            var description = $(this).data('description');
+
+            url = "{{ url('products') }}/" + id + '/updateDescription';
+
+            $('#description' + id).hide();
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    description: description,
+                    _token: "{{ csrf_token() }}",
+                }
+            }).done(function (response) {
+                $('#description' + id).html(description);
+                $('#description' + id).show(1000);
+            });
+        });
+
+        $(document).on('click', '#upload-all', function () {
+            $(self).hide();
+            var ajaxes = [];
+            for (var i = 0; i < productIds.length; i++) {
+                url = "{{ url('products') }}/" + productIds[i] + '/listMagento';
+                ajaxes.push($.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    }
+                }).done(function (response) {
+                    $('#product' + productIds[i]).hide();
+                }));
+            }
+
+            $.when.apply($, ajaxes)
+                .done(function () {
+                    location.reload();
+                });
+        });
 
         $(document).on('click', '.upload-magento', function () {
             var id = $(this).data('id');
