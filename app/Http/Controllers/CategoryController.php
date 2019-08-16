@@ -134,9 +134,7 @@ class CategoryController extends Controller
         $results = \Illuminate\Support\Facades\DB::select( "
             SELECT
                 categories.title,
-                brands.name,
                 categories.id as cat_id,
-                brands.id as brand_id,
                 MIN(price*1) AS minimumPrice,
                 MAX(price*1) AS maximumPrice
             FROM
@@ -145,31 +143,28 @@ class CategoryController extends Controller
                 categories
             ON
                 products.category=categories.id
-            JOIN
-                brands
-            ON
-                products.brand=brands.id
             GROUP BY
-                products.category,
-                products.brand
+                products.category
             ORDER BY
-                brands.name,
                 categories.title
         " );
 
         // Get all form data
         $resultsBrandCategoryPriceRange = BrandCategoryPriceRange::all();
 
+        // Create array with brand segments
+        $brandSegments = ['A', 'B', 'C'];
+
         // Create empty array
         $formResults = [];
 
         // Loop over results
         foreach ( $resultsBrandCategoryPriceRange as $result ) {
-            $formResults[ $result->brand_id ][ $result->category_id ][ 'min' ] = $result->min_price;
-            $formResults[ $result->brand_id ][ $result->category_id ][ 'max' ] = $result->max_price;
+            $formResults[ $result->brand_segment ][ $result->category_id ][ 'min' ] = $result->min_price;
+            $formResults[ $result->brand_segment ][ $result->category_id ][ 'max' ] = $result->max_price;
         }
 
-        return view( 'category.minmaxpricing', compact( 'results', 'formResults' ) );
+        return view( 'category.minmaxpricing', compact( 'results', 'brandSegments', 'formResults' ) );
     }
 
     public static function updateBrandMinMaxPricing( Request $request )
@@ -177,7 +172,7 @@ class CategoryController extends Controller
         // Check minimum price first
         if ( $request->ajax() && $request->type == 'min' && (int) $request->price > 0 ) {
             return BrandCategoryPriceRange::updateOrCreate(
-                [ 'brand_id' => $request->brand_id, 'category_id' => $request->category_id ],
+                [ 'brand_segment' => $request->brand_segment, 'category_id' => $request->category_id ],
                 [ 'min_price' => $request->price ]
             );
         }
@@ -185,7 +180,7 @@ class CategoryController extends Controller
         // Check minimum price first
         if ( $request->ajax() && $request->type == 'max' && (int) $request->price > 0 ) {
             return BrandCategoryPriceRange::updateOrCreate(
-                [ 'brand_id' => $request->brand_id, 'category_id' => $request->category_id ],
+                [ 'brand_segment' => $request->brand_segment, 'category_id' => $request->category_id ],
                 [ 'max_price' => $request->price ]
             );
         }
