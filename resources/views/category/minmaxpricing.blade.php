@@ -1,24 +1,53 @@
 @extends('layouts.app')
 
 @section('content')
-    @php
-        // Get all data
-        $results = \Illuminate\Support\Facades\DB::select('SELECT categories.title, brands.name, MIN(price*1) AS minimumPrice, MAX(price*1) AS maximumPrice FROM products JOIN categories ON products.category=categories.id JOIN brands ON products.brand=brands.id GROUP BY products.category, products.brand ORDER BY brands.name, categories.title');
-    @endphp
     <table class="table table-striped">
         <tr>
             <th>Brand</th>
             <th>Category</th>
-            <th>Minimum Price</th>
-            <th>Maximum Price</th>
+            <th>&nbsp;</th>
+            <th>Min. Price</th>
+            <th>Max. Price</th>
+            <th>&nbsp;</th>
         </tr>
         @foreach ( $results as $result )
             <tr>
                 <td>{{ $result->name }}</td>
                 <td>{{ $result->title }}</td>
+                <td><input type="text" data-type='min' data-cat='{{ $result->cat_id }}' data-brand='{{ $result->brand_id }}' class="form-control update-pricing" style="text-align: right;" value="{{ $formResults[$result->brand_id][$result->cat_id]['min'] ?? '' }}"></td>
                 <td>{{ $result->minimumPrice }}</td>
-                <td>{{ $result->maximumPrice }}</td>
+                <td class="text-right">{{ $result->maximumPrice }}</td>
+                <td><input type="text" data-type='max' data-cat='{{ $result->cat_id }}' data-brand='{{ $result->brand_id }}' class="form-control update-pricing" value="{{ $formResults[$result->brand_id][$result->cat_id]['max'] ?? '' }}"></td>
             </tr>
         @endforeach
     </table>
+
+    <script>
+        $(document).ready(function () {
+            $(document).on('keyup', '.update-pricing', function (event) {
+                let data_category_id = $(this).data('cat');
+                let data_brand_id = $(this).data('brand');
+                let data_type = $(this).data('type');
+                let data_price = $(this).val();
+
+                console.log(data_category_id, data_brand_id, data_type, data_price);
+
+                $.ajax({
+                    url: '/category/brand/update-min-max-pricing',
+                    data: {
+                        brand_id: data_brand_id,
+                        category_id: data_category_id,
+                        type: data_type,
+                        price: data_price,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    type: 'POST',
+                    success: function () {
+                        console.log('Price update successfully');
+                    }
+                });
+
+            });
+        });
+    </script>
 @endsection

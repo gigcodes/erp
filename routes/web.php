@@ -147,7 +147,6 @@ Route::group( [ 'middleware' => [ 'auth', 'optimizeImages' ] ], function () {
     Route::get( 'category/references', 'CategoryController@mapCategory' );
     Route::post( 'category/references', 'CategoryController@saveReferences' );
     Route::resource( 'category', 'CategoryController' );
-    Route::get( 'category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing' );
 
     Route::resource( 'resourceimg', 'ResourceImgController' );
     Route::post( 'add-resource', 'ResourceImgController@addResource' )->name( 'add.resource' );
@@ -963,3 +962,8 @@ Route::get( 'se-ranking/backlinks', 'SERankingController@getBacklinks' )->name( 
 Route::get( 'se-ranking/research-data', 'SERankingController@getResearchData' )->name( 'getResearchData' );
 Route::get( 'se-ranking/audit', 'SERankingController@getSiteAudit' )->name( 'getSiteAudit' );
 Route::get( 'se-ranking/competitors/keyword-positions/{id}', 'SERankingController@getCompetitors' )->name( 'getCompetitorsKeywordPos' );
+
+Route::group( [ 'middleware' =>  'auth', 'admin'  ], function () {
+    Route::get( 'category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing' );
+    Route::post( 'category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing' );
+} );
