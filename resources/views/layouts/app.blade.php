@@ -1035,7 +1035,7 @@
 
                                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="categoryMessageMenu">
 
-                                              <a class="dropdown-item" href="">Bulk Messages</a>
+                                              <a class="dropdown-item" href="{{ action('BulkCustomerRepliesController@index') }}">Bulk Messages</a>
                                               <a class="dropdown-item" href="{{ action('CustomerCategoryController@index') }}">Categories</a>
                                               <a class="dropdown-item" href="{{ action('KeywordToCategoryController@index') }}">Keywords</a>
 

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\ChatMessage;
 
 class Customer extends Model
 {
@@ -89,6 +90,10 @@ class Customer extends Model
 	{
 		return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9'])->latest();
 	}
+
+	public function messageHistory($count = 3) {
+        return $this->hasMany(ChatMessage::class, 'customer_id')->whereNotIn('status', ['7', '8', '9'])->take($count)->latest();
+    }
 
   public function credits_issued()
 	{
