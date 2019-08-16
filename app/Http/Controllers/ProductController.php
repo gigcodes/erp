@@ -120,7 +120,7 @@ class ProductController extends Controller
         }
 
         // Prioritize suppliers
-        $orderByPritority = "CASE WHEN supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+        $orderByPritority = "CASE WHEN brand IN (27, 42, 11, 19, 24) AND supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
 
         $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderByRaw( $orderByPritority )->orderBy( 'listing_approved_at', 'DESC' );
 
@@ -259,7 +259,7 @@ class ProductController extends Controller
         }
 
         // Prioritize suppliers
-        $orderByPritority = "CASE WHEN supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+        $orderByPritority = "CASE WHEN brand IN (27, 42, 11, 19, 24) AND supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
 
         $newProducts = Product::where( 'is_approved', 1 )->where( 'is_crop_approved', 1 )->where( 'is_crop_ordered', 1 )->where( 'isUploaded', 0 )->orderByRaw($orderByPritority)->orderBy( 'listing_approved_at', 'DESC' );
 
