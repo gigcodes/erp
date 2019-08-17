@@ -946,6 +946,8 @@ Route::group( [ 'middleware' => 'auth', 'namespace' => 'Hubstaff' ], function ()
 } );
 Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 'showAnalytics' );
 Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 'filteredAnalyticsResults' );
+Route::get( 'display/analytics-summary', 'AnalyticsController@analyticsDataSummary' )->name( 'analyticsDataSummary' );
+Route::get( 'display/analytics-summary', 'AnalyticsController@analyticsDataSummary' )->name( 'filteredAnalyticsSummary' );
 
 // Broken Links
 Route::post( 'back-link/{id}/updateDomain', 'BrokenLinkCheckerController@updateDomain' );
