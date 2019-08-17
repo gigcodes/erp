@@ -1408,7 +1408,9 @@
                                               <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
                                               <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
                                               <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
+                                              <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
                                               <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
+                                              <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
                                           </li>
                                       </ul>
 

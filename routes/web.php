@@ -948,10 +948,17 @@ Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 's
 Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 'filteredAnalyticsResults' );
 Route::get( 'display/analytics-summary', 'AnalyticsController@analyticsDataSummary' )->name( 'analyticsDataSummary' );
 Route::get( 'display/analytics-summary', 'AnalyticsController@analyticsDataSummary' )->name( 'filteredAnalyticsSummary' );
+Route::get( 'display/analytics-customer-behaviour', 'AnalyticsController@customerBehaviourByPage' )->name( 'customerBehaviourByPage' );
+Route::get( 'display/analytics-customer-behaviour', 'AnalyticsController@customerBehaviourByPage' )->name( 'filteredcustomerBehaviourByPage' );
 
 // Broken Links
 Route::post( 'back-link/{id}/updateDomain', 'BrokenLinkCheckerController@updateDomain' );
 Route::post( 'back-link/{id}/updateTitle', 'BrokenLinkCheckerController@updateTitle' );
+
+// Article Links
+Route::get( 'display/articles', 'ArticleController@index' )->name( 'articleApproval' );
+Route::post( 'article/{id}/updateTitle', 'ArticleController@updateTitle' );
+Route::post( 'article/{id}/updateDescription', 'ArticleController@updateDescription' );
 
 //Back Linking
 Route::post( 'back-linking/{id}/updateTitle', 'BackLinkController@updateTitle' );
