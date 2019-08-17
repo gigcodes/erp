@@ -50,14 +50,14 @@ class PushToMagento implements ShouldQueue
         // Check for result
         if ( !$result ) {
             // Log alert
-            Log::alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
+            Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
 
             // Set product to isListed is 0
             $product->isListed = 0;
             $product->save();
         } else {
             // Log info
-            Log::info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
+            Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
         }
     }
 }

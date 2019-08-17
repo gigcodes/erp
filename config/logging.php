@@ -80,6 +80,18 @@ return [
             'driver' => 'errorlog',
             'level' => 'debug',
         ],
+
+        /* Custom log files */
+
+        'listMagento'=> [
+            'driver' => 'single',
+            'path' => storage_path('logs/list-magento.log'),
+        ],
+
+        'whatsapp'=> [
+            'driver' => 'single',
+            'path' => storage_path('logs/whatsapp.log'),
+        ],
     ],
 
 ];

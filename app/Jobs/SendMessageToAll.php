@@ -83,7 +83,7 @@ class SendMessageToAll implements ShouldQueue
 
                     // $product_img = $product_image->getMedia(config('constanst.media_tags'))->first();
                     // $chat_message->attachMedia($product_img, config('constants.media_tags'));
-                    if ( is_array($product_ids) && count($product_ids) > 0 ) {
+                    if ( is_array( $product_ids ) && count( $product_ids ) > 0 ) {
                         foreach ( $product_ids as $product_id ) {
                             $product = Product::find( $product_id );
 
@@ -111,7 +111,8 @@ class SendMessageToAll implements ShouldQueue
                     app( WhatsAppController::class )->sendWithThirdApi( $this->customer->phone, $send_number, $message, false, $chat_message->id );
                     // }
                 } catch ( \Exception $e ) {
-
+                    // Message will be sent again in the next queue
+                    return false;
                 }
             }
 
@@ -132,7 +133,8 @@ class SendMessageToAll implements ShouldQueue
                             app( WhatsAppController::class )->sendWithThirdApi( $this->customer->phone, $send_number, NULL, str_replace( ' ', '%20', $image[ 'url' ] ), $chat_message->id );
                             // }
                         } catch ( \Exception $e ) {
-
+                            // Message will be sent again in the next queue
+                            return false;
                         }
                     } else {
                         $broadcast_image = BroadcastImage::find( $image );
@@ -151,7 +153,8 @@ class SendMessageToAll implements ShouldQueue
                                     app( WhatsAppController::class )->sendWithThirdApi( $this->customer->phone, $send_number, NULL, str_replace( ' ', '%20', $brod_image->getUrl() ), $chat_message->id );
                                     // }
                                 } catch ( \Exception $e ) {
-
+                                    // Message will be sent again in the next queue
+                                    return false;
                                 }
                             }
                         }
@@ -182,10 +185,14 @@ class SendMessageToAll implements ShouldQueue
 
                         // }
                     } catch ( \Exception $e ) {
-
+                        // Message will be sent again in the next queue
+                        return false;
                     }
                 }
             }
+
+            // Debug logging
+            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Messages sent to " . $this->customer->phone );
 
             $chat_message->update( [
                 'approved' => 1
