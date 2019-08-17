@@ -41,7 +41,7 @@ class MagentoSoapHelper
             $this->_sessionId = $this->_proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
         } catch ( \SoapFault $fault ) {
             // Log the error
-            Log::emergency( "Unable to connect to Magento via SOAP: " . $fault->getMessage() );
+            Log::channel('listMagento')->emergency( "Unable to connect to Magento via SOAP: " . $fault->getMessage() );
 
             // Set session ID to false
             $this->_sessionId = false;
@@ -285,7 +285,7 @@ class MagentoSoapHelper
             );
 
             // Log info
-            Log::info( "Product (" . $productType . ") with SKU " . $sku . " successfully pushed to Magento" );
+            Log::channel('listMagento')->info( "Product (" . $productType . ") with SKU " . $sku . " successfully pushed to Magento" );
 
             // Return result
             return $result;
@@ -293,14 +293,14 @@ class MagentoSoapHelper
             // Check exception message to see if the product already exists
             if ( $e->getMessage() == 'The value of attribute "SKU" must be unique' ) {
                 // Log info
-                Log::info( "Product (" . $productType . ") with SKU " . $sku . " already exists in Magento" );
+                Log::channel('listMagento')->info( "Product (" . $productType . ") with SKU " . $sku . " already exists in Magento" );
 
                 // Return true
                 return true;
             }
 
             // Log alert
-            Log::alert( "Product (" . $productType . ") with SKU " . $sku . " failed while pushing to Magento. Message: " . $e->getMessage() );
+            Log::channel('listMagento')->alert( "Product (" . $productType . ") with SKU " . $sku . " failed while pushing to Magento. Message: " . $e->getMessage() );
 
             // Return false
             return false;
@@ -339,10 +339,10 @@ class MagentoSoapHelper
                     );
 
                     // Log info
-                    Log::info( "Image for product " . $product->id . " with name " . $file[ 'name' ] . " successfully pushed to Magento" );
+                    Log::channel('listMagento')->info( "Image for product " . $product->id . " with name " . $file[ 'name' ] . " successfully pushed to Magento" );
                 } catch ( \SoapFault $e ) {
                     // Log alert
-                    Log::alert( "Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento with message: " . $e->getMessage() );
+                    Log::channel('listMagento')->alert( "Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento with message: " . $e->getMessage() );
                 }
             }
         }

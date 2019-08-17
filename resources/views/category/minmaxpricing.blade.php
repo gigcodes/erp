@@ -26,7 +26,7 @@
 
     <script>
         $(document).ready(function () {
-            $(document).on('keyup', '.update-pricing', function (event) {
+            $(document).on('blur', '.update-pricing', function (event) {
                 let data_category_id = $(this).data('cat');
                 let data_brand_segment = $(this).data('brand');
                 let data_type = $(this).data('type');
