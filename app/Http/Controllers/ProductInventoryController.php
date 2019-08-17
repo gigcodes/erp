@@ -89,9 +89,9 @@ class ProductInventoryController extends Controller
 
 				foreach ($categories as $category_id => $products) {
 					$category = Category::find($category_id);
-					if ($category->parent_id != 0) {
+					if ($category !== NULL && $category->parent_id != 0) {
 						$parent = $category->parent;
-						if ($parent->parent_id != 0) {
+						if (isset($parent->parent_id) && $parent->parent_id != 0) {
 							$inventory_data[$brand_name][$supplier_name][$parent->parent_id][$parent->id] += count($products);
 						} else {
 							$inventory_data[$brand_name][$supplier_name][$parent->id][$category->id] += count($products);
@@ -298,7 +298,12 @@ class ProductInventoryController extends Controller
 
 
 //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
-		$data['products'] = $productQuery->whereRaw("(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))")->paginate( Setting::get( 'pagination' ) );
+
+        if ($request->get('in_pdf') === 'on') {
+            $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
+        } else {
+            $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
+        }
 
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
@@ -331,6 +336,7 @@ class ProductInventoryController extends Controller
 		}
 
         if ($request->get('in_pdf') === 'on') {
+		    set_time_limit(0);
             $html = view( 'instock.instock_pdf', $data );
 
             $pdf = new Dompdf();

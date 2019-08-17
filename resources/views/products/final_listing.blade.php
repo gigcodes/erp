@@ -166,7 +166,7 @@
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br>
                                             <span id="description{{ $product->id }}" class="same-color">
-                                                {{ $product->short_description }}
+                                                {{ html_entity_decode($product->short_description) }}
                                               </span>
                                             <br/>
                                         @php
@@ -177,7 +177,7 @@
                                                 @if ( $description->description != $product->short_description )
                                                 <hr/>
                                                 <span class="same-color">
-                                                    {{ $description->description }}
+                                                    {{ html_entity_decode($description->description) }}
                                                     </span>
                                                 <p>
                                                     <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", $description->description) }}">Use this description ({{ $description->website }})</button>
@@ -368,9 +368,9 @@
                                     <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
 
                                     <span class="long-description-container hidden">
-                  <span class="description-container">{{ $product->short_description }}</span>
+                  <span id="span_description_{{ $product->id }}" class="description-container">{{ $product->short_description }}</span>
 
-                  <textarea name="description" class="form-control quick-description-edit-textarea hidden" rows="8" cols="80">{{ $product->short_description }}</textarea>
+                  <textarea name="description" id="textarea_description_{{ $product->id }}" class="form-control quick-description-edit-textarea hidden" rows="8" cols="80">{{ $product->short_description }}</textarea>
                 </span>
 
                                     <button type="button" class="btn-link quick-edit-description" data-id="{{ $product->id }}">Edit</button>
@@ -1185,6 +1185,9 @@
                         $(thiss).siblings('.description-container').text(description);
                         $(thiss).siblings('.description-container').removeClass('hidden');
                         $(thiss).siblings('.quick-description-edit-textarea').addClass('hidden');
+                        $('#description' + id).hide();
+                        $('#description' + id).html(description);
+                        $('#description' + id).show(1000);
 
                         var short_description = description.substr(0, 100);
 
@@ -1306,6 +1309,8 @@
                 }
             }).done(function (response) {
                 $('#description' + id).html(description);
+                $('#span_description_' + id).html(description);
+                $('#textarea_description_' + id).text(description);
                 $('#description' + id).show(1000);
             });
         });

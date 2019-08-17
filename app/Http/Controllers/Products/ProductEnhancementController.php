@@ -16,6 +16,8 @@ class ProductEnhancementController extends Controller
 
         $product = Product::where('is_enhanced', 0)
             ->where('is_crop_ordered', 1)
+            ->where('is_approved', 1)
+            ->where('is_listing_rejected', 0)
             ->orderByRaw($orderByPritority)
             ->orderBy('is_approved', 'DESC')
             ->first();
