@@ -466,16 +466,9 @@ class PurchaseController extends Controller
 
       $new_products = array_reverse($new_products);
 
-      $currentPage = LengthAwarePaginator::resolveCurrentPage();
-      $perPage = Setting::get('pagination');
-      $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
-
-      $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
-        'path'  => LengthAwarePaginator::resolveCurrentPath()
-      ]);
-
-
       if ($request->get('in_pdf') === 'on') {
+          set_time_limit(0);
+
           $html = view('purchase.purchase-grid-pdf')->with([
               'products'      => $new_products,
               'order_status'  => $order_status,
@@ -494,6 +487,14 @@ class PurchaseController extends Controller
           $pdf->stream('orders.pdf');
           return;
       }
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = Setting::get('pagination');
+        $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
+
+        $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
+            'path'  => LengthAwarePaginator::resolveCurrentPath()
+        ]);
 
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,
@@ -2266,7 +2267,7 @@ class PurchaseController extends Controller
             if ($bcc) {
                 $mail->bcc($bcc);
             }
-            
+
             $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
         }
         else {
