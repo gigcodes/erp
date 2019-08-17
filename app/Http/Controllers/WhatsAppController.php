@@ -2994,7 +2994,7 @@ class WhatsAppController extends FindByNumberController
                 if ( strlen( $number ) != 12 || !preg_match( '/^[91]{2}/', $number ) ) {
                     // DON'T THROW EXCEPTION
                     // throw new \Exception("Invalid number format. Must be 12 digits and start with 91");
-                    \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Invalid number format. Must be 12 digits and start with 91" );
+                    \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Invalid number format. Must be 12 digits and start with 91: " . $number );
                     return false;
                 }
             }
@@ -3088,14 +3088,14 @@ class WhatsAppController extends FindByNumberController
         if ( $err ) {
             // DON'T THROW EXCEPTION
             // throw new \Exception("cURL Error #:" . $err);
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error #:" . $err );
+            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
             return false;
         } else {
             $result = json_decode( $response );
             if ( !$result->success ) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("whatsapp request error: " . $result->description);
-                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error: " . $result->description );
+                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error for number " . $number . ": " . $result->description );
                 return false;
             }
         }
@@ -3169,7 +3169,7 @@ class WhatsAppController extends FindByNumberController
         if ( $err ) {
             // DON'T THROW EXCEPTION
             // throw new \Exception( "cURL Error #:" . $err );
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error #:" . $err );
+            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
             return false;
         } else {
             $result = json_decode( $response, true );
@@ -3280,7 +3280,7 @@ class WhatsAppController extends FindByNumberController
             if ( $err ) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception( "cURL Error #:" . $err );
-                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error #:" . $err );
+                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
                 return false;
             } else {
                 $result = json_decode( $response, true );
@@ -3292,7 +3292,7 @@ class WhatsAppController extends FindByNumberController
                         } else {
                             // DON'T THROW EXCEPTION
                             // throw new \Exception( "Something was wrong with image: " . $result[ 'message' ] );
-                            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the image::" . $result[ 'message' ] );
+                            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the image for number " . $number . ":" . $result[ 'message' ] );
                             return false;
                         }
                     } else {
@@ -3346,7 +3346,7 @@ class WhatsAppController extends FindByNumberController
         if ( $err ) {
             // DON'T THROW EXCEPTION
             // throw new \Exception( "cURL Error #:" . $err );
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error #:" . $err );
+            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
             return false;
         } else {
             $result = json_decode( $response, true );
@@ -3354,7 +3354,7 @@ class WhatsAppController extends FindByNumberController
             if ( $http_code != 201 ) {
                 // DON'T THROW EXCEPTION
                 // throw new \Exception( "Something was wrong with message: " . $response );
-                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message:" . $response );
+                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ":" . $response );
                 return false;
             }
         }
@@ -3426,7 +3426,7 @@ class WhatsAppController extends FindByNumberController
         if ( $err ) {
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error #:" . $err );
+            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
             return false;
         } else {
             $result = json_decode( $response, true );
@@ -3434,7 +3434,7 @@ class WhatsAppController extends FindByNumberController
             if ( !is_array( $result ) || array_key_exists( 'sent', $result ) && !$result[ 'sent' ] ) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("Something was wrong with message: " . $response);
-                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message " . $response );
+                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response );
                 return false;
             }
         }

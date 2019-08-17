@@ -111,8 +111,7 @@ class SendMessageToAll implements ShouldQueue
                     app( WhatsAppController::class )->sendWithThirdApi( $this->customer->phone, $send_number, $message, false, $chat_message->id );
                     // }
                 } catch ( \Exception $e ) {
-                    // Message will be sent again in the next queue
-                    return false;
+                    // DO NOTHING TO AVOID DUPLICATE MESSAGES
                 }
             }
 
@@ -185,8 +184,7 @@ class SendMessageToAll implements ShouldQueue
 
                         // }
                     } catch ( \Exception $e ) {
-                        // Message will be sent again in the next queue
-                        return false;
+                        // DO NOTHING TO AVOID DUPLICATE MESSAGES
                     }
                 }
             }
