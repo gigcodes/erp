@@ -5,7 +5,7 @@ return [
         [
             'number'  => '919152731486',
             'key'     => '6f7a60eea35c32397f7a9e4de1576e1f73788d383bd33d15e605a7648f38d45aacb74d5c241c817f',
-            'device'  => '5d08a3f4e7d8d0001b01134d',
+            'device'  => '5d57fdc7afc7e2001b9b6aba',
         ],
         [
             'number'  => '919152731483',
