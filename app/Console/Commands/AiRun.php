@@ -40,8 +40,9 @@ class AiRun extends Command
      */
     public function handle()
     {
-        // Get rejected listings
-        $products = Product::with( 'product_category' )->leftJoin( 'log_scraper_vs_ai', 'products.id', '=', 'log_scraper_vs_ai.product_id' )->where( 'ai_name', NULL )->orderBy( 'products.created_at', 'DESC' )->limit( 250 )->get( [ 'products.id' ] );
+        // Get all listings
+        $orderByPritority = "CASE WHEN products.brand IN (27, 42, 11, 19, 24) AND products.supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+        $products = Product::with( 'product_category' )->leftJoin( 'log_scraper_vs_ai', 'products.id', '=', 'log_scraper_vs_ai.product_id' )->where( 'ai_name', NULL )->orderByRaw($orderByPritority)->orderBy( 'products.created_at', 'DESC' )->limit( 250 )->get( [ 'products.id' ] );
 
         // Loop over products
         foreach ( $products as $product ) {
@@ -71,7 +72,7 @@ class AiRun extends Command
             }
 
             // Skip to the next one if there are no images
-            if ( count($arrImages) == 0 ) {
+            if ( count( $arrImages ) == 0 ) {
                 continue;
             }
 
