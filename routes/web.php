@@ -48,6 +48,7 @@ Route::prefix('product')->middleware('auth')->group(static function() {
 
 Route::prefix('category-messages')->group(function() {
     Route::post('bulk-messages/keyword', 'BulkCustomerRepliesController@storeKeyword');
+    Route::post('bulk-messages/send-message', 'BulkCustomerRepliesController@sendMessagesByKeyword');
     Route::resource('bulk-messages', 'BulkCustomerRepliesController');
     Route::resource('keyword', 'KeywordToCategoryController');
     Route::resource('category', 'CustomerCategoryController');
