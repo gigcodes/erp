@@ -2584,9 +2584,7 @@ class WhatsAppController extends FindByNumberController
         $defCustomer = '919152731483';
         $message = ChatMessage::findOrFail( $request->get( "messageId" ) );
         $today_date = Carbon::now()->format( 'Y-m-d' );
-        var_dump( $context );
-        var_dump( $request );
-        exit();
+
         if ( $context == "customer" ) {
             $chat_messages_count = ChatMessage::where( 'customer_id', $message->customer_id )->where( 'created_at', 'LIKE', "%$today_date%" )->whereNull( 'number' )->count();
 
