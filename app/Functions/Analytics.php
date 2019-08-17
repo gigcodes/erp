@@ -116,21 +116,21 @@ function printResults($reports) {
     $report = $reports[ $reportIndex ];
 	$rows = $report->getData()->getRows();
 	foreach ($rows as $key => $value ){
-		$data['data'][$key]['operatingSystem'] = $value['dimensions']['0'];
-		$data['data'][$key]['user_type'] = $value['dimensions']['1'];
-		$data['data'][$key]['time'] = $value['dimensions']['2'];
-		$data['data'][$key]['page_path'] = $value['dimensions']['3'];
-		$data['data'][$key]['country'] = $value['dimensions']['4'];
-		$data['data'][$key]['city'] = $value['dimensions']['5'];
-		$data['data'][$key]['social_network'] = $value['dimensions']['6'];
-		$data['data'][$key]['date'] = $value['dimensions']['7'];
-		$data['data'][$key]['device_info'] = $value['dimensions']['8'];
+		$data[$key]['operatingSystem'] = $value['dimensions']['0'];
+		$data[$key]['user_type'] = $value['dimensions']['1'];
+		$data[$key]['time'] = $value['dimensions']['2'];
+		$data[$key]['page_path'] = $value['dimensions']['3'];
+		$data[$key]['country'] = $value['dimensions']['4'];
+		$data[$key]['city'] = $value['dimensions']['5'];
+		$data[$key]['social_network'] = $value['dimensions']['6'];
+		$data[$key]['date'] = $value['dimensions']['7'];
+		$data[$key]['device_info'] = $value['dimensions']['8'];
 		foreach ($value['metrics'] as $m_key => $m_value ){
-			$data['data'][$key]['sessions'] = $m_value['values'][0];
-			$data['data'][$key]['pageviews'] = $m_value['values'][1];
-			$data['data'][$key]['bounceRate'] = $m_value['values'][2];
-			$data['data'][$key]['avgSessionDuration'] = $m_value['values'][3];
-			$data['data'][$key]['timeOnPage'] = $m_value['values'][4];
+			$data[$key]['sessions'] = $m_value['values'][0];
+			$data[$key]['pageviews'] = $m_value['values'][1];
+			$data[$key]['bounceRate'] = $m_value['values'][2];
+			$data[$key]['avgSessionDuration'] = $m_value['values'][3];
+			$data[$key]['timeOnPage'] = $m_value['values'][4];
 		}
 	}
 	return $data;

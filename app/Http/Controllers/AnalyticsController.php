@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
-use Analytics;
+use App\Analytics;
+use App\AnalyticsSummary;
 use Spatie\Analytics\Period;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Input;
 use Carbon\Carbon;
 use DB;
 use function Opis\Closure\unserialize;
@@ -12,120 +14,73 @@ use function Opis\Closure\unserialize;
 class AnalyticsController extends Controller
 {
    public function showData(Request $request){
-      include(app_path() . '/Functions/Analytics.php');
-      // if(!empty($request['location'])){
-      //    foreach($data as $key => $new_data){
-      //       $collection = collect($new_data);
-      //       $filtered = $collection->filter(function ($new_data, $key) {
-      //           $new_data === $request['location'];
-      //      });
-      //    }
-      // }
-      // $visitors = Analytics::fetchVisitorsAndPageViews(Period::days(1));
-      // DB::table('google_analytics')->where('key', '=', 'visitors')->delete();
-      // DB::table('google_analytics')->insert(
-      //    [
-      //       'key' => 'visitors',
-      //       'value' => serialize($visitors)
-      //    ]
-      // );
-      // $top_referers = Analytics::fetchTopReferrers(Period::days(4), 20);
-      // $user_types = Analytics::fetchUserTypes(Period::days(4));
-      // $total_visitors_page_views = Analytics::fetchTotalVisitorsAndPageViews(Period::days(4));
-      // DB::table('google_analytics')->where('key', '=', 'top_referers')->delete();
-      // DB::table('google_analytics')->insert(
-      //    [
-      //       'key' => 'top_referers',
-      //       'value' => serialize($top_referers)
-      //    ]
-      // );
-      // DB::table('google_analytics')->where('key', '=', 'user_types')->delete();
-      // DB::table('google_analytics')->insert(
-      //    [
-      //       'key' => 'user_types',
-      //       'value' => serialize($user_types)
-      //    ]
-      // );
-      // DB::table('google_analytics')->where('key', '=', 'total_visitors_page_views')->delete();
-      // DB::table('google_analytics')->insert(
-      //    [
-      //       'key' => 'total_visitors_page_views',
-      //       'value' => serialize($total_visitors_page_views)
-      //    ]
-      // );
-      // $top_referers_ser = DB::table('google_analytics')->select('value')->where('key', 'top_referers')->pluck('value')->toArray();
-      // $user_types_ser = DB::table('google_analytics')->select('value')->where('key', 'user_types')->pluck('value')->toArray();
-      // $total_visitors_page_views_ser = DB::table('google_analytics')->select('value')->where('key', 'total_visitors_page_views')->pluck('value')->toArray();
-      // $visitors_ser = DB::table('google_analytics')->select('value')->where('key', 'visitors')->pluck('value')->toArray();
-      // $total_views = unserialize($total_visitors_page_views_ser[0]);
-      
-      // if (!empty($request['date'])) {
-      //       foreach($total_views as $views) {
-      //          $dates[] = Carbon::parse($views['date'])->toDateString();
-      //       }
-      //       if (in_array(Carbon::parse($request['date'])->toDateTimeString(), $dates)) {
-      //          $total_views = unserialize($total_visitors_page_views_ser[0]);
-      //       }
-      //       $total_views = unserialize($total_visitors_page_views_ser[0]);
-      // }
-      // return View('analytics.index', compact('top_referers_ser', 'user_types_ser', 'total_views', 'visitors_ser', 'results'));
-      return View('analytics.index', compact('data'));
+      $visitors = ['New Visitor' => 'New Visitor', 'Returning Visitor' => 'Returning Visitor'];
+      if (!empty($_GET['location'])) {
+         $location = $_GET['location'];
+         $data = Analytics::where('country', 'like', '%' . $location . '%')->get()->toArray();
+     } elseif(!empty($_GET['user'])) {
+         $data = Analytics::where('user_type', $request['user'])->get()->toArray();
+     } elseif(!empty($_GET['device_os'])) {
+         $data = Analytics::where('operatingSystem', 'like', '%' . $request['device_os'] . '%')->
+            orWhere('device_info', 'like', '%' . $request['device_os'] . '%')
+            ->get()->toArray();
+      } else {
+         include(app_path() . '/Functions/Analytics.php');
+     }
+      // Analytics::get()->toArray();
+            // foreach ($data as $key => $new_item) {
+            // DB::table('analytics')->insert(
+            //       [
+            //             "operatingSystem" => $new_item['operatingSystem'], 
+            //             "user_type" => $new_item['user_type'],
+            //             "time" => $new_item['time'],
+            //             "page_path" => $new_item['page_path'],
+            //             "country" => $new_item['country'],
+            //             "city" => $new_item['city'],
+            //             "social_network" => $new_item['social_network'],
+            //             "date" => $new_item['date'],
+            //             "device_info" => $new_item['device_info'],
+            //             "sessions" => $new_item['sessions'],
+            //             "pageviews" => $new_item['pageviews'],
+            //             "bounceRate" => $new_item['bounceRate'],
+            //             "avgSessionDuration" => $new_item['avgSessionDuration'],
+            //             "timeOnPage" => $new_item['timeOnPage'],
+                        
+            //       ]
+            //    );
+            // }
+      return View('analytics.index', compact('data', 'visitors'));
    }
    
-
-
-   
-   //   * Return google analytics Data
-   //   */
-   //  public function showData(Request $request){
-   //       $visitors = Analytics::fetchVisitorsAndPageViews(Period::days(1));
-   //       DB::table('google_analytics')->where('key', '=', 'visitors')->delete();
-   //       DB::table('google_analytics')->insert(
-   //          [
-   //           'key' => 'visitors',
-   //           'value' => serialize($visitors)
-   //          ]
-   //       );
-   //       $top_referers = Analytics::fetchTopReferrers(Period::days(4), 20);
-   //       $user_types = Analytics::fetchUserTypes(Period::days(4));
-   //       $total_visitors_page_views = Analytics::fetchTotalVisitorsAndPageViews(Period::days(4));
-   //       DB::table('google_analytics')->where('key', '=', 'top_referers')->delete();
-   //       DB::table('google_analytics')->insert(
-   //          [
-   //           'key' => 'top_referers',
-   //           'value' => serialize($top_referers)
-   //          ]
-   //       );
-   //       DB::table('google_analytics')->where('key', '=', 'user_types')->delete();
-   //       DB::table('google_analytics')->insert(
-   //          [
-   //           'key' => 'user_types',
-   //           'value' => serialize($user_types)
-   //          ]
-   //       );
-   //       DB::table('google_analytics')->where('key', '=', 'total_visitors_page_views')->delete();
-   //       DB::table('google_analytics')->insert(
-   //          [
-   //           'key' => 'total_visitors_page_views',
-   //           'value' => serialize($total_visitors_page_views)
-   //          ]
-   //       );
-   //       $top_referers_ser = DB::table('google_analytics')->select('value')->where('key', 'top_referers')->pluck('value')->toArray();
-   //       $user_types_ser = DB::table('google_analytics')->select('value')->where('key', 'user_types')->pluck('value')->toArray();
-   //       $total_visitors_page_views_ser = DB::table('google_analytics')->select('value')->where('key', 'total_visitors_page_views')->pluck('value')->toArray();
-   //       $visitors_ser = DB::table('google_analytics')->select('value')->where('key', 'visitors')->pluck('value')->toArray();
-   //       $total_views = unserialize($total_visitors_page_views_ser[0]);
-         
-   //       if (!empty($request['date'])) {
-   //           foreach($total_views as $views) {
-   //               $dates[] = Carbon::parse($views['date'])->toDateString();
-   //           }
-   //           if (in_array(Carbon::parse($request['date'])->toDateTimeString(), $dates)) {
-   //              $total_views = unserialize($total_visitors_page_views_ser[0]);
-   //           }
-   //           $total_views = unserialize($total_visitors_page_views_ser[0]);
-   //       }
-   //       return View('analytics.index', compact('top_referers_ser', 'user_types_ser', 'total_views', 'visitors_ser'));
-   //  }
-
+	public function analyticsDataSummary(Request $request)
+	{
+		$brands = [
+			'balenciaga' => 'Balenciaga', 
+			'gucci' => 'Gucci',
+			'jimmy-choo' => 'Jimmy Choo',
+			'saint-laurent' => 'Saint Laurent',
+			'givenchy' => 'Givenchy',
+			'christian-dior' => 'Christian Dior',
+			'prada' => 'Prada',
+			'dolce-gabbana' => 'Dolce Gabbana',
+			'fendi' => 'Fendi',
+			'bottega-veneta' => 'Bottega Vneta',
+			'burberry' => 'Burberry',
+		];
+		$genders = [
+			'mens' => 'Mens', 
+			'women' => 'Womens',
+		];
+		if (!empty($_GET['location'])) {
+			$location = $_GET['location'];
+			$data = AnalyticsSummary::where('country', 'like', '%' . $location . '%')->get()->toArray();
+		} elseif(!empty($_GET['brand'])) {
+			$data = AnalyticsSummary::where('brand_name', $request['brand'])->get()->toArray();
+		} elseif(!empty($_GET['gender'])) {
+			$data = AnalyticsSummary::where('gender', $request['gender'])->get()->toArray();
+		 } else {
+			include(app_path() . '/Functions/Analytics.php');
+		}
+		return View('analytics.summary', compact('data', 'brands', 'genders'));
+	}
 }
