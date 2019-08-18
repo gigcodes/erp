@@ -51,6 +51,51 @@
         </div>
     </div>
     <div class="col-md-12">
-
+        @if($searchedKeyword)
+            @if($searchedKeyword->customers)
+                <form action="{{ action('BulkCustomerRepliesController@sendMessagesByKeyword') }}" method="post">
+                    <table class="table table-striped table-bordered">
+                        <tr>
+                            <td>Pick?</td>
+                            <td>S.N</td>
+                            <td>Customer</td>
+                            <td>Recent Messages</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <div class="row">
+                                    <div class="col-md-11">
+                                        <textarea name="message" id="message" rows="1" class="form-control" placeholder="Common message.."></textarea>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button class="btn btn-secondary btn-block">Send</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        @foreach($searchedKeyword->customers as $key=>$customer)
+                            <tr>
+                                <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}"></td>
+                                <td>{{ $key+1 }}</td>
+                                <td>{{ $customer->name }}</td>
+                                <td>
+                                    @foreach($customer->messageHistory as $message)
+                                        <li>{{ $message->message }}</li>
+                                    @endforeach
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </form>
+            @else
+            @endif
+        @endif
     </div>
+@endsection
+
+@section('scripts')
+    <script src="https://rawgit.com/jackmoore/autosize/master/dist/autosize.min.js"></script>
+    <script>
+        autosize(document.getElementById("message"));
+    </script>
 @endsection

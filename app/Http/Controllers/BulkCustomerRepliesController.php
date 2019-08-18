@@ -19,14 +19,16 @@ class BulkCustomerRepliesController extends Controller
         $keywords = BulkCustomerRepliesKeyword::where('is_manual', 1)->get();
         $autoKeywords = BulkCustomerRepliesKeyword::where('count', '>', 10)->get();
 
+        $searchedKeyword = null;
+
         if ($request->get('keyword_filter')) {
             $keyword = $request->get('keyword_filter');
 
-            $customer = Cutomer::whereHas('')->get();
+            $searchedKeyword = BulkCustomerRepliesKeyword::where('value', $keyword)->with(['customers', 'customers.messageHistory'])->first();
 
         }
 
-        return view('bulk-customer-replies.index', compact('keywords','autoKeywords'));
+        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword'));
     }
 
     public function storeKeyword(Request $request) {
