@@ -179,13 +179,13 @@
                                         @endphp
                                         @if ( $descriptions->count() > 0 )
                                             @foreach ( $descriptions as $description )
-                                                @if ( !empty(trim($description->description)) && $description->description != $product->short_description )
+                                                @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
                                                     <hr/>
                                                     <span class="same-color">
                                                         {{ html_entity_decode($description->description) }}
                                                     </span>
                                                     <p>
-                                                        <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", $description->description) }}">Use this description ({{ $description->website }})</button>
+                                                        <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">Use this description ({{ $description->website }})</button>
                                                     </p>
                                                 @endif
                                             @endforeach
@@ -377,7 +377,7 @@
                                 {{--              </td>--}}
 
                                 <td class="read-more-button table-hover-cell">
-                                    <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                                    <span id="span_description_{{ $product->id }}" class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
 
                                     <span class="long-description-container hidden">
                   <span id="span_description_{{ $product->id }}" class="description-container">{{ $product->short_description }}</span>
@@ -469,6 +469,8 @@
                                             <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
                                         @endforeach
                                     </select>
+
+                                    <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color" data-id="{{ $product->id }}" data-value="Multi">Multi</button>
 
                                     @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
                                         @foreach ( $product->log_scraper_vs_ai as $resultAi )
