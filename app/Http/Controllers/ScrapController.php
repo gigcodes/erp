@@ -835,7 +835,7 @@ class ScrapController extends Controller
 
         $product = Product::find($request->get('id'));
 
-        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
+        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->where('website', $website)->first();
 
         if ($scrapedProduct) {
             echo "Scraped product found \n";
