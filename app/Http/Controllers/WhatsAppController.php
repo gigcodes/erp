@@ -2601,14 +2601,14 @@ class WhatsAppController extends FindByNumberController
 
                 $additional_message = ChatMessage::create( $params );
 
-             if ($customer->whatsapp_number == '919152731483') {
-              $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id);
+                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
+                    $this->sendWithThirdApi( $message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id );
 
 //              $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
-             } else {
+                } else {
 //               $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id);
-              $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
-             }
+                    $this->sendWithNewApi( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id );
+                }
 
                 sleep( 5 );
             }
@@ -2629,72 +2629,71 @@ class WhatsAppController extends FindByNumberController
 
                     $additional_message = ChatMessage::create( $params );
 
-               if ($default_api->number == '919152731483') {
-                $data = $this->sendWithThirdApi($customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id);
+                    if ( $default_api->number == '919152731483' ) {
+                        $data = $this->sendWithThirdApi( $customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id );
 //                $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id);
-               } else {
-                   $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id);
+                    } else {
+                        $data = $this->sendWithNewApi( $customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id );
 
 //                   $this->sendWithWhatsApp($customer->phone, $default_api->number, $additional_message->message, TRUE, $additional_message->id);
-               }
+                    }
 
 
+                    sleep( 5 );
 
-              sleep(5);
-
-              CommunicationHistory::create([
-        				'model_id'		=> $customer->id,
-        				'model_type'	=> Customer::class,
-        				'type'				=> 'number-change',
-        				'method'			=> 'whatsapp'
-        			]);
+                    CommunicationHistory::create( [
+                        'model_id' => $customer->id,
+                        'model_type' => Customer::class,
+                        'type' => 'number-change',
+                        'method' => 'whatsapp'
+                    ] );
+                }
             }
-          }
 
-          if (isset($customer)) {
-            $phone = $customer->phone;
-            $whatsapp_number = $customer->whatsapp_number;
-          } else {
-            $customer = Customer::find($message->customer_id);
-            $phone = $customer->phone;
-            $whatsapp_number = $customer->whatsapp_number;
-          }
-        } else if ($context == 'supplier') {
-          $supplier = Supplier::find($message->supplier_id);
-          $phone = $supplier->default_phone;
-          $whatsapp_number = '971545889192';
-        } else if ($context == 'vendor') {
-          $vendor = Vendor::find($message->vendor_id);
-          $phone = $vendor->default_phone;
-          $whatsapp_number = $vendor->whatsapp_number;
-        } else if ($context == 'task') {
-          $sender = User::find($message->user_id);
+            if ( isset( $customer ) ) {
+                $phone = $customer->phone;
+                $whatsapp_number = $customer->whatsapp_number;
+            } else {
+                $customer = Customer::find( $message->customer_id );
+                $phone = $customer->phone;
+                $whatsapp_number = $customer->whatsapp_number;
+            }
+        } else if ( $context == 'supplier' ) {
+            $supplier = Supplier::find( $message->supplier_id );
+            $phone = $supplier->default_phone;
+            $whatsapp_number = '971545889192';
+        } else if ( $context == 'vendor' ) {
+            $vendor = Vendor::find( $message->vendor_id );
+            $phone = $vendor->default_phone;
+            $whatsapp_number = $vendor->whatsapp_number;
+        } else if ( $context == 'task' ) {
+            $sender = User::find( $message->user_id );
 
-          if ($message->erp_user == '') {
-            $receiver = Contact::find($message->contact_id);
-          } else {
-            $receiver = User::find($message->erp_user);
-          }
+            if ( $message->erp_user == '' ) {
+                $receiver = Contact::find( $message->contact_id );
+            } else {
+                $receiver = User::find( $message->erp_user );
+            }
 
-          $phone = $receiver->phone;
-          $whatsapp_number = $sender->whatsapp_number;
-        } else if ($context == 'user') {
-          $sender = User::find($message->user_id);
+            $phone = $receiver->phone;
+            $whatsapp_number = $sender->whatsapp_number;
+        } else if ( $context == 'user' ) {
+            $sender = User::find( $message->user_id );
 
-          if ($message->erp_user != '') {
-            $receiver = User::find($message->erp_user);
-          } else {
-            $receiver = Contact::find($message->contact_id);
-          }
+            if ( $message->erp_user != '' ) {
+                $receiver = User::find( $message->erp_user );
+            } else {
+                $receiver = Contact::find( $message->contact_id );
+            }
 
-          $phone = $receiver->phone;
-          $whatsapp_number = $sender->whatsapp_number;
-        } else if ($context == 'dubbizle') {
-          $dubbizle = Dubbizle::find($message->dubbizle_id);
-          $phone = $dubbizle->phone_number;
-          $whatsapp_number = '971545889192';
-        } else if ($context == 'lawyer') {
-            $lawyer = Lawyer::find($message->lawyer_id);
+            $phone = $receiver->phone;
+            $whatsapp_number = $sender->whatsapp_number;
+        } else if ( $context == 'dubbizle' ) {
+            $dubbizle = Dubbizle::find( $message->dubbizle_id );
+            $phone = $dubbizle->phone_number;
+            $whatsapp_number = '971545889192';
+        } else if ( $context == 'lawyer' ) {
+            $lawyer = Lawyer::find( $message->lawyer_id );
             $phone = $lawyer->default_phone;
             $whatsapp_number = $lawyer->whatsapp_number;
         } else if ( $context == 'case' ) {
@@ -2715,34 +2714,34 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ( $message->message != '' ) {
 
-          if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger') {
-            $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
-          } else {
-             if ($whatsapp_number == '919152731483') {
+            if ( $context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' ) {
+                $this->sendWithThirdApi( $phone, $whatsapp_number, $message->message, NULL, $message->id );
+            } else {
+                if ( $whatsapp_number == '919152731483' ) {
 //              $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
-                 $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id);
-             } else {
+                    $this->sendWithThirdApi( $phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id );
+                } else {
 //               $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
 //               $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id);
-                 $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
+                    $data = $this->sendWithNewApi( $phone, $whatsapp_number, $message->message, NULL, $message->id );
 
 
-             }
-          }
+                }
+            }
         }
 
         if ( $message->media_url != '' ) {
 
 
-          // if ($whatsapp_number == '919152731483') {
-           if ($whatsapp_number == '919152731486') {
-            $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $message->media_url, $message->id);
+            // if ($whatsapp_number == '919152731483') {
+            if ( $whatsapp_number == '919152731486' ) {
+                $data = $this->sendWithNewApi( $phone, $whatsapp_number, NULL, $message->media_url, $message->id );
 //              $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
 
-           } else {
+            } else {
 //             $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
-             $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, NULL, $message->media_url);
-           }
+                $this->sendWithThirdApi( $phone, $whatsapp_number ?? $defCustomer, NULL, $message->media_url );
+            }
         }
 
         if ( $images = $message->getMedia( config( 'constants.media_tags' ) ) ) {
@@ -2763,15 +2762,14 @@ class WhatsAppController extends FindByNumberController
                     }
 
 //              if ($whatsapp_number == '919152731483') {
-              if ($whatsapp_number == '919152731486') {
+                    if ( $whatsapp_number == '919152731486' ) {
 //                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
 
-                SendImagesWithWhatsapp::dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
-              } else {
+                        SendImagesWithWhatsapp::dispatchNow( $phone, $whatsapp_number, $image->getUrl(), $message->id );
+                    } else {
 //                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
-                  $this->sendWithThirdApi($phone, $whatsapp_number ?? 919152731483, NULL, $send);
-              }
-
+                        $this->sendWithThirdApi( $phone, $whatsapp_number ?? 919152731483, NULL, $send );
+                    }
 
 
                 }
@@ -3010,7 +3008,7 @@ class WhatsAppController extends FindByNumberController
                 if ( strlen( $number ) != 12 || !preg_match( '/^[91]{2}/', $number ) ) {
                     // DON'T THROW EXCEPTION
                     // throw new \Exception("Invalid number format. Must be 12 digits and start with 91");
-                    \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Invalid number format. Must be 12 digits and start with 91: " . $number );
+                    \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Invalid number format. Must be 12 digits and start with 91: " . $number );
                     return false;
                 }
             }
@@ -3104,14 +3102,14 @@ class WhatsAppController extends FindByNumberController
         if ( $err ) {
             // DON'T THROW EXCEPTION
             // throw new \Exception("cURL Error #:" . $err);
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
             return false;
         } else {
             $result = json_decode( $response );
             if ( !$result->success ) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("whatsapp request error: " . $result->description);
-                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error for number " . $number . ": " . $result->description );
+                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error for number " . $number . ": " . $result->description );
                 return false;
             }
         }
@@ -3185,7 +3183,7 @@ class WhatsAppController extends FindByNumberController
         if ( $err ) {
             // DON'T THROW EXCEPTION
             // throw new \Exception( "cURL Error #:" . $err );
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
             return false;
         } else {
             $result = json_decode( $response, true );
@@ -3296,7 +3294,7 @@ class WhatsAppController extends FindByNumberController
             if ( $err ) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception( "cURL Error #:" . $err );
-                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
                 return false;
             } else {
                 $result = json_decode( $response, true );
@@ -3308,7 +3306,7 @@ class WhatsAppController extends FindByNumberController
                         } else {
                             // DON'T THROW EXCEPTION
                             // throw new \Exception( "Something was wrong with image: " . $result[ 'message' ] );
-                            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the image for number " . $number . ":" . $result[ 'message' ] );
+                            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the image for number " . $number . ":" . $result[ 'message' ] );
                             return false;
                         }
                     } else {
@@ -3362,7 +3360,7 @@ class WhatsAppController extends FindByNumberController
         if ( $err ) {
             // DON'T THROW EXCEPTION
             // throw new \Exception( "cURL Error #:" . $err );
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
             return false;
         } else {
             $result = json_decode( $response, true );
@@ -3370,7 +3368,7 @@ class WhatsAppController extends FindByNumberController
             if ( $http_code != 201 ) {
                 // DON'T THROW EXCEPTION
                 // throw new \Exception( "Something was wrong with message: " . $response );
-                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ":" . $response );
+                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ":" . $response );
                 return false;
             }
         }
@@ -3442,7 +3440,7 @@ class WhatsAppController extends FindByNumberController
         if ( $err ) {
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
             return false;
         } else {
             $result = json_decode( $response, true );
@@ -3450,7 +3448,7 @@ class WhatsAppController extends FindByNumberController
             if ( !is_array( $result ) || array_key_exists( 'sent', $result ) && !$result[ 'sent' ] ) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("Something was wrong with message: " . $response);
-                \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response );
+                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response );
                 return false;
             }
         }
@@ -3541,7 +3539,7 @@ class WhatsAppController extends FindByNumberController
             // $additional_message = ChatMessage::create($params);
 
             if ( $chat_message->message != '' ) {
-                if ( $customer->whatsapp_number == '919152731483' ) {
+                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
                     $data = $this->sendWithNewApi( $customer->phone, $customer->whatsapp_number, $chat_message->message, NULL, $chat_message->id );
                 } else {
                     $this->sendWithWhatsApp( $customer->phone, $customer->whatsapp_number, $chat_message->message, TRUE, $chat_message->id );
@@ -3550,7 +3548,7 @@ class WhatsAppController extends FindByNumberController
 
             if ( $chat_message->hasMedia( config( 'constants.media_tags' ) ) ) {
                 foreach ( $chat_message->getMedia( config( 'constants.media_tags' ) ) as $image ) {
-                    if ( $customer->whatsapp_number == '919152731483' ) {
+                    if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
                         $data = $this->sendWithNewApi( $customer->phone, $customer->whatsapp_number, NULL, $image->getUrl(), $chat_message->id );
                     } else {
                         $this->sendWithWhatsApp( $customer->phone, $customer->whatsapp_number, str_replace( ' ', '%20', $image->getUrl() ), TRUE, $chat_message->id );
