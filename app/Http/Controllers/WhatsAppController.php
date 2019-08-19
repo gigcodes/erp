@@ -2601,14 +2601,14 @@ class WhatsAppController extends FindByNumberController
 
                 $additional_message = ChatMessage::create( $params );
 
-                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
-                    $this->sendWithThirdApi( $message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id );
+//                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
+//                    $this->sendWithThirdApi( $message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id );
 
-//              $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
-                } else {
+              $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
+//                } else {
 //               $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id);
-                    $this->sendWithNewApi( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id );
-                }
+//                    $this->sendWithNewApi( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id );
+//                }
 
                 sleep( 5 );
             }
@@ -2629,14 +2629,14 @@ class WhatsAppController extends FindByNumberController
 
                     $additional_message = ChatMessage::create( $params );
 
-                    if ( $default_api->number == '919152731483' ) {
-                        $data = $this->sendWithThirdApi( $customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id );
-//                $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id);
-                    } else {
-                        $data = $this->sendWithNewApi( $customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id );
+//                    if ( $default_api->number == '919152731483' ) {
+//                        $data = $this->sendWithThirdApi( $customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id );
+                $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id);
+//                    } else {
+//                        $data = $this->sendWithNewApi( $customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id );
 
 //                   $this->sendWithWhatsApp($customer->phone, $default_api->number, $additional_message->message, TRUE, $additional_message->id);
-                    }
+//                    }
 
 
                     sleep( 5 );
@@ -2717,16 +2717,16 @@ class WhatsAppController extends FindByNumberController
             if ( $context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' ) {
                 $this->sendWithThirdApi( $phone, $whatsapp_number, $message->message, NULL, $message->id );
             } else {
-                if ( $whatsapp_number == '919152731483' ) {
-//              $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
-                    $this->sendWithThirdApi( $phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id );
-                } else {
+//                if ( $whatsapp_number == '919152731483' ) {
+              $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
+//                    $this->sendWithThirdApi( $phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id );
+//                } else {
 //               $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
 //               $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id);
-                    $data = $this->sendWithNewApi( $phone, $whatsapp_number, $message->message, NULL, $message->id );
+//                    $data = $this->sendWithNewApi( $phone, $whatsapp_number, $message->message, NULL, $message->id );
 
 
-                }
+//                }
             }
         }
 
@@ -2734,7 +2734,7 @@ class WhatsAppController extends FindByNumberController
 
 
             // if ($whatsapp_number == '919152731483') {
-            if ( $whatsapp_number == '919152731486' ) {
+            if ( $whatsapp_number == '919152731486' || $whatsapp_number == '919152731483' ) {
                 $data = $this->sendWithNewApi( $phone, $whatsapp_number, NULL, $message->media_url, $message->id );
 //              $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
 
@@ -2762,7 +2762,7 @@ class WhatsAppController extends FindByNumberController
                     }
 
 //              if ($whatsapp_number == '919152731483') {
-                    if ( $whatsapp_number == '919152731486' ) {
+                    if ( $whatsapp_number == '919152731486' ||  $whatsapp_number == '919152731483') {
 //                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
 
                         SendImagesWithWhatsapp::dispatchNow( $phone, $whatsapp_number, $image->getUrl(), $message->id );
