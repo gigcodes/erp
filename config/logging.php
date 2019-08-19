@@ -88,6 +88,12 @@ return [
             'path' => storage_path('logs/list-magento.log'),
         ],
 
+        'productUpdates'=> [
+            'driver' => 'single',
+            'path' => storage_path('logs/product-updates.log'),
+        ],
+
+
         'whatsapp'=> [
             'driver' => 'single',
             'path' => storage_path('logs/whatsapp.log'),

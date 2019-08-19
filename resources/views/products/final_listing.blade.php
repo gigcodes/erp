@@ -23,9 +23,7 @@
                 <form class="form-inline" action="{{ action('ProductController@approvedListing') }}" method="GET">
 
                     <div class="form-group mr-3 mb-3">
-                        <input name="term" type="text" class="form-control"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="sku,brand,category,status,stage">
+                        <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status,stage">
                     </div>
 
                     <div class="form-group mr-3 mb-3">
@@ -49,7 +47,6 @@
 
                                 @foreach ($data['child'] as $children)
                                     <option style="background-color: {{ $color }};" value="{{ $children['id'] }}" {{ in_array($children['id'], $selected_categories) ? 'selected' : '' }}>&nbsp;&nbsp;{{ $children['title'] }}</option>
-
                                     @foreach ($children['child'] as $child)
                                         <option style="background-color: {{ $color }};" value="{{ $child['id'] }}" {{ in_array($child['id'], $selected_categories) ? 'selected' : '' }}>&nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
                                     @endforeach
@@ -140,7 +137,9 @@
                             <td colspan="10">
                                 <div class="row">
                                     <div class="col-md-1">
-                                        @php $product = \App\Product::find($product->id) @endphp
+                                        @php
+                                            $product = \App\Product::find($product->id)
+                                        @endphp
                                         @if ($product->hasMedia(config('constants.media_tags')))
                                             @foreach($product->getMedia('gallery') as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
@@ -151,67 +150,80 @@
                                     </div>
                                     <div class="col-md-4">
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                            <div>
+                                                <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                                @if ( $product->is_enhanced == 1 )
+                                                    <div style="position: absolute; top:0; right: 16px; padding: 4px; background-color: rgba(0,0,0,.2); font-weight: bold;">ENHANCED</div>
+                                                @endif
+                                            </div>
                                         @endif
                                     </div>
                                     <div class="col-md-3">
                                         <strong class="same-color">{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
                                         <p class="same-color">{{ $product->name }}</p>
-                                        <br>
+                                        <br/>
                                         <p class="same-color" style="font-size: 18px;">
                                             <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_special) }}
                                         </p>
-                                        <br>
+                                        <br/>
                                         <p>
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
-                                            <br>
+                                            <br/>
                                             <span id="description{{ $product->id }}" class="same-color">
                                                 {{ html_entity_decode($product->short_description) }}
-                                              </span>
-                                            <br/>
+                                            </span>
+                                        </p>
+                                        <br/>
                                         @php
                                             $descriptions = \App\ScrapedProducts::select('description','website')->where('sku', $product->sku)->get();
                                         @endphp
                                         @if ( $descriptions->count() > 0 )
                                             @foreach ( $descriptions as $description )
-                                                @if ( $description->description != $product->short_description )
-                                                <hr/>
-                                                <span class="same-color">
-                                                    {{ html_entity_decode($description->description) }}
+                                                @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
+                                                    <hr/>
+                                                    <span class="same-color">
+                                                        {{ html_entity_decode($description->description) }}
                                                     </span>
-                                                <p>
-                                                    <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", $description->description) }}">Use this description ({{ $description->website }})</button>
-                                                </p>
+                                                    <p>
+                                                        <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">Use this description ({{ $description->website }})</button>
+                                                    </p>
                                                 @endif
                                             @endforeach
+                                            <hr/>
                                         @endif
-                                                </p>
-                                                <p>
-                                                    <strong class="same-color" style="text-decoration: underline">Composition</strong>
-                                                    <br>
-                                                    <span class="same-color">
-                        {{ $product->composition }}
-                      </span>
-                                                </p>
-                                                <p>
-                                                    <strong>Color</strong>: {{ $product->color }}<br>
-                                                    <strong>Sizes</strong>: {{ $product->size }}<br>
-                                                    <strong>Dimension</strong>: {{ $product->lmeasurement }} x {{ $product->hmeasurement }} x {{ $product->dmeasurement }}<br>
-                                                </p>
-                                                <p>
-                                                    <span class="sololuxury-button">ADD TO BAG</span>
-                                                    <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
-                                                </p>
-                                                <p class="same-color">
-                                                    View All: <strong>{{ isset($product->product_category->title) ? $product->product_category->title  : '' }}</strong>
-                                                    <br>
-                                                    View All: <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
-                                                </p>
-                                                <p class="same-color">
-                                                    <strong>Style ID</strong>: {{ $product->sku }}
-                                                    <br>
-                                                    <strong class="text-danger">{{ $product->is_on_sale ? 'On Sale' : '' }}</strong>
-                                                </p>
+
+                                        <p>
+                                            <strong class="same-color" style="text-decoration: underline;">Composition</strong>
+                                            <br/>
+                                            <span class="same-color flex-column">
+                                                {{ $product->composition }}
+                                            </span>
+                                        </p>
+
+                                        <p>
+                                        <span>
+                                            <strong>Color</strong>: {{ $product->color }}<br/>
+                                        </span>
+                                        </p>
+
+                                        <p>
+                                            <strong>Sizes</strong>: {{ $product->size }}<br/>
+                                            <strong>Dimension</strong>: {{ $product->lmeasurement }} x {{ $product->hmeasurement }} x {{ $product->dmeasurement }}<br/>
+                                        </p>
+                                        <p>
+                                            <span class="sololuxury-button">ADD TO BAG</span>
+                                            <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
+                                        </p>
+                                        <p class="same-color">
+                                            View All: <strong>{{ isset($product->product_category->title) ? $product->product_category->title  : '' }}</strong>
+                                            <br/>
+                                            View All: <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
+                                        </p>
+                                        <p class="same-color">
+                                            <strong>Style ID</strong>: {{ $product->sku }}
+                                            <br/>
+                                            <strong class="text-danger">{{ $product->is_on_sale ? 'On Sale' : '' }}</strong>
+                                        </p>
                                     </div>
                                     <div class="col-md-4">
                                         <h2 class="page-heading">
@@ -332,7 +344,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr id="product_{{ $product->id }}" class="hidden">
+                        <tr id="product_{{ $product->id }}" class="">
                             @if (!Auth::user()->hasRole('ImageCropers'))
                                 <td style="word-break: break-all; word-wrap: break-word">
                                     @if ($product->is_approved == 1)
@@ -349,7 +361,7 @@
                                     @endif
 
                                     {{--                {{ (new \App\Stage)->getNameById($product->stage) }}--}}
-                                    <br>
+                                    <br/>
                                     SKU: {{ $product->sku }}
                                 </td>
                                 <td class="table-hover-cell" data-id="{{ $product->id }}">
@@ -365,7 +377,7 @@
                                 {{--              </td>--}}
 
                                 <td class="read-more-button table-hover-cell">
-                                    <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                                    <span id="span_description_{{ $product->id }}" class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
 
                                     <span class="long-description-container hidden">
                   <span id="span_description_{{ $product->id }}" class="description-container">{{ $product->short_description }}</span>
@@ -379,7 +391,7 @@
                                 <td class="table-hover-cell">
                                     {{-- {!! $category_selection !!} --}}
                                     {{--                  {{ $product->pr->title }}--}}
-                                    <select class="form-control quick-edit-category" name="category" data-id="">
+                                    <select id="quick-edit-category-{{ $product->id }}" class="form-control quick-edit-category" name="category" data-id="">
                                         @foreach ($category_array as $data)
                                             <option value="{{ $data['id'] }}">{{ $data['title'] }}</option>
                                             @if ($data['title'] == 'Men')
@@ -408,6 +420,15 @@
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                                     <input type="hidden" name="category_id" value="{{ $product->category }}">
                                     <input type="hidden" name="sizes" value='{{ $product->size }}'>
+
+                                    @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                                        @foreach ( $product->log_scraper_vs_ai as $resultAi )
+                                            @php $resultAi = json_decode($resultAi->result_ai); @endphp
+                                            @if ( !empty($resultAi->category) )
+                                                <button id="ai-category-{{ $product->id }}" data-id="{{ $product->id }}" data-category="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, NULL ) }}" class="btn btn-default btn-sm mt-2 ai-btn-category">{{ ucwords(strtolower($resultAi->category)) }} (AI)</button>
+                                            @endif
+                                        @endforeach
+                                    @endif
                                 </td>
 
                                 <td class="table-hover-cell">
@@ -442,13 +463,23 @@
                                 </td>
 
                                 <td class="table-hover-cell">
-                                    <select class="form-control quick-edit-color" name="color" data-id="{{ $product->id }}">
+                                    <select id="quick-edit-color-{{ $product->id }}" class="form-control quick-edit-color" name="color" data-id="{{ $product->id }}">
                                         <option value="">Select a Color</option>
-
                                         @foreach ($colors as $color)
                                             <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
                                         @endforeach
                                     </select>
+
+                                    <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color" data-id="{{ $product->id }}" data-value="Multi">Multi</button>
+
+                                    @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                                        @foreach ( $product->log_scraper_vs_ai as $resultAi )
+                                            @php $resultAi = json_decode($resultAi->result_ai); @endphp
+                                            @if ( !empty($resultAi->color) )
+                                                <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color" data-id="{{ $product->id }}" data-value="{{ ucwords($resultAi->color) }}">{{ ucwords($resultAi->color) }}</button>
+                                            @endif
+                                        @endforeach
+                                    @endif
                                 </td>
 
                                 <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
@@ -497,7 +528,7 @@
                                     {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
                                 </td>
                                 <td style="min-width: 80px;">
-                                    <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}"> Reject<br>
+                                    <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}"> Reject<br/>
                                     <select class="form-control post-remark" id="post_remark_{{$product->id}}" data-id="{{$product->id}}">
                                         <option value="0">Select Remark</option>
                                         <option value="Category Incorrect">Category Incorrect</option>
@@ -529,7 +560,7 @@
                                     @endif
 
                                     {{ (new \App\Stage)->getNameById($product->stage) }}
-                                    <br>
+                                    <br/>
                                     SKU: {{ $product->sku }}
                                 </td>
                                 <td>
@@ -1004,6 +1035,32 @@
             });
         });
 
+        $(document).on('click', '.ai-btn-color', function () {
+            var color = $(this).data('value');
+            var id = $(this).data('id');
+            var btnclicked = $(this);
+
+            $.ajax({
+                type: "POST",
+                url: "{{ url('products') }}/" + id + '/updateColor',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    color: color
+                }
+            }).done(function () {
+                $(btnclicked).css({border: "2px solid green"});
+
+                $('#quick-edit-color-' + id).val(color);
+
+                setTimeout(function () {
+                    $(btnclicked).css({border: "1px solid #ccc"});
+                }, 3000);
+            }).fail(function (response) {
+                alert('Could not update the color');
+                console.log(response);
+            });
+        });
+
         $(document).on('change', '.quick-edit-category', function () {
             var category = $(this).val();
             var id = $(this).data('id');
@@ -1022,6 +1079,34 @@
                 setTimeout(function () {
                     $(thiss).css({border: "1px solid #ccc"});
                 }, 2000);
+            }).fail(function (response) {
+                alert('Could not update the category');
+                console.log(response);
+            });
+
+            updateSizes(thiss, $(thiss).val());
+        });
+
+        $(document).on('click', '.ai-btn-category', function () {
+            var category = $(this).data('category');
+            var id = $(this).data('id');
+            var btnclicked = $(this);
+
+            $.ajax({
+                type: "POST",
+                url: "{{ url('products') }}/" + id + '/updateCategory',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category: category
+                }
+            }).done(function () {
+                $(btnclicked).css({border: "2px solid green"});
+
+                $('#quick-edit-category-' + id).val(category);
+
+                setTimeout(function () {
+                    $(btnclicked).css({border: "1px solid #ccc"});
+                }, 3000);
             }).fail(function (response) {
                 alert('Could not update the category');
                 console.log(response);
@@ -1412,7 +1497,7 @@
                 var html = '';
 
                 $.each(response, function (index, value) {
-                    html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
+                    html += ' <p> ' + value.remark + ' <br/> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
                     html + "<hr>";
                 });
                 $("#makeRemarkModal").find('#remark-list').html(html);
@@ -1438,7 +1523,7 @@
             }).done(response => {
                 $('#add-remark').find('textarea[name="remark"]').val('');
 
-                var html = ' <p> ' + remark + ' <br> <small>By You updated on ' + moment().format('DD-M H:mm') + ' </small></p>';
+                var html = ' <p> ' + remark + ' <br/> <small>By You updated on ' + moment().format('DD-M H:mm') + ' </small></p>';
 
                 $("#makeRemarkModal").find('#remark-list').append(html);
             }).fail(function (response) {
