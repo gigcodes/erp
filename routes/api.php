@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 //});
 
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
+Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
