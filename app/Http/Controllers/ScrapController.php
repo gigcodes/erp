@@ -835,59 +835,60 @@ class ScrapController extends Controller
 
         $product = Product::find($request->get('id'));
 
-        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->where('website', $website)->first();
+        // 2019-08-19 B: do not update the scraped product only take the properties, update the proper
 
-        if ($scrapedProduct) {
-            echo "Scraped product found \n";
-            $properties = $scrapedProduct->properties;
-            if (!$scrapedProduct->price) {
-                $scrapedProduct->price = $request->get('price');
+//        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
+//        if ($scrapedProduct) {
+//            echo "Scraped product found \n";
+//            $properties = $scrapedProduct->properties;
+//            if (!$scrapedProduct->price) {
+//                $scrapedProduct->price = $request->get('price');
+//            }
+//            $properties['category'] = $request->get('category');
+//            $properties['description'] = $request->get('description');
+//            $properties['material_used'] = $request->get('material_used');
+//            $properties['color'] = $request->get('color');
+//            $properties['dimension'] = $request->get('dimension');
+//            $properties['made_in'] = $request->get('country');
+//            $scrapedProduct->properties = $properties;
+//            $scrapedProduct->save();
+//        }
+
+        if ( $product ) {
+            $product->short_description = $request->get('description');
+            $product->composition = $request->get('material_used');
+            $product->color = $request->get('color');
+            $product->description_link = $request->get('url');
+            $product->made_in = $request->get('country');
+
+            if (!$product->lmeasurement) {
+                $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
             }
-            $properties['category'] = $request->get('category');
-            $properties['description'] = $request->get('description');
-            $properties['material_used'] = $request->get('material_used');
-            $properties['color'] = $request->get('color');
-            $properties['dimension'] = $request->get('dimension');
-            $properties['made_in'] = $request->get('country');
-            $scrapedProduct->properties = $properties;
-            $scrapedProduct->save();
-        }
-
-        $product->short_description = $request->get('description');
-        $product->composition = $request->get('material_used');
-        $product->color = $request->get('color');
-        $product->description_link = $request->get('url');
-        $product->made_in = $request->get('country');
-
-        if (!$product->lmeasurement) {
-            $product->lmeasurement = $request->get('dimension')[0] ?? '0';
-        }
-        if (!$product->hmeasurement) {
-            $product->hmeasurement = $request->get('dimension')[1] ?? '0';
-        }
-        if (!$product->dmeasurement) {
-            $product->dmeasurement = $request->get('dimension')[2] ?? '0';
-        }
+            if (!$product->hmeasurement) {
+                $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
+            }
+            if (!$product->dmeasurement) {
+                $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
+            }
 
 
 //        $product->detachMediaTags('gallery');
 
-        // Attach other information like description, etc..
+            // Attach other information like description, etc..
 
-        $images = $this->downloadImagesForSites($request->get('images'), $website);
-        foreach ($images as $image_name) {
-            // Storage::disk('uploads')->delete('/social-media/' . $image_name);
+            $images = $this->downloadImagesForSites($request->get('images'), $website);
+            foreach ($images as $image_name) {
+                // Storage::disk('uploads')->delete('/social-media/' . $image_name);
 
-            $path = public_path('uploads') . '/social-media/' . $image_name;
-            $media = MediaUploader::fromSource($path)->upload();
-            $product->attachMedia($media,config('constants.media_tags'));
+                $path = public_path('uploads') . '/social-media/' . $image_name;
+                $media = MediaUploader::fromSource($path)->upload();
+                $product->attachMedia($media, config('constants.media_tags'));
+            }
+
+            $product->is_without_image = 0;
+            $product->is_farfetched = 1;
+            $product->save();
         }
-
-        $product->is_without_image = 0;
-        $product->save();
-
-        $product->is_farfetched = 1;
-        $product->save();
 
         return response()->json([
             'status' => 'Added items successfuly!'
