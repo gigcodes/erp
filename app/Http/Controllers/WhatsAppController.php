@@ -3111,6 +3111,9 @@ class WhatsAppController extends FindByNumberController
                 //throw new \Exception("whatsapp request error: " . $result->description);
                 \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error for number " . $number . ": " . $result->description );
                 return false;
+            } else {
+                // Log successful send
+                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response );
             }
         }
     }
@@ -3370,6 +3373,9 @@ class WhatsAppController extends FindByNumberController
                 // throw new \Exception( "Something was wrong with message: " . $response );
                 \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ":" . $response );
                 return false;
+            } else {
+                // Log successful send
+                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response );
             }
         }
 
@@ -3450,6 +3456,9 @@ class WhatsAppController extends FindByNumberController
                 //throw new \Exception("Something was wrong with message: " . $response);
                 \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response );
                 return false;
+            } else {
+                // Log successful send
+                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response );
             }
         }
 
