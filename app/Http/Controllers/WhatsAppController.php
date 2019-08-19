@@ -1433,7 +1433,7 @@ class WhatsAppController extends FindByNumberController
         // file_put_contents(__DIR__."/outgoing.txt", json_encode($data));
 
         foreach ( $data as $event ) {
-            $chat_message = ChatMessage::find( $event[ 'data' ][ 'reference' ] );
+            $chat_message = ChatMessage::find( $event->data->reference );
 
             if ( $chat_message ) {
                 $chat_message->sent = 1;
