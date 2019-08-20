@@ -137,71 +137,71 @@ class Kernel extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
-    protected function schedule( Schedule $schedule )
+    protected function schedule(Schedule $schedule)
     {
         //Flag customer if they have a complaint
-        $schedule->command( 'flag:customers-with-complaints' )->daily();
+        $schedule->command('flag:customers-with-complaints')->daily();
 
         //This command sends the reply on products if they request...
-        $schedule->command( 'customers:send-auto-reply' )->everyFifteenMinutes();
+        $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();
 
         //assign the category to products, runs twice daily...
-        $schedule->command( 'category:fix-by-supplier' )->twiceDaily();
+        $schedule->command('category:fix-by-supplier')->twiceDaily();
 
-        $schedule->command( 'message:send-to-users-who-exceeded-limit' )->everyThirtyMinutes()->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'reminder:send-to-customers' )->everyMinute()->timezone( 'Asia/Kolkata' );
+        $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
+        $schedule->command('reminder:send-to-customers')->everyMinute()->timezone('Asia/Kolkata');
 
 
-        $schedule->call( function () {
-            $report = CronJobReport::create( [
+        $schedule->call(function () {
+            $report = CronJobReport::create([
                 'signature' => 'update:benchmark',
                 'start_time' => Carbon::now()
-            ] );
+            ]);
 
-            $benchmark = Benchmark::orderBy( 'for_date', 'DESC' )->first()->toArray();
-            $tasks = Task::where( 'is_statutory', 0 )->whereNotNull( 'is_verified' )->get();
+            $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
+            $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
 
-            if ( $benchmark[ 'for_date' ] != date( 'Y-m-d' ) ) {
-                $benchmark[ 'for_date' ] = date( 'Y-m-d' );
-                Benchmark::create( $benchmark );
+            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
+                $benchmark[ 'for_date' ] = date('Y-m-d');
+                Benchmark::create($benchmark);
             }
 
-            foreach ( $tasks as $task ) {
-                $time_diff = Carbon::parse( $task->is_completed )->diffInDays( Carbon::now() );
+            foreach ($tasks as $task) {
+                $time_diff = Carbon::parse($task->is_completed)->diffInDays(Carbon::now());
 
-                if ( $time_diff >= 2 ) {
+                if ($time_diff >= 2) {
                     $task->delete();
                 }
             }
 
-            $report->update( [ 'end_time' => Carbon:: now() ] );
-        } )->dailyAt( '00:00' );
+            $report->update(['end_time' => Carbon:: now()]);
+        })->dailyAt('00:00');
 
-        $schedule->call( function () {
-            \Log::debug( 'deQueueNotficationNew Start' );
+        $schedule->call(function () {
+            \Log::debug('deQueueNotficationNew Start');
             NotificationQueueController::deQueueNotficationNew();
-        } )->everyFiveMinutes();
+        })->everyFiveMinutes();
 
-        $schedule->call( function () {
-            $report = CronJobReport::create( [
+        $schedule->call(function () {
+            $report = CronJobReport::create([
                 'signature' => 'update:benchmark',
                 'start_time' => Carbon::now()
-            ] );
+            ]);
 
             MagentoController::get_magento_orders();
             //fetched magento orders...
 
-            $report->update( [ 'end_time' => Carbon:: now() ] );
-        } )->hourly();
+            $report->update(['end_time' => Carbon:: now()]);
+        })->hourly();
 
         $schedule->command('product:replace-text')->everyFiveMinutes();
 
 //        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
-        $schedule->command( 'send:hourly-reports' )->dailyAt( '12:00' )->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'send:hourly-reports' )->dailyAt( '15:30' )->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'send:hourly-reports' )->dailyAt( '17:30' )->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'run:message-queues' )->everyFiveMinutes()->between( '9:00', '18:00' )->withoutOverlapping( 10 );
-        $schedule->command( 'monitor:cron-jobs' )->everyMinute();
+        $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
+        $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
+        $schedule->command('run:message-queues')->everyFiveMinutes()->between('9:00', '18:00')->withoutOverlapping(10);
+        $schedule->command('monitor:cron-jobs')->everyMinute();
 //        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
         // $schedule->exec('/usr/local/php72/bin/php-cli artisan queue:work --once --timeout=120')->everyMinute()->withoutOverlapping(3);
 
@@ -217,34 +217,37 @@ class Kernel extends ConsoleKernel
 //            ->everyMinute();
 
         // $schedule->command('check:user-logins')->everyFiveMinutes();
-        $schedule->command( 'send:image-interest' )->cron( '0 07 * * 1,4' ); // runs at 7AM Monday and Thursday
+        $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
 
         // Sends Auto messages
-        $schedule->command( 'send:auto-reminder' )->hourly();
-        $schedule->command( 'send:auto-messenger' )->hourly();
+        $schedule->command('send:auto-reminder')->hourly();
+        $schedule->command('send:auto-messenger')->hourly();
         // $schedule->command('check:messages-errors')->hourly();
-        $schedule->command( 'send:product-suggestion' )->dailyAt( '07:00' )->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'send:activity-listings' )->dailyAt( '23:45' )->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'run:message-scheduler' )->dailyAt( '01:00' )->timezone( 'Asia/Kolkata' );
+        $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
+        $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
 
         // Tasks
-        $schedule->command( 'send:recurring-tasks' )->everyFifteenMinutes()->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'send:pending-tasks-reminders' )->dailyAt( '07:30' )->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'move:planned-tasks' )->dailyAt( '01:00' )->timezone( 'Asia/Kolkata' );
+        $schedule->command('send:recurring-tasks')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        $schedule->command('send:pending-tasks-reminders')->dailyAt('07:30')->timezone('Asia/Kolkata');
+        $schedule->command('move:planned-tasks')->dailyAt('01:00')->timezone('Asia/Kolkata');
 
         // Fetches Emails
-        $schedule->command( 'fetch:emails' )->everyFifteenMinutes();
-        $schedule->command( 'check:emails-errors' )->dailyAt( '03:00' )->timezone( 'Asia/Kolkata' );
+        $schedule->command('fetch:emails')->everyFifteenMinutes();
+        $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
 
-        $schedule->command( 'send:daily-planner-report' )->dailyAt( '08:00' )->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'send:daily-planner-report' )->dailyAt( '22:00' )->timezone( 'Asia/Kolkata' );
-        $schedule->command( 'reset:daily-planner' )->dailyAt( '07:30' )->timezone( 'Asia/Kolkata' );
+        $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
+        $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
+        $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
 
-        $schedule->command( 'save:products-images' )->cron( '0 */3 * * *' )->withoutOverlapping()->emailOutputTo( 'lukas.markeviciuss@gmail.com' ); // every 3 hours
+        $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
-        // Auto reject listings
-        $schedule->command( 'product:reject-if-attribute-is-missing' )->daily();
+        // Update the inventory (every fifteen minutes)
+        $schedule->command('inventory:update')->everyFifteenMinutes();
+
+        // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
+        $schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
     }
 
     /**
@@ -254,8 +257,8 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load( __DIR__ . '/Commands' );
+        $this->load(__DIR__ . '/Commands');
 
-        require base_path( 'routes/console.php' );
+        require base_path('routes/console.php');
     }
 }
