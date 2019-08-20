@@ -5,22 +5,23 @@ namespace App\Http\Controllers\Products;
 use App\Product;
 use File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductEnhancementController extends Controller
 {
-    public function index() {
-
+    public function index()
+    {
+        DB::enableQueryLog();
         $orderByPritority = "CASE WHEN supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
 
         $product = Product::where('is_enhanced', 0)
-            ->where('is_crop_ordered', 1)
-            ->where('is_approved', 1)
-            ->where('is_listing_rejected', 0)
+            ->whereRaw("(SELECT COUNT(media_id) FROM mediables WHERE mediables.mediable_id=products.id AND mediables.mediable_type LIKE '%Product') > 0")
             ->orderByRaw($orderByPritority)
             ->orderBy('is_approved', 'DESC')
             ->first();
+
         $productImages = $imgs = $product->media()->get();
         $productUrls = [];
 
@@ -34,7 +35,8 @@ class ProductEnhancementController extends Controller
         ]);
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $this->validate($request, [
             'images' => 'required',
             'id' => 'required'
@@ -45,7 +47,7 @@ class ProductEnhancementController extends Controller
 
         if ($files !== []) {
             $this->deleteCroppedImages($product);
-            foreach ($files['images'] as $file) {
+            foreach ($files[ 'images' ] as $file) {
                 $media = MediaUploader::fromSource($file)->useFilename(uniqid('cropped_', true))->upload();
                 $product->attachMedia($media, 'gallery');
             }
@@ -59,16 +61,16 @@ class ProductEnhancementController extends Controller
         ]);
     }
 
-    private function deleteCroppedImages( $product )
+    private function deleteCroppedImages($product)
     {
-        if ( $product->hasMedia( config( 'constants.media_tags' ) ) ) {
-            foreach ( $product->getMedia( config( 'constants.media_tags' ) ) as $key => $image ) {
+        if ($product->hasMedia(config('constants.media_tags'))) {
+            foreach ($product->getMedia(config('constants.media_tags')) as $key => $image) {
                 $image_path = $image->getAbsolutePath();
 
-                if ( File::exists( $image_path ) ) {
+                if (File::exists($image_path)) {
                     try {
-                        File::delete( $image_path );
-                    } catch ( \Exception $exception ) {
+                        File::delete($image_path);
+                    } catch (\Exception $exception) {
 
                     }
                 }
