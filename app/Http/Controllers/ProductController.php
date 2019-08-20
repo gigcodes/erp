@@ -1344,7 +1344,7 @@ class ProductController extends Controller
     {
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where(function ($query) {
-            $query->where('stock', '>=', 1)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
+            $query->where('stock', '>=', 0)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
         });
 
         $filtered_category = '';
