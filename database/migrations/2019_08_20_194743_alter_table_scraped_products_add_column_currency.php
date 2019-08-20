@@ -28,7 +28,7 @@ class AlterTableScrapedProductsAddColumnCurrency extends Migration
     {
         Schema::table('scraped_products', function ($table) {
             $table->dropColumn('currency');
-            $table->dropColumn('size_systen');
+            $table->dropColumn('size_system');
         });
     }
 }
