@@ -15,6 +15,7 @@ use App\TaskCategory;
 use App\Contact;
 use App\Setting;
 use App\Remark;
+use App\DocumentRemark;
 use App\DeveloperTask;
 use App\NotificationQueue;
 use App\ChatMessage;
@@ -805,12 +806,22 @@ class TaskModuleController extends Controller {
 		$id           = $request->input( 'id' );
 		$created_at = date('Y-m-d H:i:s');
 		$update_at = date('Y-m-d H:i:s');
-		$remark_entry = Remark::create([
-			'taskid'	=> $id,
-			'remark'	=> $remark,
-			'module_type'	=> $request->module_type,
-			'user_name'	=> $request->user_name ? $request->user_name : Auth::user()->name
-		]);
+		if($request->module_type=="document"){
+			$remark_entry = DocumentRemark::create([
+				'document_id'	=> $id,
+				'remark'	=> $remark,
+				'module_type'	=> $request->module_type,
+				'user_name'	=> $request->user_name ? $request->user_name : Auth::user()->name
+			]);
+		}
+		else{
+			$remark_entry = Remark::create([
+				'taskid'	=> $id,
+				'remark'	=> $remark,
+				'module_type'	=> $request->module_type,
+				'user_name'	=> $request->user_name ? $request->user_name : Auth::user()->name
+			]);
+		}
 
 		if ($request->module_type == 'task-discussion') {
 			// NotificationQueueController::createNewNotification([
