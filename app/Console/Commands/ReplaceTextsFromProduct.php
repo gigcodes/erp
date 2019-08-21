@@ -46,7 +46,7 @@ class ReplaceTextsFromProduct extends Command
 
         // Get all products in chunks of 1000 records
         Product::select( 'products.*', 'product_status.name', 'product_status.value' )->leftJoin( 'product_status', function ( $join ) {
-            $join->on( 'products.id', '=', 'product_status.product_id' )->where( 'product_status.name', 'replace_text' );
+            $join->on( 'products.id', '=', 'product_status.product_id' )->where( 'product_status.name', 'ATTRIBUTE_TEXT_REPLACEMENTS' );
         } )->orderBy( 'products.id', 'DESC' )->chunk( 1000, function ( $products ) use ( $replacements ) {
 
             // Loop over products
@@ -79,7 +79,7 @@ class ReplaceTextsFromProduct extends Command
                 $product->save();
 
                 // Update the product status
-                ProductStatus::updateStatus( $product->id, 'replace_text', 1 );
+                ProductStatus::updateStatus( $product->id, 'ATTRIBUTE_TEXT_REPLACEMENTS', 1 );
             }
         } );
     }
