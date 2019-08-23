@@ -3475,8 +3475,8 @@ class WhatsAppController extends FindByNumberController
             'phone' => $encodedNumber
         ];
 
-       $array[ 'body' ] = 'Hello there';
-         //   $array[ 'filename' ] = 'folio_scrolling_en.png';
+       $array[ 'body' ] = $file;
+            $array[ 'filename' ] = 'folio_scrolling_en.png';
            $link = 'sendFile';
         
 
