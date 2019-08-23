@@ -52,18 +52,20 @@ class ScrapedProducts extends Model
                 !empty( $json->brand_id ) &&
                 !empty( $json->properties['category'] )
             ) {
+               
                 // Set possible alternate SKU
                 $sku2 = str_replace( [ ' ', '/', '|', '-', '_', '\\' ], '', $json->sku );
 
                 // Create new scraped product if product doesn't exist
                 $scrapedProduct = ScrapedProducts::whereIn( 'sku', [ $json->sku, $sku2 ] )->where( 'website', $json->website )->first();
-
+                
                 // Get brand name
                 $brand = Brand::find( $json->brand_id );
                 $brandName = $brand->name;
 
                 // Existing product
                 if ( $scrapedProduct ) {
+                   
                     // Update scraped product
                     $scrapedProduct->properties = $json->properties;
                     $scrapedProduct->original_sku = $json->sku;
@@ -80,10 +82,11 @@ class ScrapedProducts extends Model
                     $scrapStatistics->url = $json->url;
                     $scrapStatistics->description = $json->sku;
                     $scrapStatistics->save();
-
-                    // Create the product
+                   // Create the product
                     $productsCreatorResult = Product::createProductByJson( $json );
                 } else {
+
+                                       
                     // Add new scraped product
                     $scrapedProduct = new ScrapedProducts();
                     $scrapedProduct->brand_id = $json->brand_id;
@@ -111,11 +114,11 @@ class ScrapedProducts extends Model
                     $scrapStatistics->url = $json->url;
                     $scrapStatistics->description = $json->sku;
                     $scrapStatistics->save();
-
+                   
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson( $json );
                 }
-
+              
                 // Product created successfully
                 if ( $productsCreatorResult ) {
                     // Add or update supplier / inventory

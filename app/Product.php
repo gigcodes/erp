@@ -33,6 +33,8 @@ class Product extends Model
 
     public static function createProductByJson( $json )
     {
+
+        
         // Check for required values
         if (
             !empty( $json->title ) &&
