@@ -44,7 +44,7 @@ use App\Console\Commands\DeleteWiseProducts;
 use App\Console\Commands\UpdateWiseProducts;
 use App\Console\Commands\UpdateWiseCategory;
 use App\Console\Commands\UpdateDoubleProducts;
-
+use App\Console\Commands\TestQueue;
 use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\RunMessageQueue;
 use App\Console\Commands\MonitorCronJobs;
@@ -127,7 +127,8 @@ class Kernel extends ConsoleKernel
         SendAutoReplyToCustomers::class,
         FixCategoryNameBySupplier::class,
         ImportCustomersEmail::class,
-        FlagCustomersIfTheyHaveAComplaint::class
+        FlagCustomersIfTheyHaveAComplaint::class,
+        TestQueue::class,
 
     ];
 
@@ -238,6 +239,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
+        $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
         $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
 

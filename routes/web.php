@@ -14,7 +14,7 @@
 //Route::get('/', function () {
 //    return view('welcome');
 //});
-
+Route::get('/test/test','TestController@test');
 Auth::routes();
 
 Route::get( 'crop-references', 'CroppedImageReferenceController@index' );
@@ -836,7 +836,7 @@ Route::middleware( 'auth' )->group( function () {
     Route::post( 'update/old/{id}', 'OldController@update' )->name( 'updateOld' );
 
     Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 'showAnalytics' );
-
+    Route::get( 'display/links-to-post', 'AnalyticsController@displayLinksToPostData' )->name( 'linksToPost' );
     Route::get( 'display/back-link-details', 'BackLinkController@displayBackLinkDetails' )->name( 'backLinkFilteredResults' );
 //    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
 } );
