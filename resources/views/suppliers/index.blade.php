@@ -32,6 +32,11 @@
                     <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
                   </select>
                 </div>
+
+                  <div class="form-group ml-3">
+                      <input type="checkbox" name="status" id="status" value="1"> Active
+                  </div>
+
 {{--                  <div class="form-group ml-3">--}}
 {{--                      <select name="status" id=""></select>--}}
 {{--                  </div>--}}
