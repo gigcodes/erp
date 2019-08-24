@@ -497,7 +497,7 @@ class CustomerController extends Controller
 
         $customers = DB::select('
             SELECT
-            *
+              *
             FROM
             (
                 SELECT 
@@ -512,6 +512,8 @@ class CustomerController extends Controller
                     customers.is_priority, 
                     customers.deleted_at, 
                     customers.instruction_completed_at,
+                    order_status,
+                    purchase_status,
                     (
                     SELECT 
                             mm5.status 
@@ -567,8 +569,8 @@ class CustomerController extends Controller
                     FROM 
                           customers
                         LEFT JOIN
-    (
-        SELECT 
+                            (
+                                SELECT 
                                     MAX(id) as lead_id, 
                                     leads.customer_id as lcid, 
                                     leads.rating as lead_rating, 
@@ -582,8 +584,8 @@ class CustomerController extends Controller
                         ON 
                             customers.id = leads.lcid
                         LEFT JOIN
-    (
-        SELECT 
+                            (
+                                SELECT 
                                     MAX(id) as order_id, 
                                     orders.customer_id as ocid, 
                                     MAX(orders.created_at) as order_created, 
@@ -596,8 +598,8 @@ class CustomerController extends Controller
                         ON
                             customers.id = orders.ocid
                         LEFT JOIN
-    (
-        SELECT 
+                            (
+                                SELECT 
                                     order_products.order_id as purchase_order_id, 
                                     order_products.purchase_status 
                                 FROM 
@@ -608,8 +610,8 @@ class CustomerController extends Controller
                         ON 
                             orders.order_id = order_products.purchase_order_id
                         ' . $join . ' JOIN
-    (
-        SELECT 
+                            (
+                                SELECT 
                                     MAX(id) as message_id, 
                                     customer_id, 
                                     message, 
@@ -624,11 +626,11 @@ class CustomerController extends Controller
                         ON 
                             customers.id = chat_messages.customer_id
                     ) AS customers
-            WHERE
-            (
-                deleted_at IS NULL
+                WHERE
+                (
+                    deleted_at IS NULL
                 ) AND (
-    id IS NOT NULL
+                    id IS NOT NULL
                 )
                 ' . $searchWhereClause . '
                 ' . $assignedWhereClause . '
