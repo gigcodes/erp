@@ -563,11 +563,11 @@ class CustomerController extends Controller
                             mm2.id = message_id
                     ) as last_communicated_at
                 FROM
-                (
-                    SELECT
-                    *
-                    FROM 
-                          customers
+                    (
+                        SELECT
+                            *
+                        FROM 
+                            customers
                         LEFT JOIN
                             (
                                 SELECT 
