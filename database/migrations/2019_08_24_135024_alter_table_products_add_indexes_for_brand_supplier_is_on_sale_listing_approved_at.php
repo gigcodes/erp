@@ -14,7 +14,7 @@ class AlterTableProductsAddIndexesForBrandSupplierIsOnSaleListingApprovedAt exte
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->decimal('brand')->change();
+            $table->integer('brand')->nullable()->change();
             $table->index('brand');
             $table->index('supplier');
             $table->index('is_on_sale');
