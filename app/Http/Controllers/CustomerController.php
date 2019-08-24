@@ -633,10 +633,9 @@ class CustomerController extends Controller
                     id IS NOT NULL
                 )
                 ' . $searchWhereClause . '
-                ' . $assignedWhereClause . '
-                ' . $orderByClause . '
           ) AS customers
           ' . $filterWhereClause . $leadsWhereClause .
+            $assignedWhereClause .
             $orderByClause);
 
         // dd($customers);
