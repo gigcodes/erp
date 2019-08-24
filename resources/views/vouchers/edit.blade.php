@@ -43,21 +43,6 @@
 			</div>
 
 			<div class="form-group">
-				<strong>Travel type:</strong>
-				<select class="form-control" name="travel_type">
-					<option value="">Select Travel Type</option>
-					<option value="flight" {{ $voucher->travel_type == 'flight' ? 'selected' : '' }}>Flight</option>
-					<option value="train" {{ $voucher->travel_type == 'train' ? 'selected' : '' }}>Train</option>
-					<option value="taxi" {{ $voucher->travel_type == 'taxi' ? 'selected' : '' }}>Taxi</option>
-					<option value="auto" {{ $voucher->travel_type == 'auto' ? 'selected' : '' }}>Auto</option>
-				</select>
-
-				@if ($errors->has('travel_type'))
-					<div class="alert alert-danger">{{$errors->first('travel_type')}}</div>
-				@endif
-			</div>
-
-			<div class="form-group">
 				<strong>Amount:</strong>
 				<input type="number" class="form-control" name="amount" placeholder="10000" value="{{ $voucher->amount }}" />
 				@if ($errors->has('amount'))

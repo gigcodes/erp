@@ -106,22 +106,31 @@
               <td>
                 @if ($voucher->approved == 2)
                   <span class="badge">Approved</span>
-                @elseif ($voucher->approved == 1)
+                @else
                   @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                          @if($voucher->resubmit_count >= $voucher->reject_count)
                     <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
                       @csrf
 
                       <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-                    </form>
-                  @else
-                    <span class="badge">Waiting for Approval</span>
-                  @endif
-                @else
-                  <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
-                    @csrf
 
-                    <button type="submit" class="btn btn-xs btn-secondary">Request Approval</button>
-                  </form>
+                    </form>
+                      <button type="button" class="btn btn-xs btn-danger reject-voucher-request" data-toggle="modal" data-target="#rejectVoucherModal" data-voucher="{{ $voucher }}">Reject</button>
+                      @elseif($voucher->reject_reason && $voucher->resubmit_count < $voucher->reject_count)
+                      <small>Rejected ({{$voucher->reject_reason}})</small>
+                      @endif
+                  @else
+                      @if($voucher->reject_reason && $voucher->resubmit_count < $voucher->reject_count)
+                              <small>Rejected ({{$voucher->reject_reason}})</small>
+                              <form class="form-inline" action="{{ route('voucher.resubmit', $voucher->id) }}" method="POST">
+                                  @csrf
+
+                                  <button type="submit" class="btn btn-xs btn-info">Resubmit</button>
+                              </form>
+                      @else
+                              <span class="badge">Waiting for Approval</span>
+                      @endif
+                  @endif
                 @endif
               </td>
               <td>
@@ -140,7 +149,39 @@
     </div>
 
     {{-- {!! $vouchers->appends(Request::except('page'))->links() !!} --}}
+    <div id="rejectVoucherModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
 
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="#" method="POST">
+                    @csrf
+
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- reject_reason -->
+                        <div class="col-md-12 col-lg-12 @if($errors->has('reject_reason')) has-danger @elseif(count($errors->all())>0) has-success @endif">
+                            <div class="form-group">
+                                {!! Form::label('reject_reason', 'Reason', ['class' => 'form-control-label']) !!}
+                                {!! Form::textarea('reject_reason', null, ['class'=>'form-control  '.($errors->has('reject_reason')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'required','rows'=>3]) !!}
+                                    @if($errors->has('reject_reason'))
+                            <div class="form-control-feedback">{{$errors->first('reject_reason')}}</div>
+                                        @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Reject Voucher</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -194,5 +235,12 @@
         $(this).find('.td-full-container').toggleClass('hidden');
       }
     });
+    $('#rejectVoucherModal').on('show.bs.modal', function (event) {
+        var modal = $(this)
+        var button = $(event.relatedTarget)
+        var voucher = button.data('voucher')
+        var url = "{{ url('voucher') }}/" + voucher.id + '/reject';
+        modal.find('form').attr('action', url);
+    })
   </script>
 @endsection
