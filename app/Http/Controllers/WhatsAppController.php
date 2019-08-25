@@ -66,25 +66,25 @@ class WhatsAppController extends FindByNumberController
      *
      * @return \Illuminate\Http\Response
      */
-    public function incomingMessage( Request $request, GuzzleClient $client )
+    public function incomingMessage(Request $request, GuzzleClient $client)
     {
         $data = $request->json()->all();
 
-        if ( $data[ 'event' ] == 'INBOX' ) {
+        if ($data[ 'event' ] == 'INBOX') {
             $to = $data[ 'to' ];
             $from = $data[ 'from' ];
             $text = $data[ 'text' ];
-            $lead = $this->findLeadByNumber( $from );
-            $user = $this->findUserByNumber( $from );
-            $supplier = $this->findSupplierByNumber( $from );
-            $customer = $this->findCustomerByNumber( $from );
+            $lead = $this->findLeadByNumber($from);
+            $user = $this->findUserByNumber($from);
+            $supplier = $this->findSupplierByNumber($from);
+            $customer = $this->findCustomerByNumber($from);
 
             $params = [
                 'number' => $from
             ];
 
-            if ( $user ) {
-                $params = $this->modifyParamsWithMessage( $params, $data );
+            if ($user) {
+                $params = $this->modifyParamsWithMessage($params, $data);
                 // $instruction = Instruction::where('assigned_to', $user->id)->latest()->first();
                 // $myRequest = new Request();
                 // $myRequest->setMethod('POST');
@@ -104,175 +104,175 @@ class WhatsAppController extends FindByNumberController
 
                 $params[ 'erp_user' ] = $user->id;
 
-                $params = $this->modifyParamsWithMessage( $params, $data );
+                $params = $this->modifyParamsWithMessage($params, $data);
 
-                if ( array_key_exists( 'message', $params ) && ( preg_match_all( "/#([\d]+)/i", $params[ 'message' ], $match ) ) ) {
+                if (array_key_exists('message', $params) && (preg_match_all("/#([\d]+)/i", $params[ 'message' ], $match))) {
                     $params[ 'task_id' ] = $match[ 1 ][ 0 ];
                 }
 
-                $message = ChatMessage::create( $params );
+                $message = ChatMessage::create($params);
                 $model_type = 'user';
                 $model_id = $user->id;
 
-                if ( array_key_exists( 'task_id', $params ) ) {
-                    $this->sendRealTime( $message, 'task_' . $match[ 1 ][ 0 ], $client );
+                if (array_key_exists('task_id', $params)) {
+                    $this->sendRealTime($message, 'task_' . $match[ 1 ][ 0 ], $client);
                 } else {
-                    $this->sendRealTime( $message, 'erp_user_' . $user->id, $client );
+                    $this->sendRealTime($message, 'erp_user_' . $user->id, $client);
                 }
             }
 
-            if ( $supplier ) {
-                $params[ 'erp_user' ] = NULL;
-                $params[ 'task_id' ] = NULL;
+            if ($supplier) {
+                $params[ 'erp_user' ] = null;
+                $params[ 'task_id' ] = null;
                 $params[ 'supplier_id' ] = $supplier->id;
 
-                $params = $this->modifyParamsWithMessage( $params, $data );
-                $message = ChatMessage::create( $params );
+                $params = $this->modifyParamsWithMessage($params, $data);
+                $message = ChatMessage::create($params);
                 $model_type = 'supplier';
                 $model_id = $supplier->id;
 
-                $this->sendRealTime( $message, 'supplier_' . $supplier->id, $client );
+                $this->sendRealTime($message, 'supplier_' . $supplier->id, $client);
             }
 
-            if ( $customer ) {
-                $params[ 'erp_user' ] = NULL;
-                $params[ 'supplier_id' ] = NULL;
-                $params[ 'task_id' ] = NULL;
+            if ($customer) {
+                $params[ 'erp_user' ] = null;
+                $params[ 'supplier_id' ] = null;
+                $params[ 'task_id' ] = null;
                 $params[ 'customer_id' ] = $customer->id;
 
-                $params = $this->modifyParamsWithMessage( $params, $data );
-                $message = ChatMessage::create( $params );
+                $params = $this->modifyParamsWithMessage($params, $data);
+                $message = ChatMessage::create($params);
                 $model_type = 'customers';
                 $model_id = $customer->id;
-                $customer->update( [
+                $customer->update([
                     'whatsapp_number' => $to
-                ] );
+                ]);
 
-                $this->sendRealTime( $message, 'customer_' . $customer->id, $client );
+                $this->sendRealTime($message, 'customer_' . $customer->id, $client);
 
-                if ( Setting::get( 'forward_messages' ) == 1 ) {
-                    if ( Setting::get( 'forward_start_date' ) != null && Setting::get( 'forward_end_date' ) != null ) {
+                if (Setting::get('forward_messages') == 1) {
+                    if (Setting::get('forward_start_date') != null && Setting::get('forward_end_date') != null) {
                         $time = Carbon::now();
-                        $start_date = Carbon::parse( Setting::get( 'forward_start_date' ) );
-                        $end_date = Carbon::parse( Setting::get( 'forward_end_date' ) );
+                        $start_date = Carbon::parse(Setting::get('forward_start_date'));
+                        $end_date = Carbon::parse(Setting::get('forward_end_date'));
 
-                        if ( $time->between( $start_date, $end_date, true ) ) {
-                            $forward_users_ids = json_decode( Setting::get( 'forward_users' ) );
+                        if ($time->between($start_date, $end_date, true)) {
+                            $forward_users_ids = json_decode(Setting::get('forward_users'));
                             $second_message = '';
 
-                            if ( $message->message == null ) {
+                            if ($message->message == null) {
                                 $forwarded_message = "FORWARDED from $customer->name";
                                 $second_message = $message->media_url;
                             } else {
                                 $forwarded_message = "FORWARDED from $customer->name - " . $message->message;
                             }
 
-                            foreach ( $forward_users_ids as $user_id ) {
-                                $user = User::find( $user_id );
+                            foreach ($forward_users_ids as $user_id) {
+                                $user = User::find($user_id);
 
-                                $this->sendWithWhatsApp( $user->phone, $user->whatsapp_number, $forwarded_message, FALSE, $message->id );
+                                $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $forwarded_message, false, $message->id);
 
-                                if ( $second_message != '' ) {
-                                    $this->sendWithWhatsApp( $user->phone, $user->whatsapp_number, $second_message, FALSE, $message->id );
+                                if ($second_message != '') {
+                                    $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $second_message, false, $message->id);
                                 }
                             }
                         }
                     } else {
-                        $forward_users_ids = json_decode( Setting::get( 'forward_users' ) );
+                        $forward_users_ids = json_decode(Setting::get('forward_users'));
                         $second_message = '';
 
-                        if ( $message->message == null ) {
+                        if ($message->message == null) {
                             $forwarded_message = "FORWARDED from $customer->name";
                             $second_message = $message->media_url;
                         } else {
                             $forwarded_message = "FORWARDED from $customer->name - " . $message->message;
                         }
 
-                        foreach ( $forward_users_ids as $user_id ) {
-                            $user = User::find( $user_id );
+                        foreach ($forward_users_ids as $user_id) {
+                            $user = User::find($user_id);
 
-                            $this->sendWithWhatsApp( $user->phone, $user->whatsapp_number, $forwarded_message, FALSE, $message->id );
+                            $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $forwarded_message, false, $message->id);
 
-                            if ( $second_message != '' ) {
-                                $this->sendWithWhatsApp( $user->phone, $user->whatsapp_number, $second_message, FALSE, $message->id );
+                            if ($second_message != '') {
+                                $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $second_message, false, $message->id);
                             }
                         }
                     }
                 }
 
                 // Auto DND
-                if ( array_key_exists( 'message', $params ) && strtoupper( $params[ 'message' ] ) == 'DND' ) {
-                    if ( $customer = Customer::find( $params[ 'customer_id' ] ) ) {
+                if (array_key_exists('message', $params) && strtoupper($params[ 'message' ]) == 'DND') {
+                    if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
 
                         $dnd_params = [
-                            'number' => NULL,
+                            'number' => null,
                             'user_id' => 6,
                             'approved' => 1,
                             'status' => 9,
                             'customer_id' => $customer->id,
-                            'message' => AutoReply::where( 'type', 'auto-reply' )->where( 'keyword', 'customer-dnd' )->first()->reply
+                            'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-dnd')->first()->reply
                         ];
 
-                        $auto_dnd_message = ChatMessage::create( $dnd_params );
+                        $auto_dnd_message = ChatMessage::create($dnd_params);
 
-                        $this->sendWithWhatsApp( $customer->phone, $customer->whatsapp_number, $dnd_params[ 'message' ], FALSE, $auto_dnd_message->id );
+                        $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $dnd_params[ 'message' ], false, $auto_dnd_message->id);
                     }
                 }
 
                 // Auto Instruction
-                if ( array_key_exists( 'message', $params ) && ( preg_match( "/price/i", $params[ 'message' ] ) || preg_match( "/you photo/i", $params[ 'message' ] ) || preg_match( "/pp/i", $params[ 'message' ] ) || preg_match( "/how much/i", $params[ 'message' ] ) || preg_match( "/cost/i", $params[ 'message' ] ) || preg_match( "/rate/i", $params[ 'message' ] ) ) ) {
-                    if ( $customer = Customer::find( $params[ 'customer_id' ] ) ) {
-                        $two_hours = Carbon::now()->subHours( 2 );
-                        $latest_broadcast_message = ChatMessage::where( 'customer_id', $customer->id )->where( 'created_at', '>', $two_hours )->where( 'status', 8 )->latest()->first();
+                if (array_key_exists('message', $params) && (preg_match("/price/i", $params[ 'message' ]) || preg_match("/you photo/i", $params[ 'message' ]) || preg_match("/pp/i", $params[ 'message' ]) || preg_match("/how much/i", $params[ 'message' ]) || preg_match("/cost/i", $params[ 'message' ]) || preg_match("/rate/i", $params[ 'message' ]))) {
+                    if ($customer = Customer::find($params[ 'customer_id' ])) {
+                        $two_hours = Carbon::now()->subHours(2);
+                        $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->latest()->first();
 
-                        if ( $latest_broadcast_message ) {
-                            if ( !$latest_broadcast_message->is_sent_broadcast_price() ) {
-                                if ( $latest_broadcast_message->hasMedia( config( 'constants.media_tags' ) ) ) {
+                        if ($latest_broadcast_message) {
+                            if (!$latest_broadcast_message->is_sent_broadcast_price()) {
+                                if ($latest_broadcast_message->hasMedia(config('constants.media_tags'))) {
                                     $selected_products = [];
 
-                                    foreach ( $latest_broadcast_message->getMedia( config( 'constants.media_tags' ) ) as $image ) {
+                                    foreach ($latest_broadcast_message->getMedia(config('constants.media_tags')) as $image) {
                                         $image_key = $image->getKey();
                                         $mediable_type = "BroadcastImage";
 
-                                        $broadcast = BroadcastImage::with( 'Media' )
-                                            ->whereRaw( "broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')" )
+                                        $broadcast = BroadcastImage::with('Media')
+                                            ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
                                             ->first();
 
-                                        if ( $broadcast ) {
-                                            $brod_products = json_decode( $broadcast->products, true );
+                                        if ($broadcast) {
+                                            $brod_products = json_decode($broadcast->products, true);
 
-                                            if ( count( $brod_products ) > 0 ) {
-                                                foreach ( $brod_products as $brod_pro ) {
+                                            if (count($brod_products) > 0) {
+                                                foreach ($brod_products as $brod_pro) {
                                                     $selected_products[] = $brod_pro;
                                                 }
                                             }
                                         }
                                     }
 
-                                    if ( isset( $broadcast ) ) {
-                                        $quick_lead = Leads::create( [
+                                    if (isset($broadcast)) {
+                                        $quick_lead = Leads::create([
                                             'customer_id' => $customer->id,
                                             'rating' => 1,
                                             'status' => 3,
                                             'assigned_user' => 6,
-                                            'selected_product' => json_encode( $selected_products ),
+                                            'selected_product' => json_encode($selected_products),
                                             'created_at' => Carbon::now()
-                                        ] );
+                                        ]);
 
                                         $requestData = new Request();
-                                        $requestData->setMethod( 'POST' );
-                                        $requestData->request->add( [ 'customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products ] );
+                                        $requestData->setMethod('POST');
+                                        $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                                        app( 'App\Http\Controllers\LeadsController' )->sendPrices( $requestData );
+                                        app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
 
-                                        CommunicationHistory::create( [
+                                        CommunicationHistory::create([
                                             'model_id' => $latest_broadcast_message->id,
                                             'model_type' => ChatMessage::class,
                                             'type' => 'broadcast-prices',
                                             'method' => 'whatsapp'
-                                        ] );
+                                        ]);
                                     } else {
                                         // Instruction::create([
                                         //   'customer_id' => $customer->id,
@@ -286,47 +286,47 @@ class WhatsAppController extends FindByNumberController
                             }
                         }
 
-                        Instruction::create( [
+                        Instruction::create([
                             'customer_id' => $customer->id,
                             'instruction' => 'Please send the prices',
                             'category_id' => 1,
                             'assigned_to' => 7,
                             'assigned_from' => 6
-                        ] );
+                        ]);
                     }
                 }
 
                 // Auto Replies
                 $auto_replies = AutoReply::all();
 
-                foreach ( $auto_replies as $auto_reply ) {
-                    if ( array_key_exists( 'message', $params ) && $params[ 'message' ] != '' ) {
+                foreach ($auto_replies as $auto_reply) {
+                    if (array_key_exists('message', $params) && $params[ 'message' ] != '') {
                         $keyword = $auto_reply->keyword;
 
-                        if ( preg_match( "/{$keyword}/i", $params[ 'message' ] ) ) {
+                        if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
                             $temp_params = $params;
                             $temp_params[ 'message' ] = $auto_reply->reply;
                             $temp_params[ 'status' ] = 1;
 
-                            ChatMessage::create( $temp_params );
+                            ChatMessage::create($temp_params);
 
-                            $this->sendRealTime( $message, 'customer_' . $customer->id, $client );
+                            $this->sendRealTime($message, 'customer_' . $customer->id, $client);
                         }
                     }
                 }
             }
 
-            if ( !isset( $user ) && !isset( $purchase ) && !isset( $customer ) ) {
+            if (!isset($user) && !isset($purchase) && !isset($customer)) {
                 $modal_type = 'leads';
                 // $new_name = "whatsapp lead " . uniqid( TRUE );
                 $user = User::get()[ 0 ];
                 $validate_phone[ 'phone' ] = $from;
 
-                $validator = Validator::make( $validate_phone, [
+                $validator = Validator::make($validate_phone, [
                     'phone' => 'unique:customers,phone'
-                ] );
+                ]);
 
-                if ( $validator->fails() ) {
+                if ($validator->fails()) {
 
                 } else {
                     $customer = new Customer;
@@ -335,7 +335,7 @@ class WhatsAppController extends FindByNumberController
                     $customer->rating = 2;
                     $customer->save();
 
-                    $lead = Leads::create( [
+                    $lead = Leads::create([
                         'customer_id' => $customer->id,
                         'client_name' => $from,
                         'contactno' => $from,
@@ -344,109 +344,111 @@ class WhatsAppController extends FindByNumberController
                         'assigned_user' => $user->id,
                         'userid' => $user->id,
                         'whatsapp_number' => $to
-                    ] );
+                    ]);
 
                     $params[ 'lead_id' ] = $lead->id;
                     $params[ 'customer_id' ] = $customer->id;
-                    $params = $this->modifyParamsWithMessage( $params, $data );
-                    $message = ChatMessage::create( $params );
+                    $params = $this->modifyParamsWithMessage($params, $data);
+                    $message = ChatMessage::create($params);
                     $model_type = 'leads';
                     $model_id = $lead->id;
 
-                    $this->sendRealTime( $message, 'customer_' . $customer->id, $client );
+                    $this->sendRealTime($message, 'customer_' . $customer->id, $client);
                 }
             }
 
             // Auto Respond
-            $today_date = Carbon::now()->format( 'Y-m-d' );
+            $today_date = Carbon::now()->format('Y-m-d');
             $time = Carbon::now();
-            $start_time = Setting::get( 'start_time' );
-            $start_time_exploded = explode( ':', $start_time );
-            $end_time = Setting::get( 'end_time' );
-            $end_time_exploded = explode( ':', $end_time );
-            $morning = Carbon::create( $time->year, $time->month, $time->day, $start_time_exploded[ 0 ], $start_time_exploded[ 1 ], 0 );
-            $not_morning = Carbon::create( $time->year, $time->month, $time->day, 0, 0, 0 );
-            $evening = Carbon::create( $time->year, $time->month, $time->day, $end_time_exploded[ 0 ], $end_time_exploded[ 1 ], 0 );
-            $not_evening = Carbon::create( $time->year, $time->month, $time->day, 23, 59, 0 );
-            $saturday = Carbon::now()->endOfWeek()->subDay()->format( 'Y-m-d' );
-            $sunday = Carbon::now()->endOfWeek()->format( 'Y-m-d' );
+            $start_time = Setting::get('start_time');
+            $start_time_exploded = explode(':', $start_time);
+            $end_time = Setting::get('end_time');
+            $end_time_exploded = explode(':', $end_time);
+            $morning = Carbon::create($time->year, $time->month, $time->day, $start_time_exploded[ 0 ], $start_time_exploded[ 1 ], 0);
+            $not_morning = Carbon::create($time->year, $time->month, $time->day, 0, 0, 0);
+            $evening = Carbon::create($time->year, $time->month, $time->day, $end_time_exploded[ 0 ], $end_time_exploded[ 1 ], 0);
+            $not_evening = Carbon::create($time->year, $time->month, $time->day, 23, 59, 0);
+            $saturday = Carbon::now()->endOfWeek()->subDay()->format('Y-m-d');
+            $sunday = Carbon::now()->endOfWeek()->format('Y-m-d');
 
-            $chat_messages_query = ChatMessage::where( 'customer_id', $params[ 'customer_id' ] )->whereBetween( 'created_at', [ $morning, $evening ] )->whereNotNull( 'number' );
+            $chat_messages_query = ChatMessage::where('customer_id', $params[ 'customer_id' ])->whereBetween('created_at', [$morning, $evening])->whereNotNull('number');
             $chat_messages_count = $chat_messages_query->count();
 
-            $chat_messages_evening_query = ChatMessage::where( 'customer_id', $params[ 'customer_id' ] )->where( function ( $query ) use ( $not_morning, $morning, $evening, $not_evening ) {
-                $query->whereBetween( 'created_at', [ $not_morning, $morning ] )->orWhereBetween( 'created_at', [ $evening, $not_evening ] );
-            } )->whereNotNull( 'number' );
+            $chat_messages_evening_query = ChatMessage::where('customer_id', $params[ 'customer_id' ])->where(function ($query) use ($not_morning, $morning, $evening, $not_evening) {
+                $query->whereBetween('created_at', [$not_morning, $morning])->orWhereBetween('created_at', [$evening, $not_evening]);
+            })->whereNotNull('number');
             $chat_messages_evening_count = $chat_messages_evening_query->count();
 
-            if ( $chat_messages_count == 1 ) {
+            if ($chat_messages_count == 1) {
                 $chat_messages_query_first = $chat_messages_query->first();
             }
 
-            if ( $chat_messages_evening_count == 1 ) {
+            if ($chat_messages_evening_count == 1) {
                 $chat_messages_evening_query_first = $chat_messages_evening_query->first();
             }
 
-            if ( $chat_messages_count == 1 && ( isset( $chat_messages_query_first ) && $chat_messages_query_first->id == $message->id ) && ( $saturday != $today_date && $sunday != $today_date ) ) {
-                $customer = Customer::find( $params[ 'customer_id' ] );
+            if ($chat_messages_count == 1 && (isset($chat_messages_query_first) && $chat_messages_query_first->id == $message->id) && ($saturday != $today_date && $sunday != $today_date)) {
+                $customer = Customer::find($params[ 'customer_id' ]);
                 $params = [
-                    'number' => NULL,
+                    'number' => null,
                     'user_id' => 6,
                     'approved' => 1,
                     'status' => 9,
                     'customer_id' => $params[ 'customer_id' ]
                 ];
 
-                if ( $time->between( $morning, $evening, true ) ) {
-                    $params[ 'message' ] = AutoReply::where( 'type', 'auto-reply' )->where( 'keyword', 'work-hours-greeting' )->first()->reply;
+                if ($time->between($morning, $evening, true)) {
+                    $params[ 'message' ] = AutoReply::where('type', 'auto-reply')->where('keyword', 'work-hours-greeting')->first()->reply;
 
-                    sleep( 1 );
-                    $additional_message = ChatMessage::create( $params );
-                    $this->sendWithWhatsApp( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id );
+                    sleep(1);
+                    $additional_message = ChatMessage::create($params);
+                    $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, false, $additional_message->id);
                 }
-            } else if ( ( $chat_messages_evening_count == 1 && ( isset( $chat_messages_evening_query_first ) && $chat_messages_evening_query_first->id == $message->id ) ) || ( $chat_messages_count == 1 && ( $saturday == $today_date || $sunday == $today_date ) ) ) {
-                $customer = Customer::find( $params[ 'customer_id' ] );
+            } else {
+                if (($chat_messages_evening_count == 1 && (isset($chat_messages_evening_query_first) && $chat_messages_evening_query_first->id == $message->id)) || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
+                    $customer = Customer::find($params[ 'customer_id' ]);
 
-                $auto_reply = AutoReply::where( 'type', 'auto-reply' )->where( 'keyword', 'office-closed-message' )->first();
+                    $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'office-closed-message')->first();
 
-                $auto_message = preg_replace( "/{start_time}/i", $start_time, $auto_reply->reply );
-                $auto_message = preg_replace( "/{end_time}/i", $end_time, $auto_message );
+                    $auto_message = preg_replace("/{start_time}/i", $start_time, $auto_reply->reply);
+                    $auto_message = preg_replace("/{end_time}/i", $end_time, $auto_message);
 
-                $params = [
-                    'number' => NULL,
-                    'user_id' => 6,
-                    'approved' => 1,
-                    'status' => 9,
-                    'customer_id' => $params[ 'customer_id' ],
-                    'message' => $auto_message
-                ];
+                    $params = [
+                        'number' => null,
+                        'user_id' => 6,
+                        'approved' => 1,
+                        'status' => 9,
+                        'customer_id' => $params[ 'customer_id' ],
+                        'message' => $auto_message
+                    ];
 
-                sleep( 1 );
-                $additional_message = ChatMessage::create( $params );
-                $this->sendWithWhatsApp( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id );
+                    sleep(1);
+                    $additional_message = ChatMessage::create($params);
+                    $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, false, $additional_message->id);
+                }
             }
         } else {
-            $custom_data = json_decode( $data[ 'custom_data' ], true );
+            $custom_data = json_decode($data[ 'custom_data' ], true);
 
-            $chat_message = ChatMessage::find( $custom_data[ 'chat_message_id' ] );
+            $chat_message = ChatMessage::find($custom_data[ 'chat_message_id' ]);
 
-            if ( $chat_message ) {
+            if ($chat_message) {
                 $chat_message->sent = 1;
                 $chat_message->save();
             }
         }
 
-        return response( "" );
+        return response("");
     }
 
-    public function sendRealTime( $message, $model_id, $client )
+    public function sendRealTime($message, $model_id, $client)
     {
         $realtime_params = [
             'realtime_id' => $model_id,
             'id' => $message->id,
             'number' => $message->number,
             'assigned_to' => $message->assigned_to ?? '',
-            'created_at' => Carbon::parse( $message->created_at )->format( 'Y-m-d H:i:s' ),
+            'created_at' => Carbon::parse($message->created_at)->format('Y-m-d H:i:s'),
             'approved' => $message->approved ?? 0,
             'status' => $message->status ?? 0,
             'user_id' => $message->user_id ?? 0,
@@ -456,91 +458,93 @@ class WhatsAppController extends FindByNumberController
             'error_status' => $message->error_status ?? 0,
         ];
 
-        if ( $message->media_url ) {
+        if ($message->media_url) {
             $realtime_params[ 'media_url' ] = $message->media_url;
-            $headers = get_headers( $message->media_url, 1 );
+            $headers = get_headers($message->media_url, 1);
             $realtime_params[ 'content_type' ] = $headers[ "Content-Type" ][ 1 ];
         }
 
-        if ( $message->message ) {
+        if ($message->message) {
             $realtime_params[ 'message' ] = $message->message;
         }
 
-        $response = $client->post( 'https://sololuxury.co/deliver-message', [
+        $response = $client->post('https://sololuxury.co/deliver-message', [
             'form_params' => $realtime_params
-        ] );
+        ]);
 
-        return response( 'success', 200 );
+        return response('success', 200);
     }
 
-    public function incomingMessageNew( Request $request, GuzzleClient $client )
+    public function incomingMessageNew(Request $request, GuzzleClient $client)
     {
         $data = $request->json()->all();
 
-        if ( $data[ 'event' ] == 'message:in:new' ) {
-            $to = str_replace( '+', '', $data[ 'data' ][ 'toNumber' ] );
-            $from = str_replace( '+', '', $data[ 'data' ][ 'fromNumber' ] );
+        if ($data[ 'event' ] == 'message:in:new') {
+            $to = str_replace('+', '', $data[ 'data' ][ 'toNumber' ]);
+            $from = str_replace('+', '', $data[ 'data' ][ 'fromNumber' ]);
             $text = $data[ 'data' ][ 'body' ];
-            $lead = $this->findLeadByNumber( $from );
-            $user = $this->findUserByNumber( $from );
-            $supplier = $this->findSupplierByNumber( $from );
-            $customer = $this->findCustomerByNumber( $from );
-            $dubbizle = $this->findDubbizleByNumber( $from );
+            $lead = $this->findLeadByNumber($from);
+            $user = $this->findUserByNumber($from);
+            $supplier = $this->findSupplierByNumber($from);
+            $customer = $this->findCustomerByNumber($from);
+            $dubbizle = $this->findDubbizleByNumber($from);
 
             $params = [
                 'number' => $from,
                 'message' => ''
             ];
 
-            if ( $data[ 'data' ][ 'type' ] == 'text' ) {
+            if ($data[ 'data' ][ 'type' ] == 'text') {
                 $params[ 'message' ] = $text;
-            } else if ( $data[ 'data' ][ 'type' ] == 'image' ) {
-                $image_data = $data[ 'data' ][ 'media' ][ 'preview' ][ 'image' ];
-                $image_path = public_path() . '/uploads/temp_image.png';
-                $img = Image::make( base64_decode( $image_data ) )->encode( 'jpeg' )->save( $image_path );
+            } else {
+                if ($data[ 'data' ][ 'type' ] == 'image') {
+                    $image_data = $data[ 'data' ][ 'media' ][ 'preview' ][ 'image' ];
+                    $image_path = public_path() . '/uploads/temp_image.png';
+                    $img = Image::make(base64_decode($image_data))->encode('jpeg')->save($image_path);
 
-                $media = MediaUploader::fromSource( $image_path )->upload();
+                    $media = MediaUploader::fromSource($image_path)->upload();
 
-                File::delete( 'uploads/temp_image.png' );
+                    File::delete('uploads/temp_image.png');
+                }
             }
 
-            if ( $user ) {
-                $instruction = Instruction::where( 'assigned_to', $user->id )->latest()->first();
+            if ($user) {
+                $instruction = Instruction::where('assigned_to', $user->id)->latest()->first();
 
-                if ( $instruction ) {
+                if ($instruction) {
                     $myRequest = new Request();
-                    $myRequest->setMethod( 'POST' );
-                    $myRequest->request->add( [ 'remark' => $params[ 'message' ], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => "User from Whatsapp" ] );
+                    $myRequest->setMethod('POST');
+                    $myRequest->request->add(['remark' => $params[ 'message' ], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => "User from Whatsapp"]);
 
-                    app( 'App\Http\Controllers\TaskModuleController' )->addRemark( $myRequest );
+                    app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
                 }
 
-                NotificationQueueController::createNewNotification( [
+                NotificationQueueController::createNewNotification([
                     'message' => $params[ 'message' ],
-                    'timestamps' => [ '+0 minutes' ],
+                    'timestamps' => ['+0 minutes'],
                     'model_type' => Instruction::class,
                     'model_id' => $instruction->id,
                     'user_id' => '6',
                     'sent_to' => $instruction->assigned_from,
                     'role' => '',
-                ] );
+                ]);
 
                 $params[ 'erp_user' ] = $user->id;
 
-                if ( $params[ 'message' ] != '' && ( preg_match_all( "/TASK ID ([\d]+)/i", $params[ 'message' ], $match ) ) ) {
+                if ($params[ 'message' ] != '' && (preg_match_all("/TASK ID ([\d]+)/i", $params[ 'message' ], $match))) {
                     $params[ 'task_id' ] = $match[ 1 ][ 0 ];
                 }
 
 
-                $params = $this->modifyParamsWithMessage( $params, $data );
-                $message = ChatMessage::create( $params );
+                $params = $this->modifyParamsWithMessage($params, $data);
+                $message = ChatMessage::create($params);
                 $model_type = 'user';
                 $model_id = $user->id;
 
-                if ( array_key_exists( 'task_id', $params ) ) {
-                    $this->sendRealTime( $message, 'task_' . $match[ 1 ][ 0 ], $client );
+                if (array_key_exists('task_id', $params)) {
+                    $this->sendRealTime($message, 'task_' . $match[ 1 ][ 0 ], $client);
                 } else {
-                    $this->sendRealTime( $message, 'erp_user_' . $user->id, $client );
+                    $this->sendRealTime($message, 'erp_user_' . $user->id, $client);
                 }
 
                 // if ($user->id == 3) {
@@ -601,175 +605,175 @@ class WhatsAppController extends FindByNumberController
                 // }
             }
 
-            if ( $supplier ) {
-                $params[ 'erp_user' ] = NULL;
-                $params[ 'task_id' ] = NULL;
+            if ($supplier) {
+                $params[ 'erp_user' ] = null;
+                $params[ 'task_id' ] = null;
                 $params[ 'supplier_id' ] = $supplier->id;
 
-                $message = ChatMessage::create( $params );
+                $message = ChatMessage::create($params);
                 $model_type = 'supplier';
                 $model_id = $supplier->id;
 
-                $this->sendRealTime( $message, 'supplier_' . $supplier->id, $client );
+                $this->sendRealTime($message, 'supplier_' . $supplier->id, $client);
             }
 
-            if ( $dubbizle ) {
-                $params[ 'erp_user' ] = NULL;
-                $params[ 'task_id' ] = NULL;
-                $params[ 'supplier_id' ] = NULL;
+            if ($dubbizle) {
+                $params[ 'erp_user' ] = null;
+                $params[ 'task_id' ] = null;
+                $params[ 'supplier_id' ] = null;
                 $params[ 'dubbizle_id' ] = $dubbizle->id;
 
-                $message = ChatMessage::create( $params );
+                $message = ChatMessage::create($params);
                 $model_type = 'dubbizle';
                 $model_id = $dubbizle->id;
 
-                $this->sendRealTime( $message, 'dubbizle_' . $dubbizle->id, $client );
+                $this->sendRealTime($message, 'dubbizle_' . $dubbizle->id, $client);
             }
 
-            if ( $customer ) {
-                $params[ 'erp_user' ] = NULL;
-                $params[ 'supplier_id' ] = NULL;
-                $params[ 'task_id' ] = NULL;
-                $params[ 'dubbizle_id' ] = NULL;
+            if ($customer) {
+                $params[ 'erp_user' ] = null;
+                $params[ 'supplier_id' ] = null;
+                $params[ 'task_id' ] = null;
+                $params[ 'dubbizle_id' ] = null;
                 $params[ 'customer_id' ] = $customer->id;
 
-                $message = ChatMessage::create( $params );
+                $message = ChatMessage::create($params);
                 $model_type = 'customers';
                 $model_id = $customer->id;
-                $customer->update( [
+                $customer->update([
                     'whatsapp_number' => $to
-                ] );
+                ]);
 
-                $this->sendRealTime( $message, 'customer_' . $customer->id, $client );
+                $this->sendRealTime($message, 'customer_' . $customer->id, $client);
 
-                if ( Setting::get( 'forward_messages' ) == 1 ) {
-                    if ( Setting::get( 'forward_start_date' ) != null && Setting::get( 'forward_end_date' ) != null ) {
+                if (Setting::get('forward_messages') == 1) {
+                    if (Setting::get('forward_start_date') != null && Setting::get('forward_end_date') != null) {
                         $time = Carbon::now();
-                        $start_date = Carbon::parse( Setting::get( 'forward_start_date' ) );
-                        $end_date = Carbon::parse( Setting::get( 'forward_end_date' ) );
+                        $start_date = Carbon::parse(Setting::get('forward_start_date'));
+                        $end_date = Carbon::parse(Setting::get('forward_end_date'));
 
-                        if ( $time->between( $start_date, $end_date, true ) ) {
-                            $forward_users_ids = json_decode( Setting::get( 'forward_users' ) );
+                        if ($time->between($start_date, $end_date, true)) {
+                            $forward_users_ids = json_decode(Setting::get('forward_users'));
                             $second_message = '';
 
-                            if ( $message->message == null ) {
+                            if ($message->message == null) {
                                 $forwarded_message = "FORWARDED from $customer->name";
                                 $second_message = $message->media_url;
                             } else {
                                 $forwarded_message = "FORWARDED from $customer->name - " . $message->message;
                             }
 
-                            foreach ( $forward_users_ids as $user_id ) {
-                                $user = User::find( $user_id );
+                            foreach ($forward_users_ids as $user_id) {
+                                $user = User::find($user_id);
 
                                 // $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $forwarded_message, FALSE, $message->id);
-                                $this->sendWithNewApi( $user->phone, $user->whatsapp_number, $forwarded_message, NULL, $message->id );
+                                $this->sendWithNewApi($user->phone, $user->whatsapp_number, $forwarded_message, null, $message->id);
 
-                                if ( $second_message != '' ) {
+                                if ($second_message != '') {
                                     // $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $second_message, FALSE, $message->id);
-                                    $this->sendWithNewApi( $user->phone, $user->whatsapp_number, NULL, $second_message, $message->id );
+                                    $this->sendWithNewApi($user->phone, $user->whatsapp_number, null, $second_message, $message->id);
                                 }
                             }
                         }
                     } else {
-                        $forward_users_ids = json_decode( Setting::get( 'forward_users' ) );
+                        $forward_users_ids = json_decode(Setting::get('forward_users'));
                         $second_message = '';
 
-                        if ( $message->message == null ) {
+                        if ($message->message == null) {
                             $forwarded_message = "FORWARDED from $customer->name";
                             $second_message = $message->media_url;
                         } else {
                             $forwarded_message = "FORWARDED from $customer->name - " . $message->message;
                         }
 
-                        foreach ( $forward_users_ids as $user_id ) {
-                            $user = User::find( $user_id );
+                        foreach ($forward_users_ids as $user_id) {
+                            $user = User::find($user_id);
 
                             // $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $forwarded_message, FALSE, $message->id);
-                            $this->sendWithNewApi( $user->phone, $user->whatsapp_number, $forwarded_message, NULL, $message->id );
+                            $this->sendWithNewApi($user->phone, $user->whatsapp_number, $forwarded_message, null, $message->id);
 
-                            if ( $second_message != '' ) {
+                            if ($second_message != '') {
                                 // $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $second_message, FALSE, $message->id);
-                                $this->sendWithNewApi( $user->phone, $user->whatsapp_number, NULL, $second_message, $message->id );
+                                $this->sendWithNewApi($user->phone, $user->whatsapp_number, null, $second_message, $message->id);
                             }
                         }
                     }
                 }
 
                 // Auto DND
-                if ( array_key_exists( 'message', $params ) && strtoupper( $params[ 'message' ] ) == 'DND' ) {
-                    if ( $customer = Customer::find( $params[ 'customer_id' ] ) ) {
+                if (array_key_exists('message', $params) && strtoupper($params[ 'message' ]) == 'DND') {
+                    if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
 
                         $dnd_params = [
-                            'number' => NULL,
+                            'number' => null,
                             'user_id' => 6,
                             'approved' => 1,
                             'status' => 9,
                             'customer_id' => $customer->id,
-                            'message' => AutoReply::where( 'type', 'auto-reply' )->where( 'keyword', 'customer-dnd' )->first()->reply
+                            'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-dnd')->first()->reply
                         ];
 
-                        $auto_dnd_message = ChatMessage::create( $dnd_params );
+                        $auto_dnd_message = ChatMessage::create($dnd_params);
 
                         // $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $dnd_params['message'], FALSE, $auto_dnd_message->id);
-                        $this->sendWithNewApi( $customer->phone, $customer->whatsapp_number, $dnd_params[ 'message' ], NULL, $auto_dnd_message->id );
+                        $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $dnd_params[ 'message' ], null, $auto_dnd_message->id);
                     }
                 }
 
                 // Auto Instruction
-                if ( array_key_exists( 'message', $params ) && ( preg_match( "/price/i", $params[ 'message' ] ) || preg_match( "/you photo/i", $params[ 'message' ] ) || preg_match( "/pp/i", $params[ 'message' ] ) || preg_match( "/how much/i", $params[ 'message' ] ) || preg_match( "/cost/i", $params[ 'message' ] ) || preg_match( "/rate/i", $params[ 'message' ] ) ) ) {
-                    if ( $customer = Customer::find( $params[ 'customer_id' ] ) ) {
-                        $two_hours = Carbon::now()->subHours( 2 );
-                        $latest_broadcast_message = ChatMessage::where( 'customer_id', $customer->id )->where( 'created_at', '>', $two_hours )->where( 'status', 8 )->latest()->first();
+                if (array_key_exists('message', $params) && (preg_match("/price/i", $params[ 'message' ]) || preg_match("/you photo/i", $params[ 'message' ]) || preg_match("/pp/i", $params[ 'message' ]) || preg_match("/how much/i", $params[ 'message' ]) || preg_match("/cost/i", $params[ 'message' ]) || preg_match("/rate/i", $params[ 'message' ]))) {
+                    if ($customer = Customer::find($params[ 'customer_id' ])) {
+                        $two_hours = Carbon::now()->subHours(2);
+                        $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->latest()->first();
 
-                        if ( $latest_broadcast_message ) {
-                            if ( !$latest_broadcast_message->is_sent_broadcast_price() ) {
-                                if ( $latest_broadcast_message->hasMedia( config( 'constants.media_tags' ) ) ) {
+                        if ($latest_broadcast_message) {
+                            if (!$latest_broadcast_message->is_sent_broadcast_price()) {
+                                if ($latest_broadcast_message->hasMedia(config('constants.media_tags'))) {
                                     $selected_products = [];
 
-                                    foreach ( $latest_broadcast_message->getMedia( config( 'constants.media_tags' ) ) as $image ) {
+                                    foreach ($latest_broadcast_message->getMedia(config('constants.media_tags')) as $image) {
                                         $image_key = $image->getKey();
                                         $mediable_type = "BroadcastImage";
 
-                                        $broadcast = BroadcastImage::with( 'Media' )
-                                            ->whereRaw( "broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')" )
+                                        $broadcast = BroadcastImage::with('Media')
+                                            ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
                                             ->first();
 
-                                        if ( $broadcast ) {
-                                            $brod_products = json_decode( $broadcast->products, true );
+                                        if ($broadcast) {
+                                            $brod_products = json_decode($broadcast->products, true);
 
-                                            if ( count( $brod_products ) > 0 ) {
-                                                foreach ( $brod_products as $brod_pro ) {
+                                            if (count($brod_products) > 0) {
+                                                foreach ($brod_products as $brod_pro) {
                                                     $selected_products[] = $brod_pro;
                                                 }
                                             }
                                         }
                                     }
 
-                                    if ( isset( $broadcast ) ) {
-                                        $quick_lead = Leads::create( [
+                                    if (isset($broadcast)) {
+                                        $quick_lead = Leads::create([
                                             'customer_id' => $customer->id,
                                             'rating' => 1,
                                             'status' => 3,
                                             'assigned_user' => 6,
-                                            'selected_product' => json_encode( $selected_products ),
+                                            'selected_product' => json_encode($selected_products),
                                             'created_at' => Carbon::now()
-                                        ] );
+                                        ]);
 
                                         $requestData = new Request();
-                                        $requestData->setMethod( 'POST' );
-                                        $requestData->request->add( [ 'customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products ] );
+                                        $requestData->setMethod('POST');
+                                        $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                                        app( 'App\Http\Controllers\LeadsController' )->sendPrices( $requestData );
+                                        app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
 
-                                        CommunicationHistory::create( [
+                                        CommunicationHistory::create([
                                             'model_id' => $latest_broadcast_message->id,
                                             'model_type' => ChatMessage::class,
                                             'type' => 'broadcast-prices',
                                             'method' => 'whatsapp'
-                                        ] );
+                                        ]);
                                     } else {
                                         // Instruction::create([
                                         //   'customer_id' => $customer->id,
@@ -783,47 +787,47 @@ class WhatsAppController extends FindByNumberController
                             }
                         }
 
-                        Instruction::create( [
+                        Instruction::create([
                             'customer_id' => $customer->id,
                             'instruction' => 'Please send the prices',
                             'category_id' => 1,
                             'assigned_to' => 7,
                             'assigned_from' => 6
-                        ] );
+                        ]);
                     }
                 }
 
                 // Auto Replies
                 $auto_replies = AutoReply::all();
 
-                foreach ( $auto_replies as $auto_reply ) {
-                    if ( array_key_exists( 'message', $params ) && $params[ 'message' ] != '' ) {
+                foreach ($auto_replies as $auto_reply) {
+                    if (array_key_exists('message', $params) && $params[ 'message' ] != '') {
                         $keyword = $auto_reply->keyword;
 
-                        if ( preg_match( "/{$keyword}/i", $params[ 'message' ] ) ) {
+                        if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
                             $temp_params = $params;
                             $temp_params[ 'message' ] = $auto_reply->reply;
                             $temp_params[ 'status' ] = 1;
 
-                            ChatMessage::create( $temp_params );
+                            ChatMessage::create($temp_params);
 
-                            $this->sendRealTime( $message, 'customer_' . $customer->id, $client );
+                            $this->sendRealTime($message, 'customer_' . $customer->id, $client);
                         }
                     }
                 }
             }
 
-            if ( !isset( $user ) && !isset( $purchase ) && !isset( $customer ) ) {
+            if (!isset($user) && !isset($purchase) && !isset($customer)) {
                 $modal_type = 'leads';
                 // $new_name = "whatsapp lead " . uniqid( TRUE );
                 $user = User::get()[ 0 ];
                 $validate_phone[ 'phone' ] = $from;
 
-                $validator = Validator::make( $validate_phone, [
+                $validator = Validator::make($validate_phone, [
                     'phone' => 'unique:customers,phone'
-                ] );
+                ]);
 
-                if ( $validator->fails() ) {
+                if ($validator->fails()) {
 
                 } else {
                     $customer = new Customer;
@@ -832,7 +836,7 @@ class WhatsAppController extends FindByNumberController
                     $customer->rating = 2;
                     $customer->save();
 
-                    $lead = Leads::create( [
+                    $lead = Leads::create([
                         'customer_id' => $customer->id,
                         'client_name' => $from,
                         'contactno' => $from,
@@ -841,135 +845,137 @@ class WhatsAppController extends FindByNumberController
                         'assigned_user' => $user->id,
                         'userid' => $user->id,
                         'whatsapp_number' => $to
-                    ] );
+                    ]);
 
                     $params[ 'lead_id' ] = $lead->id;
                     $params[ 'customer_id' ] = $customer->id;
 
-                    $message = ChatMessage::create( $params );
+                    $message = ChatMessage::create($params);
                     $model_type = 'leads';
                     $model_id = $lead->id;
 
-                    $this->sendRealTime( $message, 'customer_' . $customer->id, $client );
+                    $this->sendRealTime($message, 'customer_' . $customer->id, $client);
                 }
             }
 
             // Auto Respond
-            $today_date = Carbon::now()->format( 'Y-m-d' );
+            $today_date = Carbon::now()->format('Y-m-d');
             $time = Carbon::now();
-            $start_time = Setting::get( 'start_time' );
-            $start_time_exploded = explode( ':', $start_time );
-            $end_time = Setting::get( 'end_time' );
-            $end_time_exploded = explode( ':', $end_time );
-            $morning = Carbon::create( $time->year, $time->month, $time->day, $start_time_exploded[ 0 ], $start_time_exploded[ 1 ], 0 );
-            $not_morning = Carbon::create( $time->year, $time->month, $time->day, 0, 0, 0 );
-            $evening = Carbon::create( $time->year, $time->month, $time->day, $end_time_exploded[ 0 ], $end_time_exploded[ 1 ], 0 );
-            $not_evening = Carbon::create( $time->year, $time->month, $time->day, 23, 59, 0 );
-            $saturday = Carbon::now()->endOfWeek()->subDay()->format( 'Y-m-d' );
-            $sunday = Carbon::now()->endOfWeek()->format( 'Y-m-d' );
+            $start_time = Setting::get('start_time');
+            $start_time_exploded = explode(':', $start_time);
+            $end_time = Setting::get('end_time');
+            $end_time_exploded = explode(':', $end_time);
+            $morning = Carbon::create($time->year, $time->month, $time->day, $start_time_exploded[ 0 ], $start_time_exploded[ 1 ], 0);
+            $not_morning = Carbon::create($time->year, $time->month, $time->day, 0, 0, 0);
+            $evening = Carbon::create($time->year, $time->month, $time->day, $end_time_exploded[ 0 ], $end_time_exploded[ 1 ], 0);
+            $not_evening = Carbon::create($time->year, $time->month, $time->day, 23, 59, 0);
+            $saturday = Carbon::now()->endOfWeek()->subDay()->format('Y-m-d');
+            $sunday = Carbon::now()->endOfWeek()->format('Y-m-d');
 
-            $chat_messages_query = ChatMessage::where( 'customer_id', $params[ 'customer_id' ] )->whereBetween( 'created_at', [ $morning, $evening ] )->whereNotNull( 'number' );
+            $chat_messages_query = ChatMessage::where('customer_id', $params[ 'customer_id' ])->whereBetween('created_at', [$morning, $evening])->whereNotNull('number');
             $chat_messages_count = $chat_messages_query->count();
 
-            $chat_messages_evening_query = ChatMessage::where( 'customer_id', $params[ 'customer_id' ] )->where( function ( $query ) use ( $not_morning, $morning, $evening, $not_evening ) {
-                $query->whereBetween( 'created_at', [ $not_morning, $morning ] )->orWhereBetween( 'created_at', [ $evening, $not_evening ] );
-            } )->whereNotNull( 'number' );
+            $chat_messages_evening_query = ChatMessage::where('customer_id', $params[ 'customer_id' ])->where(function ($query) use ($not_morning, $morning, $evening, $not_evening) {
+                $query->whereBetween('created_at', [$not_morning, $morning])->orWhereBetween('created_at', [$evening, $not_evening]);
+            })->whereNotNull('number');
             $chat_messages_evening_count = $chat_messages_evening_query->count();
 
-            if ( $chat_messages_count == 1 ) {
+            if ($chat_messages_count == 1) {
                 $chat_messages_query_first = $chat_messages_query->first();
             }
 
-            if ( $chat_messages_evening_count == 1 ) {
+            if ($chat_messages_evening_count == 1) {
                 $chat_messages_evening_query_first = $chat_messages_evening_query->first();
             }
 
-            if ( $chat_messages_count == 1 && ( isset( $chat_messages_query_first ) && $chat_messages_query_first->id == $message->id ) && ( $saturday != $today_date && $sunday != $today_date ) ) {
-                $customer = Customer::find( $params[ 'customer_id' ] );
+            if ($chat_messages_count == 1 && (isset($chat_messages_query_first) && $chat_messages_query_first->id == $message->id) && ($saturday != $today_date && $sunday != $today_date)) {
+                $customer = Customer::find($params[ 'customer_id' ]);
                 $params = [
-                    'number' => NULL,
+                    'number' => null,
                     'user_id' => 6,
                     'approved' => 1,
                     'status' => 9,
                     'customer_id' => $params[ 'customer_id' ]
                 ];
 
-                if ( $time->between( $morning, $evening, true ) ) {
-                    $params[ 'message' ] = AutoReply::where( 'type', 'auto-reply' )->where( 'keyword', 'work-hours-greeting' )->first()->reply;
+                if ($time->between($morning, $evening, true)) {
+                    $params[ 'message' ] = AutoReply::where('type', 'auto-reply')->where('keyword', 'work-hours-greeting')->first()->reply;
 
-                    sleep( 1 );
-                    $additional_message = ChatMessage::create( $params );
+                    sleep(1);
+                    $additional_message = ChatMessage::create($params);
                     // $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
-                    $this->sendWithNewApi( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id );
+                    $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, null, $additional_message->id);
                 }
-            } else if ( ( $chat_messages_evening_count == 1 && ( isset( $chat_messages_evening_query_first ) && $chat_messages_evening_query_first->id == $message->id ) ) || ( $chat_messages_count == 1 && ( $saturday == $today_date || $sunday == $today_date ) ) ) {
-                $customer = Customer::find( $params[ 'customer_id' ] );
+            } else {
+                if (($chat_messages_evening_count == 1 && (isset($chat_messages_evening_query_first) && $chat_messages_evening_query_first->id == $message->id)) || ($chat_messages_count == 1 && ($saturday == $today_date || $sunday == $today_date))) {
+                    $customer = Customer::find($params[ 'customer_id' ]);
 
-                $auto_reply = AutoReply::where( 'type', 'auto-reply' )->where( 'keyword', 'office-closed-message' )->first();
+                    $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'office-closed-message')->first();
 
-                $auto_message = preg_replace( "/{start_time}/i", $start_time, $auto_reply->reply );
-                $auto_message = preg_replace( "/{end_time}/i", $end_time, $auto_message );
+                    $auto_message = preg_replace("/{start_time}/i", $start_time, $auto_reply->reply);
+                    $auto_message = preg_replace("/{end_time}/i", $end_time, $auto_message);
 
-                $params = [
-                    'number' => NULL,
-                    'user_id' => 6,
-                    'approved' => 1,
-                    'status' => 9,
-                    'customer_id' => $params[ 'customer_id' ],
-                    'message' => $auto_message
-                ];
+                    $params = [
+                        'number' => null,
+                        'user_id' => 6,
+                        'approved' => 1,
+                        'status' => 9,
+                        'customer_id' => $params[ 'customer_id' ],
+                        'message' => $auto_message
+                    ];
 
-                sleep( 1 );
-                $additional_message = ChatMessage::create( $params );
-                // $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
-                $this->sendWithNewApi( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id );
+                    sleep(1);
+                    $additional_message = ChatMessage::create($params);
+                    // $this->sendWithWhatsApp($message->customer->phone, $customer->whatsapp_number, $additional_message->message, FALSE, $additional_message->id);
+                    $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, null, $additional_message->id);
+                }
             }
 
-            if ( $data[ 'data' ][ 'type' ] == 'image' ) {
-                $message->attachMedia( $media, config( 'constants.media_tags' ) );
+            if ($data[ 'data' ][ 'type' ] == 'image') {
+                $message->attachMedia($media, config('constants.media_tags'));
             }
         } else {
-            $custom_data = json_decode( $data[ 'custom_data' ], true );
+            $custom_data = json_decode($data[ 'custom_data' ], true);
 
-            $chat_message = ChatMessage::find( $custom_data[ 'chat_message_id' ] );
+            $chat_message = ChatMessage::find($custom_data[ 'chat_message_id' ]);
 
-            if ( $chat_message ) {
+            if ($chat_message) {
                 $chat_message->sent = 1;
                 $chat_message->save();
             }
         }
 
-        return response( "success", 200 );
+        return response("success", 200);
     }
 
-    public function sendMessageToRespectiveUserIfIsRelatedVendor( $data )
+    public function sendMessageToRespectiveUserIfIsRelatedVendor($data)
     {
 
     }
 
-    public function webhook( Request $request, GuzzleClient $client )
+    public function webhook(Request $request, GuzzleClient $client)
     {
         $data = $request->json()->all();
 
-        file_put_contents( __DIR__ . "/webhook.txt", json_encode( $data ) );
-        file_put_contents( __DIR__ . "/test_aayo.txt", json_encode( $data ) );
+        file_put_contents(__DIR__ . "/webhook.txt", json_encode($data));
+        file_put_contents(__DIR__ . "/test_aayo.txt", json_encode($data));
 
         // $to = str_replace('+', '', $data['data']['toNumber']);
-        if ( !array_key_exists( 'messages', $data ) ) {
-            return response( 'ACK', 200 );
+        if (!array_key_exists('messages', $data)) {
+            return response('ACK', 200);
         }
 
-        $from = str_replace( '@c.us', '', $data[ 'messages' ][ 0 ][ 'author' ] );
+        $from = str_replace('@c.us', '', $data[ 'messages' ][ 0 ][ 'author' ]);
         $instanceId = $data[ 'instanceId' ];
         $text = $data[ 'messages' ][ 0 ][ 'body' ];
         $contentType = $data[ 'messages' ][ 0 ][ 'type' ];
         $originalMessage = $text;
-        $supplier = $this->findSupplierByNumber( $from );
-        $vendor = $this->findVendorByNumber( $from );
-        $user = $this->findUserByNumber( $from );
-        $dubbizle = $this->findDubbizleByNumber( $from );
-        $contact = $this->findContactByNumber( $from );
-        $customer = $this->findCustomerByNumber( $from );
+        $supplier = $this->findSupplierByNumber($from);
+        $vendor = $this->findVendorByNumber($from);
+        $user = $this->findUserByNumber($from);
+        $dubbizle = $this->findDubbizleByNumber($from);
+        $contact = $this->findContactByNumber($from);
+        $customer = $this->findCustomerByNumber($from);
 
         $params = [
             'number' => $from,
@@ -978,11 +984,11 @@ class WhatsAppController extends FindByNumberController
             'status' => $data[ 'messages' ][ 0 ][ 'fromMe' ] ? 2 : 0
         ];
 
-        if ( filter_var( $text, FILTER_VALIDATE_URL ) ) {
-            $exploded = explode( '//', $text );
-            $http = array_shift( $exploded );
+        if (filter_var($text, FILTER_VALIDATE_URL)) {
+            $exploded = explode('//', $text);
+            $http = array_shift($exploded);
 
-            $formatted_url = $http . "//" . implode( '/', $exploded );
+            $formatted_url = $http . "//" . implode('/', $exploded);
 //        $formatted_url = str_replace_last('.jpeg', '.jpg', $formatted_url);
 
 
@@ -999,16 +1005,16 @@ class WhatsAppController extends FindByNumberController
             $params[ 'media_url' ] = '';
 
             try {
-                copy( $formatted_url, $file_path );
+                copy($formatted_url, $file_path);
 
-                $media = MediaUploader::fromSource( $file_path )->useFilename( uniqid( TRUE, true ) )->upload();
+                $media = MediaUploader::fromSource($file_path)->useFilename(uniqid(true, true))->upload();
 
-                unlink( $file_path );
+                unlink($file_path);
 
                 $params[ 'media_url' ] = $media->getUrl();
 
-            } catch ( \Exception $exception ) {
-                file_put_contents( __DIR__ . "/test_aayo.txt", $exception->getMessage() );
+            } catch (\Exception $exception) {
+                file_put_contents(__DIR__ . "/test_aayo.txt", $exception->getMessage());
             }
 
         } else {
@@ -1029,7 +1035,7 @@ class WhatsAppController extends FindByNumberController
         //   File::delete('uploads/temp_image.png');
         // }
 
-        if ( $user ) {
+        if ($user) {
             // $instruction = Instruction::where('assigned_to', $user->id)->latest()->first();
             // $myRequest = new Request();
             // $myRequest->setMethod('POST');
@@ -1050,20 +1056,20 @@ class WhatsAppController extends FindByNumberController
             // $params['erp_user'] = $user->id;
             $params[ 'user_id' ] = $user->id;
 
-            if ( $params[ 'message' ] != '' && ( preg_match_all( "/#([\d]+)/i", $params[ 'message' ], $match ) ) ) {
-                if ( $task = Task::find( $match[ 1 ][ 0 ] ) ) {
+            if ($params[ 'message' ] != '' && (preg_match_all("/#([\d]+)/i", $params[ 'message' ], $match))) {
+                if ($task = Task::find($match[ 1 ][ 0 ])) {
                     $params[ 'task_id' ] = $match[ 1 ][ 0 ];
 
-                    if ( count( $task->users ) > 0 ) {
-                        if ( $task->assign_from == $user->id ) {
+                    if (count($task->users) > 0) {
+                        if ($task->assign_from == $user->id) {
                             $params[ 'erp_user' ] = $task->assign_to;
                         } else {
                             $params[ 'erp_user' ] = $task->assign_from;
                         }
                     }
 
-                    if ( count( $task->contacts ) > 0 ) {
-                        if ( $task->assign_from == $user->id ) {
+                    if (count($task->contacts) > 0) {
+                        if ($task->assign_from == $user->id) {
                             $params[ 'contact_id' ] = $task->assign_to;
                         } else {
                             $params[ 'contact_id' ] = $task->assign_from;
@@ -1073,113 +1079,115 @@ class WhatsAppController extends FindByNumberController
             }
 
             // $params = $this->modifyParamsWithMessage($params, $data);
-            if ( isset( $media ) ) {
+            if (isset($media)) {
                 $params[ 'media_url' ] = $media->getUrl();
             }
 
-            $message = ChatMessage::create( $params );
+            $message = ChatMessage::create($params);
 
-            if ( isset( $media ) ) {
-                $message->attachMedia( $media, config( 'constants.media_tags' ) );
+            if (isset($media)) {
+                $message->attachMedia($media, config('constants.media_tags'));
             }
 
-            if ( array_key_exists( 'task_id', $params ) ) {
-                $this->sendRealTime( $message, 'task_' . $task->id, $client );
+            if (array_key_exists('task_id', $params)) {
+                $this->sendRealTime($message, 'task_' . $task->id, $client);
             } else {
-                $this->sendRealTime( $message, 'user_' . $user->id, $client );
+                $this->sendRealTime($message, 'user_' . $user->id, $client);
             }
             // $model_type = 'user';
             // $model_id = $user->id;
-        } else if ( !$supplier ) {
+        } else {
+            if (!$supplier) {
 
+            }
         }
 
-        $contact = Contact::where( 'phone', $from )->first();
+        $contact = Contact::where('phone', $from)->first();
 
-        if ( $contact ) {
+        if ($contact) {
             $params[ 'contact_id' ] = $contact->id;
-            $params[ 'user_id' ] = NULL;
+            $params[ 'user_id' ] = null;
 
-            if ( $params[ 'message' ] != '' && ( preg_match_all( "/#([\d]+)/i", $params[ 'message' ], $match ) ) ) {
+            if ($params[ 'message' ] != '' && (preg_match_all("/#([\d]+)/i", $params[ 'message' ], $match))) {
                 $params[ 'task_id' ] = $match[ 1 ][ 0 ];
             }
 
-            $message = ChatMessage::create( $params );
+            $message = ChatMessage::create($params);
 
-            if ( array_key_exists( 'task_id', $params ) ) {
-                $this->sendRealTime( $message, 'task_' . $match[ 1 ][ 0 ], $client );
+            if (array_key_exists('task_id', $params)) {
+                $this->sendRealTime($message, 'task_' . $match[ 1 ][ 0 ], $client);
             } else {
-                $this->sendRealTime( $message, 'user_' . $contact->id, $client );
+                $this->sendRealTime($message, 'user_' . $contact->id, $client);
             }
         }
 
-        if ( $supplier ) {
-            $params[ 'erp_user' ] = NULL;
-            $params[ 'task_id' ] = NULL;
-            $params[ 'contact_id' ] = NULL;
-            $params[ 'user_id' ] = NULL;
+        if ($supplier) {
+            $params[ 'erp_user' ] = null;
+            $params[ 'task_id' ] = null;
+            $params[ 'contact_id' ] = null;
+            $params[ 'user_id' ] = null;
             $params[ 'supplier_id' ] = $supplier->id;
 
-            $message = ChatMessage::create( $params );
+            $message = ChatMessage::create($params);
             // $model_type = 'supplier';
             // $model_id = $supplier->id;
 
-            $this->sendRealTime( $message, 'supplier_' . $supplier->id, $client );
+            $this->sendRealTime($message, 'supplier_' . $supplier->id, $client);
         }
 
-        if ( $vendor ) {
-            $params[ 'erp_user' ] = NULL;
-            $params[ 'task_id' ] = NULL;
-            $params[ 'contact_id' ] = NULL;
-            $params[ 'user_id' ] = NULL;
-            $params[ 'supplier_id' ] = NULL;
+        if ($vendor) {
+            $params[ 'erp_user' ] = null;
+            $params[ 'task_id' ] = null;
+            $params[ 'contact_id' ] = null;
+            $params[ 'user_id' ] = null;
+            $params[ 'supplier_id' ] = null;
             $params[ 'vendor_id' ] = $vendor->id;
 
-            $message = ChatMessage::create( $params );
+            $message = ChatMessage::create($params);
 
             $category = $vendor->category;
 
-            if ( $category && $category->user_id && $params[ 'message' ] ) {
-                $user = User::find( $category->user_id );
-                $this->sendWithThirdApi( $user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ] );
+            if ($category && $category->user_id && $params[ 'message' ]) {
+                $user = User::find($category->user_id);
+                $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ]);
             }
 
 
             // $model_type = 'supplier';
             // $model_id = $supplier->id;
 
-            $this->sendRealTime( $message, 'vendor_' . $vendor->id, $client );
+            $this->sendRealTime($message, 'vendor_' . $vendor->id, $client);
         }
 
-        if ( $dubbizle ) {
-            $params[ 'erp_user' ] = NULL;
-            $params[ 'task_id' ] = NULL;
-            $params[ 'supplier_id' ] = NULL;
-            $params[ 'vendor' ] = NULL;
-            $params[ 'contact_id' ] = NULL;
-            $params[ 'user_id' ] = NULL;
+        if ($dubbizle) {
+            $params[ 'erp_user' ] = null;
+            $params[ 'task_id' ] = null;
+            $params[ 'supplier_id' ] = null;
+            $params[ 'vendor' ] = null;
+            $params[ 'contact_id' ] = null;
+            $params[ 'user_id' ] = null;
             $params[ 'dubbizle_id' ] = $dubbizle->id;
 
-            $message = ChatMessage::create( $params );
+            $message = ChatMessage::create($params);
             $model_type = 'dubbizle';
             $model_id = $dubbizle->id;
 
-            $this->sendRealTime( $message, 'dubbizle_' . $dubbizle->id, $client );
+            $this->sendRealTime($message, 'dubbizle_' . $dubbizle->id, $client);
         }
         // }
 
         $fromMe = $data[ 'messages' ][ 0 ][ 'fromMe' ] ?? true;
         $params[ 'message' ] = $originalMessage;
-        if ( !$fromMe && $params[ 'message' ] && strpos( $originalMessage, 'V-' ) === 0 ) {
+        if (!$fromMe && $params[ 'message' ] && strpos($originalMessage, 'V-') === 0) {
             $msg = $params[ 'message' ];
-            $msg = explode( ' ', $msg );
+            $msg = explode(' ', $msg);
             $vendorData = $msg[ 0 ];
-            $vendorId = trim( str_replace( 'V-', '', $vendorData ) );
-            $message = str_replace( 'V-' . $vendorId, '', $params[ 'message' ] );
+            $vendorId = trim(str_replace('V-', '', $vendorData));
+            $message = str_replace('V-' . $vendorId, '', $params[ 'message' ]);
 
-            $vendor = Vendor::find( $vendorId );
-            if ( !$vendor ) {
-                return response( 'success' );
+            $vendor = Vendor::find($vendorId);
+            if (!$vendor) {
+                return response('success');
             }
 
             $params[ 'vendor_id' ] = $vendorId;
@@ -1187,117 +1195,121 @@ class WhatsAppController extends FindByNumberController
             $params[ 'message' ] = $message;
             $params[ 'status' ] = 2;
 
-            $this->sendWithThirdApi( $vendor->phone, null, $params[ 'message' ] );
+            $this->sendWithThirdApi($vendor->phone, null, $params[ 'message' ]);
 
-            ChatMessage::create( $params );
+            ChatMessage::create($params);
 
         }
 
-        if ( !$fromMe && strpos( $originalMessage, '#ISSUE-' ) === 0 ) {
+        if (!$fromMe && strpos($originalMessage, '#ISSUE-') === 0) {
             $m = new ChatMessage();
-            $message = str_replace( '#ISSUE-', '', $originalMessage );
-            $m->issue_id = explode( ' ', $message )[ 0 ];
+            $message = str_replace('#ISSUE-', '', $originalMessage);
+            $m->issue_id = explode(' ', $message)[ 0 ];
             $m->message = $originalMessage;
             $m->save();
         }
 
-        if ( !$fromMe && strpos( $originalMessage, '#DEVTASK-' ) === 0 ) {
+        if (!$fromMe && strpos($originalMessage, '#DEVTASK-') === 0) {
             $m = new ChatMessage();
-            $message = str_replace( '#DEVTASK-', '', $originalMessage );
-            $m->developer_task_id = explode( ' ', $message )[ 0 ];
+            $message = str_replace('#DEVTASK-', '', $originalMessage);
+            $m->developer_task_id = explode(' ', $message)[ 0 ];
             $m->message = $originalMessage;
             $m->save();
         }
 
-        if ( $instanceId == '43281' ) { // Indian
+        if ($instanceId == '43281') { // Indian
             $to = "919004780634";
-        } else if ( $instanceId == '55202' ) { // Solo 06
-            $to = '919152731486';
-        } else if ( $instanceId == '55211' ) { // Solo 04
-            $to = '919152731483';
-        } else { // James
-            $to = "971545889192";
+        } else {
+            if ($instanceId == '55202') { // Solo 06
+                $to = '919152731486';
+            } else {
+                if ($instanceId == '55211') { // Solo 04
+                    $to = '919152731483';
+                } else { // James
+                    $to = "971545889192";
+                }
+            }
         }
 
 
-        if ( $customer && ( $to == '919152731483' || $to == '919152731486' ) ) {
-            $params[ 'erp_user' ] = NULL;
-            $params[ 'supplier_id' ] = NULL;
-            $params[ 'task_id' ] = NULL;
-            $params[ 'dubbizle_id' ] = NULL;
+        if ($customer && ($to == '919152731483' || $to == '919152731486')) {
+            $params[ 'erp_user' ] = null;
+            $params[ 'supplier_id' ] = null;
+            $params[ 'task_id' ] = null;
+            $params[ 'dubbizle_id' ] = null;
             $params[ 'customer_id' ] = $customer->id;
 
-            $message = ChatMessage::create( $params );
+            $message = ChatMessage::create($params);
 
-            if ( $contentType === 'image' ) {
+            if ($contentType === 'image') {
                 $message->message = '';
-                File::put( public_path( 'uploads' ) . '/downloaded.jpg', file_get_contents( $params[ 'message' ] ) );
-                $media = MediaUploaderFacade::fromSource( public_path( 'uploads' ) . '/downloaded.jpg' )
-                    ->useFilename( uniqid( 'whatsapp_', true ) )
+                File::put(public_path('uploads') . '/downloaded.jpg', file_get_contents($params[ 'message' ]));
+                $media = MediaUploaderFacade::fromSource(public_path('uploads') . '/downloaded.jpg')
+                    ->useFilename(uniqid('whatsapp_', true))
                     ->upload();
-                $message->attachMedia( $media, 'gallery' );
+                $message->attachMedia($media, 'gallery');
                 $message->save();
             }
 
             $model_type = 'customers';
             $model_id = $customer->id;
-            $customer->update( [
+            $customer->update([
                 'whatsapp_number' => $to
-            ] );
+            ]);
 
-            $this->sendRealTime( $message, 'customer_' . $customer->id, $client );
+            $this->sendRealTime($message, 'customer_' . $customer->id, $client);
 
-            if ( Setting::get( 'forward_messages' ) == 1 ) {
-                if ( Setting::get( 'forward_start_date' ) != null && Setting::get( 'forward_end_date' ) != null ) {
+            if (Setting::get('forward_messages') == 1) {
+                if (Setting::get('forward_start_date') != null && Setting::get('forward_end_date') != null) {
                     $time = Carbon::now();
-                    $start_date = Carbon::parse( Setting::get( 'forward_start_date' ) );
-                    $end_date = Carbon::parse( Setting::get( 'forward_end_date' ) );
+                    $start_date = Carbon::parse(Setting::get('forward_start_date'));
+                    $end_date = Carbon::parse(Setting::get('forward_end_date'));
 
-                    if ( $time->between( $start_date, $end_date, true ) ) {
-                        $forward_users_ids = json_decode( Setting::get( 'forward_users' ) );
+                    if ($time->between($start_date, $end_date, true)) {
+                        $forward_users_ids = json_decode(Setting::get('forward_users'));
                         $second_message = '';
 
-                        if ( $message->message == null ) {
+                        if ($message->message == null) {
                             $forwarded_message = "FORWARDED from $customer->name";
                             $second_message = $message->media_url;
                         } else {
                             $forwarded_message = "FORWARDED from $customer->name - " . $message->message;
                         }
 
-                        foreach ( $forward_users_ids as $user_id ) {
-                            $user = User::find( $user_id );
+                        foreach ($forward_users_ids as $user_id) {
+                            $user = User::find($user_id);
 
                             // $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $forwarded_message, FALSE, $message->id);
-                            $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, $forwarded_message, NULL, $message->id );
+                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $forwarded_message, null, $message->id);
 
-                            if ( $second_message != '' ) {
+                            if ($second_message != '') {
 //                                 $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $second_message, FALSE, $message->id);
 //                                $this->sendWithNewApi($user->phone, $user->whatsapp_number, NULL, $second_message, $message->id);
-                                $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, NULL, $second_message, $message->id );
+                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $second_message, $message->id);
                             }
                         }
                     }
                 } else {
-                    $forward_users_ids = json_decode( Setting::get( 'forward_users' ) );
+                    $forward_users_ids = json_decode(Setting::get('forward_users'));
                     $second_message = '';
 
-                    if ( $message->message == null ) {
+                    if ($message->message == null) {
                         $forwarded_message = "FORWARDED from $customer->name";
                         $second_message = $message->media_url;
                     } else {
                         $forwarded_message = "FORWARDED from $customer->name - " . $message->message;
                     }
 
-                    foreach ( $forward_users_ids as $user_id ) {
-                        $user = User::find( $user_id );
+                    foreach ($forward_users_ids as $user_id) {
+                        $user = User::find($user_id);
 
                         // $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $forwarded_message, FALSE, $message->id);
-                        $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, $forwarded_message, NULL, $message->id );
+                        $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $forwarded_message, null, $message->id);
 //                        $this->sendWithNewApi($user->phone, $user->whatsapp_number, $forwarded_message, NULL, $message->id);
 
-                        if ( $second_message != '' ) {
+                        if ($second_message != '') {
                             // $this->sendWithWhatsApp($user->phone, $user->whatsapp_number, $second_message, FALSE, $message->id);
-                            $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, NULL, $second_message, $message->id );
+                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $second_message, $message->id);
 //                            $this->sendWithNewApi($user->phone, $user->whatsapp_number, NULL, $second_message, $message->id);
                         }
                     }
@@ -1305,80 +1317,80 @@ class WhatsAppController extends FindByNumberController
             }
 
             // Auto DND
-            if ( array_key_exists( 'message', $params ) && strtoupper( $params[ 'message' ] ) == 'DND' ) {
-                if ( $customer = Customer::find( $params[ 'customer_id' ] ) ) {
+            if (array_key_exists('message', $params) && strtoupper($params[ 'message' ]) == 'DND') {
+                if ($customer = Customer::find($params[ 'customer_id' ])) {
                     $customer->do_not_disturb = 1;
                     $customer->save();
 
                     $dnd_params = [
-                        'number' => NULL,
+                        'number' => null,
                         'user_id' => 6,
                         'approved' => 1,
                         'status' => 9,
                         'customer_id' => $customer->id,
-                        'message' => AutoReply::where( 'type', 'auto-reply' )->where( 'keyword', 'customer-dnd' )->first()->reply
+                        'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-dnd')->first()->reply
                     ];
 
-                    $auto_dnd_message = ChatMessage::create( $dnd_params );
+                    $auto_dnd_message = ChatMessage::create($dnd_params);
 
                     // $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $dnd_params['message'], FALSE, $auto_dnd_message->id);
 //                    $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $dnd_params['message'], NULL, $auto_dnd_message->id);
-                    $this->sendWithThirdApi( $customer->phone, $customer->whatsapp_number, $dnd_params[ 'message' ], NULL, $auto_dnd_message->id );
+                    $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $dnd_params[ 'message' ], null, $auto_dnd_message->id);
                 }
             }
 
             // Auto Instruction
-            if ( $params[ 'customer_id' ] != '1000' && $params[ 'customer_id' ] != '976' && array_key_exists( 'message', $params ) && ( preg_match( "/price/i", $params[ 'message' ] ) || preg_match( "/you photo/i", $params[ 'message' ] ) || preg_match( "/pp/i", $params[ 'message' ] ) || preg_match( "/how much/i", $params[ 'message' ] ) || preg_match( "/cost/i", $params[ 'message' ] ) || preg_match( "/rate/i", $params[ 'message' ] ) ) ) {
-                if ( $customer = Customer::find( $params[ 'customer_id' ] ) ) {
-                    $two_hours = Carbon::now()->subHours( 2 );
-                    $latest_broadcast_message = ChatMessage::where( 'customer_id', $customer->id )->where( 'created_at', '>', $two_hours )->where( 'status', 8 )->latest()->first();
+            if ($params[ 'customer_id' ] != '1000' && $params[ 'customer_id' ] != '976' && array_key_exists('message', $params) && (preg_match("/price/i", $params[ 'message' ]) || preg_match("/you photo/i", $params[ 'message' ]) || preg_match("/pp/i", $params[ 'message' ]) || preg_match("/how much/i", $params[ 'message' ]) || preg_match("/cost/i", $params[ 'message' ]) || preg_match("/rate/i", $params[ 'message' ]))) {
+                if ($customer = Customer::find($params[ 'customer_id' ])) {
+                    $two_hours = Carbon::now()->subHours(2);
+                    $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->latest()->first();
 
-                    if ( $latest_broadcast_message ) {
-                        if ( !$latest_broadcast_message->is_sent_broadcast_price() ) {
-                            if ( $latest_broadcast_message->hasMedia( config( 'constants.media_tags' ) ) ) {
+                    if ($latest_broadcast_message) {
+                        if (!$latest_broadcast_message->is_sent_broadcast_price()) {
+                            if ($latest_broadcast_message->hasMedia(config('constants.media_tags'))) {
                                 $selected_products = [];
 
-                                foreach ( $latest_broadcast_message->getMedia( config( 'constants.media_tags' ) ) as $image ) {
+                                foreach ($latest_broadcast_message->getMedia(config('constants.media_tags')) as $image) {
                                     $image_key = $image->getKey();
                                     $mediable_type = "BroadcastImage";
 
-                                    $broadcast = BroadcastImage::with( 'Media' )
-                                        ->whereRaw( "broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')" )
+                                    $broadcast = BroadcastImage::with('Media')
+                                        ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
                                         ->first();
 
-                                    if ( $broadcast ) {
-                                        $brod_products = json_decode( $broadcast->products, true );
+                                    if ($broadcast) {
+                                        $brod_products = json_decode($broadcast->products, true);
 
-                                        if ( count( $brod_products ) > 0 ) {
-                                            foreach ( $brod_products as $brod_pro ) {
+                                        if (count($brod_products) > 0) {
+                                            foreach ($brod_products as $brod_pro) {
                                                 $selected_products[] = $brod_pro;
                                             }
                                         }
                                     }
                                 }
 
-                                if ( isset( $broadcast ) ) {
-                                    $quick_lead = Leads::create( [
+                                if (isset($broadcast)) {
+                                    $quick_lead = Leads::create([
                                         'customer_id' => $customer->id,
                                         'rating' => 1,
                                         'status' => 3,
                                         'assigned_user' => 6,
-                                        'selected_product' => json_encode( $selected_products ),
+                                        'selected_product' => json_encode($selected_products),
                                         'created_at' => Carbon::now()
-                                    ] );
+                                    ]);
 
                                     $requestData = new Request();
-                                    $requestData->setMethod( 'POST' );
-                                    $requestData->request->add( [ 'customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products ] );
+                                    $requestData->setMethod('POST');
+                                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                                    app( 'App\Http\Controllers\LeadsController' )->sendPrices( $requestData );
+                                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
 
-                                    CommunicationHistory::create( [
+                                    CommunicationHistory::create([
                                         'model_id' => $latest_broadcast_message->id,
                                         'model_type' => ChatMessage::class,
                                         'type' => 'broadcast-prices',
                                         'method' => 'whatsapp'
-                                    ] );
+                                    ]);
                                 } else {
                                     // Instruction::create([
                                     //   'customer_id' => $customer->id,
@@ -1392,59 +1404,59 @@ class WhatsAppController extends FindByNumberController
                         }
                     }
 
-                    Instruction::create( [
+                    Instruction::create([
                         'customer_id' => $customer->id,
                         'instruction' => 'Please send the prices',
                         'category_id' => 1,
                         'assigned_to' => 7,
                         'assigned_from' => 6
-                    ] );
+                    ]);
                 }
             }
 
             // Auto Replies
             $auto_replies = AutoReply::all();
 
-            foreach ( $auto_replies as $auto_reply ) {
-                if ( array_key_exists( 'message', $params ) && $params[ 'message' ] != '' ) {
+            foreach ($auto_replies as $auto_reply) {
+                if (array_key_exists('message', $params) && $params[ 'message' ] != '') {
                     $keyword = $auto_reply->keyword;
 
-                    if ( preg_match( "/{$keyword}/i", $params[ 'message' ] ) ) {
+                    if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
                         $temp_params = $params;
                         $temp_params[ 'message' ] = $auto_reply->reply;
                         $temp_params[ 'status' ] = 1;
 
-                        ChatMessage::create( $temp_params );
+                        ChatMessage::create($temp_params);
 
-                        $this->sendRealTime( $message, 'customer_' . $customer->id, $client );
+                        $this->sendRealTime($message, 'customer_' . $customer->id, $client);
                     }
                 }
             }
         }
 
 
-        return response( 'success' );
+        return response('success');
     }
 
-    public function outgoingProcessed( Request $request )
+    public function outgoingProcessed(Request $request)
     {
         $data = $request->json()->all();
 
         // file_put_contents(__DIR__."/outgoing.txt", json_encode($data));
 
-        foreach ( $data as $event ) {
-            $chat_message = ChatMessage::find( $event->data->reference );
+        foreach ($data as $event) {
+            $chat_message = ChatMessage::find($event->data->reference);
 
-            if ( $chat_message ) {
+            if ($chat_message) {
                 $chat_message->sent = 1;
                 $chat_message->save();
             }
         }
 
-        return response( "success", 200 );
+        return response("success", 200);
     }
 
-    public function getAllMessages( Request $request )
+    public function getAllMessages(Request $request)
     {
         // dd('asd');
         $params = [];
@@ -1452,29 +1464,37 @@ class WhatsAppController extends FindByNumberController
         // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
 
         // $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
-        if ( $request->customerId ) {
+        if ($request->customerId) {
             $column = 'customer_id';
             $value = $request->customerId;
-        } else if ( $request->supplierId ) {
-            $column = 'supplier_id';
-            $value = $request->supplierId;
-        } else if ( $request->taskId ) {
-            $column = 'task_id';
-            $value = $request->taskId;
-        } else if ( $request->erpUser ) {
-            $column = 'erp_user';
-            $value = $request->erpUser;
-        } else if ( $request->dubbizleId ) {
-            $column = 'dubbizle_id';
-            $value = $request->dubbizleId;
         } else {
-            $column = 'customer_id';
-            $value = $request->customerId;
+            if ($request->supplierId) {
+                $column = 'supplier_id';
+                $value = $request->supplierId;
+            } else {
+                if ($request->taskId) {
+                    $column = 'task_id';
+                    $value = $request->taskId;
+                } else {
+                    if ($request->erpUser) {
+                        $column = 'erp_user';
+                        $value = $request->erpUser;
+                    } else {
+                        if ($request->dubbizleId) {
+                            $column = 'dubbizle_id';
+                            $value = $request->dubbizleId;
+                        } else {
+                            $column = 'customer_id';
+                            $value = $request->customerId;
+                        }
+                    }
+                }
+            }
         }
 
 
 //      $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'resent', 'created_at', 'media_url', 'message'])->where($column, $value)->where('status', '!=', 7);
-        $messages = DB::select( '
+        $messages = DB::select('
                   SELECT chat_messages.id, chat_messages.customer_id, chat_messages.number, chat_messages.user_id, chat_messages.erp_user, chat_messages.assigned_to, chat_messages.approved, chat_messages.status, chat_messages.sent, chat_messages.error_status, chat_messages.resent, chat_messages.created_at, chat_messages.media_url, chat_messages.message,
                   media.filename,
                   mediable_id
@@ -1493,16 +1513,16 @@ class WhatsAppController extends FindByNumberController
 
                   WHERE ' . $column . ' = ' . $value . ' AND status != 7
                   ORDER BY chat_messages.created_at DESC
-      ' );
+      ');
 
-        dd( $messages );
+        dd($messages);
 
-        if ( Setting::get( 'show_automated_messages' ) == 0 ) {
-            $messages = $messages->where( 'status', '!=', 9 );
+        if (Setting::get('show_automated_messages') == 0) {
+            $messages = $messages->where('status', '!=', 9);
         }
 
-        if ( $request->erpUser ) {
-            $messages = $messages->whereNull( 'task_id' );
+        if ($request->erpUser) {
+            $messages = $messages->whereNull('task_id');
         }
         // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
         // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
@@ -1517,19 +1537,19 @@ class WhatsAppController extends FindByNumberController
         // dd('stap');
 
         // IS IT NECESSARY ?
-        if ( $request->get( "elapse" ) ) {
-            $elapse = (int) $request->get( "elapse" );
+        if ($request->get("elapse")) {
+            $elapse = (int)$request->get("elapse");
             $date = new \DateTime;
-            $date->modify( sprintf( "-%s seconds", $elapse ) );
+            $date->modify(sprintf("-%s seconds", $elapse));
             // $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
         }
 
-        foreach ( $messages->latest()->get() as $message ) {
+        foreach ($messages->latest()->get() as $message) {
             $messageParams = [
                 'id' => $message->id,
                 'number' => $message->number,
                 'assigned_to' => $message->assigned_to,
-                'created_at' => Carbon::parse( $message->created_at )->format( 'Y-m-d H:i:s' ),
+                'created_at' => Carbon::parse($message->created_at)->format('Y-m-d H:i:s'),
                 'approved' => $message->approved,
                 'status' => $message->status,
                 'user_id' => $message->user_id,
@@ -1539,17 +1559,17 @@ class WhatsAppController extends FindByNumberController
                 'error_status' => $message->error_status
             ];
 
-            if ( $message->media_url ) {
+            if ($message->media_url) {
                 $messageParams[ 'media_url' ] = $message->media_url;
-                $headers = get_headers( $message->media_url, 1 );
+                $headers = get_headers($message->media_url, 1);
                 $messageParams[ 'content_type' ] = $headers[ "Content-Type" ][ 1 ];
             }
 
-            if ( $message->message ) {
+            if ($message->message) {
                 $messageParams[ 'message' ] = $message->message;
             }
 
-            if ( $message->hasMedia( config( 'constants.media_tags' ) ) ) {
+            if ($message->hasMedia(config('constants.media_tags'))) {
                 $images_array = [];
 
                 // $images_raw = DB::select('
@@ -1560,8 +1580,8 @@ class WhatsAppController extends FindByNumberController
                 //               ON
                 // ');
 
-                foreach ( $message->getMedia( config( 'constants.media_tags' ) ) as $key => $image ) {
-                    dd( $image );
+                foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
+                    dd($image);
                     $temp_image = [
                         'key' => $image->getKey(),
                         'image' => $image->getUrl(),
@@ -1573,58 +1593,58 @@ class WhatsAppController extends FindByNumberController
                     $image_key = $image->getKey();
                     $mediable_type = "Product";
 
-                    $product_image = Product::with( 'Media' )
-                        ->whereRaw( "products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')" )
+                    $product_image = Product::with('Media')
+                        ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
                         // ->whereHas('Media', function($q) use($image) {
                         //    $q->where('media.id', $image->getKey());
                         // })
-                        ->select( [ 'id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement' ] )->first();
+                        ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
                     // dd($product_image);
 
-                    if ( $product_image ) {
+                    if ($product_image) {
                         $temp_image[ 'product_id' ] = $product_image->id;
                         $temp_image[ 'special_price' ] = $product_image->price_special;
 
                         $string = $product_image->supplier;
                         $expr = '/(?<=\s|^)[a-z]/i';
-                        preg_match_all( $expr, $string, $matches );
-                        $supplier_initials = implode( '', $matches[ 0 ] );
-                        $temp_image[ 'supplier_initials' ] = strtoupper( $supplier_initials );
+                        preg_match_all($expr, $string, $matches);
+                        $supplier_initials = implode('', $matches[ 0 ]);
+                        $temp_image[ 'supplier_initials' ] = strtoupper($supplier_initials);
 
-                        if ( $product_image->size != NULL ) {
+                        if ($product_image->size != null) {
                             $temp_image[ 'size' ] = $product_image->size;
                         } else {
-                            $temp_image[ 'size' ] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
+                            $temp_image[ 'size' ] = (string)$product_image->lmeasurement . ', ' . (string)$product_image->hmeasurement . ', ' . (string)$product_image->dmeasurement;
                         }
                     }
 
-                    array_push( $images_array, $temp_image );
+                    array_push($images_array, $temp_image);
                 }
 
                 $messageParams[ 'images' ] = $images_array;
             }
 
-            $result[] = array_merge( $params, $messageParams );
+            $result[] = array_merge($params, $messageParams);
         }
 
-        $result = array_values( collect( $result )->sortBy( 'created_at' )->reverse()->toArray() );
+        $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = 10;
 
-        if ( $request->page ) {
-            $currentItems = array_slice( $result, $perPage * ( $currentPage - 1 ), $perPage );
+        if ($request->page) {
+            $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
 
         } else {
-            $currentItems = array_reverse( array_slice( $result, $perPage * ( $currentPage - 1 ), $perPage ) );
-            $result = array_reverse( $result );
+            $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+            $result = array_reverse($result);
         }
 
-        $result = new LengthAwarePaginator( $currentItems, count( $result ), $perPage, $currentPage, [
+        $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
-        ] );
+        ]);
 
-        return response()->json( $result );
+        return response()->json($result);
         // $cid = $request->get('customerId');
         // $sql = "SELECT
         //     all_messages.*
@@ -1739,9 +1759,9 @@ class WhatsAppController extends FindByNumberController
      *
      * @return \Illuminate\Http\Response
      */
-    public function sendMessage( Request $request, $context )
+    public function sendMessage(Request $request, $context)
     {
-        $this->validate( $request, [
+        $this->validate($request, [
             // 'message'         => 'nullable|required_without:image,images,screenshot_path|string',
 //        'image'           => 'nullable|required_without:message',
 //        'screenshot_path' => 'nullable|required_without:message',
@@ -1754,153 +1774,165 @@ class WhatsAppController extends FindByNumberController
             'lawyer_id' => 'sometimes|nullable|numeric',
             'case_id' => 'sometimes|nullable|numeric',
             'blogger_id' => 'sometimes|nullable|numeric',
-        ] );
+        ]);
 
-        $data = $request->except( '_token' );
+        $data = $request->except('_token');
         $data[ 'user_id' ] = Auth::id();
-        $data[ 'number' ] = NULL;
+        $data[ 'number' ] = null;
         // $params['status'] = 1;
 
-        if ( $context == 'customer' ) {
+        if ($context == 'customer') {
             $data[ 'customer_id' ] = $request->customer_id;
             $module_id = $request->customer_id;
-        } elseif ( $context == "purchase" ) {
+        } elseif ($context == "purchase") {
             $data[ 'purchase_id' ] = $request->purchase_id;
             $module_id = $request->purchase_id;
-        } elseif ( $context == 'supplier' ) {
+        } elseif ($context == 'supplier') {
             $data[ 'supplier_id' ] = $request->supplier_id;
             $module_id = $request->supplier_id;
-        } else if ( $context == 'vendor' ) {
-            $data[ 'vendor_id' ] = $request->vendor_id;
-            $module_id = $request->vendor_id;
-            if ( $request->get( 'is_vendor_user' ) == 'yes' ) {
-                $user = User::find( $request->get( 'vendor_id' ) );
-                $vendor = Vendor::where( 'phone', $user->phone )->first();
-                $data[ 'vendor_id' ] = $vendor->id;
-                $module_id = $vendor->id;
-            }
-        } elseif ( $context == 'task' ) {
-            $data[ 'task_id' ] = $request->task_id;
-            $task = Task::find( $request->task_id );
+        } else {
+            if ($context == 'vendor') {
+                $data[ 'vendor_id' ] = $request->vendor_id;
+                $module_id = $request->vendor_id;
+                if ($request->get('is_vendor_user') == 'yes') {
+                    $user = User::find($request->get('vendor_id'));
+                    $vendor = Vendor::where('phone', $user->phone)->first();
+                    $data[ 'vendor_id' ] = $vendor->id;
+                    $module_id = $vendor->id;
+                }
+            } elseif ($context == 'task') {
+                $data[ 'task_id' ] = $request->task_id;
+                $task = Task::find($request->task_id);
 
-            if ( $task->is_statutory != 1 ) {
-                $data[ 'message' ] = "#" . $data[ 'task_id' ] . ". " . $task->task_subject . ". " . $data[ 'message' ];
-            } else {
-                $data[ 'message' ] = $task->task_subject . ". " . $data[ 'message' ];
-            }
+                if ($task->is_statutory != 1) {
+                    $data[ 'message' ] = "#" . $data[ 'task_id' ] . ". " . $task->task_subject . ". " . $data[ 'message' ];
+                } else {
+                    $data[ 'message' ] = $task->task_subject . ". " . $data[ 'message' ];
+                }
 
-            if ( count( $task->users ) > 0 ) {
-                if ( $task->assign_from == Auth::id() ) {
-                    foreach ( $task->users as $key => $user ) {
-                        if ( $key == 0 ) {
-                            $data[ 'erp_user' ] = $user->id;
+                if (count($task->users) > 0) {
+                    if ($task->assign_from == Auth::id()) {
+                        foreach ($task->users as $key => $user) {
+                            if ($key == 0) {
+                                $data[ 'erp_user' ] = $user->id;
+                            } else {
+                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data[ 'message' ]);
+                            }
+                        }
+                    } else {
+                        if (!$task->users->contains(Auth::id())) {
+                            $data[ 'erp_user' ] = $task->assign_from;
+
+                            foreach ($task->users as $key => $user) {
+                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data[ 'message' ]);
+                            }
                         } else {
-                            $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, $data[ 'message' ] );
+                            foreach ($task->users as $key => $user) {
+                                if ($key == 0) {
+                                    $data[ 'erp_user' ] = $task->assign_from;
+                                } else {
+                                    if ($user->id != Auth::id()) {
+                                        $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data[ 'message' ]);
+                                    }
+                                }
+                            }
                         }
                     }
-                } else if ( !$task->users->contains( Auth::id() ) ) {
-                    $data[ 'erp_user' ] = $task->assign_from;
+                }
 
-                    foreach ( $task->users as $key => $user ) {
-                        $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, $data[ 'message' ] );
-                    }
-                } else {
-                    foreach ( $task->users as $key => $user ) {
-                        if ( $key == 0 ) {
-                            $data[ 'erp_user' ] = $task->assign_from;
+                if (count($task->contacts) > 0) {
+                    // if ($task->assign_from == Auth::id()) {
+                    foreach ($task->contacts as $key => $contact) {
+                        if ($key == 0) {
+                            $data[ 'contact_id' ] = $task->assign_to;
                         } else {
-                            if ( $user->id != Auth::id() ) {
-                                $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, $data[ 'message' ] );
+                            $this->sendWithThirdApi($contact->phone, null, $data[ 'message' ]);
+                        }
+                    }
+                    // } else {
+                    // $data['contact_id'] = $task->assign_from;
+                    // }
+                }
+
+                $params[ 'approved' ] = 1;
+                $params[ 'status' ] = 2;
+                $chat_message = ChatMessage::create($data);
+
+                $module_id = $request->task_id;
+
+                // if ($data['erp_user'] != Auth::id()) {
+                //   $data['status'] = 0;
+                // }
+            } elseif ($context == 'user') {
+                $data[ 'erp_user' ] = $request->user_id;
+                $module_id = $request->user_id;
+            } elseif ($context == 'dubbizle') {
+                $data[ 'dubbizle_id' ] = $request->dubbizle_id;
+                $module_id = $request->dubbizle_id;
+            } elseif ($context == 'issue') {
+                $params[ 'issue_id' ] = $request->get('issue_id');
+                $issue = Issue::find($request->get('issue_id'));
+                $params[ 'erp_user' ] = $issue->user_id;
+                $params[ 'approved' ] = 1;
+                $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
+                $params[ 'status' ] = 2;
+
+
+                $number = User::find($issue->user_id);
+
+                if (!$number) {
+                    return response()->json(['message' => null]);
+                }
+
+                $number = $number->phone;
+
+                $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+
+
+                $chat_message = ChatMessage::create($params);
+
+                return response()->json(['message' => $chat_message]);
+
+            } else {
+                if ($context == 'developer_task') {
+                    $params[ 'developer_task_id' ] = $request->get('developer_task_id');
+                    $task = DeveloperTask::find($request->get('developer_task_id'));
+                    $params[ 'erp_user' ] = $task->user_id;
+                    $params[ 'approved' ] = 1;
+                    $params[ 'message' ] = '#DEVTASK-' . $task->id . ' ' . $request->get('message');
+                    $params[ 'status' ] = 2;
+
+                    $number = User::find($task->user_id)->phone;
+
+                    $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+
+                    $chat_message = ChatMessage::create($params);
+
+                    return response()->json(['message' => $chat_message]);
+                } else {
+                    if ($context == 'lawyer') {
+                        $data[ 'lawyer_id' ] = $request->lawyer_id;
+                        $module_id = $request->lawyer_id;
+                    } else {
+                        if ($context == 'case') {
+                            $data[ 'case_id' ] = $request->case_id;
+                            $data[ 'lawyer_id' ] = $request->lawyer_id;
+                            $module_id = $request->case_id;
+                        } else {
+                            if ($context == 'blogger') {
+                                $data[ 'blogger_id' ] = $request->blogger_id;
+                                $module_id = $request->blogger_id;
                             }
                         }
                     }
                 }
             }
-
-            if ( count( $task->contacts ) > 0 ) {
-                // if ($task->assign_from == Auth::id()) {
-                foreach ( $task->contacts as $key => $contact ) {
-                    if ( $key == 0 ) {
-                        $data[ 'contact_id' ] = $task->assign_to;
-                    } else {
-                        $this->sendWithThirdApi( $contact->phone, NULL, $data[ 'message' ] );
-                    }
-                }
-                // } else {
-                // $data['contact_id'] = $task->assign_from;
-                // }
-            }
-
-            $params[ 'approved' ] = 1;
-            $params[ 'status' ] = 2;
-            $chat_message = ChatMessage::create( $data );
-
-            $module_id = $request->task_id;
-
-            // if ($data['erp_user'] != Auth::id()) {
-            //   $data['status'] = 0;
-            // }
-        } elseif ( $context == 'user' ) {
-            $data[ 'erp_user' ] = $request->user_id;
-            $module_id = $request->user_id;
-        } elseif ( $context == 'dubbizle' ) {
-            $data[ 'dubbizle_id' ] = $request->dubbizle_id;
-            $module_id = $request->dubbizle_id;
-        } elseif ( $context == 'issue' ) {
-            $params[ 'issue_id' ] = $request->get( 'issue_id' );
-            $issue = Issue::find( $request->get( 'issue_id' ) );
-            $params[ 'erp_user' ] = $issue->user_id;
-            $params[ 'approved' ] = 1;
-            $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $request->get( 'message' );
-            $params[ 'status' ] = 2;
-
-
-            $number = User::find( $issue->user_id );
-
-            if ( !$number ) {
-                return response()->json( [ 'message' => null ] );
-            }
-
-            $number = $number->phone;
-
-            $this->sendWithThirdApi( $number, null, $params[ 'message' ] );
-
-
-            $chat_message = ChatMessage::create( $params );
-
-            return response()->json( [ 'message' => $chat_message ] );
-
-        } else if ( $context == 'developer_task' ) {
-            $params[ 'developer_task_id' ] = $request->get( 'developer_task_id' );
-            $task = DeveloperTask::find( $request->get( 'developer_task_id' ) );
-            $params[ 'erp_user' ] = $task->user_id;
-            $params[ 'approved' ] = 1;
-            $params[ 'message' ] = '#DEVTASK-' . $task->id . ' ' . $request->get( 'message' );
-            $params[ 'status' ] = 2;
-
-            $number = User::find( $task->user_id )->phone;
-
-            $this->sendWithThirdApi( $number, null, $params[ 'message' ] );
-
-            $chat_message = ChatMessage::create( $params );
-
-            return response()->json( [ 'message' => $chat_message ] );
-        } else if ( $context == 'lawyer' ) {
-            $data[ 'lawyer_id' ] = $request->lawyer_id;
-            $module_id = $request->lawyer_id;
-        } else if ( $context == 'case' ) {
-            $data[ 'case_id' ] = $request->case_id;
-            $data[ 'lawyer_id' ] = $request->lawyer_id;
-            $module_id = $request->case_id;
-        } else if ( $context == 'blogger' ) {
-            $data[ 'blogger_id' ] = $request->blogger_id;
-            $module_id = $request->blogger_id;
         }
 
-        if ( $context != 'task' ) {
+        if ($context != 'task') {
             $params[ 'approved' ] = 0;
             $params[ 'status' ] = 1;
-            $chat_message = ChatMessage::create( $data );
+            $chat_message = ChatMessage::create($data);
         }
 
         // $data['status'] = 1;
@@ -1911,134 +1943,134 @@ class WhatsAppController extends FindByNumberController
         //   $another_message = ChatMessage::create($data);
         // }
 
-        if ( $request->hasFile( 'image' ) ) {
-            $media = MediaUploader::fromSource( $request->file( 'image' ) )->upload();
-            $chat_message->attachMedia( $media, config( 'constants.media_tags' ) );
+        if ($request->hasFile('image')) {
+            $media = MediaUploader::fromSource($request->file('image'))->upload();
+            $chat_message->attachMedia($media, config('constants.media_tags'));
 
             // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
             //   $another_message->attachMedia($media,config('constants.media_tags'));
             // }
 
-            if ( $context == 'task' ) {
-                if ( count( $task->users ) > 0 ) {
-                    if ( $task->assign_from == Auth::id() ) {
-                        foreach ( $task->users as $key => $user ) {
-                            if ( $key == 0 ) {
+            if ($context == 'task') {
+                if (count($task->users) > 0) {
+                    if ($task->assign_from == Auth::id()) {
+                        foreach ($task->users as $key => $user) {
+                            if ($key == 0) {
                                 $data[ 'erp_user' ] = $user->id;
                             } else {
-                                $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, NULL, $media->getUrl() );
+                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $media->getUrl());
                             }
                         }
                     } else {
-                        foreach ( $task->users as $key => $user ) {
-                            if ( $key == 0 ) {
+                        foreach ($task->users as $key => $user) {
+                            if ($key == 0) {
                                 $data[ 'erp_user' ] = $task->assign_from;
                             } else {
-                                if ( $user->id != Auth::id() ) {
-                                    $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, NULL, $media->getUrl() );
+                                if ($user->id != Auth::id()) {
+                                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $media->getUrl());
                                 }
                             }
                         }
                     }
                 }
 
-                if ( count( $task->contacts ) > 0 ) {
-                    foreach ( $task->contacts as $key => $contact ) {
-                        if ( $key == 0 ) {
+                if (count($task->contacts) > 0) {
+                    foreach ($task->contacts as $key => $contact) {
+                        if ($key == 0) {
                             $data[ 'contact_id' ] = $task->assign_to;
                         } else {
-                            $this->sendWithThirdApi( $contact->phone, NULL, NULL, $media->getUrl() );
+                            $this->sendWithThirdApi($contact->phone, null, null, $media->getUrl());
                         }
                     }
                 }
             }
         }
 
-        if ( $request->images ) {
-            $imagesDecoded = json_decode( $request->images );
-            if ( count( $imagesDecoded ) >= 10 ) {
+        if ($request->images) {
+            $imagesDecoded = json_decode($request->images);
+            if (count($imagesDecoded) >= 10) {
 
-                $temp_chat_message = ChatMessage::create( $data );
-                foreach ( $imagesDecoded as $image ) {
-                    $media = Media::find( $image );
-                    $temp_chat_message->attachMedia( $media, config( 'constants.media_tags' ) );
+                $temp_chat_message = ChatMessage::create($data);
+                foreach ($imagesDecoded as $image) {
+                    $media = Media::find($image);
+                    $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                 }
 
 
                 $fn = '';
-                if ( $context == 'customer' ) {
+                if ($context == 'customer') {
                     $fn = '_product';
                 }
-                $medias = Media::whereIn( 'id', $imagesDecoded )->get();
-                $pdfView = view( 'pdf_views.images' . $fn, compact( 'medias' ) );
+                $medias = Media::whereIn('id', $imagesDecoded)->get();
+                $pdfView = view('pdf_views.images' . $fn, compact('medias'));
                 $pdf = new Dompdf();
-                $pdf->loadHtml( $pdfView );
-                $fileName = public_path() . '/' . uniqid( 'sololuxury_', true ) . '.pdf';
+                $pdf->loadHtml($pdfView);
+                $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
                 $pdf->render();
-                File::put( $fileName, $pdf->output() );
-                $media = MediaUploader::fromSource( $fileName )->upload();
-                $chat_message->attachMedia( $media, 'gallery' );
+                File::put($fileName, $pdf->output());
+                $media = MediaUploader::fromSource($fileName)->upload();
+                $chat_message->attachMedia($media, 'gallery');
             } else {
-                foreach ( $imagesDecoded as $image ) {
-                    $media = Media::find( $image );
-                    $chat_message->attachMedia( $media, config( 'constants.media_tags' ) );
+                foreach ($imagesDecoded as $image) {
+                    $media = Media::find($image);
+                    $chat_message->attachMedia($media, config('constants.media_tags'));
                 }
             }
 
         }
 
-        if ( $request->screenshot_path != '' ) {
+        if ($request->screenshot_path != '') {
             $image_path = public_path() . '/uploads/temp_screenshot.png';
-            $img = substr( $request->screenshot_path, strpos( $request->screenshot_path, "," ) + 1 );
-            $img = Image::make( base64_decode( $img ) )->encode( 'png' )->save( $image_path );
+            $img = substr($request->screenshot_path, strpos($request->screenshot_path, ",") + 1);
+            $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
 
-            $media = MediaUploader::fromSource( $image_path )->upload();
-            $chat_message->attachMedia( $media, config( 'constants.media_tags' ) );
+            $media = MediaUploader::fromSource($image_path)->upload();
+            $chat_message->attachMedia($media, config('constants.media_tags'));
 
             // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
             //   $another_message->attachMedia($media,config('constants.media_tags'));
             // }
 
-            File::delete( 'uploads/temp_screenshot.png' );
+            File::delete('uploads/temp_screenshot.png');
         }
 
-        if ( ( Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get( 'is_vendor_user' ) == 'yes' ) && $chat_message->status != 0 ) {
+        if ((Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0) {
             $myRequest = new Request();
-            $myRequest->setMethod( 'POST' );
-            $myRequest->request->add( [ 'messageId' => $chat_message->id ] );
-            $this->approveMessage( $context, $myRequest );
+            $myRequest->setMethod('POST');
+            $myRequest->request->add(['messageId' => $chat_message->id]);
+            $this->approveMessage($context, $myRequest);
         }
 
-        if ( $request->ajax() ) {
-            return response()->json( [ 'message' => $chat_message ] );
+        if ($request->ajax()) {
+            return response()->json(['message' => $chat_message]);
         }
 
-        return redirect( '/' . $context . '/' . $module_id );
+        return redirect('/' . $context . '/' . $module_id);
     }
 
-    public function sendMultipleMessages( Request $request )
+    public function sendMultipleMessages(Request $request)
     {
-        $selected_leads = json_decode( $request->selected_leads, true );
-        $leads = Leads::whereIn( 'id', $selected_leads )->whereNotNull( 'contactno' )->get();
+        $selected_leads = json_decode($request->selected_leads, true);
+        $leads = Leads::whereIn('id', $selected_leads)->whereNotNull('contactno')->get();
 
-        if ( count( $leads ) > 0 ) {
-            foreach ( $leads as $lead ) {
+        if (count($leads) > 0) {
+            foreach ($leads as $lead) {
                 try {
                     $params = [];
                     $model_type = 'leads';
                     $model_id = $lead->id;
                     $params = [
                         'lead_id' => $lead->id,
-                        'number' => NULL,
+                        'number' => null,
                         'message' => $request->message,
                         'user_id' => Auth::id()
                     ];
 
-                    if ( $lead->customer ) {
+                    if ($lead->customer) {
                         $params[ 'customer_id' ] = $lead->customer->id;
                     }
 
-                    $message = ChatMessage::create( $params );
+                    $message = ChatMessage::create($params);
 
                     // NotificationQueueController::createNewNotification([
                     //   'message' => 'WAA - ' . $message->message,
@@ -2059,117 +2091,117 @@ class WhatsAppController extends FindByNumberController
                     //   'sent_to' => '',
                     //   'role' => 'Admin',
                     // ]);
-                } catch ( \Exception $ex ) {
-                    return response( $ex->getMessage(), 500 );
+                } catch (\Exception $ex) {
+                    return response($ex->getMessage(), 500);
                 }
             }
         }
 
-        return redirect()->route( 'leads.index' );
+        return redirect()->route('leads.index');
     }
 
-    public function updateAndCreate( Request $request )
+    public function updateAndCreate(Request $request)
     {
         $result = 'success';
-        $message = Message::find( $request->message_id );
+        $message = Message::find($request->message_id);
         $params = [
-            'number' => NULL,
+            'number' => null,
             'status' => 1,
             'user_id' => Auth::id(),
         ];
 
-        if ( $message ) {
+        if ($message) {
             $params = [
                 'approved' => 1,
                 'status' => 2,
                 'created_at' => Carbon::now()
             ];
 
-            if ( $request->moduletype == 'leads' ) {
+            if ($request->moduletype == 'leads') {
                 $params[ 'lead_id' ] = $message->moduleid;
-                if ( $lead = Leads::find( $message->moduleid ) ) {
-                    if ( $lead->customer ) {
+                if ($lead = Leads::find($message->moduleid)) {
+                    if ($lead->customer) {
                         $params[ 'customer_id' ] = $lead->customer->id;
                     }
                 }
-            } elseif ( $request->moduletype == 'orders' ) {
+            } elseif ($request->moduletype == 'orders') {
                 $params[ 'order_id' ] = $message->moduleid;
-                if ( $order = Order::find( $message->moduleid ) ) {
-                    if ( $order->customer ) {
+                if ($order = Order::find($message->moduleid)) {
+                    if ($order->customer) {
                         $params[ 'customer_id' ] = $order->customer->id;
                     }
                 }
-            } elseif ( $request->moduletype == 'customer' ) {
-                $customer = Customer::find( $message->customer_id );
+            } elseif ($request->moduletype == 'customer') {
+                $customer = Customer::find($message->customer_id);
                 $params[ 'customer_id' ] = $customer->id;
-            } elseif ( $request->moduletype == 'purchase' ) {
+            } elseif ($request->moduletype == 'purchase') {
                 $params[ 'purchase_id' ] = $message->moduleid;
             }
 
-            $images = $message->getMedia( config( 'constants.media_tags' ) );
+            $images = $message->getMedia(config('constants.media_tags'));
 
-            if ( $images->first() ) {
-                $params[ 'message' ] = NULL;
-                $chat_message = ChatMessage::create( $params );
+            if ($images->first()) {
+                $params[ 'message' ] = null;
+                $chat_message = ChatMessage::create($params);
 
-                foreach ( $images as $img ) {
-                    $chat_message->attachMedia( $img, config( 'constants.media_tags' ) );
+                foreach ($images as $img) {
+                    $chat_message->attachMedia($img, config('constants.media_tags'));
                 }
             } else {
                 $params[ 'message' ] = $message->body;
 
-                $chat_message = ChatMessage::create( $params );
+                $chat_message = ChatMessage::create($params);
             }
 
             $myRequest = new Request();
-            $myRequest->setMethod( 'POST' );
-            $myRequest->request->add( [ 'messageId' => $chat_message->id ] );
+            $myRequest->setMethod('POST');
+            $myRequest->request->add(['messageId' => $chat_message->id]);
 
-            $result = $this->approveMessage( $request->moduletype, $myRequest );
+            $result = $this->approveMessage($request->moduletype, $myRequest);
 
         } else {
-            if ( $request->moduletype == 'customer' ) {
+            if ($request->moduletype == 'customer') {
                 $params[ 'customer_id' ] = $request->moduleid;
-                $params[ 'order_id' ] = NULL;
-            } elseif ( $request->moduletype == 'leads' ) {
+                $params[ 'order_id' ] = null;
+            } elseif ($request->moduletype == 'leads') {
                 $params[ 'lead_id' ] = $request->moduleid;
-                if ( $lead = Leads::find( $request->moduleid ) ) {
-                    if ( $lead->customer ) {
+                if ($lead = Leads::find($request->moduleid)) {
+                    if ($lead->customer) {
                         $params[ 'customer_id' ] = $lead->customer->id;
                     }
                 }
             } else {
                 $params[ 'order_id' ] = $request->moduleid;
-                if ( $order = Order::find( $request->moduleid ) ) {
-                    if ( $order->customer ) {
+                if ($order = Order::find($request->moduleid)) {
+                    if ($order->customer) {
                         $params[ 'customer_id' ] = $order->customer->id;
                     }
                 }
             }
 
-            if ( $request->images ) {
-                $params[ 'message' ] = NULL;
-                $chat_message = ChatMessage::create( $params );
-                foreach ( json_decode( $request->images ) as $image ) {
+            if ($request->images) {
+                $params[ 'message' ] = null;
+                $chat_message = ChatMessage::create($params);
+                foreach (json_decode($request->images) as $image) {
                     // $product = Product::find($product_id);
                     // $media = $product->getMedia(config('constants.media_tags'))->first();
                     // $params['media_url'] = $media->getUrl();
-                    $media = Media::find( $image );
-                    $chat_message->attachMedia( $media, config( 'constants.media_tags' ) );
+                    $media = Media::find($image);
+                    $chat_message->attachMedia($media, config('constants.media_tags'));
                 }
             }
 
-            return redirect( '/' . $request->moduletype . '/' . $request->moduleid );
+            return redirect('/' . $request->moduletype . '/' . $request->moduleid);
         }
 
-        return response()->json( [ 'status' => $result ] );
+        return response()->json(['status' => $result]);
     }
 
-    public function forwardMessage( Request $request )
+    public function forwardMessage(Request $request)
     {
-        $message = ChatMessage::find( $request->message_id );
+        $message = ChatMessage::find($request->message_id);
 
-        foreach ( $request->customer_id as $customer_id ) {
+        foreach ($request->customer_id as $customer_id) {
             $new_message = new ChatMessage;
             $new_message->number = $message->number;
             $new_message->message = $message->message;
@@ -2182,9 +2214,9 @@ class WhatsAppController extends FindByNumberController
 
             $new_message->save();
 
-            if ( $images = $message->getMedia( config( 'constants.media_tags' ) ) ) {
-                foreach ( $images as $image ) {
-                    $new_message->attachMedia( $image, config( 'constants.media_tags' ) );
+            if ($images = $message->getMedia(config('constants.media_tags'))) {
+                foreach ($images as $image) {
+                    $new_message->attachMedia($image, config('constants.media_tags'));
                 }
             }
         }
@@ -2197,13 +2229,13 @@ class WhatsAppController extends FindByNumberController
      *
      * @return \Illuminate\Http\Response
      */
-    public function pollMessages( Request $request, $context )
+    public function pollMessages(Request $request, $context)
     {
         $params = [];
         $result = [];
         $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
 
-        switch ( $context ) {
+        switch ($context) {
             case 'customer':
                 $column = 'customer_id';
                 $column_value = $request->customerId;
@@ -2217,7 +2249,7 @@ class WhatsAppController extends FindByNumberController
                 $column_value = $request->customerId;
         }
 
-        $messages = ChatMessage::select( [ 'id', "$column", 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'resent', 'created_at', 'media_url', 'message' ] )->where( $column, $column_value )->latest();
+        $messages = ChatMessage::select(['id', "$column", 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'resent', 'created_at', 'media_url', 'message'])->where($column, $column_value)->latest();
         // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
         // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
 
@@ -2231,19 +2263,19 @@ class WhatsAppController extends FindByNumberController
         // dd('stap');
 
         // IS IT NECESSARY ?
-        if ( $request->get( "elapse" ) ) {
-            $elapse = (int) $request->get( "elapse" );
+        if ($request->get("elapse")) {
+            $elapse = (int)$request->get("elapse");
             $date = new \DateTime;
-            $date->modify( sprintf( "-%s seconds", $elapse ) );
+            $date->modify(sprintf("-%s seconds", $elapse));
             // $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
         }
 
-        foreach ( $messages->get() as $message ) {
+        foreach ($messages->get() as $message) {
             $messageParams = [
                 'id' => $message->id,
                 'number' => $message->number,
                 'assigned_to' => $message->assigned_to,
-                'created_at' => Carbon::parse( $message->created_at )->format( 'Y-m-d H:i:s' ),
+                'created_at' => Carbon::parse($message->created_at)->format('Y-m-d H:i:s'),
                 'approved' => $message->approved,
                 'status' => $message->status,
                 'user_id' => $message->user_id,
@@ -2251,20 +2283,20 @@ class WhatsAppController extends FindByNumberController
                 'resent' => $message->resent,
             ];
 
-            if ( $message->media_url ) {
+            if ($message->media_url) {
                 $messageParams[ 'media_url' ] = $message->media_url;
-                $headers = get_headers( $message->media_url, 1 );
+                $headers = get_headers($message->media_url, 1);
                 $messageParams[ 'content_type' ] = $headers[ "Content-Type" ][ 1 ];
             }
 
-            if ( $message->message ) {
+            if ($message->message) {
                 $messageParams[ 'message' ] = $message->message;
             }
 
-            if ( $message->hasMedia( config( 'constants.media_tags' ) ) ) {
+            if ($message->hasMedia(config('constants.media_tags'))) {
                 $images_array = [];
 
-                foreach ( $message->getMedia( config( 'constants.media_tags' ) ) as $key => $image ) {
+                foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
                     $temp_image = [
                         'key' => $image->getKey(),
                         'image' => $image->getUrl(),
@@ -2275,37 +2307,37 @@ class WhatsAppController extends FindByNumberController
 
                     $image_key = $image->getKey();
 
-                    $product_image = Product::with( 'Media' )
-                        ->whereRaw( "products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key)" )
+                    $product_image = Product::with('Media')
+                        ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key)")
                         // ->whereHas('Media', function($q) use($image) {
                         //    $q->where('media.id', $image->getKey());
                         // })
-                        ->select( [ 'id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement' ] )->first();
+                        ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
-                    if ( $product_image ) {
+                    if ($product_image) {
                         $temp_image[ 'product_id' ] = $product_image->id;
                         $temp_image[ 'special_price' ] = $product_image->price_special;
 
                         $string = $product_image->supplier;
                         $expr = '/(?<=\s|^)[a-z]/i';
-                        preg_match_all( $expr, $string, $matches );
-                        $supplier_initials = implode( '', $matches[ 0 ] );
-                        $temp_image[ 'supplier_initials' ] = strtoupper( $supplier_initials );
+                        preg_match_all($expr, $string, $matches);
+                        $supplier_initials = implode('', $matches[ 0 ]);
+                        $temp_image[ 'supplier_initials' ] = strtoupper($supplier_initials);
 
-                        if ( $product_image->size != NULL ) {
+                        if ($product_image->size != null) {
                             $temp_image[ 'size' ] = $product_image->size;
                         } else {
-                            $temp_image[ 'size' ] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
+                            $temp_image[ 'size' ] = (string)$product_image->lmeasurement . ', ' . (string)$product_image->hmeasurement . ', ' . (string)$product_image->dmeasurement;
                         }
                     }
 
-                    array_push( $images_array, $temp_image );
+                    array_push($images_array, $temp_image);
                 }
 
                 $messageParams[ 'images' ] = $images_array;
             }
 
-            $result[] = array_merge( $params, $messageParams );
+            $result[] = array_merge($params, $messageParams);
         }
 
         // $messages = Message::where('moduleid','=', $id)->where('moduletype','=', $model_type)->orderBy("created_at", 'desc')->get();
@@ -2343,77 +2375,93 @@ class WhatsAppController extends FindByNumberController
         //   array_push($result, $message);
         // }
 
-        $result = array_values( collect( $result )->sortBy( 'created_at' )->reverse()->toArray() );
+        $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = 10;
 
-        if ( $request->page ) {
-            $currentItems = array_slice( $result, $perPage * ( $currentPage - 1 ), $perPage );
+        if ($request->page) {
+            $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
         } else {
-            $currentItems = array_reverse( array_slice( $result, $perPage * ( $currentPage - 1 ), $perPage ) );
+            $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
         }
 
-        $result = new LengthAwarePaginator( $currentItems, count( $result ), $perPage, $currentPage, [
+        $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
-        ] );
-        return response()->json( $result );
+        ]);
+        return response()->json($result);
     }
 
-    public function pollMessagesCustomer( Request $request )
+    public function pollMessagesCustomer(Request $request)
     {
         $params = [];
         $result = [];
         // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
 
         // $messages = ChatMessage::select(['id', 'customer_id', 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'created_at', 'media_url', 'message'])->where('customer_id', $request->customerId)->latest();
-        if ( $request->customerId ) {
+        if ($request->customerId) {
             $column = 'customer_id';
             $value = $request->customerId;
-        } else if ( $request->supplierId ) {
-            $column = 'supplier_id';
-            $value = $request->supplierId;
-        } else if ( $request->vendorId ) {
-            $column = 'vendor_id';
-            $value = $request->vendorId;
-        } else if ( $request->taskId ) {
-            $column = 'task_id';
-            $value = $request->taskId;
-        } else if ( $request->erpUser ) {
-            $column = 'erp_user';
-            $value = $request->erpUser;
-        } else if ( $request->dubbizleId ) {
-            $column = 'dubbizle_id';
-            $value = $request->dubbizleId;
-        } else if ( $request->lawyerId ) {
-            $column = 'lawyer_id';
-            $value = $request->lawyerId;
-        } else if ( $request->caseId ) {
-            $column = 'case_id';
-            $value = $request->caseId;
-        } else if ( $request->bloggerId ) {
-            $column = 'blogger_id';
-            $value = $request->bloggerId;
         } else {
-            $column = 'customer_id';
-            $value = $request->customerId;
+            if ($request->supplierId) {
+                $column = 'supplier_id';
+                $value = $request->supplierId;
+            } else {
+                if ($request->vendorId) {
+                    $column = 'vendor_id';
+                    $value = $request->vendorId;
+                } else {
+                    if ($request->taskId) {
+                        $column = 'task_id';
+                        $value = $request->taskId;
+                    } else {
+                        if ($request->erpUser) {
+                            $column = 'erp_user';
+                            $value = $request->erpUser;
+                        } else {
+                            if ($request->dubbizleId) {
+                                $column = 'dubbizle_id';
+                                $value = $request->dubbizleId;
+                            } else {
+                                if ($request->lawyerId) {
+                                    $column = 'lawyer_id';
+                                    $value = $request->lawyerId;
+                                } else {
+                                    if ($request->caseId) {
+                                        $column = 'case_id';
+                                        $value = $request->caseId;
+                                    } else {
+                                        if ($request->bloggerId) {
+                                            $column = 'blogger_id';
+                                            $value = $request->bloggerId;
+                                        } else {
+                                            $column = 'customer_id';
+                                            $value = $request->customerId;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        $select_fields = [ 'id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'resent', 'created_at', 'media_url', 'message' ];
-        if ( $request->caseId ) {
-            array_push( $select_fields, 'lawyer_id' );
+        $select_fields = ['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'resent', 'created_at', 'media_url', 'message'];
+        if ($request->caseId) {
+            array_push($select_fields, 'lawyer_id');
         }
-        $messages = ChatMessage::select( $select_fields )->where( $column, $value )->where( 'status', '!=', 7 );
+        $messages = ChatMessage::select($select_fields)->where($column, $value)->where('status', '!=', 7);
 
-        if ( $request->caseId ) {
-            $messages = $messages->with( 'lawyer:id,name' );
-        }
-
-        if ( Setting::get( 'show_automated_messages' ) == 0 ) {
-            $messages = $messages->where( 'status', '!=', 9 );
+        if ($request->caseId) {
+            $messages = $messages->with('lawyer:id,name');
         }
 
-        if ( $request->erpUser ) {
-            $messages = $messages->whereNull( 'task_id' );
+        if (Setting::get('show_automated_messages') == 0) {
+            $messages = $messages->where('status', '!=', 9);
+        }
+
+        if ($request->erpUser) {
+            $messages = $messages->whereNull('task_id');
         }
         // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
         // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
@@ -2428,19 +2476,19 @@ class WhatsAppController extends FindByNumberController
         // dd('stap');
 
         // IS IT NECESSARY ?
-        if ( $request->get( "elapse" ) ) {
-            $elapse = (int) $request->get( "elapse" );
+        if ($request->get("elapse")) {
+            $elapse = (int)$request->get("elapse");
             $date = new \DateTime;
-            $date->modify( sprintf( "-%s seconds", $elapse ) );
+            $date->modify(sprintf("-%s seconds", $elapse));
             // $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
         }
 
-        foreach ( $messages->latest()->get() as $message ) {
+        foreach ($messages->latest()->get() as $message) {
             $messageParams = [
                 'id' => $message->id,
                 'number' => $message->number,
                 'assigned_to' => $message->assigned_to,
-                'created_at' => Carbon::parse( $message->created_at )->format( 'Y-m-d H:i:s' ),
+                'created_at' => Carbon::parse($message->created_at)->format('Y-m-d H:i:s'),
                 'approved' => $message->approved,
                 'status' => $message->status,
                 'user_id' => $message->user_id,
@@ -2449,24 +2497,24 @@ class WhatsAppController extends FindByNumberController
                 'resent' => $message->resent,
                 'error_status' => $message->error_status
             ];
-            if ( $request->caseId ) {
-                $messageParams[ 'lawyer' ] = optional( $message->lawyer )->name;
+            if ($request->caseId) {
+                $messageParams[ 'lawyer' ] = optional($message->lawyer)->name;
             }
 
-            if ( $message->media_url ) {
+            if ($message->media_url) {
                 $messageParams[ 'media_url' ] = $message->media_url;
-                $headers = get_headers( $message->media_url, 1 );
+                $headers = get_headers($message->media_url, 1);
                 $messageParams[ 'content_type' ] = $headers[ "Content-Type" ][ 1 ];
             }
 
-            if ( $message->message ) {
+            if ($message->message) {
                 $messageParams[ 'message' ] = $message->message;
             }
 
-            if ( $message->hasMedia( config( 'constants.media_tags' ) ) ) {
+            if ($message->hasMedia(config('constants.media_tags'))) {
                 $images_array = [];
 
-                foreach ( $message->getMedia( config( 'constants.media_tags' ) ) as $key => $image ) {
+                foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
                     $temp_image = [
                         'key' => $image->getKey(),
                         'image' => $image->getUrl(),
@@ -2478,39 +2526,39 @@ class WhatsAppController extends FindByNumberController
                     $image_key = $image->getKey();
                     $mediable_type = "Product";
 
-                    $product_image = Product::with( 'Media' )
-                        ->whereRaw( "products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')" )
+                    $product_image = Product::with('Media')
+                        ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
                         // ->whereHas('Media', function($q) use($image) {
                         //    $q->where('media.id', $image->getKey());
                         // })
-                        ->select( [ 'id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement' ] )->first();
+                        ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
                     // dd($product_image);
 
-                    if ( $product_image ) {
+                    if ($product_image) {
                         $temp_image[ 'product_id' ] = $product_image->id;
                         $temp_image[ 'special_price' ] = $product_image->price_special;
 
                         $string = $product_image->supplier;
                         $expr = '/(?<=\s|^)[a-z]/i';
-                        preg_match_all( $expr, $string, $matches );
-                        $supplier_initials = implode( '', $matches[ 0 ] );
-                        $temp_image[ 'supplier_initials' ] = strtoupper( $supplier_initials );
+                        preg_match_all($expr, $string, $matches);
+                        $supplier_initials = implode('', $matches[ 0 ]);
+                        $temp_image[ 'supplier_initials' ] = strtoupper($supplier_initials);
 
-                        if ( $product_image->size != NULL ) {
+                        if ($product_image->size != null) {
                             $temp_image[ 'size' ] = $product_image->size;
                         } else {
-                            $temp_image[ 'size' ] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
+                            $temp_image[ 'size' ] = (string)$product_image->lmeasurement . ', ' . (string)$product_image->hmeasurement . ', ' . (string)$product_image->dmeasurement;
                         }
                     }
 
-                    array_push( $images_array, $temp_image );
+                    array_push($images_array, $temp_image);
                 }
 
                 $messageParams[ 'images' ] = $images_array;
             }
 
-            $result[] = array_merge( $params, $messageParams );
+            $result[] = array_merge($params, $messageParams);
         }
 
         // $messages = Message::select(['id', 'customer_id', 'userid', 'status', 'assigned_to', 'body', 'created_at'])->where('customer_id', $request->customerId)->latest()->get();
@@ -2559,67 +2607,67 @@ class WhatsAppController extends FindByNumberController
         // $messages = $messages->paginate(24);
         // dd('stap');
 
-        $result = array_values( collect( $result )->sortBy( 'created_at' )->reverse()->toArray() );
+        $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = 10;
 
-        if ( $request->page ) {
-            $currentItems = array_slice( $result, $perPage * ( $currentPage - 1 ), $perPage );
+        if ($request->page) {
+            $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
 
         } else {
-            $currentItems = array_reverse( array_slice( $result, $perPage * ( $currentPage - 1 ), $perPage ) );
-            $result = array_reverse( $result );
+            $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+            $result = array_reverse($result);
         }
 
-        $result = new LengthAwarePaginator( $currentItems, count( $result ), $perPage, $currentPage, [
+        $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
-        ] );
+        ]);
 
-        return response()->json( $result );
+        return response()->json($result);
     }
 
-    public function approveMessage( $context, Request $request )
+    public function approveMessage($context, Request $request)
     {
         $user = \Auth::user();
         $defCustomer = '919152731483';
-        $message = ChatMessage::findOrFail( $request->get( "messageId" ) );
-        $today_date = Carbon::now()->format( 'Y-m-d' );
+        $message = ChatMessage::findOrFail($request->get("messageId"));
+        $today_date = Carbon::now()->format('Y-m-d');
 
-        if ( $context == "customer" ) {
-            $chat_messages_count = ChatMessage::where( 'customer_id', $message->customer_id )->where( 'created_at', 'LIKE', "%$today_date%" )->whereNull( 'number' )->count();
+        if ($context == "customer") {
+            $chat_messages_count = ChatMessage::where('customer_id', $message->customer_id)->where('created_at', 'LIKE', "%$today_date%")->whereNull('number')->count();
 
-            if ( $chat_messages_count == 1 ) {
-                $customer = Customer::find( $message->customer_id );
+            if ($chat_messages_count == 1) {
+                $customer = Customer::find($message->customer_id);
                 $params = [
-                    'number' => NULL,
+                    'number' => null,
                     'user_id' => Auth::id(),
                     'approved' => 1,
                     'status' => 9,
                     'customer_id' => $message->customer_id,
-                    'message' => AutoReply::where( 'type', 'auto-reply' )->where( 'keyword', 'customer-info-message' )->first()->reply
+                    'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-info-message')->first()->reply
                 ];
 
-                $additional_message = ChatMessage::create( $params );
+                $additional_message = ChatMessage::create($params);
 
 //                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
-//                    $this->sendWithThirdApi( $message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id );
+                $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, null, $additional_message->id);
 
-              $this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id);
+                //$this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, null, $additional_message->id);
 //                } else {
 //               $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id);
 //                    $this->sendWithNewApi( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id );
 //                }
 
-                sleep( 5 );
+                sleep(5);
             }
 
-            if ( Setting::get( 'whatsapp_number_change' ) == 1 ) {
-                $customer = Customer::find( $message->customer_id );
-                $default_api = ApiKey::where( 'default', 1 )->first();
+            if (Setting::get('whatsapp_number_change') == 1) {
+                $customer = Customer::find($message->customer_id);
+                $default_api = ApiKey::where('default', 1)->first();
 
-                if ( !$customer->whatsapp_number_change_notified() && $default_api->number != $customer->whatsapp_number ) {
+                if (!$customer->whatsapp_number_change_notified() && $default_api->number != $customer->whatsapp_number) {
                     $params = [
-                        'number' => NULL,
+                        'number' => null,
                         'user_id' => Auth::id(),
                         'approved' => 1,
                         'status' => 9,
@@ -2627,11 +2675,11 @@ class WhatsAppController extends FindByNumberController
                         'message' => 'Our whatsapp number has changed'
                     ];
 
-                    $additional_message = ChatMessage::create( $params );
+                    $additional_message = ChatMessage::create($params);
 
 //                    if ( $default_api->number == '919152731483' ) {
-//                        $data = $this->sendWithThirdApi( $customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id );
-                $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id);
+                    $data = $this->sendWithThirdApi($customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id);
+//                    $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id);
 //                    } else {
 //                        $data = $this->sendWithNewApi( $customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id );
 
@@ -2639,87 +2687,103 @@ class WhatsAppController extends FindByNumberController
 //                    }
 
 
-                    sleep( 5 );
+                    sleep(5);
 
-                    CommunicationHistory::create( [
+                    CommunicationHistory::create([
                         'model_id' => $customer->id,
                         'model_type' => Customer::class,
                         'type' => 'number-change',
                         'method' => 'whatsapp'
-                    ] );
+                    ]);
                 }
             }
 
-            if ( isset( $customer ) ) {
+            if (isset($customer)) {
                 $phone = $customer->phone;
                 $whatsapp_number = $customer->whatsapp_number;
             } else {
-                $customer = Customer::find( $message->customer_id );
+                $customer = Customer::find($message->customer_id);
                 $phone = $customer->phone;
                 $whatsapp_number = $customer->whatsapp_number;
             }
-        } else if ( $context == 'supplier' ) {
-            $supplier = Supplier::find( $message->supplier_id );
-            $phone = $supplier->default_phone;
-            $whatsapp_number = '971545889192';
-        } else if ( $context == 'vendor' ) {
-            $vendor = Vendor::find( $message->vendor_id );
-            $phone = $vendor->default_phone;
-            $whatsapp_number = $vendor->whatsapp_number;
-        } else if ( $context == 'task' ) {
-            $sender = User::find( $message->user_id );
-
-            if ( $message->erp_user == '' ) {
-                $receiver = Contact::find( $message->contact_id );
+        } else {
+            if ($context == 'supplier') {
+                $supplier = Supplier::find($message->supplier_id);
+                $phone = $supplier->default_phone;
+                $whatsapp_number = '971545889192';
             } else {
-                $receiver = User::find( $message->erp_user );
-            }
+                if ($context == 'vendor') {
+                    $vendor = Vendor::find($message->vendor_id);
+                    $phone = $vendor->default_phone;
+                    $whatsapp_number = $vendor->whatsapp_number;
+                } else {
+                    if ($context == 'task') {
+                        $sender = User::find($message->user_id);
 
-            $phone = $receiver->phone;
-            $whatsapp_number = $sender->whatsapp_number;
-        } else if ( $context == 'user' ) {
-            $sender = User::find( $message->user_id );
+                        if ($message->erp_user == '') {
+                            $receiver = Contact::find($message->contact_id);
+                        } else {
+                            $receiver = User::find($message->erp_user);
+                        }
 
-            if ( $message->erp_user != '' ) {
-                $receiver = User::find( $message->erp_user );
-            } else {
-                $receiver = Contact::find( $message->contact_id );
-            }
+                        $phone = $receiver->phone;
+                        $whatsapp_number = $sender->whatsapp_number;
+                    } else {
+                        if ($context == 'user') {
+                            $sender = User::find($message->user_id);
 
-            $phone = $receiver->phone;
-            $whatsapp_number = $sender->whatsapp_number;
-        } else if ( $context == 'dubbizle' ) {
-            $dubbizle = Dubbizle::find( $message->dubbizle_id );
-            $phone = $dubbizle->phone_number;
-            $whatsapp_number = '971545889192';
-        } else if ( $context == 'lawyer' ) {
-            $lawyer = Lawyer::find( $message->lawyer_id );
-            $phone = $lawyer->default_phone;
-            $whatsapp_number = $lawyer->whatsapp_number;
-        } else if ( $context == 'case' ) {
-            $case = LegalCase::find( $message->case_id );
-            $lawyer = $case->lawyer;
-            if ( $lawyer ) {
-                $phone = $lawyer->default_phone;
-            } else {
-                $phone = '';
+                            if ($message->erp_user != '') {
+                                $receiver = User::find($message->erp_user);
+                            } else {
+                                $receiver = Contact::find($message->contact_id);
+                            }
+
+                            $phone = $receiver->phone;
+                            $whatsapp_number = $sender->whatsapp_number;
+                        } else {
+                            if ($context == 'dubbizle') {
+                                $dubbizle = Dubbizle::find($message->dubbizle_id);
+                                $phone = $dubbizle->phone_number;
+                                $whatsapp_number = '971545889192';
+                            } else {
+                                if ($context == 'lawyer') {
+                                    $lawyer = Lawyer::find($message->lawyer_id);
+                                    $phone = $lawyer->default_phone;
+                                    $whatsapp_number = $lawyer->whatsapp_number;
+                                } else {
+                                    if ($context == 'case') {
+                                        $case = LegalCase::find($message->case_id);
+                                        $lawyer = $case->lawyer;
+                                        if ($lawyer) {
+                                            $phone = $lawyer->default_phone;
+                                        } else {
+                                            $phone = '';
+                                        }
+                                        $whatsapp_number = $case->whatsapp_number;
+                                    } else {
+                                        if ($context == 'blogger') {
+                                            $blogger = Blogger::find($message->blogger_id);
+                                            $phone = $blogger->default_phone;
+                                            $whatsapp_number = $blogger->whatsapp_number;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            $whatsapp_number = $case->whatsapp_number;
-        } else if ( $context == 'blogger' ) {
-            $blogger = Blogger::find( $message->blogger_id );
-            $phone = $blogger->default_phone;
-            $whatsapp_number = $blogger->whatsapp_number;
         }
 
         $data = '';
-        if ( $message->message != '' ) {
+        if ($message->message != '') {
 
-            if ( $context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' ) {
-                $this->sendWithThirdApi( $phone, $whatsapp_number, $message->message, NULL, $message->id );
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger') {
+                $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
             } else {
 //                if ( $whatsapp_number == '919152731483' ) {
-              $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, NULL, $message->id);
-//                    $this->sendWithThirdApi( $phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id );
+//                $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, null, $message->id);
+                $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, null, $message->id);
 //                } else {
 //               $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
 //               $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id);
@@ -2730,45 +2794,45 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-        if ( $message->media_url != '' ) {
+        if ($message->media_url != '') {
 
 
             // if ($whatsapp_number == '919152731483') {
-            if ( $whatsapp_number == '919152731486' || $whatsapp_number == '919152731483' ) {
-                $data = $this->sendWithNewApi( $phone, $whatsapp_number, NULL, $message->media_url, $message->id );
+            if (1 == 2) {
+                $data = $this->sendWithNewApi($phone, $whatsapp_number, null, $message->media_url, $message->id);
 //              $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
 
             } else {
 //             $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
-                $this->sendWithThirdApi( $phone, $whatsapp_number ?? $defCustomer, NULL, $message->media_url );
+                $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
             }
         }
 
-        if ( $images = $message->getMedia( config( 'constants.media_tags' ) ) ) {
+        if ($images = $message->getMedia(config('constants.media_tags'))) {
             $count = 0;
-            foreach ( $images as $key => $image ) {
-                $send = str_replace( ' ', '%20', $image->getUrl() );
+            foreach ($images as $key => $image) {
+                $send = str_replace(' ', '%20', $image->getUrl());
 
-                if ( $context == 'task' || $context == 'vendor' || $context == 'supplier' ) {
-                    $this->sendWithThirdApi( $phone, $whatsapp_number, NULL, $send );
+                if ($context == 'task' || $context == 'vendor' || $context == 'supplier') {
+                    $this->sendWithThirdApi($phone, $whatsapp_number, null, $send);
                 } else {
                     // $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
-                    if ( $count < 5 ) {
+                    if ($count < 5) {
                         $count++;
                     } else {
-                        sleep( 5 );
+                        sleep(5);
 
                         $count = 0;
                     }
 
 //              if ($whatsapp_number == '919152731483') {
-                    if ( $whatsapp_number == '919152731486' ||  $whatsapp_number == '919152731483') {
+                    if (1 == 2) {
 //                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
 
-                        SendImagesWithWhatsapp::dispatchNow( $phone, $whatsapp_number, $image->getUrl(), $message->id );
+                        SendImagesWithWhatsapp::dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
                     } else {
 //                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
-                        $this->sendWithThirdApi( $phone, $whatsapp_number ?? 919152731483, NULL, $send );
+                        $this->sendWithThirdApi($phone, $whatsapp_number ?? 919152731483, null, $send);
                     }
 
 
@@ -2780,21 +2844,21 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-        $message->update( [
+        $message->update([
             'approved' => 1,
             'status' => 2,
             'created_at' => Carbon::now()
-        ] );
+        ]);
 
-        return response()->json( [
+        return response()->json([
             'data' => $data
-        ], 200 );
+        ], 200);
     }
 
-    public function sendToAll( Request $request, $validate = true )
+    public function sendToAll(Request $request, $validate = true)
     {
-        if ( $validate ) {
-            $this->validate( $request, [
+        if ($validate) {
+            $this->validate($request, [
                 // 'message'         => 'required_without:images,linked_images',
                 // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
                 // 'images.*'        => 'required_without:message|mimetypes:image/jpeg,image/png',
@@ -2804,16 +2868,16 @@ class WhatsAppController extends FindByNumberController
                 'frequency' => 'required|numeric',
                 'rating' => 'sometimes|nullable|numeric',
                 'gender' => 'sometimes|nullable|string',
-            ] );
+            ]);
         }
 
         $frequency = $request->frequency;
 
-        if ( $request->moduletype == 'customers' ) {
+        if ($request->moduletype == 'customers') {
             $content[ 'message' ] = $request->body;
 
-            foreach ( json_decode( $request->images ) as $key => $image ) {
-                $media = Media::find( $image );
+            foreach (json_decode($request->images) as $key => $image) {
+                $media = Media::find($image);
 
                 $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
                 $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
@@ -2821,21 +2885,21 @@ class WhatsAppController extends FindByNumberController
         } else {
             $content[ 'message' ] = $request->message;
 
-            if ( $request->hasFile( 'images' ) ) {
-                foreach ( $request->file( 'images' ) as $key => $image ) {
-                    $media = MediaUploader::fromSource( $image )->upload();
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $key => $image) {
+                    $media = MediaUploader::fromSource($image)->upload();
                     $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
                     $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
                 }
             }
         }
 
-        if ( $request->linked_images != '' ) {
-            foreach ( json_decode( $request->linked_images ) as $key => $id ) {
-                $broadcast_image = BroadcastImage::find( $id );
+        if ($request->linked_images != '') {
+            foreach (json_decode($request->linked_images) as $key => $id) {
+                $broadcast_image = BroadcastImage::find($id);
 
-                if ( $broadcast_image->hasMedia( config( 'constants.media_tags' ) ) ) {
-                    foreach ( $broadcast_image->getMedia( config( 'constants.media_tags' ) ) as $key2 => $brod_image ) {
+                if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
+                    foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
                         $content[ 'linked_images' ][ $key + $key2 ][ 'key' ] = $brod_image->getKey();
                         $content[ 'linked_images' ][ $key + $key2 ][ 'url' ] = $brod_image->getUrl();
                     }
@@ -2845,170 +2909,170 @@ class WhatsAppController extends FindByNumberController
             // $content['linked_images'] = json_decode($request->linked_images);
         }
 
-        if ( $request->to_all || $request->moduletype == 'customers' ) {
-            $minutes = round( 60 / $frequency );
-            $max_group_id = MessageQueue::max( 'group_id' ) + 1;
+        if ($request->to_all || $request->moduletype == 'customers') {
+            $minutes = round(60 / $frequency);
+            $max_group_id = MessageQueue::max('group_id') + 1;
 
 
-            $data = Customer::whereNotNull( 'phone' )->where( 'do_not_disturb', 0 );
+            $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0);
 
-            if ( $request->rating != '' ) {
-                $data = $data->where( 'rating', $request->rating );
+            if ($request->rating != '') {
+                $data = $data->where('rating', $request->rating);
             }
 
-            if ( $request->gender != '' ) {
-                $data = $data->where( 'gender', $request->gender );
+            if ($request->gender != '') {
+                $data = $data->where('gender', $request->gender);
             }
 
-            $data = $data->get()->groupBy( 'whatsapp_number' );
+            $data = $data->get()->groupBy('whatsapp_number');
 
-            foreach ( $data as $whatsapp_number => $customers ) {
-                $now = $request->sending_time ? Carbon::parse( $request->sending_time ) : Carbon::now();
-                $morning = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                $evening = Carbon::create( $now->year, $now->month, $now->day, 18, 0, 0 );
+            foreach ($data as $whatsapp_number => $customers) {
+                $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
+                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
 
-                if ( $whatsapp_number == '919152731486' ) {
-                    foreach ( $customers as $customer ) {
-                        if ( !$now->between( $morning, $evening, true ) ) {
-                            if ( Carbon::parse( $now->format( 'Y-m-d' ) )->diffInWeekDays( Carbon::parse( $morning->format( 'Y-m-d' ) ), false ) == 0 ) {
+                if ($whatsapp_number == '919152731486') {
+                    foreach ($customers as $customer) {
+                        if (!$now->between($morning, $evening, true)) {
+                            if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
                                 // add day
                                 $now->addDay();
-                                $now = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                                $morning = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                                $evening = Carbon::create( $now->year, $now->month, $now->day, 18, 0, 0 );
+                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
                             } else {
                                 // dont add day
-                                $now = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                                $morning = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                                $evening = Carbon::create( $now->year, $now->month, $now->day, 18, 0, 0 );
+                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
                             }
                         }
 
-                        MessageQueue::create( [
+                        MessageQueue::create([
                             'user_id' => Auth::id(),
                             'customer_id' => $customer->id,
-                            'phone' => NULL,
+                            'phone' => null,
                             'type' => 'message_all',
-                            'data' => json_encode( $content ),
+                            'data' => json_encode($content),
                             'sending_time' => $now,
                             'group_id' => $max_group_id
-                        ] );
+                        ]);
 
-                        $now->addMinutes( $minutes );
+                        $now->addMinutes($minutes);
                     }
                 }
 
-                if ( $whatsapp_number == '919152731483' ) {
-                    foreach ( $customers as $customer ) {
-                        if ( !$now->between( $morning, $evening, true ) ) {
-                            if ( Carbon::parse( $now->format( 'Y-m-d' ) )->diffInWeekDays( Carbon::parse( $morning->format( 'Y-m-d' ) ), false ) == 0 ) {
+                if ($whatsapp_number == '919152731483') {
+                    foreach ($customers as $customer) {
+                        if (!$now->between($morning, $evening, true)) {
+                            if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
                                 // add day
 
                                 $now->addDay();
-                                $now = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                                $morning = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                                $evening = Carbon::create( $now->year, $now->month, $now->day, 18, 0, 0 );
+                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
                             } else {
                                 // dont add day
 
-                                $now = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                                $morning = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                                $evening = Carbon::create( $now->year, $now->month, $now->day, 18, 0, 0 );
+                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
                             }
                         }
 
-                        MessageQueue::create( [
+                        MessageQueue::create([
                             'user_id' => Auth::id(),
                             'customer_id' => $customer->id,
-                            'phone' => NULL,
+                            'phone' => null,
                             'type' => 'message_all',
-                            'data' => json_encode( $content ),
+                            'data' => json_encode($content),
                             'sending_time' => $now,
                             'group_id' => $max_group_id
-                        ] );
+                        ]);
 
-                        $now->addMinutes( $minutes );
+                        $now->addMinutes($minutes);
                     }
                 }
             }
         } else {
-            $minutes = round( 60 / $frequency );
-            $now = $request->sending_time ? Carbon::parse( $request->sending_time ) : Carbon::now();
-            $morning = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-            $evening = Carbon::create( $now->year, $now->month, $now->day, 18, 0, 0 );
-            $max_group_id = MessageQueue::max( 'group_id' ) + 1;
-            $array = Excel::toArray( new CustomerNumberImport, $request->file( 'file' ) );
+            $minutes = round(60 / $frequency);
+            $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
+            $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+            $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
+            $max_group_id = MessageQueue::max('group_id') + 1;
+            $array = Excel::toArray(new CustomerNumberImport, $request->file('file'));
 
-            foreach ( $array as $item ) {
-                foreach ( $item as $it ) {
-                    $number = (int) $it[ 0 ];
+            foreach ($array as $item) {
+                foreach ($item as $it) {
+                    $number = (int)$it[ 0 ];
 
-                    if ( !$now->between( $morning, $evening, true ) ) {
-                        if ( Carbon::parse( $now->format( 'Y-m-d' ) )->diffInWeekDays( Carbon::parse( $morning->format( 'Y-m-d' ) ), false ) == 0 ) {
+                    if (!$now->between($morning, $evening, true)) {
+                        if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
                             // add day
                             $now->addDay();
-                            $now = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                            $morning = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                            $evening = Carbon::create( $now->year, $now->month, $now->day, 18, 0, 0 );
+                            $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
                         } else {
                             // dont add day
-                            $now = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                            $morning = Carbon::create( $now->year, $now->month, $now->day, 9, 0, 0 );
-                            $evening = Carbon::create( $now->year, $now->month, $now->day, 18, 0, 0 );
+                            $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
                         }
                     }
 
-                    MessageQueue::create( [
+                    MessageQueue::create([
                         'user_id' => Auth::id(),
-                        'customer_id' => NULL,
+                        'customer_id' => null,
                         'phone' => $number,
                         'whatsapp_number' => $request->whatsapp_number,
                         'type' => 'message_selected',
-                        'data' => json_encode( $content ),
+                        'data' => json_encode($content),
                         'sending_time' => $now,
                         'group_id' => $max_group_id
-                    ] );
+                    ]);
 
-                    $now->addMinutes( $minutes );
+                    $now->addMinutes($minutes);
                 }
             }
         }
 
-        return redirect()->route( 'broadcast.images' )->with( 'success', 'Messages are being sent in the background!' );
+        return redirect()->route('broadcast.images')->with('success', 'Messages are being sent in the background!');
     }
 
-    public function resendMessage2( Request $request )
+    public function resendMessage2(Request $request)
     {
-        $messageId = $request->get( 'message_id' );
-        $message = ChatMessage::find( $messageId );
+        $messageId = $request->get('message_id');
+        $message = ChatMessage::find($messageId);
 
         $requestData = new Request();
-        $requestData->setMethod( 'POST' );
-        $requestData->request->add( [ 'customer_id' => $message->customer_id, 'message' => $message->message, 'status' => 1 ] );
+        $requestData->setMethod('POST');
+        $requestData->request->add(['customer_id' => $message->customer_id, 'message' => $message->message, 'status' => 1]);
 
-        return $this->sendMessage( $requestData, 'customer' );
+        return $this->sendMessage($requestData, 'customer');
     }
 
     public function stopAll()
     {
-        $message_queues = MessageQueue::where( 'sent', 0 )->where( 'status', 0 )->get();
+        $message_queues = MessageQueue::where('sent', 0)->where('status', 0)->get();
 
-        foreach ( $message_queues as $message_queue ) {
+        foreach ($message_queues as $message_queue) {
             $message_queue->status = 1;
             $message_queue->save();
         }
 
-        return redirect()->back()->with( 'success', 'Messages stopped processing!' );
+        return redirect()->back()->with('success', 'Messages stopped processing!');
     }
 
-    public function sendWithWhatsApp( $number, $sendNumber, $text, $validation = true, $chat_message_id = null )
+    public function sendWithWhatsApp($number, $sendNumber, $text, $validation = true, $chat_message_id = null)
     {
-        if ( $validation == true ) {
-            if ( Auth::id() != 3 ) {
-                if ( strlen( $number ) != 12 || !preg_match( '/^[91]{2}/', $number ) ) {
+        if ($validation == true) {
+            if (Auth::id() != 3) {
+                if (strlen($number) != 12 || !preg_match('/^[91]{2}/', $number)) {
                     // DON'T THROW EXCEPTION
                     // throw new \Exception("Invalid number format. Must be 12 digits and start with 91");
-                    \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Invalid number format. Must be 12 digits and start with 91: " . $number );
+                    \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Invalid number format. Must be 12 digits and start with 91: " . $number);
                     return false;
                 }
             }
@@ -3022,30 +3086,30 @@ class WhatsAppController extends FindByNumberController
 
         $api_keys = ApiKey::all();
 
-        foreach ( $api_keys as $api_key ) {
-            if ( $api_key->number == $number ) {
+        foreach ($api_keys as $api_key) {
+            if ($api_key->number == $number) {
                 return;
             }
         }
 
         $curl = curl_init();
 
-        if ( Setting::get( 'whatsapp_number_change' ) == 1 ) {
-            $keys = \Config::get( "apiwha.api_keys" );
+        if (Setting::get('whatsapp_number_change') == 1) {
+            $keys = \Config::get("apiwha.api_keys");
             $key = $keys[ 0 ][ 'key' ];
 
-            foreach ( $api_keys as $api_key ) {
-                if ( $api_key->default == 1 ) {
+            foreach ($api_keys as $api_key) {
+                if ($api_key->default == 1) {
                     $key = $api_key->key;
                 }
             }
         } else {
-            if ( is_null( $sendNumber ) ) {
-                $keys = \Config::get( "apiwha.api_keys" );
+            if (is_null($sendNumber)) {
+                $keys = \Config::get("apiwha.api_keys");
                 $key = $keys[ 0 ][ 'key' ];
 
-                foreach ( $api_keys as $api_key ) {
-                    if ( $api_key->default == 1 ) {
+                foreach ($api_keys as $api_key) {
+                    if ($api_key->default == 1) {
                         $key = $api_key->key;
                     }
                 }
@@ -3053,38 +3117,38 @@ class WhatsAppController extends FindByNumberController
                 // $config = $this->getWhatsAppNumberConfig($sendNumber);
                 // $key = $config['key'];
 
-                $keys = \Config::get( "apiwha.api_keys" );
+                $keys = \Config::get("apiwha.api_keys");
                 $key = $keys[ 0 ][ 'key' ];
 
-                foreach ( $api_keys as $api_key ) {
-                    if ( $api_key->default == 1 ) {
+                foreach ($api_keys as $api_key) {
+                    if ($api_key->default == 1) {
                         $key = $api_key->key;
                     }
                 }
 
-                foreach ( $api_keys as $api_key ) {
-                    if ( $api_key->number == $sendNumber ) {
+                foreach ($api_keys as $api_key) {
+                    if ($api_key->number == $sendNumber) {
                         $key = $api_key->key;
                     }
                 }
             }
         }
 
-        $encodedNumber = urlencode( $number );
-        $encodedText = urlencode( $text );
+        $encodedNumber = urlencode($number);
+        $encodedText = urlencode($text);
 
-        if ( $chat_message_id ) {
+        if ($chat_message_id) {
             $custom_data = [
                 'chat_message_id' => $chat_message_id
             ];
 
-            $encodedCustomData = urlencode( json_encode( $custom_data ) );
+            $encodedCustomData = urlencode(json_encode($custom_data));
         } else {
             $encodedCustomData = '';
         }
         //$number = "";
         $url = "https://panel.apiwha.com/send_message.php?apikey=" . $key . "&number=" . $encodedNumber . "&text=" . $encodedText . "&custom_data=" . $encodedCustomData;
-        curl_setopt_array( $curl, array(
+        curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
@@ -3092,28 +3156,28 @@ class WhatsAppController extends FindByNumberController
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
-        ) );
+        ));
 
-        $response = curl_exec( $curl );
-        $err = curl_error( $curl );
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
 
-        curl_close( $curl );
+        curl_close($curl);
 
-        if ( $err ) {
+        if ($err) {
             // DON'T THROW EXCEPTION
             // throw new \Exception("cURL Error #:" . $err);
-            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
             return false;
         } else {
-            $result = json_decode( $response );
-            if ( !$result->success ) {
+            $result = json_decode($response);
+            if (!$result->success) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("whatsapp request error: " . $result->description);
-                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error for number " . $number . ": " . $result->description );
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error for number " . $number . ": " . $result->description);
                 return false;
             } else {
                 // Log successful send
-                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response );
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response);
             }
         }
     }
@@ -3162,13 +3226,13 @@ class WhatsAppController extends FindByNumberController
 
         $key = "Z802FWHI8E2OP0X120QR";
 
-        $encodedNumber = urlencode( '917534013101' );
+        $encodedNumber = urlencode('917534013101');
         // $encodedText = urlencode($text);
-        $encodedType = urlencode( 'IN' );
+        $encodedType = urlencode('IN');
 
         //$number = "";
         $url = "https://panel.apiwha.com/get_messages.php?apikey=" . $key . "&type=" . $encodedType . "&number=" . $encodedNumber;
-        curl_setopt_array( $curl, array(
+        curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
@@ -3176,20 +3240,20 @@ class WhatsAppController extends FindByNumberController
             CURLOPT_TIMEOUT => 120,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
-        ) );
+        ));
 
-        $response = curl_exec( $curl );
-        $err = curl_error( $curl );
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
 
-        curl_close( $curl );
+        curl_close($curl);
 
-        if ( $err ) {
+        if ($err) {
             // DON'T THROW EXCEPTION
             // throw new \Exception( "cURL Error #:" . $err );
-            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
             return false;
         } else {
-            $result = json_decode( $response, true );
+            $result = json_decode($response, true);
             // if (!$result->success) {
             //   throw new \Exception("whatsapp request error: " . $result->description);
             //  }
@@ -3207,14 +3271,14 @@ class WhatsAppController extends FindByNumberController
         //
         // dd($filtered_data);
 
-        foreach ( $result as $item ) {
-            if ( Carbon::parse( $item[ 'creation_date' ] )->gt( Carbon::parse( "2019-06-17 00:00:00" ) ) ) {
+        foreach ($result as $item) {
+            if (Carbon::parse($item[ 'creation_date' ])->gt(Carbon::parse("2019-06-17 00:00:00"))) {
                 $filtered_data[] = $item;
-                $customer = $this->findCustomerByNumber( $item[ 'from' ] );
+                $customer = $this->findCustomerByNumber($item[ 'from' ]);
 
                 // dd($filtered_data);
 
-                if ( $customer ) {
+                if ($customer) {
                     $params = [
                         'number' => $item[ 'from' ],
                         'customer_id' => $customer->id,
@@ -3232,22 +3296,22 @@ class WhatsAppController extends FindByNumberController
         // 		}));
         // //
         // 		$result = array_reverse($result);
-        dd( $filtered_data );
+        dd($filtered_data);
 
 
         return $result;
     }
 
-    public function sendWithNewApi( $number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic' )
+    public function sendWithNewApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
     {
-        $configs = \Config::get( "wassenger.api_keys" );
+        $configs = \Config::get("wassenger.api_keys");
         $encodedNumber = "+" . $number;
         $encodedText = $message;
         $wa_token = $configs[ 0 ][ 'key' ];
 
-        if ( $whatsapp_number != NULL ) {
-            foreach ( $configs as $key => $config ) {
-                if ( $config[ 'number' ] == $whatsapp_number ) {
+        if ($whatsapp_number != null) {
+            foreach ($configs as $key => $config) {
+                if ($config[ 'number' ] == $whatsapp_number) {
                     $wa_device = $config[ 'device' ];
 
                     break;
@@ -3259,13 +3323,13 @@ class WhatsAppController extends FindByNumberController
             $wa_device = $configs[ 0 ][ 'device' ];
         }
 
-        if ( $file != NULL ) {
-            $file_exploded = explode( '/', $file );
-            $encoded_part = str_replace( '%25', '%', urlencode( str_replace( ' ', '%20', $file_exploded[ count( $file_exploded ) - 1 ] ) ) );
-            array_pop( $file_exploded );
-            array_push( $file_exploded, $encoded_part );
+        if ($file != null) {
+            $file_exploded = explode('/', $file);
+            $encoded_part = str_replace('%25', '%', urlencode(str_replace(' ', '%20', $file_exploded[ count($file_exploded) - 1 ])));
+            array_pop($file_exploded);
+            array_push($file_exploded, $encoded_part);
 
-            $file_encoded = implode( '/', $file_exploded );
+            $file_encoded = implode('/', $file_exploded);
 
             $array = [
                 'url' => "$file_encoded",
@@ -3274,7 +3338,7 @@ class WhatsAppController extends FindByNumberController
 
             $curl = curl_init();
 
-            curl_setopt_array( $curl, array(
+            curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://api.wassenger.com/v1/files?reference=$chat_message_id",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
@@ -3282,34 +3346,34 @@ class WhatsAppController extends FindByNumberController
                 CURLOPT_TIMEOUT => 180,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode( $array ),
+                CURLOPT_POSTFIELDS => json_encode($array),
                 CURLOPT_HTTPHEADER => array(
                     "content-type: application/json",
                     "token: $wa_token"
                 ),
-            ) );
+            ));
 
-            $response = curl_exec( $curl );
-            $err = curl_error( $curl );
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
 
-            curl_close( $curl );
+            curl_close($curl);
             // throw new \Exception("cURL Error #: whatttt");
-            if ( $err ) {
+            if ($err) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception( "cURL Error #:" . $err );
-                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
                 return false;
             } else {
-                $result = json_decode( $response, true );
+                $result = json_decode($response, true);
 
-                if ( is_array( $result ) ) {
-                    if ( array_key_exists( 'status', $result ) ) {
-                        if ( $result[ 'status' ] == 409 ) {
+                if (is_array($result)) {
+                    if (array_key_exists('status', $result)) {
+                        if ($result[ 'status' ] == 409) {
                             $image_id = $result[ 'meta' ][ 'file' ];
                         } else {
                             // DON'T THROW EXCEPTION
                             // throw new \Exception( "Something was wrong with image: " . $result[ 'message' ] );
-                            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the image for number " . $number . ":" . $result[ 'message' ] );
+                            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the image for number " . $number . ":" . $result[ 'message' ]);
                             return false;
                         }
                     } else {
@@ -3325,13 +3389,13 @@ class WhatsAppController extends FindByNumberController
 
         $array = [
             'phone' => $encodedNumber,
-            'message' => (string) $encodedText,
-            'reference' => (string) $chat_message_id,
+            'message' => (string)$encodedText,
+            'reference' => (string)$chat_message_id,
             'device' => "$wa_device",
             'enqueue' => "$enqueue",
         ];
 
-        if ( isset( $image_id ) ) {
+        if (isset($image_id)) {
             $array[ 'media' ] = [
                 'file' => "$image_id"
             ];
@@ -3339,7 +3403,7 @@ class WhatsAppController extends FindByNumberController
 
         $curl = curl_init();
 
-        curl_setopt_array( $curl, array(
+        curl_setopt_array($curl, array(
             CURLOPT_URL => "https://api.wassenger.com/v1/messages",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
@@ -3347,59 +3411,63 @@ class WhatsAppController extends FindByNumberController
             CURLOPT_TIMEOUT => 180,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode( $array ),
+            CURLOPT_POSTFIELDS => json_encode($array),
             CURLOPT_HTTPHEADER => array(
                 "content-type: application/json",
                 "token: $wa_token"
             ),
-        ) );
+        ));
 
-        $response = curl_exec( $curl );
-        $err = curl_error( $curl );
-        $http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        curl_close( $curl );
+        curl_close($curl);
 
-        if ( $err ) {
+        if ($err) {
             // DON'T THROW EXCEPTION
             // throw new \Exception( "cURL Error #:" . $err );
-            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
             return false;
         } else {
-            $result = json_decode( $response, true );
+            $result = json_decode($response, true);
 
-            if ( $http_code != 201 ) {
+            if ($http_code != 201) {
                 // DON'T THROW EXCEPTION
                 // throw new \Exception( "Something was wrong with message: " . $response );
-                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ":" . $response );
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ":" . $response);
                 return false;
             } else {
                 // Log successful send
-                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response );
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response);
             }
         }
 
         return $result;
     }
 
-    public function sendWithThirdApi( $number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic' )
+    public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
     {
         // $configs = \Config::get("wassenger.api_keys");
         $encodedNumber = '+' . $number;
         $encodedText = $message;
         // $wa_token = $configs[0]['key'];
-        if ( $whatsapp_number == '919004780634' ) { // Indian
+        if ($whatsapp_number == '919004780634') { // Indian
             $instanceId = "43281";
             $token = "yi841xjhrwyrwrc7";
-        } else if ( $whatsapp_number == '919152731486' ) { // Solo 06
-            $instanceId = '55202';
-            $token = '42ndn0qg5om26vzf';
-        } else if ( $whatsapp_number == '919152731483' ) { // 04
-            $instanceId = '55211';
-            $token = '3b92u5cbg215c718';
-        } else { // James
-            $instanceId = "43112";
-            $token = "vbi9bpkoejv2lvc4";
+        } else {
+            if ($whatsapp_number == '919152731486') { // Solo 06
+                $instanceId = '55202';
+                $token = '42ndn0qg5om26vzf';
+            } else {
+                if ($whatsapp_number == '919152731483') { // 04
+                    $instanceId = '55211';
+                    $token = '3b92u5cbg215c718';
+                } else { // James
+                    $instanceId = "43112";
+                    $token = "vbi9bpkoejv2lvc4";
+                }
+            }
         }
 
 
@@ -3407,12 +3475,12 @@ class WhatsAppController extends FindByNumberController
             'phone' => $encodedNumber
         ];
 
-        if ( $encodedText != null ) {
+        if ($encodedText != null) {
             $array[ 'body' ] = $encodedText;
             $link = 'sendMessage';
         } else {
-            $exploded = explode( '/', $file );
-            $filename = end( $exploded );
+            $exploded = explode('/', $file);
+            $filename = end($exploded);
             $array[ 'body' ] = $file;
             $array[ 'filename' ] = $filename;
             $link = 'sendFile';
@@ -3421,7 +3489,7 @@ class WhatsAppController extends FindByNumberController
 
         $curl = curl_init();
 
-        curl_setopt_array( $curl, array(
+        curl_setopt_array($curl, array(
             CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=$token",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
@@ -3429,47 +3497,47 @@ class WhatsAppController extends FindByNumberController
             CURLOPT_TIMEOUT => 300,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode( $array ),
+            CURLOPT_POSTFIELDS => json_encode($array),
             CURLOPT_HTTPHEADER => array(
                 "content-type: application/json",
                 // "token: $wa_token"
             ),
-        ) );
+        ));
 
-        $response = curl_exec( $curl );
-        $err = curl_error( $curl );
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        curl_close( $curl );
+        curl_close($curl);
 
-        if ( $err ) {
+        if ($err) {
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);
-            \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err );
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
             return false;
         } else {
-            $result = json_decode( $response, true );
+            $result = json_decode($response, true);
             // throw new \Exception("Something was wrong with message: " . $response);
-            if ( !is_array( $result ) || array_key_exists( 'sent', $result ) && !$result[ 'sent' ] ) {
+            if (!is_array($result) || array_key_exists('sent', $result) && !$result[ 'sent' ]) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("Something was wrong with message: " . $response);
-                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response );
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response);
                 return false;
             } else {
                 // Log successful send
-                \Log::channel( 'whatsapp' )->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response );
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response);
             }
         }
 
         return $result;
     }
 
-    private function getWhatsAppNumberConfig( $target )
+    private function getWhatsAppNumberConfig($target)
     {
-        $numbers = \Config::get( "apiwha.api_keys" );
-        foreach ( $numbers as $number ) {
-            if ( $number[ 'number' ] == $target ) {
+        $numbers = \Config::get("apiwha.api_keys");
+        foreach ($numbers as $number) {
+            if ($number[ 'number' ] == $target) {
                 return $number;
             }
         }
@@ -3477,25 +3545,25 @@ class WhatsAppController extends FindByNumberController
         return $numbers[ 0 ];
     }
 
-    private function formatChatDate( $date )
+    private function formatChatDate($date)
     {
-        return $date->format( "Y-m-d h:iA" );
+        return $date->format("Y-m-d h:iA");
     }
 
-    private function modifyParamsWithMessage( $params, $data )
+    private function modifyParamsWithMessage($params, $data)
     {
-        if ( filter_var( $data[ 'text' ], FILTER_VALIDATE_URL ) ) {
+        if (filter_var($data[ 'text' ], FILTER_VALIDATE_URL)) {
             // you're good
             $path = $data[ 'text' ];
-            $paths = explode( "/", $path );
-            $file = $paths[ count( $paths ) - 1 ];
-            $extension = explode( ".", $file )[ 1 ];
-            $fileName = uniqid( TRUE ) . "." . $extension;
-            $contents = file_get_contents( $path );
-            if ( file_put_contents( implode( DIRECTORY_SEPARATOR, array( \Config::get( "apiwha.media_path" ), $fileName ) ), $contents ) == FALSE ) {
-                return FALSE;
+            $paths = explode("/", $path);
+            $file = $paths[ count($paths) - 1 ];
+            $extension = explode(".", $file)[ 1 ];
+            $fileName = uniqid(true) . "." . $extension;
+            $contents = file_get_contents($path);
+            if (file_put_contents(implode(DIRECTORY_SEPARATOR, array(\Config::get("apiwha.media_path"), $fileName)), $contents) == false) {
+                return false;
             }
-            $url = implode( "/", array( \Config::get( "app.url" ), "apiwha", "media", $fileName ) );
+            $url = implode("/", array(\Config::get("app.url"), "apiwha", "media", $fileName));
             $params[ 'media_url' ] = $url;
             return $params;
         }
@@ -3503,39 +3571,39 @@ class WhatsAppController extends FindByNumberController
         return $params;
     }
 
-    public function updatestatus( Request $request )
+    public function updatestatus(Request $request)
     {
-        $message = ChatMessage::find( $request->get( 'id' ) );
-        $message->status = $request->get( 'status' );
+        $message = ChatMessage::find($request->get('id'));
+        $message->status = $request->get('status');
         $message->save();
 
-        return response( 'success' );
+        return response('success');
     }
 
-    public function fixMessageError( Request $request, $id )
+    public function fixMessageError(Request $request, $id)
     {
-        $chat_message = ChatMessage::find( $id );
+        $chat_message = ChatMessage::find($id);
 
-        if ( $customer = Customer::find( $chat_message->customer_id ) ) {
+        if ($customer = Customer::find($chat_message->customer_id)) {
             $customer->is_error_flagged = 0;
             $customer->save();
 
-            $messages = ChatMessage::where( 'customer_id', $customer->id )->where( 'error_status', '!=', 0 )->get();
+            $messages = ChatMessage::where('customer_id', $customer->id)->where('error_status', '!=', 0)->get();
 
-            foreach ( $messages as $message ) {
+            foreach ($messages as $message) {
                 $message->error_status = 0;
                 $message->save();
             }
         }
 
-        return response( 'success' );
+        return response('success');
     }
 
-    public function resendMessage( Request $request, $id )
+    public function resendMessage(Request $request, $id)
     {
-        $chat_message = ChatMessage::find( $id );
+        $chat_message = ChatMessage::find($id);
 
-        if ( $customer = Customer::find( $chat_message->customer_id ) ) {
+        if ($customer = Customer::find($chat_message->customer_id)) {
             // $params = [
             //    'number'       => NULL,
             //    'user_id'      => Auth::id(),
@@ -3547,51 +3615,51 @@ class WhatsAppController extends FindByNumberController
             //
             // $additional_message = ChatMessage::create($params);
 
-            if ( $chat_message->message != '' ) {
-                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
-                    $data = $this->sendWithNewApi( $customer->phone, $customer->whatsapp_number, $chat_message->message, NULL, $chat_message->id );
+            if ($chat_message->message != '') {
+                if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486') {
+                    $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $chat_message->message, null, $chat_message->id);
                 } else {
-                    $this->sendWithWhatsApp( $customer->phone, $customer->whatsapp_number, $chat_message->message, TRUE, $chat_message->id );
+                    $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $chat_message->message, true, $chat_message->id);
                 }
             }
 
-            if ( $chat_message->hasMedia( config( 'constants.media_tags' ) ) ) {
-                foreach ( $chat_message->getMedia( config( 'constants.media_tags' ) ) as $image ) {
-                    if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
-                        $data = $this->sendWithNewApi( $customer->phone, $customer->whatsapp_number, NULL, $image->getUrl(), $chat_message->id );
+            if ($chat_message->hasMedia(config('constants.media_tags'))) {
+                foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+                    if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486') {
+                        $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, null, $image->getUrl(), $chat_message->id);
                     } else {
-                        $this->sendWithWhatsApp( $customer->phone, $customer->whatsapp_number, str_replace( ' ', '%20', $image->getUrl() ), TRUE, $chat_message->id );
+                        $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
                     }
                 }
             }
 
-            $chat_message->update( [
+            $chat_message->update([
                 'resent' => $chat_message->resent + 1
-            ] );
+            ]);
         }
 
-        if ( $chat_message->erp_user != '' || $chat_message->contact_id != '' ) {
-            $sender = User::find( $chat_message->user_id );
+        if ($chat_message->erp_user != '' || $chat_message->contact_id != '') {
+            $sender = User::find($chat_message->user_id);
 
-            if ( $chat_message->erp_user != '' ) {
-                $receiver = User::find( $chat_message->erp_user );
+            if ($chat_message->erp_user != '') {
+                $receiver = User::find($chat_message->erp_user);
             } else {
-                $receiver = Contact::find( $chat_message->contact_id );
+                $receiver = Contact::find($chat_message->contact_id);
             }
 
             $phone = $receiver->phone;
             $whatsapp_number = $sender->whatsapp_number;
             $sending_message = $chat_message->message;
 
-            if ( preg_match_all( "/Resent ([\d]+) times/i", $sending_message, $match ) ) {
-                $sending_message = preg_replace( "/Resent ([\d]+) times/i", "Resent " . ( $chat_message->resent + 1 ) . " times", $sending_message );
+            if (preg_match_all("/Resent ([\d]+) times/i", $sending_message, $match)) {
+                $sending_message = preg_replace("/Resent ([\d]+) times/i", "Resent " . ($chat_message->resent + 1) . " times", $sending_message);
             } else {
-                $sending_message = 'Resent ' . ( $chat_message->resent + 1 ) . " times. " . $sending_message;
+                $sending_message = 'Resent ' . ($chat_message->resent + 1) . " times. " . $sending_message;
             }
 
             $params = [
                 'user_id' => $chat_message->user_id,
-                'number' => NULL,
+                'number' => null,
                 'task_id' => $chat_message->task_id,
                 'erp_user' => $chat_message->erp_user,
                 'contact_id' => $chat_message->contact_id,
@@ -3601,57 +3669,57 @@ class WhatsAppController extends FindByNumberController
                 'status' => 2
             ];
 
-            $new_message = ChatMessage::create( $params );
+            $new_message = ChatMessage::create($params);
 
-            if ( $chat_message->hasMedia( config( 'constants.media_tags' ) ) ) {
-                foreach ( $chat_message->getMedia( config( 'constants.media_tags' ) ) as $image ) {
-                    $new_message->attachMedia( $image, config( 'constants.media_tags' ) );
+            if ($chat_message->hasMedia(config('constants.media_tags'))) {
+                foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+                    $new_message->attachMedia($image, config('constants.media_tags'));
                 }
             }
 
-            $this->sendWithThirdApi( $phone, $whatsapp_number, $new_message->message, NULL, $new_message->id );
+            $this->sendWithThirdApi($phone, $whatsapp_number, $new_message->message, null, $new_message->id);
 
-            if ( $task = Task::find( $chat_message->task_id ) ) {
-                if ( count( $task->users ) > 0 ) {
-                    if ( $task->assign_from == Auth::id() ) {
-                        foreach ( $task->users as $key => $user ) {
-                            if ( $key != 0 ) {
-                                $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, $params[ 'message' ] );
+            if ($task = Task::find($chat_message->task_id)) {
+                if (count($task->users) > 0) {
+                    if ($task->assign_from == Auth::id()) {
+                        foreach ($task->users as $key => $user) {
+                            if ($key != 0) {
+                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params[ 'message' ]);
                             }
                         }
                     } else {
-                        foreach ( $task->users as $key => $user ) {
-                            if ( $key != 0 ) {
-                                if ( $user->id != Auth::id() ) {
-                                    $this->sendWithThirdApi( $user->phone, $user->whatsapp_number, $params[ 'message' ] );
+                        foreach ($task->users as $key => $user) {
+                            if ($key != 0) {
+                                if ($user->id != Auth::id()) {
+                                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params[ 'message' ]);
                                 }
                             }
                         }
                     }
                 }
 
-                if ( count( $task->contacts ) > 0 ) {
-                    foreach ( $task->contacts as $key => $contact ) {
-                        if ( $key != 0 ) {
-                            $this->sendWithThirdApi( $contact->phone, NULL, $params[ 'message' ] );
+                if (count($task->contacts) > 0) {
+                    foreach ($task->contacts as $key => $contact) {
+                        if ($key != 0) {
+                            $this->sendWithThirdApi($contact->phone, null, $params[ 'message' ]);
                         }
                     }
                 }
             }
 
-            if ( $new_message->hasMedia( config( 'constants.media_tags' ) ) ) {
-                foreach ( $new_message->getMedia( config( 'constants.media_tags' ) ) as $image ) {
-                    $this->sendWithThirdApi( $phone, $whatsapp_number, NULL, $image->getUrl(), $new_message->id );
+            if ($new_message->hasMedia(config('constants.media_tags'))) {
+                foreach ($new_message->getMedia(config('constants.media_tags')) as $image) {
+                    $this->sendWithThirdApi($phone, $whatsapp_number, null, $image->getUrl(), $new_message->id);
                 }
             }
 
-            $chat_message->update( [
+            $chat_message->update([
                 'resent' => $chat_message->resent + 1
-            ] );
+            ]);
         }
 
-        return response()->json( [
+        return response()->json([
             'resent' => $chat_message->resent
-        ] );
+        ]);
     }
 }

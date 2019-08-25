@@ -27,6 +27,7 @@
             </div>
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
+
             </div>
         </div>
     </div>
@@ -52,26 +53,41 @@
       <table class="table table-bordered">
         <thead>
           <tr>
+            <th>Date</th>
             <th>User</th>
+            <th>Department</th>
             <th>Document Type</th>
+            <th>Category</th>
             <th>Filename</th>
             <th>Actions</th>
+            <th>Remarks</th>
           </tr>
         </thead>
 
         <tbody>
           @foreach ($documents as $document)
             <tr>
+              <td>{{ $document->updated_at->format('d.m-Y') }}</td>
               <td>{{ $document->user->name }}</td>
+              <td>{{ $document->user->agent_role  }}</td>
               <td>{{ $document->name}}</td>
+              <td>{{ $document->category}}</td>
               <td>{{ $document->filename }}</td>
               <td>
                 <a href="{{ route('document.download', $document->id) }}" class="btn btn-xs btn-secondary">Download</a>
-
+                <button type="button" class="btn btn-image"><img src="/images/send.png" /></button>
+                <button type="button" class="btn btn-image"><img src="/images/customer-email.png" /></button>
+                 
                 {!! Form::open(['method' => 'DELETE','route' => ['document.destroy', $document->id],'style'=>'display:inline']) !!}
+                  
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                  
                 {!! Form::close() !!}
+                <button type="button" class="btn btn-image"><img src="/images/upload.png" /></button>
+
+                V: {{ $document->version }}
               </td>
+              <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button></td>
             </tr>
           @endforeach
         </tbody>
@@ -79,11 +95,12 @@
     </div>
 
     {!! $documents->appends(Request::except('page'))->links() !!}
+       @include('partials.modals.remarks')
 
     <div id="documentCreateModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 
-        <!-- Modal content-->
+                <!-- Modal content-->
         <div class="modal-content">
           <form action="{{ route('document.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -115,6 +132,18 @@
               </div>
 
               <div class="form-group">
+                <strong>Document category:</strong>
+                 <select class="selectpicker form-control" data-live-search="true" data-size="15" name="category" title="Choose a Category" required>
+                    
+                      <option value="KYC">KYC</option>
+                    
+                </select>
+                 @if ($errors->has('category'))
+                  <div class="alert alert-danger">{{$errors->first('category')}}</div>
+                @endif
+              </div>
+
+              <div class="form-group">
                 <strong>File:</strong>
                 <input type="file" name="file[]" class="form-control" value="" multiple required>
 
@@ -122,6 +151,16 @@
                   <div class="alert alert-danger">{{$errors->first('file')}}</div>
                 @endif
               </div>
+
+               <div class="form-group">
+                <strong>Version:</strong>
+                <input type="text" name="version" class="form-control" value="1" required>
+
+                @if ($errors->has('version'))
+                  <div class="alert alert-danger">{{$errors->first('version')}}</div>
+                @endif
+              </div>
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -137,4 +176,37 @@
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+
+
+  <script type="text/javascript">
+       $(".make-remark").on('click', function() {
+                   var id = $(this).data('id');
+                   $('#add-remark input[name="id"]').val(id);
+              });
+          $('#addRemarkButton').on('click', function() {
+
+        var id = $('#add-remark input[name="id"]').val();
+        var remark = $('#add-remark textarea[name="remark"]').val();
+
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.addRemark') }}',
+            data: {
+              id:id,
+              remark:remark,
+              module_type: 'document'
+            },
+        }).done(response => {
+         
+            alert('Remark Added Success!')
+            window.location.reload();
+        }).fail(function(response) {
+          console.log(response);
+        });
+      });
+
+  </script>
 @endsection

@@ -33,6 +33,8 @@ class Product extends Model
 
     public static function createProductByJson( $json )
     {
+
+
         // Check for required values
         if (
             !empty( $json->title ) &&
@@ -473,5 +475,10 @@ class Product extends Model
     public function activities()
     {
         return $this->hasMany( ListingHistory::class, 'product_id', 'id' );
+    }
+
+    public function statuses()
+    {
+        return $this->hasMany( ProductStatus::class, 'product_id', 'id' );
     }
 }

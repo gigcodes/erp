@@ -20,7 +20,7 @@ class DocumentController extends Controller
     {
       if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56) {
         $documents = Document::latest()->paginate(Setting::get('pagination'));
-        $users = User::select(['id', 'name', 'email'])->get();
+        $users = User::select(['id', 'name', 'email','agent_role'])->get();
 
         return view('documents.index', [
           'documents' => $documents,
@@ -52,7 +52,9 @@ class DocumentController extends Controller
       $this->validate($request, [
         'user_id'   => 'required|numeric',
         'name'      => 'required|string|max:255',
-        'file'      => 'required'
+        'file'      => 'required',
+        'category'  => 'required',
+        'version'   => 'required'
       ]);
 
       $data = $request->except(['_token', 'file']);

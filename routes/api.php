@@ -17,6 +17,9 @@ use Illuminate\Http\Request;
 //    return $request->user();
 //});
 
+Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
+Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
+
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
 Route::post('sync-product', 'ScrapController@syncGnbProducts');
@@ -45,3 +48,4 @@ Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDeta
 
 Route::get('products/enhance', 'Products\ProductEnhancementController@index');
 Route::post('products/enhance', 'Products\ProductEnhancementController@store');
+

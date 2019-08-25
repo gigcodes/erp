@@ -41,6 +41,7 @@ class SupplierController extends Controller
       $solo_numbers = (new SoloNumbers)->all();
       $term = $request->term ?? '';
       $type = $request->type ?? '';
+      $status = $request->status ?? '';
       $source = $request->get('source') ?? '';
       $typeWhereClause = '';
 
@@ -52,6 +53,10 @@ class SupplierController extends Controller
       }
         if ($type != '' && $type == 'updated') {
             $typeWhereClause = ' AND is_updated = 1';
+        }
+
+        if ( $status != '' ) {
+          $typeWhereClause .= ' AND status=1';
         }
 
       $suppliers = DB::select('
