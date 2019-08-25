@@ -517,7 +517,6 @@ class CustomerController extends Controller
             LEFT JOIN
                 (
                     SELECT
-                        chat_messages.id,
                         chat_messages.id AS message_id,
                         chat_messages.customer_id,
                         chat_messages.message,
@@ -530,7 +529,7 @@ class CustomerController extends Controller
                 ) AS chat_messages
             ON 
                 customers.id=chat_messages.customer_id AND 
-                chat_messages.id=(
+                chat_messages.message_id=(
                     SELECT
                         MAX(id)
                     FROM
