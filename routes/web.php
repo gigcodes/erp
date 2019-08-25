@@ -976,6 +976,9 @@ Route::get( 'se-ranking/research-data', 'SERankingController@getResearchData' )-
 Route::get( 'se-ranking/audit', 'SERankingController@getSiteAudit' )->name( 'getSiteAudit' );
 Route::get( 'se-ranking/competitors/keyword-positions/{id}', 'SERankingController@getCompetitors' )->name( 'getCompetitorsKeywordPos' );
 
+//Supplier scrapping info
+Route::get( 'supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo' )->name( 'getSupplierScrappingInfo' );
+
 Route::group( [ 'middleware' =>  'auth', 'admin'  ], function () {
     Route::get( 'category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing' );
     Route::post( 'category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing' );

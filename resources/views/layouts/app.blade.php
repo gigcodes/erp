@@ -1411,6 +1411,7 @@
                                               <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
                                               <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
                                               <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
+                                              <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
                                           </li>
                                       </ul>
 
