@@ -428,7 +428,7 @@ class CustomerController extends Controller
             $join = "RIGHT";
             $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
             $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
-            $filterWhereClause = " WHERE message_status = $type";
+            $filterWhereClause = " WHERE chat_messages.status = $type";
             $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10";
             // $messageWhereClause = " WHERE chat_messages.status = $type";
 
@@ -525,6 +525,7 @@ class CustomerController extends Controller
                         MAX(chat_messages.created_at) AS last_communicated_at
                     FROM
                         chat_messages
+                    ' . $filterWhereClause . '
                     GROUP BY
                         chat_messages.customer_id
                 ) AS chat_messages
@@ -576,11 +577,13 @@ class CustomerController extends Controller
                 customers.deleted_at IS NULL AND
                 customers.id IS NOT NULL
             ' . $searchWhereClause . '
-            ' . $filterWhereClause . '
             ' . $leadsWhereClause . '
             ' . $assignedWhereClause . '
             ' . $orderByClause . '
         ';
+        echo "<pre>\n";
+        var_dump($sql);
+        exit();
         $customers = DB::select($sql);
 
 
