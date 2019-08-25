@@ -581,9 +581,6 @@ class CustomerController extends Controller
             ' . $assignedWhereClause . '
             ' . $orderByClause . '
         ';
-        echo "<pre>\n";
-        var_dump($sql);
-        exit();
         $customers = DB::select($sql);
 
 
