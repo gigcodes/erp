@@ -71,7 +71,7 @@ class CustomerController extends Controller
     {
         $complaints = Complaint::whereNotNull('customer_id')->pluck('complaint', 'customer_id')->toArray();
         $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
-        $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->with('order_product.product')->get()->groupBy('customer_id')->toArray();
+        $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
         $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total')->whereNotNull('order_status')->groupBy('order_status')->get();
 
         $finalOrderStats = [];
@@ -495,7 +495,96 @@ class CustomerController extends Controller
             $orderByClause .= ', instruction_completed_at DESC';
         }
 
-        $customers = DB::select('
+        $sql = '
+            SELECT
+                customers.id,
+                customers.frequency,
+                customers.reminder_message,
+                customers.name,
+                customers.phone,
+                customers.is_blocked,
+                customers.is_flagged,
+                customers.is_error_flagged,
+                customers.is_priority,
+                customers.instruction_completed_at,
+                chat_messages.*,
+                chat_messages.status AS message_status,
+                orders.*,
+                order_products.*,
+                leads.*
+            FROM
+                customers
+            LEFT JOIN
+                (
+                    SELECT
+                        chat_messages.id AS message_id,
+                        chat_messages.customer_id,
+                        chat_messages.message,
+                        chat_messages.sent AS message_type,
+                        chat_messages.status,
+                        MAX(chat_messages.created_at) AS last_communicated_at
+                    FROM
+                        chat_messages
+                    GROUP BY
+                        chat_messages.customer_id
+                ) AS chat_messages
+            ON 
+                customers.id=chat_messages.customer_id
+            LEFT JOIN
+                (
+                    SELECT 
+                        MAX(orders.id) as order_id, 
+                        orders.customer_id, 
+                        MAX(orders.created_at) as order_created, 
+                        orders.order_status as order_status 
+                    FROM 
+                        orders
+                    ' . $orderWhereClause . ' 
+                    GROUP BY 
+                        customer_id
+                ) as orders
+            ON
+                customers.id=orders.customer_id
+            LEFT JOIN
+                (
+                    SELECT 
+                        order_products.order_id as purchase_order_id, 
+                        order_products.purchase_status
+                    FROM 
+                        order_products 
+                    GROUP BY 
+                        purchase_order_id
+                ) as order_products
+            ON 
+                orders.order_id=order_products.purchase_order_id
+            LEFT JOIN
+                (
+                    SELECT 
+                        MAX(id) as lead_id, 
+                        leads.customer_id, 
+                        leads.rating as lead_rating, 
+                        MAX(leads.created_at) as lead_created, 
+                        leads.status as lead_status
+                    FROM 
+                        leads
+                    GROUP BY 
+                        customer_id
+                ) AS leads
+            ON 
+                customers.id = leads.customer_id
+            WHERE
+                customers.deleted_at IS NULL AND
+                customers.id IS NOT NULL
+            ' . $searchWhereClause . '
+            ' . $filterWhereClause . '
+            ' . $leadsWhereClause . '
+            ' . $assignedWhereClause . '
+            ' . $orderByClause . '
+        ';
+        $customers = DB::select($sql);
+
+
+        $oldSql = '
             SELECT
               *
             FROM
@@ -636,7 +725,7 @@ class CustomerController extends Controller
           ) AS customers
           ' . $filterWhereClause . $leadsWhereClause .
             $assignedWhereClause .
-            $orderByClause);
+            $orderByClause;
 
         // dd($customers);
 
