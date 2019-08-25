@@ -969,6 +969,7 @@ Route::post( 'back-linking/{id}/updateURL', 'BackLinkController@updateURL' );
 //SE Ranking Links
 Route::get( 'se-ranking/sites', 'SERankingController@getSites' )->name( 'getSites' );
 Route::get( 'se-ranking/keywords', 'SERankingController@getKeyWords' )->name( 'getKeyWords' );
+Route::get( 'se-ranking/keywords', 'SERankingController@getKeyWords' )->name( 'filteredSERankKeywords' );
 Route::get( 'se-ranking/competitors', 'SERankingController@getCompetitors' )->name( 'getCompetitors' );
 Route::get( 'se-ranking/analytics', 'SERankingController@getAnalytics' )->name( 'getAnalytics' );
 Route::get( 'se-ranking/backlinks', 'SERankingController@getBacklinks' )->name( 'getBacklinks' );

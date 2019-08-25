@@ -5,10 +5,10 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">SE Ranking - Keywords</h2>
         </div>
-        {{-- <form action="{{route('filteredAnalyticsResults')}}" method="get" class="form-inline float-right">
+        <form action="{{route('filteredSERankKeywords')}}" method="get" class="form-inline float-right">
             <div class="form-group">
                 <div class="col-md-4 col-lg-6 col-xl-6">
-                    <input name="location" type="text" placeholder="City/Country" class="form-control" value="{{!empty(request()->location) ? request()->location : ''}}">
+                    <input name="keyword" type="text" placeholder="Keyword Search" class="form-control" value="{{!empty(request()->keyword) ? request()->keyword : ''}}">
                 </div>
             </div>
             <div class="form-group">
@@ -16,7 +16,7 @@
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </div>
             </div>
-        </form> --}}
+        </form>
     </div>
     <div class="container">
         <div class="row">
