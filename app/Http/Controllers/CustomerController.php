@@ -176,181 +176,10 @@ class CustomerController extends Controller
 
     public function getCustomersIndex(Request $request)
     {
-        // $term = $request->input('term');
-        // $customers = DB::table('customers');
-        // $delivery_status = [
-        //   'Follow up for advance',
-        // 	'Proceed without Advance',
-        // 	'Advance received',
-        // 	'Cancel',
-        // 	'Prepaid',
-        // 	'Product Shiped form Italy',
-        // 	'In Transist from Italy',
-        // 	'Product shiped to Client',
-        // 	'Delivered'
-        // ];
-        //
-        // $orderWhereClause = '';
-        //
-        // $searchWhereClause = '';
-        //
-        // if(!empty($term)) {
-        //   $customers = $customers->latest()->where(function($query) use ($term) {
-        //     $query->orWhere('customers.name', 'LIKE', "%$term%")
-        //     ->orWhere('customers.phone', 'LIKE', "%$term%")
-        //     ->orWhere('customers.instahandler', 'LIKE', "%$term%");
-        //
-        //   });
-        //
-        //   $searchWhereClause = "WHERE customers.name LIKE '%$term%' OR customers.phone LIKE '%$term%' OR customers.instahandler LIKE '%$term%'";
-        //
-        //   if ($request->type == 'delivery' || $request->type == 'new' || $request->type == 'Refund to be processed') {
-        //     $status_array = [];
-        //
-        //     if ($request->type == 'delivery') {
-        //       array_push($delivery_status, 'VIP', 'HIGH PRIORITY');
-        //
-        //       $status_array = $delivery_status;
-        //     } else if ($request->type == 'Refund to be processed') {
-        //       $status_array = [$request->type];
-        //     } else if ($request->type == 'new') {
-        //       $status_array = [
-        //         'Delivered',
-        //         'Refund Dispatched',
-        //         'Refund Credited'
-        //       ];
-        //     }
-        //
-        //     $imploded = implode("','", $status_array);
-        //
-        //     $orderWhereClause = "WHERE orders.order_id LIKE '%$term%' AND orders.order_status IN ('" . $imploded . "')";
-        //   } else {
-        //     $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
-        //   }
-        // }
-        //
-        // $customers = $customers->whereNull('deleted_at');
-        //
-        // if ($request->type == 'delivery' || $request->type == 'new' || $request->type == 'Refund to be processed') {
-        //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id LIMIT 1) as orders LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products ON orders.order_id = order_products.order_id'), 'customers.id', '=', 'orders.ocid', 'RIGHT');
-        // } else {
-        //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM `orders` '. $orderWhereClause .' GROUP BY customer_id LIMIT 1) as orders LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products ON orders.order_id = order_products.order_id'), 'customers.id', '=', 'orders.ocid', 'LEFT');
-        // }
-        //
-        // if ($request->type != null && $request->type == 'new') {
-        //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, MAX(leads.created_at) as lead_created, leads.status as lead_status FROM `leads` GROUP BY customer_id) as leads'), 'customers.id', '=', 'leads.lcid', 'RIGHT');
-        // } else {
-        //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, MAX(leads.created_at) as lead_created, leads.status as lead_status FROM `leads` GROUP BY customer_id) as leads'), 'customers.id', '=', 'leads.lcid', 'LEFT');
-        // }
-        //
-        // $orderby = 'DESC';
-        //
-        // if($request->input('orderby')) {
-        //   $orderby = 'ASC';
-        // }
-        //
-        // $sortby = 'communication';
-        //
-        // $sortBys = [
-        //     'name' => 'name',
-        //     'email' => 'email',
-        //     'phone' => 'phone',
-        //     'instagram' => 'instahandler',
-        //     'lead_created' => 'lead_created',
-        //     'order_created' => 'order_created',
-        //     'rating' => 'rating',
-        //     'communication' => 'communication'
-        // ];
-        //
-        // if (isset($sortBys[$request->input('sortby')])) {
-        //     $sortby = $sortBys[$request->input('sortby')];
-        // }
-        //
-        // if ($sortby !== 'communication') {
-        //     $customers = $customers->orderBy($sortby, $orderby);
-        // }
-        //
-        // $start_time = $request->input('range_start') ?? '';
-        // $end_time   = $request->input('range_end') ?? '';
-        //
-        // if ($request->type == 'unread' || $request->type == 'unapproved') {
-        //   // if ($start_time != '' && $end_time != '') {
-        //   //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.created_at BETWEEN ' . $start_time . ' AND ' . $end_time . ' GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
-        //   // } else {
-        //     $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'RIGHT');
-        //   // }
-        //   // dd($customers->get());
-        //   $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('message_status', 'ASC')->orderBy('last_communicated_at', $orderby);
-        // } else {
-        //   $customers = $customers->join(DB::raw('(SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at ' . $orderby . ') as chat_messages'), 'chat_messages.cmcid', '=', 'customers.id', 'LEFT');
-        // }
-        //
-        // if ($request->type != 'unread' && $request->type != 'unapproved' && $sortby === 'communication') {
-        //     $customers = $customers->orderBy('is_flagged', 'DESC')->orderBy('last_communicated_at', $orderby);
-        // }
-        //
-        // // $new_customers = DB::select("SELECT
-        // // 					  customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority,
-        // //             orders.order_id, orders.order_created as order_created, orders.order_status as order_status, order_products.purchase_status,
-        // //             leads.lead_id, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating,
-        // //             (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
-        // //             (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
-        // //             (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
-        // //             (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,
-        // //             (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type
-        // //
-        // //             FROM (SELECT * FROM customers
-        // //               LEFT JOIN (SELECT MAX(id) as order_id, orders.customer_id as ocid, MAX(orders.created_at) as order_created, orders.order_status as order_status FROM orders " . $orderWhereClause . " GROUP BY customer_id) AS orders
-        // //                 LEFT JOIN (SELECT order_products.order_id, order_products.purchase_status FROM order_products) as order_products
-        // //                 ON orders.order_id = order_products.order_id
-        // //               ON customers.id = orders.ocid
-        // //
-        // //               LEFT JOIN (SELECT MAX(id) as lead_id, leads.customer_id as lcid, leads.rating as rating, MAX(leads.created_at) as lead_created, leads.status as lead_status FROM leads GROUP BY customer_id) as leads
-        // //               ON customers.id = leads.lcid
-        // //
-        // //               LEFT JOIN (SELECT MAX(id) as chat_message_id, chat_messages.customer_id as cmcid, MAX(chat_messages.created_at) as chat_message_created_at, message, status, sent FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY chat_messages.customer_id ORDER BY chat_messages.created_at " . $orderby . ") as chat_messages
-        // //               ON customers.id = chat_messages.cmcid
-        // //             )
-        // //
-        // //             AS customers
-        // //             ORDER BY is_flagged DESC, last_communicated_at DESC;
-        // // 				");
-        // //
-        // //         dd($new_customers);
-        //
-        // // dd($start_time, $end_time);
-        //
-        // // if ($start_time != '' && $end_time != '') {
-        //   $customers = $customers->selectRaw("customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, (SELECT mm1.created_at FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS last_communicated_at,
-        //   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = chat_message_id) AS message,
-        //   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = chat_message_id) AS message_status,
-        //   (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = chat_message_id) AS message_id,
-        //   (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = chat_message_id) AS message_type");
-        // // } else {
-        // // dd($customers->get());
-        //   // $customers = $customers->selectRaw("customers.id, customers.name, customers.phone, customers.is_blocked, customers.is_flagged, customers.is_error_flagged, customers.is_priority, orders.order_id, leads.lead_id, orders.order_created as order_created, orders.order_status as order_status, leads.lead_status as lead_status, leads.lead_created as lead_created, leads.rating as rating, order_products.purchase_status, chat_message_created_at AS last_communicated_at,
-        //   // message, status AS message_status, chat_message_id AS message_id, sent AS message_type");
-        // // }
-        //
-        //
-        //
-        //
-        //
-        // $ids_list = [];
-        // foreach ($customers->get() as $customer) {
-        //   $ids_list[] = $customer->id;
-        // }
-        //
-        // if ($start_time != '' && $end_time != '') {
-        //   $customers = $customers->whereBetween('chat_message_created_at', [$start_time, $end_time])->paginate(Setting::get('pagination'));
-        // } else if ($request->type == 'unapproved') {
-        //   // dd($customers->get());
-        //   $customers = $customers->where('status', 1)->paginate(Setting::get('pagination'));
-        // } else {
-        //   $customers = $customers->paginate(Setting::get('pagination'));
-        // }
+        // Set search term
         $term = $request->input('term');
-        // $customers = DB::table('customers');
+
+        // Set delivery status
         $delivery_status = [
             'Follow up for advance',
             'Proceed without Advance',
@@ -363,38 +192,18 @@ class CustomerController extends Controller
             'Delivered'
         ];
 
+        // Set empty clauses for later usage
         $orderWhereClause = '';
         $searchWhereClause = '';
         $filterWhereClause = '';
+        $leadsWhereClause = '';
 
         if (!empty($term)) {
             $searchWhereClause = " AND (customers.name LIKE '%$term%' OR customers.phone LIKE '%$term%' OR customers.instahandler LIKE '%$term%')";
             $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
-
-            // if ($request->type == 'delivery' || $request->type == 'new' || $request->type == 'Refund to be processed') {
-            //   $status_array = [];
-            //
-            //   if ($request->type == 'delivery') {
-            //     array_push($delivery_status, 'VIP', 'HIGH PRIORITY');
-            //
-            //     $status_array = $delivery_status;
-            //   } else if ($request->type == 'Refund to be processed') {
-            //     $status_array = [$request->type];
-            //   } else if ($request->type == 'new') {
-            //     $status_array = [
-            //       'Delivered',
-            //       'Refund Dispatched',
-            //       'Refund Credited'
-            //     ];
-            //   }
-            //
-            //   $imploded = implode("','", $status_array);
-            //
-            //   $orderWhereClause = "WHERE orders.order_id LIKE '%$term%' AND orders.order_status IN ('" . $imploded . "')";
-            // } else {
         }
 
-        $leadsWhereClause = '';
+
         $orderby = 'DESC';
 
         if ($request->input('orderby')) {
@@ -536,6 +345,7 @@ class CustomerController extends Controller
                         chat_messages
                     WHERE
                         chat_messages.customer_id=customers.id
+                        ' . $filterWhereClause . '
                     GROUP BY
                         chat_messages.customer_id
                 )
@@ -590,9 +400,6 @@ class CustomerController extends Controller
             ' . $assignedWhereClause . '
             ' . $orderByClause . '
         ';
-//        echo "<pre>\n";
-//        echo $sql;
-//        exit();
         $customers = DB::select($sql);
 
         $oldSql = '
