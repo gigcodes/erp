@@ -428,7 +428,7 @@ class CustomerController extends Controller
             $join = "RIGHT";
             $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
             $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
-            $filterWhereClause = " WHERE chat_messages.status = $type";
+            $filterWhereClause = " AND chat_messages.status = $type";
             $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10";
             // $messageWhereClause = " WHERE chat_messages.status = $type";
 
@@ -517,20 +517,29 @@ class CustomerController extends Controller
             LEFT JOIN
                 (
                     SELECT
+                        chat_messages.id,
                         chat_messages.id AS message_id,
                         chat_messages.customer_id,
                         chat_messages.message,
                         chat_messages.sent AS message_type,
                         chat_messages.status,
-                        MAX(chat_messages.created_at) AS last_communicated_at
+                        chat_messages.created_at,
+                        chat_messages.created_at AS last_communicated_at
                     FROM
                         chat_messages
-                    ' . $filterWhereClause . '
-                    GROUP BY
-                        chat_messages.customer_id
                 ) AS chat_messages
             ON 
-                customers.id=chat_messages.customer_id
+                customers.id=chat_messages.customer_id AND 
+                chat_messages.id=(
+                    SELECT
+                        MAX(id)
+                    FROM
+                        chat_messages
+                    WHERE
+                        chat_messages.customer_id=customers.id
+                    GROUP BY
+                        chat_messages.customer_id
+                )
             LEFT JOIN
                 (
                     SELECT 
@@ -577,12 +586,15 @@ class CustomerController extends Controller
                 customers.deleted_at IS NULL AND
                 customers.id IS NOT NULL
             ' . $searchWhereClause . '
+            ' . $filterWhereClause . '
             ' . $leadsWhereClause . '
             ' . $assignedWhereClause . '
             ' . $orderByClause . '
         ';
+//        echo "<pre>\n";
+//        echo $sql;
+//        exit();
         $customers = DB::select($sql);
-
 
         $oldSql = '
             SELECT
