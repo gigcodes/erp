@@ -269,7 +269,7 @@ class CustomerController extends Controller
                     $orderWhereClause = ' WHERE ';
                 }
                 $orderWhereClause .= 'orders.order_status = "' . $request->get('type') . '"';
-                $filterWhereClause = ' WHERE order_status = "' . $request->get('type') . '"';
+                $filterWhereClause = ' AND order_status = "' . $request->get('type') . '"';
 
             } else {
                 if ($request->type != 'new' && $request->type != 'delivery' && $request->type != 'Refund to be processed' && $request->type != '') {
@@ -344,8 +344,9 @@ class CustomerController extends Controller
                     FROM
                         chat_messages
                     WHERE
-                        chat_messages.customer_id=customers.id
-                        ' . $filterWhereClause . '
+                        chat_messages.customer_id=customers.id AND 
+                        chat_messages.message IS NOT NULL AND 
+                        chat_messages.number IS NOT NULL
                     GROUP BY
                         chat_messages.customer_id
                 )
