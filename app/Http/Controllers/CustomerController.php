@@ -177,7 +177,7 @@ class CustomerController extends Controller
     public function getCustomersIndex(Request $request)
     {
         // Set search term
-        $term = $request->input('term');
+        $term = $request->term;
 
         // Set delivery status
         $delivery_status = [
@@ -202,7 +202,6 @@ class CustomerController extends Controller
             $searchWhereClause = " AND (customers.name LIKE '%$term%' OR customers.phone LIKE '%$term%' OR customers.instahandler LIKE '%$term%')";
             $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
         }
-
 
         $orderby = 'DESC';
 
