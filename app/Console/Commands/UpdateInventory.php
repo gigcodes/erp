@@ -37,11 +37,31 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
+        // Set empty array with SKU
+        $arrInventory = [];
+
         // Update all products in database to inventory = 0
         Product::where('id', '>', 0)->update(['stock' => 0]);
 
-        // Get all scraped products which are updated in the last 24 hours
-        $scrapedProducts = ScrapedProducts::where('last_inventory_at', '>', date('Y-m-d H:i:s', time() - (2 * 86400)))->groupBy('sku')->selectRaw('COUNT(id) AS cnt, sku')->get();
+        // Get all scraped products which are updated in the last 48 hours
+        $scrapedProducts = ScrapedProducts::where('is_excel',0)->where('last_inventory_at', '>', date('Y-m-d H:i:s', time() - (2 * 86400)))->groupBy('sku')->selectRaw('COUNT(id) AS cnt, sku')->get();
+
+        // Loop over scraped products
+        foreach ($scrapedProducts as $scrapedProduct) {
+            $arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
+        }
+
+        // Get all excel imported products which are updated in the last 14 days
+        $scrapedProducts = ScrapedProducts::where('is_excel',1)->where('last_inventory_at', '>', date('Y-m-d H:i:s', time() - (14 * 86400)))->groupBy('sku')->selectRaw('COUNT(id) AS cnt, sku')->get();
+
+        // Loop over excel imported products
+        foreach ($scrapedProducts as $scrapedProduct) {
+            if ( isset($arrInventory[$scrapedProduct->sku]) ) {
+                $arrInventory[$scrapedProduct->sku] = $arrInventory[$scrapedProduct->sku] + $scrapedProduct->cnt;
+            } else {
+                $arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
+            }
+        }
 
         foreach ($scrapedProducts as $scrapedProduct) {
             // Find product
