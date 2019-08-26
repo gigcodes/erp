@@ -346,7 +346,7 @@ class CustomerController extends Controller
                         MAX(id)
                     FROM
                         chat_messages
-                    WHERE
+                    ' . $messageWhereClause . (!empty($messageWhereClause) ? ' AND ' : '') . '
                         chat_messages.customer_id=customers.id
                     GROUP BY
                         chat_messages.customer_id
