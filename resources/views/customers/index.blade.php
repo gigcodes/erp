@@ -586,7 +586,7 @@
                     <td>
                       {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
                       {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send price">$</button> --}}
-                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                      <form class="d-inline" action="/index.php/customers" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Send images">
