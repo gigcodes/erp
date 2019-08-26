@@ -9,6 +9,11 @@
 
     RewriteEngine On
 
+    # Load non existing files from online
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_URI} \.(jpg|png|woff|ttf)$
+    RewriteRule ^(.*)$ https://erp.amourint.com/$1 [QSA,R,L]
+
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
@@ -26,6 +31,5 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
-
 
 </IfModule>

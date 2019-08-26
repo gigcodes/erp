@@ -79,6 +79,7 @@ class QuickSellController extends Controller
       }
 
       $products = $products->latest()->paginate(Setting::get('pagination'));
+
       $brands_all = Brand::all();
       $categories_all = Category::all();
       $brands = [];

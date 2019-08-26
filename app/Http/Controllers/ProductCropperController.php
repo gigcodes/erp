@@ -457,6 +457,7 @@ class ProductCropperController extends Controller
 
     public function giveAmends()
     {
+
         $amend = CropAmends::where('status', 1)->first();
 
 

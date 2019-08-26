@@ -63,8 +63,13 @@
                     </div> --}}
 
                     <div class="form-group">
-                        <input type="checkbox" id="send_type" name="to_all" checked>
+                        <input type="checkbox" id="send_type" name="to_all">
                         <label for="send_type">Send Message to All Existing Customers</label>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="checkbox" id="send_type_dev" name="to_dev" checked>
+                        <label for="send_type_dev">Send Message to dev list only</label>
                     </div>
 
                     <hr>

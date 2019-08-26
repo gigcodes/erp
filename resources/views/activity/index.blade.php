@@ -81,6 +81,35 @@
                     </tr>
                 </table>
             </div>
+            <div class="row">
+                <strong>Product stats (in stock)</strong>
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <th>Uncropped</th>
+                        <th>Crop Approval</th>
+                        <th>Crop Rejected</th>
+                        <th>On Sequencing/Approved</th>
+                        <th>Attribute Approved</th>
+                        <th>Attribute Rejected</th>
+                        <th>Magento Listed</th>
+                        <th>Total</th>
+                    </tr>
+                    <tr>
+                        <td>{{ $productStatsStock->uncropped }}</td>
+                        <td>{{ $productStatsStock->crop_approval }}</td>
+                        <td>{{ $productStatsStock->crop_rejected }}</td>
+                        <td>{{ $productStatsStock->left_for_sequencing }}</td>
+                        <td>{{ $productStatsStock->total_approvals }}</td>
+                        <td>{{ $productStatsStock->total_rejections }}</td>
+                        <td>
+                            {{ $productStatsStock->total_listed }}
+                        </td>
+                        <td>
+                            {{ $productStatsStock->crop_approval + $productStatsStock->uncropped + $productStatsStock->crop_rejected + $productStatsStock->left_for_sequencing + $productStatsStock->total_approvals + $productStatsStock->total_rejections }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
             @if ( isset($_GET['range_start']) )
                 <div class="row">
                     <strong>Product stats by date range</strong>

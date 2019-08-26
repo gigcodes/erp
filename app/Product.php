@@ -75,7 +75,7 @@ class Product extends Model
                 $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
                 $scrapStatistics->brand = $brand->name;
                 $scrapStatistics->url = $json->url;
-                $scrapStatistics->description = $json->sku;
+                $scrapStatistics->description = $sku;
                 $scrapStatistics->save();
 
                 // Set values for existing scraped product
@@ -101,7 +101,7 @@ class Product extends Model
                 $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
                 $scrapStatistics->brand = $brand->name;
                 $scrapStatistics->url = $json->url;
-                $scrapStatistics->description = $json->sku;
+                $scrapStatistics->description = $sku;
                 $scrapStatistics->save();
 
                 // Create new scraped product

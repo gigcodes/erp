@@ -293,7 +293,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'customers/{id}/sendAdvanceLink', 'CustomerController@sendAdvanceLink' )->name( 'customer.send.advanceLink' );
     Route::get( 'customers/{id}/loadMoreMessages', 'CustomerController@loadMoreMessages' );
     Route::get( 'customer/search', 'CustomerController@search' );
-    Route::get( 'customers', 'CustomerController@index' )->name( 'customer.index' );
+    Route::get( 'index.php/customers/', 'CustomerController@index' )->name( 'customer.index' );
     Route::get( 'customers-load', 'CustomerController@load' )->name( 'customer.load' );
     Route::post( 'customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup' )->name( 'customer.initiate.followup' );
     Route::post( 'customer/{id}/stopFollowup', 'CustomerController@stopFollowup' )->name( 'customer.stop.followup' );
@@ -972,4 +972,6 @@ Route::get( 'se-ranking/competitors/keyword-positions/{id}', 'SERankingControlle
 Route::group( [ 'middleware' =>  'auth', 'admin'  ], function () {
     Route::get( 'category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing' );
     Route::post( 'category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing' );
+
+    Route::get( 'log/scraper', 'Logging\LogScraperController@index' );
 } );

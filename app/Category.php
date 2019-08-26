@@ -169,4 +169,26 @@ class Category extends Model
         return array_reverse( $categoryTree );
     }
 
+    public static function getTopCategoryNameByCategoryId( $categoryId )
+    {
+        // Loop while parent id is larger than 0
+        $parentId = $categoryId;
+        while ( (int) $parentId > 0 ) {
+            // Get category
+            $category = self::where( 'id', (int) $parentId )->first();
+
+            // Return empty string if null
+            if ( $category == NULL ) {
+                return false;
+            }
+
+            // Top category?
+
+            if ( $category->parent_id > 0 ) {
+                $parentId = $category->parent_id;
+            } else {
+                return $category->title;
+            }
+        }
+    }
 }

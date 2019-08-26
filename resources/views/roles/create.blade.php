@@ -36,6 +36,17 @@
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
+                <strong>Department:</strong>
+                <select name="department_id" class="form-control">
+                  <option value="">Select Department</option>
+                  @foreach($department as $depart)
+                    <option value="{{$depart->id}}">{{$depart->name}}</option>
+                  @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
                 <strong>Permission:</strong>
                 <br/>
                 @foreach($permission as $value)
