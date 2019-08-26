@@ -177,7 +177,7 @@ class CustomerController extends Controller
     public function getCustomersIndex(Request $request)
     {
         // Set search term
-        $term = $request->input('term');
+        $term = $request->term;
 
         // Set delivery status
         $delivery_status = [
@@ -202,7 +202,6 @@ class CustomerController extends Controller
             $searchWhereClause = " AND (customers.name LIKE '%$term%' OR customers.phone LIKE '%$term%' OR customers.instahandler LIKE '%$term%')";
             $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
         }
-
 
         $orderby = 'DESC';
 
@@ -318,6 +317,7 @@ class CustomerController extends Controller
                 customers.instruction_completed_at,
                 chat_messages.*,
                 chat_messages.status AS message_status,
+                chat_messages.number,
                 orders.*,
                 order_products.*,
                 leads.*
@@ -328,6 +328,7 @@ class CustomerController extends Controller
                     SELECT
                         chat_messages.id AS message_id,
                         chat_messages.customer_id,
+                        chat_messages.number,
                         chat_messages.message,
                         chat_messages.sent AS message_type,
                         chat_messages.status,
@@ -335,6 +336,7 @@ class CustomerController extends Controller
                         chat_messages.created_at AS last_communicated_at
                     FROM
                         chat_messages
+                    ' . $messageWhereClause .'
                 ) AS chat_messages
             ON 
                 customers.id=chat_messages.customer_id AND 
@@ -343,10 +345,8 @@ class CustomerController extends Controller
                         MAX(id)
                     FROM
                         chat_messages
-                    WHERE
-                        chat_messages.customer_id=customers.id AND 
-                        chat_messages.message IS NOT NULL AND 
-                        chat_messages.number IS NOT NULL
+                    ' . $messageWhereClause . (!empty($messageWhereClause) ? ' AND ' : '') . '
+                        chat_messages.customer_id=customers.id
                     GROUP BY
                         chat_messages.customer_id
                 )
@@ -402,6 +402,10 @@ class CustomerController extends Controller
             ' . $orderByClause . '
         ';
         $customers = DB::select($sql);
+
+        echo "<!-- ";
+        echo $sql;
+        echo "-->";
 
         $oldSql = '
             SELECT
@@ -535,7 +539,6 @@ class CustomerController extends Controller
                             customers.id = chat_messages.customer_id
                     ) AS customers
                 WHERE
-                (
                     deleted_at IS NULL
                 ) AND (
                     id IS NOT NULL

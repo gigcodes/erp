@@ -799,7 +799,7 @@ class ProductController extends Controller
 												) AS remarks
 											ON products.id = remarks.taskid
 
-											WHERE is_approved = 0 AND is_listing_rejected = 0 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $stockWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+											WHERE stock>=1 AND is_approved = 0 AND is_listing_rejected = 0 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $stockWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
 											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
 											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, created_at DESC
 				';
@@ -818,7 +818,7 @@ class ProductController extends Controller
                     SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
                     ) AS remarks
                 ON products.id = remarks.taskid
-                WHERE is_approved = 0 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
+                WHERE stock>=1 AND is_approved = 0 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
                 ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, products.updated_at DESC
 				';
         }
@@ -1738,8 +1738,8 @@ class ProductController extends Controller
 
     public function showAutoRejectedProducts()
     {
-        $totalRemaining = Product::where('is_listing_rejected_automatically', 1)->count();
-        $totalDone = Product::where('was_auto_rejected', 1)->count();
+        $totalRemaining = Product::where('stock', '>=', 1)->where('is_listing_rejected_automatically', 1)->count();
+        $totalDone = Product::where('stock', '>=', 1)->where('was_auto_rejected', 1)->count();
 
         return view('products.auto_rejected_stats', compact('totalDone', 'totalRemaining'));
     }
@@ -1837,6 +1837,7 @@ class ProductController extends Controller
     public function showRejectedListedProducts(Request $request)
     {
         $products = new Product;
+        $products = $products->where('stock', '>=', 1);
         $reason = '';
         $supplier = [];
         $selected_categories = [];
@@ -1917,9 +1918,9 @@ class ProductController extends Controller
 
         $category_array = Category::renderAsArray();
 
-        $products = $products->with('log_scraper_vs_ai')->where('is_listing_rejected', 1)->orderBy('listing_rejected_on', 'DESC')->orderBy('updated_at', 'DESC')->paginate(25);
+        $products = $products->with('log_scraper_vs_ai')->where('stock', '>=', 1)->where('is_listing_rejected', 1)->orderBy('listing_rejected_on', 'DESC')->orderBy('updated_at', 'DESC')->paginate(25);
 
-        $rejectedListingSummary = DB::table('products')->selectRaw('DISTINCT(listing_remark) as remark, COUNT(listing_remark) as issue_count')->where('is_listing_rejected', 1)->groupBy('listing_remark')->orderBy('issue_count', 'DESC')->get();
+        $rejectedListingSummary = DB::table('products')->where('stock', '>=', 1)->selectRaw('DISTINCT(listing_remark) as remark, COUNT(listing_remark) as issue_count')->where('is_listing_rejected', 1)->groupBy('listing_remark')->orderBy('issue_count', 'DESC')->get();
 
         return view('products.rejected_listings', compact('products', 'reason', 'category_array', 'selected_categories', 'suppliers', 'supplier', 'request', 'users', 'rejectedListingSummary'));
     }
