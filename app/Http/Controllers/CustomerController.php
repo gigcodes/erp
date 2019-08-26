@@ -318,6 +318,7 @@ class CustomerController extends Controller
                 customers.instruction_completed_at,
                 chat_messages.*,
                 chat_messages.status AS message_status,
+                chat_messages.number,
                 orders.*,
                 order_products.*,
                 leads.*
@@ -328,6 +329,7 @@ class CustomerController extends Controller
                     SELECT
                         chat_messages.id AS message_id,
                         chat_messages.customer_id,
+                        chat_messages.number,
                         chat_messages.message,
                         chat_messages.sent AS message_type,
                         chat_messages.status,
@@ -335,6 +337,7 @@ class CustomerController extends Controller
                         chat_messages.created_at AS last_communicated_at
                     FROM
                         chat_messages
+                    ' . $messageWhereClause .'
                 ) AS chat_messages
             ON 
                 customers.id=chat_messages.customer_id AND 
@@ -344,9 +347,7 @@ class CustomerController extends Controller
                     FROM
                         chat_messages
                     WHERE
-                        chat_messages.customer_id=customers.id AND 
-                        chat_messages.message IS NOT NULL AND 
-                        chat_messages.number IS NOT NULL
+                        chat_messages.customer_id=customers.id
                     GROUP BY
                         chat_messages.customer_id
                 )
@@ -535,7 +536,6 @@ class CustomerController extends Controller
                             customers.id = chat_messages.customer_id
                     ) AS customers
                 WHERE
-                (
                     deleted_at IS NULL
                 ) AND (
                     id IS NOT NULL
