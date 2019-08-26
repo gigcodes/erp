@@ -6,6 +6,7 @@ use App\ScrapStatistics;
 use App\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use \Carbon\Carbon;
 
 class ScrapStatisticsController extends Controller
 {
@@ -122,7 +123,10 @@ class ScrapStatisticsController extends Controller
             $progressStats[$supplier->supplier] = $data->get();
         }
 
-        return view('scrap.stats', compact('scrapedExistingProducts', 'scrapedNewProducts', 'request', 'progressStats', 'progress', 'totalProgress'));
+        $start = Carbon::now()->format('Y-m-d 00:00:00');
+        $end = Carbon::now()->format('Y-m-d 23:59:00');
+
+        return view('scrap.stats', compact('scrapedExistingProducts', 'scrapedNewProducts', 'request', 'progressStats', 'progress', 'totalProgress','start','end'));
     }
 
     /**
@@ -204,5 +208,13 @@ class ScrapStatisticsController extends Controller
     public function destroy(ScrapStatistics $scrapStatistics)
     {
         //
+    }
+
+    public function assetManager()
+    {
+        $start = Carbon::now()->format('Y-m-d 00:00:00');
+        $end = Carbon::now()->format('Y-m-d 23:59:00');
+       // dd('hello');
+        return view('scrap.asset-manager'); 
     }
 }

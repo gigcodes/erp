@@ -780,6 +780,7 @@ Route::prefix( 'scrap' )->middleware( 'auth' )->group( function () {
     Route::get( '/google/images', 'ScrapController@index' );
     Route::post( '/google/images', 'ScrapController@scrapGoogleImages' );
     Route::post( '/google/images/download', 'ScrapController@downloadImages' );
+    Route::get( '/asset-manager', 'ScrapStatisticsController@assetManager' );
     Route::get( '/{name}', 'ScrapController@showProducts' );
 } );
 
