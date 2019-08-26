@@ -35,7 +35,13 @@ class Product extends Model
     protected $communication = '';
     protected $image_url = '';
 
-    public static function createProductByJson( $json )
+    /**
+     * Create new or update existing (scraped) product by JSON
+     * This is only for Excel imports at the moment
+     * @param $json
+     * @return bool|\Illuminate\Http\JsonResponse
+     */
+    public static function createProductByJson( $json, $isExcel=0 )
     {
         // Log before validating
         LogScraper::LogScrapeValidationUsingRequest($json);
@@ -106,7 +112,7 @@ class Product extends Model
 
                 // Create new scraped product
                 $scrapedProduct = new ScrapedProducts();
-                $images = $json->images ?? [];
+                $images = $isExcel == 1 && $json->images ?? [];
                 $scrapedProduct->images = $images;
                 $scrapedProduct->is_excel = 1;
                 $scrapedProduct->sku = $sku;
