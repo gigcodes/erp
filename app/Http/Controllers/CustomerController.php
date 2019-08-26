@@ -404,6 +404,10 @@ class CustomerController extends Controller
         ';
         $customers = DB::select($sql);
 
+        echo "<!-- ";
+        echo $sql;
+        echo "-->";
+
         $oldSql = '
             SELECT
               *
