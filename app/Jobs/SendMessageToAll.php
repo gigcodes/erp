@@ -32,9 +32,12 @@ class SendMessageToAll implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param int $user_id
+     * @param Customer $customer
+     * @param array $content
+     * @param int $message_queue_id
      */
-    public function __construct( int $user_id, Customer $customer, array $content, int $message_queue_id )
+    public function __construct(int $user_id, Customer $customer, array $content, int $message_queue_id)
     {
         $this->user_id = $user_id;
         $this->customer = $customer;
@@ -47,113 +50,111 @@ class SendMessageToAll implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $params = [
-            'number' => NULL,
-            'user_id' => $this->user_id,
+            'number'      => NULL,
+            'user_id'     => $this->user_id,
             'customer_id' => $this->customer->id,
-            'approved' => 0,
-            'status' => 8, // status for Broadcast messages
+            'approved'    => 0,
+            'status'      => 8, // status for Broadcast messages
         ];
 
-        if ( is_numeric( $this->customer->phone ) ) {
+        if (is_numeric($this->customer->phone)) {
             $send_number = $this->customer->whatsapp_number ?? NULL;
 
-            if ( array_key_exists( 'linked_images', $this->content ) ) {
-                $chat_message = ChatMessage::create( $params );
+            if (array_key_exists('linked_images', $this->content)) {
+                $chat_message = ChatMessage::create($params);
 
-                foreach ( $this->content[ 'linked_images' ] as $image ) {
+                foreach ($this->content['linked_images'] as $image) {
 
-                    if ( is_array( $image ) ) {
-                        $image_key = $image[ 'key' ];
+                    if (is_array($image)) {
+                        $image_key = $image['key'];
                         $mediable_type = "BroadcastImage";
 
-                        $broadcast = BroadcastImage::with( 'Media' )
-                            ->whereRaw( "broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')" )
+                        $broadcast = BroadcastImage::with('Media')
+                            ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
                             ->first();
 
-                        $product_ids = json_decode( $broadcast->products, true );
+                        $product_ids = json_decode($broadcast->products, true);
                     } else {
-                        $broadcast_image = BroadcastImage::find( $image );
+                        $broadcast_image = BroadcastImage::find($image);
                         // dump($broadcast_image);
-                        $product_ids = json_decode( $broadcast_image->products, true );
+                        $product_ids = json_decode($broadcast_image->products, true);
                     }
+
 
 
                     // $product_img = $product_image->getMedia(config('constanst.media_tags'))->first();
                     // $chat_message->attachMedia($product_img, config('constants.media_tags'));
-                    if ( is_array( $product_ids ) && count( $product_ids ) > 0 ) {
-                        foreach ( $product_ids as $product_id ) {
-                            $product = Product::find( $product_id );
 
-                            if ( $product->hasMedia( config( 'constants.media_tags' ) ) ) {
-                                $chat_message->attachMedia( $product->getMedia( config( 'constants.media_tags' ) )->first()->getKey(), config( 'constants.media_tags' ) );
-                            }
+                    foreach ($product_ids as $product_id) {
+                        $product = Product::find($product_id);
+
+                        if ($product->hasMedia(config('constants.media_tags'))) {
+                            $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first()->getKey(), config('constants.media_tags'));
                         }
                     }
                 }
             }
 
-            if ( $this->content[ 'message' ] ) {
-                $params[ 'message' ] = $this->content[ 'message' ];
-                $message = $this->content[ 'message' ];
+            if ($this->content['message']) {
+                $params['message'] = $this->content['message'];
+                $message = $this->content['message'];
 
-                $chat_message = ChatMessage::create( $params );
+                $chat_message = ChatMessage::create($params);
 
                 try {
                     // if ($send_number == '919152731483') {
-                    dump( 'sending message with NEW API' );
+                    dump('sending message with NEW API');
 //              app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, $message, NULL, $chat_message->id);
                     // } else {
                     //   dump('sending message with 06');
 //               app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, $message, false, $chat_message->id);
-                    app( WhatsAppController::class )->sendWithThirdApi( $this->customer->phone, $send_number, $message, false, $chat_message->id );
+                    app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $send_number, $message, false, $chat_message->id);
                     // }
-                } catch ( \Exception $e ) {
-                    // DO NOTHING TO AVOID DUPLICATE MESSAGES
+                } catch (\Exception $e) {
+
                 }
             }
 
-            if ( array_key_exists( 'linked_images', $this->content ) ) {
-                $chat_message = ChatMessage::create( $params );
+            if (array_key_exists('linked_images', $this->content)) {
+                $chat_message = ChatMessage::create($params);
 
-                foreach ( $this->content[ 'linked_images' ] as $image ) {
-                    if ( is_array( $image ) ) {
-                        $chat_message->attachMedia( $image[ 'key' ], config( 'constants.media_tags' ) );
+                foreach ($this->content['linked_images'] as $image) {
+                    if (is_array($image)) {
+                        $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
                         try {
                             // if ($send_number == '919152731483') {
-                            dump( 'sending linked images with NEW API' );
+                            dump('sending linked images with NEW API');
 //                  app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
                             // } else {
                             //   dump('sending linked images with 06');
 //                   app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
-                            app( WhatsAppController::class )->sendWithThirdApi( $this->customer->phone, $send_number, NULL, str_replace( ' ', '%20', $image[ 'url' ] ), $chat_message->id );
+                            app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $send_number, NULL,  str_replace(' ', '%20', $image['url']), $chat_message->id);
                             // }
-                        } catch ( \Exception $e ) {
-                            // Message will be sent again in the next queue
-                            return false;
+                        } catch (\Exception $e) {
+
                         }
                     } else {
-                        $broadcast_image = BroadcastImage::find( $image );
+                        $broadcast_image = BroadcastImage::find($image);
 
-                        if ( $broadcast_image->hasMedia( config( 'constants.media_tags' ) ) ) {
-                            foreach ( $broadcast_image->getMedia( config( 'constants.media_tags' ) ) as $brod_image ) {
-                                $chat_message->attachMedia( $brod_image, config( 'constants.media_tags' ) );
+                        if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
+                            foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $brod_image) {
+                                $chat_message->attachMedia($brod_image, config('constants.media_tags'));
 
                                 try {
                                     // if ($send_number == '919152731483') {
-                                    dump( 'sending images with NEW API' );
+                                    dump('sending images with NEW API');
 //                      app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $brod_image->getUrl()), $chat_message->id);
                                     // } else {
                                     //   dump('sending images with 06');
 //                       app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $brod_image->getUrl()), false, $chat_message->id);
-                                    app( WhatsAppController::class )->sendWithThirdApi( $this->customer->phone, $send_number, NULL, str_replace( ' ', '%20', $brod_image->getUrl() ), $chat_message->id );
+                                    app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $brod_image->getUrl()), $chat_message->id);
                                     // }
-                                } catch ( \Exception $e ) {
-                                    // Message will be sent again in the next queue
-                                    return false;
+                                } catch (\Exception $e) {
+
                                 }
                             }
                         }
@@ -163,45 +164,42 @@ class SendMessageToAll implements ShouldQueue
                 }
             }
 
-            if ( isset( $this->content[ 'image' ] ) ) {
-                if ( !isset( $chat_message ) ) {
-                    $chat_message = ChatMessage::create( $params );
+            if (isset($this->content['image'])) {
+                if (!isset($chat_message)) {
+                    $chat_message = ChatMessage::create($params);
                 }
 
-                foreach ( $this->content[ 'image' ] as $image ) {
-                    $chat_message->attachMedia( $image[ 'key' ], config( 'constants.media_tags' ) );
+                foreach ($this->content['image'] as $image) {
+                    $chat_message->attachMedia($image['key'], config('constants.media_tags'));
 
                     try {
                         // if ($send_number == '919152731483') {
-                        dump( 'sending simple images with NEW API' );
+                        dump('sending simple images with NEW API');
 //                app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
                         // } else {
                         //   dump('sending simple images with 06');
 //                 app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->customer->phone, $send_number, str_replace(' ', '%20', $image['url']), false, $chat_message->id);
 //                 app(WhatsAppController::class)->sendWithWhatsApp($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
-                        app( WhatsAppController::class )->sendWithThirdApi( $this->customer->phone, $send_number, NULL, str_replace( ' ', '%20', $image[ 'url' ] ), $chat_message->id );
+                        app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $send_number, NULL, str_replace(' ', '%20', $image['url']), $chat_message->id);
 
 
                         // }
-                    } catch ( \Exception $e ) {
-                        // DO NOTHING TO AVOID DUPLICATE MESSAGES
+                    } catch (\Exception $e) {
+
                     }
                 }
             }
 
-            // Debug logging
-            \Log::channel('whatsapp')->debug( "(file " . __FILE__ . " line " . __LINE__ . ") Messages sent to " . $this->customer->phone );
+            $chat_message->update([
+                'approved'  => 1
+            ]);
 
-            $chat_message->update( [
-                'approved' => 1
-            ] );
-
-            $message_queue = MessageQueue::find( $this->message_queue_id );
+            $message_queue = MessageQueue::find($this->message_queue_id);
             $message_queue->chat_message_id = $chat_message->id;
             $message_queue->sent = 1;
             $message_queue->save();
         } else {
-            MessageQueue::where( 'customer_id', $this->customer->id )->delete();
+            MessageQueue::where('customer_id', $this->customer->id)->delete();
         }
     }
 }
