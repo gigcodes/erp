@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use App\Department;
 use DB;
 
 
@@ -52,8 +51,7 @@ class RoleController extends Controller
 	public function create()
 	{
 		$permission = Permission::get();
-		$department = Department::get();
-		return view('roles.create',compact('permission', 'department'));
+		return view('roles.create',compact('permission'));
 	}
 
 
@@ -67,12 +65,11 @@ class RoleController extends Controller
 	{
 		$this->validate($request, [
 			'name' => 'required|unique:roles,name',
-			'department_id' => 'required',
 			'permission' => 'required',
 		]);
 
 
-		$role = Role::create(['name' => $request->input('name'),'department_id' => $request->input('department_id')]);
+		$role = Role::create(['name' => $request->input('name')]);
 		$role->syncPermissions($request->input('permission'));
 
 
@@ -107,13 +104,12 @@ class RoleController extends Controller
 	{
 		$role = Role::find($id);
 		$permission = Permission::get();
-		$department = Department::get();
 		$rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)
 		                     ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
 		                     ->all();
 
 
-		return view('roles.edit',compact('role','department','permission','rolePermissions'));
+		return view('roles.edit',compact('role','permission','rolePermissions'));
 	}
 
 
@@ -128,14 +124,12 @@ class RoleController extends Controller
 	{
 		$this->validate($request, [
 			'name' => 'required',
-			'department_id' => 'required',
 			'permission' => 'required',
 		]);
 
 
 		$role = Role::find($id);
 		$role->name = $request->input('name');
-		$role->department_id = $request->input('department_id');
 		$role->save();
 
 

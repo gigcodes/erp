@@ -16,7 +16,6 @@ use App\Task;
 use App\Product;
 use App\Customer;
 use App\UserProduct;
-use App\Department;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -69,9 +68,8 @@ class UserController extends Controller
 	{
 		$roles = Role::pluck('name','name')->all();
 		$users = User::all();
-		$department = Department::get();
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-		return view('users.create',compact('department','roles', 'users' , 'agent_roles'));
+		return view('users.create',compact('roles', 'users' , 'agent_roles'));
 	}
 
 
@@ -89,7 +87,6 @@ class UserController extends Controller
 			'phone' => 'sometimes|nullable|integer|unique:users,phone',
 			'password' => 'required|same:confirm-password',
 			'roles' => 'required',
-			'department_id' => 'required',
 
 		]);
 
@@ -165,19 +162,14 @@ class UserController extends Controller
 		$user = User::find($id);
 		$roles = Role::pluck('name','name')->all();
 		$users = User::all();
-		$department = Department::get();
 		$userRole = $user->roles->pluck('name','name')->all();
-
-		//print_r($userRole); exit;
-		$arr = array_values($userRole);
-		$userRole = $arr[0];
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-    	$user_agent_roles = explode(',', $user->agent_role);
+    $user_agent_roles = explode(',', $user->agent_role);
 		$api_keys = ApiKey::select('number')->get();
 		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
 
-		return view('users.edit',compact('user', 'users', 'department', 'roles','userRole' , 'agent_roles' ,'user_agent_roles', 'api_keys', 'customers_all'));
+		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles', 'api_keys', 'customers_all'));
 	}
 
 
@@ -196,7 +188,6 @@ class UserController extends Controller
 			'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
 			'password' => 'same:confirm-password',
 			'roles' => 'required',
-			'department_id' => 'required',
 
 		]);
 
@@ -236,7 +227,7 @@ class UserController extends Controller
 
 		DB::table('model_has_roles')->where('model_id',$id)->delete();
 
-		$user->assignRole(array($request->input('roles')));
+		$user->assignRole($request->input('roles'));
 
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
@@ -396,12 +387,5 @@ class UserController extends Controller
 		}
 
 		Log::info(Carbon::now() . " end of checking users logins");
-	}
-
-	// getting remarks
-	public function getroles($id)
-	{
-			$results = DB::select('select id, name from roles where department_id = :department_id', ['department_id' => $id]);
-			return $results;
 	}
 }

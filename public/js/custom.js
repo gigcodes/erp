@@ -628,39 +628,3 @@ function copyTextToClipboard(text) {
     }
     document.body.removeChild(textArea);
 }
-
-
-function getRoles(id, sel)
-{
-        jQuery.ajax({
-           
-            type:'GET',
-           // data:{id: id},
-            url:'/user/getroles/'+id,
-            success: function (data) {
-
-              $('#roles').empty();
-              $('#roles').append('<option value="">Select Role</option>');
-
-              data.forEach(function(entry){
-                if(sel != '')
-                {
-                  if(sel == entry.name)
-                  {
-                    $('#roles').append('<option value="' + entry.id+ '" selected="selected" >' + entry.name + '</option>');
-                  }
-                  else
-                  {
-                    $('#roles').append('<option value="' + entry.id+ '" >' + entry.name + '</option>');
-                  }
-                  
-                }
-                else
-                {
-                  $('#roles').append('<option value="' + entry.id+ '">' + entry.name + '</option>');
-                }
-              });
-              //$("#department_id").val(data);
-            }
-        });
- }

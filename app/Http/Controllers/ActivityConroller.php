@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 
 class ActivityConroller extends Controller
 {
+
+
     private $dataLabelDay = [
         "12:00 am",
         "1:00 am",
@@ -139,22 +141,13 @@ class ActivityConroller extends Controller
             ->where( 'is_crop_being_verified', 0 )
             ->whereDoesntHave( 'amends' )->count();
 
-        $productStats = DB::table('products')->selectRaw('
-            (SELECT COUNT(*) FROM products p WHERE is_image_processed = 0 AND is_scraped = 1) as uncropped, 
-            (SELECT COUNT(*) FROM products WHERE is_crop_approved = 1 AND is_crop_ordered = 0) as left_for_sequencing ,
-            SUM(is_approved) as total_approvals, 
-            SUM(is_listing_rejected) as total_rejections, 
-            SUM(is_crop_rejected) as crop_rejected, 
-            SUM(isListed) as total_listed,
-            ' . $ca . ' AS crop_approval')->first();
-
-        $productStatsStock = DB::table( 'products' )->selectRaw( '(SELECT COUNT(*) FROM products p WHERE is_image_processed = 0 AND is_scraped = 1) as uncropped, 
+        $productStats = DB::table( 'products' )->selectRaw( '(SELECT COUNT(*) FROM products p WHERE is_image_processed = 0 AND is_scraped = 1) as uncropped, 
         (SELECT COUNT(*) FROM products WHERE is_crop_approved = 1 AND is_crop_ordered = 0) as left_for_sequencing ,
         SUM(is_approved) as total_approvals, 
         SUM(is_listing_rejected) as total_rejections, 
         SUM(is_crop_rejected) as crop_rejected, 
         SUM(isListed) as total_listed,
-        ' . $ca . ' AS crop_approval' )->where('stock', '>', 0)->first();
+        ' . $ca . ' AS crop_approval' )->first();
 
         $productStatsDateRange = DB::table( 'products' )->whereBetween( 'created_at', [ $range_start . ' 00:00', $range_end . ' 23:59' ] )->selectRaw( '(SELECT COUNT(*) FROM products p WHERE is_image_processed = 0 AND is_scraped = 1) as uncropped, 
         (SELECT COUNT(*) FROM products WHERE is_crop_approved = 1 AND is_crop_ordered = 0) as left_for_sequencing ,
@@ -205,7 +198,7 @@ class ActivityConroller extends Controller
         $cropCountPerMinute = Product::whereRaw( 'TIMESTAMPDIFF(DAY, cropped_at, NOW()) IN (0,1)' )->count();
         $cropCountPerMinute = round($cropCountPerMinute / 1440, 4);
 
-        return view( 'activity.index', compact( 'aiActivity', 'userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity', 'scrapCount', 'inventoryCount', 'rejectedListingsCount', 'productStats', 'productStatsStock', 'productStatsDateRange', 'cropCountPerMinute' ) );
+        return view( 'activity.index', compact( 'aiActivity', 'userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity', 'scrapCount', 'inventoryCount', 'rejectedListingsCount', 'productStats', 'productStatsDateRange', 'cropCountPerMinute' ) );
     }
 
     public function showGraph( Request $request )

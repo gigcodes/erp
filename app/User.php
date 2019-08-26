@@ -23,7 +23,7 @@ class User extends Authenticatable
 	 * @var array
 	 */
 	protected $fillable = [
-		'name', 'email', 'phone', 'password', 'responsible_user', 'agent_role', 'whatsapp_number', 'amount_assigned', 'auth_token_hubstaff', 'department_id'
+		'name', 'email', 'phone', 'password', 'responsible_user', 'agent_role', 'whatsapp_number', 'amount_assigned', 'auth_token_hubstaff'
 	];
 
     public function getIsAdminAttribute()

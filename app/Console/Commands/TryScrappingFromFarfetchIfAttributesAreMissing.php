@@ -44,6 +44,7 @@ class TryScrappingFromFarfetchIfAttributesAreMissing extends Command
         $data = $c->filter('._659731 div p._87b3a2')->getInnerHtml();
 
         dd($data);
+
     }
 
     public function getDetailsFromFarfetch($url) {

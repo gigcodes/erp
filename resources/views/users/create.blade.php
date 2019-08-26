@@ -86,19 +86,8 @@
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
-                <strong>Department:</strong>
-                <select name="department_id" id="department_id" onclick="return getRoles(this.value, '');" class="form-control">
-                  <option value="">Select Department</option>
-                  @foreach($department as $depart)
-                    <option value="{{$depart->id}}">{{$depart->name}}</option>
-                  @endforeach
-                </select>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
                 <strong>Role:</strong>
-                {!! Form::select('roles', [],[], array('class' => 'form-control','placeholder' => 'Select Role','id' => 'roles')) !!}
+                {!! Form::select('roles[]', $roles,[], array('class' => 'form-control','multiple')) !!}
             </div>
         </div>
              <div class="col-xs-12 col-sm-12 col-md-12">

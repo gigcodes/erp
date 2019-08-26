@@ -62,7 +62,7 @@ class SetFormattedPricingForScrapedProducts extends Command
                         $scrapedProduct->save();
                     }
                 } else {
-                    dump( "Unable to detect currency and/or price for supplier " . $scrapedProduct->website . ": " . $scrapedProduct->price );
+                    dump( "Unable to detect currency and/or price: " . $scrapedProduct->price );
                     $scrapedProduct->price_eur = 0;
                     $scrapedProduct->save();
 

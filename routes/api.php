@@ -20,9 +20,6 @@ use Illuminate\Http\Request;
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 
-Route::get('crop/amends', 'ProductCropperController@giveAmends');
-Route::post('crop/amends', 'ProductCropperController@saveAmends');
-
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
 Route::post('sync-product', 'ScrapController@syncGnbProducts');
@@ -37,6 +34,9 @@ Route::get('crop', 'ProductController@giveImage');
 Route::post('link/image-crop', 'ProductController@saveImage');
 Route::post('instagram/create', 'AccountController@createAccount');
 Route::resource('stat', 'ScrapStatisticsController');
+
+Route::get('crop/amends', 'ProductCropperController@giveAmends');
+Route::post('crop/amends', 'ProductCropperController@saveAmends');
 
 Route::get('products/auto-rejected', 'ScrapController@getAutoRejectedProducts');
 Route::post('products/auto-rejected', 'ScrapController@saveAutoRejectedProducts');
