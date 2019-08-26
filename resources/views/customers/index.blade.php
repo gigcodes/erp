@@ -118,7 +118,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Customers List ({{ count(json_decode($customer_ids_list)) }})</h2>
             <div class="container">
-              <form action="/customers/" method="GET" class="form-inline">
+              <form action="/index.php/customers" method="GET" class="form-inline">
                 <input name="term" type="text" class="form-control"
                        value="{{ isset($term) ? $term : '' }}"
                        placeholder="Search" id="customer-search">
@@ -586,7 +586,7 @@
                     <td>
                       {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
                       {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send price">$</button> --}}
-                      <form class="d-inline" action="/index.php/customers" method="POST">
+                      <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="instruction" value="Send images">
