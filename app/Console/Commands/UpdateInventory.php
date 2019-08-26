@@ -57,19 +57,19 @@ class UpdateInventory extends Command
         // Loop over excel imported products
         foreach ($scrapedProducts as $scrapedProduct) {
             if ( isset($arrInventory[$scrapedProduct->sku]) ) {
-                $arrInventory[$scrapedProduct->sku] = $arrInventory[$scrapedProduct->sku] + $scrapedProduct->cnt;
+                $arrInventory[$scrapedProduct->sku] = $arrInventory[$scrapedProduct->cnt] + $scrapedProduct->cnt;
             } else {
                 $arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
             }
         }
 
-        foreach ($scrapedProducts as $scrapedProduct) {
+        foreach ($arrInventory as $sku=>$cnt) {
             // Find product
-            $product = Product::where('sku', $scrapedProduct->sku)->first();
+            $product = Product::where('sku', $sku)->first();
 
             // If product exists
             if ( $product !== NULL ) {
-                $product->stock = $scrapedProduct->cnt;
+                $product->stock = $cnt;
                 $product->save();
             }
         }
