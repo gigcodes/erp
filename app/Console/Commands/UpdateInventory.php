@@ -57,7 +57,7 @@ class UpdateInventory extends Command
         // Loop over excel imported products
         foreach ($scrapedProducts as $scrapedProduct) {
             if ( isset($arrInventory[$scrapedProduct->sku]) ) {
-                $arrInventory[$scrapedProduct->sku] = $arrInventory[$scrapedProduct->cnt] + $scrapedProduct->cnt;
+                $arrInventory[$scrapedProduct->sku] = $arrInventory[$scrapedProduct->sku] + $scrapedProduct->cnt;
             } else {
                 $arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
             }
