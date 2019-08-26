@@ -14,9 +14,7 @@
             <h2 class="page-heading">
               Broadcast Messages
 
-              @if ($cron_job->last_status == 'error')
-                <span class="badge" data-toggle="tooltip" title="Pending messages {{ $pending_messages_count }}">Cron Job Error</span>
-              @endif
+             
             </h2>
 
             {{-- <div class="row mb-3">
