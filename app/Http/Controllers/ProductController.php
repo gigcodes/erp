@@ -1593,6 +1593,7 @@ class ProductController extends Controller
 //	    $allShoes[] = 41;
 
         $product = Product::where('is_image_processed', 0)
+            ->where('stock', '>=', 1)
             ->where('is_being_cropped', 0)
             ->where('is_without_image', 0)
             ->where('is_crop_skipped', 0)
