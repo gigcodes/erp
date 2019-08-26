@@ -92,7 +92,11 @@ class Customer extends Model
 	}
 
 	public function messageHistory($count = 3) {
-        return $this->hasMany(ChatMessage::class, 'customer_id')->whereNotIn('status', ['7', '8', '9'])->take($count)->latest();
+        return $this->hasMany(ChatMessage::class, 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->take($count)->latest();
+    }
+
+    public function bulkMessagesKeywords() {
+      return $this->belongsToMany(BulkCustomerRepliesKeyword::class, 'bulk_customer_replies_keyword_customer', 'customer_id', 'keyword_id');
     }
 
     public function latestMessage() {

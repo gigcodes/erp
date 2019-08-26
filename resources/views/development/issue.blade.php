@@ -41,7 +41,7 @@
         <div class="col-md-12">
             <form action="{{ action('DevelopmentController@issueIndex') }}" method="get">
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <select class="form-control" name="submitted_by" id="submitted_by">
                             <option value="">Submitted by</option>
                             @foreach($users as $id=>$user)
@@ -49,7 +49,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <select class="form-control" name="responsible_user" id="responsible_user">
                             <option value="">Responsible User...</option>
                             @foreach($users as $id=>$user)
@@ -57,7 +57,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <select class="form-control" name="corrected_by" id="corrected_by">
                             <option value="">Correction by</option>
                             @foreach($users as $id=>$user)
@@ -65,10 +65,18 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-md-1">
+                        <select name="module" id="module_id" class="form-control">
+                            <option value="">Module</option>
+                            @foreach($modules as $module)
+                                <option {{ $request->get('module') == $module->id ? 'selected' : '' }} value="{{ $module->id }}">{{ $module->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-md-2">
                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <select name="order" id="order_query" class="form-control">
                             <option value="">Order by priority</option>
                             <option value="create">Order by date</option>

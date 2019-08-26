@@ -10,8 +10,10 @@ use App\Console\Commands\FlagCustomersIfTheyHaveAComplaint;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
+use App\Console\Commands\GetMostUsedWordsInCustomerMessages;
 use App\Console\Commands\GrowInstagramAccounts;
 use App\Console\Commands\MakeApprovedImagesSchedule;
+use App\Console\Commands\MakeKeywordAndCustomersIndex;
 use App\Console\Commands\PostScheduledMedia;
 use App\Console\Commands\CheckLogins;
 use App\Console\Commands\AutoInterestMessage;
@@ -127,7 +129,9 @@ class Kernel extends ConsoleKernel
         SendAutoReplyToCustomers::class,
         FixCategoryNameBySupplier::class,
         ImportCustomersEmail::class,
-        FlagCustomersIfTheyHaveAComplaint::class
+        FlagCustomersIfTheyHaveAComplaint::class,
+        MakeKeywordAndCustomersIndex::class,
+        GetMostUsedWordsInCustomerMessages::class
 
     ];
 
@@ -139,6 +143,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        //This command will set the count of the words used...
+        $schedule->command('bulk-customer-message:get-most-used-keywords')->daily();
+
+        //This will run every  five minutes checking and making keyword-customer relationship...
+        $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
+
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
 

@@ -44,7 +44,7 @@
                 <div class="mt-2">
                     <strong>Auto Generated</strong><br>
                     @foreach($autoKeywords as $keyword)
-                        <span class="label label-default">{{$keyword->value}}({{$keyword->count}})</span>
+                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; margin-bottom: 2px; display:inline-block;" class="label label-default">{{$keyword->value}}({{$keyword->count}})</a>
                     @endforeach
                 </div>
             </div>
@@ -54,15 +54,17 @@
         @if($searchedKeyword)
             @if($searchedKeyword->customers)
                 <form action="{{ action('BulkCustomerRepliesController@sendMessagesByKeyword') }}" method="post">
+                    @csrf
                     <table class="table table-striped table-bordered">
                         <tr>
-                            <td>Pick?</td>
-                            <td>S.N</td>
-                            <td>Customer</td>
-                            <td>Recent Messages</td>
+                            <th>Pick?</th>
+                            <th>S.N</th>
+                            <th>Customer</th>
+                            <th>Other Keywords</th>
+                            <th>Recent Messages</th>
                         </tr>
                         <tr>
-                            <td colspan="4">
+                            <td colspan="5">
                                 <div class="row">
                                     <div class="col-md-11">
                                         <textarea name="message" id="message" rows="1" class="form-control" placeholder="Common message.."></textarea>
@@ -78,6 +80,15 @@
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}"></td>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $customer->name }}</td>
+                                <td>
+                                    @if($customer->bulkMessagesKeywords)
+                                        @foreach($customer->bulkMessagesKeywords as $keyword)
+                                            <li>{{ $keyword->value }}</li>
+                                        @endforeach
+                                    @else
+                                        <strong>N/A</strong>
+                                    @endif
+                                </td>
                                 <td>
                                     @foreach($customer->messageHistory as $message)
                                         <li>{{ $message->message }}</li>

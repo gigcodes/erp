@@ -7,6 +7,7 @@ use App\DeveloperTask;
 use App\Issue;
 use App\Lawyer;
 use App\LegalCase;
+use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Bugsnag\PsrLogger\BugsnagLogger;
 use Dompdf\Dompdf;
@@ -142,6 +143,11 @@ class WhatsAppController extends FindByNumberController
 
                 $params = $this->modifyParamsWithMessage($params, $data);
                 $message = ChatMessage::create($params);
+
+                if ($params['message']) {
+                    (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
+                }
+
                 $model_type = 'customers';
                 $model_id = $customer->id;
                 $customer->update([
@@ -638,6 +644,11 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'customer_id' ] = $customer->id;
 
                 $message = ChatMessage::create($params);
+
+                if ($params['message']) {
+                    (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
+                }
+
                 $model_type = 'customers';
                 $model_id = $customer->id;
                 $customer->update([
@@ -948,11 +959,6 @@ class WhatsAppController extends FindByNumberController
         return response("success", 200);
     }
 
-    public function sendMessageToRespectiveUserIfIsRelatedVendor($data)
-    {
-
-    }
-
     public function webhook(Request $request, GuzzleClient $client)
     {
         $data = $request->json()->all();
@@ -1239,7 +1245,11 @@ class WhatsAppController extends FindByNumberController
             $params[ 'dubbizle_id' ] = null;
             $params[ 'customer_id' ] = $customer->id;
 
-            $message = ChatMessage::create($params);
+            $message = ChatMessage::create();
+
+            if ($params['message']) {
+                (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
+            }
 
             if ($contentType === 'image') {
                 $message->message = '';
@@ -1757,7 +1767,10 @@ class WhatsAppController extends FindByNumberController
     /**
      * Send message
      *
+     * @param Request $request
+     * @param $context
      * @return \Illuminate\Http\Response
+     * @throws \Plank\Mediable\Exceptions\MediaUrlException
      */
     public function sendMessage(Request $request, $context)
     {

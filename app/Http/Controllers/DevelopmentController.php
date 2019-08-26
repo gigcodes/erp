@@ -169,6 +169,10 @@ class DevelopmentController extends Controller
             $issues = $issues->where( 'user_id', $request->get( 'corrected_by' ) );
         }
 
+        if ($request->get('module')) {
+            $issues = $issues->where('module', $request->get('module'));
+        }
+
         if ( $request->get( 'subject' ) != '' ) {
             $issues = $issues->where( function ( $query ) use ( $request ) {
                 $subject = $request->get( 'subject' );
@@ -195,7 +199,7 @@ class DevelopmentController extends Controller
             'issues' => $issues,
             'users' => $users,
             'modules' => $modules,
-            'request' => $request
+            'request' => $request,
         ] );
     }
 
