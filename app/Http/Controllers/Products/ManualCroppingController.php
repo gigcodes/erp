@@ -23,6 +23,7 @@ class ManualCroppingController extends Controller
     public function index()
     {
         $products = Product::where('manual_crop', 1)
+            ->where('stock', '>=', 1)
             ->where('is_crop_approved', 0)
             ->where('is_manual_cropped', 0)
             ->whereIn('id', DB::table('user_manual_crop')->where('user_id', Auth::id())->pluck('product_id')->toArray())
