@@ -44,7 +44,7 @@
                 <div class="mt-2">
                     <strong>Auto Generated</strong><br>
                     @foreach($autoKeywords as $keyword)
-                        <span class="label label-default">{{$keyword->value}}({{$keyword->count}})</span>
+                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; margin-bottom: 2px; display:inline-block;" class="label label-default">{{$keyword->value}}({{$keyword->count}})</a>
                     @endforeach
                 </div>
             </div>

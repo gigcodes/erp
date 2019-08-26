@@ -17,7 +17,16 @@ class BulkCustomerRepliesController extends Controller
     public function index(Request $request)
     {
         $keywords = BulkCustomerRepliesKeyword::where('is_manual', 1)->get();
-        $autoKeywords = BulkCustomerRepliesKeyword::where('count', '>', 10)->get();
+        $autoKeywords = BulkCustomerRepliesKeyword::where('count', '>', 10)
+            ->whereNotIn('value', [
+                'test', 'have', 'sent', 'the', 'please', 'pls', 'through', 'using', 'solo', 'that',
+                'comes', 'message', 'sending', 'Yogesh', 'Greetings', 'this', 'numbers', 'maam', 'from',
+                'changed', 'them', 'with' , '0008000401700', 'WhatsApp', 'send', 'Auto', 'based', 'suggestion',
+                'Will', 'your', 'number', 'number,', 'messages', 'also', 'meanwhile'
+            ])
+            ->take(25)
+            ->orderBy('count', 'DESC')
+            ->get();
 
         $searchedKeyword = null;
 
@@ -69,6 +78,7 @@ class BulkCustomerRepliesController extends Controller
                 'status' => 1
             ]);
             app(WhatsAppController::class)->sendWithThirdApi($myRequest, 'customer');
+            DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->delete();
         }
 
         return redirect()->back()->with('message', 'Messages sent successfully!');
