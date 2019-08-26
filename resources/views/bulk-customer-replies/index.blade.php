@@ -54,6 +54,7 @@
         @if($searchedKeyword)
             @if($searchedKeyword->customers)
                 <form action="{{ action('BulkCustomerRepliesController@sendMessagesByKeyword') }}" method="post">
+                    @csrf
                     <table class="table table-striped table-bordered">
                         <tr>
                             <td>Pick?</td>

@@ -24,7 +24,7 @@ class BulkCustomerRepliesController extends Controller
         if ($request->get('keyword_filter')) {
             $keyword = $request->get('keyword_filter');
 
-            $searchedKeyword = BulkCustomerRepliesKeyword::where('value', $keyword)->with(['customers', 'customers.messageHistory'])->first();
+            $searchedKeyword = BulkCustomerRepliesKeyword::where('value', $keyword)->first();
 
         }
 
@@ -54,7 +54,24 @@ class BulkCustomerRepliesController extends Controller
         return redirect()->back()->with('message', title_case($type) . ' added successfully!');
     }
 
-    public function sendMessagesByKeyword() {
+    public function sendMessagesByKeyword(Request $request) {
+        $this->validate($request, [
+            'message' => 'required',
+            'customers' => 'required'
+        ]);
+
+        foreach ($request->get('customers') as $customer) {
+            $myRequest = new Request();
+            $myRequest->setMethod('POST');
+            $myRequest->request->add([
+                'message' => $request->get('message'),
+                'customer_id' => $customer,
+                'status' => 1
+            ]);
+            app(WhatsAppController::class)->sendWithThirdApi($myRequest, 'customer');
+        }
+
+        return redirect()->back()->with('message', 'Messages sent successfully!');
 
     }
 

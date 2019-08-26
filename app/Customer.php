@@ -92,7 +92,7 @@ class Customer extends Model
 	}
 
 	public function messageHistory($count = 3) {
-        return $this->hasMany(ChatMessage::class, 'customer_id')->whereNotIn('status', ['7', '8', '9'])->take($count)->latest();
+        return $this->hasMany(ChatMessage::class, 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->take($count)->latest();
     }
 
     public function latestMessage() {

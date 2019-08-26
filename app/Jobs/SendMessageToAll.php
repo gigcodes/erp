@@ -91,7 +91,7 @@ class SendMessageToAll implements ShouldQueue
                     foreach ($product_ids as $product_id) {
                         $product = Product::find($product_id);
 
-                        if ($product->hasMedia(config('constants.media_tags'))) {
+                        if ($product && $product->hasMedia(config('constants.media_tags'))) {
                             $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first()->getKey(), config('constants.media_tags'));
                         }
                     }
