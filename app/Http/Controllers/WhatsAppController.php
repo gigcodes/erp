@@ -995,7 +995,7 @@ class WhatsAppController extends FindByNumberController
         $debug.= "contact: $contact\n";
         $debug.= "customer: $customer\n";
 
-        file_put_contents(__DIR__ . '/test_debug.txt', FILE_APPEND);
+        file_put_contents(__DIR__ . '/test_debug.txt', $debug, FILE_APPEND);
 
         $params = [
             'number' => $from,
