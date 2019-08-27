@@ -240,6 +240,9 @@ class Product extends Model
                         ]);
                     }
                 }
+
+                // Return true
+                return true;
             }
         }
 
