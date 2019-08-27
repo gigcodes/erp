@@ -3,9 +3,11 @@
 namespace App\Console\Commands;
 
 use App\ChatMessage;
+use App\Http\Controllers\WhatsAppController;
 use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SendReminderToSupplierIfTheyHaventReplied extends Command
@@ -57,6 +59,7 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
 
         foreach ($messagesIds as $messagesId) {
             $supplier = Supplier::find($messagesId->supplier_id);
+
             if (!$supplier) {
                 continue;
             }
@@ -81,13 +84,30 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
 
             $templateMessage = $supplier->reminder_message;
 
-            $data['supplier_id'] = $supplier->id;
-            $data['message'] = $templateMessage;
-            $data['approved'] = 0;
-            $data['user_id'] = 6;
-            $data['status'] = 1;
-            ChatMessage::create($data);
+            $this->sendMessage($supplier->id, $templateMessage);
         }
 
+    }
+
+    private function sendMessage($supplier, $message): void
+    {
+
+        $params = [
+            'number' => null,
+            'user_id' => 6,
+            'approved' => 1,
+            'status' => 1,
+            'supplier_id' => $supplier,
+            'message' => $message
+        ];
+
+
+        $chat_message = ChatMessage::create($params);
+
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        app(WhatsAppController::class)->approveMessage('supplier', $myRequest);
     }
 }

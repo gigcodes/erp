@@ -34,6 +34,8 @@ use App\Console\Commands\SendActivitiesListing;
 use App\Console\Commands\SendDailyPlannerReport;
 //use App\Console\Commands\SyncInstagramMessage;
 use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
 use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
@@ -131,7 +133,10 @@ class Kernel extends ConsoleKernel
         ImportCustomersEmail::class,
         FlagCustomersIfTheyHaveAComplaint::class,
         MakeKeywordAndCustomersIndex::class,
-        GetMostUsedWordsInCustomerMessages::class
+        GetMostUsedWordsInCustomerMessages::class,
+        SendReminderToCustomerIfTheyHaventReplied::class,
+        SendReminderToSupplierIfTheyHaventReplied::class,
+        SendReminderToVendorIfTheyHaventReplied::class,
 
     ];
 
@@ -143,6 +148,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
 
         //This command will set the count of the words used...
         $schedule->command('bulk-customer-message:get-most-used-keywords')->daily();
@@ -160,7 +169,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('category:fix-by-supplier')->twiceDaily();
 
         $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
-        $schedule->command('reminder:send-to-customers')->everyMinute()->timezone('Asia/Kolkata');
 
 
         $schedule->call(function () {
