@@ -983,20 +983,6 @@ class WhatsAppController extends FindByNumberController
         $contact = $this->findContactByNumber($from);
         $customer = $this->findCustomerByNumber($from);
 
-        $debug = "From: $from\n";
-        $debug.= "Instance ID: $instanceId\n";
-        $debug.= "Text: $text\n";
-        $debug.= "ContentType: $contentType\n";
-        $debug.= "originalMessage: $originalMessage\n";
-        $debug.= "supplier: $supplier\n";
-        $debug.= "vendor: $vendor\n";
-        $debug.= "user: $user\n";
-        $debug.= "dubizzle: $dubbizle\n";
-        $debug.= "contact: $contact\n";
-        $debug.= "customer: $customer\n";
-
-        file_put_contents(__DIR__ . '/test_debug.txt', $debug, FILE_APPEND);
-
         $params = [
             'number' => $from,
             'message' => '',
@@ -1259,7 +1245,7 @@ class WhatsAppController extends FindByNumberController
             $params[ 'dubbizle_id' ] = null;
             $params[ 'customer_id' ] = $customer->id;
 
-            $message = ChatMessage::create();
+            $message = ChatMessage::create($params);
 
             if ($params['message']) {
                 (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
