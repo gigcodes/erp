@@ -964,7 +964,7 @@ class WhatsAppController extends FindByNumberController
         $data = $request->json()->all();
 
         file_put_contents(__DIR__ . "/webhook.txt", json_encode($data));
-        file_put_contents(__DIR__ . "/test_aayo.txt", json_encode($data));
+        file_put_contents(__DIR__ . "/test_aayo.txt", json_encode($data), FILE_APPEND);
 
         // $to = str_replace('+', '', $data['data']['toNumber']);
         if (!array_key_exists('messages', $data)) {
@@ -982,6 +982,20 @@ class WhatsAppController extends FindByNumberController
         $dubbizle = $this->findDubbizleByNumber($from);
         $contact = $this->findContactByNumber($from);
         $customer = $this->findCustomerByNumber($from);
+
+        $debug = "From: $from\n";
+        $debug.= "Instance ID: $instanceId\n";
+        $debug.= "Text: $text\n";
+        $debug.= "ContentType: $contentType\n";
+        $debug.= "originalMessage: $originalMessage\n";
+        $debug.= "supplier: $supplier\n";
+        $debug.= "vendor: $vendor\n";
+        $debug.= "user: $user\n";
+        $debug.= "dubizzle: $dubbizle\n";
+        $debug.= "contact: $contact\n";
+        $debug.= "customer: $customer\n";
+
+        file_put_contents(__DIR__ . '/test_debug.txt', FILE_APPEND);
 
         $params = [
             'number' => $from,
