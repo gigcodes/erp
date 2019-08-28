@@ -30,6 +30,11 @@ class Instagram {
     }
 
 
+    /**
+     * @param null $url
+     * @return array
+     * gets the list of media
+     */
     public function getMedia($url = null) {
         if ($url === null) {
             $params = 'fields'
@@ -81,6 +86,11 @@ class Instagram {
         return [$media, $paging];
     }
 
+    /**
+     * @param $post_id
+     * @return array
+     * Get the comments + replies for the given post ID
+     */
     public function getComments($post_id) {
         $params = '?fields=username,text,timestamp,id,replies{id,username,text}';
         try {
@@ -107,6 +117,7 @@ class Instagram {
      * @param $message
      * @throws \Facebook\Exceptions\FacebookSDKException
      * @return array
+     * This will post ID to instagram Post
      */
     public function postComment($postId, $message): array
     {
@@ -125,6 +136,13 @@ class Instagram {
 
     }
 
+    /**
+     * @param $commentId
+     * @param $message
+     * @return array
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     * This will post the reply for a post
+     */
     public function postReply($commentId, $message) {
         $comment = $this->facebook
             ->post($commentId . '/replies',
@@ -140,6 +158,11 @@ class Instagram {
         return $comment;
     }
 
+    /**
+     * @param $images
+     * @param $message
+     * This will post a media to the Instragram sololuxury account
+     */
     public function postMedia($images, $message) {
         if (!is_array($images)) {
             $images = [$images];
@@ -168,6 +191,11 @@ class Instagram {
 
     }
 
+    /**
+     * @param Image $image
+     * @return bool|mixed|null
+     * This will post media object to the facebook server.
+     */
     private function postMediaObject(Image $image)
     {
         $data['caption']= $image->schedule->description;

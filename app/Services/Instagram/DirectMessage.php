@@ -103,25 +103,49 @@ class DirectMessage {
 //    	return trim( (string) readline( "$prompt " ) );
 //    }
 
+    /**
+     * @return mixed
+     * get the inbox for this person
+     */
     public function getInbox() {
         $inbox = $this->instagram->direct->getInbox();
         return $inbox;
     }
 
+    /**
+     * @param $threadId
+     * @return mixed
+     * Get the thread for a particular chat
+     */
     public function getThread($threadId) {
         $thread = $this->instagram->direct->getThread($threadId);
         return $thread;
     }
 
+    /**
+     * @param $receipt
+     * @param $photo
+     * @throws \Exception
+     * Send an image
+     */
     public function sendImage($receipt, $photo) {
         $photo = new InstagramPhoto($photo);
         $this->instagram->direct->sendPhoto($receipt, $photo->getFile());
     }
 
+    /**
+     * @param $receipt
+     * @param $message
+     * Send Message..
+     */
     public function sendMessage($receipt, $message) {
         $this->instagram->direct->sendText($receipt, $message);
     }
 
+    /**
+     * @return mixed
+     * returns the current user ID for Instagram user
+     */
     public function getCurrentUserId() {
         return $this->currentId;
     }

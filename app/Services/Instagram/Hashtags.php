@@ -18,6 +18,9 @@ class Hashtags {
     public $instagram;
     private $token;
 
+    /**
+     * Logs in to the Instagram account
+     */
     public function login() {
         $instagram = new Instagram();
 //        $instagram->login('rishabh_aryal', 'R1shabh@12345');
@@ -26,10 +29,23 @@ class Hashtags {
         $this->instagram = $instagram;
     }
 
+    /**
+     * @param $hashtag
+     * @return mixed
+     * returns the media count for a given hashtag
+     */
     public function getMediaCount($hashtag) {
         return $this->instagram->hashtag->getInfo($hashtag)->asArray()['media_count'];
     }
 
+    /**
+     * @param $hashtag
+     * @param string $maxId
+     * @param null $country
+     * @param null $keywords
+     * @return array
+     * Thie method returns the feeds by maxId, which acts as the cursor and loads until it reaches end, it used the Instagram mgp25 package
+     */
     public function getFeed($hashtag, $maxId = '', $country = null, $keywords = null)
     {
         $media = $this->instagram->hashtag->getFeed($hashtag, $this->token, $maxId);
@@ -173,6 +189,11 @@ class Hashtags {
         return [$filteredMedia, $maxId];
     }
 
+    /**
+     * @param $hashtag
+     * @return mixed
+     * get related hashtag using the mgp25 instagram package
+     */
     public function getRelatedHashtags($hashtag)
     {
         return $this->instagram->hashtag->getRelated($hashtag)->asArray();

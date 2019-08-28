@@ -88,9 +88,18 @@ class ManualCroppingController extends Controller
             return redirect()->action('Products\ManualCroppingController@index')->with('message', 'The product you were trying to open does not exist anymore.');
         }
 
+        $originalMediaCount = 0;
+
+        $medias = $product->getMedia('gallery');
+        foreach ($medias as $media) {
+            if (stripos(strtoupper($media->filename), 'CROPPED') === false) {
+                $originalMediaCount++;
+            }
+        }
+
         $references = ScrapedProducts::where('sku', $product->sku)->pluck('url', 'website');
 
-        return view('products.crop.manual.show', compact('product','references'));
+        return view('products.crop.manual.show', compact('product','references', 'originalMediaCount'));
 
     }
 
