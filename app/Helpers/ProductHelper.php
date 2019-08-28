@@ -20,8 +20,8 @@ class ProductHelper extends Model
             // Loop over colors
             foreach ( $colors as $color ) {
                 if ( stristr( $sku, $color ) ) {
-                    // Set firstcolor
-                    str_ireplace($color, '', $sku);
+                    // Replace color
+                    $sku = str_ireplace($color, '', $sku);
                 }
             }
         }
