@@ -11,6 +11,21 @@ class ProductHelper extends Model
 
     public static function getSku($sku)
     {
+        // Replace all colors from SKU
+        if ( class_exists( '\App\Colors' ) ) {
+            // Get all colors
+            $colors = new \App\Colors;
+            $colors = $colors->all();
+
+            // Loop over colors
+            foreach ( $colors as $color ) {
+                if ( stristr( $sku, $color ) ) {
+                    // Set firstcolor
+                    str_ireplace($color, '', $sku);
+                }
+            }
+        }
+
         // Do replaces in SKU
         $sku = str_replace(' ', '', $sku);
         $sku = str_replace('/', '', $sku);
