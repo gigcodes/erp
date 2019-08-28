@@ -38,8 +38,12 @@ Route::resource('stat', 'ScrapStatisticsController');
 Route::get('crop/amends', 'ProductCropperController@giveAmends');
 Route::post('crop/amends', 'ProductCropperController@saveAmends');
 
-Route::get('products/auto-rejected', 'ScrapController@getAutoRejectedProducts');
-Route::post('products/auto-rejected', 'ScrapController@saveAutoRejectedProducts');
+Route::get('products/auto-rejected', 'ScrapController@getProductsToScrape');
+Route::post('products/auto-rejected', 'ScrapController@saveScrapedProduct');
+
+Route::get('products/get-products-to-scrape', 'ScrapController@getProductsToScrape');
+Route::post('products/save-scraped-product', 'ScrapController@saveScrapedProduct');
+
 
 Route::get('products/new-supplier', 'ScrapController@getFromNewSupplier');
 Route::post('products/new-supplier', 'ScrapController@saveFromNewSupplier');

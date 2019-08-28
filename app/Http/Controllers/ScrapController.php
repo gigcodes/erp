@@ -315,22 +315,27 @@ class ScrapController extends Controller
         ]);
     }
 
-    public function getAutoRejectedProducts() {
-        $products = Product::where('is_listing_rejected_automatically', 1)->where('is_scraped', 1)->where('is_farfetched', 0)->take(1000)->get();
-//        $products = Product::where()->get();
-        foreach ($products as $product) {
+    public function getProductsToScrape() {
+        // Get all products with status scrape
+        $products = Product::join('status', 'status.id', '=', 'products.status_id')->where('status.name', 'scrape')->take(1000)->get();
 
-            $productsToPush[] = [
-                'id' => $product->id,
-                'sku' => $product->sku,
-                'brand' => $product->brands ? $product->brands->name : '',
-                'url' => $product->url,
-                'supplier' => $product->supplier
-            ];
+        // Check if we have products and loop over them
+        if ( $products !== NULL ) {
+            foreach ($products as $product) {
+                $productsToPush[] = [
+                    'id' => $product->id,
+                    'sku' => $product->sku,
+                    'brand' => $product->brands ? $product->brands->name : '',
+                    'url' => $product->url,
+                    'supplier' => $product->supplier
+                ];
+            }
+        } else {
+            $productsToPush = [];
         }
 
+        // Return JSON response
         return response()->json($productsToPush);
-
     }
 
     /**
@@ -366,7 +371,7 @@ class ScrapController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function saveAutoRejectedProducts(Request $request) {
+    public function saveScrapedProduct(Request $request) {
         $this->validate($request, [
             'id' => 'required'
         ]);
