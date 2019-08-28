@@ -38,6 +38,7 @@ class InstagramAutomatedMessagesController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     * SImply create the message
      */
     public function store(Request $request)
     {

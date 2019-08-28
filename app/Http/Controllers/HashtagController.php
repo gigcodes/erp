@@ -25,6 +25,8 @@ class HashtagController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     *
+     * Show all the hashtags we have saved
      */
     public function index()
     {
@@ -48,6 +50,8 @@ class HashtagController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     *
+     * Create a new hashtag entry
      */
     public function store(Request $request)
     {
@@ -80,6 +84,7 @@ class HashtagController extends Controller
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
+     * Show hashtag
      */
     public function edit($hashtag, Request $request)
     {
@@ -94,12 +99,15 @@ class HashtagController extends Controller
         $hashtags = new Hashtags();
         $hashtags->login();
 
+        //get media for this instance + maxId (for next pagination)
         [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
         $media_count = $hashtags->getMediaCount($hashtag);
         if ($h) {
             $h->post_count = $media_count;
             $h->save();
         }
+
+        // Also get related hashtag..
         $relatedHashtags = $hashtags->getRelatedHashtags($hashtag);
 
         $accounts = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();

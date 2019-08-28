@@ -14,9 +14,12 @@ class ListingPaymentsController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * Get the listing history
      */
     public function index(Request $request)
     {
+
+        // simply get stats for listing rejected or approved by user
         $histories = DB::table('listing_histories')
             ->selectRaw('
                   user_id,
@@ -54,6 +57,7 @@ class ListingPaymentsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     * Create the entry for the paid amount
      */
     public function store(Request $request)
     {

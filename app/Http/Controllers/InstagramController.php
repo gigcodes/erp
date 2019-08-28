@@ -564,6 +564,7 @@ class InstagramController extends Controller
             $selectedImages  = Product::whereIn('id', $selectedImages)->get();
             $imagesIds = [];
 
+            // create schedile by looping through the selected images
             foreach ($selectedImages as $selectedImage) {
                 $imageUrl = explode('/', $selectedImage->imageurl);
                 $image = new Image();

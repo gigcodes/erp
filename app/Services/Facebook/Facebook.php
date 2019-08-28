@@ -125,6 +125,11 @@ class Facebook {
         return $this->feedId;
     }
 
+    /**
+     * @return array
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     * Get the conversation for page ID
+     */
     public function getConversations() {
         $conversation = $this->facebook->get($this->page_id . '/conversations?fields=name,messages{created_time,from,id,message,sticker,tags,to,attachments.limit(1000)},can_reply,id,is_subscribed,link,message_count,participants,senders,subject&limit=1000000', $this->page_access_token);
 
@@ -132,6 +137,12 @@ class Facebook {
 
     }
 
+    /**
+     * @param $id
+     * @return array
+     * @throws \Facebook\Exceptions\FacebookSDKException
+     * Get the messages for the conversation for conversation ID
+     */
     public function getConversation($id) {
         $conversation = $this->facebook->get($id . '?fields=id,messages.limit(1000){created_time,from,id,message,to}',  $this->page_access_token);
 

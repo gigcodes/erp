@@ -64,7 +64,11 @@ class OrderController extends Controller {
 		$this->middleware( 'permission:order-delete', [ 'only' => ['destroy','deleteOrderProduct'] ] );
 	}
 
-	public function downloadOrderInPdf(Request $request) {
+    /**
+     * @param Request $request
+     * Generate the PDf for the orders list page
+     */
+    public function downloadOrderInPdf(Request $request) {
 
         $term = $request->input('term');
         $order_status = $request->status ?? [''];
@@ -112,6 +116,7 @@ class OrderController extends Controller {
                 $sortby = 'order_date';
         }
 
+        // Create query
         $orders = (new Order())->newQuery()->with('customer');
 
 
@@ -119,7 +124,7 @@ class OrderController extends Controller {
         if(empty($term))
             $orders = $orders;
         else{
-
+            // AN order should have customer, if term is filled
             $orders = $orders->whereHas('customer', function($query) use ($term) {
                 return $query->where('name', 'LIKE', "%$term%");
             })
@@ -145,6 +150,7 @@ class OrderController extends Controller {
         $users  = Helpers::getUserArray( User::all() );
         $order_status_list = (new OrderStatus)->all();
 
+        // also sort by communication action and due
         if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
             $orders = $orders->orderBy('is_priority', 'DESC')->orderBy($sortby, $orderby);
         } else {
@@ -156,6 +162,7 @@ class OrderController extends Controller {
 
 
 
+        // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
         $html = view( 'orders.index_pdf', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date' ) );
         $pdf = new Dompdf();
         $pdf->loadHtml($html);

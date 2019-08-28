@@ -45,6 +45,7 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
     {
         $now = Carbon::now()->toDateTimeString();
 
+        //get latest message of the supplier exclusing the auto messages
         $messagesIds = DB::table('chat_messages')
             ->selectRaw('MAX(id) as id, supplier_id')
             ->groupBy('supplier_id')
@@ -69,6 +70,7 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
                 continue;
             }
 
+            // get the message if the interval is >= then that we have set for this supplier
             $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= ' . $frequency)
                 ->where('id', $messagesId->id)
                 ->where('user_id', '>', '0')
@@ -84,11 +86,17 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
 
             $templateMessage = $supplier->reminder_message;
 
+            //Send message to the supplier
             $this->sendMessage($supplier->id, $templateMessage);
         }
 
     }
 
+    /**
+     * @param $supplier
+     * @param $message
+     * Create the chat_message record and then approve and send the message
+     */
     private function sendMessage($supplier, $message): void
     {
 

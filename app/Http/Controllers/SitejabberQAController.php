@@ -180,6 +180,7 @@ class SitejabberQAController extends Controller
             });
         }
 
+        // Add the filter by sttaus of review like live, approved, unapproved.
         if ($request->get('filter') !== '') {
             $filter = $request->get('filter');
             if ($filter === 'live') {
@@ -301,6 +302,7 @@ class SitejabberQAController extends Controller
                 $reviewx = BrandReviews::findOrFail($id);
                 $account = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->first();
 
+                //set the account id, create review.
                 $review = new Review();
                 $review->account_id = $account->id;
                 $review->review = $reviewx->body;
@@ -308,6 +310,7 @@ class SitejabberQAController extends Controller
                 $review->title = $reviewx->title;
                 $review->save();
 
+                //mark review as used
                 $reviewx->used = 1;
                 $reviewx->save();
                 $account->touch();
@@ -358,6 +361,7 @@ class SitejabberQAController extends Controller
         $negativeReview->save();
 
 
+        //log to VPS and trigger the reply
         $response = $client->post('http://144.202.53.198/postReply', [
             'form_params' => [
                 'comment' => $comment,
