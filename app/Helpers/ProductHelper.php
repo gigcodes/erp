@@ -17,6 +17,6 @@ class ProductHelper extends Model
         $sku = str_replace('\\', '', $sku);
 
         // Return SKU
-        return $sku;
+        return strotoupper($sku);
     }
 }
