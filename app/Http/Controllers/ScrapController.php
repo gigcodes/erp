@@ -316,6 +316,9 @@ class ScrapController extends Controller
     }
 
     public function getProductsToScrape() {
+        // Set empty value of productsToPush
+        $productsToPush = [];
+
         // Get all products with status scrape
         $products = Product::join('status', 'status.id', '=', 'products.status_id')->where('status.name', 'scrape')->take(1000)->get();
 
@@ -330,8 +333,6 @@ class ScrapController extends Controller
                     'supplier' => $product->supplier
                 ];
             }
-        } else {
-            $productsToPush = [];
         }
 
         // Return JSON response
