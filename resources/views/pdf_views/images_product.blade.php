@@ -10,26 +10,27 @@
             margin: 0
         }
 
-        div.multi_column {
-            width: 100%;
-            margin: 0px auto;
-            -webkit-column-count: 3;
-            -webkit-column-rule: 2px solid #000;
-            -moz-column-count: 3;
-            -moz-column-rule: 2px solid #000;
-            column-count: 3;
-            column-rule: 2px solid #000;
+        .main {
+            text-align: center;
+            padding: 5%;
         }
-        div#multi_column > div {
-            margin-bottom: 20px;
-            padding:16px;
-            border: #000 1px solid;
+
+        .row {
+            display: block;
         }
-        div#multi_column > div:nth-child(2n+0) {
-            background: #CAE4FF;
+
+        .box_0 {
+            width: 45%;
+            display: block;
+            border-radius: 10px;
+            margin: 0 auto 5px;
         }
-        div#multi_column > div:nth-child(2n+1) {
-            background: #A4D1FF;
+
+        .box_1 {
+            width: 45%;
+            display: block;
+            border-radius: 10px;
+            margin: 0 auto 5px;
         }
     </style>
 </head>
@@ -37,7 +38,7 @@
 <div class="main">
     @foreach($medias->chunk(2) as $subMedias)
         @php $key = 0 @endphp
-        <div class="multi_column">
+        <div class="row">
             @foreach($subMedias as $subMedia)
                 <div class="box_{{$key}}">
                     <img src="{{ $subMedia->getAbsolutePath() }}" alt="Image" style="width: 100%; border-bottom: 10px solid #cccccc">
