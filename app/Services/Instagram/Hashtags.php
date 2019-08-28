@@ -10,6 +10,10 @@ use Carbon\Carbon;
 use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
 
+/**
+ * Class Hashtags
+ * @package App\Services\Instagram
+ */
 class Hashtags {
 
     /**
@@ -76,14 +80,14 @@ class Hashtags {
             if (!$show) {
                 continue;
             }
-
+            // get all the hashtag inside this description
             preg_match_all("/(#\w+)/", $cap, $matches);
 
             $matches = $matches[0];
             foreach ($matches as $match) {
                 $match = str_replace('#', '', $match);
                 $ht = HashTag::where('hashtag', $match)->first();
-
+                // save the hashtag if its already not there
                 if (!$ht) {
                     $ht = new HashTag();
                     $ht->hashtag = $match;
@@ -92,6 +96,9 @@ class Hashtags {
                 }
             }
 
+
+
+            // media_type : 1 image., 2 video, 8 multiple images + videos
 
             if ($item['media_type'] === 1) {
                 $media = $item['image_versions2']['candidates'][1]['url'];
@@ -127,6 +134,7 @@ class Hashtags {
 
             $point = new Location();
 
+            // if we dont have location, then simple get the post, else check if the post location is actually located in the list of our saved location
             $target = TargetLocation::where('region', $country)->first();
             if (!$target) {
                 $filteredMedia[$item['taken_at']] = [
@@ -147,7 +155,7 @@ class Hashtags {
                     'posted_at' => Carbon::createFromTimestamp($item['taken_at'])->toDateTimeString(),
                 ];
             } else {
-                $location = $point->pointInParticularLocation($x, $y, $target);
+                $location = $point->pointInParticularLocation($x, $y, $target); // this will check if the given points are in the location
                 if ($location[0]) {
 
                     $l = InstagramUsersList::where('user_id', $item['user']['pk'])->first();

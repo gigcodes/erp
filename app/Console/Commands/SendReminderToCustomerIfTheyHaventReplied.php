@@ -46,6 +46,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
     {
         $now = Carbon::now()->toDateTimeString();
 
+        //get latest messages for each customer ignoring the auto messages
         $messagesIds = DB::table('chat_messages')
             ->selectRaw('MAX(id) as id, customer_id')
             ->groupBy('customer_id')
@@ -55,6 +56,8 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                 $query->whereNotIn('status', [7,8,9,10]);
             })
             ->get();
+
+
 
 
 
@@ -71,6 +74,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
 
             dump('here' . $customer->name);
 
+            // get the message if the interval is greater or equal to time which is set for this customer
             $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= ' . $frequency)
                 ->where('id', $messagesId->id)
                 ->where('user_id', '>', '0')
@@ -87,11 +91,17 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
 
             $templateMessage = $customer->reminder_message;
 
+            //sends messahe
             $this->sendMessage($customer->id, $templateMessage);
         }
 
     }
 
+    /**
+     * @param $customer
+     * @param $message
+     * Send message to customer, create message and then approve message...
+     */
     private function sendMessage($customer, $message): void
     {
 

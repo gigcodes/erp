@@ -17,6 +17,8 @@ class GrammarBot
     public function validate($text)
     {
         sleep(1.2);
+
+        //log to microsoft spellcheck api and get the results
         try {
             $response = $this->request->request('POST', 'https://api.cognitive.microsoft.com/bing/v7.0/SpellCheck', [
                 'form_params' => [
@@ -41,7 +43,7 @@ class GrammarBot
 //            dump($text);
             return $text;
         }
-
+        //if there are tokens to be corrected, loop through them and correct it.
         foreach ($data['flaggedTokens'] as $suggestion) {
             $text = substr_replace($text, $suggestion['suggestions'][0]['suggestion'], $suggestion['offset'], strlen($suggestion['token']));
         }

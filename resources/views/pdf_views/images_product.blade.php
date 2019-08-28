@@ -20,14 +20,14 @@
         }
 
         .box_0 {
-            width: 45%;
+            width: 75%;
             display: block;
             border-radius: 10px;
             margin: 0 auto 5px;
         }
 
         .box_1 {
-            width: 45%;
+            width: 75%;
             display: block;
             border-radius: 10px;
             margin: 0 auto 5px;

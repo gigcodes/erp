@@ -12,6 +12,8 @@ class InfluencersController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     *
+     * List all influencers
      */
     public function index()
     {
@@ -35,6 +37,7 @@ class InfluencersController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     * CReate a new influencer record..
      */
     public function store(Request $request)
     {

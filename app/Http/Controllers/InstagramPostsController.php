@@ -17,6 +17,7 @@ class InstagramPostsController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * get all the posts from Instagram saved in instagram_posts table
      */
     public function index()
     {
@@ -41,6 +42,7 @@ class InstagramPostsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     * Create a new entry with image + account_id
      */
     public function store(Request $request)
     {

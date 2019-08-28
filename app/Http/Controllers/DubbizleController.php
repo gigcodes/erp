@@ -13,6 +13,18 @@ use Illuminate\Support\Facades\DB;
 
 class DubbizleController extends Controller
 {
+
+    public function updateReminder(Request $request) {
+        $supplier = Dubbizle::find($request->get('dubbizle_id'));
+        $supplier->frequency = $request->get('frequency');
+        $supplier->reminder_message = $request->get('message');
+        $supplier->save();
+
+        return response()->json([
+            'success'
+        ]);
+    }
+
     public function index() {
         // $posts = Dubbizle::all();
 

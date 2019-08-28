@@ -3,21 +3,21 @@
 namespace App\Console\Commands;
 
 use App\ChatMessage;
+use App\Dubbizle;
 use App\Http\Controllers\WhatsAppController;
-use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class SendReminderToSupplierIfTheyHaventReplied extends Command
+class SendReminderToDubbizlesIfTheyHaventReplied extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'reminder:send-to-supplier';
+    protected $signature = 'reminder:send-to-dubbizle';
 
     /**
      * The console command description.
@@ -45,12 +45,11 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
     {
         $now = Carbon::now()->toDateTimeString();
 
-        //get latest message of the supplier exclusing the auto messages
         $messagesIds = DB::table('chat_messages')
-            ->selectRaw('MAX(id) as id, supplier_id')
-            ->groupBy('supplier_id')
+            ->selectRaw('MAX(id) as id, dubbizle_id')
+            ->groupBy('dubbizle_id')
             ->whereNotNull('message')
-            ->where('supplier_id', '>', '0')
+            ->where('dubbizle_id', '>', '0')
             ->where(function($query) {
                 $query->whereNotIn('status', [7,8,9]);
             })
@@ -59,18 +58,17 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
 
 
         foreach ($messagesIds as $messagesId) {
-            $supplier = Supplier::find($messagesId->supplier_id);
+            $dubbizle = Dubbizle::find($messagesId->dubbizle_id);
 
-            if (!$supplier) {
+            if (!$dubbizle) {
                 continue;
             }
 
-            $frequency = $supplier->frequency;
+            $frequency = $dubbizle->frequency;
             if (!($frequency >= 5)) {
                 continue;
             }
 
-            // get the message if the interval is >= then that we have set for this supplier
             $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= ' . $frequency)
                 ->where('id', $messagesId->id)
                 ->where('user_id', '>', '0')
@@ -84,20 +82,13 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
 
             dump('saving...');
 
-            $templateMessage = $supplier->reminder_message;
+            $templateMessage = $dubbizle->reminder_message;
 
-            //Send message to the supplier
-            $this->sendMessage($supplier->id, $templateMessage);
+            $this->sendMessage($dubbizle->id, $templateMessage);
         }
-
     }
 
-    /**
-     * @param $supplier
-     * @param $message
-     * Create the chat_message record and then approve and send the message
-     */
-    private function sendMessage($supplier, $message): void
+    private function sendMessage($dubbizle, $message): void
     {
 
         $params = [
@@ -105,7 +96,7 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
             'user_id' => 6,
             'approved' => 1,
             'status' => 1,
-            'supplier_id' => $supplier,
+            'dubbizle_id' => $dubbizle,
             'message' => $message
         ];
 
@@ -116,6 +107,6 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
-        app(WhatsAppController::class)->approveMessage('supplier', $myRequest);
+        app(WhatsAppController::class)->approveMessage('dubbizle', $myRequest);
     }
 }

@@ -44,6 +44,7 @@ class Instagram {
         }
 
         try {
+            //get the media for the url
             $media = $this->facebook->get($url, $this->page_access_token)->getDecodedBody();
         } catch (\Exception $exception) {
             return [];
@@ -58,7 +59,7 @@ class Instagram {
             $paging['previous'] = $media['paging']['previous'];
         }
 
-
+        // loop through and get the result in the array
         $media = array_map(function($post) {
             return [
                 'id' => $post['id'],
@@ -94,12 +95,14 @@ class Instagram {
     public function getComments($post_id) {
         $params = '?fields=username,text,timestamp,id,replies{id,username,text}';
         try {
+            //get the comments for the post ID
             $comments = $this->facebook->get($post_id.'/comments'.$params, $this->page_access_token)->getDecodedBody();
             $comments = $comments['data'];
         } catch (\Exception $exception) {
             $comments = [];
         }
 
+        //loop through the comments and get result in an array form
         $comments = array_map(function($item) {
             return [
                 'id' => $item['id'],
@@ -121,6 +124,7 @@ class Instagram {
      */
     public function postComment($postId, $message): array
     {
+        //post the comment to facebook - from facebook API - postId required to send the comment
         $comment = $this->facebook
             ->post($postId . '/comments',
                 [
@@ -144,6 +148,7 @@ class Instagram {
      * This will post the reply for a post
      */
     public function postReply($commentId, $message) {
+        //send the reply to the comment
         $comment = $this->facebook
             ->post($commentId . '/replies',
                 [
@@ -181,10 +186,13 @@ class Instagram {
         }
 
         $instagram = new \InstagramAPI\Instagram();
+        //login to Instagram
         $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
         if (count($images) > 1) {
+            //if more photos, then upload as album
             $instagram->timeline->uploadAlbum($files, ['caption' => $message]);
         } else {
+            // if only one photo then upload a single image
             $instagram->timeline->uploadPhoto($files[0], ['caption' => $message]);
         }
         $this->imageIds = $return;
@@ -205,6 +213,7 @@ class Instagram {
         $containerId = null;
 
         try {
+            //send the media objecct to facebook. Required for us because in next step we use this object ID to post on facebook
             $response = $this->facebook->post($this->instagram_id.'/media', $data)->getDecodedBody();
             if (is_array($response)) {
                 $containerId = $response['id'];

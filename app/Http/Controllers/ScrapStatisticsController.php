@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class ScrapStatisticsController extends Controller
 {
 
-
+    //List of supplier with their brand count
     private $suppliers = [
         'angelominetti' => 23,
         'Wiseboutique' => 18,
@@ -51,6 +51,8 @@ class ScrapStatisticsController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     *
+     * generate the scrap statistics
      */
     public function index(Request $request)
     {
@@ -64,6 +66,7 @@ class ScrapStatisticsController extends Controller
 //
 //        dd($inactiveScrapping);
 
+//         get stats for new and existing ones
         $scrapedExistingProducts = DB::table('scrap_statistics')->selectRaw('COUNT(DISTINCT description) as total, supplier')->where('type', 'EXISTING_SCRAP_PRODUCT');
         $scrapedNewProducts = DB::table('scrap_statistics')->selectRaw('COUNT(DISTINCT description) as total, supplier')->where('type', 'NEW_SCRAP_PRODUCT');
 
@@ -77,6 +80,7 @@ class ScrapStatisticsController extends Controller
         $totalBrands = 0;
         $doneBrands = 0;
 
+//        loop through the supplier list and then add count & stat by date with created at and ended at
         foreach ($supplierList as $key=>$item) {
             $count = ScrapStatistics::where('supplier', $key);
             $stat = ScrapStatistics::selectRaw('MIN(created_at) as started_at, MAX(created_at) as ended_at')->where('supplier', $key);
@@ -105,7 +109,7 @@ class ScrapStatisticsController extends Controller
         }
 
         $totalPercent = $doneBrands/$totalBrands;
-
+        //calculate the percent for particular supplier..
         $totalProgress = round($totalPercent*100);
 
         $scrapedNewProducts = $scrapedNewProducts->groupBy(['supplier'])->get();

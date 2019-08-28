@@ -12,6 +12,7 @@ class InstagramAutoCommentsController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * All the comments by updated at and the location that we have saved
      */
     public function index()
     {
@@ -37,6 +38,7 @@ class InstagramAutoCommentsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     * Create a new comment for a country or gender
      */
     public function store(Request $request)
     {
@@ -60,6 +62,7 @@ class InstagramAutoCommentsController extends Controller
      *
      * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
+     * This will delete the comments given
      */
     public function show($action, Request $request)
     {
@@ -77,6 +80,7 @@ class InstagramAutoCommentsController extends Controller
      *
      * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
+     * Edit the Instagrm auto comment resource
      */
     public function edit($id)
     {
@@ -91,6 +95,7 @@ class InstagramAutoCommentsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
+     * Update the source, text and options
      */
     public function update(Request $request, $id)
     {

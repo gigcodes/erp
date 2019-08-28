@@ -15,6 +15,7 @@ class AutoCommentHistoryController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * get comments, hashtags and country list for commenting in bulk
      */
     public function index(Request $request)
     {
@@ -43,7 +44,6 @@ class AutoCommentHistoryController extends Controller
         $comments = $comments->paginate(50);
 
         //verified, posted, assigned
-
         $statsByCountry = DB::table('auto_comment_histories')->selectRaw('country, COUNT("*") AS total')->groupBy(['country'])->get();
         $statsByHashtag = DB::table('auto_comment_histories')->selectRaw('target, COUNT("*") AS total')->groupBy(['target'])->get();
 

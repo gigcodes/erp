@@ -23,6 +23,7 @@ class Location {
             $polySides = count($polyX);
             $j = $polySides-1 ;
             $oddNodes = 0;
+            //Loops through the number of side of polygon, and checks the given point is inside the polygon or not..
             for ($i=0; $i<$polySides; $i++) {
                 if (($polyY[$i]<$y && $polyY[$j]>=$y) ||  ($polyY[$j]<$y && $polyY[$i]>=$y)) {
                     if ($polyX[$i]+($y-$polyY[$i])/($polyY[$j]-$polyY[$i])*($polyX[$j]-$polyX[$i])<$x) {
@@ -59,7 +60,10 @@ class Location {
         $polySides = count($polyX);
         $j = $polySides-1 ;
         $oddNodes = 0;
+
+        // loop through the count up to sides of polugon...
         for ($i=0; $i<$polySides; $i++) {
+            // check if the location we targeted is inside the polygon or not..
             if (($polyY[$i]<$y && $polyY[$j]>=$y) ||  ($polyY[$j]<$y && $polyY[$i]>=$y)) {
                 if ($polyX[$i]+($y-$polyY[$i])/($polyY[$j]-$polyY[$i])*($polyX[$j]-$polyX[$i])<$x) {
                     $oddNodes=!$oddNodes;
@@ -68,6 +72,7 @@ class Location {
             $j=$i;
         }
 
+        // it means found...
         if ($oddNodes) {
             return [$oddNodes, $item];
         }
