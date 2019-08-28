@@ -768,6 +768,7 @@ Route::prefix( 'scrap' )->middleware( 'auth' )->group( function () {
     Route::resource( 'designer', 'DesignerController' );
     Route::resource( 'sales', 'SalesItemController' );
     Route::get( '/dubbizle', 'DubbizleController@index' );
+    Route::post( '/dubbizle/set-reminder', 'DubbizleController@updateReminder' );
     Route::post( '/dubbizle/bulkWhatsapp', 'DubbizleController@bulkWhatsapp' )->name( 'dubbizle.bulk.whatsapp' );
     Route::get( '/dubbizle/{id}/edit', 'DubbizleController@edit' );
     Route::put( '/dubbizle/{id}', 'DubbizleController@update' );
