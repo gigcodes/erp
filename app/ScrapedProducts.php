@@ -120,7 +120,7 @@ class ScrapedProducts extends Model
                 // Product created successfully
                 if ( $productsCreatorResult ) {
                     // Add or update supplier / inventory
-                    SupplierInventory::firstOrCreate( [ 'supplier' => $json->website, 'sku' => $json->sku, 'inventory' => $json->stock ] );
+                    SupplierInventory::firstOrCreate( [ 'supplier' => $json->website, 'sku' => $sku2, 'inventory' => $json->stock ] );
 
                     // Update count
                     $count++;

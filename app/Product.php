@@ -190,7 +190,7 @@ class Product extends Model
 
                 // Set product values
                 $product->status = $isExcel == 1 ? 2 : 3;
-                $product->sku = str_replace(' ', '', $json->sku);
+                $product->sku = $data['sku'];
                 $product->brand = $json->brand_id;
                 $product->supplier = $json->website;
                 $product->name = $json->title;
