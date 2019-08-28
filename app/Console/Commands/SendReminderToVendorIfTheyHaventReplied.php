@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\AutoReply;
 use App\ChatMessage;
+use App\Http\Controllers\WhatsAppController;
 use App\Supplier;
 use App\Vendor;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class SendReminderToVendorIfTheyHaventReplied extends Command
 {
@@ -56,11 +59,13 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
 
 
 
+
         foreach ($messagesIds as $messagesId) {
             $vendor = Vendor::find($messagesId->vendor_id);
             if (!$vendor) {
                 continue;
             }
+
 
             $frequency = $vendor->frequency;
             if (!($frequency >= 5)) {
@@ -73,7 +78,6 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                 ->where('approved', '1')
                 ->first();
 
-
             if (!$message) {
                 continue;
             }
@@ -82,13 +86,28 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
 
             $templateMessage = $vendor->reminder_message;
 
-            $data['vendor_id'] = $vendor->id;
-            $data['message'] = $templateMessage;
-            $data['approved'] = 0;
-            $data['user_id'] = 6;
-            $data['status'] = 1;
-            ChatMessage::create($data);
+            $this->sendMessage($vendor->id, $templateMessage);
         }
 
+    }
+
+    private function sendMessage($vendorId, $message) {
+
+        $params = [
+            'number' => null,
+            'user_id' => 6,
+            'approved' => 1,
+            'status' => 1,
+            'vendor_id' => $vendorId,
+            'message' => $message
+        ];
+
+        $chat_message = ChatMessage::create($params);
+
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        app(WhatsAppController::class)->approveMessage('vendor', $myRequest);
     }
 }

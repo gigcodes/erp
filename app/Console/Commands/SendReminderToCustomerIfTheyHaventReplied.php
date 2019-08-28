@@ -4,9 +4,11 @@ namespace App\Console\Commands;
 
 use App\ChatMessage;
 use App\Customer;
+use App\Http\Controllers\WhatsAppController;
 use App\Product;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SendReminderToCustomerIfTheyHaventReplied extends Command
@@ -50,7 +52,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
             ->whereNotNull('message')
             ->where('customer_id', '>', '0')
             ->where(function($query) {
-                $query->whereNotIn('status', [7,8,9]);
+                $query->whereNotIn('status', [7,8,9,10]);
             })
             ->get();
 
@@ -67,11 +69,14 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                 continue;
             }
 
+            dump('here' . $customer->name);
+
             $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= ' . $frequency)
                 ->where('id', $messagesId->id)
                 ->where('user_id', '>', '0')
                 ->where('approved', '1')
                 ->first();
+
 
 
             if (!$message) {
@@ -82,13 +87,30 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
 
             $templateMessage = $customer->reminder_message;
 
-            $data['customer_id'] = $customer->id;
-            $data['message'] = $templateMessage;
-            $data['approved'] = 0;
-            $data['user_id'] = 6;
-            $data['status'] = 1;
-            ChatMessage::create($data);
+            $this->sendMessage($customer->id, $templateMessage);
         }
 
+    }
+
+    private function sendMessage($customer, $message): void
+    {
+
+        $params = [
+            'number' => null,
+            'user_id' => 6,
+            'approved' => 1,
+            'status' => 1,
+            'customer_id' => $customer,
+            'message' => $message
+        ];
+
+
+        $chat_message = ChatMessage::create($params);
+
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+
+        app(WhatsAppController::class)->approveMessage('customer', $myRequest);
     }
 }
