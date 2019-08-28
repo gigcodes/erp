@@ -395,6 +395,8 @@ class ProductCropperController extends Controller
             'Scarves & Wraps' => 'Shawl.png',
             'Key Rings & Chains' => 'Keychains.png',
             'Key Rings & Chain' => 'Keychains.png',
+            'Watches' => 'Keychains.png',
+            'Watch' => 'Keychains.png',
         ];
 
         $category = Category::find($categoryId);
