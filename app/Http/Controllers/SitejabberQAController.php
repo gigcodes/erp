@@ -20,6 +20,7 @@ class SitejabberQAController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * Show the list of all questions related to sitejabber...
      */
     public function index()
     {
@@ -44,6 +45,7 @@ class SitejabberQAController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     * STore the question for the sitejabber
      */
     public function store(Request $request)
     {
@@ -78,6 +80,7 @@ class SitejabberQAController extends Controller
      *
      * @param  \App\SitejabberQA  $sitejabberQA
      * @return \Illuminate\Http\Response
+     * This will simply update the sitejabber review settings
      */
     public function edit(Request $request)
     {
@@ -121,6 +124,7 @@ class SitejabberQAController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\SitejabberQA  $sitejabberQA
      * @return \Illuminate\Http\Response
+     * Updates the Sitejabber question answer reply..
      */
     public function update(Request $request, $id)
     {
@@ -152,6 +156,13 @@ class SitejabberQAController extends Controller
         //
     }
 
+    /**
+     * @param Request $request
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
+     * This method will simply give all the list of the accounts which falls under the platform sitejabber
+     * ALso there are filters for different status for reviews and account itslef which is clearly
+     * visible in the code
+     */
     public function accounts(Request $request) {
         $date = null;
 
@@ -223,12 +234,21 @@ class SitejabberQAController extends Controller
         return view('sitejabber.accounts', compact('reviewsPostedToday', 'accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies', 'request'));
     }
 
+    /**
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
+     * get all the reviews for platform sitejabber
+     */
     public function reviews() {
         $reviews = Review::where('platform', 'sitejabber')->get();
 
         return view('sitejabber.reviews', compact('reviews'));
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     * Attach reviews to the account which can be posted, and marks the review from review bank as used
+     */
     public function attachBrandReviews($id) {
         $reviewx = BrandReviews::findOrFail($id);
         $account = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->first();
@@ -248,6 +268,11 @@ class SitejabberQAController extends Controller
 
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     * Delets the brand reviews..
+     */
     public function detachBrandReviews($id) {
         $reviewx = BrandReviews::findOrFail($id);
 
@@ -257,6 +282,11 @@ class SitejabberQAController extends Controller
 
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * The action can be attached/ detached, as per the action value the review is atatched or detached if already attached
+     */
     public function attachOrDetachReviews(Request $request) {
         $this->validate($request, [
             'action' => 'required',
@@ -292,6 +322,11 @@ class SitejabberQAController extends Controller
         return redirect()->back()->with('messages', 'Action completed successfully!');
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     * This method will comply confirm the review as posted, setting the status to 'posted' status
+     */
     public function confirmReviewAsPosted($id) {
         Review::where('id', $id)->update([
             'status' => 'posted'
@@ -300,6 +335,12 @@ class SitejabberQAController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @param Client $client
+     * @return \Illuminate\Http\JsonResponse
+     * This method sends the code to post reply to nodejs server, the IP is there which can be changed over time.
+     */
     public function sendSitejabberQAReply(Request $request, Client $client) {
         $id = $request->get('rid');
         $negativeReview = NegativeReviews::where('id', $id)->first();

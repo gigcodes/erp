@@ -26,7 +26,9 @@
                         @if($product->is_image_processed)
                             <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'cropped']) }}">Download Cropped</a>
                         @endif
-                        <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'original']) }}">Download Original</a>
+                        @if($originalMediaCount)
+                            <a class="btn btn-secondary btn-sm" href="{{ action('ProductCropperController@downloadImagesForProducts', [$product->id, 'original']) }}">Download Original</a>
+                        @endif
                         <hr>
                         <strong>References:</strong>
                         <p>Note: If images are not available, please download images from one of these sites and then crop and save it.</p>

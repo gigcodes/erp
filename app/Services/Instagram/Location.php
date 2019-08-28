@@ -7,7 +7,13 @@ use App\TargetLocation;
 
 class Location {
 
-    public function pointInPolygon($x,$y) {
+    /**
+     * @param $x
+     * @param $y
+     * @return array
+     * Check if the post's co-ordinates falls under the points that we have saved for a country
+     */
+    public function pointInPolygon($x, $y) {
         $latLng = TargetLocation::all();
         foreach ($latLng as $item) {
 
@@ -35,6 +41,13 @@ class Location {
 
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $item
+     * @return array
+     * Checks if the point is inside the country or not
+     */
     public function pointInParticularLocation($x, $y, $item){
         if (!$item) {
             return [0];

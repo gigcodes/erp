@@ -780,7 +780,18 @@ class ProductCropperController extends Controller
         $category = $product->category;
         $img = $this->getCategoryForCropping($category);
 
-        return view('products.rejected_crop', compact('product', 'secondProduct', 'img'));
+        $medias = $product->getMedia('gallery');
+        $originalMediaCount = 0;
+
+        foreach ($medias as $media) {
+            if (stripos(strtoupper($media->filename), 'CROPPED') === false) {
+                $originalMediaCount++;
+            }
+        }
+
+
+
+        return view('products.rejected_crop', compact('product', 'secondProduct', 'img',  'originalMediaCount'));
     }
 
     public function approveRejectedImage(Request $request)
