@@ -330,6 +330,8 @@ class ScrapController extends Controller
                     'supplier' => $product->supplier
                 ];
             }
+        } else {
+            $productsToPush = [];
         }
 
         // Return JSON response
