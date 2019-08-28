@@ -24,6 +24,10 @@ class ProductHelper extends Model
                     $sku = str_ireplace($color, '', $sku);
                 }
             }
+
+            // Replace multi
+            $sku = str_ireplace('multicolor', '', $sku);
+            $sku = str_ireplace('multi', '', $sku);
         }
 
         // Do replaces in SKU
