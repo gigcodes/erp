@@ -34,6 +34,7 @@ use App\Console\Commands\SendActivitiesListing;
 use App\Console\Commands\SendDailyPlannerReport;
 //use App\Console\Commands\SyncInstagramMessage;
 use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
 use App\Console\Commands\UpdateInventory;
@@ -137,6 +138,7 @@ class Kernel extends ConsoleKernel
         SendReminderToCustomerIfTheyHaventReplied::class,
         SendReminderToSupplierIfTheyHaventReplied::class,
         SendReminderToVendorIfTheyHaventReplied::class,
+        SendReminderToDubbizlesIfTheyHaventReplied::class
 
     ];
 
@@ -149,6 +151,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
+        $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
