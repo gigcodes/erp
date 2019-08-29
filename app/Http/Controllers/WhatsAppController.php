@@ -3479,10 +3479,11 @@ class WhatsAppController extends FindByNumberController
                 if ($whatsapp_number == '919152731483') { // 04
                     $instanceId = '55211';
                     $token = '3b92u5cbg215c718';
-                } else { // James
-                    $instanceId = "43112";
-                    $token = "vbi9bpkoejv2lvc4";
                 }
+//                else { // James
+//                    $instanceId = "43112";
+//                    $token = "vbi9bpkoejv2lvc4";
+//                }
             }
         }
 
