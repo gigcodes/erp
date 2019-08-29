@@ -3468,6 +3468,9 @@ class WhatsAppController extends FindByNumberController
         if ($whatsapp_number == '919004780634') { // Indian
             $instanceId = "43281";
             $token = "yi841xjhrwyrwrc7";
+        } elseif ($whatsapp_number == '971545889192') { // Indian
+                $instanceId = "62439";
+                $token = "jdcqh3ladeuvwzp4";
         } else {
             if ($whatsapp_number == '919152731486') { // Solo 06
                 $instanceId = '55202';
@@ -3491,7 +3494,7 @@ class WhatsAppController extends FindByNumberController
        $array[ 'body' ] = $file;
             $array[ 'filename' ] = 'folio_scrolling_en.png';
            $link = 'sendFile';
-        
+
 
 
         $curl = curl_init();
