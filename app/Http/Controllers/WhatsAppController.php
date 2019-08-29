@@ -3488,10 +3488,16 @@ class WhatsAppController extends FindByNumberController
             'phone' => $encodedNumber
         ];
 
-       $array[ 'body' ] = $file;
-            $array[ 'filename' ] = 'folio_scrolling_en.png';
-           $link = 'sendFile';
-        
+        if ($encodedText != null) {
+            $array[ 'body' ] = $encodedText;
+            $link = 'sendMessage';
+        } else {
+            $exploded = explode('/', $file);
+            $filename = end($exploded);
+            $array[ 'body' ] = $file;
+            $array[ 'filename' ] = $filename;
+            $link = 'sendFile';
+        }
 
 
         $curl = curl_init();

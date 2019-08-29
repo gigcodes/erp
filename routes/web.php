@@ -14,7 +14,7 @@
 //Route::get('/', function () {
 //    return view('welcome');
 //});
-Route::get('/test/test','TestController@test');
+
 Auth::routes();
 
 Route::get( 'crop-references', 'CroppedImageReferenceController@index' );
@@ -558,9 +558,6 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get( 'document/{id}/download', 'DocumentController@download' )->name( 'document.download' );
     Route::delete( 'document/{id}/destroy', 'DocumentController@destroy' )->name( 'document.destroy' );
 
-    //Document Cateogry
-    Route::post( 'documentcategory/add' , 'DocuemntCategoryController@addCategory' )->name( 'documentcategory.add' );       
-
     // Cash Flow Module
     Route::get( 'cashflow/{id}/download', 'CashFlowController@download' )->name( 'cashflow.download' );
     Route::get( 'cashflow/mastercashflow', 'CashFlowController@mastercashflow' )->name( 'cashflow.mastercashflow' );
@@ -784,7 +781,6 @@ Route::prefix( 'scrap' )->middleware( 'auth' )->group( function () {
     Route::get( '/google/images', 'ScrapController@index' );
     Route::post( '/google/images', 'ScrapController@scrapGoogleImages' );
     Route::post( '/google/images/download', 'ScrapController@downloadImages' );
-    Route::get( '/asset-manager', 'ScrapStatisticsController@assetManager' );
     Route::get( '/{name}', 'ScrapController@showProducts' );
 } );
 
@@ -841,7 +837,7 @@ Route::middleware( 'auth' )->group( function () {
     Route::post( 'update/old/{id}', 'OldController@update' )->name( 'updateOld' );
 
     Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 'showAnalytics' );
-    Route::get( 'display/links-to-post', 'AnalyticsController@displayLinksToPostData' )->name( 'linksToPost' );
+
     Route::get( 'display/back-link-details', 'BackLinkController@displayBackLinkDetails' )->name( 'backLinkFilteredResults' );
 //    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
 } );
