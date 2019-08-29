@@ -11,6 +11,19 @@ class ProductHelper extends Model
 
     public static function getSku($sku)
     {
+        // Do replaces in SKU
+        $sku = str_replace(' ', '', $sku);
+        $sku = str_replace('/', '', $sku);
+        $sku = str_replace('-', '', $sku);
+        $sku = str_replace('_', '', $sku);
+        $sku = str_replace('|', '', $sku);
+        $sku = str_replace('\\', '', $sku);
+
+        // Return SKU
+        return strtoupper($sku);
+    }
+
+    public static function getSkuWithoutColor($sku) {
         // Replace all colors from SKU
         if ( class_exists( '\App\Colors' ) ) {
             // Get all colors
@@ -30,16 +43,8 @@ class ProductHelper extends Model
             $sku = str_ireplace('multi', '', $sku);
         }
 
-        // Do replaces in SKU
-        $sku = str_replace(' ', '', $sku);
-        $sku = str_replace('/', '', $sku);
-        $sku = str_replace('-', '', $sku);
-        $sku = str_replace('_', '', $sku);
-        $sku = str_replace('|', '', $sku);
-        $sku = str_replace('\\', '', $sku);
-
-        // Return SKU
-        return strtoupper($sku);
+        // Return sku
+        return $sku;
     }
 
     public static function getRedactedText($text)

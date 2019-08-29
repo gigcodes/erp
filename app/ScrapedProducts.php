@@ -33,10 +33,10 @@ class ScrapedProducts extends Model
         'can_be_deleted'
     ];
 
-    public function bulkScrapeImport( $arrBulkJson = [] )
+    public function bulkScrapeImport($arrBulkJson = [], $isExcel = 0)
     {
         // Check array
-        if ( !is_array( $arrBulkJson ) || count( $arrBulkJson ) == 0 ) {
+        if (!is_array($arrBulkJson) || count($arrBulkJson) == 0) {
             // return false
             return false;
         }
@@ -45,31 +45,32 @@ class ScrapedProducts extends Model
         $count = 0;
 
         // Loop over array
-        foreach ( $arrBulkJson as $json ) {
+        foreach ($arrBulkJson as $json) {
             // Check for required values
             if (
-                !empty( $json->title ) &&
-                !empty( $json->sku ) &&
-                !empty( $json->brand_id ) &&
-                !empty( $json->properties['category'] )
+                !empty($json->title) &&
+                !empty($json->sku) &&
+                !empty($json->brand_id) &&
+                !empty($json->properties[ 'category' ])
             ) {
                 // Set possible alternate SKU
                 $sku2 = ProductHelper::getSku($json->sku);
 
                 // Create new scraped product if product doesn't exist
-                $scrapedProduct = ScrapedProducts::whereIn( 'sku', [ $json->sku, $sku2 ] )->where( 'website', $json->website )->first();
+                $scrapedProduct = ScrapedProducts::whereIn('sku', [$json->sku, $sku2])->where('website', $json->website)->first();
 
                 // Get brand name
-                $brand = Brand::find( $json->brand_id );
+                $brand = Brand::find($json->brand_id);
                 $brandName = $brand->name;
 
                 // Existing product
-                if ( $scrapedProduct ) {
+                if ($scrapedProduct) {
 
                     // Update scraped product
                     $scrapedProduct->properties = $json->properties;
                     $scrapedProduct->original_sku = $json->sku;
                     $scrapedProduct->is_sale = false;
+                    $scrapedProduct->properties = $json->properties;
                     $scrapedProduct->description = $json->description;
                     $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
                     $scrapedProduct->save();
@@ -82,8 +83,8 @@ class ScrapedProducts extends Model
                     $scrapStatistics->url = $json->url;
                     $scrapStatistics->description = $json->sku;
                     $scrapStatistics->save();
-                   // Create the product
-                    $productsCreatorResult = Product::createProductByJson( $json );
+                    // Create the product
+                    $productsCreatorResult = Product::createProductByJson($json, $isExcel);
                 } else {
                     // Add new scraped product
                     $scrapedProduct = new ScrapedProducts();
@@ -95,7 +96,7 @@ class ScrapedProducts extends Model
                     $scrapedProduct->description = $json->description;
                     $scrapedProduct->images = $json->images;
                     $scrapedProduct->price = $json->price;
-                    if ( $json->sku != 'N/A' ) {
+                    if ($json->sku != 'N/A') {
                         $scrapedProduct->has_sku = 1;
                     }
                     $scrapedProduct->is_price_updated = 1;
@@ -114,13 +115,13 @@ class ScrapedProducts extends Model
                     $scrapStatistics->save();
 
                     // Create the product
-                    $productsCreatorResult = Product::createProductByJson( $json );
+                    $productsCreatorResult = Product::createProductByJson($json, $isExcel);
                 }
 
                 // Product created successfully
-                if ( $productsCreatorResult ) {
+                if ($productsCreatorResult) {
                     // Add or update supplier / inventory
-                    SupplierInventory::firstOrCreate( [ 'supplier' => $json->website, 'sku' => $sku2, 'inventory' => $json->stock ] );
+                    SupplierInventory::firstOrCreate(['supplier' => $json->website, 'sku' => $sku2, 'inventory' => $json->stock]);
 
                     // Update count
                     $count++;
@@ -134,11 +135,11 @@ class ScrapedProducts extends Model
 
     public function brand()
     {
-        return $this->belongsTo( Brand::class );
+        return $this->belongsTo(Brand::class);
     }
 
     public function product()
     {
-        return $this->hasOne( 'App\Product', 'sku', 'sku' );
+        return $this->hasOne('App\Product', 'sku', 'sku');
     }
 }

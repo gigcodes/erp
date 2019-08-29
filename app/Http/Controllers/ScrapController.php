@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Brand;
 use App\Category;
+use App\Helpers\ProductHelper;
 use App\Image;
 use App\Imports\ProductsImport;
 use App\Product;
@@ -38,7 +39,8 @@ class ScrapController extends Controller
         $this->gnbCreator = $gnbCreator;
     }
 
-    public function index() {
+    public function index()
+    {
         return view('scrap.index');
     }
 
@@ -64,11 +66,12 @@ class ScrapController extends Controller
             $googleData = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
         }
 
-        return view('scrap.extracted_images', compact( 'googleData', 'pinterestData'));
+        return view('scrap.extracted_images', compact('googleData', 'pinterestData'));
 
     }
 
-    public function downloadImages(Request $request) {
+    public function downloadImages(Request $request)
+    {
         $this->validate($request, [
             'data' => 'required|array'
         ]);
@@ -76,15 +79,15 @@ class ScrapController extends Controller
 
         $images = [];
 
-        foreach ($data as $key=>$datum) {
+        foreach ($data as $key => $datum) {
             try {
                 $imgData = file_get_contents($datum);
             } catch (\Exception $exception) {
                 continue;
             }
 
-            $fileName = md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $i = new Image();
             $i->filename = $fileName;
@@ -96,15 +99,15 @@ class ScrapController extends Controller
         $downloaded = true;
 
 
-        return view('scrap.extracted_images', compact( 'images', 'downloaded'));
+        return view('scrap.extracted_images', compact('images', 'downloaded'));
 
     }
 
     public function activity()
     {
-      $date = Carbon::now()->subDays(7)->format('Y-m-d');
+        $date = Carbon::now()->subDays(7)->format('Y-m-d');
 
-      $links_count = DB::select( '
+        $links_count = DB::select('
 									SELECT site_name, created_at, COUNT(*) as total FROM
 								 		(SELECT scrap_entries.site_name, DATE_FORMAT(scrap_entries.created_at, "%Y-%m-%d") as created_at
 								  		 FROM scrap_entries
@@ -113,7 +116,7 @@ class ScrapController extends Controller
 								   	GROUP BY created_at, site_name;
 							', [$date]);
 
-      $scraped_count = DB::select( '
+        $scraped_count = DB::select('
 									SELECT website, created_at, COUNT(*) as total FROM
 								 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
 								  		 FROM scraped_products
@@ -122,9 +125,9 @@ class ScrapController extends Controller
 								   	GROUP BY created_at, website;
 							', [$date]);
 
-              // dd($scraped_count);
+        // dd($scraped_count);
 
-      $products_count = DB::select( '
+        $products_count = DB::select('
 									SELECT website, created_at, COUNT(*) as total FROM
 								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
 								  		 FROM scraped_products
@@ -141,9 +144,9 @@ class ScrapController extends Controller
 								   	GROUP BY created_at, website;
 							', [$date]);
 
-              // dd($products_count);
+        // dd($products_count);
 
-      $activity_data = DB::select( '
+        $activity_data = DB::select('
 									SELECT website, status, created_at, COUNT(*) as total FROM
 								 		(SELECT scrap_activities.website, scrap_activities.status, DATE_FORMAT(scrap_activities.created_at, "%Y-%m-%d") as created_at
 								  		 FROM scrap_activities
@@ -152,68 +155,69 @@ class ScrapController extends Controller
 								   	GROUP BY created_at, website, status;
 							', [$date]);
 
-      $data = [];
+        $data = [];
 
-      // dd('stap');
+        // dd('stap');
 
-      $link_entries = ScrapCounts::where('created_at', '>', $date)->orderBy('created_at', 'DESC')->get();
+        $link_entries = ScrapCounts::where('created_at', '>', $date)->orderBy('created_at', 'DESC')->get();
 
-      foreach ($links_count as $item) {
-        if ($item->site_name == 'GNB') {
-          $item->site_name = 'G&B';
+        foreach ($links_count as $item) {
+            if ($item->site_name == 'GNB') {
+                $item->site_name = 'G&B';
+            }
+
+            $data[ $item->created_at ][ $item->site_name ][ 'links' ] = $item->total;
         }
 
-        $data[$item->created_at][$item->site_name]['links'] = $item->total;
-      }
+        foreach ($scraped_count as $item) {
+            $data[ $item->created_at ][ $item->website ][ 'scraped' ] = $item->total;
+        }
 
-      foreach ($scraped_count as $item) {
-        $data[$item->created_at][$item->website]['scraped'] = $item->total;
-      }
+        foreach ($products_count as $item) {
+            $data[ $item->created_at ][ $item->website ][ 'created' ] = $item->total;
+        }
 
-      foreach ($products_count as $item) {
-        $data[$item->created_at][$item->website]['created'] = $item->total;
-      }
+        foreach ($activity_data as $item) {
+            $data[ $item->created_at ][ $item->website ][ $item->status ] = $item->total;
+        }
 
-      foreach ($activity_data as $item) {
-        $data[$item->created_at][$item->website][$item->status] = $item->total;
-      }
+        ksort($data);
+        // dd($data);
+        $data = array_reverse($data);
 
-      ksort($data);
-      // dd($data);
-      $data = array_reverse($data);
-
-      $currentPage = LengthAwarePaginator::resolveCurrentPage();
-  		$perPage = 24;
-  		$currentItems = array_slice($data, $perPage * ($currentPage - 1), $perPage);
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 24;
+        $currentItems = array_slice($data, $perPage * ($currentPage - 1), $perPage);
 
 
-  		$data = new LengthAwarePaginator($currentItems, count($data), $perPage, $currentPage, [
-  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
-  		]);
+        $data = new LengthAwarePaginator($currentItems, count($data), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath()
+        ]);
 
-  		$cropCountPerMinute = Product::whereRaw('cropped_at >= date_sub(now(),interval 1.2 minute)')->count();
+        $cropCountPerMinute = Product::whereRaw('cropped_at >= date_sub(now(),interval 1.2 minute)')->count();
 
-      return view('scrap.activity', [
-        'data'  => $data,
-        'link_entries'  => $link_entries,
-          'croppingRate' => $cropCountPerMinute
-      ]);
+        return view('scrap.activity', [
+            'data' => $data,
+            'link_entries' => $link_entries,
+            'croppingRate' => $cropCountPerMinute
+        ]);
     }
 
-    public function showProductStat(Request $request) {
+    public function showProductStat(Request $request)
+    {
         $brands = Brand::whereNull('deleted_at')->get();
         $products = [];
         $suppliers = DB::table('scraped_products')->selectRaw('DISTINCT(`website`)')->pluck('website');
 
         foreach ($suppliers as $supplier) {
             foreach ($brands as $brand) {
-                $products[$supplier][$brand->name] = ScrapedProducts::where('website', $supplier)
+                $products[ $supplier ][ $brand->name ] = ScrapedProducts::where('website', $supplier)
                     ->where('brand_id', $brand->id);
                 if ($request->has('start_date') && $request->has('end_date')) {
-                    $products[$supplier][$brand->name] = $products[$supplier][$brand->name]->whereBetween('created_at', [$request->get('start_date'), $request->get('end_date')]);
+                    $products[ $supplier ][ $brand->name ] = $products[ $supplier ][ $brand->name ]->whereBetween('created_at', [$request->get('start_date'), $request->get('end_date')]);
                 }
 
-                $products[$supplier][$brand->name] = $products[$supplier][$brand->name]->count();
+                $products[ $supplier ][ $brand->name ] = $products[ $supplier ][ $brand->name ]->count();
             }
         }
 
@@ -234,13 +238,14 @@ class ScrapController extends Controller
     }
 
 
-    public function showProducts($name, Request $request) {
+    public function showProducts($name, Request $request)
+    {
 
 
         $products = ScrapedProducts::where('website', $name);
         if ($request->get('sku') !== '') {
             $sku = $request->get('sku');
-            $products = $products->where(function($query) use ($sku) {
+            $products = $products->where(function ($query) use ($sku) {
                 $query->where('sku', 'LIKE', "%$sku%")
                     ->orWhere('title', 'LIKE', "%$sku%");
             });
@@ -252,7 +257,8 @@ class ScrapController extends Controller
         return view('scrap.scraped_images', compact('products', 'title'));
     }
 
-    public function syncGnbProducts(Request $request) {
+    public function syncGnbProducts(Request $request)
+    {
         $this->validate($request, [
             'sku' => 'required'
         ]);
@@ -278,7 +284,8 @@ class ScrapController extends Controller
 
     }
 
-    public function addProductEntries(Request $request) {
+    public function addProductEntries(Request $request)
+    {
         $this->validate($request, [
             'title' => 'required',
             'url' => 'required',
@@ -315,7 +322,8 @@ class ScrapController extends Controller
         ]);
     }
 
-    public function getProductsToScrape() {
+    public function getProductsToScrape()
+    {
         // Set empty value of productsToPush
         $productsToPush = [];
 
@@ -323,11 +331,11 @@ class ScrapController extends Controller
         $products = Product::join('status', 'status.id', '=', 'products.status_id')->where('status.name', 'scrape')->take(1000)->get();
 
         // Check if we have products and loop over them
-        if ( $products !== NULL ) {
+        if ($products !== null) {
             foreach ($products as $product) {
                 $productsToPush[] = [
                     'id' => $product->id,
-                    'sku' => $product->sku,
+                    'sku' => ProductHelper::getSkuWithoutColor($product->sku),
                     'brand' => $product->brands ? $product->brands->name : '',
                     'url' => $product->url,
                     'supplier' => $product->supplier
@@ -347,12 +355,12 @@ class ScrapController extends Controller
     public function getFromNewSupplier(Request $request)
     {
         //$products = Product::where('supplier', 'Ines')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
-        if ( (int) $request->limit > 0 ) {
-            $products = Product::where( 'isApproved', 0 )->where( 'is_farfetched', 0 )->where( 'is_crop_approved', 1 )->orderBy( 'id', 'DESC' )->limit( $request->limit )->get();
+        if ((int)$request->limit > 0) {
+            $products = Product::where('isApproved', 0)->where('is_farfetched', 0)->where('is_crop_approved', 1)->orderBy('id', 'DESC')->limit($request->limit)->get();
         } else {
-            $products = Product::where( 'isApproved', 0 )->where( 'is_farfetched', 0 )->where( 'is_crop_approved', 1 )->orderBy( 'id', 'DESC' )->get();
+            $products = Product::where('isApproved', 0)->where('is_farfetched', 0)->where('is_crop_approved', 1)->orderBy('id', 'DESC')->get();
         }
-        foreach ( $products as $product ) {
+        foreach ($products as $product) {
 
             $productsToPush[] = [
                 'id' => $product->id,
@@ -363,7 +371,7 @@ class ScrapController extends Controller
             ];
         }
 
-        return response()->json( $productsToPush );
+        return response()->json($productsToPush);
     }
 
     /**
@@ -372,7 +380,8 @@ class ScrapController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function saveScrapedProduct(Request $request) {
+    public function saveScrapedProduct(Request $request)
+    {
         $this->validate($request, [
             'id' => 'required'
         ]);
@@ -396,13 +405,13 @@ class ScrapController extends Controller
         }
 
         if (!$product->lmeasurement) {
-            $product->lmeasurement = $request->get('dimension')[0] ?? '0';
+            $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
         }
         if (!$product->hmeasurement) {
-            $product->hmeasurement = $request->get('dimension')[1] ?? '0';
+            $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
         }
         if (!$product->dmeasurement) {
-            $product->dmeasurement = $request->get('dimension')[2] ?? '0';
+            $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
         }
 
         $product->is_farfetched = 1;
@@ -413,7 +422,8 @@ class ScrapController extends Controller
         ]);
     }
 
-    public function getProductsForImages() {
+    public function getProductsForImages()
+    {
 //        $products = Product::where('supplier', 'Monti')->get();
 //        $products = Product::whereIn('supplier', ['Valenti'])->whereRaw('DATE(created_at) IN ("'.date('Y-m-d').'", "2019-06-20", "2019-06-19", "2019-06-21")')->get();
         $products = Product::whereRaw('char_length(short_description) < 60')
@@ -439,10 +449,11 @@ class ScrapController extends Controller
             ];
         }
 
-        return  response()->json($productsToPush);
+        return response()->json($productsToPush);
     }
 
-    public function saveImagesToProducts2(Request $request) {
+    public function saveImagesToProducts2(Request $request)
+    {
         $this->validate($request, [
             'id' => 'required',
             'website' => 'required',
@@ -455,26 +466,26 @@ class ScrapController extends Controller
         if ($scrapedProduct && $request->get('category')) {
             echo "Scraped product found \n";
             $properties = $scrapedProduct->properties;
-            $properties['category'] = $request->get('category');
+            $properties[ 'category' ] = $request->get('category');
             $scrapedProduct->properties = $properties;
             $scrapedProduct->save();
         }
 
         $product->name = $request->get('title') ?? $product->name;
 
-        if (strlen($product->short_description) < 60 && $request->get('description')){
+        if (strlen($product->short_description) < 60 && $request->get('description')) {
             $product->short_description = $request->get('description');
             $product->description_link = $request->get('url');
         }
 
         if (!$product->lmeasurement) {
-            $product->lmeasurement = $request->get('dimension')[0] ?? '0';
+            $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
         }
         if (!$product->hmeasurement) {
-            $product->hmeasurement = $request->get('dimension')[1] ?? '0';
+            $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
         }
         if (!$product->dmeasurement) {
-            $product->dmeasurement = $request->get('dimension')[2] ?? '0';
+            $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
         }
 
         $product->is_farfetched = 1;
@@ -486,7 +497,8 @@ class ScrapController extends Controller
 
     }
 
-    public function saveImagesToProducts(Request $request) {
+    public function saveImagesToProducts(Request $request)
+    {
         $this->validate($request, [
             'id' => 'required',
             'website' => 'required',
@@ -503,7 +515,7 @@ class ScrapController extends Controller
         if ($scrapedProduct) {
             echo "Scraped product found \n";
             $properties = $scrapedProduct->properties;
-            $properties['category'] = $request->get('category');
+            $properties[ 'category' ] = $request->get('category');
             $scrapedProduct->properties = $properties;
             $scrapedProduct->save();
         }
@@ -515,13 +527,13 @@ class ScrapController extends Controller
         $product->made_in = $request->get('country');
 
         if (!$product->lmeasurement) {
-            $product->lmeasurement = $request->get('dimension')[0] ?? '0';
+            $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
         }
         if (!$product->hmeasurement) {
-            $product->hmeasurement = $request->get('dimension')[1] ?? '0';
+            $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
         }
         if (!$product->dmeasurement) {
-            $product->dmeasurement = $request->get('dimension')[2] ?? '0';
+            $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
         }
 
 
@@ -550,7 +562,8 @@ class ScrapController extends Controller
 
     }
 
-    public function syncProductsFromNodeApp(Request $request) {
+    public function syncProductsFromNodeApp(Request $request)
+    {
         $this->validate($request, [
             'sku' => 'required|min:5',
             'url' => 'required',
@@ -562,7 +575,7 @@ class ScrapController extends Controller
 
         $brand = Brand::where('name', $request->get('brand'))->first();
 
-        if  (!$brand) {
+        if (!$brand) {
             return response()->json([
                 'status' => 'invalid_brand'
             ]);
@@ -624,7 +637,7 @@ class ScrapController extends Controller
     private function downloadImagesForSites($data, $prefix = 'img'): array
     {
         $images = [];
-        foreach ($data as $key=>$datum) {
+        foreach ($data as $key => $datum) {
             try {
                 $imgData = file_get_contents($datum);
                 echo $datum . "\n";
@@ -632,8 +645,8 @@ class ScrapController extends Controller
                 continue;
             }
 
-            $fileName = $prefix . '_' . md5(time() .'_'. rand(5,9999999)).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time() . '_' . rand(5, 9999999)) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             echo "$fileName \n";
             $images[] = $fileName;
@@ -642,12 +655,14 @@ class ScrapController extends Controller
         return $images;
     }
 
-    public function excel_import() {
+    public function excel_import()
+    {
         $products = ScrapedProducts::where('website', 'EXCEL_IMPORT_TYPE_1')->paginate(25);
         return view('scrap.excel', compact('products'));
     }
 
-    public function excel_store(Request $request) {
+    public function excel_store(Request $request)
+    {
         $this->validate($request, [
             'file' => 'required|file'
         ]);
@@ -656,8 +671,10 @@ class ScrapController extends Controller
 
         if ($file->getClientOriginalExtension() == 'xlsx') {
             $reader = new Xlsx();
-        } else if ($file->getClientOriginalExtension() == 'xls') {
-            $reader = new Xls();
+        } else {
+            if ($file->getClientOriginalExtension() == 'xls') {
+                $reader = new Xls();
+            }
         }
 
         $spreadsheet = $reader->load($file->getPathname());
@@ -686,31 +703,31 @@ class ScrapController extends Controller
                         break;
                 }
             } else {
-                $zipReader = fopen($drawing->getPath(),'r');
+                $zipReader = fopen($drawing->getPath(), 'r');
                 $imageContents = '';
                 while (!feof($zipReader)) {
-                    $imageContents .= fread($zipReader,1024);
+                    $imageContents .= fread($zipReader, 1024);
                 }
                 fclose($zipReader);
                 $extension = $drawing->getExtension();
             }
 
-            $myFileName = '00_Image_'.++$i.'.'.$extension;
-            file_put_contents('uploads/social-media/'.$myFileName,$imageContents);
-            $cells[substr($drawing->getCoordinates(), 2)][] = $myFileName;
+            $myFileName = '00_Image_' . ++$i . '.' . $extension;
+            file_put_contents('uploads/social-media/' . $myFileName, $imageContents);
+            $cells[ substr($drawing->getCoordinates(), 2) ][] = $myFileName;
         }
 
         $cells_new = [];
         $c = 0;
         foreach ($cells as $cell) {
-            $cells_new[$c] = $cell;
+            $cells_new[ $c ] = $cell;
             $c++;
         }
 
         $files = Excel::toArray(new ProductsImport(), $file);
         $th = [];
 
-        foreach ($files[0] as $key=>$file) {
+        foreach ($files[ 0 ] as $key => $file) {
             if (
                 in_array('MODELLO', $file)
                 + in_array('VARIANTE', $file)
@@ -723,50 +740,54 @@ class ScrapController extends Controller
                 + in_array('TESSUTO', $file)
                 + in_array('PR. VENDITA', $file)
                 + in_array('COD. FOTO', $file)
-             >= 4) {
+                >= 4) {
                 $th = $file;
-                unset($files[0][$key]);
+                unset($files[ 0 ][ $key ]);
                 break;
             }
-            unset($files[0][$key]);
+            unset($files[ 0 ][ $key ]);
         }
 
         $fields_only_with_keys = [];
 
-        foreach ($th as $key=>$file) {
+        foreach ($th as $key => $file) {
             if ($file) {
-                $fields_only_with_keys[$key] = $file;
+                $fields_only_with_keys[ $key ] = $file;
             }
         }
 
         $dataToSave = [];
 
-        foreach ($files[0] as $pkey=>$row) {
+        foreach ($files[ 0 ] as $pkey => $row) {
             $null_count = 0;
             foreach ($row as $item) {
-                if ($item===null) $null_count++;
+                if ($item === null) {
+                    $null_count++;
+                }
             }
-            if ($null_count > 30) unset($files[0][$pkey]);
+            if ($null_count > 30) {
+                unset($files[ 0 ][ $pkey ]);
+            }
         }
 
         $c = 0;
-        foreach ($files[0] as $pkey=>$row) {
-            foreach ($fields_only_with_keys as $key=>$item) {
-                $dataToSave[$pkey][$item] = $row[$key];
+        foreach ($files[ 0 ] as $pkey => $row) {
+            foreach ($fields_only_with_keys as $key => $item) {
+                $dataToSave[ $pkey ][ $item ] = $row[ $key ];
                 if ($item == 'COD. FOTO') {
-                    $dataToSave[$pkey][$item] = $cells_new[$c];
+                    $dataToSave[ $pkey ][ $item ] = $cells_new[ $c ];
                 }
             }
             $c++;
         }
 
         foreach ($dataToSave as $item) {
-            $sku = $item['MODELLO VARIANTE COLORE'] ?? null;
+            $sku = $item[ 'MODELLO VARIANTE COLORE' ] ?? null;
             if (!$sku) {
                 continue;
             }
 
-            $brand = Brand::where('name', $item['BRAND'] ?? 'UNKNOWN_BRAND_FROM_FILE')->first();
+            $brand = Brand::where('name', $item[ 'BRAND' ] ?? 'UNKNOWN_BRAND_FROM_FILE')->first();
 
             if (!$brand) {
                 continue;
@@ -778,8 +799,8 @@ class ScrapController extends Controller
             $sp->has_sku = 1;
             $sp->brand_id = $brand->id;
             $sp->title = $sku;
-            $sp->description = $item['description'] ?? null;
-            $sp->images = $item['COD. FOTO'] ?? [];
+            $sp->description = $item[ 'description' ] ?? null;
+            $sp->images = $item[ 'COD. FOTO' ] ?? [];
             $sp->price = 'N/A';
             $sp->properties = $item;
             $sp->url = 'N/A';
@@ -795,7 +816,8 @@ class ScrapController extends Controller
 
     }
 
-    public function saveSupplier(Request $request) {
+    public function saveSupplier(Request $request)
+    {
         $this->validate($request, [
             'supplier' => 'required'
         ]);
@@ -813,11 +835,11 @@ class ScrapController extends Controller
 
         $params = [
             'supplier' => ucwords($request->get('supplier')),
-            'phone'	=> str_replace('+', '', $request->get('phone')),
+            'phone' => str_replace('+', '', $request->get('phone')),
             'address' => $request->get('address'),
             'website' => $request->get('website'),
-            'email'	=> $request->get('email'),
-            'social_handle'	=> $request->get('social_handle'),
+            'email' => $request->get('email'),
+            'social_handle' => $request->get('social_handle'),
             'instagram_handle' => $request->get('instagram_handle'),
         ];
 
@@ -829,7 +851,8 @@ class ScrapController extends Controller
 
     }
 
-    public function saveFromNewSupplier(Request $request) {
+    public function saveFromNewSupplier(Request $request)
+    {
         $this->validate($request, [
             'id' => 'required',
             'website' => 'required',
@@ -860,7 +883,7 @@ class ScrapController extends Controller
 //            $scrapedProduct->save();
 //        }
 
-        if ( $product ) {
+        if ($product) {
             $product->short_description = $request->get('description');
             $product->composition = $request->get('material_used');
             $product->color = $request->get('color');
