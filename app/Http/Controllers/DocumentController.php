@@ -18,7 +18,7 @@ class DocumentController extends Controller
      */
     public function index()
     {
-      if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 7 || Auth::id() == 49 || Auth::id() == 56) {
+      if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 7 || Auth::id() == 49 || Auth::id() == 56 || Auth::id() == 148) {
         $documents = Document::latest()->paginate(Setting::get('pagination'));
         $users = User::select(['id', 'name', 'email','agent_role'])->get();
 
