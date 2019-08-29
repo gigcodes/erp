@@ -322,6 +322,10 @@ class ScrapController extends Controller
         ]);
     }
 
+    /**
+     * Get a json array with products to scrape
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getProductsToScrape()
     {
         // Set empty value of productsToPush
@@ -382,28 +386,31 @@ class ScrapController extends Controller
      */
     public function saveScrapedProduct(Request $request)
     {
+        // Check if ID is set
         $this->validate($request, [
             'id' => 'required'
         ]);
 
+        // Find product
         $product = Product::find($request->get('id'));
-        $product->was_auto_rejected = 1;
-        $product->save();
 
-
+        // Check for short description
         if (!$product->short_description && $request->get('description')) {
             $product->short_description = $request->get('description');
             $product->description_link = $request->get('url');
         }
 
+        // Check for composition
         if (!$product->composition && $request->get('material_used')) {
             $product->composition = title_case($request->get('material_used'));
         }
 
+        // Check for color
         if (!$product->color && $request->get('color')) {
             $product->color = title_case($request->get('color'));
         }
 
+        // Check measurements
         if (!$product->lmeasurement) {
             $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
         }
@@ -414,11 +421,15 @@ class ScrapController extends Controller
             $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
         }
 
-        $product->is_farfetched = 1;
+        // Save new data
         $product->save();
 
+        // Run validation
+
+        // Return response
         return response()->json([
-            'status' => 'Added items successfuly!'
+            'status' => 200,
+            'message' => 'Product updated successfully'
         ]);
     }
 
