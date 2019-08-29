@@ -50,3 +50,7 @@ logs
 .git.zip
 _MACOSX
 composer.lock
+
+/public/*.zip
+/public/*.pdf
+public/uploads/*
