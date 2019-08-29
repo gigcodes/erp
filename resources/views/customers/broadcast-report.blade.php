@@ -11,18 +11,17 @@
 
   <div class="row mb-5">
       <div class="col-lg-12 margin-tb">
-          <h2 class="page-heading">Supplier Scrapping  Info </h2>
+          <h2 class="page-heading">Broadcast Report </h2>
 
           <div class="pull-left">
             <form class="form-inline" action="{{ route('mastercontrol.index') }}" method="GET">
               
-               <div class="form-group ml-3">
-               <input type='text' class="form-control" name="search" placeholder="Search" required />
+              <div class="form-group ml-3">
+               <input type='text' class="form-control" name="number" placeholder="Please Enter Number" required />
               </div>
 
               <div class="form-group ml-3">
                <select name="status" class="form-control">
-                  <option>Select Type</option>
                   <option>Sucess</option>
                   <option>Failed</option>
               </select> 
@@ -42,96 +41,131 @@
           </div>
 
           <div class="pull-right mt-4">
-           
+            <div class="form-group ml-3">
+               <input type='text' class="form-control" name="search" placeholder="Search" required />
+              </div>
           </div>
       </div>
   </div>
 
   @include('partials.flash_messages')
 
-    
+   <div id="exTab2" class="container">
+      <ul class="nav nav-tabs">
+       @foreach ($message_groups as $date => $data)
+        @if (count($data) > 0)
+        @foreach ($data as $group_id => $group)
+        <li>
+          <a href="#broadcasts-tab-{{ $group_id }}" data-toggle="tab" class="btn btn-image">Broadcasts {{ $group_id}}</a>
+        </li>
+        @endforeach
+        @endif
+      @endforeach
+      </ul>
+    </div>
 
-    <div class="row no-gutters mt-3">
-      <div class="col-xs-12 col-md-12" id="plannerColumn">
-        <div class="table-responsive">
-          <table class="table table-bordered table-sm">
-            <thead>
-              <tr>
-                <th>Sr. No</th>
-                <th>Supplied ID</th>
-                <th>Supplier Name </th>
-                <th>Status</th>
-                <th>Scrapper Type</th>
-                <th>Last Scrapped</th>
-                <th>Progess</th>
-                <th>Inventory</th>
-                <th>New</th>
-                <th>Removed</th>
-                <th>Total</th>
-                <th>Info Scrapping</th>
-                <th>Developer</th>
-                <th>Remarks</th>
-              </tr>
-            </thead>
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="tab-content">
+           @foreach ($message_groups as $date => $data)
+        @if (count($data) > 0)
+        @foreach ($data as $group_id => $group)
+       
+       <div class="tab-pane  mt-3" id="broadcasts-tab-{{ $group_id }}">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Frequency</td>
+                    <td>Number Of Images</td>
+                    <td>Start Time</td>
+                    <td>Expected End Time</td>
+                    <td>Actual time of completion</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>{{ count($group['image']) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($group['sending_time'])->format('H:i d-m') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($group['expecting_time'])->format('H:i d-m') }}</td>
+                    <td>{{ $group['actual_time'] }}</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+                 <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Total Coustmer</td>
+                    <td>Total Send</td>
+                    <td>1st Send</td>
+                    <td>2nd Send</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>{{ $group['total'] }}</td>
+                    <td>{{ $group['total_send'] }}</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="5%">Coustmer ID</th>
+                        <th width="5%">Coustmer Name</th>
+                        <th width="10%" colspan="2">Last Broadcast</th>
+                        <th width="15%">Sucess</th>
+                        <th width="15%">Resent Sucess</th>
+                       </tr>
+                        <tr>
+                        <th width="5%"></th>
+                        <th width="5%"></th>
+                        <th width="10%">Date</th>
+                        <th width="10%">Time</th>
+                        <th width="15%">Yes/No</th>
+                        <th width="15%">Yes/No</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                     
+                      @foreach($group['message_queues'] as $key => $value)
+                       <tr>
+                      <td>{{ $value->customer->id }}</td>
+                      <td>{{ $value->customer->name }}</td>
+                      <td>{{ \Carbon\Carbon::parse($value->sending_time)->format('Y-m-d') }}</td>
+                      <td>{{ \Carbon\Carbon::parse($value->sending_time)->format('H:i:s') }}</td>
+                      <td>{{ $value->send == 0 ? 'Yes' : 'No' }}</td>
+                         <tr>  
+                      @endforeach
+                     
+                       
+                       
+                    </tbody>
+                  </table>
+                </div>
+                 {!! $group['message_queues']->appends(Request::except('page'))->links() !!}
+              </div>
+            </div>
+          </div>
+        @endforeach
+        @endif
+      @endforeach
+          
 
-            <tbody>
-              @foreach($progress as $key => $progressItem) 
-                                                     
-              <tr>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-                    <td class="p-2">{{$key}}</td>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-                    <td class="p-2"> 
-                      <div class="progress" style="margin-bottom: 5px;">
-                                        <div class="progress-bar" role="progressbar" style="width: {{$progressItem[1]}}%" aria-valuenow="{{$progressItem[1]}}" aria-valuemin="0" aria-valuemax="100">{{ $progressItem[1]}}%</div>
-                       </div>
-                      {{ $progressItem[0] . ' of ' . $progressItem[2] }}</td>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-                    <td class="p-2"></td>
-
-              </tr>
-             @endforeach  
-                  
-             <tr>
-                                <td>{{$key}}</td>
-                                <td>
-                                    <div class="progress" style="margin-bottom: 5px;">
-                                        <div class="progress-bar" role="progressbar" style="width: {{$progressItem[1]}}%" aria-valuenow="{{$progressItem[1]}}" aria-valuemin="0" aria-valuemax="100">{{ $progressItem[1]}}%</div>
-                                    </div>
-                                    {{ $progressItem[0] . ' of ' . $progressItem[2] }}
-                                </td>
-                                <td>
-                                    {{ $progressItem[4]->started_at ?? 'N/A' }}
-                                </td>
-                                <td>
-                                    {{ $progressItem[4]->ended_at ?? 'N/A' }}
-                                </td>
-                                <td class="expand-row">
-                                    <span class="td-mini-container">
-                                        {!! strlen($progressItem[3]) > 20 ? substr($progressItem[3], 0, 20).'...' : $progressItem[3] !!}
-                                    </span>
-                                    <span class="td-full-container hidden">
-                                        {!! $progressItem[3] !!}
-                                    </span>
-                                </td>
-                            </tr>
-                
-            </thead>
-
-            <tbody>
-                          </tbody>
-          </table>
-        </div>
+       </div>
       </div>
-    </div> 
+    </div>   
   
   @endsection
 
