@@ -328,7 +328,7 @@ class ScrapController extends Controller
         $productsToPush = [];
 
         // Get all products with status scrape
-        $products = Product::select('products.*','status.name')->join('status', 'status.id', '=', 'products.status_id')->where('status.name', 'scrape')->orderBy('products.id', 'DESC')->take(250)->get();
+        $products = Product::select('products.*','status.name')->join('status', 'status.id', '=', 'products.status_id')->where('status.name', 'scrape')->orderBy('products.id', 'DESC')->take(50)->get();
 
         // Check if we have products and loop over them
         if ($products !== null) {
@@ -338,7 +338,7 @@ class ScrapController extends Controller
 
                 $productsToPush[] = [
                     'id' => $product->id,
-                    'sku' => $scrapedProduct !== null && !empty($scrapedProduct->original_sku) ? ProductHelper::getSkuWithoutColor($scrapedProduct->original_sku) : ProductHelper::getSkuWithoutColor($product->sku),
+                    'sku' => $scrapedProduct !== null && !empty($scrapedProduct->original_sku) ? ProductHelper::getOriginalSkuByBrand($scrapedProduct->original_sku, $product->brands ? $product->brands->id : 0) : ProductHelper::getSkuWithoutColor($product->sku),
                     'brand' => $product->brands ? $product->brands->name : '',
                     'url' => NULL,
                     'supplier' => $product->supplier

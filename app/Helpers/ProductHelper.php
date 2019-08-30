@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
 use App\AttributeReplacement;
+use App\Brand;
 
 class ProductHelper extends Model
 {
@@ -23,16 +24,36 @@ class ProductHelper extends Model
         return strtoupper($sku);
     }
 
-    public static function getSkuWithoutColor($sku) {
+    public static function getOriginalSkuByBrand($sku, $brandId = 0)
+    {
+        // Get brand
+        $brand = Brand::find($brandId);
+
+        // Return sku if brand is unknown
+        if ($brand == null) {
+            return $sku;
+        }
+
+        // Strip last # characters
+        if (isset($brand->sku_strip_last) && (int)$brand->sku_strip_last > 0) {
+            $sku = substr($sku, 0, $brand->sku_strip_last * -1);
+        }
+
+        // Return SKU
+        return $sku;
+    }
+
+    public static function getSkuWithoutColor($sku)
+    {
         // Replace all colors from SKU
-        if ( class_exists( '\App\Colors' ) ) {
+        if (class_exists('\App\Colors')) {
             // Get all colors
             $colors = new \App\Colors;
             $colors = $colors->all();
 
             // Loop over colors
-            foreach ( $colors as $color ) {
-                if ( stristr( $sku, $color ) ) {
+            foreach ($colors as $color) {
+                if (stristr($sku, $color)) {
                     // Replace color
                     $sku = str_ireplace($color, '', $sku);
                 }
