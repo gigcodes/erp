@@ -41,7 +41,6 @@
                 </div>
             </div>
 
-
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Deduction %</strong>
@@ -51,7 +50,6 @@
                     @endif
                 </div>
             </div>
-
 
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
@@ -63,7 +61,40 @@
                 </div>
             </div>
 
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Segment</strong>
+                    <select name="brand_segment">
+                        <option value=""></option>
+                        <option value="A" {{$brand_segment == 'A' ? ' SELECTED' : ''}}>A</option>
+                        <option value="B" {{$brand_segment == 'B' ? ' SELECTED' : ''}}>B</option>
+                        <option value="C" {{$brand_segment == 'C' ? ' SELECTED' : ''}}>C</option>
+                    </select>
+                    @if ($errors->has('brand_segment'))
+                        <div class="alert alert-danger">{{$errors->first('brand_segment')}}</div>
+                    @endif
+                </div>
+            </div>
 
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Strip last # characters from SKU</strong>
+                    <input type="text" class="form-control" name="sku_strip_last" placeholder="Strip last # characters from SKU" value="{{old('sku_strip_last') ? old('sku_strip_last') : $sku_strip_last}}"/>
+                    @if ($errors->has('sku_strip_last'))
+                        <div class="alert alert-danger">{{$errors->first('sku_strip_last')}}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Add to SKU for brand site</strong>
+                    <input type="text" class="form-control" name="sku_add" placeholder="Add to SKU for brand site" value="{{old('sku_add') ? old('sku_add') : $sku_add}}"/>
+                    @if ($errors->has('sku_add'))
+                        <div class="alert alert-danger">{{$errors->first('sku_add')}}</div>
+                    @endif
+                </div>
+            </div>
 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                 <button type="submit" class="btn btn-secondary">+</button>

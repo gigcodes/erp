@@ -16,7 +16,7 @@ class Brand extends Model
 
     use SoftDeletes;
 
-    protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id' ];
+    protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ];
     protected $dates = [ 'deleted_at' ];
 
     public static function getAll()

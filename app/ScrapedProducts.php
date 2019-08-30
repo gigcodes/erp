@@ -65,7 +65,6 @@ class ScrapedProducts extends Model
 
                 // Existing product
                 if ($scrapedProduct) {
-
                     // Update scraped product
                     $scrapedProduct->properties = $json->properties;
                     $scrapedProduct->original_sku = $json->sku;

@@ -11,160 +11,177 @@ class BrandController extends Controller
 {
     //
 
-	public function __construct() {
-		$this->middleware('permission:brand-edit',[ 'only' => 'index','create','store','destroy','update','edit']);
-	}
+    public function __construct()
+    {
+        $this->middleware('permission:brand-edit', ['only' => 'index', 'create', 'store', 'destroy', 'update', 'edit']);
+    }
 
-	public function index(){
+    public function index()
+    {
 
-		$brands = Brand::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
+        $brands = Brand::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
 
-		return view('brand.index',compact('brands'))
-					->with('i', (request()->input('page', 1) - 1) * 10);
-	}
+        return view('brand.index', compact('brands'))
+            ->with('i', (request()->input('page', 1) - 1) * 10);
+    }
 
-	public  function create(){
+    public function create()
+    {
 
-		$data['name'] = '';
-		$data['euro_to_inr'] = '';
-		$data['deduction_percentage'] = '';
-		$data['magento_id'] = '';
+        $data[ 'name' ] = '';
+        $data[ 'euro_to_inr' ] = '';
+        $data[ 'deduction_percentage' ] = '';
+        $data[ 'magento_id' ] = '';
+        $data[ 'brand_segment' ] = '';
+        $data[ 'brand_segment' ] = '';
+        $data[ 'brand_segment' ] = '';
 
-		$data['modify'] = 0;
+        $data[ 'modify' ] = 0;
 
-		return view('brand.form',$data);
-	}
-
-
-	public function edit(Brand $brand){
-
-		$data = $brand->toArray();
-		$data['modify'] = 1;
-
-		return view('brand.form',$data);
-	}
+        return view('brand.form', $data);
+    }
 
 
-	public function store(Request $request, Brand $brand){
+    public function edit(Brand $brand)
+    {
 
-		$this->validate($request,[
-			'name' => 'required',
-			'euro_to_inr' => 'required|numeric',
-			'deduction_percentage' => 'required|numeric',
-			'magento_id' => 'required|numeric',
-		]);
+        $data = $brand->toArray();
+        $data[ 'modify' ] = 1;
 
-		$data = $request->except('_token','_method');
+        return view('brand.form', $data);
+    }
 
-		$brand->create($data);
 
-		return redirect()->route('brand.index')->with('success','Brand added successfully');
-	}
+    public function store(Request $request, Brand $brand)
+    {
 
-	public function update(Request $request, Brand $brand){
+        $this->validate($request, [
+            'name' => 'required',
+            'euro_to_inr' => 'required|numeric',
+            'deduction_percentage' => 'required|numeric',
+            'magento_id' => 'required|numeric',
+        ]);
 
-		$this->validate($request,[
-			'name' => 'required',
-			'euro_to_inr' => 'required|numeric',
-			'deduction_percentage' => 'required|numeric',
-			'magento_id' => 'required|numeric',
-		]);
+        $data = $request->except('_token', '_method');
 
-		$data = $request->except(['_token','_method']);
+        $brand->create($data);
 
-		foreach ($data as $key => $value)
-			$brand->$key = $value;
+        return redirect()->route('brand.index')->with('success', 'Brand added successfully');
+    }
 
-		$brand->update();
+    public function update(Request $request, Brand $brand)
+    {
 
-		$products = Product::where('brand', $brand->id)->get();
+        $this->validate($request, [
+            'name' => 'required',
+            'euro_to_inr' => 'required|numeric',
+            'deduction_percentage' => 'required|numeric',
+            'magento_id' => 'required|numeric',
+        ]);
 
-		if (count($products) > 0) {
-			foreach ($products as $product) {
-				if(!empty($brand->euro_to_inr))
-					$product->price_inr = $brand->euro_to_inr * $product->price;
-				else
-					$product->price_inr = Setting::get('euro_to_inr') * $product->price;
+        $data = $request->except(['_token', '_method']);
 
-				$product->price_inr = round($product->price_inr, -3);
-				$product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+        foreach ($data as $key => $value) {
+            $brand->$key = $value;
+        }
 
-				$product->price_special = round($product->price_special, -3);
+        $brand->update();
 
-				$product->save();
-			}
-		}
+        $products = Product::where('brand', $brand->id)->get();
 
-		$uploaded_products = Product::where('brand', $brand->id)->where('isUploaded', 1)->get();
+        if (count($products) > 0) {
+            foreach ($products as $product) {
+                if (!empty($brand->euro_to_inr)) {
+                    $product->price_inr = $brand->euro_to_inr * $product->price;
+                } else {
+                    $product->price_inr = Setting::get('euro_to_inr') * $product->price;
+                }
 
-		if (count($uploaded_products) > 0) {
-			foreach ($uploaded_products as $product) {
-				$this->magentoSoapUpdatePrices($product);
-			}
-		}
+                $product->price_inr = round($product->price_inr, -3);
+                $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
-		return redirect()->route('brand.index')->with('success','Brand updated successfully');
-	}
+                $product->price_special = round($product->price_special, -3);
 
-	public function destroy(Brand $brand){
-	    $brand->scrapedProducts()->delete();
-	    $brand->products()->delete();
-		$brand->delete();
-		return redirect()->route('brand.index')->with('success','Brand Deleted successfully');
+                $product->save();
+            }
+        }
 
-	}
+        $uploaded_products = Product::where('brand', $brand->id)->where('isUploaded', 1)->get();
 
-	public static function getBrandName($id){
+        if (count($uploaded_products) > 0) {
+            foreach ($uploaded_products as $product) {
+                $this->magentoSoapUpdatePrices($product);
+            }
+        }
 
-		$brand = new Brand();
-		$brand_instance = $brand->find($id);
+        return redirect()->route('brand.index')->with('success', 'Brand updated successfully');
+    }
 
-		return $brand_instance ? $brand_instance->name : '';
-	}
+    public function destroy(Brand $brand)
+    {
+        $brand->scrapedProducts()->delete();
+        $brand->products()->delete();
+        $brand->delete();
+        return redirect()->route('brand.index')->with('success', 'Brand Deleted successfully');
 
-	public static function getBrandIds($term){
+    }
 
-		$brand = Brand::where('name', '=' ,$term)->first();
+    public static function getBrandName($id)
+    {
 
-		return $brand ? $brand->id : 0;
-	}
+        $brand = new Brand();
+        $brand_instance = $brand->find($id);
 
-	public static function getEuroToInr($id){
+        return $brand_instance ? $brand_instance->name : '';
+    }
 
-		$brand = new Brand();
-		$brand_instance = $brand->find($id);
+    public static function getBrandIds($term)
+    {
 
-		return $brand_instance ? $brand_instance->euro_to_inr : 0;
-	}
+        $brand = Brand::where('name', '=', $term)->first();
 
-	public static function getDeductionPercentage($id){
+        return $brand ? $brand->id : 0;
+    }
 
-		$brand = new Brand();
-		$brand_instance = $brand->find($id);
+    public static function getEuroToInr($id)
+    {
 
-		return $brand_instance ? $brand_instance->deduction_percentage : 0;
-	}
+        $brand = new Brand();
+        $brand_instance = $brand->find($id);
 
-	public function magentoSoapUpdatePrices($product){
+        return $brand_instance ? $brand_instance->euro_to_inr : 0;
+    }
 
-		$options = array(
-			'trace' => true,
-			'connection_timeout' => 120,
-			'wsdl_cache' => WSDL_CACHE_NONE,
-		);
-		$proxy = new \SoapClient(config('magentoapi.url'), $options);
-		$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+    public static function getDeductionPercentage($id)
+    {
 
-		$sku = $product->sku . $product->color;
+        $brand = new Brand();
+        $brand_instance = $brand->find($id);
+
+        return $brand_instance ? $brand_instance->deduction_percentage : 0;
+    }
+
+    public function magentoSoapUpdatePrices($product)
+    {
+
+        $options = array(
+            'trace' => true,
+            'connection_timeout' => 120,
+            'wsdl_cache' => WSDL_CACHE_NONE,
+        );
+        $proxy = new \SoapClient(config('magentoapi.url'), $options);
+        $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+
+        $sku = $product->sku . $product->color;
 //		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
-		$data = [
-			'price'	=> $product->price_inr,
-			'special_price'	=> $product->price_special
-		];
+        $data = [
+            'price' => $product->price_inr,
+            'special_price' => $product->price_special
+        ];
 
-		$result = $proxy->catalogProductUpdate($sessionId, $sku , $data);
+        $result = $proxy->catalogProductUpdate($sessionId, $sku, $data);
 
 
-		return $result;
-	}
+        return $result;
+    }
 }
