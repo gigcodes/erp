@@ -333,8 +333,6 @@ class ScrapController extends Controller
         // Check if we have products and loop over them
         if ($products !== null) {
             foreach ($products as $product) {
-                var_dump($product); exit();
-
                 // Get original SKU
                 $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
 
