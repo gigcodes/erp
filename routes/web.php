@@ -560,6 +560,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get( 'document/{id}/download', 'DocumentController@download' )->name( 'document.download' );
     Route::delete( 'document/{id}/destroy', 'DocumentController@destroy' )->name( 'document.destroy' );
 
+    //Document Cateogry
+    Route::post( 'documentcategory/add' , 'DocuemntCategoryController@addCategory' )->name( 'documentcategory.add' );       
+
     // Cash Flow Module
     Route::get( 'cashflow/{id}/download', 'CashFlowController@download' )->name( 'cashflow.download' );
     Route::get( 'cashflow/mastercashflow', 'CashFlowController@mastercashflow' )->name( 'cashflow.mastercashflow' );
