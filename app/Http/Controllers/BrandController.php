@@ -168,7 +168,7 @@ class BrandController extends Controller
             'trace' => true,
             'connection_timeout' => 120,
             'wsdl_cache' => WSDL_CACHE_NONE,
-            'exceptions' => false,
+            'exceptions' => 0,
         );
         $proxy = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
