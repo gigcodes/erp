@@ -333,9 +333,12 @@ class ScrapController extends Controller
         // Check if we have products and loop over them
         if ($products !== null) {
             foreach ($products as $product) {
+                // Get original SKU
+                $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
+
                 $productsToPush[] = [
                     'id' => $product->id,
-                    'sku' => ProductHelper::getSkuWithoutColor($product->sku),
+                    'sku' => $scrapedProduct !== null && !empty($scrapedProduct->original_sku) ? ProductHelper::getSkuWithoutColor($scrapedProduct->original_sku) : ProductHelper::getSkuWithoutColor($product->sku),
                     'brand' => $product->brands ? $product->brands->name : '',
                     'url' => $product->url,
                     'supplier' => $product->supplier
