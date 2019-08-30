@@ -328,11 +328,13 @@ class ScrapController extends Controller
         $productsToPush = [];
 
         // Get all products with status scrape
-        $products = Product::join('status', 'status.id', '=', 'products.status_id')->where('status.name', 'scrape')->orderBy('products.id', 'DESC')->take(250)->get();
+        $products = Product::select('products.*','status.name')->join('status', 'status.id', '=', 'products.status_id')->where('status.name', 'scrape')->orderBy('products.id', 'DESC')->take(250)->get();
 
         // Check if we have products and loop over them
         if ($products !== null) {
             foreach ($products as $product) {
+                var_dump($product); exit();
+
                 // Get original SKU
                 $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
 
@@ -340,7 +342,7 @@ class ScrapController extends Controller
                     'id' => $product->id,
                     'sku' => $scrapedProduct !== null && !empty($scrapedProduct->original_sku) ? ProductHelper::getSkuWithoutColor($scrapedProduct->original_sku) : ProductHelper::getSkuWithoutColor($product->sku),
                     'brand' => $product->brands ? $product->brands->name : '',
-                    'url' => $product->url,
+                    'url' => NULL,
                     'supplier' => $product->supplier
                 ];
             }
