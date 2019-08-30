@@ -6,7 +6,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Articles</h2>
+            <h2 class="page-heading">Article Approval</h2>
         </div>
     </div>
     <div class="text-center">
@@ -104,7 +104,7 @@
 
           $.ajax({
             type: 'POST',
-            url: "{{ url('article') }}/" + id + '/updateTitleDomain',
+            url: "{{ url('article') }}/" + id + '/updateTitle',
             data: {
               _token: "{{ csrf_token() }}",
               article_title: name,
@@ -137,7 +137,7 @@
 
           $.ajax({
             type: 'POST',
-            url: "{{ url('article') }}/" + id + '/updateDesc',
+            url: "{{ url('article') }}/" + id + '/updateDescription',
             data: {
               _token: "{{ csrf_token() }}",
               article_desc: name,

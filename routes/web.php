@@ -952,10 +952,17 @@ Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 's
 Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 'filteredAnalyticsResults' );
 Route::get( 'display/analytics-summary', 'AnalyticsController@analyticsDataSummary' )->name( 'analyticsDataSummary' );
 Route::get( 'display/analytics-summary', 'AnalyticsController@analyticsDataSummary' )->name( 'filteredAnalyticsSummary' );
+Route::get( 'display/analytics-customer-behaviour', 'AnalyticsController@customerBehaviourByPage' )->name( 'customerBehaviourByPage' );
+Route::get( 'display/analytics-customer-behaviour', 'AnalyticsController@customerBehaviourByPage' )->name( 'filteredcustomerBehaviourByPage' );
 
 // Broken Links
 Route::post( 'back-link/{id}/updateDomain', 'BrokenLinkCheckerController@updateDomain' );
 Route::post( 'back-link/{id}/updateTitle', 'BrokenLinkCheckerController@updateTitle' );
+
+// Article Links
+Route::get( 'display/articles', 'ArticleController@index' )->name( 'articleApproval' );
+Route::post( 'article/{id}/updateTitle', 'ArticleController@updateTitle' );
+Route::post( 'article/{id}/updateDescription', 'ArticleController@updateDescription' );
 
 //Back Linking
 Route::post( 'back-linking/{id}/updateTitle', 'BackLinkController@updateTitle' );
@@ -965,12 +972,16 @@ Route::post( 'back-linking/{id}/updateURL', 'BackLinkController@updateURL' );
 //SE Ranking Links
 Route::get( 'se-ranking/sites', 'SERankingController@getSites' )->name( 'getSites' );
 Route::get( 'se-ranking/keywords', 'SERankingController@getKeyWords' )->name( 'getKeyWords' );
+Route::get( 'se-ranking/keywords', 'SERankingController@getKeyWords' )->name( 'filteredSERankKeywords' );
 Route::get( 'se-ranking/competitors', 'SERankingController@getCompetitors' )->name( 'getCompetitors' );
 Route::get( 'se-ranking/analytics', 'SERankingController@getAnalytics' )->name( 'getAnalytics' );
 Route::get( 'se-ranking/backlinks', 'SERankingController@getBacklinks' )->name( 'getBacklinks' );
 Route::get( 'se-ranking/research-data', 'SERankingController@getResearchData' )->name( 'getResearchData' );
 Route::get( 'se-ranking/audit', 'SERankingController@getSiteAudit' )->name( 'getSiteAudit' );
 Route::get( 'se-ranking/competitors/keyword-positions/{id}', 'SERankingController@getCompetitors' )->name( 'getCompetitorsKeywordPos' );
+
+//Supplier scrapping info
+Route::get( 'supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo' )->name( 'getSupplierScrappingInfo' );
 
 Route::group( [ 'middleware' =>  'auth', 'admin'  ], function () {
     Route::get( 'category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing' );

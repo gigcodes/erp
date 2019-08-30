@@ -4,7 +4,7 @@
 require_once __DIR__.'/../../vendor/autoload.php';
 
 $analytics = initializeAnalytics();
-$response = getReport($analytics, $request);
+$response = getReport($analytics, $request='');
 $data = printResults($response);
 
 
@@ -63,11 +63,23 @@ function getReport($analytics, $request) {
 	$timeOnPage = new Google_Service_AnalyticsReporting_Metric();
 	$timeOnPage->setExpression("ga:timeOnPage");
 	$timeOnPage->setAlias("timeOnPage");
-
+	$uniquePageviews = new Google_Service_AnalyticsReporting_Metric();
+	$uniquePageviews->setExpression("ga:uniquePageviews");
+	$uniquePageviews->setAlias("uniquePageviews");
+	$entrances = new Google_Service_AnalyticsReporting_Metric();
+	$entrances->setExpression("ga:entrances");
+	$entrances->setAlias("entrances");
+	$exitRate = new Google_Service_AnalyticsReporting_Metric();
+	$exitRate->setExpression("ga:exitRate");
+	$exitRate->setAlias("exitRate");
+	$avgTimeOnPage = new Google_Service_AnalyticsReporting_Metric();
+	$avgTimeOnPage->setExpression("ga:avgTimeOnPage");
+	$avgTimeOnPage->setAlias("avgTimeOnPage");
+	$pageValue = new Google_Service_AnalyticsReporting_Metric();
+	$pageValue->setExpression("ga:pageValue");
+	$pageValue->setAlias("pageValue");
 
 	// Create the Dimensions object.
-	// $browser = new Google_Service_AnalyticsReporting_Dimension();
-	// $browser->setName("ga:browser");
 	$operatingSystem = new Google_Service_AnalyticsReporting_Dimension();
 	$operatingSystem->setName("ga:operatingSystem");
 	$user = new Google_Service_AnalyticsReporting_Dimension();
@@ -87,17 +99,12 @@ function getReport($analytics, $request) {
 	$mobileDeviceInfo = new Google_Service_AnalyticsReporting_Dimension();
 	$mobileDeviceInfo->setName("ga:mobileDeviceInfo");
 	
-
-
-
-
-
 	// Create the ReportRequest object.
 	$request = new Google_Service_AnalyticsReporting_ReportRequest();
 	$request->setViewId($VIEW_ID);
 	$request->setDateRanges($dateRange);
 	$request->setDimensions(array($operatingSystem, $user, $minute, $pagePath, $country, $city, $socialNetwork, $date, $mobileDeviceInfo));
-	$request->setMetrics(array($sessions, $pageviews, $bounceRate, $avgSessionDuration, $timeOnPage));
+	$request->setMetrics(array($sessions, $pageviews, $bounceRate, $avgSessionDuration, $timeOnPage, $uniquePageviews, $entrances, $exitRate, $avgTimeOnPage, $pageValue));
 
 
 	$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
@@ -131,6 +138,11 @@ function printResults($reports) {
 			$data[$key]['bounceRate'] = $m_value['values'][2];
 			$data[$key]['avgSessionDuration'] = $m_value['values'][3];
 			$data[$key]['timeOnPage'] = $m_value['values'][4];
+			$data[$key]['uniquePageviews'] = $m_value['values'][5];
+			$data[$key]['entrances'] = $m_value['values'][6];
+			$data[$key]['exitRate'] = $m_value['values'][7];
+			$data[$key]['avgTimeOnPage'] = $m_value['values'][8];
+			$data[$key]['pageValue'] = $m_value['values'][9];
 		}
 	}
 	return $data;
