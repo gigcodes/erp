@@ -106,7 +106,8 @@ class BrandController extends Controller
             }
         }
 
-        $uploaded_products = Product::where('brand', $brand->id)->where('isUploaded', 1)->get();
+        // $uploaded_products = Product::where('brand', $brand->id)->where('isUploaded', 1)->get();
+        $uploaded_products = [];
 
         if (count($uploaded_products) > 0) {
             foreach ($uploaded_products as $product) {
