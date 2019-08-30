@@ -67,6 +67,10 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\BloggerPaymentCreated' => [
             'App\Listeners\CreateBloggerCashFlow',
         ],
+
+        'App\Events\VoucherApproved' => [
+            'App\Listeners\CreateVoucherCashFlow',
+        ],
     ];
 
     /**
