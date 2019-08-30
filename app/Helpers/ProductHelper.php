@@ -41,6 +41,16 @@ class ProductHelper extends Model
             // Replace multi
             $sku = str_ireplace('multicolor', '', $sku);
             $sku = str_ireplace('multi', '', $sku);
+
+            // Replace Italian color names
+            $sku = str_ireplace('azzuro', '', $sku); // Blue
+            $sku = str_ireplace('bianco', '', $sku); // White
+            $sku = str_ireplace('nero', '', $sku); // Black
+            $sku = str_ireplace('oro', '', $sku); // Gold
+            $sku = str_ireplace('verde', '', $sku); // Green
+
+            // Replace word color
+            $sku = str_ireplace('color', '', $sku);
         }
 
         // Return sku
