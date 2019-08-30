@@ -164,24 +164,28 @@ class BrandController extends Controller
     public function magentoSoapUpdatePrices($product)
     {
 
-        $options = array(
-            'trace' => true,
-            'connection_timeout' => 120,
-            'wsdl_cache' => WSDL_CACHE_NONE,
-        );
-        $proxy = new \SoapClient(config('magentoapi.url'), $options);
-        $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+        try {
+            $options = array(
+                'trace' => true,
+                'connection_timeout' => 120,
+                'wsdl_cache' => WSDL_CACHE_NONE,
+            );
+            $proxy = new \SoapClient(config('magentoapi.url'), $options);
+            $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
-        $sku = $product->sku . $product->color;
+            $sku = $product->sku . $product->color;
 //		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
-        $data = [
-            'price' => $product->price_inr,
-            'special_price' => $product->price_special
-        ];
+            $data = [
+                'price' => $product->price_inr,
+                'special_price' => $product->price_special
+            ];
 
-        $result = $proxy->catalogProductUpdate($sessionId, $sku, $data);
+            $result = $proxy->catalogProductUpdate($sessionId, $sku, $data);
 
 
-        return $result;
+            return $result;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }
