@@ -45,7 +45,8 @@ Route::get('products/get-products-to-scrape', 'ScrapController@getProductsToScra
 Route::post('products/save-scraped-product', 'ScrapController@saveScrapedProduct');
 
 
-Route::get('products/new-supplier', 'ScrapController@getFromNewSupplier');
+//Route::get('products/new-supplier', 'ScrapController@getFromNewSupplier');
+Route::get('products/new-supplier', 'ScrapController@getProductsToScrape');
 Route::post('products/new-supplier', 'ScrapController@saveFromNewSupplier');
 
 Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDetails');
