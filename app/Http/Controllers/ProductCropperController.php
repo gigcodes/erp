@@ -6,6 +6,7 @@ use App\Category;
 use App\CropAmends;
 use App\CroppedImageReference;
 use App\Helpers\QueryHelper;
+use App\Helpers\StatusHelper;
 use App\Image;
 use App\ListingHistory;
 use App\Product;
@@ -212,12 +213,7 @@ class ProductCropperController extends Controller
 
     public function getListOfImagesToBeVerified(Request $request)
     {
-        $products = Product::where('is_image_processed', 1)
-            ->where('is_crop_rejected', 0)
-            ->where('is_crop_approved', 0)
-            ->where('is_crop_being_verified', 0)
-            ->where('stock', '>=', 1)
-            ->whereNotIn('id', DB::table('crop_amends')->pluck('product_id')->toArray());
+        $products = Product::where('status_id', StatusHelper::$cropApproval);
         $products = $products->paginate(24);
 
         $totalApproved = 0;
@@ -240,10 +236,9 @@ class ProductCropperController extends Controller
                     ->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')
                     ->where('is_scraped', 1)
                     ->where('is_without_image', 0)
-                    ->where('stock', '>=', $stock)
+                    ->where('stock', '>=', (int)$request->stock)
                     ->first();
             }
-
         } else {
             if (Auth::user()->hasRole('Crop Approval')) {
                 $stats = UserProductFeedback::where('user_id')->whereIn('action', [
@@ -301,32 +296,25 @@ class ProductCropperController extends Controller
         // Add check for out of stock
         $stock = $request->stock === 0 ? 0 : 1;
 
-        $products = Product::where('is_image_processed', 1)
-            ->where('stock', '>=', $stock)
-            ->where('is_crop_approved', 1);
+        // Get products which are crop approved
+        $products = Product::where('status_id', StatusHelper::$cropSequencing)
+            ->where('stock', '>=', $stock);
 
+        // Limit to one user if this is requested
         if ($request->get('user_id') > 0) {
             $products = $products->where('crop_approved_by', $request->get('user_id'));
         }
 
+        // Get images with cropApprover
         $products = $products->with('cropApprover')->paginate(25);
 
-//        $stats = DB::table('products')->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')->where('is_scraped', 1)->where('is_without_image', 0)->first();
-
-
-//
-//        $secondProduct = Product::where('is_image_processed', 1)
-//            ->where('is_crop_rejected', 0)
-//            ->where('is_crop_approved', 0)
-//            ->whereDoesntHave('amends')
-//            ->first();
-
-//        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id);
-
+        // Get all users for dropdown
         $users = User::all();
-        $user_id = $request->get('user_id');
 
-        return view('products.approved_crop_list', compact('products', 'users', 'user_id'));
+        // Get requested user
+        $userId = $request->get('user_id');
+
+        return view('products.approved_crop_list', compact('products', 'users', 'userId'));
     }
 
     private function getCategoryForCropping($categoryId)
@@ -792,8 +780,7 @@ class ProductCropperController extends Controller
         }
 
 
-
-        return view('products.rejected_crop', compact('product', 'secondProduct', 'img',  'originalMediaCount'));
+        return view('products.rejected_crop', compact('product', 'secondProduct', 'img', 'originalMediaCount'));
     }
 
     public function approveRejectedImage(Request $request)
@@ -903,49 +890,74 @@ class ProductCropperController extends Controller
 
     public function showCropVerifiedForOrdering()
     {
-        $product = Product::where('is_crop_approved', 1)->where('stock', '>=', 1)->where('is_being_ordered', 0)->where('is_crop_ordered', 0)->orderBy('is_order_rejected', 'DESC')->orderBy('is_on_sale', 'DESC')->orderBy('updated_at', 'DESC')->first();
+        // Set initial product
+        $product = Product::where('status_id', StatusHelper::$cropSequencing);
 
-        if ( $product == NULL ) {
+        // Add queryhelper
+        $product = QueryHelper::approvedListingOrder($product);
+
+        // Get first
+        $product = $product->first();
+
+        // No products found
+        if ($product == null) {
             exit("No products found");
         }
 
-        $total = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->count();
+        // Get total number of products awaiting for sequencing
+        $total = Product::where('status_id', StatusHelper::$cropSequencing)->count();
 
-        $product->is_being_ordered = 1;
+        // Update the status so this product will not show up
+        $product->status_id = StatusHelper::$isBeingSequenced;
         $product->save();
 
+        // Set count of crops ordered by the current logged in user
         $count = Product::where('crop_ordered_by', Auth::id())->count();
 
+        // Return view
         return view('products.sequence', compact('product', 'total', 'count'));
-
     }
 
     public function skipSequence($id, Request $request)
     {
+        // Find product or fail
         $product = Product::findOrFail($id);
-        $product->is_crop_approved = 0;
-        $product->is_crop_ordered = 0;
-        $product->is_crop_rejected = 1;
+
+        // Check if the product is being sequenced
+        if ($product->status_id != StatusHelper::$isBeingSequenced) {
+            // Check for ajax
+            if ($request->isXmlHttpRequest()) {
+                return response()->json([
+                    'status' => 'failed'
+                ], 400);
+            } else {
+                // Redirect
+                return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
+            }
+        }
+
+        $product->status_id = StatusHelper::$cropSkipped;
         $product->crop_rejected_at = Carbon::now()->toDateTimeString();
-        $product->crop_rejected_by = 109;
+        $product->crop_rejected_by = $request->isXmlHttpRequest() ? 109 : Auth::id();
         $product->save();
 
-        $l = new ListingHistory();
-        $l->action = 'SKIP_SEQUENCE';
-        $l->product_id = $product->id;
-        $l->user_id = Auth::user()->id;
-        $l->content = ['action' => 'SKIP_SEQUENCE', 'page' => 'Sequence Approver'];
-        $l->save();
+        // Store listing history
+        $listingHistory = new ListingHistory();
+        $listingHistory->action = 'SKIP_SEQUENCE';
+        $listingHistory->product_id = $product->id;
+        $listingHistory->user_id = Auth::user()->id;
+        $listingHistory->content = ['action' => 'SKIP_SEQUENCE', 'page' => 'Sequence Approver'];
+        $listingHistory->save();
 
-
+        // Return JSON if the request is ajax
         if ($request->isXmlHttpRequest()) {
             return response()->json([
                 'status' => 'success'
             ]);
         }
 
+        // Redirect
         return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
-
     }
 
     public function rejectSequence($id, Request $request)
@@ -981,8 +993,14 @@ class ProductCropperController extends Controller
 
     public function saveSequence($id, Request $request)
     {
-
+        // Find product or fail
         $product = Product::findOrFail($id);
+
+        // Is this product currently being sequenced
+        if ($product->status_id != StatusHelper::$isBeingSequenced) {
+            // Redirect
+            return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
+        }
 
         $medias = $request->get('images');
         foreach ($medias as $mediaId => $order) {
@@ -996,18 +1014,18 @@ class ProductCropperController extends Controller
             }
         }
 
-        $product->is_crop_ordered = 1;
+        // Update product
+        $product->status_id = StatusHelper::$imageEnhancement;
         $product->crop_ordered_by = Auth::user()->id;
         $product->crop_ordered_at = Carbon::now()->toDateTimeString();
-        $product->is_crop_approved = 1;
         $product->save();
 
-        $l = new ListingHistory();
-        $l->action = 'CROP_SEQUENCED';
-        $l->user_id = Auth::user()->id;
-        $l->product_id = $product->id;
-        $l->content = ['action' => 'CROP_SEQUENCED', 'page' => 'Crop Sequencer'];
-        $l->save();
+        $listingHistory = new ListingHistory();
+        $listingHistory->action = 'CROP_SEQUENCED';
+        $listingHistory->user_id = Auth::user()->id;
+        $listingHistory->product_id = $product->id;
+        $listingHistory->content = ['action' => 'CROP_SEQUENCED', 'page' => 'Crop Sequencer'];
+        $listingHistory->save();
 
         return redirect()->action('ProductCropperController@showCropVerifiedForOrdering')->with('message', 'Previous image ordered successfully!');
     }

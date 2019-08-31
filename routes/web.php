@@ -560,6 +560,9 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get( 'document/{id}/download', 'DocumentController@download' )->name( 'document.download' );
     Route::delete( 'document/{id}/destroy', 'DocumentController@destroy' )->name( 'document.destroy' );
 
+    //Document Cateogry
+    Route::post( 'documentcategory/add' , 'DocuemntCategoryController@addCategory' )->name( 'documentcategory.add' );       
+
     // Cash Flow Module
     Route::get( 'cashflow/{id}/download', 'CashFlowController@download' )->name( 'cashflow.download' );
     Route::get( 'cashflow/mastercashflow', 'CashFlowController@mastercashflow' )->name( 'cashflow.mastercashflow' );
@@ -981,6 +984,7 @@ Route::get( 'se-ranking/audit', 'SERankingController@getSiteAudit' )->name( 'get
 Route::get( 'se-ranking/competitors/keyword-positions/{id}', 'SERankingController@getCompetitors' )->name( 'getCompetitorsKeywordPos' );
 //Dev Task Planner Route
 Route::get('dev-task-planner', 'NewDevTaskController@index')->name('newDevTaskPlanner');
+Route::get('dev-task-planner', 'NewDevTaskController@index')->name('filteredNewDevTaskPlanner');
 //Supplier scrapping info
 Route::get( 'supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo' )->name( 'getSupplierScrappingInfo' );
 

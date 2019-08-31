@@ -27,6 +27,7 @@ use App\ReadOnly\LocationList;
 use App\UserProduct;
 use App\UserProductFeedback;
 use App\Helpers\QueryHelper;
+use App\Helpers\StatusHelper;
 use Cache;
 use Auth;
 use Carbon\Carbon;
@@ -1576,42 +1577,15 @@ class ProductController extends Controller
 
     public function giveImage()
     {
+        // Get next product
+        $product = Product::where('status_id', StatusHelper::$autoCrop)
+            ->where('category', '>', 3);
 
-        // $shoes1 = Category::find(11);
-//	    $shoes1 = Category::find(5);
-//	    $shoeIds = $shoes1->childs()->pluck('id')->toArray();
-//			// $shoes2 = Category::find(39);
-//	    $shoes2 = Category::find(41);
-//	    $shoeIds2 = $shoes2->childs()->pluck('id')->toArray();
-//
-//	    $allShoes = array_merge($shoeIds, $shoeIds2);
-//
-//	    // $allShoes[] = 11;
-//	    // $allShoes[] = 39;
-//
-//			$allShoes[] = 5;
-//	    $allShoes[] = 41;
+        // Add order
+        $product = QueryHelper::approvedListingOrder($product);
 
-        $product = Product::where('is_image_processed', 0)
-            ->where('stock', '>=', 1)
-            ->where('is_being_cropped', 0)
-            ->where('is_without_image', 0)
-            ->where('is_crop_skipped', 0)
-            ->where('category', '>', 3)
-//            ->where(function($q) {
-//                $q->where('size', '!=', '')
-//                    ->orWhere(function ($qq) {
-//                        $qq->where('lmeasurement', '!=', '')
-//                           ->where('hmeasurement', '!=', '')
-//                           ->where('dmeasurement', '!=', '');
-//                    })
-//                ;
-//            })
-            ->first();
-
-//	    if ($product) {
-//	        return '';
-//        }
+        // Get first product
+        $product = $product->first();
 
         if (!$product) {
             return response()->json([
@@ -1619,11 +1593,13 @@ class ProductController extends Controller
             ]);
         }
 
+        // Get images
+        $images = $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
 
-        $imgs = $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
-
+        // Get category
         $category = $product->product_category;
 
+        // Get other information related to category
         $cat = $category->title;
         $parent = '';
         $child = '';
@@ -1638,10 +1614,11 @@ class ProductController extends Controller
             }
         }
 
-        $product->is_being_cropped = 1;
+        // Set new status
+        $product->status_id = StatusHelper::$isBeingCropped;
         $product->save();
 
-
+        // Return product
         return response()->json([
             'product_id' => $product->id,
             'image_urls' => $imgs,
@@ -1656,9 +1633,17 @@ class ProductController extends Controller
 
     public function saveImage(Request $request)
     {
+        // Find the product or fail
         $product = Product::findOrFail($request->get('product_id'));
 
+        // Check if this product is being cropped
+        if ( $product->status_id != StatusHelper::$isBeingCropped ) {
+            return response()->json([
+                'status' => 'unknown product'
+            ], 400);
+        }
 
+        // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
             $media = MediaUploader::fromSource($image)->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))->upload();
@@ -1673,13 +1658,11 @@ class ProductController extends Controller
             $imageReference->new_media_name = $media->filename . '.' . $media->extension;
             $imageReference->save();
 
-            $product->is_image_processed = 1;
-            $product->stage = 5;
             $product->cropped_at = Carbon::now()->toDateTimeString();
+            $product->status_id = StatusHelper::$cropApproval;
             $product->save();
-
         } else {
-            $product->is_crop_skipped = 1;
+            $product->status_id = StatusHelper::$cropSkipped;
             $product->save();
         }
 

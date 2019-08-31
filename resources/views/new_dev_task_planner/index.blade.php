@@ -66,11 +66,15 @@
                     <td>{{$user->name}}</td>
                     <td>{{!empty($value['start_time']) ? $value['start_time'] : 'N/A' }}</td>
                     <td>{{$value['status']}}</td>
+<<<<<<< HEAD
                     <td><div class="d-flex">
                         <input type="textarea" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
                         <button class="btn btn-sm btn-image send-message" data-userid="{{ $user->id }}"><img src="/images/filled-sent.png" /></button>
                         </div>
                     </td>
+=======
+                    <td>N/A</td>
+>>>>>>> e14d36af198cef8031af9d22c8cc380dbc331b29
                 </tr>
             @endforeach
         </tbody>
