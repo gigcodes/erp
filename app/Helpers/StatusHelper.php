@@ -2,6 +2,7 @@
 namespace App\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use App\Jobs\ProductAi;
 
 class StatusHelper extends Model
@@ -35,4 +36,26 @@ class StatusHelper extends Model
         return;
     }
 
+    public static function getStatusCount() {
+        // Get summary
+        $productStats = DB::table('products')
+            ->select('status_id', DB::raw('COUNT(id) as total'))
+            ->groupBy('status_id')
+            ->pluck('total','status_id')->all();
+
+        // Return array with stats
+        return $productStats;
+    }
+
+    public static function getStatusCountByDateRange($startDate='1900-01-01', $endDate='2100-01-01') {
+        // Get summary
+        $productStats = DB::table('products')
+            ->select('status_id', DB::raw('COUNT(id) as total'))
+            ->whereBetween('created_at', [$startDate . ' 00:00', $endDate . ' 23:59'])
+            ->groupBy('status_id')
+            ->pluck('total','status_id')->all();
+
+        // Return array with stats
+        return $productStats;
+    }
 }

@@ -6,6 +6,7 @@ use App\Category;
 use App\CropAmends;
 use App\CroppedImageReference;
 use App\Helpers\QueryHelper;
+use App\Helpers\StatusHelper;
 use App\Image;
 use App\ListingHistory;
 use App\Product;
@@ -212,12 +213,7 @@ class ProductCropperController extends Controller
 
     public function getListOfImagesToBeVerified(Request $request)
     {
-        $products = Product::where('is_image_processed', 1)
-            ->where('is_crop_rejected', 0)
-            ->where('is_crop_approved', 0)
-            ->where('is_crop_being_verified', 0)
-            ->where('stock', '>=', 1)
-            ->whereNotIn('id', DB::table('crop_amends')->pluck('product_id')->toArray());
+        $products = Product::where('status_id', StatusHelper::$cropApproval);
         $products = $products->paginate(24);
 
         $totalApproved = 0;
@@ -240,10 +236,9 @@ class ProductCropperController extends Controller
                     ->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')
                     ->where('is_scraped', 1)
                     ->where('is_without_image', 0)
-                    ->where('stock', '>=', $stock)
+                    ->where('stock', '>=', (int) $request->stock)
                     ->first();
             }
-
         } else {
             if (Auth::user()->hasRole('Crop Approval')) {
                 $stats = UserProductFeedback::where('user_id')->whereIn('action', [
@@ -301,32 +296,25 @@ class ProductCropperController extends Controller
         // Add check for out of stock
         $stock = $request->stock === 0 ? 0 : 1;
 
-        $products = Product::where('is_image_processed', 1)
-            ->where('stock', '>=', $stock)
-            ->where('is_crop_approved', 1);
+        // Get products which are crop approved
+        $products = Product::where('status_id', StatusHelper::$cropSequencing)
+            ->where('stock', '>=', $stock);
 
+        // Limit to one user if this is requested
         if ($request->get('user_id') > 0) {
             $products = $products->where('crop_approved_by', $request->get('user_id'));
         }
 
+        // Get images with cropApprover
         $products = $products->with('cropApprover')->paginate(25);
 
-//        $stats = DB::table('products')->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')->where('is_scraped', 1)->where('is_without_image', 0)->first();
-
-
-//
-//        $secondProduct = Product::where('is_image_processed', 1)
-//            ->where('is_crop_rejected', 0)
-//            ->where('is_crop_approved', 0)
-//            ->whereDoesntHave('amends')
-//            ->first();
-
-//        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id);
-
+        // Get all users for dropdown
         $users = User::all();
-        $user_id = $request->get('user_id');
 
-        return view('products.approved_crop_list', compact('products', 'users', 'user_id'));
+        // Get requested user
+        $userId = $request->get('user_id');
+
+        return view('products.approved_crop_list', compact('products', 'users', 'userId'));
     }
 
     private function getCategoryForCropping($categoryId)
