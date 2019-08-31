@@ -88,26 +88,28 @@
                         <th>Final Approval</th>
                         <th>Queued for Magento</th>
                         <th>In Magento</th>
+                        <th>Total</th>
                     </tr>
                     <tr>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropApprovalConfirmation]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropApprovalConfirmation] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$finalApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$finalApproval] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$pushToMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$pushToMagento] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$inMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$inMagento] : 0 }}</td>
+                        <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ (int) array_sum($productStats) }}</strong></td>
                     </tr>
                     <tr>
                         <th>Unable to scrape</th>
                         <th>Unable to scrape images</th>
+                        <th>Crop Rejected</th>
                         <th>Crop Skipped</th>
                         <th>Manual Attribute</th>
-                        <th>Total</th>
                     </tr>
                     <tr>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrape] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrapeImages]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrapeImages] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropRejected]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropRejected] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSkipped]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSkipped] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$manualAttribute]) ? (int) $productStats[\App\Helpers\StatusHelper::$manualAttribute] : 0 }}</td>
-                        <td>{{ (int) array_sum($productStats) }}</td>
                     </tr>
                 </table>
             </div>
