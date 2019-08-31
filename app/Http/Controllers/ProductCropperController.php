@@ -891,8 +891,6 @@ class ProductCropperController extends Controller
 
     public function showCropVerifiedForOrdering()
     {
-        DB::enableQueryLog();
-
         // Set initial product
         $product = Product::where('status_id', StatusHelper::$cropSequencing);
 
@@ -902,7 +900,7 @@ class ProductCropperController extends Controller
         // Get first
         $product = $product->first();
 
-        dd(DB::getQueryLog());
+        dd($product);
 
         // No products found
         if ( $product == NULL ) {
