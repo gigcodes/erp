@@ -66,7 +66,7 @@ class UserController extends Controller
 	 */
 	public function create()
 	{
-		$roles = Role::pluck('name','name')->all();
+		$roles = Role::pluck('name','id')->all();
 		$users = User::all();
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
 		return view('users.create',compact('roles', 'users' , 'agent_roles'));
@@ -100,6 +100,7 @@ class UserController extends Controller
 
 		$user = User::create($input);
 		$user->roles()->sync($request->input('roles'));
+	
 
 
 		return redirect()->route('users.index')
@@ -161,11 +162,11 @@ class UserController extends Controller
 	public function edit($id)
 	{
 		$user = User::find($id);
-		$roles = Role::pluck('name','name')->all();
+		$roles = Role::pluck('name','id')->all();
 		$users = User::all();
-		$userRole = $user->roles->pluck('name','name')->all();
+		$userRole = $user->roles->pluck('name','id')->all();
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-    $user_agent_roles = explode(',', $user->agent_role);
+    	$user_agent_roles = explode(',', $user->agent_role);
 		$api_keys = ApiKey::select('number')->get();
 		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
@@ -218,10 +219,7 @@ class UserController extends Controller
 			$user->customers()->sync($request->customer);
 		}
 
-		$role = new Role;
-		$role_id = $role->getIdFromName($request->input('roles'));
-		
-		$user->roles()->sync($role_id);
+		$user->roles()->sync($input['roles']);
 		
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
