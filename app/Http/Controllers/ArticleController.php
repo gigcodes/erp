@@ -26,13 +26,13 @@ class ArticleController extends Controller
      * 
      * @return json response
      */
-    public function updateDomain(Request $request) {
-        $checker = BackLinkChecker::findOrFail($request['id']);
-        $checker->domains = $request['domain_name'];
-        $checker->save();
+    public function updateTitle(Request $request) {
+        $article = Article::findOrFail($request['id']);
+        $article->title = $request['article_title'];
+        $article->save();
         return response()->json([
             'type' => 'success',
-            'message' => 'Domain Updated'
+            'message' => 'Title Updated'
         ]);
     }
 
@@ -42,13 +42,13 @@ class ArticleController extends Controller
      * 
      * @return json response
      */
-    public function updateTitle(Request $request) {
-        $checker = BackLinkChecker::findOrFail($request['id']);
-        $checker->title = $request['title'];
-        $checker->save();
+    public function updateDescription(Request $request) {
+        $article = Article::findOrFail($request['id']);
+        $article->description = $request['article_desc'];
+        $article->save();
         return response()->json([
             'type' => 'success',
-            'message' => 'Title Updated'
+            'message' => 'Description Updated'
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Analytics;
 use App\AnalyticsSummary;
+use App\AnalyticsCustomerBehaviour;
 use Spatie\Analytics\Period;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
@@ -82,5 +83,18 @@ class AnalyticsController extends Controller
 			include(app_path() . '/Functions/Analytics.php');
 		}
 		return View('analytics.summary', compact('data', 'brands', 'genders'));
+	}
+	/**
+	 * Customer Behaviour By Page
+	 */
+	public function customerBehaviourByPage(Request $request)
+	{
+		$pages = AnalyticsCustomerBehaviour::select('ID', 'pages')->pluck('pages', 'ID')->toArray();
+		if(!empty($request['page'])) {
+			$data = AnalyticsCustomerBehaviour::where('pages', $request['page'])->get()->toArray();
+		} else {
+			include(app_path() . '/Functions/Analytics.php');
+		}
+		return View('analytics.customer-behaviour', compact('data', 'pages'));
 	}
 }

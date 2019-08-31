@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use DB;
+use App\SERanking;
 
 class SERankingController extends Controller
 {
@@ -60,7 +62,23 @@ class SERankingController extends Controller
      */
     public function getKeyWords() {
         $site_id = 1083512;
-        $keywords = $this->getResults('sites/'.$site_id.'/keywords');
+        if (!empty($_GET['keyword'])) {
+            $keyword = $_GET['keyword'];
+            $keywords = SERanking::where('name', 'like', '%' . $keyword . '%')->get();
+        } else {
+            $keywords = $this->getResults('sites/'.$site_id.'/keywords');
+        }    
+        // foreach ($keywords as $key => $new_item) {
+        //     DB::table('serank-keywords')->insert(
+        //         [
+        //             "id" => $new_item->id, 
+        //             "name" => $new_item->name,
+        //             "group_id" => $new_item->group_id,
+        //             "link" => $new_item->link,
+        //             "first_check_date" => $new_item->first_check_date,
+        //         ]
+        //     );
+        // }
         $keyword_stats = $this->getResults('sites/'.$site_id.'/positions');
         return View(
             'se-ranking.keywords',

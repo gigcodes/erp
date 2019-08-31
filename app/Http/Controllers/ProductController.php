@@ -2049,4 +2049,9 @@ class ProductController extends Controller
 
         return redirect()->back()->with('message', 'Updated successfully!');
     }
+
+    public function getSupplierScrappingInfo(Request $request)
+    {
+        return View('scrap.supplier-info');
+    }
 }
