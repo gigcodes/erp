@@ -331,7 +331,7 @@ class ScrapController extends Controller
         $productsToPush = [];
 
         // Get all products with status scrape
-        $products = Product::select('products.*', 'status.name')->join('status', 'status.id', '=', 'products.status_id')->where('status.name', 'scrape')->orderBy('products.id', 'DESC')->take(50)->get();
+        $products = Product::where('status_id', StatusHelper::$scrape)->where('stock', '>=', 1)->orderBy('products.id', 'DESC')->take(50)->get();
 
         // Check if we have products and loop over them
         if ($products !== null) {
