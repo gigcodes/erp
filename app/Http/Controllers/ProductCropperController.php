@@ -922,9 +922,23 @@ class ProductCropperController extends Controller
     {
         // Find product or fail
         $product = Product::findOrFail($id);
+
+        // Check if the product is being sequenced
+        if ($product->status_id != StatusHelper::$isBeingSequenced) {
+            // Check for ajax
+            if ($request->isXmlHttpRequest()) {
+                return response()->json([
+                    'status' => 'failed'
+                ], 400);
+            } else {
+                // Redirect
+                return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
+            }
+        }
+
         $product->status_id = StatusHelper::$cropSkipped;
         $product->crop_rejected_at = Carbon::now()->toDateTimeString();
-        $product->crop_rejected_by = Auth::id();
+        $product->crop_rejected_by = $request->isXmlHttpRequest() ? 109 : Auth::id();
         $product->save();
 
         // Store listing history
@@ -935,14 +949,15 @@ class ProductCropperController extends Controller
         $listingHistory->content = ['action' => 'SKIP_SEQUENCE', 'page' => 'Sequence Approver'];
         $listingHistory->save();
 
+        // Return JSON if the request is ajax
         if ($request->isXmlHttpRequest()) {
             return response()->json([
                 'status' => 'success'
             ]);
         }
 
+        // Redirect
         return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
-
     }
 
     public function rejectSequence($id, Request $request)
