@@ -891,21 +891,32 @@ class ProductCropperController extends Controller
 
     public function showCropVerifiedForOrdering()
     {
-        $product = Product::where('is_crop_approved', 1)->where('stock', '>=', 1)->where('is_being_ordered', 0)->where('is_crop_ordered', 0)->orderBy('is_order_rejected', 'DESC')->orderBy('is_on_sale', 'DESC')->orderBy('updated_at', 'DESC')->first();
+        // Set initial product
+        $product = Product::where('status_id', StatusHelper::$cropSequencing);
 
+        // Add queryhelper
+        $product = QueryHelper::approvedListingOrder($product);
+
+        // Get first
+        $product = $product->first();
+
+        // No products found
         if ( $product == NULL ) {
             exit("No products found");
         }
 
-        $total = Product::where('is_crop_approved', 1)->where('is_crop_ordered', 0)->count();
+        // Get total number of products awaiting for sequencing
+        $total = Product::where('status_id', StatusHelper::$cropSequencing)->count();
 
-        $product->is_being_ordered = 1;
+        // Update the status so this product will not show up
+        $product->status_id = StatusHelper::$isBeingSequenced;
         $product->save();
 
+        // Set count of crops ordered by the current logged in user
         $count = Product::where('crop_ordered_by', Auth::id())->count();
 
+        // Return view
         return view('products.sequence', compact('product', 'total', 'count'));
-
     }
 
     public function skipSequence($id, Request $request)

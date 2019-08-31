@@ -24,6 +24,8 @@ class StatusHelper extends Model
     public static $isBeingCropped = 15;
     public static $cropSkipped = 16;
     public static $isBeingEnhanced = 17;
+    public static $cropRejected = 18;
+    public static $isBeingSequenced = 19;
 
     public static function updateStatus(Product $product, $newStatus=0) {
         // Update status to AI
