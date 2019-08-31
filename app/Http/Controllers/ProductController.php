@@ -267,7 +267,7 @@ class ProductController extends Controller
         }
 
         // Prioritize suppliers
-        $orderByPritority = "CASE WHEN brand IN (27, 42, 11, 19, 24) AND supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+        $newProducts = Product::where('status_id', StatusHelper::$cropApprovalConfirmation);
 
         $newProducts = Product::where('is_approved', 1)->where('is_crop_approved', 1)->where('is_crop_ordered', 1)->where('isUploaded', 0)->orderByRaw($orderByPritority)->orderBy('listing_approved_at', 'DESC');
 
@@ -1343,6 +1343,8 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
+        DB::enableQueryLog();
+
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where(function ($query) {
             $query->where('stock', '>=', 1)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
@@ -1621,7 +1623,7 @@ class ProductController extends Controller
         // Return product
         return response()->json([
             'product_id' => $product->id,
-            'image_urls' => $imgs,
+            'image_urls' => $images,
             'l_measurement' => $product->lmeasurement,
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,

@@ -72,23 +72,25 @@
                     <tr>
                         <th>Crop Approval</th>
                         <th>Crop Sequencing</th>
+                        <th>Is being sequenced</th>
                         <th>Image Enhancement</th>
                         <th>Is being enhanced</th>
-                        <th>Crop Approval Confirmation</th>
                     </tr>
                     <tr>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropApproval] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSequencing]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSequencing] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingSequenced]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingSequenced] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$imageEnhancement]) ? (int) $productStats[\App\Helpers\StatusHelper::$imageEnhancement] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingEnhanced]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingEnhanced] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropApprovalConfirmation]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropApprovalConfirmation] : 0 }}</td>
                     </tr>
                     <tr>
+                        <th>Crop Approval Confirmation</th>
                         <th>Final Approval</th>
                         <th>Queued for Magento</th>
                         <th>In Magento</th>
                     </tr>
                     <tr>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropApprovalConfirmation]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropApprovalConfirmation] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$finalApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$finalApproval] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$pushToMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$pushToMagento] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$inMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$inMagento] : 0 }}</td>
@@ -130,23 +132,25 @@
                         <tr>
                             <th>Crop Approval</th>
                             <th>Crop Sequencing</th>
+                            <th>Is being sequenced</th>
                             <th>Image Enhancement</th>
                             <th>Is being enhanced</th>
-                            <th>Crop Approval Confirmation</th>
                         </tr>
                         <tr>
                             <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$cropApproval]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$cropApproval] : 0 }}</td>
                             <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$cropSequencing]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$cropSequencing] : 0 }}</td>
+                            <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$isBeingSequenced]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$isBeingSequenced] : 0 }}</td>
                             <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$imageEnhancement]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$imageEnhancement] : 0 }}</td>
                             <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$isBeingEnhanced]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$isBeingEnhanced] : 0 }}</td>
-                            <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$cropApprovalConfirmation]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$cropApprovalConfirmation] : 0 }}</td>
                         </tr>
                         <tr>
+                            <th>Crop Approval Confirmation</th>
                             <th>Final Approval</th>
                             <th>Queued for Magento</th>
                             <th>In Magento</th>
                         </tr>
                         <tr>
+                            <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$cropApprovalConfirmation]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$cropApprovalConfirmation] : 0 }}</td>
                             <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$finalApproval]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$finalApproval] : 0 }}</td>
                             <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$pushToMagento]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$pushToMagento] : 0 }}</td>
                             <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$inMagento]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$inMagento] : 0 }}</td>
