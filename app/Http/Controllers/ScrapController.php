@@ -341,7 +341,8 @@ class ScrapController extends Controller
 
                 $productsToPush[] = [
                     'id' => $product->id,
-                    'sku' => $scrapedProduct !== null && !empty($scrapedProduct->original_sku) ? ProductHelper::getOriginalSkuByBrand($scrapedProduct->original_sku, $product->brands ? $product->brands->id : 0) : ProductHelper::getSkuWithoutColor($product->sku),
+                    'sku' => $product->sku,
+                    'original_sku' => $scrapedProduct !== null && !empty($scrapedProduct->original_sku) ? ProductHelper::getOriginalSkuByBrand($scrapedProduct->original_sku, $product->brands ? $product->brands->id : 0) : ProductHelper::getSkuWithoutColor($product->sku),
                     'brand' => $product->brands ? $product->brands->name : '',
                     'url' => null,
                     'supplier' => $product->supplier
