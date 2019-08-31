@@ -944,13 +944,16 @@ class ScrapController extends Controller
                 // Set is without image to 0 (false)
                 $product->is_without_image = 0;
                 $product->status_id = StatusHelper::$AI;
+                $product->save();
+
+                // Call status update handler
+                StatusHelper::updateStatus($product, StatusHelper::$AI);
             } else {
+                // Save product with status 'unable to scrape images'
                 $product->is_without_image = 1;
                 $product->status_id = StatusHelper::$UnableToScrapeImages;
+                $product->save();
             }
-
-            // Save
-            $product->save();
 
             // Return response
             return response()->json([
