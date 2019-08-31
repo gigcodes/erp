@@ -615,6 +615,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'supplier/flag', 'SupplierController@flag' )->name( 'supplier.flag' );
     Route::resource( 'supplier', 'SupplierController' );
 
+    Route::resource( 'assets-manager', 'AssetsManagerController' );
+    Route::post( 'assets-manager/add-note/{id}', 'AssetsManagerController@addNote' );
+
+
     // Agent Routes
     Route::resource( 'agent', 'AgentController' );
 } );
