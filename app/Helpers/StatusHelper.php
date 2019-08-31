@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
@@ -27,35 +28,40 @@ class StatusHelper extends Model
     public static $cropRejected = 18;
     public static $isBeingSequenced = 19;
 
-    public static function updateStatus(\App\Product $product, $newStatus=0) {
+    public static function updateStatus(\App\Product $product, $newStatus = 0)
+    {
         // Update status to AI
-        if ( $newStatus == 3 ) {
+        if ($newStatus == 3) {
             // Queue for AI
-            ProductAi::dispatch( $product )->onQueue('product');;
+            ProductAi::dispatch($product)->onQueue('product');;
         }
 
         // Return
         return;
     }
 
-    public static function getStatusCount() {
+    public static function getStatusCount($inStockOnly = 1)
+    {
         // Get summary
         $productStats = DB::table('products')
             ->select('status_id', DB::raw('COUNT(id) as total'))
+            ->where('stock', '>=', $inStockOnly)
             ->groupBy('status_id')
-            ->pluck('total','status_id')->all();
+            ->pluck('total', 'status_id')->all();
 
         // Return array with stats
         return $productStats;
     }
 
-    public static function getStatusCountByDateRange($startDate='1900-01-01', $endDate='2100-01-01') {
+    public static function getStatusCountByDateRange($startDate = '1900-01-01', $endDate = '2100-01-01', $inStockOnly = 1)
+    {
         // Get summary
         $productStats = DB::table('products')
             ->select('status_id', DB::raw('COUNT(id) as total'))
+            ->where('stock', '>=', $inStockOnly)
             ->whereBetween('created_at', [$startDate . ' 00:00', $endDate . ' 23:59'])
             ->groupBy('status_id')
-            ->pluck('total','status_id')->all();
+            ->pluck('total', 'status_id')->all();
 
         // Return array with stats
         return $productStats;
