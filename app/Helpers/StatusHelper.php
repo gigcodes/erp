@@ -27,7 +27,7 @@ class StatusHelper extends Model
     public static $cropRejected = 18;
     public static $isBeingSequenced = 19;
 
-    public static function updateStatus(Product $product, $newStatus=0) {
+    public static function updateStatus(\App\Product $product, $newStatus=0) {
         // Update status to AI
         if ( $newStatus == 3 ) {
             // Queue for AI
