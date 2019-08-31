@@ -41,6 +41,9 @@ class ReplaceTextsFromProduct extends Command
      */
     public function handle()
     {
+        // Return - do not run
+        return;
+
         // Get all replacements
         $replacements = AttributeReplacement::all();
 
