@@ -993,8 +993,14 @@ class ProductCropperController extends Controller
 
     public function saveSequence($id, Request $request)
     {
-
+        // Find product or fail
         $product = Product::findOrFail($id);
+
+        // Is this product currently being sequenced
+        if ($product->status_id != StatusHelper::$isBeingSequenced) {
+            // Redirect
+            return redirect()->action('ProductCropperController@showCropVerifiedForOrdering');
+        }
 
         $medias = $request->get('images');
         foreach ($medias as $mediaId => $order) {
@@ -1008,18 +1014,18 @@ class ProductCropperController extends Controller
             }
         }
 
-        $product->is_crop_ordered = 1;
+        // Update product
+        $product->status_id = StatusHelper::$imageEnhancement;
         $product->crop_ordered_by = Auth::user()->id;
         $product->crop_ordered_at = Carbon::now()->toDateTimeString();
-        $product->is_crop_approved = 1;
         $product->save();
 
-        $l = new ListingHistory();
-        $l->action = 'CROP_SEQUENCED';
-        $l->user_id = Auth::user()->id;
-        $l->product_id = $product->id;
-        $l->content = ['action' => 'CROP_SEQUENCED', 'page' => 'Crop Sequencer'];
-        $l->save();
+        $listingHistory = new ListingHistory();
+        $listingHistory->action = 'CROP_SEQUENCED';
+        $listingHistory->user_id = Auth::user()->id;
+        $listingHistory->product_id = $product->id;
+        $listingHistory->content = ['action' => 'CROP_SEQUENCED', 'page' => 'Crop Sequencer'];
+        $listingHistory->save();
 
         return redirect()->action('ProductCropperController@showCropVerifiedForOrdering')->with('message', 'Previous image ordered successfully!');
     }
