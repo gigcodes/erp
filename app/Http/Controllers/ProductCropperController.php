@@ -236,7 +236,7 @@ class ProductCropperController extends Controller
                     ->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')
                     ->where('is_scraped', 1)
                     ->where('is_without_image', 0)
-                    ->where('stock', '>=', (int) $request->stock)
+                    ->where('stock', '>=', (int)$request->stock)
                     ->first();
             }
         } else {
@@ -780,8 +780,7 @@ class ProductCropperController extends Controller
         }
 
 
-
-        return view('products.rejected_crop', compact('product', 'secondProduct', 'img',  'originalMediaCount'));
+        return view('products.rejected_crop', compact('product', 'secondProduct', 'img', 'originalMediaCount'));
     }
 
     public function approveRejectedImage(Request $request)
@@ -900,10 +899,8 @@ class ProductCropperController extends Controller
         // Get first
         $product = $product->first();
 
-        dd($product);
-
         // No products found
-        if ( $product == NULL ) {
+        if ($product == null) {
             exit("No products found");
         }
 
