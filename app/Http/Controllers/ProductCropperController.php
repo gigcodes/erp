@@ -920,21 +920,20 @@ class ProductCropperController extends Controller
 
     public function skipSequence($id, Request $request)
     {
+        // Find product or fail
         $product = Product::findOrFail($id);
-        $product->is_crop_approved = 0;
-        $product->is_crop_ordered = 0;
-        $product->is_crop_rejected = 1;
+        $product->status_id = StatusHelper::$cropSkipped;
         $product->crop_rejected_at = Carbon::now()->toDateTimeString();
-        $product->crop_rejected_by = 109;
+        $product->crop_rejected_by = Auth::id();
         $product->save();
 
-        $l = new ListingHistory();
-        $l->action = 'SKIP_SEQUENCE';
-        $l->product_id = $product->id;
-        $l->user_id = Auth::user()->id;
-        $l->content = ['action' => 'SKIP_SEQUENCE', 'page' => 'Sequence Approver'];
-        $l->save();
-
+        // Store listing history
+        $listingHistory = new ListingHistory();
+        $listingHistory->action = 'SKIP_SEQUENCE';
+        $listingHistory->product_id = $product->id;
+        $listingHistory->user_id = Auth::user()->id;
+        $listingHistory->content = ['action' => 'SKIP_SEQUENCE', 'page' => 'Sequence Approver'];
+        $listingHistory->save();
 
         if ($request->isXmlHttpRequest()) {
             return response()->json([
