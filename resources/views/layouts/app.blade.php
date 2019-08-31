@@ -353,7 +353,7 @@
 
 
 
-                        @can('admin')
+                        @if(auth()->user()->isAdmin())
 
                             <li class="nav-item dropdown">
                                 @if(Auth::user()->email != 'facebooktest@test.com')
@@ -546,12 +546,12 @@
                                         <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
                                     @endcan
 
-                                    @can('admin')
+                                    @if(auth()->user()->isAdmin())
                                         <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statics</a>
                                         <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
                                         <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Rejected Statistics</a>
                                         <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payment</a>
-                                    @endcan
+                                    @endif
 
 
 

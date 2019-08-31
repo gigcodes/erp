@@ -9,6 +9,7 @@ use App\Document;
 use App\User;
 use App\DocumentCategory;
 use Storage;
+use PermissionCheck;
 
 class DocumentController extends Controller
 {
@@ -19,7 +20,10 @@ class DocumentController extends Controller
      */
     public function index()
     {
-      if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56) {
+         $p = PermissionCheck::checkUser('document');
+        if($p == false){
+            return view('errors.401');
+        }
         $documents = Document::latest()->paginate(Setting::get('pagination'));
         $users = User::select(['id', 'name', 'email','agent_role'])->get();
         $category = DocumentCategory::select('id','name')->get();
@@ -28,9 +32,7 @@ class DocumentController extends Controller
           'users' => $users,
           'category' => $category,
         ]);
-      } else {
-        return redirect()->back();
-      }
+      
     }
 
     /**

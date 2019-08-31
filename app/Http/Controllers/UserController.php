@@ -16,7 +16,7 @@ use App\Task;
 use App\Product;
 use App\Customer;
 use App\UserProduct;
-use Spatie\Permission\Models\Role;
+use App\Role;
 use DB;
 use Hash;
 use Cache;
@@ -81,6 +81,7 @@ class UserController extends Controller
 	 */
 	public function store(Request $request)
 	{
+
 		$this->validate($request, [
 			'name' => 'required',
 			'email' => 'required|email|unique:users,email',
@@ -98,7 +99,7 @@ class UserController extends Controller
         $input['agent_role'] = implode(',', $input['agent_role']);
 
 		$user = User::create($input);
-		$user->assignRole($request->input('roles'));
+		$user->roles()->sync($request->input('roles'));
 
 
 		return redirect()->route('users.index')
@@ -217,18 +218,11 @@ class UserController extends Controller
 			$user->customers()->sync($request->customer);
 		}
 
-//		if (!$user->hasRole('Products Lister') && in_array('Products Lister', $request->roles)) {
-//			$requestData = new Request();
-//			$requestData->setMethod('POST');
-//			$requestData->request->add(['amount_assigned' => 100]);
-//
-//			$this->assignProducts($requestData, Auth::id());
-//		}
-
-		DB::table('model_has_roles')->where('model_id',$id)->delete();
-
-		$user->assignRole($request->input('roles'));
-
+		$role = new Role;
+		$role_id = $role->getIdFromName($request->input('roles'));
+		
+		$user->roles()->sync($role_id);
+		
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
 		$user->save();
