@@ -53,19 +53,19 @@ class LogScraper extends Model
 
         // Create new record
         $logScraper = new LogScraper();
-        $logScraper->website = $request->website;
-        $logScraper->url = $request->url;
-        $logScraper->sku = $request->sku;
-        $logScraper->brand = $request->brand;
-        $logScraper->title = $request->title;
-        $logScraper->description = $request->description;
-        $logScraper->properties = serialize($request->properties);
-        $logScraper->images = serialize($request->images);
-        $logScraper->size_system = $request->size_system;
-        $logScraper->currency = $request->currency;
-        $logScraper->price = $request->price;
-        $logScraper->discounted_price = $request->discounted_price;
-        $logScraper->is_sale = $request->is_sale;
+        $logScraper->website = $request->website ?? NULL;
+        $logScraper->url = $request->url ?? NULL;
+        $logScraper->sku = $request->sku ?? NULL;
+        $logScraper->brand = $request->brand ?? NULL;
+        $logScraper->title = $request->title ?? NULL;
+        $logScraper->description = $request->description ?? NULL;
+        $logScraper->properties = isset($request->properties) ? serialize($request->properties) : NULL;
+        $logScraper->images = isset($request->images) ? serialize($request->images) : NULL;
+        $logScraper->size_system = $request->size_system ?? NULL;
+        $logScraper->currency = $request->currency ?? NULL;
+        $logScraper->price = $request->price ?? NULL;
+        $logScraper->discounted_price = $request->discounted_price ?? NULL;
+        $logScraper->is_sale = $request->is_sale ?? 0;
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
         $logScraper->save();
