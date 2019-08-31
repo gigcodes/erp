@@ -54,7 +54,7 @@ Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDeta
 Route::get('products/enhance', 'Products\ProductEnhancementController@index');
 Route::post('products/enhance', 'Products\ProductEnhancementController@store');
 
-Route::get('links-to-post','SEOAnalyticsController@linksToPost');
+
 Route::post('link-to-post-category-update','AnalyticsController@updateCategoryPost')->name('updateCategoryPost');
 Route::post('add-article-category','AnalyticsController@addArticleCategory')->name('addArticleCategory');
 
