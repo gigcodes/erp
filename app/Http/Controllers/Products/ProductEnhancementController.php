@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Products;
 
 use App\Product;
+use App\Helpers\StatusHelper;
+use App\Helpers\QueryHelper;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,49 +15,85 @@ class ProductEnhancementController extends Controller
 {
     public function index()
     {
-        DB::enableQueryLog();
-        $orderByPritority = "CASE WHEN supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+        // Get next product to be enhances
+        $product = Product::where('status_id', StatusHelper::$imageEnhancement)
+            ->whereRaw("(SELECT COUNT(media_id) FROM mediables WHERE mediables.mediable_id=products.id AND mediables.mediable_type LIKE '%Product') > 0");
 
-        $product = Product::where('is_enhanced', 0)
-            ->whereRaw("(SELECT COUNT(media_id) FROM mediables WHERE mediables.mediable_id=products.id AND mediables.mediable_type LIKE '%Product') > 0")
-            ->orderByRaw($orderByPritority)
-            ->orderBy('is_approved', 'DESC')
-            ->first();
+        // Add query helper filter
+        $product = QueryHelper::approvedListingOrder($product);
 
-        $productImages = $imgs = $product->media()->get();
-        $productUrls = [];
+        // Get first product
+        $product = $product->first();
 
-        foreach ($productImages as $image) {
-            $productUrls[] = $image->getUrl();
+        // Do we have a result
+        if ($product == null) {
+            return response()->json([
+                'error' => 'No images to crop'
+            ], 400);
         }
+
+        // Create array for product images
+        $productImages = $imgs = $product->media()->get();
+
+        // Set empty array for product image URLs
+        $productImageUrls = [];
+
+        // Loop over images to get image URLs
+        foreach ($productImages as $image) {
+            $productImageUrls[] = $image->getUrl();
+        }
+
+        // Set status to being enhanced
+        $product->status_id = StatusHelper::$isBeingEnhanced;
+        $product->save();
 
         return response()->json([
             'id' => $product->id,
-            'images' => $productUrls
+            'images' => $productImageUrls
         ]);
     }
 
     public function store(Request $request)
     {
+        // Vaidate the request
         $this->validate($request, [
             'images' => 'required',
             'id' => 'required'
         ]);
 
+        // Find product
         $product = Product::find($request->get('id'));
+
+        // Check if product is being enhanced
+        if ($product->status_id != StatusHelper::$isBeingEnhanced) {
+            return response()->json([
+                'error' => 'Product is not being enhanced'
+            ], 400);
+        }
+
+        // Get all files
         $files = $request->allFiles();
 
+        // Do we have files?
         if ($files !== []) {
+            // Delete cropped images
             $this->deleteCroppedImages($product);
+
+            // Loop over files
             foreach ($files[ 'images' ] as $file) {
+                // Upload media
                 $media = MediaUploader::fromSource($file)->useFilename(uniqid('cropped_', true))->upload();
+
+                // Attach media to product
                 $product->attachMedia($media, 'gallery');
             }
         }
 
-        $product->is_enhanced = 1;
+        // Update status
+        $product->status_id = StatusHelper::$cropApprovalConfirmation;
         $product->save();
 
+        // Return success
         return response()->json([
             'status' => 'success'
         ]);
