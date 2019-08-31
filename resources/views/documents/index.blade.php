@@ -71,7 +71,7 @@
               <td>{{ $document->user->name }}</td>
               <td>{{ $document->user->agent_role  }}</td>
               <td>{{ $document->name}}</td>
-              <td>{{ $document->category}}</td>
+              <td>@if(isset($document->documentCategory->name)){{ $document->documentCategory->name }} @endif</td>
               <td>{{ $document->filename }}</td>
               <td>
                 <a href="{{ route('document.download', $document->id) }}" class="btn btn-xs btn-secondary">Download</a>
@@ -133,10 +133,12 @@
 
               <div class="form-group">
                 <strong>Document category:</strong>
-                 <select class="selectpicker form-control" data-live-search="true" data-size="15" name="category" title="Choose a Category" required>
+                 <select class="selectpicker form-control category" data-live-search="true" data-size="15" name="category_id" title="Choose a Category" required>
                     
-                      <option value="KYC">KYC</option>
-                    
+                      @foreach($category as $cat)
+                           <option value="{{ $cat->id }}" data-list="{{ $cat->id }}">{{ $cat->name }}</option>
+                          @endforeach
+                    <option value="0">Add Category</option>
                 </select>
                  @if ($errors->has('category'))
                   <div class="alert alert-danger">{{$errors->first('category')}}</div>
@@ -172,11 +174,49 @@
       </div>
     </div>
 
+<!-- Modal To Add Category-->
+      <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Add Categroy</h4>
+            </div>
+            <form id="categories">
+              <div class="modal-body">
+                <p>Enter Category Name</p>
+                <input type="text" name="name" id="name">
+              </div>
+
+              <div class="modal-footer">
+               <button type="submit" class="btn btn-default">Save</button>
+               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+             </div>
+           </form>
+         </div>
+
+       </div>
+      </div>
+      </div>
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
+  <script type="text/javascript">
+     $(document).ready(function(){
+      $(".category").change(function() {
+          var id = $(this).find(':selected').val();
+          
+          if(id == 0){
+              $("#myModal").modal();
+          }
+      });
+     
+  });
+  </script>
 
   <script type="text/javascript">
        $(".make-remark").on('click', function() {
@@ -208,5 +248,31 @@
         });
       });
 
+  </script>
+
+  <script type="text/javascript">
+    
+     $(document).ready(function() {
+       $('#categories').on('submit', function(e) {
+           e.preventDefault(e);
+            var name = $('#name').val();
+            $.ajax({
+          url: '{{ route('documentcategory.add') }}',
+              type: 'POST',
+              dataType: 'JSON',
+              data: {'_token': '{{ csrf_token() }}','name' : name},
+        })
+        .done(function() {
+         // $('#myModal').modal('hide');
+              alert('Category Saved');
+              location.reload(true);
+        })
+        .fail(function() {
+              console.log("error");
+        })
+      
+    });
+});
+    
   </script>
 @endsection
