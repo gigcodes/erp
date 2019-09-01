@@ -78,3 +78,79 @@
 
 
 @endsection 
+@section('scripts')
+<script>
+  var cached_suggestions = localStorage['message_suggestions'];
+  var suggestions = [];
+
+$(document).on('click', '.send-message', function() {
+    var thiss = $(this);
+    var data = new FormData();
+    var user_id = $(this).data('userid');
+    var message = $(this).siblings('input').val();
+
+    data.append("user_id", user_id);
+    data.append("message", message);
+    data.append("status", 1);
+
+    if (message.length > 0) {
+      if (!$(thiss).is(':disabled')) {
+        $.ajax({
+          url: '/whatsapp/sendMessage/user',
+          type: 'POST',
+         "dataType"    : 'json',           // what to expect back from the PHP script, if anything
+         "cache"       : false,
+         "contentType" : false,
+         "processData" : false,
+         "data": data,
+         beforeSend: function() {
+           $(thiss).attr('disabled', true);
+         }
+       }).done( function(response) {
+          $(thiss).siblings('input').val('');
+
+          if (cached_suggestions) {
+            suggestions = JSON.parse(cached_suggestions);
+
+            if (suggestions.length == 10) {
+              suggestions.push(message);
+              suggestions.splice(0, 1);
+            } else {
+              suggestions.push(message);
+            }
+            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+            cached_suggestions = localStorage['message_suggestions'];
+
+            console.log('EXISTING');
+            console.log(suggestions);
+          } else {
+            suggestions.push(message);
+            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+            cached_suggestions = localStorage['message_suggestions'];
+
+            console.log('NOT');
+            console.log(suggestions);
+          }
+
+          // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+          //   .done(function( data ) {
+          //
+          //   }).fail(function(response) {
+          //     console.log(response);
+          //     alert(response.responseJSON.message);
+          //   });
+
+          $(thiss).attr('disabled', false);
+        }).fail(function(errObj) {
+          $(thiss).attr('disabled', false);
+
+          alert("Could not send message");
+          console.log(errObj);
+        });
+      }
+    } else {
+      alert('Please enter a message first');
+    }
+  });
+</script>
+@endsection
