@@ -66,7 +66,13 @@
                     <td>{{$user->name}}</td>
                     <td>{{!empty($value['start_time']) ? $value['start_time'] : 'N/A' }}</td>
                     <td>{{$value['status']}}</td>
-                    <td>N/A</td>
+                    <td width=20%>
+                      <div class="d-flex">
+                        <input type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                        <input type="hidden" class="form-control" id="number" name="number" value="{{ $user->whatsapp_number }}">
+                        <button class="btn btn-sm btn-image send-message" data-userid="{{ $user->id }}"><img src="/images/filled-sent.png" /></button>
+                      </div>
+                    </td>
                 </tr>
             @endforeach
         </tbody>
@@ -88,9 +94,10 @@ $(document).on('click', '.send-message', function() {
     var data = new FormData();
     var user_id = $(this).data('userid');
     var message = $(this).siblings('input').val();
-
+    var number = $('#number').val();
     data.append("user_id", user_id);
     data.append("message", message);
+    data.append("number", number);
     data.append("status", 1);
 
     if (message.length > 0) {
@@ -131,14 +138,6 @@ $(document).on('click', '.send-message', function() {
             console.log('NOT');
             console.log(suggestions);
           }
-
-          // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
-          //   .done(function( data ) {
-          //
-          //   }).fail(function(response) {
-          //     console.log(response);
-          //     alert(response.responseJSON.message);
-          //   });
 
           $(thiss).attr('disabled', false);
         }).fail(function(errObj) {
