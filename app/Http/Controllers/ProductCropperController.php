@@ -493,6 +493,7 @@ class ProductCropperController extends Controller
     public function approveCrop($id, Request $request)
     {
         $product = Product::findOrFail($id);
+        $product->status_id = StatusHelper::$cropSequencing;
         $product->is_crop_approved = 1;
         $product->crop_approved_by = Auth::user()->id;
         $product->crop_approved_at = Carbon::now()->toDateTimeString();
