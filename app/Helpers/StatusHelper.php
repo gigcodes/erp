@@ -88,16 +88,15 @@ class StatusHelper extends Model
         $status = self::getStatusCount($inStockOnly);
 
         // Return count
-        return array_sum($status) -
-            (isset($status[self::$import]) ? $status[self::$import] : 0) -
-            (isset($status[self::$scrape]) ? $status[self::$scrape] : 0) -
-            (isset($status[self::$autoCrop]) ? $status[self::$autoCrop] : 0) -
-            (isset($status[self::$cropApproval]) ? $status[self::$cropApproval] : 0) -
-            (isset($status[self::$unableToScrape]) ? $status[self::$unableToScrape] : 0) -
-            (isset($status[self::$unableToScrapeImages]) ? $status[self::$unableToScrapeImages] : 0) -
-            (isset($status[self::$isBeingCropped]) ? $status[self::$isBeingCropped] : 0) -
-            (isset($status[self::$cropSkipped]) ? $status[self::$cropSkipped] : 0) -
-            (isset($status[self::$cropRejected]) ? $status[self::$cropRejected] : 0);
+        return (isset($status[self::$cropSequencing]) ? $status[self::$cropSequencing] : 0) +
+            (isset($status[self::$cropApprovalConfirmation]) ? $status[self::$cropApprovalConfirmation] : 0) +
+            (isset($status[self::$isBeingSequenced]) ? $status[self::$isBeingSequenced] : 0) +
+            (isset($status[self::$imageEnhancement]) ? $status[self::$imageEnhancement] : 0) +
+            (isset($status[self::$isBeingEnhanced]) ? $status[self::$isBeingEnhanced] : 0) +
+            (isset($status[self::$cropApprovalConfirmation]) ? $status[self::$cropApprovalConfirmation] : 0) +
+            (isset($status[self::$finalApproval]) ? $status[self::$finalApproval] : 0) +
+            (isset($status[self::$pushToMagento]) ? $status[self::$pushToMagento] : 0) +
+            (isset($status[self::$inMagento]) ? $status[self::$inMagento] : 0);
     }
 
     public static function getCropRejectedCount($inStockOnly=1) {
