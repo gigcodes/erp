@@ -214,6 +214,7 @@ class ProductCropperController extends Controller
     public function getListOfImagesToBeVerified(Request $request)
     {
         $products = Product::where('status_id', StatusHelper::$cropApproval);
+        $products = QueryHelper::approvedListingOrder($products);
         $products = $products->paginate(24);
 
         $totalApproved = 0;

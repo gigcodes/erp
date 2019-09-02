@@ -53,7 +53,7 @@
                     <tr>
                         <td colspan="2">
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: {{($stats->cropped/$stats->total)*100}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"><strong>{{ $stats->cropped }} of {{$stats->total}}</strong></div>
+                                <div class="progress-bar" role="progressbar" style="width: {{ $stats->total > 0 ? ($stats->cropped/$stats->total)*100 : 100 }}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"><strong>{{ $stats->cropped }} of {{$stats->total}}</strong></div>
                             </div>
                         </td>
                     </tr>
