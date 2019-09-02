@@ -246,9 +246,18 @@ class ProductCropperController extends Controller
                     'CROP_APPROVAL_REJECTED',
                     'CROP_SEQUENCED_REJECTED'
                 ])->where('stock', '>=', 1)->get();
-                $totalApproved = Product::where('crop_approved_by', Auth::id())->count();
-                $totalRejected = Product::where('crop_rejected_by', Auth::id())->count();
-                $totalSequenced = Product::where('crop_rejected_by', Auth::id())->count();
+
+                $totalApproved = Product::where('crop_approved_by', Auth::id());
+                $totalApproved = QueryHelper::approvedListingOrder($totalApproved);
+                $totalApproved = $totalApproved->count();
+
+                $totalRejected = Product::where('crop_rejected_by', Auth::id());
+                $totalRejected = QueryHelper::approvedListingOrder($totalRejected);
+                $totalRejected = $totalRejected->count();
+
+                $totalSequenced = Product::where('crop_rejected_by', Auth::id());
+                $totalSequenced = QueryHelper::approvedListingOrder($totalSequenced);
+                $totalSequenced = $totalSequenced->count();
             } else {
                 $stats = DB::table('products')
                     ->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')
