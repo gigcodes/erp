@@ -212,10 +212,10 @@
                                                 <td>{{ $product->crop_approved_at ?? 'N/A' }}</td>
                                                 <td>
                                                     {{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}
-                                                        <br/>
-                                                        <button id="approve_cropping_{{ $product->id }}" data-id="{{$product->id}}" class="btn btn-default btn-small crop-approval-confirmation">
-                                                            <nobr>Confirm Crop</nobr>
-                                                        </button>
+                                                    <br/>
+                                                    <button id="approve_cropping_{{ $product->id }}" data-id="{{$product->id}}" class="btn btn-primary btn-small crop-approval-confirmation">
+                                                        <nobr>Confirm Crop</nobr>
+                                                    </button>
                                                 </td>
                                                 <td>
                                                     <select style="width: 90px !important;" data-id="{{$product->id}}" class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" id="reject_cropping_{{$product->id}}">
