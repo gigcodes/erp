@@ -346,17 +346,12 @@ class ProductController extends Controller
         if ($request->get('user_id') > 0) {
             $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
         }
-
-        // HIDE ALREADY CONFIRMED CROP
-        $newProducts = $newProducts->leftJoin('product_status', function ($join) {
-            $join->on('products.id', '=', 'product_status.product_id')->where('product_status.name', 'CROP_APPROVAL_CONFIRMATION');
-        })->whereNull('product_status.value')->where('is_crop_rejected', 0);
-
+        
         $selected_categories = $request->category ? $request->category : [1];
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->select(['products.*', 'product_status.name', 'product_status.value'])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(50);
+        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(50);
 
         return view('products.final_crop_confirmation', [
             'products' => $newProducts,
