@@ -600,6 +600,10 @@ class ProductCropperController extends Controller
         // Add new status
         ProductStatus::updateStatus($product->id, 'CROP_APPROVAL_CONFIRMATION', 1);
 
+        // Set new status
+        $product->status_id = StatusHelper::$finalApproval;
+        $product->save();
+
         return 'ok';
     }
 
