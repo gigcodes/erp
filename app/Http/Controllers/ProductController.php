@@ -351,6 +351,8 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
+        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+
         $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(50);
 
         return view('products.final_crop_confirmation', [
