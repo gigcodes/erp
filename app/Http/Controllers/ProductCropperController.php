@@ -259,12 +259,11 @@ class ProductCropperController extends Controller
                 $totalSequenced = QueryHelper::approvedListingOrder($totalSequenced);
                 $totalSequenced = $totalSequenced->count();
             } else {
-                $stats = DB::table('products')
-                    ->selectRaw('SUM(is_image_processed) as cropped, COUNT(*) AS total, SUM(is_crop_approved) as approved, SUM(is_crop_rejected) AS rejected')
-                    ->where('is_scraped', 1)
-                    ->where('is_without_image', 0)
-                    ->where('stock', '>=', 1)
-                    ->first();
+                $stats = new \stdClass();
+                $stats->cropped = StatusHelper::getCroppedCount();
+                $stats->total = StatusHelper::getTotalProductsScraped();
+                $stats->approved = StatusHelper::getCropApprovedCount();
+                $stats->rejected = StatusHelper::getCropRejectedCount();
             }
         }
 
