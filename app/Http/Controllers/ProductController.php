@@ -346,7 +346,7 @@ class ProductController extends Controller
         if ($request->get('user_id') > 0) {
             $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
         }
-        
+
         $selected_categories = $request->category ? $request->category : [1];
         $category_array = Category::renderAsArray();
         $users = User::all();
