@@ -244,7 +244,7 @@
                                                     @php
                                                         $cropApprovalConfirmation = \App\ProductStatus::where('product_id', $product->id)->where('name', 'CROP_APPROVAL_CONFIRMATION')->first();
                                                     @endphp
-                                                    @if ( $cropApprovalConfirmation == NULL )
+                                                    @if ( $cropApprovalConfirmation == null )
                                                         <br/>
                                                         <button id="approve_cropping_{{ $product->id }}" data-id="{{$product->id}}" class="btn btn-default btn-small crop-approval-confirmation">
                                                             <nobr>Confirm Crop</nobr>
@@ -425,7 +425,7 @@
                                         @foreach ( $product->log_scraper_vs_ai as $resultAi )
                                             @php $resultAi = json_decode($resultAi->result_ai); @endphp
                                             @if ( !empty($resultAi->category) )
-                                                <button id="ai-category-{{ $product->id }}" data-id="{{ $product->id }}" data-category="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, NULL ) }}" class="btn btn-default btn-sm mt-2 ai-btn-category">{{ ucwords(strtolower($resultAi->category)) }} (AI)</button>
+                                                <button id="ai-category-{{ $product->id }}" data-id="{{ $product->id }}" data-category="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, null ) }}" class="btn btn-default btn-sm mt-2 ai-btn-category">{{ ucwords(strtolower($resultAi->category)) }} (AI)</button>
                                             @endif
                                         @endforeach
                                     @endif
@@ -456,6 +456,20 @@
                                 </td>
                                 <td class="table-hover-cell" data-id="{{ $product->id }}">
                                     <span class="quick-composition">{{ $product->composition }}</span>
+
+                                    @php
+                                        $arrComposition = ['100% Cotton', '100% Leather', '100% Silk', '100% Wool', '100% Polyester', '100% Acetate', '100% Polyamide', 'Cotton', 'Leather', 'Silk', 'Wool', 'Polyester'];
+                                        $i=1;
+                                    @endphp
+                                    @foreach ($arrComposition as $compositionValue)
+                                        <button id="composition-dd-{{$i}}" class="btn btn-default btn-sm mt-2 btn-composition" data-id="{{ $product->id }}" data-value="{{ $compositionValue }}">{{ $compositionValue }}</button>
+                                        @php
+                                            $i++;
+                                        @endphp
+                                    @endforeach
+
+                                    <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color" data-id="{{ $product->id }}" data-value="Multi">Multi</button>
+
                                     {{-- <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}"> --}}
                                     <textarea name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" rows="8" cols="80">{{ $product->composition }}</textarea>
 
@@ -973,6 +987,30 @@
                         alert('Could not update name');
                     });
                 }
+            });
+        });
+
+
+        $(document).on('click', '.btn-composition', function() {
+            var id = $(this).data('id');
+            var composition = $(this).data('value');
+            var thiss = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('products') }}/" + id + '/updateComposition',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    composition: composition,
+                }
+            }).done(function () {
+                $(thiss).addClass('hidden');
+                $(thiss).siblings('.quick-composition').text(composition);
+                $(thiss).siblings('.quick-composition').removeClass('hidden');
+            }).fail(function (response) {
+                console.log(response);
+
+                alert('Could not update composition');
             });
         });
 
