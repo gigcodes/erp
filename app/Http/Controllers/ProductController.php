@@ -269,7 +269,7 @@ class ProductController extends Controller
         // Prioritize suppliers
         $newProducts = Product::where('status_id', StatusHelper::$cropApprovalConfirmation);
 
-        $newProducts = Product::where('is_approved', 1)->where('is_crop_approved', 1)->where('is_crop_ordered', 1)->where('isUploaded', 0)->orderByRaw($orderByPritority)->orderBy('listing_approved_at', 'DESC');
+        $newProducts = QueryHelper::approvedListingOrder($newProducts);
 
         $term = $request->input('term');
         $brand = '';
