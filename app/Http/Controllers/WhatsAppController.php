@@ -1790,8 +1790,8 @@ class WhatsAppController extends FindByNumberController
         ]);
 
         $data = $request->except('_token');
-        $data[ 'user_id' ] = Auth::id();
-        $data[ 'number' ] = null;
+        $data[ 'user_id' ] = $request['user_id'];
+        $data[ 'number' ] = $request['number'];
         // $params['status'] = 1;
 
         if ($context == 'customer') {
@@ -1879,6 +1879,8 @@ class WhatsAppController extends FindByNumberController
             } elseif ($context == 'user') {
                 $data[ 'erp_user' ] = $request->user_id;
                 $module_id = $request->user_id;
+                $user = User::find($request->user_id);
+                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, null, null);
             } elseif ($context == 'dubbizle') {
                 $data[ 'dubbizle_id' ] = $request->dubbizle_id;
                 $module_id = $request->dubbizle_id;
