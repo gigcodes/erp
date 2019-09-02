@@ -68,17 +68,18 @@ class SERankingController extends Controller
         } else {
             $keywords = $this->getResults('sites/'.$site_id.'/keywords');
         }    
-        // foreach ($keywords as $key => $new_item) {
-        //     DB::table('serank-keywords')->insert(
-        //         [
-        //             "id" => $new_item->id, 
-        //             "name" => $new_item->name,
-        //             "group_id" => $new_item->group_id,
-        //             "link" => $new_item->link,
-        //             "first_check_date" => $new_item->first_check_date,
-        //         ]
-        //     );
-        // }
+        DB::table('s_e_rankings')->truncate();
+        foreach ($keywords as $key => $new_item) {
+            DB::table('s_e_rankings')->insert(
+                [
+                    "id" => $new_item->id, 
+                    "name" => $new_item->name,
+                    "group_id" => $new_item->group_id,
+                    "link" => $new_item->link,
+                    "first_check_date" => $new_item->first_check_date,
+                ]
+            );
+        }
         $keyword_stats = $this->getResults('sites/'.$site_id.'/positions');
         return View(
             'se-ranking.keywords',
