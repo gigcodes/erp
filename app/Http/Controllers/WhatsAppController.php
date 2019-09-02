@@ -2842,7 +2842,7 @@ class WhatsAppController extends FindByNumberController
                     if (1 == 2) {
 //                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
 
-                        SendImagesWithWhatsapp::dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
+                        SendImagesWithWhatsapp::onConnection('sync')->dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
                     } else {
 //                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
                         $this->sendWithThirdApi($phone, $whatsapp_number ?? 919152731483, null, $send);
