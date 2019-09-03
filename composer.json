@@ -1,7 +1,10 @@
 {
     "name": "laravel/laravel",
     "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
     "license": "MIT",
     "type": "project",
     "require": {
@@ -82,6 +85,24 @@
             ]
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/erp-pinterest"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/erp-excel-importer"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/google-vision"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/price-comparison-scrapper"
+        }
+    ],
     "scripts": {
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""

@@ -6,11 +6,12 @@ use App\ScrapStatistics;
 use App\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use \Carbon\Carbon;
 
 class ScrapStatisticsController extends Controller
 {
 
-    //List of supplier with their brand count
+
     private $suppliers = [
         'angelominetti' => 23,
         'Wiseboutique' => 18,
@@ -51,82 +52,38 @@ class ScrapStatisticsController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     *
-     * generate the scrap statistics
      */
     public function index(Request $request)
     {
-        $date = $request->get('date');
+        // Set dates
+        $startDate = date('Y-m-d H:i:s', time() - (2 * 86400));
+        $endDate = date('Y-m-d H:i:s');
 
+        // Get scrape data
+        $sql = '
+            SELECT
+                website,
+                COUNT(id) AS total,
+                SUM(IF(validated=0,1,0)) AS failed,
+                SUM(IF(validated=1,1,0)) AS validated,
+                SUM(IF(validation_result LIKE "%[error]%",1,0)) AS errors,
+                SUM(IF(validation_result LIKE "%[warning]%",1,0)) AS warnings,
+                MAX(created_at) AS last_scrape_date,
+                IF(MAX(created_at) < DATE_SUB(NOW(), INTERVAL 2 DAY),0,1) AS running
+            FROM
+                log_scraper
+            WHERE
+                created_at > "' . $startDate . '" AND
+                created_at < "' . $endDate . '"
+            GROUP BY
+                website
+            ORDER BY
+                website
+        ';
+        $scrapeData = DB::select($sql);
 
-//        $inactiveScrapping = DB::table('scrap_statistics')
-//            ->selectRaw('supplier, MAX(created_at) as created_at, TIMESTAMPDIFF(HOUR, created_at, NOW()) as last_scraped`')
-//            ->groupBy('supplier')
-//            ->get();
-//
-//        dd($inactiveScrapping);
-
-//         get stats for new and existing ones
-        $scrapedExistingProducts = DB::table('scrap_statistics')->selectRaw('COUNT(DISTINCT description) as total, supplier')->where('type', 'EXISTING_SCRAP_PRODUCT');
-        $scrapedNewProducts = DB::table('scrap_statistics')->selectRaw('COUNT(DISTINCT description) as total, supplier')->where('type', 'NEW_SCRAP_PRODUCT');
-
-
-
-        $suppliers = ScrapStatistics::distinct()->get(['supplier']);
-
-        $supplierList = $this->suppliers;
-        $progress = [];
-
-        $totalBrands = 0;
-        $doneBrands = 0;
-
-//        loop through the supplier list and then add count & stat by date with created at and ended at
-        foreach ($supplierList as $key=>$item) {
-            $count = ScrapStatistics::where('supplier', $key);
-            $stat = ScrapStatistics::selectRaw('MIN(created_at) as started_at, MAX(created_at) as ended_at')->where('supplier', $key);
-            if (strlen($date) === 10) {
-                $count = $count->whereRaw('DATE(created_at) = "'. $date . '"');
-                $stat = $stat->whereRaw('DATE(created_at) = "'. $date . '"');
-            } else {
-                $count = $count->whereRaw('DATE(created_at) = "'. date('Y-m-d'.'"'));
-                $stat = $stat->whereRaw('DATE(created_at) = "'. date('Y-m-d'.'"'));
-            }
-
-            $count = $count->distinct()->pluck('brand')->toArray();
-
-            $doneBrands+=count($count);
-            $totalBrands+=$item;
-
-            $blist = implode(', ', $count);
-
-            $progress[$key] = [count($count), round((count($count)/$item)*100),$item, $blist, $stat->first()];
-        }
-
-
-        if (strlen($date) === 10) {
-            $scrapedNewProducts = $scrapedNewProducts->whereRaw('DATE(created_at) = "'. $date.'"');
-            $scrapedExistingProducts = $scrapedExistingProducts->whereRaw('DATE(created_at) = "'. $date.'"');
-        }
-
-        $totalPercent = $doneBrands/$totalBrands;
-        //calculate the percent for particular supplier..
-        $totalProgress = round($totalPercent*100);
-
-        $scrapedNewProducts = $scrapedNewProducts->groupBy(['supplier'])->get();
-        $scrapedExistingProducts = $scrapedExistingProducts->groupBy(['supplier'])->get();
-
-
-        $progressStats = [];
-
-        foreach ($suppliers as $supplier) {
-            $data = DB::table('scrap_statistics')->selectRaw('COUNT(*) as total, brand')->where('supplier', $supplier->supplier)->groupBy('brand');
-            if (strlen($date) === 10) {
-                $data = $data->whereRaw('DATE(created_at) = "'. $date . '"');
-            }
-            $progressStats[$supplier->supplier] = $data->get();
-        }
-
-        return view('scrap.stats', compact('scrapedExistingProducts', 'scrapedNewProducts', 'request', 'progressStats', 'progress', 'totalProgress'));
+        // Return view
+        return view('scrap.stats', compact('scrapeData'));
     }
 
     /**
@@ -142,7 +99,7 @@ class ScrapStatisticsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -168,7 +125,7 @@ class ScrapStatisticsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ScrapStatistics  $scrapStatistics
+     * @param  \App\ScrapStatistics $scrapStatistics
      * @return \Illuminate\Http\Response
      */
     public function show(ScrapStatistics $scrapStatistics)
@@ -179,7 +136,7 @@ class ScrapStatisticsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ScrapStatistics  $scrapStatistics
+     * @param  \App\ScrapStatistics $scrapStatistics
      * @return \Illuminate\Http\Response
      */
     public function edit(ScrapStatistics $scrapStatistics)
@@ -190,8 +147,8 @@ class ScrapStatisticsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ScrapStatistics  $scrapStatistics
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\ScrapStatistics $scrapStatistics
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ScrapStatistics $scrapStatistics)
@@ -202,11 +159,19 @@ class ScrapStatisticsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ScrapStatistics  $scrapStatistics
+     * @param  \App\ScrapStatistics $scrapStatistics
      * @return \Illuminate\Http\Response
      */
     public function destroy(ScrapStatistics $scrapStatistics)
     {
         //
+    }
+
+    public function assetManager()
+    {
+        $start = Carbon::now()->format('Y-m-d 00:00:00');
+        $end = Carbon::now()->format('Y-m-d 23:59:00');
+        // dd('hello');
+        return view('scrap.asset-manager');
     }
 }
