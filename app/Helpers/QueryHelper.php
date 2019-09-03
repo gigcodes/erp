@@ -11,7 +11,7 @@ class QueryHelper
         $query = $query->where('stock', '>=', 1);
 
         // Prioritize suppliers
-        $prioritizeSuppliers = "CASE WHEN brand IN (27, 42, 11, 19, 24) AND supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
+        $prioritizeSuppliers = "CASE WHEN brand IN (27, 42, 11, 19, 24) AND category IN (11,39,5,41,14,42,60,17,31,63) supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
         $query = $query->orderByRaw($prioritizeSuppliers);
 
         // Show on sale products first
