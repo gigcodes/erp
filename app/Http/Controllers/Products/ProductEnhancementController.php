@@ -67,7 +67,7 @@ class ProductEnhancementController extends Controller
 
         // No product found
         if ($product == null) {
-            \Log::channel('product')->debug("Product " . $product->id . " not found");
+            \Log::channel('productUpdates')->debug("Product " . $product->id . " not found");
             return response()->json([
                 'error' => 'Product is not found'
             ], 400);
@@ -75,7 +75,7 @@ class ProductEnhancementController extends Controller
 
         // Check if product is being enhanced
         if ($product->status_id != StatusHelper::$isBeingEnhanced) {
-            \Log::channel('product')->debug("Received enhanced files for " . $product->id . " but the status is not " . StatusHelper::$isBeingEnhanced . " but " . $product->status_id);
+            \Log::channel('productUpdates')->debug("Received enhanced files for " . $product->id . " but the status is not " . StatusHelper::$isBeingEnhanced . " but " . $product->status_id);
             return response()->json([
                 'error' => 'Product is not being enhanced'
             ], 400);
