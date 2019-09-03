@@ -17,6 +17,7 @@ class ProductEnhancementController extends Controller
     {
         // Get next product to be enhances
         $product = Product::where('status_id', StatusHelper::$imageEnhancement)
+            ->where('stock', '>=', 1)
             ->whereRaw("(SELECT COUNT(media_id) FROM mediables WHERE mediables.mediable_id=products.id AND mediables.mediable_type LIKE '%Product') > 0");
 
         // Add query helper filter
@@ -64,8 +65,17 @@ class ProductEnhancementController extends Controller
         // Find product
         $product = Product::find($request->get('id'));
 
+        // No product found
+        if ($product == null) {
+            \Log::channel('product')->debug("Product " . $product->id . " not found");
+            return response()->json([
+                'error' => 'Product is not found'
+            ], 400);
+        }
+
         // Check if product is being enhanced
         if ($product->status_id != StatusHelper::$isBeingEnhanced) {
+            \Log::channel('product')->debug("Received enhanced files for " . $product->id . " but the status is not " . StatusHelper::$isBeingEnhanced . " but " . $product->status_id);
             return response()->json([
                 'error' => 'Product is not being enhanced'
             ], 400);
@@ -91,6 +101,7 @@ class ProductEnhancementController extends Controller
 
         // Update status
         $product->status_id = StatusHelper::$cropApprovalConfirmation;
+        $product->is_enhanced = 1;
         $product->save();
 
         // Return success
