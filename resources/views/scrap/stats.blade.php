@@ -11,39 +11,7 @@
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Supplier Scrapping  Info </h2>
-
-            <div class="pull-left">
-                <form class="form-inline" action="{{ route('mastercontrol.index') }}" method="GET">
-
-                    <div class="form-group ml-3">
-                        <input type='text' class="form-control" name="search" placeholder="Search" required />
-                    </div>
-
-                    <div class="form-group ml-3">
-                        <select name="status" class="form-control">
-                            <option>Select Type</option>
-                            <option>Sucess</option>
-                            <option>Failed</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group ml-3">
-                        <input type="text" value="" name="range_start" hidden/>
-                        <input type="text" value="" name="range_end" hidden/>
-                        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                            <i class="fa fa-calendar"></i>&nbsp;
-                            <span></span> <i class="fa fa-caret-down"></i>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-secondary ml-3">Submit</button>
-                </form>
-            </div>
-
-            <div class="pull-right mt-4">
-
-            </div>
+            <h2 class="page-heading">Supplier Scrapping Info</h2>
         </div>
     </div>
 
@@ -52,7 +20,7 @@
     <div class="row no-gutters mt-3">
         <div class="col-xs-12 col-md-12" id="plannerColumn">
             <div class="table-responsive">
-                <table class="table table-bordered table-sm">
+                <table class="table table-bordered table-striped table-sm">
                     <thead>
                         <tr>
                             <th>Supplier</th>
