@@ -152,9 +152,6 @@
                                         @if ($product->hasMedia(config('constants.media_tags')))
                                             <div>
                                                 <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
-                                                @if ( $product->is_enhanced == 1 )
-                                                    <div style="position: absolute; top:0; right: 16px; padding: 4px; background-color: rgba(0,0,0,.2); font-weight: bold;">ENHANCED</div>
-                                                @endif
                                             </div>
                                         @endif
                                     </div>
