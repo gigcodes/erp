@@ -29,9 +29,17 @@ class ProductHelper extends Model
         // Get brand
         $brand = Brand::find($brandId);
 
+        // Set generic arrSearch
+        $arrGenericSearch = ['/', '-', '_'];
+
         // Return sku if brand is unknown
         if ($brand == null) {
             return $sku;
+        }
+
+        // Gucci
+        if ( $brand == 'GUCCI' ) {
+            return str_replace($arrGenericSearch, '', $sku);
         }
 
         // Strip last # characters
