@@ -952,7 +952,7 @@ class ScrapController extends Controller
             } else {
                 // Save product with status 'unable to scrape images'
                 $product->is_without_image = 1;
-                $product->status_id = StatusHelper::$UnableToScrapeImages;
+                $product->status_id = StatusHelper::$unableToScrapeImages;
                 $product->save();
             }
 
