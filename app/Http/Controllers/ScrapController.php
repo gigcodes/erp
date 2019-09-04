@@ -872,6 +872,9 @@ class ScrapController extends Controller
      */
     public function saveFromNewSupplier(Request $request)
     {
+        // Overwrite website
+        $request->website = 'internal_scraper';
+
         // Log before validating
         LogScraper::LogScrapeValidationUsingRequest($request);
 
