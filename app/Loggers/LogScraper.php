@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Request;
 class LogScraper extends Model
 {
     protected $table = 'log_scraper';
-    protected $fillable = ['website', 'url', 'sku', 'brand', 'title', 'description', 'properties', 'images', 'size_system', 'currency', 'price', 'discounted_price',];
+    protected $fillable = ['ip_address', 'website', 'url', 'sku', 'brand', 'title', 'description', 'properties', 'images', 'size_system', 'currency', 'price', 'discounted_price',];
 
     public static function LogScrapeValidationUsingRequest($request)
     {
@@ -224,6 +224,7 @@ class LogScraper extends Model
 
     private static function getRealIp()
     {
+        // Check which IP to use
         if (!empty($_SERVER[ 'HTTP_CLIENT_IP' ])) {
             $ip = $_SERVER[ 'HTTP_CLIENT_IP' ];
         } elseif (!empty($_SERVER[ 'HTTP_X_FORWARDED_FOR' ])) {
@@ -231,6 +232,8 @@ class LogScraper extends Model
         } else {
             $ip = $_SERVER[ 'REMOTE_ADDR' ];
         }
+
+        // Return IP
         return $ip;
     }
 }
