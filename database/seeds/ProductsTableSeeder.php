@@ -30,6 +30,7 @@ class ProductsTableSeeder extends Seeder
             $product->price = rand(100, 1500);
             $product->stock = rand(0, 3);
             $product->composition = $this->_getRandomComposition();
+            $product->color = $faker->colorName;
             $product->save();
         }
     }
