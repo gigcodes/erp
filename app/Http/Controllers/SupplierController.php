@@ -18,7 +18,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class SupplierController extends Controller
 {
-
+    /**
+    * Add/Edit Remainder functionality
+    */
     public function updateReminder(Request $request) {
         $supplier = Supplier::find($request->get('supplier_id'));
         $supplier->frequency = $request->get('frequency');
@@ -220,6 +222,9 @@ class SupplierController extends Controller
       return redirect()->back()->withSuccess('You have successfully updated a supplier!');
     }
 
+    /**
+    * Ajax Load More message method
+    */
     public function loadMoreMessages(Request $request, $id)
     {
       $supplier = Supplier::find($id);
@@ -231,6 +236,9 @@ class SupplierController extends Controller
       ]);
     }
 
+    /**
+    * Ajax Flag Update method
+    */
     public function flag(Request $request)
     {
       $supplier = Supplier::find($request->supplier_id);
@@ -245,7 +253,9 @@ class SupplierController extends Controller
 
       return response()->json(['is_flagged' => $supplier->is_flagged]);
     }
-
+    /**
+    * Send Bulk email to supplier
+    */
     public function sendEmailBulk(Request $request)
     {
       $this->validate($request, [
@@ -366,6 +376,9 @@ class SupplierController extends Controller
       return redirect()->route('supplier.index')->withSuccess('You have successfully deleted a supplier');
     }
 
+    /**
+    * Add Notes method
+    */
     public function addNote($id, Request $request) {
         $supplier = Supplier::findOrFail($id);
         $notes = $supplier->notes;
