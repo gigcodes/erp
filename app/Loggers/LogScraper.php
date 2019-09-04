@@ -54,19 +54,19 @@ class LogScraper extends Model
 
         // Create new record
         $logScraper = new LogScraper();
-        $logScraper->ip_address = Request::ip();
-        $logScraper->website = $request->website ?? NULL;
-        $logScraper->url = $request->url ?? NULL;
-        $logScraper->sku = $request->sku ?? NULL;
-        $logScraper->brand = $request->brand ?? NULL;
-        $logScraper->title = $request->title ?? NULL;
-        $logScraper->description = $request->description ?? NULL;
-        $logScraper->properties = isset($request->properties) ? serialize($request->properties) : NULL;
-        $logScraper->images = isset($request->images) ? serialize($request->images) : NULL;
-        $logScraper->size_system = $request->size_system ?? NULL;
-        $logScraper->currency = $request->currency ?? NULL;
-        $logScraper->price = $request->price ?? NULL;
-        $logScraper->discounted_price = $request->discounted_price ?? NULL;
+        $logScraper->ip_address = self::getRealIp();
+        $logScraper->website = $request->website ?? null;
+        $logScraper->url = $request->url ?? null;
+        $logScraper->sku = $request->sku ?? null;
+        $logScraper->brand = $request->brand ?? null;
+        $logScraper->title = $request->title ?? null;
+        $logScraper->description = $request->description ?? null;
+        $logScraper->properties = isset($request->properties) ? serialize($request->properties) : null;
+        $logScraper->images = isset($request->images) ? serialize($request->images) : null;
+        $logScraper->size_system = $request->size_system ?? null;
+        $logScraper->currency = $request->currency ?? null;
+        $logScraper->price = $request->price ?? null;
+        $logScraper->discounted_price = $request->discounted_price ?? null;
         $logScraper->is_sale = $request->is_sale ?? 0;
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
@@ -145,7 +145,8 @@ class LogScraper extends Model
         return "";
     }
 
-    public static function validateSizeSystem($sizeSystem) {
+    public static function validateSizeSystem($sizeSystem)
+    {
         // Check if we have a value
         if (empty($sizeSystem)) {
             return "[error] Size system is missing\n";
@@ -219,5 +220,17 @@ class LogScraper extends Model
 
         // Return an empty string
         return "";
+    }
+
+    private static function getRealIp()
+    {
+        if (!empty($_SERVER[ 'HTTP_CLIENT_IP' ])) {
+            $ip = $_SERVER[ 'HTTP_CLIENT_IP' ];
+        } elseif (!empty($_SERVER[ 'HTTP_X_FORWARDED_FOR' ])) {
+            $ip = $_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
+        } else {
+            $ip = $_SERVER[ 'REMOTE_ADDR' ];
+        }
+        return $ip;
     }
 }
