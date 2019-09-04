@@ -886,7 +886,7 @@ class ScrapController extends Controller
         }
 
         // Return an error if the current product status is not set to scrape
-        if ($product->status_id != StatusHelper::$scrape) {
+        if ($product->status_id != StatusHelper::$isBeingScraped) {
             return response()->json([
                 'status' => 'Error processing your request (#2)'
             ], 400);

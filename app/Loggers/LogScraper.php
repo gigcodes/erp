@@ -1,5 +1,7 @@
 <?php
 
+// IF YOU UPDATE THIS FILE, UPDATE IT IN THE SCRAPERSOLOLUXURY REPOSITORY AS WELL
+
 namespace App\Loggers;
 
 use Illuminate\Database\Eloquent\Model;
