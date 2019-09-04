@@ -27,6 +27,7 @@ class StatusHelper extends Model
     public static $isBeingEnhanced = 17;
     public static $cropRejected = 18;
     public static $isBeingSequenced = 19;
+    public static $isBeingScraped = 20;
 
     public static function updateStatus(\App\Product $product, $newStatus = 0)
     {

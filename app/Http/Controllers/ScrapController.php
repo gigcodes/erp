@@ -339,14 +339,21 @@ class ScrapController extends Controller
                 // Get original SKU
                 $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
 
-                $productsToPush[] = [
-                    'id' => $product->id,
-                    'sku' => $product->sku,
-                    'original_sku' => ProductHelper::getOriginalSkuByBrand(!empty($scrapedProduct->original_sku) ? $scrapedProduct->original_sku : $scrapedProduct->sku, $product->brands ? $product->brands->id : 0),
-                    'brand' => $product->brands ? $product->brands->name : '',
-                    'url' => null,
-                    'supplier' => $product->supplier
-                ];
+                if ($scrapedProduct != null) {
+                    // Add to array
+                    $productsToPush[] = [
+                        'id' => $product->id,
+                        'sku' => $product->sku,
+                        'original_sku' => ProductHelper::getOriginalSkuByBrand(!empty($scrapedProduct->original_sku) ? $scrapedProduct->original_sku : $scrapedProduct->sku, $product->brands ? $product->brands->id : 0),
+                        'brand' => $product->brands ? $product->brands->name : '',
+                        'url' => null,
+                        'supplier' => $product->supplier
+                    ];
+
+                    // Update status to is being scraped
+                    $product->status_id = StatusHelper::$isBeingScraped;
+                    $product->save();
+                }
             }
         }
 
@@ -879,7 +886,7 @@ class ScrapController extends Controller
         }
 
         // Return an error if the current product status is not set to scrape
-        if ( $product->status_id != StatusHelper::$scrape ) {
+        if ($product->status_id != StatusHelper::$scrape) {
             return response()->json([
                 'status' => 'Error processing your request (#2)'
             ], 400);
