@@ -3,6 +3,7 @@
 namespace App\Loggers;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Request;
 
 class LogScraper extends Model
 {
@@ -53,6 +54,7 @@ class LogScraper extends Model
 
         // Create new record
         $logScraper = new LogScraper();
+        $logScraper->ip_address = Request::ip();
         $logScraper->website = $request->website ?? NULL;
         $logScraper->url = $request->url ?? NULL;
         $logScraper->sku = $request->sku ?? NULL;
