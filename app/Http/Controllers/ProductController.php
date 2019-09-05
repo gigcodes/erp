@@ -121,7 +121,7 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where('is_approved', 1)->where('is_crop_approved', 1)->where('is_crop_ordered', 1)->where('isUploaded', 0);
+        $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
 
         // Run through query helper
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
