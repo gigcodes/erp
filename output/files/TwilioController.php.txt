@@ -58,7 +58,7 @@ class TwilioController extends FindByNumberController {
     }
 
     /**
-     * Create a token for the twilio device which expires after 1 min
+     * Create a token for the twilio device
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/token")
@@ -349,8 +349,8 @@ class TwilioController extends FindByNumberController {
 
     /**
      * Recording status callback
-     * @param Role $role
-     * @return array $clients
+     * @param Request $request Request
+     * @return \Illuminate\Http\Response
      */
     private function getConnectedClients($role = "") {
         $hods = Helpers::getUsersByRoleName('HOD of CRM');
@@ -376,7 +376,7 @@ class TwilioController extends FindByNumberController {
     /**
      * Recording status callback
      * @param Request $request Request
-     * @return empty
+     * @return \Illuminate\Http\Response
      */
     private function dialAllClients($response, $role = "sales", $context = NULL, $object = NULL, $number = "") {
         $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
@@ -546,3 +546,4 @@ class TwilioController extends FindByNumberController {
     }
 
 }
+
