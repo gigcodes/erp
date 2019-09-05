@@ -105,6 +105,7 @@ class ProductApproverController extends Controller
 						try {
 							$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size , array('status' => 1));
 						} catch (\Exception $e) {
+						    var_dump($e); exit();
 							$errors++;
 						}
 					}
@@ -113,12 +114,14 @@ class ProductApproverController extends Controller
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
 				} catch (\Exception $e) {
+                    var_dump($e); exit();
 					$errors++;
 				}
 			} else {
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
 				} catch (\Exception $e) {
+                    var_dump($e); exit();
 					$errors++;
 				}
 			}
