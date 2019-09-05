@@ -152,9 +152,6 @@
                                         @if ($product->hasMedia(config('constants.media_tags')))
                                             <div>
                                                 <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
-                                                @if ( $product->is_enhanced == 1 )
-                                                    <div style="position: absolute; top:0; right: 16px; padding: 4px; background-color: rgba(0,0,0,.2); font-weight: bold;">ENHANCED</div>
-                                                @endif
                                             </div>
                                         @endif
                                     </div>
@@ -241,15 +238,6 @@
                                                 <td>{{ $product->crop_approved_at ?? 'N/A' }}</td>
                                                 <td>
                                                     {{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}
-                                                    @php
-                                                        $cropApprovalConfirmation = \App\ProductStatus::where('product_id', $product->id)->where('name', 'CROP_APPROVAL_CONFIRMATION')->first();
-                                                    @endphp
-                                                    @if ( $cropApprovalConfirmation == NULL )
-                                                        <br/>
-                                                        <button id="approve_cropping_{{ $product->id }}" data-id="{{$product->id}}" class="btn btn-default btn-small crop-approval-confirmation">
-                                                            <nobr>Confirm Crop</nobr>
-                                                        </button>
-                                                    @endif
                                                 </td>
                                                 <td>
                                                     <select style="width: 90px !important;" data-id="{{$product->id}}" class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" id="reject_cropping_{{$product->id}}">
@@ -425,7 +413,7 @@
                                         @foreach ( $product->log_scraper_vs_ai as $resultAi )
                                             @php $resultAi = json_decode($resultAi->result_ai); @endphp
                                             @if ( !empty($resultAi->category) )
-                                                <button id="ai-category-{{ $product->id }}" data-id="{{ $product->id }}" data-category="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, NULL ) }}" class="btn btn-default btn-sm mt-2 ai-btn-category">{{ ucwords(strtolower($resultAi->category)) }} (AI)</button>
+                                                <button id="ai-category-{{ $product->id }}" data-id="{{ $product->id }}" data-category="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, null ) }}" class="btn btn-default btn-sm mt-2 ai-btn-category">{{ ucwords(strtolower($resultAi->category)) }} (AI)</button>
                                             @endif
                                         @endforeach
                                     @endif
@@ -456,6 +444,20 @@
                                 </td>
                                 <td class="table-hover-cell" data-id="{{ $product->id }}">
                                     <span class="quick-composition">{{ $product->composition }}</span>
+
+                                    @php
+                                        $arrComposition = ['100% Cotton', '100% Leather', '100% Silk', '100% Wool', '100% Polyester', '100% Acetate', '100% Polyamide', 'Cotton', 'Leather', 'Silk', 'Wool', 'Polyester'];
+                                        $i=1;
+                                    @endphp
+                                    @foreach ($arrComposition as $compositionValue)
+                                        <button id="composition-dd-{{$i}}" class="btn btn-default btn-sm mt-2 btn-composition" data-id="{{ $product->id }}" data-value="{{ $compositionValue }}">{{ $compositionValue }}</button>
+                                        @php
+                                            $i++;
+                                        @endphp
+                                    @endforeach
+
+                                    <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color" data-id="{{ $product->id }}" data-value="Multi">Multi</button>
+
                                     {{-- <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}"> --}}
                                     <textarea name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" rows="8" cols="80">{{ $product->composition }}</textarea>
 
@@ -973,6 +975,30 @@
                         alert('Could not update name');
                     });
                 }
+            });
+        });
+
+
+        $(document).on('click', '.btn-composition', function() {
+            var id = $(this).data('id');
+            var composition = $(this).data('value');
+            var thiss = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('products') }}/" + id + '/updateComposition',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    composition: composition,
+                }
+            }).done(function () {
+                $(thiss).addClass('hidden');
+                $(thiss).siblings('.quick-composition').text(composition);
+                $(thiss).siblings('.quick-composition').removeClass('hidden');
+            }).fail(function (response) {
+                console.log(response);
+
+                alert('Could not update composition');
             });
         });
 

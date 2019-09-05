@@ -34,6 +34,11 @@ class ProductHelper extends Model
             return $sku;
         }
 
+        // Gucci
+        if ($brand == 'GUCCI') {
+            return str_replace('/', '', $sku);
+        }
+
         // Strip last # characters
         if (isset($brand->sku_strip_last) && (int)$brand->sku_strip_last > 0) {
             $sku = substr($sku, 0, $brand->sku_strip_last * -1);
@@ -98,5 +103,16 @@ class ProductHelper extends Model
 
         // Return redacted text
         return $text;
+    }
+
+    public static function getCurrency($currency)
+    {
+        // Check if the currency is a Euro-sumbol
+        if ($currency = '€') {
+            return 'EUR';
+        }
+
+        // Return currency
+        return $currency;
     }
 }

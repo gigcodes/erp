@@ -28,6 +28,10 @@ class StatusHelper extends Model
     public static $cropRejected = 18;
     public static $isBeingSequenced = 19;
 
+    public static $isBeingScraped = 20;
+    public static $manualCropping = 21;
+
+
     public static function updateStatus(\App\Product $product, $newStatus = 0)
     {
         // Update status to AI
@@ -66,4 +70,58 @@ class StatusHelper extends Model
         // Return array with stats
         return $productStats;
     }
+
+
+    public static function getCroppedCount($inStockOnly=1) {
+        // Get status
+        $status = self::getStatusCount($inStockOnly);
+
+        // Return count for all statused beyond crop
+        return array_sum($status) -
+            (isset($status[self::$import]) ? $status[self::$import] : 0) -
+            (isset($status[self::$scrape]) ? $status[self::$scrape] : 0) -
+            (isset($status[self::$AI]) ? $status[self::$AI] : 0) -
+            (isset($status[self::$autoCrop]) ? $status[self::$autoCrop] : 0) -
+            (isset($status[self::$cropRejected]) ? $status[self::$cropRejected] : 0) -
+            (isset($status[self::$cropSkipped]) ? $status[self::$cropSkipped] : 0) -
+            (isset($status[self::$unableToScrape]) ? $status[self::$unableToScrape] : 0) -
+            (isset($status[self::$unableToScrapeImages]) ? $status[self::$unableToScrapeImages] : 0);
+    }
+
+    public static function getCropApprovedCount($inStockOnly=1) {
+        // Get status
+        $status = self::getStatusCount($inStockOnly);
+
+        // Return count
+        return (isset($status[self::$cropSequencing]) ? $status[self::$cropSequencing] : 0) +
+            (isset($status[self::$cropApprovalConfirmation]) ? $status[self::$cropApprovalConfirmation] : 0) +
+            (isset($status[self::$isBeingSequenced]) ? $status[self::$isBeingSequenced] : 0) +
+            (isset($status[self::$imageEnhancement]) ? $status[self::$imageEnhancement] : 0) +
+            (isset($status[self::$isBeingEnhanced]) ? $status[self::$isBeingEnhanced] : 0) +
+            (isset($status[self::$cropApprovalConfirmation]) ? $status[self::$cropApprovalConfirmation] : 0) +
+            (isset($status[self::$finalApproval]) ? $status[self::$finalApproval] : 0) +
+            (isset($status[self::$pushToMagento]) ? $status[self::$pushToMagento] : 0) +
+            (isset($status[self::$inMagento]) ? $status[self::$inMagento] : 0);
+    }
+
+    public static function getCropRejectedCount($inStockOnly=1) {
+        // Get status
+        $status = self::getStatusCount($inStockOnly);
+
+        // Return count
+        return (isset($status[self::$cropRejected]) ? $status[self::$cropRejected] : 0);
+    }
+
+    public static function getTotalProductsScraped($inStockOnly=1) {
+        // Get status
+        $status = self::getStatusCount($inStockOnly);
+
+        // Return count
+        return array_sum($status) -
+            (isset($status[self::$import]) ? $status[self::$import] : 0) -
+            (isset($status[self::$scrape]) ? $status[self::$scrape] : 0) -
+            (isset($status[self::$unableToScrape]) ? $status[self::$unableToScrape] : 0) -
+            (isset($status[self::$unableToScrapeImages]) ? $status[self::$unableToScrapeImages] : 0);
+    }
+
 }

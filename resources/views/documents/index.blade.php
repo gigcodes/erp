@@ -180,9 +180,34 @@
 
       </div>
     </div>
+</div>
 
 
-      
+<!-- Modal To Add Category-->
+      <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Add Categroy</h4>
+            </div>
+            <form id="categories">
+              <div class="modal-body">
+                <p>Enter Category Name</p>
+                <input type="text" name="name" id="name">
+              </div>
+
+              <div class="modal-footer">
+               <button type="submit" class="btn btn-default">Save</button>
+               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+             </div>
+           </form>
+         </div>
+
+       </div>
+      </div>
       </div>
 
 @endsection
@@ -199,6 +224,33 @@
               $("#myModal").modal();
           }
       });
+  });
+
+
+  <script type="text/javascript">
+     $(document).ready(function(){
+      $(".category").change(function() {
+          var id = $(this).find(':selected').val();
+          
+          if(id == 0){
+              $("#myModal").modal();
+          }else{
+           var list_id = $(this).find(':selected').data('list');   
+              $.ajax({
+                  url: '{{ route('updateCategoryPost') }}',
+                  type: 'POST',
+                  dataType: 'json',
+                  data: {'_token': '{{ csrf_token() }}','id' : id,'link_id':list_id},
+              })
+              .done(function(message) {
+                  console.log(message);
+              })
+              
+              
+          }
+          
+      });
+     
   });
 
   </script>
@@ -258,6 +310,7 @@
       });
     });
   </script>
+
   <script type="text/javascript">
     
      $(document).ready(function() {
@@ -283,6 +336,7 @@
 });
     
   </script>
+
 
 
     <script>
@@ -432,4 +486,5 @@
 
     //
     </script>
+
 @endsection

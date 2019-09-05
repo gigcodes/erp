@@ -41,6 +41,7 @@ class DocumentController extends Controller
           'users'     => $users,
           'category'  => $category,
           'api_keys'  => $api_keys
+
         ]);
       
     }

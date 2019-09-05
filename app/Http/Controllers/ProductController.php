@@ -121,7 +121,7 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where('is_approved', 1)->where('is_crop_approved', 1)->where('is_crop_ordered', 1)->where('isUploaded', 0);
+        $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
 
         // Run through query helper
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
@@ -269,7 +269,7 @@ class ProductController extends Controller
         // Prioritize suppliers
         $newProducts = Product::where('status_id', StatusHelper::$cropApprovalConfirmation);
 
-        $newProducts = Product::where('is_approved', 1)->where('is_crop_approved', 1)->where('is_crop_ordered', 1)->where('isUploaded', 0)->orderByRaw($orderByPritority)->orderBy('listing_approved_at', 'DESC');
+        $newProducts = QueryHelper::approvedListingOrder($newProducts);
 
         $term = $request->input('term');
         $brand = '';
@@ -347,16 +347,13 @@ class ProductController extends Controller
             $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
         }
 
-        // HIDE ALREADY CONFIRMED CROP
-        $newProducts = $newProducts->leftJoin('product_status', function ($join) {
-            $join->on('products.id', '=', 'product_status.product_id')->where('product_status.name', 'CROP_APPROVAL_CONFIRMATION');
-        })->whereNull('product_status.value')->where('is_crop_rejected', 0);
-
         $selected_categories = $request->category ? $request->category : [1];
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->select(['products.*', 'product_status.name', 'product_status.value'])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(50);
+        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+
+        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(50);
 
         return view('products.final_crop_confirmation', [
             'products' => $newProducts,
@@ -1590,6 +1587,7 @@ class ProductController extends Controller
         $product = $product->first();
 
         if (!$product) {
+            // Return JSON
             return response()->json([
                 'status' => 'no_product'
             ]);
