@@ -104,20 +104,20 @@ class ProductApproverController extends Controller
 					if (in_array($size, $reference_array)) {
 						try {
 							$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size , array('status' => 1));
-							var_dump($result);
 						} catch (\Exception $e) {
-						    var_dump($e->getMessage());
 							$errors++;
 						}
 					}
 				}
-				exit("C");
 
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
+					var_dump($result);
 				} catch (\Exception $e) {
+				    var_dump($e->getMessage());
 					$errors++;
 				}
+				exit("D");
 			} else {
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
