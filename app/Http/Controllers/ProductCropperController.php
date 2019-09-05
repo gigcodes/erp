@@ -557,6 +557,7 @@ class ProductCropperController extends Controller
         $lastImageCropper = $product->crop_approved_by;
 
         // Update product to status rejected
+        $product->status_id = StatusHelper::$cropRejected;
         $product->is_crop_rejected = 1;
         $product->crop_remark = $request->get('remark');
         $product->crop_rejected_by = Auth::user()->id;
