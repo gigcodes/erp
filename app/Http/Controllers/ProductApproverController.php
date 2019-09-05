@@ -96,8 +96,9 @@ class ProductApproverController extends Controller
 			}
 
 			$reference_final_sku = $reference_sku . $reference_color;
-exit("A");
+
 			if(!empty($product->size)) {
+			    exit("A");
 				$product_sizes = explode(',', $product->size);
 
 				foreach ($product_sizes as $size) {
@@ -116,6 +117,7 @@ exit("A");
 					$errors++;
 				}
 			} else {
+                exit("B");
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
 				} catch (\Exception $e) {
