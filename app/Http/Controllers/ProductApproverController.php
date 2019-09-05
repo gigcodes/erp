@@ -96,7 +96,7 @@ class ProductApproverController extends Controller
 			}
 
 			$reference_final_sku = $reference_sku . $reference_color;
-
+exit("A");
 			if(!empty($product->size)) {
 				$product_sizes = explode(',', $product->size);
 
@@ -105,7 +105,6 @@ class ProductApproverController extends Controller
 						try {
 							$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size , array('status' => 1));
 						} catch (\Exception $e) {
-						    var_dump($e); exit();
 							$errors++;
 						}
 					}
@@ -114,14 +113,12 @@ class ProductApproverController extends Controller
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
 				} catch (\Exception $e) {
-                    var_dump($e); exit();
 					$errors++;
 				}
 			} else {
 				try {
 					$result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, array('status' => 1));
 				} catch (\Exception $e) {
-                    var_dump($e); exit();
 					$errors++;
 				}
 			}
