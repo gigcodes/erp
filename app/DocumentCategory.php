@@ -13,4 +13,6 @@ class DocumentCategory extends Model
     {
      return $this->belongsTo(Documents::class,'id','category_id');
     }
+
 }
+

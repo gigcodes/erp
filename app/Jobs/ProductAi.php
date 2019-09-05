@@ -39,6 +39,9 @@ class ProductAi implements ShouldQueue
         // Set time limit
         set_time_limit(0);
 
+        // Set memory limit
+        ini_set('memory_limit','1024M');
+
         // Load product
         $product = $this->_product;
 

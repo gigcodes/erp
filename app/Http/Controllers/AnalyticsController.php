@@ -29,7 +29,7 @@ class AnalyticsController extends Controller
             ->get()->toArray();
       } else {
          include(app_path() . '/Functions/Analytics.php');
-     }
+	 }
       // Analytics::get()->toArray();
             // foreach ($data as $key => $new_item) {
             // DB::table('analytics')->insert(

@@ -34,7 +34,7 @@ class LogScraper extends Model
         $warningLog .= self::validateDescription($request->description);
 
         // Validate size_system
-        // TODO
+        $errorLog .= self::validateSizeSystem($request->size_system);
 
         // Validate properties
         // TODO
@@ -137,6 +137,16 @@ class LogScraper extends Model
         // Check if we have a value
         if (empty($description)) {
             return "[warning] Description is empty\n";
+        }
+
+        // Return an empty string
+        return "";
+    }
+
+    public static function validateSizeSystem($sizeSystem) {
+        // Check if we have a value
+        if (empty($sizeSystem)) {
+            return "[error] Size system is missing\n";
         }
 
         // Return an empty string

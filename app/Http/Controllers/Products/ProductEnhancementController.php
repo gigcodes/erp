@@ -28,7 +28,7 @@ class ProductEnhancementController extends Controller
         // Do we have a result
         if ($product == null) {
             return response()->json([
-                'error' => 'No images to crop'
+                'error' => 'No images to enhance'
             ], 400);
         }
 

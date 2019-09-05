@@ -15,13 +15,6 @@
                     <input type="date" value="{{ Request::get('date') ?? date('Y-m-d') }}" name="date"> <button class="btn btn-secondary">Ok</button>
                 </form>
                 <table class="table table-striped table-bordered">
-{{--                    <tr>--}}
-{{--                        <td></td>--}}
-{{--                        <td></td>--}}
-{{--                        <td rowspan="4">--}}
-
-{{--                        </td>--}}
-{{--                    </tr>--}}
                     <tr>
                         <td>Approved</td>
                         <td>{{ $totalApproved }}</td>

@@ -62,7 +62,7 @@ class RunMessageQueue extends Command
               $customer = Customer::find($message->customer_id);
 
               if ($customer && $customer->do_not_disturb == 0) {
-                SendMessageToAll::dispatch($message->user_id, $customer, json_decode($message->data, true), $message->id);
+                SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
 
                 dump('sent to all');
               } else {
@@ -71,7 +71,7 @@ class RunMessageQueue extends Command
                 dump('deleting queue');
               }
             } else {
-              SendMessageToSelected::dispatch($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
+              SendMessageToSelected::dispatchNow($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
 
               dump('sent to selected');
             }

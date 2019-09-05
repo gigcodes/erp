@@ -559,8 +559,13 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'document/store', 'DocumentController@store' )->name( 'document.store' );
     Route::get( 'document/{id}/download', 'DocumentController@download' )->name( 'document.download' );
     Route::delete( 'document/{id}/destroy', 'DocumentController@destroy' )->name( 'document.destroy' );
-        //Document Cateogry
+    Route::post( 'document/send/emailBulk', 'DocumentController@sendEmailBulk' )->name( 'document.email.send.bulk' );
+    Route::get( 'document/gettaskremark', 'DocumentController@getTaskRemark' )->name( 'document.gettaskremark' );
+    Route::post( 'document/uploadocument', 'DocumentController@uploadDocument' )->name( 'document.uploadDocument' );
+    Route::post( 'document/addremark', 'DocumentController@addRemark' )->name( 'document.addRemark' );
+    //Document Cateogry
     Route::post( 'documentcategory/add' , 'DocuemntCategoryController@addCategory' )->name( 'documentcategory.add' );       
+
     // Cash Flow Module
     Route::get( 'cashflow/{id}/download', 'CashFlowController@download' )->name( 'cashflow.download' );
     Route::get( 'cashflow/mastercashflow', 'CashFlowController@mastercashflow' )->name( 'cashflow.mastercashflow' );
@@ -615,6 +620,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get( 'supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages' );
     Route::post( 'supplier/flag', 'SupplierController@flag' )->name( 'supplier.flag' );
     Route::resource( 'supplier', 'SupplierController' );
+
+    Route::resource( 'assets-manager', 'AssetsManagerController' );
+    Route::post( 'assets-manager/add-note/{id}', 'AssetsManagerController@addNote' );
+
 
     // Agent Routes
     Route::resource( 'agent', 'AgentController' );
@@ -981,7 +990,9 @@ Route::get( 'se-ranking/backlinks', 'SERankingController@getBacklinks' )->name( 
 Route::get( 'se-ranking/research-data', 'SERankingController@getResearchData' )->name( 'getResearchData' );
 Route::get( 'se-ranking/audit', 'SERankingController@getSiteAudit' )->name( 'getSiteAudit' );
 Route::get( 'se-ranking/competitors/keyword-positions/{id}', 'SERankingController@getCompetitors' )->name( 'getCompetitorsKeywordPos' );
-
+//Dev Task Planner Route
+Route::get('dev-task-planner', 'NewDevTaskController@index')->name('newDevTaskPlanner');
+Route::get('dev-task-planner', 'NewDevTaskController@index')->name('filteredNewDevTaskPlanner');
 //Supplier scrapping info
 Route::get( 'supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo' )->name( 'getSupplierScrappingInfo' );
 

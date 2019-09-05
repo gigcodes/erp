@@ -145,6 +145,11 @@ function printResults($reports) {
 			$data[$key]['pageValue'] = $m_value['values'][9];
 		}
 	}
-	return $data;
+	if (!empty($data)) {
+		return $data;
+	} else {
+		return ;
+	}
+	
   }
 }
