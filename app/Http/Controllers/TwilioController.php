@@ -1,5 +1,12 @@
 <?php
-
+/**
+* Twilio integration for VOIP purpose using Twilio's Voice REST API
+*
+* @package  Twillio
+* @subpackage Jwt Token
+* @filesource required php 7 as this file contains tokenizer extension which was not stable prior to this version
+* @author   sololux <sololux@gmail.com>
+*/
 namespace App\Http\Controllers;
 
 use Twilio\Jwt\ClientToken;
@@ -26,9 +33,19 @@ use App\Helpers;
 use App\Recording;
 use Carbon\Carbon;
 
-
+/*
+* A Twillio class which is using FindBYNumber controller class
+* This class is used to make and receive phone calls with Twilio Programmable Voice.
+*
+* @package  Twiml
+* @subpackage Jwt Token
+*/
 class TwilioController extends FindByNumberController
 {
+  /*
+  * Twillio Account SID and Auth Token from twilio.com/console
+  * @return jwt token
+  */
     private function getTwilioClient()
     {
       return new Client(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
