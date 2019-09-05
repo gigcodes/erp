@@ -1587,6 +1587,7 @@ class ProductController extends Controller
         $product = $product->first();
 
         if (!$product) {
+            // Return JSON
             return response()->json([
                 'status' => 'no_product'
             ]);

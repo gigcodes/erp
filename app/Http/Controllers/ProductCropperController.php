@@ -440,15 +440,10 @@ class ProductCropperController extends Controller
             }
         }
 
-        $secondProduct = Product::where('is_image_processed', 1)
-            ->where('stage', '=', $stage->get('ImageCropper'))
+        $secondProduct = Product::where('status_id', '=', StatusHelper::$cropApproval)
             ->where('id', '!=', $id)
-            ->where('is_crop_rejected', 0)
-            ->where('is_crop_approved', 0)
             ->whereNotIn('id', DB::table('crop_amends')->pluck('product_id')->toArray())
             ->first();
-
-//        $this->deleteUncroppedImages($product);
 
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
 
@@ -533,60 +528,6 @@ class ProductCropperController extends Controller
         }
 
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
-    }
-
-    private function deleteUncroppedImages($product)
-    {
-        if ($product->hasMedia(config('constants.media_tags'))) {
-            $tc = count($product->getMedia(config('constants.media_tags')));
-            if ($tc < 6) {
-                return;
-            }
-            foreach ($product->getMedia(config('constants.media_tags')) as $key => $image) {
-                if (stripos(strtoupper($image->filename), 'CROPPED') === false) {
-                    $image_path = $image->getAbsolutePath();
-
-                    if (File::exists($image_path)) {
-                        try {
-                            File::delete($image_path);
-                        } catch (\Exception $exception) {
-
-                        }
-                    }
-
-                    $image->delete();
-                }
-            }
-
-            $product->is_image_processed = 1;
-            $product->save();
-
-        }
-    }
-
-    private function deleteCroppedImages($product)
-    {
-        if ($product->hasMedia(config('constants.media_tags'))) {
-            foreach ($product->getMedia(config('constants.media_tags')) as $key => $image) {
-                if (stripos(strtoupper($image->filename), 'CROPPED') !== false) {
-                    $image_path = $image->getAbsolutePath();
-
-                    if (File::exists($image_path)) {
-                        try {
-                            File::delete($image_path);
-                        } catch (\Exception $exception) {
-
-                        }
-                    }
-
-                    $image->delete();
-                }
-            }
-
-            $product->is_image_processed = 1;
-            $product->save();
-
-        }
     }
 
     public function cropApprovalConfirmation($id, Request $request)
@@ -830,40 +771,25 @@ class ProductCropperController extends Controller
     {
         $product = Product::find($id);
 
-//	    $files = $request->allFiles();
-//
-//	    if ($files !== []) {
-//            $this->deleteCroppedImages($product);
-//            foreach ($files['images'] as $file) {
-//                $media = MediaUploader::fromSource($file)->useFilename('CROPPED_' . time() . '_' . rand(555,455545))->upload();
-//                $product->attachMedia($media, 'gallery');
-//            }
-//
-//        }
-
         $action = 'MARK_NOT_CROPPED';
         if ($request->get('action') == 'uncropped') {
-            $product->is_image_processed = 0;
-            $product->is_crop_rejected = 0;
-            $product->is_crop_approved = 0;
+            $product->status_id = 4;
             $product->save();
         } else {
             if ($request->get('action') == 'approved') {
-                $product->is_crop_approved = 1;
+                $product->status_id = 6;
                 $product->crop_approved_by = Auth::id();
-                $product->is_crop_rejected = 0;
                 $product->crop_approved_at = Carbon::now()->toDateTimeString();
                 $product->save();
                 $action = 'CROP_APPROVAL';
             } else {
                 if ($request->get('action') == 'manual') {
-                    $product->manual_crop = 1;
-                    $product->is_crop_rejected = 0;
+                    $product->status_id = 21;
                     $product->save();
                     $action = 'SENT_FOR_MANUAL_CROPPING';
                 } else {
                     if ($request->get('unreject')) {
-                        $product->is_crop_rejected = 0;
+                        $product->status_id = 5;
                         $product->save();
                         $action = 'RESENT_FOR_APPROVAL';
                     }
@@ -878,7 +804,7 @@ class ProductCropperController extends Controller
         $l->product_id = $product->id;
         $l->save();
 
-        $secondProduct = Product::where('id', '!=', $id)->where('is_crop_rejected', 1)->first();
+        $secondProduct = Product::where('id', '!=', $id)->where('status_id', StatusHelper::$cropRejected)->first();
 
         return redirect()->action('ProductCropperController@showRejectedImageToBeverified', $secondProduct->id)->with('message', 'Rejected image approved and has been moved to approval grid.');
 
