@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * Class TwilioController | app/Http/Controllers/TwilioController.php
  * Twilio integration for VOIP purpose using Twilio's Voice REST API
  *
  * @package  Twillio
@@ -37,8 +38,10 @@ use App\Helpers;
 use App\Recording;
 use Carbon\Carbon;
 
-/*
- * A Twillio class which is using FindBYNumber controller class
+/**
+ * Class TwilioController - active record
+ * 
+ * A Twillio class which is extending FindBYNumber controller class
  * This class is used to make and receive phone calls with Twilio Programmable Voice.
  *
  * @package  Twiml
@@ -46,11 +49,14 @@ use Carbon\Carbon;
  */
 
 class TwilioController extends FindByNumberController {
-    /*
+    /**
      * Twillio Account SID and Auth Token from twilio.com/console
      * Initilizing the Twilio client 
+     * @access private
      * @todo Function is not used anywhere.
      * @return Twilio Object
+     * 
+     * @uses Client
      */
 
     private function getTwilioClient() {
@@ -62,6 +68,9 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/token")
+     * 
+     * @uses Auth
+     * @uses ClientToken
      */
     public function createToken(Request $request) {
         if (\Auth::check()) {
@@ -81,6 +90,9 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/incoming")
+     * 
+     * @uses Log
+     * @uses Twiml
      */
     public function incomingCall(Request $request) {
         $number = $request->get("From");
@@ -114,11 +126,15 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/ivr")
+     * 
+     * @uses Log
+     * @uses Twiml
+     * @uses Config
+     * 
+     * @todo Can move $response code to model for Twiml object
      */
     public function ivr(Request $request) {
         Log::info('Showing user profile for IVR: ');
-
-        /* --------------------------------------- */
 
         $number = $request->get("From");
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
@@ -185,6 +201,10 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/gatherAction")
+     * 
+     * @uses Log
+     * @uses Twiml
+     * @uses Config
      */
     public function gatherAction(Request $request) {
 
@@ -233,6 +253,10 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/outgoing")
+     * 
+     * @uses Log
+     * @uses Twiml
+     * @uses Config
      */
     public function outgoingCall(Request $request) {
         Log::info('Call Status: = ' . $request->get("CallStatus"));
@@ -263,8 +287,11 @@ class TwilioController extends FindByNumberController {
     /**
      * Store a new Trasnscript from call
      * @param Request $request Request
-     * @return \Illuminate\Http\Response
+     * @return string
      * @Rest\Post("twilio/storetranscript")
+     * 
+     * @uses Log
+     * @uses CallRecording
      */
     public function storetranscript(Request $request) {
         Log::info('---------------- Enter in Function for Trasncript--------------------- ' . $request->get("CallStatus"));
@@ -287,6 +314,8 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Get("twilio/getLeadByNumber")
+     * 
+     * @uses Customer
      */
     public function getLeadByNumber(Request $request) {
         $number = $request->get("number");
@@ -318,6 +347,9 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/recordingStatusCallback")
+     * @return void
+     * 
+     * @uses CallRecording
      */
     public function recordingStatusCallback(Request $request) {
 
@@ -349,8 +381,14 @@ class TwilioController extends FindByNumberController {
 
     /**
      * Recording status callback
+     * @access private
      * @param Role $role
      * @return array $clients
+     * 
+     * @uses Helpers
+     * @uses User
+     * 
+     * @todo static user id's are passed and role is given
      */
     private function getConnectedClients($role = "") {
         $hods = Helpers::getUsersByRoleName('HOD of CRM');
@@ -375,8 +413,17 @@ class TwilioController extends FindByNumberController {
 
     /**
      * Recording status callback
-     * @param Request $request Request
-     * @return empty
+     * @access private
+     * @param $response
+     * @param $role
+     * @param $context
+     * @param $object
+     * @param $number
+     * @return void
+     * 
+     * @uses Config
+     * @uses Log
+     * @todo not in use currently
      */
     private function dialAllClients($response, $role = "sales", $context = NULL, $object = NULL, $number = "") {
         $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
@@ -404,8 +451,12 @@ class TwilioController extends FindByNumberController {
 
     /**
      * Recording status callback
-     * @param Request $request Request
-     * @return \Illuminate\Http\Response
+     * @access private
+     * @param Object $response
+     * @param $speech
+     * @uses Config
+     * 
+     * @return void
      */
     private function createIncomingGather($response, $speech) {
         $gather = $response->gather([
@@ -419,6 +470,9 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/handleDialCallStatus")
+     * @uses CallHistory
+     * @uses Customer
+     * @uses Log
      */
     public function handleDialCallStatus(Request $request) {
         $response = new Twiml();
@@ -462,6 +516,10 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/handleOutgoingDialCallStatus")
+     * @uses CallHistory
+     * @uses Customer
+     * @uses ChatMessage
+     * @uses Log
      */
     public function handleOutgoingDialCallStatus(Request $request) {
         $response = new Twiml();
@@ -502,6 +560,7 @@ class TwilioController extends FindByNumberController {
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/storerecording")
+     * @uses CallBusyMessage
      */
     public function storeRecording(Request $request) {
 
