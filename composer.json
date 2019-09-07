@@ -43,7 +43,7 @@
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/erp-pinterest": "dev-master",
         "seo2websites/google-vision": "dev-master",
-        "seo2websites/price-comparison-scrapper": "dev-master",
+        "seo2websites/price-comparison-scraper": "dev-master",
         "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
         "spatie/laravel-analytics": "3.6.0",
@@ -100,7 +100,7 @@
         },
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/price-comparison-scrapper"
+            "url": "git@bitbucket.org:seo2websites/price-comparison-scraper"
         }
     ],
     "scripts": {
