@@ -47,8 +47,8 @@ use Carbon\Carbon;
  * @package  Twiml
  * @subpackage Jwt Token
  */
-
 class TwilioController extends FindByNumberController {
+
     /**
      * Twillio Account SID and Auth Token from twilio.com/console
      * Initilizing the Twilio client 
@@ -59,7 +59,6 @@ class TwilioController extends FindByNumberController {
      * @uses Client
      * @uses Config
      */
-
     private function getTwilioClient() {
         return new Client(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
     }
@@ -604,7 +603,7 @@ class TwilioController extends FindByNumberController {
 
         return $response;
     }
-    
+
     /**
      * Getting call records
      * @return void
@@ -616,74 +615,83 @@ class TwilioController extends FindByNumberController {
      * @uses CallBusyMessage
      */
     public function missedCallStatus() {
-        $sid    = \Config::get("twilio.account_sid");
-        $token  = \Config::get("twilio.auth_token");
+        $sid = \Config::get("twilio.account_sid");
+        $token = \Config::get("twilio.auth_token");
         $twilio = new Client($sid, $token);
         // Getting all the call records
-        $calls = $twilio->calls->read(array(), 50);
+        $calls = $twilio->calls->read(array(), 5000);
         $data = [];
+        $i = 0;
         foreach ($calls as $record) {
-          // Api call to get the recordings with caller sid
+            // Api call to get the recordings with caller sid
             $recordings = $twilio->recordings
-                     ->read(array(
-                                "callSid" => $record->sid
-                            ),
-                            1
-                     );
-           $apiVersion = $record->apiVersion;
-           // If recording array is not empty then get the recording url
-            if(!empty($recordings)){
-                    foreach ($recordings as $recording) {
-                       $recordingId = $recording->sid; 
-                       $recordingLink = "https://api.twilio.com/".$apiVersion."/Accounts/".$sid."/Recordings/".$recordingId.".mp3";
-                        $data['recording_url'] = $recordingLink;
-                    }
-            }else{
-             $data['recording_url'] = ""; 
+                    ->read(array(
+                "callSid" => $record->sid
+                    ),
+                    1
+            );
+            $apiVersion = $record->apiVersion;
+            // If recording array is not empty then get the recording url
+            if (!empty($recordings)) {
+                foreach ($recordings as $recording) {
+                    $recordingId = $recording->sid;
+                    $recordingLink = "https://api.twilio.com/" . $apiVersion . "/Accounts/" . $sid . "/Recordings/" . $recordingId . ".mp3";
+                    $data[$i]['recording_url'] = $recordingLink;
+                }
+            } else {
+                $data[$i]['recording_url'] = "";
             }
             // Getting the message based on call nos and date
             $messages = $twilio->messages
-                   ->read(array(
-                              "dateSent" => $record->dateCreated,
-                              "from" => $record->from,
-                              "to" => $record->to
-                          ),
-                          1
-                   );
-           // Getting the message recording id
-            if(!empty($messages)){       
-            foreach ($messages as $msg) {
-              $data['message'] = $msg->sid;
-                print($msg->sid); die('reach');
-              }
-            }else{
-             $data['message'] = "";
+                    ->read(array(
+                "dateSent" => $record->dateCreated,
+                "from" => $record->from,
+                "to" => $record->to
+                    ),
+                    1
+            );
+            // Getting the message recording id
+            if (!empty($messages)) {
+                foreach ($messages as $msg) {
+                    $data[$i]['message'] = $msg->sid;
+                }
+            } else {
+                $data[$i]['message'] = "";
+            }
+            $data[$i]['twilio_call_sid'] = $record->from;
+            $data[$i]['caller_sid'] = $record->sid;
+            $data[$i]['created_at'] = $record->startTime;
+            $data[$i]['created_at'] = $record->endTime;
+            // Checking the status if call is completed or no-answer
+            if ('completed' == $record->status) {
+                $data[$i]['status'] = 1;
+            } else {
+                $data[$i]['status'] = 0;
             }
             // Get the lead id from phone number in customer table
-            if (is_numeric($record->phoneNumberSid)) {
-				# Removing the country code from phone number
-				$formatted_phone = str_replace('+91', '', $record->phoneNumberSid); 
-        $data['twilio_call_sid'] = $record->phoneNumberSid;
-        $data['caller_sid'] = $record->sid;
-        $data['status'] = $record->status;
-        // Getting customer data based on phone no.
-        $customerData = Customer::where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
-				 if(!empty($customerData)){
-					$customerId = $customerData[0]['id'];
-				 	$customerName = $customerData[0]['name'];
-				 	if(!empty( $customerData[0]['lead'])){
-				 	$leadId = $customerData[0]['lead']['id'];
-          $data['lead_id'] = $leadId;
-				 }else{
-          $data['lead_id'] = "";
-         }
-			}
-
-		}
-  } 
-
-       echo "<pre>"; print($data);
-        die('Reach'); die;
+            if (($record->from)) {
+                # Removing the country code from phone number
+                $formatted_phone = str_replace('+91', '', $record->from);
+                // Getting customer data based on phone no.
+                $customerData = Customer::where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+                if (!empty($customerData)) {
+                    $customerId = $customerData[0]['id'];
+                    $customerName = $customerData[0]['name'];
+                    if (!empty($customerData[0]['lead'])) {
+                        $leadId = $customerData[0]['lead']['id'];
+                        $data[$i]['lead_id'] = $leadId;
+                    } else {
+                        $data[$i]['lead_id'] = "";
+                    }
+                }
+            }
+            $i++;
+        }
+        // Saving the data in CallBusyMessage
+        $insertData = CallBusyMessage::bulkInsert($data);
+        echo "<pre>";
+        print_r($data);
+        die('This data inserted in db..Now, you can check missed calls screen');
     }
 
 }
