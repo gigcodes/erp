@@ -64,9 +64,11 @@
             <th width="5%">ID</th>
             <th width="10%">Name</th>
             <th width="10%">Address</th>
-              <th>Source</th>
-              <th>Designers</th>
+            <th>Source</th>
+            <th>Category</th>           
+            <th>Designers</th>
             <th width="10%">Social handle</th>
+            <th>Scraper Name</th>
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
             <th width="20%">Order</th>
@@ -113,6 +115,7 @@
                   </div>
               </td>
                 <td>{{ $supplier->source }}</td>
+                <td>{{ $supplier->suppliercategory }}</td>
                 <td class="expand-row">
                     @if(strlen($supplier->brands) > 4)
                         @php
@@ -139,6 +142,7 @@
                       {{ $supplier->social_handle }}
                   </div>
               </td>
+              <td>{{ $supplier->scraper_name }}</td>
               {{-- <td>
                 @if ($supplier->agents)
                   <ul>
@@ -189,7 +193,7 @@
                 @endif
               </td>
                 <td>
-                    {{ $supplier->status ? 'Active' : 'Inactive' }}
+                    {{ $supplier->supplierstatus }}
                 </td>
               <td>
                   <div style="min-width: 100px;">
@@ -393,13 +397,16 @@
       var url = "{{ url('supplier') }}/" + supplier.id;
 
       $('#supplierEditModal form').attr('action', url);
+      $('#supplier_category_id').val(supplier.supplier_category_id);
       $('#supplier_supplier').val(supplier.supplier);
       $('#supplier_address').val(supplier.address);
       $('#supplier_phone').val(supplier.phone);
       $('#supplier_email').val(supplier.email);
       $('#supplier_social_handle').val(supplier.social_handle);
+      $('#supplier_scraper_name').val(supplier.scraper_name);
       $('#supplier_gst').val(supplier.gst);
-      $('#status').val(supplier.status);
+      //$('#status').val(supplier.status);
+      $('#supplier_status_id').val(supplier.supplier_status_id);
     });
 
     $(document).on('click', '.send-supplier-email', function() {

@@ -9,6 +9,8 @@ use App\ReplyCategory;
 use App\User;
 use App\Helpers;
 use App\Email;
+use App\SupplierCategory;
+use App\SupplierStatus;
 use App\Mail\PurchaseEmail;
 use App\ReadOnly\SoloNumbers;
 use Illuminate\Http\Request;
@@ -62,7 +64,7 @@ class SupplierController extends Controller
         }
 
       $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, 
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.name as suppliercategory, ss.name as supplierstatus, 
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -85,13 +87,14 @@ class SupplierController extends Controller
                   ON suppliers.id = emails.email_model_id)
 
                   AS suppliers
-
+                  LEFT JOIN supplier_category sc on sc.id = suppliers.supplier_category_id
+                  LEFT JOIN supplier_status ss on ss.id = suppliers.supplier_status_id
                   WHERE (source LIKE "%'.$source.'%" AND (supplier LIKE "%' . $term . '%" OR 
                   phone LIKE "%' . $term . '%" OR 
                   email LIKE "%' . $term . '%" OR 
                   address LIKE "%' . $term . '%" OR 
                   social_handle LIKE "%' . $term . '%" OR
-                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
+                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
 							');
 
@@ -99,7 +102,7 @@ class SupplierController extends Controller
         $query->whereNotNull('email')->orWhereNotNull('default_email');
       })->get();
 
-              // dd($suppliers);
+              // print_r($suppliers_all);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
   		$perPage = Setting::get('pagination');
@@ -109,7 +112,8 @@ class SupplierController extends Controller
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
-
+      $suppliercategory = SupplierCategory::get();
+      $supplierstatus = SupplierStatus::get();
 
       return view('suppliers.index', [
         'suppliers'     => $suppliers,
@@ -117,7 +121,9 @@ class SupplierController extends Controller
         'solo_numbers'  => $solo_numbers,
         'term'          => $term,
         'type'          => $type,
-          'source' => $source
+        'source'        => $source,
+        'suppliercategory' => $suppliercategory,
+        'supplierstatus' => $supplierstatus
       ]);
     }
 
@@ -140,6 +146,7 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
       $this->validate($request, [
+        'supplier_category_id' => 'required|string|max:255',
         'supplier'        => 'required|string|max:255',
         'address'         => 'sometimes|nullable|string',
         'phone'           => 'sometimes|nullable|numeric',
@@ -147,7 +154,9 @@ class SupplierController extends Controller
         'whatsapp_number' => 'sometimes|nullable|numeric',
         'email'           => 'sometimes|nullable|email',
         'social_handle'   => 'sometimes|nullable',
-        'gst'             => 'sometimes|nullable|max:255'
+        'scraper_name'   => 'sometimes|nullable',
+        'gst'             => 'sometimes|nullable|max:255',
+        'supplier_status_id' => 'required'
       ]);
 
       $data = $request->except('_token');
@@ -201,6 +210,7 @@ class SupplierController extends Controller
     public function update(Request $request, $id)
     {
       $this->validate($request, [
+        'supplier_category_id'        => 'required|string|max:255',
         'supplier'        => 'required|string|max:255',
         'address'         => 'sometimes|nullable|string',
         'phone'           => 'sometimes|nullable|numeric',
@@ -209,8 +219,10 @@ class SupplierController extends Controller
         'email'           => 'sometimes|nullable|email',
         'default_email'   => 'sometimes|nullable|email',
         'social_handle'   => 'sometimes|nullable',
+        'scraper_name'   => 'sometimes|nullable',
         'gst'             => 'sometimes|nullable|max:255',
-        'status' => 'required'
+        'supplier_status_id' => 'required'
+        //'status' => 'required'
       ]);
 
       $data = $request->except('_token');
