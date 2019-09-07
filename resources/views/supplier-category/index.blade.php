@@ -33,9 +33,8 @@
                 <td>{{ $data->name }}</td>
                 <td>
                     <a class="btn btn-image" href="{{ route('supplier-category.edit',$data->id) }}"><img src="/images/edit.png" /></a>
-               
                     {!! Form::open(['method' => 'DELETE','route' => ['supplier-category.destroy', $data->id],'style'=>'display:inline']) !!}
-                    {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                    <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                    
                 </td>

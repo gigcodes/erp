@@ -45,7 +45,9 @@ class SupplierController extends Controller
       $solo_numbers = (new SoloNumbers)->all();
       $term = $request->term ?? '';
       $type = $request->type ?? '';
-      $status = $request->status ?? '';
+      //$status = $request->status ?? '';
+      $supplier_category_id = $request->supplier_category_id ?? '';
+      $supplier_status_id = $request->supplier_status_id ?? '';
       $source = $request->get('source') ?? '';
       $typeWhereClause = '';
 
@@ -55,13 +57,20 @@ class SupplierController extends Controller
       if ($type != '' && $type == 'not_updated') {
         $typeWhereClause = ' AND is_updated = 0';
       }
-        if ($type != '' && $type == 'updated') {
-            $typeWhereClause = ' AND is_updated = 1';
-        }
+      if ($type != '' && $type == 'updated') {
+          $typeWhereClause = ' AND is_updated = 1';
+      }
 
-        if ( $status != '' ) {
-          $typeWhereClause .= ' AND status=1';
-        }
+      /*if ( $status != '' ) {
+        $typeWhereClause .= ' AND status=1';
+      }*/
+
+      if ( $supplier_category_id != '' ) {
+        $typeWhereClause .= ' AND supplier_category_id='.$supplier_category_id;
+      }
+      if ( $supplier_status_id != '' ) {
+        $typeWhereClause .= ' AND supplier_status_id='.$supplier_status_id;
+      }
 
       $suppliers = DB::select('
 									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.name as suppliercategory, ss.name as supplierstatus, 
@@ -94,6 +103,7 @@ class SupplierController extends Controller
                   email LIKE "%' . $term . '%" OR 
                   address LIKE "%' . $term . '%" OR 
                   social_handle LIKE "%' . $term . '%" OR
+                  scraper_name LIKE "%' . $term . '%" OR
                    suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
 							');
@@ -123,7 +133,9 @@ class SupplierController extends Controller
         'type'          => $type,
         'source'        => $source,
         'suppliercategory' => $suppliercategory,
-        'supplierstatus' => $supplierstatus
+        'supplierstatus' => $supplierstatus,
+        'supplier_category_id' =>$supplier_category_id,
+        'supplier_status_id' => $supplier_status_id
       ]);
     }
 
@@ -180,12 +192,16 @@ class SupplierController extends Controller
       $reply_categories = ReplyCategory::all();
       $users_array = Helpers::getUserArray(User::all());
       $emails = [];
+      $suppliercategory = SupplierCategory::get();
+      $supplierstatus = SupplierStatus::get();
 
       return view('suppliers.show', [
         'supplier'  => $supplier,
         'reply_categories'  => $reply_categories,
         'users_array'  => $users_array,
-        'emails'  => $emails
+        'emails'  => $emails,
+        'suppliercategory' => $suppliercategory,
+        'supplierstatus' => $supplierstatus,
       ]);
     }
 

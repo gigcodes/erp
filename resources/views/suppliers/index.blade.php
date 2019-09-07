@@ -32,10 +32,25 @@
                     <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
                   </select>
                 </div>
-
-                  <div class="form-group ml-3">
+                  <div class="form-group ml-3">              
+                    <select name="supplier_category_id" class="form-control">
+                      <option value="">Select Category</option>
+                      @foreach($suppliercategory as $category)
+                        <option value="{{$category->id}}" {{ $category->id == $supplier_category_id ? 'selected' : '' }}>{{$category->name}}</option>
+                      @endforeach
+                    </select>
+                </div>
+                <div class="form-group ml-3">                  
+                  <select name="supplier_status_id" class="form-control">
+                    <option value="">Select Status</option>
+                    @foreach($supplierstatus as $status)
+                      <option value="{{$status->id}}" {{ $status->id == $supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
+                    @endforeach
+                  </select>
+                </div>   
+                 <!--  <div class="form-group ml-3">
                       <input type="checkbox" name="status" id="status" value="1"> Active
-                  </div>
+                  </div> -->
 
 {{--                  <div class="form-group ml-3">--}}
 {{--                      <select name="status" id=""></select>--}}
