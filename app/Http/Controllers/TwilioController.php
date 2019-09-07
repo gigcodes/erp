@@ -57,6 +57,7 @@ class TwilioController extends FindByNumberController {
      * @return Twilio Object
      * 
      * @uses Client
+     * @uses Config
      */
 
     private function getTwilioClient() {
@@ -380,7 +381,7 @@ class TwilioController extends FindByNumberController {
     }
 
     /**
-     * Recording status callback
+     * Get data of connected clients
      * @access private
      * @param Role $role
      * @return array $clients
@@ -412,7 +413,7 @@ class TwilioController extends FindByNumberController {
     }
 
     /**
-     * Recording status callback
+     * Dial all clients
      * @access private
      * @param $response
      * @param $role
@@ -450,7 +451,7 @@ class TwilioController extends FindByNumberController {
     }
 
     /**
-     * Recording status callback
+     * Incoming calls gathering
      * @access private
      * @param Object $response
      * @param $speech
@@ -602,6 +603,87 @@ class TwilioController extends FindByNumberController {
         $response->hangup();
 
         return $response;
+    }
+    
+    /**
+     * Getting call records
+     * @return void
+     * @Rest\Post("twilio/missedCallStatus")
+     *
+     * @uses Config
+     * @uses Twilio
+     * @uses Customer
+     * @uses CallBusyMessage
+     */
+    public function missedCallStatus() {
+        $sid    = \Config::get("twilio.account_sid");
+        $token  = \Config::get("twilio.auth_token");
+        $twilio = new Client($sid, $token);
+        // Getting all the call records
+        $calls = $twilio->calls->read(array(), 50);
+        $data = [];
+        foreach ($calls as $record) {
+          // Api call to get the recordings with caller sid
+            $recordings = $twilio->recordings
+                     ->read(array(
+                                "callSid" => $record->sid
+                            ),
+                            1
+                     );
+           $apiVersion = $record->apiVersion;
+           // If recording array is not empty then get the recording url
+            if(!empty($recordings)){
+                    foreach ($recordings as $recording) {
+                       $recordingId = $recording->sid; 
+                       $recordingLink = "https://api.twilio.com/".$apiVersion."/Accounts/".$sid."/Recordings/".$recordingId.".mp3";
+                        $data['recording_url'] = $recordingLink;
+                    }
+            }else{
+             $data['recording_url'] = ""; 
+            }
+            // Getting the message based on call nos and date
+            $messages = $twilio->messages
+                   ->read(array(
+                              "dateSent" => $record->dateCreated,
+                              "from" => $record->from,
+                              "to" => $record->to
+                          ),
+                          1
+                   );
+           // Getting the message recording id
+            if(!empty($messages)){       
+            foreach ($messages as $msg) {
+              $data['message'] = $msg->sid;
+                print($msg->sid); die('reach');
+              }
+            }else{
+             $data['message'] = "";
+            }
+            // Get the lead id from phone number in customer table
+            if (is_numeric($record->phoneNumberSid)) {
+				# Removing the country code from phone number
+				$formatted_phone = str_replace('+91', '', $record->phoneNumberSid); 
+        $data['twilio_call_sid'] = $record->phoneNumberSid;
+        $data['caller_sid'] = $record->sid;
+        $data['status'] = $record->status;
+        // Getting customer data based on phone no.
+        $customerData = Customer::where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+				 if(!empty($customerData)){
+					$customerId = $customerData[0]['id'];
+				 	$customerName = $customerData[0]['name'];
+				 	if(!empty( $customerData[0]['lead'])){
+				 	$leadId = $customerData[0]['lead']['id'];
+          $data['lead_id'] = $leadId;
+				 }else{
+          $data['lead_id'] = "";
+         }
+			}
+
+		}
+  } 
+
+       echo "<pre>"; print($data);
+        die('Reach'); die;
     }
 
 }
