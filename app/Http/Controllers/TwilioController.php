@@ -661,13 +661,14 @@ class TwilioController extends FindByNumberController {
             $data[$i]['twilio_call_sid'] = $record->from;
             $data[$i]['caller_sid'] = $record->sid;
             $data[$i]['created_at'] = $record->startTime;
-            $data[$i]['created_at'] = $record->endTime;
+            $data[$i]['updated_at'] = $record->endTime;
             // Checking the status if call is completed or no-answer
             if ('completed' == $record->status) {
                 $data[$i]['status'] = 1;
             } else {
                 $data[$i]['status'] = 0;
             }
+            $data[$i]['lead_id'] = "";
             // Get the lead id from phone number in customer table
             if (($record->from)) {
                 # Removing the country code from phone number
@@ -680,12 +681,10 @@ class TwilioController extends FindByNumberController {
                     if (!empty($customerData[0]['lead'])) {
                         $leadId = $customerData[0]['lead']['id'];
                         $data[$i]['lead_id'] = $leadId;
-                    } else {
-                        $data[$i]['lead_id'] = "";
                     }
                 }
             }
-            $i++;
+            $i++;   
         }
         // Saving the data in CallBusyMessage
         $insertData = CallBusyMessage::bulkInsert($data);
