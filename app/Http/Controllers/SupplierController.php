@@ -422,4 +422,41 @@ class SupplierController extends Controller
             'status' => 'success'
         ]);
     }
+
+    public function getsuppliers(Request $request)
+    {
+    
+      $input = $request->all();
+
+      $supplier_category_id = $input['supplier_category_id'];
+      
+      $supplier_status_id = $input['supplier_status_id'];
+      
+      $data = '';
+      $typeWhereClause = '';
+      if($supplier_category_id == '' && $supplier_status_id == '')
+      {
+          $suppliers_all = Supplier::where(function ($query) {
+          $query->whereNotNull('email')->orWhereNotNull('default_email');
+        })->get();
+      }
+      else
+      {
+        if ( $supplier_category_id != '' ) {
+          $typeWhereClause .= ' AND supplier_category_id='.$supplier_category_id;
+        }
+        if ( $supplier_status_id != '' ) {
+          $typeWhereClause .= ' AND supplier_status_id='.$supplier_status_id;
+        }
+        $suppliers_all = DB::select('SELECT suppliers.id, suppliers.supplier, suppliers.email, suppliers.default_email from suppliers WHERE email != "" '.$typeWhereClause . '');             
+      }
+
+      if(count($suppliers_all) > 0){       
+       
+        foreach ($suppliers_all as $supplier){
+          $data .= '<option value="'.$supplier->id.'">'.$supplier->supplier.' - '.$supplier->default_email.' / '.$supplier->email.'</option>';       
+        }
+      }
+      return $data;  
+    }
 }

@@ -613,9 +613,11 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'supplier/send/emailBulk', 'SupplierController@sendEmailBulk' )->name( 'supplier.email.send.bulk' );
     Route::get( 'supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages' );
     Route::post( 'supplier/flag', 'SupplierController@flag' )->name( 'supplier.flag' );
+    Route::post( 'supplier/getsuppliers', 'SupplierController@getsuppliers' )->name( 'supplier.getsuppliers' );
     Route::resource( 'supplier', 'SupplierController' );
     Route::resource( 'supplier-category', 'SupplierCategoryController' );
     Route::resource( 'supplier-status', 'SupplierStatusController' );
+
     // Agent Routes
     Route::resource( 'agent', 'AgentController' );
 } );

@@ -33,7 +33,7 @@
                   </select>
                 </div>
                   <div class="form-group ml-3">              
-                    <select name="supplier_category_id" class="form-control">
+                    <select name="supplierssuppliers" class="form-control">
                       <option value="">Select Category</option>
                       @foreach($suppliercategory as $category)
                         <option value="{{$category->id}}" {{ $category->id == $supplier_category_id ? 'selected' : '' }}>{{$category->name}}</option>
@@ -615,5 +615,18 @@
         });
 
     });
+
+    $(document).ready(function() {
+      $('#supplier_category_id2').on('change', function(){
+        var supplier_category_id = $('#supplier_category_id2').val();
+        var supplier_status_id = $('#supplier_status_id2').val();      
+        getSuppliers(supplier_category_id, supplier_status_id);  
+      });
+      $('#supplier_status_id2').on('change', function(){
+        var supplier_category_id = $('#supplier_category_id2').val();
+        var supplier_status_id = $('#supplier_status_id2').val();
+        getSuppliers(supplier_category_id, supplier_status_id);
+      });       
+  });
   </script>
 @endsection
