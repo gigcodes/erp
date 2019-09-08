@@ -107,4 +107,59 @@ class User extends Authenticatable
 	    return $this->hasManyThrough(AutoCommentHistory::class, 'users_auto_comment_histories', 'user_id', 'auto_comment_history_id', 'id');
     }
 
+     public function roles() {
+    	return $this->belongsToMany(Role::class);
+    }
+
+    public function permissions() {
+        return $this->belongsToMany(Permission::class);
+    }
+    
+    /**
+     * The attributes helps to check if User is Admin.
+     *
+     * @var array
+     */
+    public function isAdmin()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+        
+        if (in_array('Admin', $roles)) {
+                return true;
+        }
+    }
+
+    /**
+     * The attributes helps to check if User has Permission To Check Page.
+     *
+     * @var array
+     */
+    public function hasPermission($name)
+    {
+       
+        $url = explode('/', $name);
+        $model = $url[0];
+        $actions = end($url);
+        if($model == $actions){
+            $genUrl = $model;
+        }else{
+            $genUrl = $model.'-'.$actions;
+        }
+        
+        $permission = Permission::where('name',$genUrl)->first();
+        if(empty($permission)){
+            return true;
+        }
+        $role = $permission->getRoleIdsInArray();
+
+        $user_role = $this->roles()
+                              ->pluck('id')->unique()->toArray();
+        foreach ($user_role as $key => $value) {
+           if (in_array($value, $role)) {
+                return true;
+            }
+        }                       
+    }
+
+
 }

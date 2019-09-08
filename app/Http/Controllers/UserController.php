@@ -16,7 +16,8 @@ use App\Task;
 use App\Product;
 use App\Customer;
 use App\UserProduct;
-use Spatie\Permission\Models\Role;
+use App\Role;
+use App\Permission;
 use DB;
 use Hash;
 use Cache;
@@ -98,7 +99,7 @@ class UserController extends Controller
         $input['agent_role'] = implode(',', $input['agent_role']);
 
 		$user = User::create($input);
-		$user->assignRole($request->input('roles'));
+		$user->roles()->sync($request->input('roles'));
 
 
 		return redirect()->route('users.index')
@@ -164,7 +165,7 @@ class UserController extends Controller
 		$users = User::all();
 		$userRole = $user->roles->pluck('name','name')->all();
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-    $user_agent_roles = explode(',', $user->agent_role);
+    	$user_agent_roles = explode(',', $user->agent_role);
 		$api_keys = ApiKey::select('number')->get();
 		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
@@ -225,9 +226,11 @@ class UserController extends Controller
 //			$this->assignProducts($requestData, Auth::id());
 //		}
 
-		DB::table('model_has_roles')->where('model_id',$id)->delete();
-
-		$user->assignRole($request->input('roles'));
+		
+		$role = new Role;
+		$role_id = $role->getIdFromName($request->input('roles'));
+		
+		$user->roles()->sync($role_id);
 
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
